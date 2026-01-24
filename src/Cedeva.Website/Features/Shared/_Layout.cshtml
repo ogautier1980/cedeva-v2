@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="fr" class="h-100">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
@@ -10,9 +10,10 @@
     <!-- Font Awesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet" />
     <!-- Custom styles -->
+    <link rel="stylesheet" href="~/css/cedeva.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 </head>
-<body>
+<body class="d-flex flex-column h-100 bg-img">
     <div class="d-flex" id="wrapper">
         <!-- Sidebar -->
         <div class="bg-dark text-white" id="sidebar-wrapper" style="width: 250px; min-height: 100vh;">
@@ -66,10 +67,10 @@
         <!-- Page Content -->
         <div id="page-content-wrapper" class="w-100">
             <!-- Top Navigation -->
-            <nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom">
+            <nav class="navbar navbar-expand-lg navbar-dark bg-primary border-bottom">
                 <div class="container-fluid">
-                    <button class="btn btn-link" id="menu-toggle">
-                        <i class="fas fa-bars"></i>
+                    <button class="btn btn-link text-white" id="menu-toggle">
+                        <i class="fas fa-bars fa-white"></i>
                     </button>
                     <div class="collapse navbar-collapse">
                         <ul class="navbar-nav ms-auto">
@@ -147,9 +148,20 @@
             </nav>
 
             <!-- Main Content -->
-            <main class="p-4">
-                @RenderBody()
+            <main class="flex-shrink-0 p-4">
+                <div class="container-fluid">
+                    @RenderBody()
+                </div>
             </main>
+
+            <!-- Footer -->
+            <footer class="footer mt-auto py-3 bg-dark">
+                <div class="container">
+                    <span class="text-center txt-footer d-block">
+                        <small>&copy; @DateTime.Now.Year - Cedeva - <a class="text-reset" href="/Home/Privacy">Vie privée</a></small>
+                    </span>
+                </div>
+            </footer>
         </div>
     </div>
 
