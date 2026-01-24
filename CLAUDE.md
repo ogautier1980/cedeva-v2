@@ -28,7 +28,8 @@ docker-compose up -d
 
 ### Login Credentials (Seeded)
 - **Admin**: admin@cedeva.be / Admin@123456
-- **Coordinator**: coordinator@cedeva.be / Coord@123456
+- **Coordinator (Org 1)**: coordinator@cedeva.be / Coord@123456
+- **Coordinator (Org 2)**: coordinator.liege@cedeva.be / Coord@123456
 
 ## Architecture
 
@@ -75,23 +76,30 @@ src/
 - [x] TeamMembers - CRUD with roles, licenses, compensation tracking
 - [x] Organisations - Admin-only CRUD with address, logo
 
-### 🚧 Phase 3: Advanced Features (IN PROGRESS - 6/7 Complete)
+### ✅ Phase 3: Advanced Features (COMPLETED)
 - [x] **Dashboard & Navigation** - Sidebar menu, statistics, role-based access
 - [x] **Authentication** - Login, register, profile, lockout protection
 - [x] **Excel Export** - ClosedXML integration for all major entities
 - [x] **Email Sending** - Brevo integration with booking confirmation & welcome emails
 - [x] **Localization** - FR/NL/EN support with language switcher
 - [x] **Iframe Registration Form** - Public booking form with multi-step wizard, embeddable code
-- [ ] **Presence Management** - Daily attendance tracking with list printing
+- [x] **Presence Management** - Daily attendance tracking with list printing
 
 ## Key Technical Details
 
 ### Database Seeding
 Auto-seeding on startup includes:
 - Admin and Coordinator roles
-- Demo users (admin@cedeva.be, coordinator@cedeva.be)
-- Demo organisation "Plaine de Bossière"
+- Demo users (admin@cedeva.be, coordinator@cedeva.be, coordinator.liege@cedeva.be)
+- Two demo organisations:
+  - **Plaine de Bossière** (Gembloux) - Org 1
+  - **Centre Récréatif Les Aventuriers** (Liège) - Org 2
 - 150+ Belgian municipalities for address autocomplete
+- Realistic test data for each organisation (via TestDataSeeder):
+  - 25 parents with 1-3 children each (Belgian names, valid national register numbers)
+  - 12 team members with valid phone numbers
+  - 4 activities with days and groups
+  - Bookings for 60% of children
 
 ### Multi-tenancy Implementation
 All entities filtered by `OrganisationId` via EF Core:
@@ -140,6 +148,53 @@ Public booking form accessible without authentication at `/PublicRegistration/Se
 // Example: Get embed code for organisation 1
 // Navigate to: /PublicRegistration/EmbedCode?orgId=1
 // Copy generated iframe code to embed on external website
+```
+
+### Presence Management
+Daily attendance tracking feature at `/Presence`:
+- **Activity selection**: Card-based view of all active activities
+- **Day selection**: Choose specific activity day for attendance tracking
+- **Interactive list**: Real-time present count, check all/uncheck all functionality
+- **Printable format**: A4 print view with signature boxes for coordinators
+- **Workflow**: Index → SelectDay → List (with AJAX updates) → Print view
+```csharp
+// Presence tracking accessible at:
+// 1. /Presence - Select activity
+// 2. /Presence/SelectDay?activityId={id} - Select day
+// 3. /Presence/List?activityId={id}&dayId={dayId} - Mark attendance
+// 4. /Presence/Print?activityId={id}&dayId={dayId} - Print list
+```
+
+### Custom Claims Authentication
+Custom `CedevaUserClaimsPrincipalFactory` adds Role and OrganisationId claims:
+```csharp
+public class CedevaUserClaimsPrincipalFactory : UserClaimsPrincipalFactory<CedevaUser, IdentityRole>
+{
+    protected override async Task<ClaimsIdentity> GenerateClaimsAsync(CedevaUser user)
+    {
+        var identity = await base.GenerateClaimsAsync(user);
+        identity.AddClaim(new Claim("Role", user.Role.ToString()));
+        if (user.OrganisationId.HasValue)
+            identity.AddClaim(new Claim("OrganisationId", user.OrganisationId.Value.ToString()));
+        return identity;
+    }
+}
+```
+Registered in `Program.cs`: `.AddClaimsPrincipalFactory<CedevaUserClaimsPrincipalFactory>()`
+
+### Test Data Seeder
+Automatic seeding of realistic Belgian test data for all organisations:
+- **Belgian names**: Mix of French (Antoine, Emma) and Dutch (Lucas, Mila) names
+- **Valid national register numbers**: Format YY.MM.DD-XXX.YY with proper checksum
+- **Valid phone numbers**: Mobile (04XX XX XX XX) and landline (0X XXX XX XX)
+- **Intelligent seeding**: Only seeds if organisation has <10 parents/team members
+- **Multi-org support**: Loops through all organisations and seeds independently
+```csharp
+// Seeded for each organisation:
+// - 25 parents with 1-3 children each
+// - 12 team members (mix of roles and licenses)
+// - 4 activities with days and groups
+// - Bookings for ~60% of children with booking days
 ```
 
 ## Entity Quick Reference
