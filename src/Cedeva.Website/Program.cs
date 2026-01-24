@@ -86,6 +86,15 @@ try
     // Add HttpContextAccessor
     builder.Services.AddHttpContextAccessor();
 
+    // Add Session
+    builder.Services.AddDistributedMemoryCache();
+    builder.Services.AddSession(options =>
+    {
+        options.IdleTimeout = TimeSpan.FromMinutes(30);
+        options.Cookie.HttpOnly = true;
+        options.Cookie.IsEssential = true;
+    });
+
     // Add localization
     builder.Services.AddLocalization(options => options.ResourcesPath = "Localization");
     builder.Services.Configure<RequestLocalizationOptions>(options =>
@@ -128,6 +137,7 @@ try
     app.UseStaticFiles();
     app.UseRouting();
     app.UseRequestLocalization();
+    app.UseSession();
     app.UseAuthentication();
     app.UseAuthorization();
 
