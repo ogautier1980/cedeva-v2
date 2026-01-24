@@ -52,8 +52,12 @@ public class BookingsController : Controller
             return BadRequest(ModelState);
         }
 
-        var allBookings = await _bookingRepository.GetAllAsync();
-        var query = allBookings.AsQueryable();
+        var query = _context.Bookings
+            .Include(b => b.Child)
+                .ThenInclude(c => c.Parent)
+            .Include(b => b.Activity)
+            .Include(b => b.Group)
+            .AsQueryable();
 
         if (!string.IsNullOrEmpty(searchString))
         {
@@ -94,11 +98,11 @@ public class BookingsController : Controller
                 GroupId = b.GroupId,
                 IsConfirmed = b.IsConfirmed,
                 IsMedicalSheet = b.IsMedicalSheet,
-                ChildFullName = b.Child.FirstName + " " + b.Child.LastName,
-                ParentFullName = b.Child.Parent.FirstName + " " + b.Child.Parent.LastName,
-                ActivityName = b.Activity.Name,
-                ActivityStartDate = b.Activity.StartDate,
-                ActivityEndDate = b.Activity.EndDate,
+                ChildFullName = b.Child != null ? b.Child.FirstName + " " + b.Child.LastName : "N/A",
+                ParentFullName = b.Child != null && b.Child.Parent != null ? b.Child.Parent.FirstName + " " + b.Child.Parent.LastName : "N/A",
+                ActivityName = b.Activity != null ? b.Activity.Name : "N/A",
+                ActivityStartDate = b.Activity != null ? b.Activity.StartDate : DateTime.MinValue,
+                ActivityEndDate = b.Activity != null ? b.Activity.EndDate : DateTime.MinValue,
                 GroupLabel = b.Group != null ? b.Group.Label : null
             })
             .ToList();
