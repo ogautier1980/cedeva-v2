@@ -1,0 +1,81 @@
+@model Cedeva.Website.Features.Users.ViewModels.UserViewModel
+
+@{
+    ViewData["Title"] = "Supprimer l'utilisateur";
+}
+
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <div class="card shadow border-danger">
+            <div class="card-header bg-danger text-white">
+                <h5 class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i>Supprimer l'utilisateur</h5>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-danger" role="alert">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <strong>Attention !</strong> Vous êtes sur le point de supprimer cet utilisateur. Cette action est irréversible.
+                </div>
+
+                <h6 class="mb-3">Voulez-vous vraiment supprimer cet utilisateur ?</h6>
+
+                <dl class="row">
+                    <dt class="col-sm-3">Nom complet</dt>
+                    <dd class="col-sm-9">@Model.FirstName @Model.LastName</dd>
+
+                    <dt class="col-sm-3">Email</dt>
+                    <dd class="col-sm-9">@Model.Email</dd>
+
+                    <dt class="col-sm-3">Organisation</dt>
+                    <dd class="col-sm-9">
+                        @if (!string.IsNullOrEmpty(Model.OrganisationName))
+                        {
+                            @Model.OrganisationName
+                        }
+                        else
+                        {
+                            <em class="text-muted">Aucune organisation</em>
+                        }
+                    </dd>
+
+                    <dt class="col-sm-3">Rôle</dt>
+                    <dd class="col-sm-9">
+                        @if (Model.Role == Cedeva.Core.Enums.Role.Admin)
+                        {
+                            <span class="badge bg-danger">Administrateur</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-info">Coordinateur</span>
+                        }
+                    </dd>
+
+                    <dt class="col-sm-3">Statut</dt>
+                    <dd class="col-sm-9">
+                        @if (Model.IsLockedOut)
+                        {
+                            <span class="badge bg-danger">Verrouillé</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-success">Actif</span>
+                        }
+                    </dd>
+                </dl>
+
+                <form asp-action="Delete" method="post" class="mt-4">
+                    <input type="hidden" asp-for="Id" />
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+                    <div class="d-flex justify-content-between">
+                        <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-secondary">
+                            <i class="fas fa-times me-1"></i>Annuler
+                        </a>
+                        <button type="submit" class="btn btn-danger">
+                            <i class="fas fa-trash me-1"></i>Confirmer la suppression
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

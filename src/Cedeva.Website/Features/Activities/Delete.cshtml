@@ -1,0 +1,68 @@
+@model Cedeva.Website.Features.Activities.ViewModels.ActivityViewModel
+@{
+    ViewData["Title"] = "Supprimer l'activité";
+}
+
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="card shadow">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i>Confirmer la suppression</h5>
+                </div>
+                <div class="card-body">
+                    <p class="lead">Êtes-vous sûr de vouloir supprimer cette activité ?</p>
+
+                    <dl class="row">
+                        <dt class="col-sm-4">Nom</dt>
+                        <dd class="col-sm-8">@Model.Name</dd>
+
+                        <dt class="col-sm-4">Organisation</dt>
+                        <dd class="col-sm-8">@Model.OrganisationName</dd>
+
+                        <dt class="col-sm-4">Dates</dt>
+                        <dd class="col-sm-8">@Model.StartDate.ToString("dd/MM/yyyy") - @Model.EndDate.ToString("dd/MM/yyyy")</dd>
+
+                        <dt class="col-sm-4">Inscriptions</dt>
+                        <dd class="col-sm-8">
+                            @if (Model.BookingsCount > 0)
+                            {
+                                <span class="badge bg-warning text-dark">@Model.BookingsCount inscription(s)</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">Aucune</span>
+                            }
+                        </dd>
+                    </dl>
+
+                    @if (Model.BookingsCount > 0)
+                    {
+                        <div class="alert alert-warning">
+                            <i class="fas fa-exclamation-circle me-2"></i>
+                            Cette activité contient des inscriptions. La suppression n'est pas possible.
+                        </div>
+                    }
+
+                    <hr />
+
+                    <div class="d-flex justify-content-between">
+                        <a asp-action="Index" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>Annuler
+                        </a>
+
+                        @if (Model.BookingsCount == 0)
+                        {
+                            <form asp-action="Delete" method="post">
+                                <input type="hidden" asp-for="Id" />
+                                <button type="submit" class="btn btn-danger">
+                                    <i class="fas fa-trash me-2"></i>Supprimer définitivement
+                                </button>
+                            </form>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

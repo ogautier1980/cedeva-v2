@@ -1,0 +1,103 @@
+@model Cedeva.Website.Features.Parents.ViewModels.ParentViewModel
+@{
+    ViewData["Title"] = "Modifier le parent";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card shadow">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-edit me-2"></i>Modifier le parent</h5>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Edit" method="post">
+                        <input type="hidden" asp-for="Id" />
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+                        <h6 class="mb-3 text-primary"><i class="fas fa-user me-2"></i>Informations personnelles</h6>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="FirstName" class="form-label"></label>
+                                <input asp-for="FirstName" class="form-control" />
+                                <span asp-validation-for="FirstName" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="LastName" class="form-label"></label>
+                                <input asp-for="LastName" class="form-control" />
+                                <span asp-validation-for="LastName" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="NationalRegisterNumber" class="form-label"></label>
+                            <input asp-for="NationalRegisterNumber" class="form-control" placeholder="YY.MM.DD-XXX.XX" />
+                            <span asp-validation-for="NationalRegisterNumber" class="text-danger"></span>
+                        </div>
+
+                        <h6 class="mb-3 mt-4 text-primary"><i class="fas fa-phone me-2"></i>Contact</h6>
+
+                        <div class="mb-3">
+                            <label asp-for="Email" class="form-label"></label>
+                            <input asp-for="Email" type="email" class="form-control" />
+                            <span asp-validation-for="Email" class="text-danger"></span>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="MobilePhoneNumber" class="form-label"></label>
+                                <input asp-for="MobilePhoneNumber" class="form-control" placeholder="+32 4XX XX XX XX" />
+                                <span asp-validation-for="MobilePhoneNumber" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="PhoneNumber" class="form-label"></label>
+                                <input asp-for="PhoneNumber" class="form-control" placeholder="+32 XX XX XX XX" />
+                                <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <h6 class="mb-3 mt-4 text-primary"><i class="fas fa-map-marker-alt me-2"></i>Adresse</h6>
+
+                        <div class="mb-3">
+                            <label asp-for="Street" class="form-label"></label>
+                            <input asp-for="Street" class="form-control" placeholder="Rue et numéro" />
+                            <span asp-validation-for="Street" class="text-danger"></span>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label asp-for="PostalCode" class="form-label"></label>
+                                <input asp-for="PostalCode" type="number" class="form-control" />
+                                <span asp-validation-for="PostalCode" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-8 mb-3">
+                                <label asp-for="City" class="form-label"></label>
+                                <input asp-for="City" class="form-control" />
+                                <span asp-validation-for="City" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <input type="hidden" asp-for="Country" />
+                        <input type="hidden" asp-for="OrganisationId" />
+
+                        <hr />
+
+                        <div class="d-flex justify-content-between">
+                            <a asp-action="Index" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>Annuler
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i>Enregistrer
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

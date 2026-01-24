@@ -1,0 +1,157 @@
+@model Cedeva.Website.Features.Bookings.ViewModels.BookingViewModel
+@{
+    ViewData["Title"] = "Détails de l'inscription";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card shadow">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="fas fa-clipboard-list me-2"></i>Détails de l'inscription</h5>
+                    <div>
+                        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-sm btn-primary">
+                            <i class="fas fa-edit me-1"></i>Modifier
+                        </a>
+                        <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-sm btn-danger">
+                            <i class="fas fa-trash me-1"></i>Supprimer
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <h6 class="mb-3 text-primary"><i class="fas fa-info-circle me-2"></i>Informations générales</h6>
+
+                    <dl class="row">
+                        <dt class="col-sm-4">Date d'inscription</dt>
+                        <dd class="col-sm-8">@Model.BookingDate.ToString("dd/MM/yyyy")</dd>
+
+                        <dt class="col-sm-4">Enfant</dt>
+                        <dd class="col-sm-8">
+                            <a asp-controller="Children" asp-action="Details" asp-route-id="@Model.ChildId">
+                                <i class="fas fa-child me-1"></i>@Model.ChildFullName
+                            </a>
+                        </dd>
+
+                        <dt class="col-sm-4">Parent</dt>
+                        <dd class="col-sm-8">
+                            <i class="fas fa-user me-1"></i>@Model.ParentFullName
+                        </dd>
+
+                        <dt class="col-sm-4">Activité</dt>
+                        <dd class="col-sm-8">
+                            <a asp-controller="Activities" asp-action="Details" asp-route-id="@Model.ActivityId">
+                                <strong>@Model.ActivityName</strong>
+                            </a><br />
+                            <small class="text-muted">
+                                <i class="fas fa-calendar me-1"></i>
+                                @Model.ActivityStartDate?.ToString("dd/MM/yyyy") - @Model.ActivityEndDate?.ToString("dd/MM/yyyy")
+                            </small>
+                        </dd>
+
+                        @if (!string.IsNullOrEmpty(Model.GroupLabel))
+                        {
+                            <dt class="col-sm-4">Groupe</dt>
+                            <dd class="col-sm-8">
+                                <span class="badge bg-secondary">@Model.GroupLabel</span>
+                            </dd>
+                        }
+                    </dl>
+
+                    <hr />
+
+                    <h6 class="mb-3 text-primary"><i class="fas fa-check-circle me-2"></i>Statut</h6>
+
+                    <dl class="row">
+                        <dt class="col-sm-4">Confirmation</dt>
+                        <dd class="col-sm-8">
+                            <span class="badge @(Model.IsConfirmed ? "bg-success" : "bg-warning")">
+                                @(Model.IsConfirmed ? "Confirmée" : "En attente")
+                            </span>
+                        </dd>
+
+                        <dt class="col-sm-4">Fiche médicale</dt>
+                        <dd class="col-sm-8">
+                            @if (Model.IsMedicalSheet)
+                            {
+                                <span class="badge bg-success">
+                                    <i class="fas fa-check me-1"></i>Reçue
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-danger">
+                                    <i class="fas fa-times me-1"></i>Non reçue
+                                </span>
+                            }
+                        </dd>
+                    </dl>
+
+                    <hr />
+
+                    <div class="mt-4">
+                        <a asp-action="Index" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>Retour à la liste
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card shadow">
+                <div class="card-header">
+                    <h6 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Statistiques</h6>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                            <span><i class="fas fa-calendar-day me-2 text-primary"></i>Jours réservés</span>
+                            <span class="badge bg-primary rounded-pill">@Model.DaysCount</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                            <span><i class="fas fa-question-circle me-2 text-info"></i>Réponses aux questions</span>
+                            <span class="badge bg-info rounded-pill">@Model.QuestionAnswersCount</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            @if (!Model.IsConfirmed)
+            {
+                <div class="card shadow mt-3">
+                    <div class="card-header bg-warning">
+                        <h6 class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i>Action requise</h6>
+                    </div>
+                    <div class="card-body">
+                        <p class="mb-2">Cette inscription n'est pas encore confirmée.</p>
+                        <form asp-action="Edit" method="post">
+                            <input type="hidden" name="Id" value="@Model.Id" />
+                            <input type="hidden" name="BookingDate" value="@Model.BookingDate.ToString("yyyy-MM-dd")" />
+                            <input type="hidden" name="ChildId" value="@Model.ChildId" />
+                            <input type="hidden" name="ActivityId" value="@Model.ActivityId" />
+                            <input type="hidden" name="GroupId" value="@Model.GroupId" />
+                            <input type="hidden" name="IsConfirmed" value="true" />
+                            <input type="hidden" name="IsMedicalSheet" value="@Model.IsMedicalSheet" />
+                            <button type="submit" class="btn btn-success w-100">
+                                <i class="fas fa-check me-2"></i>Confirmer l'inscription
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            }
+
+            @if (!Model.IsMedicalSheet)
+            {
+                <div class="card shadow mt-3">
+                    <div class="card-header bg-danger text-white">
+                        <h6 class="mb-0"><i class="fas fa-file-medical me-2"></i>Fiche médicale</h6>
+                    </div>
+                    <div class="card-body">
+                        <p class="mb-2">La fiche médicale n'a pas été reçue.</p>
+                        <div class="form-text mb-2">Contactez le parent pour demander la fiche médicale.</div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>

@@ -1,0 +1,179 @@
+/* Cedeva Custom Styles */
+
+/* Sidebar Toggle */
+#wrapper.toggled #sidebar-wrapper {
+    margin-left: -250px;
+}
+
+/* Card borders */
+.border-left-primary {
+    border-left: 4px solid #4e73df !important;
+}
+
+.border-left-success {
+    border-left: 4px solid #1cc88a !important;
+}
+
+.border-left-info {
+    border-left: 4px solid #36b9cc !important;
+}
+
+.border-left-warning {
+    border-left: 4px solid #f6c23e !important;
+}
+
+/* Text utilities */
+.text-xs {
+    font-size: 0.7rem;
+}
+
+.text-gray-300 {
+    color: #dddfeb !important;
+}
+
+.text-gray-800 {
+    color: #5a5c69 !important;
+}
+
+/* Sidebar styling */
+#sidebar-wrapper .list-group-item:hover {
+    background-color: #343a40 !important;
+}
+
+#sidebar-wrapper .list-group-item.active {
+    background-color: #495057 !important;
+    border-color: #495057 !important;
+}
+
+/* Responsive sidebar */
+@media (max-width: 768px) {
+    #sidebar-wrapper {
+        margin-left: -250px;
+    }
+
+    #wrapper.toggled #sidebar-wrapper {
+        margin-left: 0;
+    }
+}
+
+/* Form styling */
+.form-control:focus {
+    border-color: #4e73df;
+    box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
+}
+
+/* Button styling */
+.btn-primary {
+    background-color: #4e73df;
+    border-color: #4e73df;
+}
+
+.btn-primary:hover {
+    background-color: #2e59d9;
+    border-color: #2653d4;
+}
+
+/* Card improvements */
+.card {
+    border-radius: 0.35rem;
+    box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+}
+
+.card-header {
+    background-color: #f8f9fc;
+    border-bottom: 1px solid #e3e6f0;
+}
+
+/* Badge improvements */
+.badge {
+    font-weight: 600;
+    padding: 0.35rem 0.65rem;
+}
+
+/* Table improvements */
+.table {
+    color: #5a5c69;
+}
+
+.table thead th {
+    background-color: #f8f9fc;
+    border-bottom: 2px solid #e3e6f0;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    color: #858796;
+}
+
+.table-hover tbody tr:hover {
+    background-color: #f2f4f8;
+}
+
+/* Alert improvements */
+.alert {
+    border-left: 4px solid;
+    border-radius: 0.35rem;
+}
+
+.alert-success {
+    border-left-color: #1cc88a;
+    background-color: #d4edda;
+}
+
+.alert-danger {
+    border-left-color: #e74a3b;
+    background-color: #f8d7da;
+}
+
+.alert-info {
+    border-left-color: #36b9cc;
+    background-color: #d1ecf1;
+}
+
+.alert-warning {
+    border-left-color: #f6c23e;
+    background-color: #fff3cd;
+}
+
+/* Page title */
+h2 {
+    color: #5a5c69;
+    font-weight: 400;
+}
+
+/* Dropdown menu improvements */
+.dropdown-menu {
+    border: none;
+    box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+}
+
+/* Pagination improvements */
+.pagination .page-link {
+    color: #4e73df;
+    border-color: #dddfeb;
+}
+
+.pagination .page-item.active .page-link {
+    background-color: #4e73df;
+    border-color: #4e73df;
+}
+
+.pagination .page-link:hover {
+    background-color: #eaecf4;
+    border-color: #dddfeb;
+}
+
+/* Form improvements */
+.form-label {
+    font-weight: 600;
+    color: #5a5c69;
+    margin-bottom: 0.5rem;
+}
+
+/* Statistics cards */
+.stats-card {
+    transition: transform 0.2s;
+}
+
+.stats-card:hover {
+    transform: translateY(-2px);
+}

@@ -1,0 +1,147 @@
+@model Cedeva.Website.Features.TeamMembers.ViewModels.TeamMemberViewModel
+@{
+    ViewData["Title"] = "Ajouter un membre d'équipe";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-lg-10">
+            <div class="card shadow">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-user-tie me-2"></i>Ajouter un membre d'équipe</h5>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Create" method="post">
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+                        <h6 class="mb-3 text-primary"><i class="fas fa-user me-2"></i>Informations personnelles</h6>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="FirstName" class="form-label"></label>
+                                <input asp-for="FirstName" class="form-control" />
+                                <span asp-validation-for="FirstName" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="LastName" class="form-label"></label>
+                                <input asp-for="LastName" class="form-control" />
+                                <span asp-validation-for="LastName" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="NationalRegisterNumber" class="form-label"></label>
+                                <input asp-for="NationalRegisterNumber" class="form-control" placeholder="YY.MM.DD-XXX.XX" />
+                                <span asp-validation-for="NationalRegisterNumber" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="BirthDate" class="form-label"></label>
+                                <input asp-for="BirthDate" type="date" class="form-control" />
+                                <span asp-validation-for="BirthDate" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <h6 class="mb-3 mt-4 text-primary"><i class="fas fa-phone me-2"></i>Contact</h6>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Email" class="form-label"></label>
+                                <input asp-for="Email" type="email" class="form-control" />
+                                <span asp-validation-for="Email" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="MobilePhoneNumber" class="form-label"></label>
+                                <input asp-for="MobilePhoneNumber" class="form-control" placeholder="+32 4XX XX XX XX" />
+                                <span asp-validation-for="MobilePhoneNumber" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <h6 class="mb-3 mt-4 text-primary"><i class="fas fa-map-marker-alt me-2"></i>Adresse</h6>
+
+                        <div class="mb-3">
+                            <label asp-for="Street" class="form-label"></label>
+                            <input asp-for="Street" class="form-control" placeholder="Rue et numéro" />
+                            <span asp-validation-for="Street" class="text-danger"></span>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label asp-for="PostalCode" class="form-label"></label>
+                                <input asp-for="PostalCode" type="number" class="form-control" />
+                                <span asp-validation-for="PostalCode" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-8 mb-3">
+                                <label asp-for="City" class="form-label"></label>
+                                <input asp-for="City" class="form-control" />
+                                <span asp-validation-for="City" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <h6 class="mb-3 mt-4 text-primary"><i class="fas fa-briefcase me-2"></i>Informations professionnelles</h6>
+
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label asp-for="TeamRole" class="form-label"></label>
+                                <select asp-for="TeamRole" class="form-select" asp-items="Html.GetEnumSelectList<Cedeva.Core.Enums.TeamRole>()">
+                                    <option value="">-- Sélectionnez un rôle --</option>
+                                </select>
+                                <span asp-validation-for="TeamRole" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label asp-for="License" class="form-label"></label>
+                                <select asp-for="License" class="form-select" asp-items="Html.GetEnumSelectList<Cedeva.Core.Enums.License>()">
+                                    <option value="">-- Sélectionnez un brevet --</option>
+                                </select>
+                                <span asp-validation-for="License" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label asp-for="Status" class="form-label"></label>
+                                <select asp-for="Status" class="form-select" asp-items="Html.GetEnumSelectList<Cedeva.Core.Enums.Status>()">
+                                    <option value="">-- Sélectionnez un statut --</option>
+                                </select>
+                                <span asp-validation-for="Status" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="LicenseUrl" class="form-label"></label>
+                                <input asp-for="LicenseUrl" class="form-control" placeholder="https://..." />
+                                <span asp-validation-for="LicenseUrl" class="text-danger"></span>
+                                <div class="form-text">URL du document de brevet scanné</div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="DailyCompensation" class="form-label"></label>
+                                <div class="input-group">
+                                    <input asp-for="DailyCompensation" type="number" step="0.01" class="form-control" />
+                                    <span class="input-group-text">€</span>
+                                </div>
+                                <span asp-validation-for="DailyCompensation" class="text-danger"></span>
+                                <div class="form-text">Indemnité journalière (optionnel)</div>
+                            </div>
+                        </div>
+
+                        <input type="hidden" asp-for="Country" />
+                        <input type="hidden" asp-for="OrganisationId" />
+
+                        <hr />
+
+                        <div class="d-flex justify-content-between">
+                            <a asp-action="Index" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>Annuler
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i>Enregistrer
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

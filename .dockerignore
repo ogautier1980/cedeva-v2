@@ -1,0 +1,16 @@
+**/.dockerignore
+**/.git
+**/.gitignore
+**/.vs
+**/.vscode
+**/.idea
+**/bin
+**/obj
+**/Dockerfile*
+**/docker-compose*
+**/node_modules
+**/*.md
+**/README.md
+**/.env
+**/appsettings.*.json
+!**/appsettings.json

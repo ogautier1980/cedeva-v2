@@ -1,0 +1,134 @@
+using Autofac;
+using Autofac.Extensions.DependencyInjection;
+using Cedeva.Core.Entities;
+using Cedeva.Core.Interfaces;
+using Cedeva.Infrastructure.Data;
+using Cedeva.Infrastructure.Services;
+using Cedeva.Infrastructure.Services.Email;
+using Cedeva.Infrastructure.Services.Storage;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using Serilog;
+
+Log.Logger = new LoggerConfiguration()
+    .WriteTo.Console()
+    .CreateBootstrapLogger();
+
+try
+{
+    Log.Information("Starting Cedeva application");
+
+    var builder = WebApplication.CreateBuilder(args);
+
+    // Configure Serilog
+    builder.Host.UseSerilog((context, services, configuration) => configuration
+        .ReadFrom.Configuration(context.Configuration)
+        .ReadFrom.Services(services)
+        .Enrich.FromLogContext()
+        .WriteTo.Console());
+
+    // Configure Autofac
+    builder.Host.UseServiceProviderFactory(new AutofacServiceProviderFactory());
+    builder.Host.ConfigureContainer<ContainerBuilder>(containerBuilder =>
+    {
+        // Register services
+        containerBuilder.RegisterType<CurrentUserService>().As<ICurrentUserService>().InstancePerLifetimeScope();
+        containerBuilder.RegisterType<BrevoEmailService>().As<IEmailService>().InstancePerLifetimeScope();
+        containerBuilder.RegisterType<AzureBlobStorageService>().As<IStorageService>().InstancePerLifetimeScope();
+        containerBuilder.RegisterType<UnitOfWork>().As<IUnitOfWork>().InstancePerLifetimeScope();
+        containerBuilder.RegisterGeneric(typeof(Repository<>)).As(typeof(IRepository<>)).InstancePerLifetimeScope();
+    });
+
+    // Add DbContext
+    builder.Services.AddDbContext<CedevaDbContext>(options =>
+        options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+    // Add Identity
+    builder.Services.AddIdentity<CedevaUser, IdentityRole>(options =>
+    {
+        options.Password.RequireDigit = true;
+        options.Password.RequireLowercase = true;
+        options.Password.RequireUppercase = true;
+        options.Password.RequireNonAlphanumeric = false;
+        options.Password.RequiredLength = 8;
+        options.User.RequireUniqueEmail = true;
+    })
+    .AddEntityFrameworkStores<CedevaDbContext>()
+    .AddDefaultTokenProviders();
+
+    // Configure cookie
+    builder.Services.ConfigureApplicationCookie(options =>
+    {
+        options.LoginPath = "/Account/Login";
+        options.LogoutPath = "/Account/Logout";
+        options.AccessDeniedPath = "/Account/AccessDenied";
+        options.ExpireTimeSpan = TimeSpan.FromDays(7);
+        options.SlidingExpiration = true;
+    });
+
+    // Add MVC with feature folders
+    builder.Services.AddControllersWithViews()
+        .AddRazorOptions(options =>
+        {
+            // Feature folder view locations
+            options.ViewLocationFormats.Clear();
+            options.ViewLocationFormats.Add("/Features/{1}/{0}.cshtml");
+            options.ViewLocationFormats.Add("/Features/Shared/{0}.cshtml");
+            options.ViewLocationFormats.Add("/Features/Shared/Layouts/{0}.cshtml");
+            options.ViewLocationFormats.Add("/Features/Shared/Components/{0}.cshtml");
+        });
+
+    // Add HttpContextAccessor
+    builder.Services.AddHttpContextAccessor();
+
+    // Add localization
+    builder.Services.AddLocalization(options => options.ResourcesPath = "Localization/Resources");
+    builder.Services.Configure<RequestLocalizationOptions>(options =>
+    {
+        var supportedCultures = new[] { "fr", "nl", "en" };
+        options.SetDefaultCulture("fr")
+            .AddSupportedCultures(supportedCultures)
+            .AddSupportedUICultures(supportedCultures);
+    });
+
+    // Add DbSeeder
+    builder.Services.AddScoped<DbSeeder>();
+
+    var app = builder.Build();
+
+    // Seed database
+    using (var scope = app.Services.CreateScope())
+    {
+        var seeder = scope.ServiceProvider.GetRequiredService<DbSeeder>();
+        await seeder.SeedAsync();
+    }
+
+    // Configure the HTTP request pipeline
+    if (!app.Environment.IsDevelopment())
+    {
+        app.UseExceptionHandler("/Home/Error");
+        app.UseHsts();
+    }
+
+    app.UseSerilogRequestLogging();
+    app.UseHttpsRedirection();
+    app.UseStaticFiles();
+    app.UseRouting();
+    app.UseRequestLocalization();
+    app.UseAuthentication();
+    app.UseAuthorization();
+
+    app.MapControllerRoute(
+        name: "default",
+        pattern: "{controller=Home}/{action=Index}/{id?}");
+
+    await app.RunAsync();
+}
+catch (Exception ex)
+{
+    Log.Fatal(ex, "Application terminated unexpectedly");
+}
+finally
+{
+    await Log.CloseAndFlushAsync();
+}

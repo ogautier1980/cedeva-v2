@@ -1,0 +1,145 @@
+@model Cedeva.Website.Features.TeamMembers.ViewModels.TeamMemberViewModel
+@{
+    ViewData["Title"] = "Détails du membre d'équipe";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card shadow">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="fas fa-user-tie me-2"></i>Détails du membre d'équipe</h5>
+                    <div>
+                        <a asp-action="Edit" asp-route-id="@Model.TeamMemberId" class="btn btn-sm btn-primary">
+                            <i class="fas fa-edit me-1"></i>Modifier
+                        </a>
+                        <a asp-action="Delete" asp-route-id="@Model.TeamMemberId" class="btn btn-sm btn-danger">
+                            <i class="fas fa-trash me-1"></i>Supprimer
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <h6 class="mb-3 text-primary"><i class="fas fa-user me-2"></i>Informations personnelles</h6>
+
+                    <dl class="row">
+                        <dt class="col-sm-4">Prénom</dt>
+                        <dd class="col-sm-8">@Model.FirstName</dd>
+
+                        <dt class="col-sm-4">Nom</dt>
+                        <dd class="col-sm-8">@Model.LastName</dd>
+
+                        <dt class="col-sm-4">Date de naissance</dt>
+                        <dd class="col-sm-8">
+                            @Model.BirthDate.ToString("dd/MM/yyyy")
+                            <span class="badge bg-info ms-2">@((DateTime.Now.Year - Model.BirthDate.Year)) ans</span>
+                        </dd>
+
+                        <dt class="col-sm-4">Numéro de registre national</dt>
+                        <dd class="col-sm-8">@Model.NationalRegisterNumber</dd>
+                    </dl>
+
+                    <hr />
+
+                    <h6 class="mb-3 text-primary"><i class="fas fa-phone me-2"></i>Contact</h6>
+
+                    <dl class="row">
+                        <dt class="col-sm-4">Email</dt>
+                        <dd class="col-sm-8">
+                            <a href="mailto:@Model.Email">@Model.Email</a>
+                        </dd>
+
+                        <dt class="col-sm-4">GSM</dt>
+                        <dd class="col-sm-8">
+                            <a href="tel:@Model.MobilePhoneNumber">@Model.MobilePhoneNumber</a>
+                        </dd>
+                    </dl>
+
+                    <hr />
+
+                    <h6 class="mb-3 text-primary"><i class="fas fa-map-marker-alt me-2"></i>Adresse</h6>
+
+                    <dl class="row">
+                        <dt class="col-sm-4">Rue</dt>
+                        <dd class="col-sm-8">@Model.Street</dd>
+
+                        <dt class="col-sm-4">Code postal</dt>
+                        <dd class="col-sm-8">@Model.PostalCode</dd>
+
+                        <dt class="col-sm-4">Ville</dt>
+                        <dd class="col-sm-8">@Model.City</dd>
+
+                        <dt class="col-sm-4">Pays</dt>
+                        <dd class="col-sm-8">@Model.Country</dd>
+                    </dl>
+
+                    <hr />
+
+                    <h6 class="mb-3 text-primary"><i class="fas fa-briefcase me-2"></i>Informations professionnelles</h6>
+
+                    <dl class="row">
+                        <dt class="col-sm-4">Rôle</dt>
+                        <dd class="col-sm-8">
+                            <span class="badge @(Model.TeamRole == Cedeva.Core.Enums.TeamRole.Coordinator ? "bg-success" : "bg-primary")">
+                                @Model.TeamRole
+                            </span>
+                        </dd>
+
+                        <dt class="col-sm-4">Brevet</dt>
+                        <dd class="col-sm-8">
+                            <span class="badge @(Model.License == Cedeva.Core.Enums.License.License ? "bg-success" : "bg-warning")">
+                                @Model.License
+                            </span>
+                            @if (!string.IsNullOrEmpty(Model.LicenseUrl))
+                            {
+                                <a href="@Model.LicenseUrl" target="_blank" class="ms-2">
+                                    <i class="fas fa-external-link-alt"></i> Voir le document
+                                </a>
+                            }
+                        </dd>
+
+                        <dt class="col-sm-4">Statut</dt>
+                        <dd class="col-sm-8">
+                            <span class="badge @(Model.Status == Cedeva.Core.Enums.Status.Compensated ? "bg-info" : "bg-secondary")">
+                                @(Model.Status == Cedeva.Core.Enums.Status.Compensated ? "Rémunéré" : "Bénévole")
+                            </span>
+                        </dd>
+
+                        @if (Model.DailyCompensation.HasValue)
+                        {
+                            <dt class="col-sm-4">Indemnité journalière</dt>
+                            <dd class="col-sm-8">@Model.DailyCompensation.Value.ToString("C")</dd>
+                        }
+                    </dl>
+
+                    <hr />
+
+                    <div class="mt-4">
+                        <a asp-action="Index" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>Retour à la liste
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card shadow">
+                <div class="card-header">
+                    <h6 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Statistiques</h6>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                            <span><i class="fas fa-calendar-alt me-2 text-primary"></i>Activités</span>
+                            <span class="badge bg-primary rounded-pill">@Model.ActivitiesCount</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                            <span><i class="fas fa-receipt me-2 text-success"></i>Frais</span>
+                            <span class="badge bg-success rounded-pill">@Model.ExpensesCount</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

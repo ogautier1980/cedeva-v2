@@ -1,0 +1,345 @@
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Cedeva.Core.Entities;
+using Cedeva.Core.Interfaces;
+using Cedeva.Website.Features.TeamMembers.ViewModels;
+using Cedeva.Infrastructure.Data;
+
+namespace Cedeva.Website.Features.TeamMembers;
+
+[Authorize]
+public class TeamMembersController : Controller
+{
+    private readonly IRepository<TeamMember> _teamMemberRepository;
+    private readonly IRepository<Address> _addressRepository;
+    private readonly CedevaDbContext _context;
+    private readonly ICurrentUserService _currentUserService;
+    private readonly IUnitOfWork _unitOfWork;
+
+    public TeamMembersController(
+        IRepository<TeamMember> teamMemberRepository,
+        IRepository<Address> addressRepository,
+        CedevaDbContext context,
+        ICurrentUserService currentUserService,
+        IUnitOfWork unitOfWork)
+    {
+        _teamMemberRepository = teamMemberRepository;
+        _addressRepository = addressRepository;
+        _context = context;
+        _currentUserService = currentUserService;
+        _unitOfWork = unitOfWork;
+    }
+
+    // GET: TeamMembers
+    public async Task<IActionResult> Index(string searchString, int pageNumber = 1, int pageSize = 10)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
+        var allTeamMembers = await _teamMemberRepository.GetAllAsync();
+        var query = allTeamMembers.AsQueryable();
+
+        if (!string.IsNullOrEmpty(searchString))
+        {
+            query = query.Where(t =>
+                t.FirstName.Contains(searchString, StringComparison.OrdinalIgnoreCase) ||
+                t.LastName.Contains(searchString, StringComparison.OrdinalIgnoreCase) ||
+                t.Email.Contains(searchString, StringComparison.OrdinalIgnoreCase));
+        }
+
+        var totalItems = query.Count();
+        var totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
+
+        var teamMembers = query
+            .OrderBy(t => t.LastName)
+            .ThenBy(t => t.FirstName)
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
+            .Select(t => new TeamMemberViewModel
+            {
+                TeamMemberId = t.TeamMemberId,
+                FirstName = t.FirstName,
+                LastName = t.LastName,
+                Email = t.Email,
+                MobilePhoneNumber = t.MobilePhoneNumber,
+                TeamRole = t.TeamRole,
+                License = t.License,
+                Status = t.Status,
+                OrganisationId = t.OrganisationId
+            })
+            .ToList();
+
+        ViewData["SearchString"] = searchString;
+        ViewData["PageNumber"] = pageNumber;
+        ViewData["PageSize"] = pageSize;
+        ViewData["TotalPages"] = totalPages;
+        ViewData["TotalItems"] = totalItems;
+
+        return View(teamMembers);
+    }
+
+    // GET: TeamMembers/Details/5
+    public async Task<IActionResult> Details(int id)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
+        var viewModel = await GetTeamMemberViewModelAsync(id);
+
+        if (viewModel == null)
+        {
+            return NotFound();
+        }
+
+        return View(viewModel);
+    }
+
+    // GET: TeamMembers/Create
+    public IActionResult Create()
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
+        var viewModel = new TeamMemberViewModel
+        {
+            Country = Core.Enums.Country.Belgium,
+            OrganisationId = _currentUserService.OrganisationId ?? 0,
+            BirthDate = DateTime.Today.AddYears(-25) // Default age
+        };
+
+        return View(viewModel);
+    }
+
+    // POST: TeamMembers/Create
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Create(TeamMemberViewModel viewModel)
+    {
+        if (ModelState.IsValid)
+        {
+            // Create Address first
+            var address = new Address
+            {
+                Street = viewModel.Street,
+                City = viewModel.City,
+                PostalCode = viewModel.PostalCode,
+                Country = viewModel.Country
+            };
+
+            await _addressRepository.AddAsync(address);
+            await _unitOfWork.SaveChangesAsync();
+
+            // Create TeamMember
+            var teamMember = new TeamMember
+            {
+                FirstName = viewModel.FirstName,
+                LastName = viewModel.LastName,
+                Email = viewModel.Email,
+                MobilePhoneNumber = viewModel.MobilePhoneNumber,
+                NationalRegisterNumber = viewModel.NationalRegisterNumber,
+                BirthDate = viewModel.BirthDate,
+                AddressId = address.Id,
+                TeamRole = viewModel.TeamRole,
+                License = viewModel.License,
+                Status = viewModel.Status,
+                DailyCompensation = viewModel.DailyCompensation,
+                LicenseUrl = viewModel.LicenseUrl,
+                OrganisationId = _currentUserService.OrganisationId ?? 0
+            };
+
+            await _teamMemberRepository.AddAsync(teamMember);
+            await _unitOfWork.SaveChangesAsync();
+
+            TempData["SuccessMessage"] = "Le membre d'équipe a été créé avec succès.";
+            return RedirectToAction(nameof(Details), new { id = teamMember.TeamMemberId });
+        }
+
+        return View(viewModel);
+    }
+
+    // GET: TeamMembers/Edit/5
+    public async Task<IActionResult> Edit(int id)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
+        var teamMember = await _teamMemberRepository.GetByIdAsync(id);
+
+        if (teamMember == null)
+        {
+            return NotFound();
+        }
+
+        var address = await _context.Addresses.FindAsync(teamMember.AddressId);
+
+        var viewModel = new TeamMemberViewModel
+        {
+            TeamMemberId = teamMember.TeamMemberId,
+            FirstName = teamMember.FirstName,
+            LastName = teamMember.LastName,
+            Email = teamMember.Email,
+            MobilePhoneNumber = teamMember.MobilePhoneNumber,
+            NationalRegisterNumber = teamMember.NationalRegisterNumber,
+            BirthDate = teamMember.BirthDate,
+            Street = address?.Street ?? "",
+            City = address?.City ?? "",
+            PostalCode = address?.PostalCode ?? 0,
+            Country = address?.Country ?? Core.Enums.Country.Belgium,
+            TeamRole = teamMember.TeamRole,
+            License = teamMember.License,
+            Status = teamMember.Status,
+            DailyCompensation = teamMember.DailyCompensation,
+            LicenseUrl = teamMember.LicenseUrl,
+            AddressId = teamMember.AddressId,
+            OrganisationId = teamMember.OrganisationId
+        };
+
+        return View(viewModel);
+    }
+
+    // POST: TeamMembers/Edit/5
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Edit(int id, TeamMemberViewModel viewModel)
+    {
+        if (id != viewModel.TeamMemberId)
+        {
+            return NotFound();
+        }
+
+        if (ModelState.IsValid)
+        {
+            var teamMember = await _teamMemberRepository.GetByIdAsync(id);
+
+            if (teamMember == null)
+            {
+                return NotFound();
+            }
+
+            // Update Address
+            var address = await _context.Addresses.FindAsync(teamMember.AddressId);
+            if (address != null)
+            {
+                address.Street = viewModel.Street;
+                address.City = viewModel.City;
+                address.PostalCode = viewModel.PostalCode;
+                address.Country = viewModel.Country;
+                _context.Addresses.Update(address);
+            }
+
+            // Update TeamMember
+            teamMember.FirstName = viewModel.FirstName;
+            teamMember.LastName = viewModel.LastName;
+            teamMember.Email = viewModel.Email;
+            teamMember.MobilePhoneNumber = viewModel.MobilePhoneNumber;
+            teamMember.NationalRegisterNumber = viewModel.NationalRegisterNumber;
+            teamMember.BirthDate = viewModel.BirthDate;
+            teamMember.TeamRole = viewModel.TeamRole;
+            teamMember.License = viewModel.License;
+            teamMember.Status = viewModel.Status;
+            teamMember.DailyCompensation = viewModel.DailyCompensation;
+            teamMember.LicenseUrl = viewModel.LicenseUrl;
+
+            await _teamMemberRepository.UpdateAsync(teamMember);
+            await _unitOfWork.SaveChangesAsync();
+
+            TempData["SuccessMessage"] = "Le membre d'équipe a été modifié avec succès.";
+            return RedirectToAction(nameof(Details), new { id = teamMember.TeamMemberId });
+        }
+
+        return View(viewModel);
+    }
+
+    // GET: TeamMembers/Delete/5
+    public async Task<IActionResult> Delete(int id)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
+        var viewModel = await GetTeamMemberViewModelAsync(id);
+
+        if (viewModel == null)
+        {
+            return NotFound();
+        }
+
+        return View(viewModel);
+    }
+
+    // POST: TeamMembers/Delete/5
+    [HttpPost, ActionName("Delete")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> DeleteConfirmed(int id)
+    {
+        var teamMember = await _teamMemberRepository.GetByIdAsync(id);
+
+        if (teamMember == null)
+        {
+            return NotFound();
+        }
+
+        var addressId = teamMember.AddressId;
+
+        // Delete TeamMember
+        await _teamMemberRepository.DeleteAsync(teamMember);
+        await _unitOfWork.SaveChangesAsync();
+
+        // Delete Address
+        var address = await _addressRepository.GetByIdAsync(addressId);
+        if (address != null)
+        {
+            await _addressRepository.DeleteAsync(address);
+            await _unitOfWork.SaveChangesAsync();
+        }
+
+        TempData["SuccessMessage"] = "Le membre d'équipe a été supprimé avec succès.";
+        return RedirectToAction(nameof(Index));
+    }
+
+    // Helper method to get team member view model with all related data
+    private async Task<TeamMemberViewModel?> GetTeamMemberViewModelAsync(int id)
+    {
+        var teamMember = await _teamMemberRepository.GetByIdAsync(id);
+
+        if (teamMember == null)
+        {
+            return null;
+        }
+
+        var address = await _context.Addresses.FindAsync(teamMember.AddressId);
+
+        return new TeamMemberViewModel
+        {
+            TeamMemberId = teamMember.TeamMemberId,
+            FirstName = teamMember.FirstName,
+            LastName = teamMember.LastName,
+            Email = teamMember.Email,
+            MobilePhoneNumber = teamMember.MobilePhoneNumber,
+            NationalRegisterNumber = teamMember.NationalRegisterNumber,
+            BirthDate = teamMember.BirthDate,
+            Street = address?.Street ?? "",
+            City = address?.City ?? "",
+            PostalCode = address?.PostalCode ?? 0,
+            Country = address?.Country ?? Core.Enums.Country.Belgium,
+            TeamRole = teamMember.TeamRole,
+            License = teamMember.License,
+            Status = teamMember.Status,
+            DailyCompensation = teamMember.DailyCompensation,
+            LicenseUrl = teamMember.LicenseUrl,
+            AddressId = teamMember.AddressId,
+            OrganisationId = teamMember.OrganisationId,
+            ActivitiesCount = teamMember.Activities.Count,
+            ExpensesCount = teamMember.Expenses.Count
+        };
+    }
+}

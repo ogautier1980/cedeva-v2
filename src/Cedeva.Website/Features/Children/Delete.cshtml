@@ -1,0 +1,77 @@
+@model Cedeva.Website.Features.Children.ViewModels.ChildViewModel
+@{
+    ViewData["Title"] = "Supprimer l'enfant";
+}
+
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="card shadow border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i>Supprimer l'enfant</h5>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-warning" role="alert">
+                        <i class="fas fa-exclamation-circle me-2"></i>
+                        <strong>Attention !</strong> Êtes-vous sûr de vouloir supprimer cet enfant ?
+                        @if (Model.Bookings != null && Model.Bookings.Any())
+                        {
+                            <br />
+                            <strong class="text-danger">Cet enfant a @Model.Bookings.Count inscription(s) associée(s).</strong>
+                        }
+                    </div>
+
+                    <h6 class="mb-3 text-primary"><i class="fas fa-child me-2"></i>Informations de l'enfant</h6>
+
+                    <dl class="row">
+                        <dt class="col-sm-4">Nom complet</dt>
+                        <dd class="col-sm-8">@Model.FirstName @Model.LastName</dd>
+
+                        <dt class="col-sm-4">Date de naissance</dt>
+                        <dd class="col-sm-8">@Model.BirthDate.ToString("dd/MM/yyyy")</dd>
+
+                        <dt class="col-sm-4">Parent</dt>
+                        <dd class="col-sm-8">@Model.ParentFullName</dd>
+
+                        <dt class="col-sm-4">N° Registre National</dt>
+                        <dd class="col-sm-8">@Model.NationalRegisterNumber</dd>
+                    </dl>
+
+                    @if (Model.Bookings != null && Model.Bookings.Any())
+                    {
+                        <hr />
+                        <h6 class="mb-3 text-danger"><i class="fas fa-calendar-alt me-2"></i>Inscriptions associées</h6>
+                        <ul class="list-group mb-3">
+                            @foreach (var booking in Model.Bookings)
+                            {
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <strong>@booking.ActivityName</strong><br />
+                                        <small class="text-muted">
+                                            @booking.StartDate.ToString("dd/MM/yyyy") - @booking.EndDate.ToString("dd/MM/yyyy")
+                                        </small>
+                                    </div>
+                                    <span class="badge @(booking.IsConfirmed ? "bg-success" : "bg-warning")">
+                                        @(booking.IsConfirmed ? "Confirmé" : "En attente")
+                                    </span>
+                                </li>
+                            }
+                        </ul>
+                    }
+
+                    <form asp-action="Delete" method="post">
+                        <input type="hidden" asp-for="Id" />
+                        <div class="d-flex justify-content-between mt-4">
+                            <a asp-action="Index" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>Annuler
+                            </a>
+                            <button type="submit" class="btn btn-danger">
+                                <i class="fas fa-trash me-2"></i>Confirmer la suppression
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
