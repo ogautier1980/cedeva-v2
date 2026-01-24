@@ -36,6 +36,7 @@ try
         // Register services
         containerBuilder.RegisterType<CurrentUserService>().As<ICurrentUserService>().InstancePerLifetimeScope();
         containerBuilder.RegisterType<BrevoEmailService>().As<IEmailService>().InstancePerLifetimeScope();
+        containerBuilder.RegisterType<EmailRecipientService>().As<IEmailRecipientService>().InstancePerLifetimeScope();
         containerBuilder.RegisterType<AzureBlobStorageService>().As<IStorageService>().InstancePerLifetimeScope();
         containerBuilder.RegisterType<ClosedXMLExportService>().As<IExcelExportService>().InstancePerLifetimeScope();
         containerBuilder.RegisterType<UnitOfWork>().As<IUnitOfWork>().InstancePerLifetimeScope();

@@ -1,3 +1,6 @@
+using Cedeva.Core.Entities;
+using Cedeva.Core.Enums;
+using Cedeva.Core.Interfaces;
 using Cedeva.Infrastructure.Data;
 using Cedeva.Website.Features.ActivityManagement.ViewModels;
 using Microsoft.AspNetCore.Authorization;
@@ -13,13 +16,19 @@ public class ActivityManagementController : Controller
 
     private readonly CedevaDbContext _context;
     private readonly ILogger<ActivityManagementController> _logger;
+    private readonly IEmailService _emailService;
+    private readonly IEmailRecipientService _emailRecipientService;
 
     public ActivityManagementController(
         CedevaDbContext context,
-        ILogger<ActivityManagementController> logger)
+        ILogger<ActivityManagementController> logger,
+        IEmailService emailService,
+        IEmailRecipientService emailRecipientService)
     {
         _context = context;
         _logger = logger;
+        _emailService = emailService;
+        _emailRecipientService = emailRecipientService;
     }
 
     [HttpGet]
@@ -255,5 +264,225 @@ public class ActivityManagementController : Controller
         await _context.SaveChangesAsync();
 
         return Json(new { success = true });
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> SendEmail(int? id)
+    {
+        if (id is null)
+        {
+            var idStr = HttpContext.Session.GetString(SessionActivityId);
+            if (int.TryParse(idStr, out var parsed))
+            {
+                id = parsed;
+            }
+        }
+
+        if (id is null)
+            return NotFound();
+
+        var activity = await _context.Activities
+            .Include(a => a.Groups)
+            .FirstOrDefaultAsync(a => a.Id == id);
+
+        if (activity == null)
+            return NotFound();
+
+        var viewModel = new SendEmailViewModel
+        {
+            ActivityId = activity.Id,
+            ActivityName = activity.Name,
+            RecipientOptions = new List<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem>
+            {
+                new() { Value = "allparents", Text = "Tous les parents (enfants inscrits à l'activité)" },
+                new() { Value = "medicalsheetreminder", Text = "Rappel fiche médicale (enfants sans fiche médicale)" }
+            }
+        };
+
+        foreach (var group in activity.Groups)
+        {
+            viewModel.RecipientOptions.Add(new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem
+            {
+                Value = $"group_{group.Id}",
+                Text = $"Groupe : {group.Label}"
+            });
+        }
+
+        return View(viewModel);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [ActionName("BeginSendEmail")]
+    public IActionResult SendEmailPost(int id)
+    {
+        HttpContext.Session.SetString(SessionActivityId, id.ToString());
+        return RedirectToAction(nameof(SendEmail));
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> SendEmail(SendEmailViewModel model, CancellationToken ct)
+    {
+        if (!ModelState.IsValid)
+        {
+            var activity = await _context.Activities
+                .Include(a => a.Groups)
+                .FirstOrDefaultAsync(a => a.Id == model.ActivityId, ct);
+
+            if (activity != null)
+            {
+                model.RecipientOptions = new List<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem>
+                {
+                    new() { Value = "allparents", Text = "Tous les parents (enfants inscrits à l'activité)" },
+                    new() { Value = "medicalsheetreminder", Text = "Rappel fiche médicale (enfants sans fiche médicale)" }
+                };
+
+                foreach (var group in activity.Groups)
+                {
+                    model.RecipientOptions.Add(new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem
+                    {
+                        Value = $"group_{group.Id}",
+                        Text = $"Groupe : {group.Label}"
+                    });
+                }
+            }
+
+            return View(model);
+        }
+
+        // Extract recipient type and group ID
+        int? recipientGroupId = null;
+        if (model.SelectedRecipient.StartsWith("group_"))
+        {
+            if (int.TryParse(model.SelectedRecipient.Substring(6), out var groupId))
+            {
+                recipientGroupId = groupId;
+            }
+        }
+
+        // Get recipient emails
+        var recipientEmails = await _emailRecipientService.GetRecipientEmailsAsync(
+            model.ActivityId,
+            model.SelectedRecipient,
+            recipientGroupId,
+            ct);
+
+        if (!recipientEmails.Any())
+        {
+            ModelState.AddModelError(string.Empty, "Aucun destinataire trouvé pour ce critère.");
+
+            var activity = await _context.Activities
+                .Include(a => a.Groups)
+                .FirstOrDefaultAsync(a => a.Id == model.ActivityId, ct);
+
+            if (activity != null)
+            {
+                model.RecipientOptions = new List<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem>
+                {
+                    new() { Value = "allparents", Text = "Tous les parents (enfants inscrits à l'activité)" },
+                    new() { Value = "medicalsheetreminder", Text = "Rappel fiche médicale (enfants sans fiche médicale)" }
+                };
+
+                foreach (var group in activity.Groups)
+                {
+                    model.RecipientOptions.Add(new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem
+                    {
+                        Value = $"group_{group.Id}",
+                        Text = $"Groupe : {group.Label}"
+                    });
+                }
+            }
+
+            return View(model);
+        }
+
+        // Handle file attachment
+        string? attachmentFileName = null;
+        string? attachmentFilePath = null;
+
+        if (model.AttachmentFile != null && model.AttachmentFile.Length > 0)
+        {
+            var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", "attachments");
+            if (!Directory.Exists(uploadsFolder))
+            {
+                Directory.CreateDirectory(uploadsFolder);
+            }
+
+            attachmentFileName = Path.GetFileName(model.AttachmentFile.FileName);
+            var uniqueFileName = Guid.NewGuid().ToString() + "_" + attachmentFileName;
+            attachmentFilePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+            using (var fileStream = new FileStream(attachmentFilePath, FileMode.Create))
+            {
+                await model.AttachmentFile.CopyToAsync(fileStream, ct);
+            }
+        }
+
+        // Construct HTML email content
+        var htmlContent = $"<p>{model.Message.Replace("\n", "<br/>")}</p>";
+
+        // Send emails
+        try
+        {
+            await _emailService.SendEmailAsync(recipientEmails, model.Subject, htmlContent, attachmentFilePath);
+
+            // Log sent email
+            var recipientType = model.SelectedRecipient switch
+            {
+                "allparents" => EmailRecipient.AllParents,
+                "medicalsheetreminder" => EmailRecipient.MedicalSheetReminder,
+                _ when model.SelectedRecipient.StartsWith("group_") => EmailRecipient.ActivityGroup,
+                _ => EmailRecipient.AllParents
+            };
+
+            var emailSent = new EmailSent
+            {
+                ActivityId = model.ActivityId,
+                RecipientType = recipientType,
+                RecipientGroupId = recipientGroupId,
+                RecipientEmails = string.Join("; ", recipientEmails),
+                Subject = model.Subject,
+                Message = model.Message,
+                AttachmentFileName = attachmentFileName,
+                AttachmentFilePath = attachmentFilePath,
+                SentDate = DateTime.Now
+            };
+
+            _context.EmailsSent.Add(emailSent);
+            await _context.SaveChangesAsync(ct);
+
+            TempData["SuccessMessage"] = $"Email envoyé avec succès à {recipientEmails.Count} destinataire(s).";
+            return RedirectToAction(nameof(SendEmail), new { id = model.ActivityId });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error sending email for activity {ActivityId}", model.ActivityId);
+            ModelState.AddModelError(string.Empty, "Une erreur est survenue lors de l'envoi de l'email.");
+
+            var activity = await _context.Activities
+                .Include(a => a.Groups)
+                .FirstOrDefaultAsync(a => a.Id == model.ActivityId, ct);
+
+            if (activity != null)
+            {
+                model.RecipientOptions = new List<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem>
+                {
+                    new() { Value = "allparents", Text = "Tous les parents (enfants inscrits à l'activité)" },
+                    new() { Value = "medicalsheetreminder", Text = "Rappel fiche médicale (enfants sans fiche médicale)" }
+                };
+
+                foreach (var group in activity.Groups)
+                {
+                    model.RecipientOptions.Add(new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem
+                    {
+                        Value = $"group_{group.Id}",
+                        Text = $"Groupe : {group.Label}"
+                    });
+                }
+            }
+
+            return View(model);
+        }
     }
 }

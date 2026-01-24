@@ -1,0 +1,115 @@
+@model Cedeva.Website.Features.ActivityManagement.ViewModels.SendEmailViewModel
+
+@{
+    ViewData["Title"] = "Envoi d'e-mail - " + Model.ActivityName;
+}
+
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="mb-1">@Model.ActivityName</h2>
+            <p class="text-muted mb-0">Envoi d'e-mail ciblé</p>
+        </div>
+        <a asp-action="Index" asp-route-id="@Model.ActivityId" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left"></i> Retour au tableau de bord
+        </a>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle"></i> @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-circle"></i> @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="row">
+        <div class="col-md-8 col-lg-6">
+            <div class="card">
+                <div class="card-body">
+                    <form asp-action="SendEmail" method="post" enctype="multipart/form-data">
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+                        <input type="hidden" asp-for="ActivityId" />
+                        <input type="hidden" asp-for="ActivityName" />
+
+                        <div class="mb-3">
+                            <label asp-for="SelectedRecipient" class="form-label">Destinataire</label>
+                            <select asp-for="SelectedRecipient" asp-items="Model.RecipientOptions" class="form-select">
+                                <option value="">-- Sélectionnez un destinataire --</option>
+                            </select>
+                            <span asp-validation-for="SelectedRecipient" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Subject" class="form-label">Sujet</label>
+                            <input asp-for="Subject" class="form-control" placeholder="Sujet de l'e-mail" />
+                            <span asp-validation-for="Subject" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Message" class="form-label">Message</label>
+                            <textarea asp-for="Message" class="form-control" rows="8" placeholder="Contenu du message..."></textarea>
+                            <span asp-validation-for="Message" class="text-danger"></span>
+                            <div class="form-text">Le message sera envoyé en HTML. Les retours à la ligne seront conservés.</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="AttachmentFile" class="form-label">Pièce jointe (optionnel)</label>
+                            <input asp-for="AttachmentFile" type="file" class="form-control" />
+                            <span asp-validation-for="AttachmentFile" class="text-danger"></span>
+                            <div class="form-text">Formats acceptés : PDF, DOC, DOCX, JPG, PNG (max 10 Mo)</div>
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-paper-plane"></i> Envoyer
+                            </button>
+                            <a asp-action="Index" asp-route-id="@Model.ActivityId" class="btn btn-secondary">
+                                <i class="fas fa-times"></i> Annuler
+                            </a>
+                            <a asp-action="SentEmails" asp-route-id="@Model.ActivityId" class="btn btn-outline-info ms-auto">
+                                <i class="fas fa-history"></i> Historique des envois
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 col-lg-6">
+            <div class="card bg-light">
+                <div class="card-header bg-info text-white">
+                    <i class="fas fa-info-circle"></i> Informations
+                </div>
+                <div class="card-body">
+                    <h6 class="fw-bold">Options de destinataires</h6>
+                    <ul class="mb-3">
+                        <li><strong>Tous les parents</strong> : Envoie à tous les parents des enfants inscrits à cette activité</li>
+                        <li><strong>Rappel fiche médicale</strong> : Envoie uniquement aux parents dont l'enfant n'a pas encore fourni sa fiche médicale</li>
+                        <li><strong>Groupe spécifique</strong> : Envoie uniquement aux parents des enfants d'un groupe particulier</li>
+                    </ul>
+
+                    <h6 class="fw-bold">Conseils</h6>
+                    <ul class="mb-0">
+                        <li>Rédigez un sujet clair et explicite</li>
+                        <li>Vérifiez l'orthographe avant d'envoyer</li>
+                        <li>Les pièces jointes volumineuses peuvent rallonger le temps d'envoi</li>
+                        <li>Tous les envois sont enregistrés dans l'historique</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
