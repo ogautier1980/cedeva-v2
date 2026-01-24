@@ -32,6 +32,7 @@
         <!-- Inscriptions en attente -->
         <div class="col-sm-6 col-md-6 col-lg-4 col-xl-3">
             <form asp-action="BeginUnconfirmedBookings" asp-controller="ActivityManagement" method="post">
+                @Html.AntiForgeryToken()
                 <input type="hidden" name="id" value="@Model.Activity.Id" />
                 <button type="submit" class="btn-as-link">
                     <div class="shadow-sm border contour">
@@ -45,6 +46,7 @@
         <!-- Présences -->
         <div class="col-sm-6 col-md-6 col-lg-4 col-xl-3">
             <form asp-action="BeginPresences" asp-controller="ActivityManagement" method="post">
+                @Html.AntiForgeryToken()
                 <input type="hidden" name="id" value="@Model.Activity.Id" />
                 <button type="submit" class="btn-as-link">
                     <div class="shadow-sm border contour">
@@ -68,6 +70,7 @@
         <!-- E-mails -->
         <div class="col-sm-6 col-md-6 col-lg-4 col-xl-3">
             <form asp-action="BeginSendEmail" asp-controller="ActivityManagement" method="post">
+                @Html.AntiForgeryToken()
                 <input type="hidden" name="id" value="@Model.Activity.Id" />
                 <button type="submit" class="btn-as-link">
                     <div class="shadow-sm border contour">
@@ -88,17 +91,14 @@
             </a>
         </div>
 
-        <!-- Équipe -->
+        <!-- Équipe (placeholder) -->
         <div class="col-sm-6 col-md-6 col-lg-4 col-xl-3">
-            <form asp-action="BeginTeamMembers" asp-controller="ActivityManagement" method="post">
-                <input type="hidden" name="id" value="@Model.Activity.Id" />
-                <button type="submit" class="btn-as-link">
-                    <div class="shadow-sm border contour">
-                        <i class="fa-solid fa-people-group fa-big"></i>
-                        <p class="mt-3 mb-0">Équipe</p>
-                    </div>
-                </button>
-            </form>
+            <a href="#">
+                <div class="shadow-sm border contour">
+                    <i class="fa-solid fa-people-group fa-big"></i>
+                    <p class="mt-3 mb-0">Équipe</p>
+                </div>
+            </a>
         </div>
 
         <!-- ONE -->
