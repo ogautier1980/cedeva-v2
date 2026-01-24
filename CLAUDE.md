@@ -197,6 +197,30 @@ Automatic seeding of realistic Belgian test data for all organisations:
 // - Bookings for ~60% of children with booking days
 ```
 
+## Bug Fixes & Improvements
+
+### Nullable Parameter Fix (Phase 3)
+Fixed 400 Bad Request errors in all index pages by making `searchString` parameter nullable:
+```csharp
+// Before: public async Task<IActionResult> Index(string searchString, int page = 1)
+// After:  public async Task<IActionResult> Index(string? searchString, int page = 1)
+```
+Affected controllers: Bookings, Children, TeamMembers, Organisations, Users
+
+### Query Filter Bypass in Seeding
+Added `.IgnoreQueryFilters()` to database queries in `TestDataSeeder` and `DbSeeder`:
+```csharp
+// Required because seeding runs without authenticated user context
+var children = await _context.Children
+    .IgnoreQueryFilters()
+    .Include(c => c.Parent)
+    .Where(c => c.Parent.OrganisationId == organisationId)
+    .ToListAsync();
+```
+
+### Custom Claims for Authorization
+Fixed admin menu visibility by properly inheriting from `UserClaimsPrincipalFactory<CedevaUser, IdentityRole>` instead of `UserClaimsPrincipalFactory<CedevaUser>`. This ensures role claims are properly added alongside custom claims.
+
 ## Entity Quick Reference
 
 ### Key Entities
@@ -214,13 +238,87 @@ Automatic seeding of realistic Belgian test data for all organisations:
 - **TeamMember** uses `TeamMemberId` as primary key (not `Id`)
 - **Address** is separate entity shared by Parent, TeamMember, Organisation
 
+## Key Feature Details
+
+### Excel Export Implementation
+Uses `ClosedXMLExportService` implementing `IExcelExportService`:
+```csharp
+// Example usage in BookingsController
+var columns = new Dictionary<string, Func<Booking, object>>
+{
+    { "Enfant", b => $"{b.Child.FirstName} {b.Child.LastName}" },
+    { "Parent", b => $"{b.Child.Parent.FirstName} {b.Child.Parent.LastName}" },
+    { "Email Parent", b => b.Child.Parent.Email },
+    { "Activité", b => b.Activity.Name },
+    { "Groupe", b => b.Group?.Label ?? "N/A" },
+    { "Date d'inscription", b => b.BookingDate.ToString("dd/MM/yyyy") },
+    { "Confirmé", b => b.IsConfirmed ? "Oui" : "Non" },
+    { "Fiche médicale", b => b.IsMedicalSheet ? "Oui" : "Non" }
+};
+var excelData = _excelExportService.ExportToExcel(filteredBookings, "Inscriptions", columns);
+return File(excelData, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    $"Inscriptions_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx");
+```
+
+### Presence Management Workflow
+Four-step process for daily attendance tracking:
+1. **Index** - Shows card grid of all activities (active only for coordinators)
+2. **SelectDay** - Calendar-like view of activity days with date badges
+3. **List** - Interactive checklist with real-time counter and AJAX updates
+4. **Print** - A4 printable format with coordinator signature boxes
+
+Key implementation details:
+- Uses `BookingDay.IsPresent` boolean for attendance status
+- Real-time count updates via JavaScript on checkbox change
+- Filters by activity and day using composite query
+- Supports bulk check/uncheck all functionality
+
+### Public Registration Form Flow
+Multi-step wizard with state management via TempData:
+```
+Step 1: SelectActivity (choose activity and days)
+   ↓ TempData["SelectedActivity"]
+Step 2: ParentInformation (email, name, phone, address)
+   ↓ TempData["ParentInfo"]
+Step 3: ChildInformation (child details, medical info)
+   ↓ TempData["ChildInfo"]
+Step 4: ActivityQuestions (custom questions if configured)
+   ↓ TempData["QuestionAnswers"]
+Step 5: Confirmation (review and submit)
+   ↓ Creates Booking, sends email
+```
+
+Smart duplicate detection:
+- Parent: Matches by email address (updates if exists)
+- Child: Matches by national register number (updates if exists)
+- Prevents duplicate bookings for same child/activity combination
+
+### Localization Strategy
+Three-language support (FR, NL, EN) using resource files:
+- **SharedResources.fr.resx** - French (default)
+- **SharedResources.nl.resx** - Dutch
+- **SharedResources.en.resx** - English
+
+Usage in views:
+```csharp
+@using Microsoft.Extensions.Localization
+@inject IStringLocalizer<SharedResources> Localizer
+
+<h1>@Localizer["Activities"]</h1>
+```
+
+Language selection stored in cookie, persists across sessions. Switcher in navbar with flag emojis.
+
 ## Development Workflow
 
 ### First Run
 1. Start SQL Server: `docker-compose up -d`
 2. Run app: `dotnet run --project src/Cedeva.Website`
-3. Auto-seeding creates DB, applies migrations, seeds data
-4. Login: admin@cedeva.be / Admin@123456
+3. Auto-seeding creates DB, applies migrations, seeds 2 organisations with test data
+4. Login options:
+   - Admin: admin@cedeva.be / Admin@123456 (sees all organisations)
+   - Coordinator Org 1: coordinator@cedeva.be / Coord@123456
+   - Coordinator Org 2: coordinator.liege@cedeva.be / Coord@123456
 
 ### Adding Migrations
 ```bash
@@ -252,18 +350,24 @@ ViewBag.Roles = Html.GetEnumSelectList<TeamRole>();
 - 17 nullable conversion warnings in Index.cshtml files (ViewData casts)
 - Can be safely ignored - these are non-critical nullable reference warnings
 
-### Missing Features
+### Future Enhancements
 - Password reset functionality
 - Email confirmation for new registrations
-- Admin Users CRUD interface
 - Audit fields (CreatedAt/UpdatedAt) on Activity and Booking entities
+- Reports and analytics dashboard
+- Payment integration for activity fees
+- Advanced search and filtering across all modules
+- Mobile app for team members (presence tracking)
 
-### Phase 3 Remaining
-1. **Iframe registration form** - Embeddable public form for parents
-2. **Presence management** - Daily check-in/check-out with list printing
+### Phase 4 Candidates
+- **Reports Module**: Activity reports, financial reports, attendance statistics
+- **Payment Integration**: Mollie/Stripe integration for online payments
+- **Advanced Notifications**: SMS notifications, reminder emails
+- **Mobile Optimization**: PWA support, mobile-first presence tracking
+- **API Development**: RESTful API for third-party integrations
 
 ---
 
 **Last updated**: 2026-01-24
-**Current phase**: Phase 3 (5/7 features complete)
-**Next priority**: Iframe registration form or Presence management
+**Current phase**: Phase 3 (COMPLETED - 7/7 features)
+**Status**: Production-ready MVP with all core features implemented
