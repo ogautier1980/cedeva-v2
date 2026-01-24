@@ -128,8 +128,16 @@ h2 {
     background-position: bottom right;
 }
 
-/* Ensure main content has minimum height to keep footer below background */
+/* Page Content Wrapper - Flexbox layout for footer positioning */
+#page-content-wrapper {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+/* Main content takes remaining space, pushing footer to bottom */
 main.flex-shrink-0 {
+    flex: 1;
     min-height: calc(100vh - 300px);
 }
 
