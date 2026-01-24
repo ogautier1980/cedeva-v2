@@ -85,6 +85,13 @@ src/
 - [x] **Iframe Registration Form** - Public booking form with multi-step wizard, embeddable code
 - [x] **Presence Management** - Daily attendance tracking with list printing
 
+### ✅ Phase 4: ActivityManagement Module (COMPLETED)
+- [x] **Dashboard** - Centralized activity management hub with action cards
+- [x] **UnconfirmedBookings** - Confirm bookings and assign groups
+- [x] **Presences** - Daily attendance tracking with AJAX updates
+- [x] **SendEmail** - Targeted email sending (all parents, by group, medical sheet reminders)
+- [x] **SentEmails** - Email history with detailed view
+
 ## Key Technical Details
 
 ### Database Seeding
@@ -273,6 +280,65 @@ Key implementation details:
 - Filters by activity and day using composite query
 - Supports bulk check/uncheck all functionality
 
+### ActivityManagement Module
+Centralized module for managing all aspects of an activity in one place. Accessible from the Activities list.
+
+**Features implemented**:
+1. **Dashboard** (`/ActivityManagement/Index`) - Hub with 7 action cards:
+   - Inscriptions en attente (Unconfirmed Bookings)
+   - Présences (Attendance tracking)
+   - Comptes (Accounts - placeholder)
+   - E-mails (Targeted email sending)
+   - Excursions (placeholder)
+   - Équipe (Team management - placeholder)
+   - ONE (Office National de l'Enfance - placeholder)
+
+2. **UnconfirmedBookings** (`/ActivityManagement/UnconfirmedBookings`) - Confirm bookings and assign groups:
+   - List all bookings where `IsConfirmed = false`
+   - Dropdown to select target group for each child
+   - One-click confirmation with group assignment
+   - Automatically updates `Booking.GroupId` and `IsConfirmed` flag
+
+3. **Presences** (`/ActivityManagement/Presences`) - Enhanced attendance tracking:
+   - Activity day selector (dropdown with dates)
+   - Children grouped by `ActivityGroup`
+   - Real-time checkbox updates via AJAX endpoint `UpdatePresence`
+   - Visual feedback with `table-success` class for present children
+   - Displays `IsReserved` status alongside presence checkbox
+
+4. **SendEmail** (`/ActivityManagement/SendEmail`) - Targeted email communications:
+   - **Recipient selection**:
+     - All parents (children registered to activity)
+     - Medical sheet reminder (parents with `IsMedicalSheet = false`)
+     - By group (specific ActivityGroup)
+   - Subject and message composition
+   - Optional file attachment support (saved to `wwwroot/uploads/attachments`)
+   - Sends via Brevo API using `IEmailService`
+   - Logs to `EmailsSent` table with full details
+   - Uses `IEmailRecipientService` for dynamic recipient filtering
+
+5. **SentEmails** (`/ActivityManagement/SentEmails`) - Email history:
+   - Displays all emails sent for the activity (ordered by date DESC)
+   - Shows recipient type, count, subject, attachment indicator
+   - Modal detail view with full message and recipient list
+   - Link to send new email
+
+**Technical implementation**:
+- Session-based activity selection (`SessionActivityId` constant)
+- Direct `DbContext` access for queries (no repository pattern in this module)
+- Service dependencies: `IEmailService`, `IEmailRecipientService`
+- `EmailRecipientService` filters recipients based on criteria:
+  - `allparents`: All confirmed bookings for activity
+  - `medicalsheetreminder`: Bookings where `IsMedicalSheet = false`
+  - `group_X`: Bookings in specific `ActivityGroup`
+
+**Access pattern**:
+```
+Activities → Select activity → ActivityManagement/Index (session stored)
+   → All actions use session to maintain context
+   → Can override via query parameter: ?id=X
+```
+
 ### Public Registration Form Flow
 Multi-step wizard with state management via TempData:
 ```
@@ -369,5 +435,5 @@ ViewBag.Roles = Html.GetEnumSelectList<TeamRole>();
 ---
 
 **Last updated**: 2026-01-24
-**Current phase**: Phase 3 (COMPLETED - 7/7 features)
-**Status**: Production-ready MVP with all core features implemented
+**Current phase**: Phase 4 (ActivityManagement Module - COMPLETED)
+**Status**: Production-ready MVP with full ActivityManagement module implemented
