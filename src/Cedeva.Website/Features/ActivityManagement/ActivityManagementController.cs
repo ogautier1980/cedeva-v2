@@ -485,4 +485,48 @@ public class ActivityManagementController : Controller
             return View(model);
         }
     }
+
+    [HttpGet]
+    public async Task<IActionResult> SentEmails(int? id)
+    {
+        if (id is null)
+        {
+            var idStr = HttpContext.Session.GetString(SessionActivityId);
+            if (int.TryParse(idStr, out var parsed))
+            {
+                id = parsed;
+            }
+        }
+
+        if (id is null)
+            return NotFound();
+
+        var activity = await _context.Activities
+            .FirstOrDefaultAsync(a => a.Id == id);
+
+        if (activity == null)
+            return NotFound();
+
+        var sentEmails = await _context.EmailsSent
+            .Where(e => e.ActivityId == id)
+            .OrderByDescending(e => e.SentDate)
+            .ToListAsync();
+
+        var viewModel = new SentEmailsViewModel
+        {
+            Activity = activity,
+            SentEmails = sentEmails
+        };
+
+        return View(viewModel);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [ActionName("BeginSentEmails")]
+    public IActionResult SentEmailsPost(int id)
+    {
+        HttpContext.Session.SetString(SessionActivityId, id.ToString());
+        return RedirectToAction(nameof(SentEmails));
+    }
 }

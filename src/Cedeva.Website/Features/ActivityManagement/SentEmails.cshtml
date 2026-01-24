@@ -1,0 +1,150 @@
+@model Cedeva.Website.Features.ActivityManagement.ViewModels.SentEmailsViewModel
+@using Cedeva.Core.Enums
+
+@{
+    ViewData["Title"] = "Historique des e-mails - " + Model.Activity.Name;
+}
+
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="mb-1">@Model.Activity.Name</h2>
+            <p class="text-muted mb-0">Historique des e-mails envoyés</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a asp-action="SendEmail" asp-route-id="@Model.Activity.Id" class="btn btn-primary">
+                <i class="fas fa-paper-plane"></i> Nouvel envoi
+            </a>
+            <a asp-action="Index" asp-route-id="@Model.Activity.Id" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left"></i> Retour au tableau de bord
+            </a>
+        </div>
+    </div>
+
+    @if (!Model.SentEmails.Any())
+    {
+        <div class="alert alert-info">
+            <i class="fas fa-info-circle"></i> Aucun e-mail n'a encore été envoyé pour cette activité.
+        </div>
+    }
+    else
+    {
+        <div class="card">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Date d'envoi</th>
+                                <th>Type de destinataire</th>
+                                <th>Nombre de destinataires</th>
+                                <th>Sujet</th>
+                                <th class="text-center">Pièce jointe</th>
+                                <th class="text-end">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var email in Model.SentEmails)
+                            {
+                                var recipientCount = email.RecipientEmails.Split(';', StringSplitOptions.RemoveEmptyEntries).Length;
+                                var recipientTypeLabel = email.RecipientType switch
+                                {
+                                    EmailRecipient.AllParents => "Tous les parents",
+                                    EmailRecipient.MedicalSheetReminder => "Rappel fiche médicale",
+                                    EmailRecipient.ActivityGroup => $"Groupe (ID: {email.RecipientGroupId})",
+                                    _ => "Inconnu"
+                                };
+
+                                <tr>
+                                    <td>
+                                        <i class="fas fa-calendar-alt text-muted me-1"></i>
+                                        @email.SentDate.ToString("dd/MM/yyyy HH:mm")
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-info">@recipientTypeLabel</span>
+                                    </td>
+                                    <td>
+                                        <i class="fas fa-users text-muted me-1"></i>
+                                        @recipientCount
+                                    </td>
+                                    <td>
+                                        <strong>@email.Subject</strong>
+                                    </td>
+                                    <td class="text-center">
+                                        @if (!string.IsNullOrEmpty(email.AttachmentFileName))
+                                        {
+                                            <i class="fas fa-paperclip text-success" title="@email.AttachmentFileName"></i>
+                                        }
+                                        else
+                                        {
+                                            <i class="fas fa-minus text-muted"></i>
+                                        }
+                                    </td>
+                                    <td class="text-end">
+                                        <button type="button" class="btn btn-sm btn-outline-primary"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#emailModal@(email.Id)">
+                                            <i class="fas fa-eye"></i> Détails
+                                        </button>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modals for email details -->
+        @foreach (var email in Model.SentEmails)
+        {
+            var recipientList = email.RecipientEmails.Split(';', StringSplitOptions.RemoveEmptyEntries);
+
+            <div class="modal fade" id="emailModal@(email.Id)" tabindex="-1" aria-labelledby="emailModalLabel@(email.Id)" aria-hidden="true">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="emailModalLabel@(email.Id)">Détails de l'e-mail</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <strong>Date d'envoi :</strong> @email.SentDate.ToString("dd/MM/yyyy à HH:mm")
+                            </div>
+                            <div class="mb-3">
+                                <strong>Sujet :</strong> @email.Subject
+                            </div>
+                            <div class="mb-3">
+                                <strong>Message :</strong>
+                                <div class="border rounded p-3 bg-light mt-2">
+                                    @Html.Raw(email.Message.Replace("\n", "<br/>"))
+                                </div>
+                            </div>
+                            @if (!string.IsNullOrEmpty(email.AttachmentFileName))
+                            {
+                                <div class="mb-3">
+                                    <strong>Pièce jointe :</strong>
+                                    <i class="fas fa-paperclip text-success me-1"></i> @email.AttachmentFileName
+                                </div>
+                            }
+                            <div class="mb-3">
+                                <strong>Destinataires (@recipientList.Length) :</strong>
+                                <div class="border rounded p-3 bg-light mt-2" style="max-height: 200px; overflow-y: auto;">
+                                    <ul class="mb-0">
+                                        @foreach (var recipient in recipientList)
+                                        {
+                                            <li>@recipient.Trim()</li>
+                                        }
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+</div>
