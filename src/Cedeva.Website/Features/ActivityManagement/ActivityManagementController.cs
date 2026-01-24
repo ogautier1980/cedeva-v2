@@ -529,4 +529,110 @@ public class ActivityManagementController : Controller
         HttpContext.Session.SetString(SessionActivityId, id.ToString());
         return RedirectToAction(nameof(SentEmails));
     }
+
+    [HttpGet]
+    public async Task<IActionResult> TeamMembers(int? id)
+    {
+        if (id is null)
+        {
+            var idStr = HttpContext.Session.GetString(SessionActivityId);
+            if (int.TryParse(idStr, out var parsed))
+            {
+                id = parsed;
+            }
+        }
+
+        if (id is null)
+            return NotFound();
+
+        var activity = await _context.Activities
+            .Include(a => a.TeamMembers)
+            .FirstOrDefaultAsync(a => a.Id == id);
+
+        if (activity == null)
+            return NotFound();
+
+        // Get all team members for this organisation
+        var allTeamMembers = await _context.TeamMembers
+            .Where(tm => tm.OrganisationId == activity.OrganisationId)
+            .ToListAsync();
+
+        // Get assigned team member IDs
+        var assignedIds = new HashSet<int>(activity.TeamMembers.Select(tm => tm.TeamMemberId));
+
+        // Filter available team members
+        var availableTeamMembers = allTeamMembers.Where(tm => !assignedIds.Contains(tm.TeamMemberId));
+
+        var viewModel = new TeamMembersViewModel
+        {
+            Activity = activity,
+            AssignedTeamMembers = activity.TeamMembers,
+            AvailableTeamMembers = availableTeamMembers
+        };
+
+        return View(viewModel);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [ActionName("BeginTeamMembers")]
+    public IActionResult TeamMembersPost(int id)
+    {
+        HttpContext.Session.SetString(SessionActivityId, id.ToString());
+        return RedirectToAction(nameof(TeamMembers));
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> AddTeamMember(int id, int teamMemberId)
+    {
+        var activity = await _context.Activities
+            .Include(a => a.TeamMembers)
+            .FirstOrDefaultAsync(a => a.Id == id);
+
+        if (activity == null)
+            return NotFound();
+
+        var teamMember = await _context.TeamMembers
+            .FirstOrDefaultAsync(tm => tm.TeamMemberId == teamMemberId
+                && tm.OrganisationId == activity.OrganisationId);
+
+        if (teamMember == null)
+        {
+            TempData["ErrorMessage"] = "Membre de l'équipe introuvable.";
+            return RedirectToAction(nameof(TeamMembers), new { id });
+        }
+
+        if (!activity.TeamMembers.Any(tm => tm.TeamMemberId == teamMemberId))
+        {
+            activity.TeamMembers.Add(teamMember);
+            await _context.SaveChangesAsync();
+            TempData["SuccessMessage"] = $"{teamMember.FirstName} {teamMember.LastName} a été ajouté(e) à l'équipe.";
+        }
+
+        return RedirectToAction(nameof(TeamMembers), new { id });
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> RemoveTeamMember(int id, int teamMemberId)
+    {
+        var activity = await _context.Activities
+            .Include(a => a.TeamMembers)
+            .FirstOrDefaultAsync(a => a.Id == id);
+
+        if (activity == null)
+            return NotFound();
+
+        var teamMember = activity.TeamMembers.FirstOrDefault(tm => tm.TeamMemberId == teamMemberId);
+
+        if (teamMember != null)
+        {
+            activity.TeamMembers.Remove(teamMember);
+            await _context.SaveChangesAsync();
+            TempData["SuccessMessage"] = $"{teamMember.FirstName} {teamMember.LastName} a été retiré(e) de l'équipe.";
+        }
+
+        return RedirectToAction(nameof(TeamMembers), new { id });
+    }
 }

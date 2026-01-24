@@ -91,14 +91,18 @@
             </a>
         </div>
 
-        <!-- Équipe (placeholder) -->
+        <!-- Équipe -->
         <div class="col-sm-6 col-md-6 col-lg-4 col-xl-3">
-            <a href="#">
-                <div class="shadow-sm border contour">
-                    <i class="fa-solid fa-people-group fa-big"></i>
-                    <p class="mt-3 mb-0">Équipe</p>
-                </div>
-            </a>
+            <form asp-action="BeginTeamMembers" asp-controller="ActivityManagement" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="id" value="@Model.Activity.Id" />
+                <button type="submit" class="btn-as-link">
+                    <div class="shadow-sm border contour">
+                        <i class="fa-solid fa-people-group fa-big"></i>
+                        <p class="mt-3 mb-0">Équipe</p>
+                    </div>
+                </button>
+            </form>
         </div>
 
         <!-- ONE -->

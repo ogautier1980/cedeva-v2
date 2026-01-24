@@ -1,0 +1,189 @@
+@model Cedeva.Website.Features.ActivityManagement.ViewModels.TeamMembersViewModel
+@using Cedeva.Core.Enums
+
+@{
+    ViewData["Title"] = "Équipe - " + Model.Activity.Name;
+}
+
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="mb-1">@Model.Activity.Name</h2>
+            <p class="text-muted mb-0">Gestion de l'équipe</p>
+        </div>
+        <a asp-action="Index" asp-route-id="@Model.Activity.Id" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left"></i> Retour au tableau de bord
+        </a>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle"></i> @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-circle"></i> @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="row">
+        <!-- Assigned Team Members -->
+        <div class="col-md-7">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-users"></i> Équipe assignée (@Model.AssignedTeamMembers.Count())</h5>
+                </div>
+                <div class="card-body">
+                    @if (!Model.AssignedTeamMembers.Any())
+                    {
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle"></i> Aucun membre de l'équipe n'est assigné à cette activité.
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Nom</th>
+                                        <th>Rôle</th>
+                                        <th>Licence</th>
+                                        <th>Statut</th>
+                                        <th class="text-end">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var member in Model.AssignedTeamMembers.OrderBy(m => m.LastName))
+                                    {
+                                        <tr>
+                                            <td>
+                                                <strong>@member.FirstName @member.LastName</strong>
+                                                @if (!string.IsNullOrEmpty(member.Email))
+                                                {
+                                                    <br />
+                                                    <small class="text-muted">
+                                                        <i class="fas fa-envelope"></i> @member.Email
+                                                    </small>
+                                                }
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-info">
+                                                    @switch (member.TeamRole)
+                                                    {
+                                                        case TeamRole.Coordinator:
+                                                            <text>Coordinateur</text>
+                                                            break;
+                                                        case TeamRole.Animator:
+                                                            <text>Animateur</text>
+                                                            break;
+                                                        case TeamRole.Cook:
+                                                            <text>Cuisinier</text>
+                                                            break;
+                                                        case TeamRole.Maintenance:
+                                                            <text>Entretien</text>
+                                                            break;
+                                                        default:
+                                                            @member.TeamRole.ToString()
+                                                            break;
+                                                    }
+                                                </span>
+                                            </td>
+                                            <td>
+                                                @if (member.License != License.None)
+                                                {
+                                                    <span class="badge bg-success">
+                                                        @member.License.ToString()
+                                                    </span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-muted">-</span>
+                                                }
+                                            </td>
+                                            <td>
+                                                @if (member.Status == TeamMemberStatus.Active)
+                                                {
+                                                    <span class="badge bg-success">Actif</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-secondary">Inactif</span>
+                                                }
+                                            </td>
+                                            <td class="text-end">
+                                                <form asp-action="RemoveTeamMember" method="post" style="display: inline;">
+                                                    @Html.AntiForgeryToken()
+                                                    <input type="hidden" name="id" value="@Model.Activity.Id" />
+                                                    <input type="hidden" name="teamMemberId" value="@member.TeamMemberId" />
+                                                    <button type="submit" class="btn btn-sm btn-outline-danger"
+                                                            onclick="return confirm('Retirer @member.FirstName @member.LastName de l\'équipe ?');">
+                                                        <i class="fas fa-user-minus"></i> Retirer
+                                                    </button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Available Team Members -->
+        <div class="col-md-5">
+            <div class="card">
+                <div class="card-header bg-secondary text-white">
+                    <h5 class="mb-0"><i class="fas fa-user-plus"></i> Membres disponibles (@Model.AvailableTeamMembers.Count())</h5>
+                </div>
+                <div class="card-body">
+                    @if (!Model.AvailableTeamMembers.Any())
+                    {
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle"></i> Tous les membres de l'équipe sont déjà assignés à cette activité.
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="list-group">
+                            @foreach (var member in Model.AvailableTeamMembers.OrderBy(m => m.LastName))
+                            {
+                                <div class="list-group-item d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <strong>@member.FirstName @member.LastName</strong>
+                                        <br />
+                                        <small class="text-muted">
+                                            <i class="fas fa-tag"></i> @member.TeamRole.ToString()
+                                            @if (member.License != License.None)
+                                            {
+                                                <span class="ms-2">
+                                                    <i class="fas fa-certificate"></i> @member.License.ToString()
+                                                </span>
+                                            }
+                                        </small>
+                                    </div>
+                                    <form asp-action="AddTeamMember" method="post">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="id" value="@Model.Activity.Id" />
+                                        <input type="hidden" name="teamMemberId" value="@member.TeamMemberId" />
+                                        <button type="submit" class="btn btn-sm btn-primary">
+                                            <i class="fas fa-plus"></i> Ajouter
+                                        </button>
+                                    </form>
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
