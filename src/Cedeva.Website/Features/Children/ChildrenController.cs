@@ -5,6 +5,7 @@ using Cedeva.Core.Entities;
 using Cedeva.Core.Interfaces;
 using Cedeva.Website.Features.Children.ViewModels;
 using Cedeva.Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace Cedeva.Website.Features.Children;
 
@@ -15,21 +16,24 @@ public class ChildrenController : Controller
     private readonly IRepository<Parent> _parentRepository;
     private readonly CedevaDbContext _context;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IExcelExportService _excelExportService;
 
     public ChildrenController(
         IRepository<Child> childRepository,
         IRepository<Parent> parentRepository,
         CedevaDbContext context,
-        IUnitOfWork unitOfWork)
+        IUnitOfWork unitOfWork,
+        IExcelExportService excelExportService)
     {
         _childRepository = childRepository;
         _parentRepository = parentRepository;
         _context = context;
         _unitOfWork = unitOfWork;
+        _excelExportService = excelExportService;
     }
 
     // GET: Children
-    public async Task<IActionResult> Index(string searchString, int? parentId, int pageNumber = 1, int pageSize = 10)
+    public async Task<IActionResult> Index(string? searchString, int? parentId, int pageNumber = 1, int pageSize = 10)
     {
         if (!ModelState.IsValid)
         {
@@ -84,6 +88,57 @@ public class ChildrenController : Controller
         ViewData["TotalItems"] = totalItems;
 
         return View(children);
+    }
+
+    // GET: Children/Export
+    public async Task<IActionResult> Export(string searchString, int? parentId)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
+        var query = _context.Children
+            .Include(c => c.Parent)
+            .AsQueryable();
+
+        if (!string.IsNullOrEmpty(searchString))
+        {
+            query = query.Where(c =>
+                c.FirstName.Contains(searchString, StringComparison.OrdinalIgnoreCase) ||
+                c.LastName.Contains(searchString, StringComparison.OrdinalIgnoreCase) ||
+                c.NationalRegisterNumber.Contains(searchString));
+        }
+
+        if (parentId.HasValue)
+        {
+            query = query.Where(c => c.ParentId == parentId.Value);
+        }
+
+        var children = await query
+            .OrderBy(c => c.LastName)
+            .ThenBy(c => c.FirstName)
+            .ToListAsync();
+
+        var columns = new Dictionary<string, Func<Child, object>>
+        {
+            { "Prénom", c => c.FirstName },
+            { "Nom", c => c.LastName },
+            { "Numéro national", c => c.NationalRegisterNumber },
+            { "Date de naissance", c => c.BirthDate },
+            { "Âge", c => DateTime.Today.Year - c.BirthDate.Year - (DateTime.Today.DayOfYear < c.BirthDate.DayOfYear ? 1 : 0) },
+            { "Parent", c => c.Parent != null ? $"{c.Parent.FirstName} {c.Parent.LastName}" : "" },
+            { "Email parent", c => c.Parent?.Email ?? "" },
+            { "Téléphone parent", c => c.Parent?.MobilePhoneNumber ?? c.Parent?.PhoneNumber ?? "" },
+            { "Milieu défavorisé", c => c.IsDisadvantagedEnvironment },
+            { "Handicap léger", c => c.IsMildDisability },
+            { "Handicap lourd", c => c.IsSevereDisability }
+        };
+
+        var excelData = _excelExportService.ExportToExcel(children, "Enfants", columns);
+        var fileName = $"Enfants_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx";
+
+        return File(excelData, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
     }
 
     // GET: Children/Details/5

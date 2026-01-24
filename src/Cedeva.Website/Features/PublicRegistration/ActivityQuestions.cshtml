@@ -1,0 +1,110 @@
+@model Cedeva.Website.Features.PublicRegistration.ViewModels.ActivityQuestionsViewModel
+
+@{
+    ViewData["Title"] = "Questions";
+    Layout = "~/Features/Shared/Layouts/_PublicLayout.cshtml";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="mb-0"><i class="fas fa-question-circle me-2"></i>@ViewData["Title"]</h2>
+                </div>
+                <div class="card-body">
+                    <p class="lead mb-4">Veuillez répondre aux questions suivantes concernant l'activité.</p>
+
+                    <form asp-action="ActivityQuestions" method="post">
+                        <input type="hidden" asp-for="ActivityId" />
+                        <input type="hidden" asp-for="ParentId" />
+                        <input type="hidden" asp-for="ChildId" />
+
+                        @if (Model.Questions.Any())
+                        {
+                            <div class="row g-4">
+                                @for (int i = 0; i < Model.Questions.Count; i++)
+                                {
+                                    var question = Model.Questions[i];
+                                    <div class="col-12">
+                                        <div class="card">
+                                            <div class="card-body">
+                                                <label class="form-label">
+                                                    <strong>@question.QuestionText</strong>
+                                                    @if (question.IsRequired)
+                                                    {
+                                                        <span class="text-danger">*</span>
+                                                    }
+                                                </label>
+
+                                                @switch (question.QuestionType)
+                                                {
+                                                    case Cedeva.Core.Enums.QuestionType.Text:
+                                                        <input type="text" name="Answers[@question.Id]" class="form-control" required="@question.IsRequired" />
+                                                        break;
+
+                                                    case Cedeva.Core.Enums.QuestionType.Checkbox:
+                                                        var checkboxOptions = question.Options?.Split(',') ?? Array.Empty<string>();
+                                                        @foreach (var option in checkboxOptions)
+                                                        {
+                                                            <div class="form-check">
+                                                                <input type="checkbox" name="Answers[@question.Id]" value="@option.Trim()" class="form-check-input" id="@($"q{question.Id}_{option.Trim()}")" />
+                                                                <label class="form-check-label" for="@($"q{question.Id}_{option.Trim()}")">
+                                                                    @option.Trim()
+                                                                </label>
+                                                            </div>
+                                                        }
+                                                        break;
+
+                                                    case Cedeva.Core.Enums.QuestionType.Radio:
+                                                        var radioOptions = question.Options?.Split(',') ?? Array.Empty<string>();
+                                                        @foreach (var option in radioOptions)
+                                                        {
+                                                            <div class="form-check">
+                                                                <input type="radio" name="Answers[@question.Id]" value="@option.Trim()" class="form-check-input" id="@($"q{question.Id}_{option.Trim()}")" required="@question.IsRequired" />
+                                                                <label class="form-check-label" for="@($"q{question.Id}_{option.Trim()}")">
+                                                                    @option.Trim()
+                                                                </label>
+                                                            </div>
+                                                        }
+                                                        break;
+
+                                                    case Cedeva.Core.Enums.QuestionType.Dropdown:
+                                                        var dropdownOptions = question.Options?.Split(',') ?? Array.Empty<string>();
+                                                        <select name="Answers[@question.Id]" class="form-select" required="@question.IsRequired">
+                                                            <option value="">-- Sélectionnez --</option>
+                                                            @foreach (var option in dropdownOptions)
+                                                            {
+                                                                <option value="@option.Trim()">@option.Trim()</option>
+                                                            }
+                                                        </select>
+                                                        break;
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+
+                            <div class="d-grid gap-2 mt-4">
+                                <button type="submit" class="btn btn-primary btn-lg">
+                                    <i class="fas fa-check me-2"></i>Finaliser l'inscription
+                                </button>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle me-2"></i>Aucune question n'est requise pour cette activité.
+                            </div>
+                        }
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

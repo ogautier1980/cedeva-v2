@@ -3,8 +3,10 @@ using Autofac.Extensions.DependencyInjection;
 using Cedeva.Core.Entities;
 using Cedeva.Core.Interfaces;
 using Cedeva.Infrastructure.Data;
+using Cedeva.Infrastructure.Identity;
 using Cedeva.Infrastructure.Services;
 using Cedeva.Infrastructure.Services.Email;
+using Cedeva.Infrastructure.Services.Excel;
 using Cedeva.Infrastructure.Services.Storage;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -35,6 +37,7 @@ try
         containerBuilder.RegisterType<CurrentUserService>().As<ICurrentUserService>().InstancePerLifetimeScope();
         containerBuilder.RegisterType<BrevoEmailService>().As<IEmailService>().InstancePerLifetimeScope();
         containerBuilder.RegisterType<AzureBlobStorageService>().As<IStorageService>().InstancePerLifetimeScope();
+        containerBuilder.RegisterType<ClosedXMLExportService>().As<IExcelExportService>().InstancePerLifetimeScope();
         containerBuilder.RegisterType<UnitOfWork>().As<IUnitOfWork>().InstancePerLifetimeScope();
         containerBuilder.RegisterGeneric(typeof(Repository<>)).As(typeof(IRepository<>)).InstancePerLifetimeScope();
     });
@@ -54,7 +57,8 @@ try
         options.User.RequireUniqueEmail = true;
     })
     .AddEntityFrameworkStores<CedevaDbContext>()
-    .AddDefaultTokenProviders();
+    .AddDefaultTokenProviders()
+    .AddClaimsPrincipalFactory<CedevaUserClaimsPrincipalFactory>();
 
     // Configure cookie
     builder.Services.ConfigureApplicationCookie(options =>
@@ -82,17 +86,21 @@ try
     builder.Services.AddHttpContextAccessor();
 
     // Add localization
-    builder.Services.AddLocalization(options => options.ResourcesPath = "Localization/Resources");
+    builder.Services.AddLocalization(options => options.ResourcesPath = "Localization");
     builder.Services.Configure<RequestLocalizationOptions>(options =>
     {
         var supportedCultures = new[] { "fr", "nl", "en" };
         options.SetDefaultCulture("fr")
             .AddSupportedCultures(supportedCultures)
             .AddSupportedUICultures(supportedCultures);
+
+        // Use cookie for culture preference
+        options.RequestCultureProviders.Insert(0, new Microsoft.AspNetCore.Localization.CookieRequestCultureProvider());
     });
 
     // Add DbSeeder
     builder.Services.AddScoped<DbSeeder>();
+    builder.Services.AddScoped<TestDataSeeder>();
 
     var app = builder.Build();
 
@@ -101,6 +109,10 @@ try
     {
         var seeder = scope.ServiceProvider.GetRequiredService<DbSeeder>();
         await seeder.SeedAsync();
+
+        // Seed test data
+        var testDataSeeder = scope.ServiceProvider.GetRequiredService<TestDataSeeder>();
+        await testDataSeeder.SeedTestDataAsync();
     }
 
     // Configure the HTTP request pipeline

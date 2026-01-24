@@ -5,6 +5,7 @@ using Cedeva.Core.Entities;
 using Cedeva.Core.Interfaces;
 using Cedeva.Website.Features.Bookings.ViewModels;
 using Cedeva.Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace Cedeva.Website.Features.Bookings;
 
@@ -18,6 +19,8 @@ public class BookingsController : Controller
     private readonly CedevaDbContext _context;
     private readonly ICurrentUserService _currentUserService;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IExcelExportService _excelExportService;
+    private readonly IEmailService _emailService;
 
     public BookingsController(
         IRepository<Booking> bookingRepository,
@@ -26,7 +29,9 @@ public class BookingsController : Controller
         IRepository<ActivityGroup> activityGroupRepository,
         CedevaDbContext context,
         ICurrentUserService currentUserService,
-        IUnitOfWork unitOfWork)
+        IUnitOfWork unitOfWork,
+        IExcelExportService excelExportService,
+        IEmailService emailService)
     {
         _bookingRepository = bookingRepository;
         _childRepository = childRepository;
@@ -35,10 +40,12 @@ public class BookingsController : Controller
         _context = context;
         _currentUserService = currentUserService;
         _unitOfWork = unitOfWork;
+        _excelExportService = excelExportService;
+        _emailService = emailService;
     }
 
     // GET: Bookings
-    public async Task<IActionResult> Index(string searchString, int? activityId, int? childId, bool? isConfirmed, int pageNumber = 1, int pageSize = 10)
+    public async Task<IActionResult> Index(string? searchString, int? activityId, int? childId, bool? isConfirmed, int pageNumber = 1, int pageSize = 10)
     {
         if (!ModelState.IsValid)
         {
@@ -225,6 +232,8 @@ public class BookingsController : Controller
                 return NotFound();
             }
 
+            var wasNotConfirmed = !booking.IsConfirmed;
+
             booking.BookingDate = viewModel.BookingDate;
             booking.ChildId = viewModel.ChildId;
             booking.ActivityId = viewModel.ActivityId;
@@ -235,7 +244,45 @@ public class BookingsController : Controller
             await _bookingRepository.UpdateAsync(booking);
             await _unitOfWork.SaveChangesAsync();
 
-            TempData["SuccessMessage"] = "L'inscription a été modifiée avec succès.";
+            // Send confirmation email if booking was just confirmed
+            if (wasNotConfirmed && booking.IsConfirmed)
+            {
+                var child = await _context.Children
+                    .Include(c => c.Parent)
+                    .FirstOrDefaultAsync(c => c.Id == booking.ChildId);
+
+                var activity = await _context.Activities
+                    .FirstOrDefaultAsync(a => a.Id == booking.ActivityId);
+
+                if (child?.Parent != null && activity != null)
+                {
+                    try
+                    {
+                        await _emailService.SendBookingConfirmationEmailAsync(
+                            child.Parent.Email,
+                            $"{child.Parent.FirstName} {child.Parent.LastName}",
+                            $"{child.FirstName} {child.LastName}",
+                            activity.Name,
+                            activity.StartDate,
+                            activity.EndDate);
+
+                        TempData["SuccessMessage"] = "L'inscription a été confirmée et un email a été envoyé au parent.";
+                    }
+                    catch (Exception ex)
+                    {
+                        TempData["WarningMessage"] = $"L'inscription a été confirmée mais l'email n'a pas pu être envoyé: {ex.Message}";
+                    }
+                }
+                else
+                {
+                    TempData["SuccessMessage"] = "L'inscription a été modifiée avec succès.";
+                }
+            }
+            else
+            {
+                TempData["SuccessMessage"] = "L'inscription a été modifiée avec succès.";
+            }
+
             return RedirectToAction(nameof(Details), new { id = booking.Id });
         }
 
@@ -354,5 +401,64 @@ public class BookingsController : Controller
             })
             .ToList();
         ViewBag.Groups = new SelectList(groupList, "Id", "Label", selectedGroupId);
+    }
+
+    // GET: Bookings/Export
+    public async Task<IActionResult> Export(string searchString, int? activityId, int? childId, bool? isConfirmed)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
+        var allBookings = await _bookingRepository.GetAllAsync();
+        var query = allBookings.AsQueryable();
+
+        if (!string.IsNullOrEmpty(searchString))
+        {
+            query = query.Where(b =>
+                b.Child.FirstName.Contains(searchString, StringComparison.OrdinalIgnoreCase) ||
+                b.Child.LastName.Contains(searchString, StringComparison.OrdinalIgnoreCase) ||
+                b.Activity.Name.Contains(searchString, StringComparison.OrdinalIgnoreCase));
+        }
+
+        if (activityId.HasValue)
+        {
+            query = query.Where(b => b.ActivityId == activityId.Value);
+        }
+
+        if (childId.HasValue)
+        {
+            query = query.Where(b => b.ChildId == childId.Value);
+        }
+
+        if (isConfirmed.HasValue)
+        {
+            query = query.Where(b => b.IsConfirmed == isConfirmed.Value);
+        }
+
+        var bookings = query
+            .OrderByDescending(b => b.BookingDate)
+            .ToList();
+
+        var columns = new Dictionary<string, Func<Booking, object>>
+        {
+            { "Date d'inscription", b => b.BookingDate },
+            { "Enfant", b => $"{b.Child.FirstName} {b.Child.LastName}" },
+            { "Parent", b => $"{b.Child.Parent.FirstName} {b.Child.Parent.LastName}" },
+            { "Email parent", b => b.Child.Parent.Email },
+            { "Téléphone parent", b => b.Child.Parent.MobilePhoneNumber ?? b.Child.Parent.PhoneNumber ?? "" },
+            { "Activité", b => b.Activity.Name },
+            { "Date début", b => b.Activity.StartDate },
+            { "Date fin", b => b.Activity.EndDate },
+            { "Groupe", b => b.Group?.Label ?? "" },
+            { "Confirmé", b => b.IsConfirmed },
+            { "Fiche médicale", b => b.IsMedicalSheet }
+        };
+
+        var excelData = _excelExportService.ExportToExcel(bookings, "Inscriptions", columns);
+        var fileName = $"Inscriptions_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx";
+
+        return File(excelData, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
     }
 }

@@ -74,4 +74,97 @@ public class BrevoEmailService : IEmailService
             throw;
         }
     }
+
+    public async Task SendBookingConfirmationEmailAsync(
+        string parentEmail,
+        string parentName,
+        string childName,
+        string activityName,
+        DateTime startDate,
+        DateTime endDate)
+    {
+        var subject = $"Confirmation d'inscription - {activityName}";
+
+        var htmlContent = $@"
+            <html>
+                <head>
+                    <style>
+                        body {{ font-family: Arial, sans-serif; line-height: 1.6; color: #333; }}
+                        .container {{ max-width: 600px; margin: 0 auto; padding: 20px; }}
+                        .header {{ background-color: #4CAF50; color: white; padding: 20px; text-align: center; }}
+                        .content {{ padding: 20px; background-color: #f9f9f9; }}
+                        .details {{ background-color: white; padding: 15px; margin: 15px 0; border-left: 4px solid #4CAF50; }}
+                        .footer {{ text-align: center; padding: 20px; font-size: 12px; color: #666; }}
+                    </style>
+                </head>
+                <body>
+                    <div class='container'>
+                        <div class='header'>
+                            <h1>Confirmation d'inscription</h1>
+                        </div>
+                        <div class='content'>
+                            <p>Bonjour {parentName},</p>
+                            <p>Nous confirmons l'inscription de <strong>{childName}</strong> à l'activité suivante :</p>
+                            <div class='details'>
+                                <h3>{activityName}</h3>
+                                <p><strong>Date de début :</strong> {startDate:dd/MM/yyyy}</p>
+                                <p><strong>Date de fin :</strong> {endDate:dd/MM/yyyy}</p>
+                            </div>
+                            <p>Nous sommes impatients d'accueillir votre enfant pour cette activité !</p>
+                            <p>Si vous avez des questions, n'hésitez pas à nous contacter.</p>
+                            <p>Cordialement,<br>L'équipe Cedeva</p>
+                        </div>
+                        <div class='footer'>
+                            <p>Cet email a été envoyé automatiquement par Cedeva.</p>
+                        </div>
+                    </div>
+                </body>
+            </html>";
+
+        await SendEmailAsync(parentEmail, subject, htmlContent);
+    }
+
+    public async Task SendWelcomeEmailAsync(string userEmail, string userName, string organisationName)
+    {
+        var subject = "Bienvenue sur Cedeva !";
+
+        var htmlContent = $@"
+            <html>
+                <head>
+                    <style>
+                        body {{ font-family: Arial, sans-serif; line-height: 1.6; color: #333; }}
+                        .container {{ max-width: 600px; margin: 0 auto; padding: 20px; }}
+                        .header {{ background-color: #2196F3; color: white; padding: 20px; text-align: center; }}
+                        .content {{ padding: 20px; background-color: #f9f9f9; }}
+                        .highlight {{ background-color: white; padding: 15px; margin: 15px 0; border-left: 4px solid #2196F3; }}
+                        .button {{ display: inline-block; padding: 12px 24px; background-color: #2196F3; color: white; text-decoration: none; border-radius: 4px; margin: 10px 0; }}
+                        .footer {{ text-align: center; padding: 20px; font-size: 12px; color: #666; }}
+                    </style>
+                </head>
+                <body>
+                    <div class='container'>
+                        <div class='header'>
+                            <h1>Bienvenue sur Cedeva !</h1>
+                        </div>
+                        <div class='content'>
+                            <p>Bonjour {userName},</p>
+                            <p>Nous sommes ravis de vous accueillir sur la plateforme Cedeva !</p>
+                            <div class='highlight'>
+                                <h3>Votre compte a été créé avec succès</h3>
+                                <p><strong>Organisation :</strong> {organisationName}</p>
+                                <p><strong>Email :</strong> {userEmail}</p>
+                            </div>
+                            <p>Vous pouvez maintenant vous connecter et commencer à utiliser la plateforme pour gérer vos activités et inscriptions.</p>
+                            <p>Si vous avez des questions ou besoin d'aide, notre équipe est là pour vous accompagner.</p>
+                            <p>Cordialement,<br>L'équipe Cedeva</p>
+                        </div>
+                        <div class='footer'>
+                            <p>Cet email a été envoyé automatiquement par Cedeva.</p>
+                        </div>
+                    </div>
+                </body>
+            </html>";
+
+        await SendEmailAsync(userEmail, subject, htmlContent);
+    }
 }

@@ -16,7 +16,7 @@ Cedeva est une application web ASP.NET Core de **gestion de centres d'activités
 - Diffuser un **formulaire d'inscription** (iframe) intégrable sur leur propre site web
 - Formulaire de base + questions personnalisables (text, checkbox, radio, dropdown)
 - Gérer les réservations (depuis l'iframe ou encodage manuel)
-- Gérer les **présences** jour par jour (impression de listes par groupe)
+- Gérer les **présences** jour par jour (impression de listes)
 - Envoyer des **emails** aux parents via Brevo (individuel, par activité, par groupe, rappel fiche médicale)
 - Gérer les **paiements** (montants, statut payé/non payé)
 - Gérer les **animateurs et coordinateurs** (présences, paiement, remboursement frais)

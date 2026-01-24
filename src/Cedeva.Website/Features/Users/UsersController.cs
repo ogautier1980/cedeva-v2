@@ -25,7 +25,7 @@ public class UsersController : Controller
     }
 
     // GET: Users
-    public async Task<IActionResult> Index(string searchString, int? organisationId, int pageNumber = 1, int pageSize = 10)
+    public async Task<IActionResult> Index(string? searchString, int? organisationId, int pageNumber = 1, int pageSize = 10)
     {
         if (!ModelState.IsValid)
         {

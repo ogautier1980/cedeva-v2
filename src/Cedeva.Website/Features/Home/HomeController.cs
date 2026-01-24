@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Localization;
 using Cedeva.Core.Entities;
 using Cedeva.Core.Interfaces;
 using Cedeva.Website.Features.Home.ViewModels;
@@ -73,6 +74,27 @@ public class HomeController : Controller
         };
 
         return View(viewModel);
+    }
+
+    [AllowAnonymous]
+    [HttpPost]
+    public IActionResult SetLanguage(string culture, string returnUrl)
+    {
+        if (!string.IsNullOrEmpty(culture))
+        {
+            Response.Cookies.Append(
+                CookieRequestCultureProvider.DefaultCookieName,
+                CookieRequestCultureProvider.MakeCookieValue(new RequestCulture(culture)),
+                new CookieOptions
+                {
+                    Expires = DateTimeOffset.UtcNow.AddYears(1),
+                    IsEssential = true,
+                    SameSite = SameSiteMode.Lax
+                }
+            );
+        }
+
+        return LocalRedirect(returnUrl ?? "/");
     }
 
     [AllowAnonymous]

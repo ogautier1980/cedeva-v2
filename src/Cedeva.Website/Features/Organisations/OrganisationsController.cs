@@ -29,7 +29,7 @@ public class OrganisationsController : Controller
     }
 
     // GET: Organisations
-    public async Task<IActionResult> Index(string searchString, int pageNumber = 1, int pageSize = 10)
+    public async Task<IActionResult> Index(string? searchString, int pageNumber = 1, int pageSize = 10)
     {
         if (!ModelState.IsValid)
         {

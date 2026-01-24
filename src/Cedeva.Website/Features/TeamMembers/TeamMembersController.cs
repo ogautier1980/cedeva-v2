@@ -4,6 +4,7 @@ using Cedeva.Core.Entities;
 using Cedeva.Core.Interfaces;
 using Cedeva.Website.Features.TeamMembers.ViewModels;
 using Cedeva.Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace Cedeva.Website.Features.TeamMembers;
 
@@ -15,23 +16,26 @@ public class TeamMembersController : Controller
     private readonly CedevaDbContext _context;
     private readonly ICurrentUserService _currentUserService;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IExcelExportService _excelExportService;
 
     public TeamMembersController(
         IRepository<TeamMember> teamMemberRepository,
         IRepository<Address> addressRepository,
         CedevaDbContext context,
         ICurrentUserService currentUserService,
-        IUnitOfWork unitOfWork)
+        IUnitOfWork unitOfWork,
+        IExcelExportService excelExportService)
     {
         _teamMemberRepository = teamMemberRepository;
         _addressRepository = addressRepository;
         _context = context;
         _currentUserService = currentUserService;
         _unitOfWork = unitOfWork;
+        _excelExportService = excelExportService;
     }
 
     // GET: TeamMembers
-    public async Task<IActionResult> Index(string searchString, int pageNumber = 1, int pageSize = 10)
+    public async Task<IActionResult> Index(string? searchString, int pageNumber = 1, int pageSize = 10)
     {
         if (!ModelState.IsValid)
         {
@@ -78,6 +82,57 @@ public class TeamMembersController : Controller
         ViewData["TotalItems"] = totalItems;
 
         return View(teamMembers);
+    }
+
+    // GET: TeamMembers/Export
+    public async Task<IActionResult> Export(string searchString)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
+        var query = _context.TeamMembers
+            .Include(t => t.Address)
+            .Include(t => t.Organisation)
+            .AsQueryable();
+
+        if (!string.IsNullOrEmpty(searchString))
+        {
+            query = query.Where(t =>
+                t.FirstName.Contains(searchString, StringComparison.OrdinalIgnoreCase) ||
+                t.LastName.Contains(searchString, StringComparison.OrdinalIgnoreCase) ||
+                t.Email.Contains(searchString, StringComparison.OrdinalIgnoreCase));
+        }
+
+        var teamMembers = await query
+            .OrderBy(t => t.LastName)
+            .ThenBy(t => t.FirstName)
+            .ToListAsync();
+
+        var columns = new Dictionary<string, Func<TeamMember, object>>
+        {
+            { "Prénom", t => t.FirstName },
+            { "Nom", t => t.LastName },
+            { "Email", t => t.Email },
+            { "GSM", t => t.MobilePhoneNumber },
+            { "Numéro national", t => t.NationalRegisterNumber },
+            { "Date de naissance", t => t.BirthDate },
+            { "Âge", t => DateTime.Today.Year - t.BirthDate.Year - (DateTime.Today.DayOfYear < t.BirthDate.DayOfYear ? 1 : 0) },
+            { "Rôle", t => t.TeamRole.ToString() },
+            { "Brevet", t => t.License.ToString() },
+            { "Statut", t => t.Status.ToString() },
+            { "Indemnité journalière", t => t.DailyCompensation ?? 0m },
+            { "Organisation", t => t.Organisation?.Name ?? "" },
+            { "Rue", t => t.Address?.Street ?? "" },
+            { "Code postal", t => t.Address?.PostalCode.ToString() ?? "" },
+            { "Ville", t => t.Address?.City ?? "" }
+        };
+
+        var excelData = _excelExportService.ExportToExcel(teamMembers, "Équipe", columns);
+        var fileName = $"Equipe_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx";
+
+        return File(excelData, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
     }
 
     // GET: TeamMembers/Details/5

@@ -13,15 +13,18 @@ public class AccountController : Controller
     private readonly SignInManager<CedevaUser> _signInManager;
     private readonly UserManager<CedevaUser> _userManager;
     private readonly IRepository<Organisation> _organisationRepository;
+    private readonly IEmailService _emailService;
 
     public AccountController(
         SignInManager<CedevaUser> signInManager,
         UserManager<CedevaUser> userManager,
-        IRepository<Organisation> organisationRepository)
+        IRepository<Organisation> organisationRepository,
+        IEmailService emailService)
     {
         _signInManager = signInManager;
         _userManager = userManager;
         _organisationRepository = organisationRepository;
+        _emailService = emailService;
     }
 
     [AllowAnonymous]
@@ -106,6 +109,25 @@ public class AccountController : Controller
         {
             // Assign default role (Coordinator)
             await _userManager.AddToRoleAsync(user, "Coordinator");
+
+            // Get organisation name for welcome email
+            var organisation = await _organisationRepository.GetByIdAsync(model.OrganisationId);
+            var organisationName = organisation?.Name ?? "Cedeva";
+
+            // Send welcome email
+            try
+            {
+                await _emailService.SendWelcomeEmailAsync(
+                    user.Email,
+                    $"{user.FirstName} {user.LastName}",
+                    organisationName);
+            }
+            catch (Exception ex)
+            {
+                // Log error but don't block registration
+                // Email sending failure should not prevent user from using the app
+                TempData["WarningMessage"] = $"Votre compte a été créé mais l'email de bienvenue n'a pas pu être envoyé: {ex.Message}";
+            }
 
             await _signInManager.SignInAsync(user, isPersistent: false);
             return RedirectToLocal(returnUrl);

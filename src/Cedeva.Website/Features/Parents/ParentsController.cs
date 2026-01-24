@@ -15,15 +15,18 @@ public class ParentsController : Controller
     private readonly CedevaDbContext _context;
     private readonly ICurrentUserService _currentUserService;
     private readonly ILogger<ParentsController> _logger;
+    private readonly IExcelExportService _excelExportService;
 
     public ParentsController(
         CedevaDbContext context,
         ICurrentUserService currentUserService,
-        ILogger<ParentsController> logger)
+        ILogger<ParentsController> logger,
+        IExcelExportService excelExportService)
     {
         _context = context;
         _currentUserService = currentUserService;
         _logger = logger;
+        _excelExportService = excelExportService;
     }
 
     public async Task<IActionResult> Index(string? searchTerm, int page = 1)
@@ -82,6 +85,53 @@ public class ParentsController : Controller
         };
 
         return View(viewModel);
+    }
+
+    // GET: Parents/Export
+    public async Task<IActionResult> Export(string? searchTerm)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
+        var query = _context.Parents
+            .Include(p => p.Address)
+            .Include(p => p.Children)
+            .AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(searchTerm))
+        {
+            query = query.Where(p =>
+                p.FirstName.Contains(searchTerm) ||
+                p.LastName.Contains(searchTerm) ||
+                p.Email.Contains(searchTerm));
+        }
+
+        var parents = await query
+            .OrderBy(p => p.LastName)
+            .ThenBy(p => p.FirstName)
+            .ToListAsync();
+
+        var columns = new Dictionary<string, Func<Parent, object>>
+        {
+            { "Prénom", p => p.FirstName },
+            { "Nom", p => p.LastName },
+            { "Email", p => p.Email },
+            { "Téléphone", p => p.PhoneNumber ?? "" },
+            { "GSM", p => p.MobilePhoneNumber ?? "" },
+            { "Numéro national", p => p.NationalRegisterNumber },
+            { "Rue", p => p.Address?.Street ?? "" },
+            { "Code postal", p => p.Address?.PostalCode.ToString() ?? "" },
+            { "Ville", p => p.Address?.City ?? "" },
+            { "Pays", p => p.Address?.Country.ToString() ?? "" },
+            { "Nombre d'enfants", p => p.Children.Count }
+        };
+
+        var excelData = _excelExportService.ExportToExcel(parents, "Parents", columns);
+        var fileName = $"Parents_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx";
+
+        return File(excelData, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
     }
 
     public async Task<IActionResult> Details(int id)

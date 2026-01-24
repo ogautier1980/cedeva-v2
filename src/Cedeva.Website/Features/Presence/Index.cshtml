@@ -1,0 +1,64 @@
+@model Cedeva.Website.Features.Presence.ViewModels.SelectActivityViewModel
+@{
+    ViewData["Title"] = "Gestion des présences";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Gestion des présences</h2>
+</div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<div class="card">
+    <div class="card-body">
+        <p class="text-muted mb-4">
+            <i class="fas fa-info-circle me-2"></i>
+            Sélectionnez une activité pour gérer les présences quotidiennes des enfants.
+        </p>
+
+        @if (!Model.Activities.Any())
+        {
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle me-2"></i>
+                Aucune activité active trouvée. Veuillez d'abord créer une activité.
+            </div>
+        }
+        else
+        {
+            <div class="row">
+                @foreach (var activity in Model.Activities)
+                {
+                    <div class="col-md-6 col-lg-4 mb-3">
+                        <div class="card h-100 shadow-sm hover-shadow">
+                            <div class="card-body">
+                                <h5 class="card-title">@activity.Name</h5>
+                                <p class="card-text text-muted small">
+                                    <i class="fas fa-calendar me-2"></i>
+                                    @activity.StartDate.ToString("dd/MM/yyyy") - @activity.EndDate.ToString("dd/MM/yyyy")
+                                </p>
+                                <a href="@Url.Action("SelectDay", new { id = activity.Id })" class="btn btn-primary w-100">
+                                    <i class="fas fa-clipboard-check me-2"></i>Gérer les présences
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</div>
+
+<style>
+    .hover-shadow {
+        transition: box-shadow 0.3s ease;
+    }
+    .hover-shadow:hover {
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+    }
+</style>

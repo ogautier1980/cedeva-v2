@@ -93,55 +93,111 @@ public class DbSeeder
 
     private async Task SeedDemoOrganisationAsync()
     {
-        if (await _context.Organisations.AnyAsync())
+        var existingCount = await _context.Organisations.CountAsync();
+        if (existingCount >= 2)
             return;
 
-        var address = new Address
+        // First organisation
+        if (existingCount == 0)
         {
-            Street = "Rue de la Plaine 1",
-            City = "Gembloux",
-            PostalCode = 5030,
-            Country = Country.Belgium
-        };
-
-        var organisation = new Organisation
-        {
-            Name = "Plaine de Bossière",
-            Description = "Organisation de stages pour enfants à Bossière",
-            Address = address
-        };
-
-        _context.Organisations.Add(organisation);
-        await _context.SaveChangesAsync();
-
-        // Create a coordinator user for this organisation
-        const string coordEmail = "coordinator@cedeva.be";
-        const string coordPassword = "Coord@123456";
-
-        var existingCoord = await _userManager.FindByEmailAsync(coordEmail);
-        if (existingCoord == null)
-        {
-            var coordUser = new CedevaUser
+            var address1 = new Address
             {
-                UserName = coordEmail,
-                Email = coordEmail,
-                EmailConfirmed = true,
-                FirstName = "Coordinateur",
-                LastName = "Demo",
-                Role = Role.Coordinator,
-                OrganisationId = organisation.Id
+                Street = "Rue de la Plaine 1",
+                City = "Gembloux",
+                PostalCode = 5030,
+                Country = Country.Belgium
             };
 
-            var result = await _userManager.CreateAsync(coordUser, coordPassword);
-            if (result.Succeeded)
+            var organisation1 = new Organisation
             {
-                await _userManager.AddToRoleAsync(coordUser, "Coordinator");
-                _logger.LogInformation("Created coordinator user: {Email} for organisation {Org}",
-                    coordEmail, organisation.Name);
+                Name = "Plaine de Bossière",
+                Description = "Organisation de stages pour enfants à Bossière",
+                Address = address1
+            };
+
+            _context.Organisations.Add(organisation1);
+            await _context.SaveChangesAsync();
+
+            // Create a coordinator user for this organisation
+            const string coordEmail1 = "coordinator@cedeva.be";
+            const string coordPassword1 = "Coord@123456";
+
+            var existingCoord1 = await _userManager.FindByEmailAsync(coordEmail1);
+            if (existingCoord1 == null)
+            {
+                var coordUser1 = new CedevaUser
+                {
+                    UserName = coordEmail1,
+                    Email = coordEmail1,
+                    EmailConfirmed = true,
+                    FirstName = "Coordinateur",
+                    LastName = "Bossière",
+                    Role = Role.Coordinator,
+                    OrganisationId = organisation1.Id
+                };
+
+                var result1 = await _userManager.CreateAsync(coordUser1, coordPassword1);
+                if (result1.Succeeded)
+                {
+                    await _userManager.AddToRoleAsync(coordUser1, "Coordinator");
+                    _logger.LogInformation("Created coordinator user: {Email} for organisation {Org}",
+                        coordEmail1, organisation1.Name);
+                }
             }
+
+            _logger.LogInformation("Created demo organisation: {Name}", organisation1.Name);
         }
 
-        _logger.LogInformation("Created demo organisation: {Name}", organisation.Name);
+        // Second organisation
+        if (existingCount <= 1)
+        {
+            var address2 = new Address
+            {
+                Street = "Avenue des Sports 25",
+                City = "Liège",
+                PostalCode = 4000,
+                Country = Country.Belgium
+            };
+
+            var organisation2 = new Organisation
+            {
+                Name = "Centre Récréatif Les Aventuriers",
+                Description = "Centre de loisirs et stages pour enfants à Liège",
+                Address = address2
+            };
+
+            _context.Organisations.Add(organisation2);
+            await _context.SaveChangesAsync();
+
+            // Create a coordinator user for this organisation
+            const string coordEmail2 = "coordinator.liege@cedeva.be";
+            const string coordPassword2 = "Coord@123456";
+
+            var existingCoord2 = await _userManager.FindByEmailAsync(coordEmail2);
+            if (existingCoord2 == null)
+            {
+                var coordUser2 = new CedevaUser
+                {
+                    UserName = coordEmail2,
+                    Email = coordEmail2,
+                    EmailConfirmed = true,
+                    FirstName = "Sophie",
+                    LastName = "Dumont",
+                    Role = Role.Coordinator,
+                    OrganisationId = organisation2.Id
+                };
+
+                var result2 = await _userManager.CreateAsync(coordUser2, coordPassword2);
+                if (result2.Succeeded)
+                {
+                    await _userManager.AddToRoleAsync(coordUser2, "Coordinator");
+                    _logger.LogInformation("Created coordinator user: {Email} for organisation {Org}",
+                        coordEmail2, organisation2.Name);
+                }
+            }
+
+            _logger.LogInformation("Created demo organisation: {Name}", organisation2.Name);
+        }
     }
 
     private async Task SeedBelgianMunicipalitiesAsync()

@@ -12,9 +12,14 @@
 <div class="container-fluid">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2><i class="fas fa-child me-2"></i>Enfants</h2>
-        <a asp-action="Create" class="btn btn-primary">
-            <i class="fas fa-plus me-2"></i>Ajouter un enfant
-        </a>
+        <div class="d-flex gap-2">
+            <a asp-action="Export" asp-route-searchString="@searchString" asp-route-parentId="@parentId" class="btn btn-success">
+                <i class="fas fa-file-excel me-2"></i>Exporter Excel
+            </a>
+            <a asp-action="Create" class="btn btn-primary">
+                <i class="fas fa-plus me-2"></i>Ajouter un enfant
+            </a>
+        </div>
     </div>
 
     @if (TempData["SuccessMessage"] != null)

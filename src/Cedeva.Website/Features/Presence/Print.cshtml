@@ -1,0 +1,251 @@
+@model Cedeva.Website.Features.Presence.ViewModels.PresenceListViewModel
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Liste de présence - @Model.Activity.Name</title>
+    <style>
+        @@page {
+            size: A4;
+            margin: 1.5cm;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 11pt;
+            line-height: 1.4;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #333;
+            padding-bottom: 15px;
+        }
+
+        .header h1 {
+            margin: 0 0 10px 0;
+            font-size: 20pt;
+        }
+
+        .header p {
+            margin: 5px 0;
+            font-size: 12pt;
+        }
+
+        .info-box {
+            background-color: #f5f5f5;
+            padding: 10px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+        }
+
+        .info-box p {
+            margin: 5px 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        table th {
+            background-color: #333;
+            color: white;
+            padding: 10px 5px;
+            text-align: left;
+            font-weight: bold;
+            border: 1px solid #333;
+        }
+
+        table td {
+            padding: 8px 5px;
+            border: 1px solid #ddd;
+        }
+
+        table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        .checkbox-cell {
+            width: 30px;
+            text-align: center;
+        }
+
+        .checkbox {
+            width: 15px;
+            height: 15px;
+            border: 2px solid #333;
+            display: inline-block;
+        }
+
+        .group-row {
+            border-top: 2px solid #333 !important;
+        }
+
+        .group-badge {
+            background-color: #007bff;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-size: 9pt;
+            font-weight: bold;
+        }
+
+        .footer {
+            margin-top: 30px;
+            padding-top: 15px;
+            border-top: 1px solid #ccc;
+            font-size: 9pt;
+            color: #666;
+        }
+
+        .signature-box {
+            margin-top: 30px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .signature {
+            width: 45%;
+        }
+
+        .signature-line {
+            border-bottom: 1px solid #333;
+            margin-top: 50px;
+            padding-top: 5px;
+        }
+
+        @@media print {
+            .no-print {
+                display: none;
+            }
+
+            body {
+                print-color-adjust: exact;
+                -webkit-print-color-adjust: exact;
+            }
+        }
+
+        .print-button {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14pt;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .print-button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <button onclick="window.print()" class="print-button no-print">
+        🖨️ Imprimer
+    </button>
+
+    <div class="header">
+        <h1>LISTE DE PRÉSENCE</h1>
+        <p><strong>@Model.Activity.Name</strong></p>
+        <p>@Model.ActivityDay.DayDate.ToString("dddd dd MMMM yyyy", new System.Globalization.CultureInfo("fr-FR"))</p>
+    </div>
+
+    <div class="info-box">
+        <p><strong>Nombre total d'enfants :</strong> @Model.PresenceItems.Count</p>
+        <p><strong>Date d'impression :</strong> @DateTime.Now.ToString("dd/MM/yyyy HH:mm")</p>
+    </div>
+
+    @if (!Model.PresenceItems.Any())
+    {
+        <p style="text-align: center; font-style: italic; color: #666;">
+            Aucune inscription trouvée pour ce jour.
+        </p>
+    }
+    else
+    {
+        <table>
+            <thead>
+                <tr>
+                    <th class="checkbox-cell">✓</th>
+                    <th style="width: 80px">Groupe</th>
+                    <th>Nom et Prénom</th>
+                    <th style="width: 100px">Date naiss.</th>
+                    <th style="width: 70px">Âge</th>
+                    <th>Parent</th>
+                    <th style="width: 110px">Téléphone</th>
+                    <th style="width: 150px">Remarques</th>
+                </tr>
+            </thead>
+            <tbody>
+                @{
+                    string? currentGroup = null;
+                }
+                @for (int i = 0; i < Model.PresenceItems.Count; i++)
+                {
+                    var item = Model.PresenceItems[i];
+                    var isNewGroup = currentGroup != item.ActivityGroupName;
+                    currentGroup = item.ActivityGroupName;
+
+                    <tr class="@(isNewGroup && i > 0 ? "group-row" : "")">
+                        <td class="checkbox-cell">
+                            <span class="checkbox"></span>
+                        </td>
+                        <td>
+                            @if (isNewGroup)
+                            {
+                                <span class="group-badge">@(item.ActivityGroupName ?? "Aucun")</span>
+                            }
+                        </td>
+                        <td>
+                            <strong>@item.ChildFirstName @item.ChildLastName</strong>
+                        </td>
+                        <td>
+                            @item.ChildBirthDate.ToString("dd/MM/yyyy")
+                        </td>
+                        <td style="text-align: center">
+                            @((DateTime.Today.Year - item.ChildBirthDate.Year)) ans
+                        </td>
+                        <td>@item.ParentName</td>
+                        <td>@item.ParentPhone</td>
+                        <td></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        <div class="signature-box">
+            <div class="signature">
+                <p><strong>Responsable de l'activité :</strong></p>
+                <div class="signature-line"></div>
+                <p style="text-align: center; margin-top: 5px; font-size: 9pt;">Nom et signature</p>
+            </div>
+            <div class="signature">
+                <p><strong>Coordinateur :</strong></p>
+                <div class="signature-line"></div>
+                <p style="text-align: center; margin-top: 5px; font-size: 9pt;">Nom et signature</p>
+            </div>
+        </div>
+    }
+
+    <div class="footer">
+        <p>Document généré automatiquement par Cedeva - Liste de présence du @Model.ActivityDay.DayDate.ToString("dd/MM/yyyy")</p>
+    </div>
+
+    <script>
+        // Auto-print when page loads (optional)
+        // window.onload = function() { window.print(); }
+    </script>
+</body>
+</html>

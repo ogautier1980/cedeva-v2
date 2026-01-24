@@ -14,15 +14,18 @@ public class ActivitiesController : Controller
     private readonly CedevaDbContext _context;
     private readonly ICurrentUserService _currentUserService;
     private readonly ILogger<ActivitiesController> _logger;
+    private readonly IExcelExportService _excelExportService;
 
     public ActivitiesController(
         CedevaDbContext context,
         ICurrentUserService currentUserService,
-        ILogger<ActivitiesController> logger)
+        ILogger<ActivitiesController> logger,
+        IExcelExportService excelExportService)
     {
         _context = context;
         _currentUserService = currentUserService;
         _logger = logger;
+        _excelExportService = excelExportService;
     }
 
     public async Task<IActionResult> Index(string? searchTerm, bool? showActiveOnly, int page = 1)
@@ -338,5 +341,54 @@ public class ActivitiesController : Controller
     private static int GetWeekNumber(DateTime date, DateTime startDate)
     {
         return ((date - startDate).Days / 7) + 1;
+    }
+
+    // GET: Activities/Export
+    public async Task<IActionResult> Export(string? searchTerm, bool? showActiveOnly)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
+        var query = _context.Activities
+            .Include(a => a.Organisation)
+            .Include(a => a.Bookings)
+            .Include(a => a.Groups)
+            .Include(a => a.TeamMembers)
+            .AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(searchTerm))
+        {
+            query = query.Where(a => a.Name.Contains(searchTerm) || a.Description.Contains(searchTerm));
+        }
+
+        if (showActiveOnly == true)
+        {
+            query = query.Where(a => a.IsActive);
+        }
+
+        var activities = await query
+            .OrderByDescending(a => a.StartDate)
+            .ToListAsync();
+
+        var columns = new Dictionary<string, Func<Activity, object>>
+        {
+            { "Nom", a => a.Name },
+            { "Description", a => a.Description },
+            { "Organisation", a => a.Organisation.Name },
+            { "Date début", a => a.StartDate },
+            { "Date fin", a => a.EndDate },
+            { "Prix par jour", a => a.PricePerDay },
+            { "Actif", a => a.IsActive },
+            { "Inscriptions", a => a.Bookings.Count },
+            { "Groupes", a => a.Groups.Count },
+            { "Équipe", a => a.TeamMembers.Count }
+        };
+
+        var excelData = _excelExportService.ExportToExcel(activities, "Activités", columns);
+        var fileName = $"Activites_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx";
+
+        return File(excelData, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
     }
 }
