@@ -91,6 +91,7 @@ src/
 - [x] **Presences** - Daily attendance tracking with AJAX updates
 - [x] **SendEmail** - Targeted email sending (all parents, by group, medical sheet reminders)
 - [x] **SentEmails** - Email history with detailed view
+- [x] **TeamMembers** - Assign/unassign team members to activity
 
 ## Key Technical Details
 
@@ -285,12 +286,12 @@ Centralized module for managing all aspects of an activity in one place. Accessi
 
 **Features implemented**:
 1. **Dashboard** (`/ActivityManagement/Index`) - Hub with 7 action cards:
-   - Inscriptions en attente (Unconfirmed Bookings)
-   - Présences (Attendance tracking)
+   - Inscriptions en attente (Unconfirmed Bookings) ✅
+   - Présences (Attendance tracking) ✅
    - Comptes (Accounts - placeholder)
-   - E-mails (Targeted email sending)
+   - E-mails (Targeted email sending) ✅
    - Excursions (placeholder)
-   - Équipe (Team management - placeholder)
+   - Équipe (Team management) ✅
    - ONE (Office National de l'Enfance - placeholder)
 
 2. **UnconfirmedBookings** (`/ActivityManagement/UnconfirmedBookings`) - Confirm bookings and assign groups:
@@ -322,6 +323,17 @@ Centralized module for managing all aspects of an activity in one place. Accessi
    - Shows recipient type, count, subject, attachment indicator
    - Modal detail view with full message and recipient list
    - Link to send new email
+
+6. **TeamMembers** (`/ActivityManagement/TeamMembers`) - Team assignment:
+   - **Two-column layout**:
+     - Left: Assigned team members with details (role, license, status)
+     - Right: Available team members (not yet assigned)
+   - One-click add/remove team member assignments
+   - Uses existing many-to-many relationship (`Activity.TeamMembers`)
+   - Filters available members by organisation
+   - Shows role badges (Coordinator, Animator, Cook, Maintenance)
+   - Shows license badges (Breveté, Coordinateur, None)
+   - Confirmation prompt before removing team member
 
 **Technical implementation**:
 - Session-based activity selection (`SessionActivityId` constant)
