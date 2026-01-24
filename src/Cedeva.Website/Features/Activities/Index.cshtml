@@ -114,6 +114,9 @@
                                     </td>
                                     <td class="text-end">
                                         <div class="btn-group">
+                                            <a asp-controller="ActivityManagement" asp-action="Index" asp-route-id="@activity.Id" class="btn btn-sm btn-success" title="Gérer l'activité">
+                                                <i class="fas fa-tasks"></i> Gérer
+                                            </a>
                                             <a asp-action="Details" asp-route-id="@activity.Id" class="btn btn-sm btn-outline-primary" title="Détails">
                                                 <i class="fas fa-eye"></i>
                                             </a>
