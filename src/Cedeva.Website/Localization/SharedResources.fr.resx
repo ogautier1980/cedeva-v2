@@ -600,6 +600,62 @@
     <value>Date naiss.</value>
   </data>
 
+  <!-- Activities -->
+  <data name="Activities" xml:space="preserve">
+    <value>Activités</value>
+  </data>
+  <data name="Activities.ExportExcel" xml:space="preserve">
+    <value>Exporter Excel</value>
+  </data>
+  <data name="Activities.NewActivity" xml:space="preserve">
+    <value>Nouvelle activité</value>
+  </data>
+  <data name="Activities.SearchPlaceholder" xml:space="preserve">
+    <value>Nom ou description...</value>
+  </data>
+  <data name="Activities.All" xml:space="preserve">
+    <value>Toutes</value>
+  </data>
+  <data name="Activities.ActiveOnly" xml:space="preserve">
+    <value>Actives uniquement</value>
+  </data>
+  <data name="Activities.Filter" xml:space="preserve">
+    <value>Filtrer</value>
+  </data>
+  <data name="Activities.Reset" xml:space="preserve">
+    <value>Réinitialiser</value>
+  </data>
+  <data name="Activities.Dates" xml:space="preserve">
+    <value>Dates</value>
+  </data>
+  <data name="Activities.PricePerDay" xml:space="preserve">
+    <value>Prix/jour</value>
+  </data>
+  <data name="Activities.Bookings" xml:space="preserve">
+    <value>Inscriptions</value>
+  </data>
+  <data name="Activities.Inactive" xml:space="preserve">
+    <value>Inactive</value>
+  </data>
+  <data name="Activities.Manage" xml:space="preserve">
+    <value>Gérer</value>
+  </data>
+  <data name="Activities.ManageActivity" xml:space="preserve">
+    <value>Gérer l'activité</value>
+  </data>
+  <data name="Activities.Previous" xml:space="preserve">
+    <value>Précédent</value>
+  </data>
+  <data name="Activities.Next" xml:space="preserve">
+    <value>Suivant</value>
+  </data>
+  <data name="Activities.NoActivitiesFound" xml:space="preserve">
+    <value>Aucune activité trouvée</value>
+  </data>
+  <data name="Activities.CreateActivity" xml:space="preserve">
+    <value>Créer une activité</value>
+  </data>
+
   <!-- Bookings -->
   <data name="Bookings.NewBooking" xml:space="preserve">
     <value>Nouvelle inscription</value>
@@ -630,6 +686,15 @@
   </data>
   <data name="Bookings.NoBookingsYet" xml:space="preserve">
     <value>Aucune inscription enregistrée. Cliquez sur "Nouvelle inscription" pour commencer.</value>
+  </data>
+  <data name="Bookings.Confirmed" xml:space="preserve">
+    <value>Confirmée</value>
+  </data>
+  <data name="Bookings.Pending" xml:space="preserve">
+    <value>En attente</value>
+  </data>
+  <data name="Bookings.To" xml:space="preserve">
+    <value>à</value>
   </data>
 
   <!-- Activities -->

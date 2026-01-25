@@ -1,17 +1,17 @@
 @model Cedeva.Website.Features.Activities.ViewModels.ActivityListViewModel
 @{
-    ViewData["Title"] = "Activités";
+    ViewData["Title"] = Localizer["Activities"];
 }
 
 <div class="container-fluid">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 class="h3 mb-0">Activités</h1>
+        <h1 class="h3 mb-0">@Localizer["Activities"]</h1>
         <div class="d-flex gap-2">
             <a asp-action="Export" asp-route-searchTerm="@Model.SearchTerm" asp-route-showActiveOnly="@Model.ShowActiveOnly" class="btn btn-success">
-                <i class="fas fa-file-excel me-2"></i>Exporter Excel
+                <i class="fas fa-file-excel me-2"></i>@Localizer["Activities.ExportExcel"]
             </a>
             <a asp-action="Create" class="btn btn-primary">
-                <i class="fas fa-plus me-2"></i>Nouvelle activité
+                <i class="fas fa-plus me-2"></i>@Localizer["Activities.NewActivity"]
             </a>
         </div>
     </div>
@@ -37,24 +37,24 @@
         <div class="card-body">
             <form method="get" class="row g-3">
                 <div class="col-md-4">
-                    <label class="form-label">Rechercher</label>
-                    <input type="text" name="searchTerm" class="form-control" value="@Model.SearchTerm" placeholder="Nom ou description...">
+                    <label class="form-label">@Localizer["Search"]</label>
+                    <input type="text" name="searchTerm" class="form-control" value="@Model.SearchTerm" placeholder="@Localizer["Activities.SearchPlaceholder"]">
                 </div>
                 <div class="col-md-3">
-                    <label class="form-label">Statut</label>
+                    <label class="form-label">@Localizer["Status"]</label>
                     <select name="showActiveOnly" class="form-select">
-                        <option value="">Toutes</option>
-                        <option value="true" selected="@(Model.ShowActiveOnly == true)">Actives uniquement</option>
+                        <option value="">@Localizer["Activities.All"]</option>
+                        <option value="true" selected="@(Model.ShowActiveOnly == true)">@Localizer["Activities.ActiveOnly"]</option>
                     </select>
                 </div>
                 <div class="col-md-2 d-flex align-items-end">
                     <button type="submit" class="btn btn-secondary w-100">
-                        <i class="fas fa-search me-2"></i>Filtrer
+                        <i class="fas fa-search me-2"></i>@Localizer["Activities.Filter"]
                     </button>
                 </div>
                 <div class="col-md-2 d-flex align-items-end">
                     <a asp-action="Index" class="btn btn-outline-secondary w-100">
-                        <i class="fas fa-times me-2"></i>Réinitialiser
+                        <i class="fas fa-times me-2"></i>@Localizer["Activities.Reset"]
                     </a>
                 </div>
             </form>
@@ -70,12 +70,12 @@
                     <table class="table table-hover">
                         <thead class="table-light">
                             <tr>
-                                <th>Nom</th>
-                                <th>Dates</th>
-                                <th class="text-center">Prix/jour</th>
-                                <th class="text-center">Inscriptions</th>
-                                <th class="text-center">Statut</th>
-                                <th class="text-end">Actions</th>
+                                <th>@Localizer["Name"]</th>
+                                <th>@Localizer["Activities.Dates"]</th>
+                                <th class="text-center">@Localizer["Activities.PricePerDay"]</th>
+                                <th class="text-center">@Localizer["Activities.Bookings"]</th>
+                                <th class="text-center">@Localizer["Status"]</th>
+                                <th class="text-end">@Localizer["Actions"]</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -105,25 +105,25 @@
                                     <td class="text-center">
                                         @if (activity.IsActive)
                                         {
-                                            <span class="badge bg-success">Active</span>
+                                            <span class="badge bg-success">@Localizer["Active"]</span>
                                         }
                                         else
                                         {
-                                            <span class="badge bg-secondary">Inactive</span>
+                                            <span class="badge bg-secondary">@Localizer["Activities.Inactive"]</span>
                                         }
                                     </td>
                                     <td class="text-end">
                                         <div class="btn-group">
-                                            <a asp-controller="ActivityManagement" asp-action="Index" asp-route-id="@activity.Id" class="btn btn-sm btn-success" title="Gérer l'activité">
-                                                <i class="fas fa-tasks"></i> Gérer
+                                            <a asp-controller="ActivityManagement" asp-action="Index" asp-route-id="@activity.Id" class="btn btn-sm btn-success" title="@Localizer["Activities.ManageActivity"]">
+                                                <i class="fas fa-tasks"></i> @Localizer["Activities.Manage"]
                                             </a>
-                                            <a asp-action="Details" asp-route-id="@activity.Id" class="btn btn-sm btn-outline-primary" title="Détails">
+                                            <a asp-action="Details" asp-route-id="@activity.Id" class="btn btn-sm btn-outline-primary" title="@Localizer["Details"]">
                                                 <i class="fas fa-eye"></i>
                                             </a>
-                                            <a asp-action="Edit" asp-route-id="@activity.Id" class="btn btn-sm btn-outline-warning" title="Modifier">
+                                            <a asp-action="Edit" asp-route-id="@activity.Id" class="btn btn-sm btn-outline-warning" title="@Localizer["Edit"]">
                                                 <i class="fas fa-edit"></i>
                                             </a>
-                                            <a asp-action="Delete" asp-route-id="@activity.Id" class="btn btn-sm btn-outline-danger" title="Supprimer">
+                                            <a asp-action="Delete" asp-route-id="@activity.Id" class="btn btn-sm btn-outline-danger" title="@Localizer["Delete"]">
                                                 <i class="fas fa-trash"></i>
                                             </a>
                                         </div>
@@ -141,7 +141,7 @@
                         <ul class="pagination justify-content-center">
                             <li class="page-item @(Model.CurrentPage == 1 ? "disabled" : "")">
                                 <a class="page-link" asp-action="Index" asp-route-page="@(Model.CurrentPage - 1)" asp-route-searchTerm="@Model.SearchTerm" asp-route-showActiveOnly="@Model.ShowActiveOnly">
-                                    Précédent
+                                    @Localizer["Activities.Previous"]
                                 </a>
                             </li>
                             @for (int i = 1; i <= Model.TotalPages; i++)
@@ -154,7 +154,7 @@
                             }
                             <li class="page-item @(Model.CurrentPage == Model.TotalPages ? "disabled" : "")">
                                 <a class="page-link" asp-action="Index" asp-route-page="@(Model.CurrentPage + 1)" asp-route-searchTerm="@Model.SearchTerm" asp-route-showActiveOnly="@Model.ShowActiveOnly">
-                                    Suivant
+                                    @Localizer["Activities.Next"]
                                 </a>
                             </li>
                         </ul>
@@ -165,8 +165,8 @@
             {
                 <div class="text-center py-5">
                     <i class="fas fa-calendar-times fa-3x text-muted mb-3"></i>
-                    <p class="text-muted">Aucune activité trouvée</p>
-                    <a asp-action="Create" class="btn btn-primary">Créer une activité</a>
+                    <p class="text-muted">@Localizer["Activities.NoActivitiesFound"]</p>
+                    <a asp-action="Create" class="btn btn-primary">@Localizer["Activities.CreateActivity"]</a>
                 </div>
             }
         </div>
