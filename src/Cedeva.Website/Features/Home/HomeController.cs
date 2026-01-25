@@ -1,8 +1,10 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Localization;
+using Microsoft.EntityFrameworkCore;
 using Cedeva.Core.Entities;
 using Cedeva.Core.Interfaces;
+using Cedeva.Infrastructure.Data;
 using Cedeva.Website.Features.Home.ViewModels;
 
 namespace Cedeva.Website.Features.Home;
@@ -10,39 +12,45 @@ namespace Cedeva.Website.Features.Home;
 [Authorize]
 public class HomeController : Controller
 {
-    private readonly IRepository<Activity> _activityRepository;
-    private readonly IRepository<Booking> _bookingRepository;
     private readonly IRepository<Child> _childRepository;
     private readonly IRepository<Parent> _parentRepository;
     private readonly IRepository<TeamMember> _teamMemberRepository;
+    private readonly CedevaDbContext _context;
 
     public HomeController(
-        IRepository<Activity> activityRepository,
-        IRepository<Booking> bookingRepository,
         IRepository<Child> childRepository,
         IRepository<Parent> parentRepository,
-        IRepository<TeamMember> teamMemberRepository)
+        IRepository<TeamMember> teamMemberRepository,
+        CedevaDbContext context)
     {
-        _activityRepository = activityRepository;
-        _bookingRepository = bookingRepository;
         _childRepository = childRepository;
         _parentRepository = parentRepository;
         _teamMemberRepository = teamMemberRepository;
+        _context = context;
     }
 
     public async Task<IActionResult> Index()
     {
-        var activities = await _activityRepository.GetAllAsync();
-        var bookings = await _bookingRepository.GetAllAsync();
         var children = await _childRepository.GetAllAsync();
         var parents = await _parentRepository.GetAllAsync();
         var teamMembers = await _teamMemberRepository.GetAllAsync();
 
+        // Load activities with bookings count using DbContext for proper Include
+        var activities = await _context.Activities
+            .Include(a => a.Bookings)
+            .ToListAsync();
+
+        // Load bookings with related entities (Child and Activity)
+        var bookings = await _context.Bookings
+            .Include(b => b.Child)
+            .Include(b => b.Activity)
+            .ToListAsync();
+
         var viewModel = new DashboardViewModel
         {
-            TotalActivities = activities.Count(),
+            TotalActivities = activities.Count,
             ActiveActivities = activities.Count(a => a.StartDate <= DateTime.Now && a.EndDate >= DateTime.Now),
-            TotalBookings = bookings.Count(),
+            TotalBookings = bookings.Count,
             ConfirmedBookings = bookings.Count(b => b.IsConfirmed),
             TotalChildren = children.Count(),
             TotalParents = parents.Count(),
@@ -56,7 +64,7 @@ public class HomeController : Controller
                     Name = a.Name,
                     StartDate = a.StartDate,
                     EndDate = a.EndDate,
-                    BookingsCount = a.Bookings.Count
+                    BookingsCount = a.Bookings?.Count ?? 0
                 })
                 .ToList(),
             RecentBookings = bookings
@@ -65,8 +73,8 @@ public class HomeController : Controller
                 .Select(b => new BookingSummary
                 {
                     BookingId = b.Id,
-                    ChildName = $"{b.Child.FirstName} {b.Child.LastName}",
-                    ActivityName = b.Activity.Name,
+                    ChildName = $"{b.Child?.FirstName} {b.Child?.LastName}",
+                    ActivityName = b.Activity?.Name ?? "N/A",
                     IsConfirmed = b.IsConfirmed,
                     CreatedAt = b.BookingDate
                 })

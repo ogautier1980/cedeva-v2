@@ -1,51 +1,51 @@
-<?xml version="1.0" encoding="utf-8"?>
-<root>
-  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
-    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
-    <xsd:element name="root" msdata:IsDataSet="true">
-      <xsd:complexType>
-        <xsd:choice maxOccurs="unbounded">
-          <xsd:element name="metadata">
-            <xsd:complexType>
-              <xsd:sequence>
-                <xsd:element name="value" type="xsd:string" minOccurs="0" />
-              </xsd:sequence>
-              <xsd:attribute name="name" use="required" type="xsd:string" />
-              <xsd:attribute name="type" type="xsd:string" />
-              <xsd:attribute name="mimetype" type="xsd:string" />
-              <xsd:attribute ref="xml:space" />
-            </xsd:complexType>
-          </xsd:element>
-          <xsd:element name="assembly">
-            <xsd:complexType>
-              <xsd:attribute name="alias" type="xsd:string" />
-              <xsd:attribute name="name" type="xsd:string" />
-            </xsd:complexType>
-          </xsd:element>
-          <xsd:element name="data">
-            <xsd:complexType>
-              <xsd:sequence>
-                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
-                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
-              </xsd:sequence>
-              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
-              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
-              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
-              <xsd:attribute ref="xml:space" />
-            </xsd:complexType>
-          </xsd:element>
-          <xsd:element name="resheader">
-            <xsd:complexType>
-              <xsd:sequence>
-                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
-              </xsd:sequence>
-              <xsd:attribute name="name" type="xsd:string" use="required" />
-            </xsd:complexType>
-          </xsd:element>
-        </xsd:choice>
-      </xsd:complexType>
-    </xsd:element>
-  </xsd:schema>
+<?xml version='1.0' encoding='utf-8'?>
+<root xmlns:ns1="urn:schemas-microsoft-com:xml-msdata" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:schema id="root">
+    <xs:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xs:element name="root" ns1:IsDataSet="true">
+      <xs:complexType>
+        <xs:choice maxOccurs="unbounded">
+          <xs:element name="metadata">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="value" type="xsd:string" minOccurs="0" />
+              </xs:sequence>
+              <xs:attribute name="name" use="required" type="xsd:string" />
+              <xs:attribute name="type" type="xsd:string" />
+              <xs:attribute name="mimetype" type="xsd:string" />
+              <xs:attribute ref="xml:space" />
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="assembly">
+            <xs:complexType>
+              <xs:attribute name="alias" type="xsd:string" />
+              <xs:attribute name="name" type="xsd:string" />
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="data">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="value" type="xsd:string" minOccurs="0" ns1:Ordinal="1" />
+                <xs:element name="comment" type="xsd:string" minOccurs="0" ns1:Ordinal="2" />
+              </xs:sequence>
+              <xs:attribute name="name" type="xsd:string" use="required" ns1:Ordinal="1" />
+              <xs:attribute name="type" type="xsd:string" ns1:Ordinal="3" />
+              <xs:attribute name="mimetype" type="xsd:string" ns1:Ordinal="4" />
+              <xs:attribute ref="xml:space" />
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="resheader">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="value" type="xsd:string" minOccurs="0" ns1:Ordinal="1" />
+              </xs:sequence>
+              <xs:attribute name="name" type="xsd:string" use="required" />
+            </xs:complexType>
+          </xs:element>
+        </xs:choice>
+      </xs:complexType>
+    </xs:element>
+  </xs:schema>
   <resheader name="resmimetype">
     <value>text/microsoft-resx</value>
   </resheader>
@@ -59,7 +59,7 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
 
-  <!-- Common terms -->
+  
   <data name="Home" xml:space="preserve">
     <value>Accueil</value>
   </data>
@@ -100,7 +100,7 @@
     <value>Présences</value>
   </data>
 
-  <!-- Actions -->
+  
   <data name="Add" xml:space="preserve">
     <value>Ajouter</value>
   </data>
@@ -168,7 +168,7 @@
     <value>Gérer</value>
   </data>
 
-  <!-- Authentication -->
+  
   <data name="Login" xml:space="preserve">
     <value>Connexion</value>
   </data>
@@ -191,7 +191,7 @@
     <value>Profil</value>
   </data>
 
-  <!-- Common fields -->
+  
   <data name="FirstName" xml:space="preserve">
     <value>Prénom</value>
   </data>
@@ -283,7 +283,7 @@
     <value>Prix/jour</value>
   </data>
 
-  <!-- Status & Confirmation -->
+  
   <data name="Status" xml:space="preserve">
     <value>Statut</value>
   </data>
@@ -336,7 +336,7 @@
     <value>Présent</value>
   </data>
 
-  <!-- Messages -->
+  
   <data name="Success" xml:space="preserve">
     <value>Succès</value>
   </data>
@@ -353,7 +353,7 @@
     <value>Chargement...</value>
   </data>
 
-  <!-- Welcome message -->
+  
   <data name="Welcome" xml:space="preserve">
     <value>Bienvenue sur Cedeva</value>
   </data>
@@ -361,7 +361,7 @@
     <value>Plateforme de gestion des centres de vacances pour enfants</value>
   </data>
 
-  <!-- ActivityManagement -->
+  
   <data name="ActivityManagement" xml:space="preserve">
     <value>Gestion d'activité</value>
   </data>
@@ -447,7 +447,7 @@
     <value>Date d'inscription</value>
   </data>
 
-  <!-- Email Management -->
+  
   <data name="Email.SendTargeted" xml:space="preserve">
     <value>Envoi d'e-mail ciblé</value>
   </data>
@@ -548,7 +548,7 @@
     <value>Détails de l'e-mail</value>
   </data>
 
-  <!-- Enums - EmailRecipient -->
+  
   <data name="Enum.EmailRecipient.AllParents" xml:space="preserve">
     <value>Tous les parents</value>
   </data>
@@ -559,7 +559,7 @@
     <value>Groupe</value>
   </data>
 
-  <!-- Presence Management -->
+  
   <data name="Presence.ManagePresences" xml:space="preserve">
     <value>Gestion des présences</value>
   </data>
@@ -636,10 +636,7 @@
     <value>Date naiss.</value>
   </data>
 
-  <!-- Activities -->
-  <data name="Activities" xml:space="preserve">
-    <value>Activités</value>
-  </data>
+  
   <data name="Activities.ExportExcel" xml:space="preserve">
     <value>Exporter Excel</value>
   </data>
@@ -692,7 +689,7 @@
     <value>Créer une activité</value>
   </data>
 
-  <!-- Bookings -->
+  
   <data name="Bookings.NewBooking" xml:space="preserve">
     <value>Nouvelle inscription</value>
   </data>
@@ -733,30 +730,7 @@
     <value>à</value>
   </data>
 
-  <!-- Activities -->
-  <data name="Activities.NewActivity" xml:space="preserve">
-    <value>Nouvelle activité</value>
-  </data>
-  <data name="Activities.All" xml:space="preserve">
-    <value>Toutes</value>
-  </data>
-  <data name="Activities.ActiveOnly" xml:space="preserve">
-    <value>Actives uniquement</value>
-  </data>
-  <data name="Activities.NoActivitiesFound" xml:space="preserve">
-    <value>Aucune activité trouvée</value>
-  </data>
-  <data name="Activities.CreateActivity" xml:space="preserve">
-    <value>Créer une activité</value>
-  </data>
-  <data name="Activities.Previous" xml:space="preserve">
-    <value>Précédent</value>
-  </data>
-  <data name="Activities.Next" xml:space="preserve">
-    <value>Suivant</value>
-  </data>
-
-  <!-- Enums - TeamRole -->
+  
   <data name="Enum.TeamRole.Coordinator" xml:space="preserve">
     <value>Coordinateur</value>
   </data>
@@ -764,7 +738,7 @@
     <value>Animateur</value>
   </data>
 
-  <!-- Enums - License -->
+  
   <data name="Enum.License.License" xml:space="preserve">
     <value>Breveté</value>
   </data>
@@ -781,7 +755,7 @@
     <value>Sans brevet</value>
   </data>
 
-  <!-- Enums - Status -->
+  
   <data name="Enum.Status.Compensated" xml:space="preserve">
     <value>Rémunéré</value>
   </data>
@@ -789,7 +763,7 @@
     <value>Bénévole</value>
   </data>
 
-  <!-- Children -->
+  
   <data name="Children.AddChild" xml:space="preserve">
     <value>Ajouter un enfant</value>
   </data>
@@ -869,10 +843,7 @@
     <value>YY.MM.DD-XXX.XX</value>
   </data>
 
-  <!-- Parents -->
-  <data name="Parents" xml:space="preserve">
-    <value>Parents</value>
-  </data>
+  
   <data name="Parents.AddParent" xml:space="preserve">
     <value>Ajouter un parent</value>
   </data>
@@ -940,10 +911,7 @@
     <value>Aucun enfant enregistré</value>
   </data>
 
-  <!-- TeamMembers -->
-  <data name="TeamMembers" xml:space="preserve">
-    <value>Membres d'équipe</value>
-  </data>
+  
   <data name="TeamMembers.AddMember" xml:space="preserve">
     <value>Ajouter un membre</value>
   </data>
@@ -1020,10 +988,7 @@
     <value>Frais</value>
   </data>
 
-  <!-- Organisations -->
-  <data name="Organisations" xml:space="preserve">
-    <value>Organisations</value>
-  </data>
+  
   <data name="Organisations.AddOrganisation" xml:space="preserve">
     <value>Ajouter une organisation</value>
   </data>
@@ -1070,7 +1035,7 @@
     <value>URL du logo</value>
   </data>
 
-  <!-- Users -->
+  
   <data name="Users.AddUser" xml:space="preserve">
     <value>Ajouter un utilisateur</value>
   </data>
@@ -1117,7 +1082,7 @@
     <value>-- Sélectionnez un rôle --</value>
   </data>
 
-  <!-- Account -->
+  
   <data name="Account.AccessDenied" xml:space="preserve">
     <value>Accès refusé</value>
   </data>
@@ -1167,7 +1132,7 @@
     <value>Mettre à jour le profil</value>
   </data>
 
-  <!-- Home -->
+  
   <data name="Home.Error" xml:space="preserve">
     <value>Erreur</value>
   </data>
@@ -1229,7 +1194,7 @@
     <value>Nouveau parent</value>
   </data>
 
-  <!-- Layout -->
+  
   <data name="Layout.Dashboard" xml:space="preserve">
     <value>Tableau de bord</value>
   </data>
@@ -1273,7 +1238,7 @@
     <value>Vie privée</value>
   </data>
 
-  <!-- PublicLayout -->
+  
   <data name="PublicLayout.Tagline" xml:space="preserve">
     <value>Plateforme de gestion de centres de vacances</value>
   </data>
@@ -1281,7 +1246,7 @@
     <value>Tous droits réservés</value>
   </data>
 
-  <!-- PublicRegistration -->
+  
   <data name="PublicRegistration.SelectActivity" xml:space="preserve">
     <value>Sélectionner une activité</value>
   </data>
@@ -1442,7 +1407,7 @@
     <value>Erreur lors de la copie:</value>
   </data>
 
-  <!-- TempData Messages -->
+  
   <data name="Message.ProfileUpdated" xml:space="preserve">
     <value>Profil mis à jour avec succès.</value>
   </data>
@@ -1537,7 +1502,7 @@
     <value>L'activité a été supprimée avec succès.</value>
   </data>
 
-  <!-- Activities CRUD Views -->
+  
   <data name="Activities.EditActivity" xml:space="preserve">
     <value>Modifier l'activité</value>
   </data>
@@ -1626,10 +1591,7 @@
     <value>Supprimer définitivement</value>
   </data>
 
-  <!-- Bookings CRUD Views -->
-  <data name="Bookings.NewBooking" xml:space="preserve">
-    <value>Nouvelle inscription</value>
-  </data>
+  
   <data name="Bookings.BasicInformation" xml:space="preserve">
     <value>Informations de base</value>
   </data>
@@ -1679,7 +1641,7 @@
     <value>Informations du parent</value>
   </data>
 
-  <!-- Validation Error Messages -->
+  
   <data name="Validation.Required" xml:space="preserve">
     <value>Le champ {0} est obligatoire</value>
   </data>
@@ -1705,7 +1667,7 @@
     <value>La valeur doit être comprise entre {1} et {2}</value>
   </data>
 
-  <!-- Field Display Names -->
+  
   <data name="Field.FirstName" xml:space="preserve">
     <value>Prénom</value>
   </data>
@@ -1895,32 +1857,11 @@
   <data name="Bookings.ContactParentForMedicalSheet" xml:space="preserve">
     <value>Contactez le parent pour demander la fiche médicale.</value>
   </data>
-  <data name="Home.NoActivities" xml:space="preserve">
-    <value>Aucune activité enregistrée.</value>
-  </data>
-  <data name="Home.NoBookings" xml:space="preserve">
-    <value>Aucune inscription enregistrée.</value>
-  </data>
   <data name="Organisations.LogoUrlOptional" xml:space="preserve">
     <value>URL du logo de l'organisation (optionnel)</value>
   </data>
   <data name="PublicRegistration.ActivityQuestionsLead" xml:space="preserve">
     <value>Veuillez répondre aux questions suivantes concernant l'activité.</value>
-  </data>
-  <data name="PublicRegistration.NoQuestionsRequired" xml:space="preserve">
-    <value>Aucune question n'est requise pour cette activité.</value>
-  </data>
-  <data name="PublicRegistration.ChildInformationLead" xml:space="preserve">
-    <value>Veuillez renseigner les informations de votre enfant.</value>
-  </data>
-  <data name="PublicRegistration.ParentInformationLead" xml:space="preserve">
-    <value>Veuillez renseigner vos informations personnelles.</value>
-  </data>
-  <data name="PublicRegistration.SelectActivityLead" xml:space="preserve">
-    <value>Veuillez sélectionner l'activité pour laquelle vous souhaitez inscrire votre enfant.</value>
-  </data>
-  <data name="PublicRegistration.NoActivitiesAvailable" xml:space="preserve">
-    <value>Aucune activité disponible pour le moment.</value>
   </data>
   <data name="SelectOrganisationOptional" xml:space="preserve">
     <value>-- Sélectionnez une organisation (optionnel) --</value>

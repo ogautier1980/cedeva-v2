@@ -72,7 +72,7 @@
                                                     case Cedeva.Core.Enums.QuestionType.Dropdown:
                                                         var dropdownOptions = question.Options?.Split(',') ?? Array.Empty<string>();
                                                         <select name="Answers[@question.Id]" class="form-select" required="@question.IsRequired">
-                                                            <option value="">@Localizer["PublicRegistration.SelectOption"]/option>
+                                                            <option value="">@Localizer["PublicRegistration.SelectOption"]</option>
                                                             @foreach (var option in dropdownOptions)
                                                             {
                                                                 <option value="@option.Trim()">@option.Trim()</option>
