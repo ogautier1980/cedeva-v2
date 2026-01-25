@@ -103,7 +103,7 @@ try
     });
 
     // Add localization
-    builder.Services.AddLocalization(options => options.ResourcesPath = "Localization");
+    builder.Services.AddLocalization();
     builder.Services.Configure<RequestLocalizationOptions>(options =>
     {
         var supportedCultures = new[] { "fr", "nl", "en" };
