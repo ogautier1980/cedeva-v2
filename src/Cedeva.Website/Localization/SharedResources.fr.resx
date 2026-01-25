@@ -637,9 +637,6 @@
   </data>
 
   <!-- Activities -->
-  <data name="Activities" xml:space="preserve">
-    <value>Activités</value>
-  </data>
   <data name="Activities.ExportExcel" xml:space="preserve">
     <value>Exporter Excel</value>
   </data>
@@ -734,27 +731,6 @@
   </data>
 
   <!-- Activities -->
-  <data name="Activities.NewActivity" xml:space="preserve">
-    <value>Nouvelle activité</value>
-  </data>
-  <data name="Activities.All" xml:space="preserve">
-    <value>Toutes</value>
-  </data>
-  <data name="Activities.ActiveOnly" xml:space="preserve">
-    <value>Actives uniquement</value>
-  </data>
-  <data name="Activities.NoActivitiesFound" xml:space="preserve">
-    <value>Aucune activité trouvée</value>
-  </data>
-  <data name="Activities.CreateActivity" xml:space="preserve">
-    <value>Créer une activité</value>
-  </data>
-  <data name="Activities.Previous" xml:space="preserve">
-    <value>Précédent</value>
-  </data>
-  <data name="Activities.Next" xml:space="preserve">
-    <value>Suivant</value>
-  </data>
 
   <!-- Enums - TeamRole -->
   <data name="Enum.TeamRole.Coordinator" xml:space="preserve">
@@ -870,9 +846,6 @@
   </data>
 
   <!-- Parents -->
-  <data name="Parents" xml:space="preserve">
-    <value>Parents</value>
-  </data>
   <data name="Parents.AddParent" xml:space="preserve">
     <value>Ajouter un parent</value>
   </data>
@@ -941,9 +914,6 @@
   </data>
 
   <!-- TeamMembers -->
-  <data name="TeamMembers" xml:space="preserve">
-    <value>Membres d'équipe</value>
-  </data>
   <data name="TeamMembers.AddMember" xml:space="preserve">
     <value>Ajouter un membre</value>
   </data>
@@ -1021,9 +991,6 @@
   </data>
 
   <!-- Organisations -->
-  <data name="Organisations" xml:space="preserve">
-    <value>Organisations</value>
-  </data>
   <data name="Organisations.AddOrganisation" xml:space="preserve">
     <value>Ajouter une organisation</value>
   </data>
@@ -1627,9 +1594,6 @@
   </data>
 
   <!-- Bookings CRUD Views -->
-  <data name="Bookings.NewBooking" xml:space="preserve">
-    <value>Nouvelle inscription</value>
-  </data>
   <data name="Bookings.BasicInformation" xml:space="preserve">
     <value>Informations de base</value>
   </data>
@@ -1895,32 +1859,11 @@
   <data name="Bookings.ContactParentForMedicalSheet" xml:space="preserve">
     <value>Contactez le parent pour demander la fiche médicale.</value>
   </data>
-  <data name="Home.NoActivities" xml:space="preserve">
-    <value>Aucune activité enregistrée.</value>
-  </data>
-  <data name="Home.NoBookings" xml:space="preserve">
-    <value>Aucune inscription enregistrée.</value>
-  </data>
   <data name="Organisations.LogoUrlOptional" xml:space="preserve">
     <value>URL du logo de l'organisation (optionnel)</value>
   </data>
   <data name="PublicRegistration.ActivityQuestionsLead" xml:space="preserve">
     <value>Veuillez répondre aux questions suivantes concernant l'activité.</value>
-  </data>
-  <data name="PublicRegistration.NoQuestionsRequired" xml:space="preserve">
-    <value>Aucune question n'est requise pour cette activité.</value>
-  </data>
-  <data name="PublicRegistration.ChildInformationLead" xml:space="preserve">
-    <value>Veuillez renseigner les informations de votre enfant.</value>
-  </data>
-  <data name="PublicRegistration.ParentInformationLead" xml:space="preserve">
-    <value>Veuillez renseigner vos informations personnelles.</value>
-  </data>
-  <data name="PublicRegistration.SelectActivityLead" xml:space="preserve">
-    <value>Veuillez sélectionner l'activité pour laquelle vous souhaitez inscrire votre enfant.</value>
-  </data>
-  <data name="PublicRegistration.NoActivitiesAvailable" xml:space="preserve">
-    <value>Aucune activité disponible pour le moment.</value>
   </data>
   <data name="SelectOrganisationOptional" xml:space="preserve">
     <value>-- Sélectionnez une organisation (optionnel) --</value>
