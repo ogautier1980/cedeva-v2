@@ -13,7 +13,7 @@
                     <h2 class="mb-0"><i class="fas fa-question-circle me-2"></i>@ViewData["Title"]</h2>
                 </div>
                 <div class="card-body">
-                    <p class="lead mb-4">Veuillez répondre aux questions suivantes concernant l'activité.</p>
+                    <p class="lead mb-4">@Localizer["PublicRegistration.ActivityQuestionsLead"]</p>
 
                     <form asp-action="ActivityQuestions" method="post">
                         <input type="hidden" asp-for="ActivityId" />
@@ -88,14 +88,14 @@
 
                             <div class="d-grid gap-2 mt-4">
                                 <button type="submit" class="btn btn-primary btn-lg">
-                                    <i class="fas fa-check me-2"></i>Finaliser l'inscription
+                                    <i class="fas fa-check me-2"></i>@Localizer["PublicRegistration.FinalizeBooking"]
                                 </button>
                             </div>
                         }
                         else
                         {
                             <div class="alert alert-info">
-                                <i class="fas fa-info-circle me-2"></i>Aucune question n'est requise pour cette activité.
+                                <i class="fas fa-info-circle me-2"></i>@Localizer["PublicRegistration.NoQuestionsRequired"]
                             </div>
                         }
                     </form>

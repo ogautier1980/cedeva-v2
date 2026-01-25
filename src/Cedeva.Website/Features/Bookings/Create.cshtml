@@ -1,6 +1,6 @@
 @model Cedeva.Website.Features.Bookings.ViewModels.BookingViewModel
 @{
-    ViewData["Title"] = "Nouvelle inscription";
+    ViewData["Title"] = Localizer["Bookings.NewBooking"];
 }
 
 <div class="container-fluid">
@@ -8,13 +8,13 @@
         <div class="col-lg-8">
             <div class="card shadow">
                 <div class="card-header">
-                    <h5 class="mb-0"><i class="fas fa-clipboard-list me-2"></i>@Localizer["Bookings.NewBooking"]/h5>
+                    <h5 class="mb-0"><i class="fas fa-clipboard-list me-2"></i>@Localizer["Bookings.NewBooking"]</h5>
                 </div>
                 <div class="card-body">
                     <form asp-action="Create" method="post">
                         <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
 
-                        <h6 class="mb-3 text-primary"><i class="fas fa-info-circle me-2"></i>@Localizer["Bookings.BasicInformation"]/h6>
+                        <h6 class="mb-3 text-primary"><i class="fas fa-info-circle me-2"></i>@Localizer["Bookings.BasicInformation"]</h6>
 
                         <div class="mb-3">
                             <label asp-for="BookingDate" class="form-label"></label>
@@ -26,19 +26,19 @@
                             <div class="col-md-6 mb-3">
                                 <label asp-for="ChildId" class="form-label"></label>
                                 <select asp-for="ChildId" class="form-select" asp-items="ViewBag.Children">
-                                    <option value="">-- Sélectionnez un enfant --</option>
+                                    <option value="">@Localizer["SelectChild"]</option>
                                 </select>
                                 <span asp-validation-for="ChildId" class="text-danger"></span>
                                 <div class="form-text">
                                     <a asp-controller="Children" asp-action="Create" class="text-decoration-none">
-                                        <i class="fas fa-plus-circle me-1"></i>Créer un nouvel enfant
+                                        <i class="fas fa-plus-circle me-1"></i>@Localizer["Bookings.CreateNewChild"]
                                     </a>
                                 </div>
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label asp-for="ActivityId" class="form-label"></label>
                                 <select asp-for="ActivityId" class="form-select" asp-items="ViewBag.Activities">
-                                    <option value="">-- Sélectionnez une activité --</option>
+                                    <option value="">@Localizer["SelectActivity"]</option>
                                 </select>
                                 <span asp-validation-for="ActivityId" class="text-danger"></span>
                             </div>
@@ -47,13 +47,13 @@
                         <div class="mb-3">
                             <label asp-for="GroupId" class="form-label"></label>
                             <select asp-for="GroupId" class="form-select" asp-items="ViewBag.Groups">
-                                <option value="">-- Aucun groupe (optionnel) --</option>
+                                <option value="">@Localizer["NoGroupOptional"]</option>
                             </select>
                             <span asp-validation-for="GroupId" class="text-danger"></span>
-                            <div class="form-text">@Localizer["Bookings.ActivityGroupHelp"]/div>
+                            <div class="form-text">@Localizer["Bookings.ActivityGroupHelp"]</div>
                         </div>
 
-                        <h6 class="mb-3 mt-4 text-primary"><i class="fas fa-check-circle me-2"></i>Statut</h6>
+                        <h6 class="mb-3 mt-4 text-primary"><i class="fas fa-check-circle me-2"></i>@Localizer["Status"]</h6>
 
                         <div class="row">
                             <div class="col-md-6 mb-3">
@@ -61,14 +61,14 @@
                                     <input asp-for="IsConfirmed" class="form-check-input" type="checkbox" />
                                     <label asp-for="IsConfirmed" class="form-check-label"></label>
                                 </div>
-                                <div class="form-text">Cocher si l'inscription est confirmée</div>
+                                <div class="form-text">@Localizer["Bookings.ConfirmedHelp"]</div>
                             </div>
                             <div class="col-md-6 mb-3">
                                 <div class="form-check">
                                     <input asp-for="IsMedicalSheet" class="form-check-input" type="checkbox" />
                                     <label asp-for="IsMedicalSheet" class="form-check-label"></label>
                                 </div>
-                                <div class="form-text">Cocher si la fiche médicale a été reçue</div>
+                                <div class="form-text">@Localizer["Bookings.MedicalSheetHelp"]</div>
                             </div>
                         </div>
 
@@ -76,10 +76,10 @@
 
                         <div class="d-flex justify-content-between">
                             <a asp-action="Index" class="btn btn-outline-secondary">
-                                <i class="fas fa-arrow-left me-2"></i>Annuler
+                                <i class="fas fa-arrow-left me-2"></i>@Localizer["Cancel"]
                             </a>
                             <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-save me-2"></i>Enregistrer
+                                <i class="fas fa-save me-2"></i>@Localizer["Save"]
                             </button>
                         </div>
                     </form>

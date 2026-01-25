@@ -33,7 +33,7 @@
                         }
                         else
                         {
-                            <em class="text-muted">Aucune organisation</em>
+                            <em class="text-muted">@Localizer["NoOrganisation"]</em>
                         }
                     </dd>
 
@@ -41,11 +41,11 @@
                     <dd class="col-sm-9">
                         @if (Model.Role == Cedeva.Core.Enums.Role.Admin)
                         {
-                            <span class="badge bg-danger">Administrateur</span>
+                            <span class="badge bg-danger">@Localizer["Enum.Role.Admin"]</span>
                         }
                         else
                         {
-                            <span class="badge bg-info">Coordinateur</span>
+                            <span class="badge bg-info">@Localizer["Enum.Role.Coordinator"]</span>
                         }
                     </dd>
 

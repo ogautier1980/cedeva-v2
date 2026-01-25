@@ -11,10 +11,10 @@
                     <h5 class="mb-0"><i class="fas fa-building me-2"></i>@Localizer["Organisations.OrganisationDetails"]</h5>
                     <div>
                         <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-sm btn-primary">
-                            <i class="fas fa-edit me-1"></i>Modifier
+                            <i class="fas fa-edit me-1"></i>@Localizer["Edit"]
                         </a>
                         <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-sm btn-danger">
-                            <i class="fas fa-trash me-1"></i>Supprimer
+                            <i class="fas fa-trash me-1"></i>@Localizer["Delete"]
                         </a>
                     </div>
                 </div>
@@ -99,7 +99,7 @@
                 <div class="card-body">
                     <div class="d-grid gap-2">
                         <a asp-controller="Activities" asp-action="Index" asp-route-organisationId="@Model.Id" class="btn btn-outline-primary btn-sm">
-                            <i class="fas fa-calendar-alt me-2"></i>Voir les activités
+                            <i class="fas fa-calendar-alt me-2"></i>@Localizer["Organisations.ViewActivities"]
                         </a>
                         <a asp-controller="Parents" asp-action="Index" asp-route-organisationId="@Model.Id" class="btn btn-outline-info btn-sm">
                             <i class="fas fa-users me-2"></i>Voir les parents

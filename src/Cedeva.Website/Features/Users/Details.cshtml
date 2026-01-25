@@ -11,10 +11,10 @@
                 <h5 class="mb-0"><i class="fas fa-user me-2"></i>@Localizer["Users.UserDetails"]</h5>
                 <div>
                     <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-sm btn-warning">
-                        <i class="fas fa-edit me-1"></i>Modifier
+                        <i class="fas fa-edit me-1"></i>@Localizer["Edit"]
                     </a>
                     <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-sm btn-danger">
-                        <i class="fas fa-trash me-1"></i>Supprimer
+                        <i class="fas fa-trash me-1"></i>@Localizer["Delete"]
                     </a>
                 </div>
             </div>
@@ -54,7 +54,7 @@
                         }
                         else
                         {
-                            <em class="text-muted">Aucune organisation</em>
+                            <em class="text-muted">@Localizer["NoOrganisation"]</em>
                         }
                     </dd>
 
@@ -62,11 +62,11 @@
                     <dd class="col-sm-9">
                         @if (Model.Role == Cedeva.Core.Enums.Role.Admin)
                         {
-                            <span class="badge bg-danger">Administrateur</span>
+                            <span class="badge bg-danger">@Localizer["Enum.Role.Admin"]</span>
                         }
                         else
                         {
-                            <span class="badge bg-info">Coordinateur</span>
+                            <span class="badge bg-info">@Localizer["Enum.Role.Coordinator"]</span>
                         }
                     </dd>
 

@@ -1874,4 +1874,109 @@
   <data name="Field.Recipient" xml:space="preserve">
     <value>Destinataire</value>
   </data>
+  <data name="NoGroupOptional" xml:space="preserve">
+    <value>-- Aucun groupe (optionnel) --</value>
+  </data>
+  <data name="SelectOrganisation" xml:space="preserve">
+    <value>-- Sélectionnez une organisation --</value>
+  </data>
+  <data name="Bookings.DeleteWarning" xml:space="preserve">
+    <value>Attention ! Êtes-vous sûr de vouloir supprimer cette inscription ?</value>
+  </data>
+  <data name="Bookings.ActionRequired" xml:space="preserve">
+    <value>Action requise</value>
+  </data>
+  <data name="Bookings.NotYetConfirmed" xml:space="preserve">
+    <value>Cette inscription n'est pas encore confirmée.</value>
+  </data>
+  <data name="Bookings.MedicalSheetNotReceived" xml:space="preserve">
+    <value>La fiche médicale n'a pas été reçue.</value>
+  </data>
+  <data name="Bookings.ContactParentForMedicalSheet" xml:space="preserve">
+    <value>Contactez le parent pour demander la fiche médicale.</value>
+  </data>
+  <data name="Home.NoActivities" xml:space="preserve">
+    <value>Aucune activité enregistrée.</value>
+  </data>
+  <data name="Home.NoBookings" xml:space="preserve">
+    <value>Aucune inscription enregistrée.</value>
+  </data>
+  <data name="Organisations.LogoUrlOptional" xml:space="preserve">
+    <value>URL du logo de l'organisation (optionnel)</value>
+  </data>
+  <data name="PublicRegistration.ActivityQuestionsLead" xml:space="preserve">
+    <value>Veuillez répondre aux questions suivantes concernant l'activité.</value>
+  </data>
+  <data name="PublicRegistration.NoQuestionsRequired" xml:space="preserve">
+    <value>Aucune question n'est requise pour cette activité.</value>
+  </data>
+  <data name="PublicRegistration.ChildInformationLead" xml:space="preserve">
+    <value>Veuillez renseigner les informations de votre enfant.</value>
+  </data>
+  <data name="PublicRegistration.ParentInformationLead" xml:space="preserve">
+    <value>Veuillez renseigner vos informations personnelles.</value>
+  </data>
+  <data name="PublicRegistration.SelectActivityLead" xml:space="preserve">
+    <value>Veuillez sélectionner l'activité pour laquelle vous souhaitez inscrire votre enfant.</value>
+  </data>
+  <data name="PublicRegistration.NoActivitiesAvailable" xml:space="preserve">
+    <value>Aucune activité disponible pour le moment.</value>
+  </data>
+  <data name="SelectOrganisationOptional" xml:space="preserve">
+    <value>-- Sélectionnez une organisation (optionnel) --</value>
+  </data>
+  <data name="NoOrganisation" xml:space="preserve">
+    <value>Aucune organisation</value>
+  </data>
+  <data name="SelectChild" xml:space="preserve">
+    <value>-- Sélectionnez un enfant --</value>
+  </data>
+  <data name="SelectActivity" xml:space="preserve">
+    <value>-- Sélectionnez une activité --</value>
+  </data>
+  <data name="Bookings.ConfirmedHelp" xml:space="preserve">
+    <value>Cocher si l'inscription est confirmée</value>
+  </data>
+  <data name="Bookings.MedicalSheetHelp" xml:space="preserve">
+    <value>Cocher si la fiche médicale a été reçue</value>
+  </data>
+  <data name="Bookings.DeleteRelatedWarning" xml:space="preserve">
+    <value>Cette inscription a {0} élément(s) associé(s) qui seront également supprimés.</value>
+  </data>
+  <data name="Bookings.Details" xml:space="preserve">
+    <value>Détails de l'inscription</value>
+  </data>
+  <data name="Continue" xml:space="preserve">
+    <value>Continuer</value>
+  </data>
+  <data name="PublicRegistration.FinalizeRegistration" xml:space="preserve">
+    <value>Finaliser l'inscription</value>
+  </data>
+  <data name="Organisations.DeleteRelatedWarning" xml:space="preserve">
+    <value>Cette organisation a {0} élément(s) associé(s).</value>
+  </data>
+  <data name="Organisations.ViewActivities" xml:space="preserve">
+    <value>Voir les activités</value>
+  </data>
+  <data name="AllOrganisations" xml:space="preserve">
+    <value>-- Toutes les organisations --</value>
+  </data>
+  <data name="BookedDays" xml:space="preserve">
+    <value>Jours réservés</value>
+  </data>
+  <data name="QuestionAnswers" xml:space="preserve">
+    <value>Réponses aux questions</value>
+  </data>
+  <data name="Organisations.DeleteCascadeWarning" xml:space="preserve">
+    <value>La suppression entraînera la suppression en cascade de toutes les données liées !</value>
+  </data>
+  <data name="Users.CreateUser" xml:space="preserve">
+    <value>Créer l'utilisateur</value>
+  </data>
+  <data name="Enum.Role.Coordinator" xml:space="preserve">
+    <value>Coordinateur</value>
+  </data>
+  <data name="Enum.Role.Admin" xml:space="preserve">
+    <value>Administrateur</value>
+  </data>
 </root>

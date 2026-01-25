@@ -36,9 +36,9 @@
                 <input type="text" class="form-control" id="searchString" name="searchString" value="@searchString" placeholder="Nom, prénom ou email...">
             </div>
             <div class="col-md-4">
-                <label for="organisationId" class="form-label">@Localizer["Organisation"]/label>
+                <label for="organisationId" class="form-label">@Localizer["Organisation"]</label>
                 <select class="form-select" id="organisationId" name="organisationId" asp-items="ViewBag.Organisations">
-                    <option value="">-- Toutes les organisations --</option>
+                    <option value="">@Localizer["AllOrganisations"]</option>
                 </select>
             </div>
             <div class="col-md-4 d-flex align-items-end">
@@ -68,7 +68,7 @@
                             <th>@Localizer["Email"]/th>
                             <th>@Localizer["Organisation"]/th>
                             <th>@Localizer["Role"]/th>
-                            <th>Statut</th>
+                            <th>@Localizer["Status"]</th>
                             <th class="text-end">@Localizer["Actions"]/th>
                         </tr>
                     </thead>
@@ -88,11 +88,11 @@
                                 <td>
                                     @if (user.Role == Cedeva.Core.Enums.Role.Admin)
                                     {
-                                        <span class="badge bg-danger">Admin</span>
+                                        <span class="badge bg-danger">@Localizer["Enum.Role.Admin"]</span>
                                     }
                                     else
                                     {
-                                        <span class="badge bg-info">Coordinateur</span>
+                                        <span class="badge bg-info">@Localizer["Enum.Role.Coordinator"]</span>
                                     }
                                 </td>
                                 <td>

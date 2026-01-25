@@ -1,6 +1,6 @@
 @model Cedeva.Website.Features.Bookings.ViewModels.BookingViewModel
 @{
-    ViewData["Title"] = "Détails de l'inscription";
+    ViewData["Title"] = Localizer["Bookings.Details"];
 }
 
 <div class="container-fluid">
@@ -11,10 +11,10 @@
                     <h5 class="mb-0"><i class="fas fa-clipboard-list me-2"></i>@Localizer["Bookings.BookingDetails"]/h5>
                     <div>
                         <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-sm btn-primary">
-                            <i class="fas fa-edit me-1"></i>Modifier
+                            <i class="fas fa-edit me-1"></i>@Localizer["Edit"]
                         </a>
                         <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-sm btn-danger">
-                            <i class="fas fa-trash me-1"></i>Supprimer
+                            <i class="fas fa-trash me-1"></i>@Localizer["Delete"]
                         </a>
                     </div>
                 </div>
@@ -90,7 +90,7 @@
 
                     <div class="mt-4">
                         <a asp-action="Index" class="btn btn-outline-secondary">
-                            <i class="fas fa-arrow-left me-2"></i>Retour à la liste
+                            <i class="fas fa-arrow-left me-2"></i>@Localizer["BackToList"]
                         </a>
                     </div>
                 </div>
@@ -105,11 +105,11 @@
                 <div class="card-body">
                     <ul class="list-group list-group-flush">
                         <li class="list-group-item d-flex justify-content-between align-items-center px-0">
-                            <span><i class="fas fa-calendar-day me-2 text-primary"></i>Jours réservés</span>
+                            <span><i class="fas fa-calendar-day me-2 text-primary"></i>@Localizer["BookedDays"]</span>
                             <span class="badge bg-primary rounded-pill">@Model.DaysCount</span>
                         </li>
                         <li class="list-group-item d-flex justify-content-between align-items-center px-0">
-                            <span><i class="fas fa-question-circle me-2 text-info"></i>Réponses aux questions</span>
+                            <span><i class="fas fa-question-circle me-2 text-info"></i>@Localizer["QuestionAnswers"]</span>
                             <span class="badge bg-info rounded-pill">@Model.QuestionAnswersCount</span>
                         </li>
                     </ul>
@@ -120,10 +120,10 @@
             {
                 <div class="card shadow mt-3">
                     <div class="card-header bg-warning">
-                        <h6 class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i>Action requise</h6>
+                        <h6 class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i>@Localizer["Bookings.ActionRequired"]</h6>
                     </div>
                     <div class="card-body">
-                        <p class="mb-2">Cette inscription n'est pas encore confirmée.</p>
+                        <p class="mb-2">@Localizer["Bookings.NotYetConfirmed"]</p>
                         <form asp-action="Edit" method="post">
                             <input type="hidden" name="Id" value="@Model.Id" />
                             <input type="hidden" name="BookingDate" value="@Model.BookingDate.ToString("yyyy-MM-dd")" />
@@ -133,7 +133,7 @@
                             <input type="hidden" name="IsConfirmed" value="true" />
                             <input type="hidden" name="IsMedicalSheet" value="@Model.IsMedicalSheet" />
                             <button type="submit" class="btn btn-success w-100">
-                                <i class="fas fa-check me-2"></i>Confirmer l'inscription
+                                <i class="fas fa-check me-2"></i>@Localizer["Bookings.ConfirmBooking"]
                             </button>
                         </form>
                     </div>
@@ -144,11 +144,11 @@
             {
                 <div class="card shadow mt-3">
                     <div class="card-header bg-danger text-white">
-                        <h6 class="mb-0"><i class="fas fa-file-medical me-2"></i>@Localizer["Bookings.MedicalSheetReceived"]/h6>
+                        <h6 class="mb-0"><i class="fas fa-file-medical me-2"></i>@Localizer["Bookings.MedicalSheetReceived"]</h6>
                     </div>
                     <div class="card-body">
-                        <p class="mb-2">La fiche médicale n'a pas été reçue.</p>
-                        <div class="form-text mb-2">Contactez le parent pour demander la fiche médicale.</div>
+                        <p class="mb-2">@Localizer["Bookings.MedicalSheetNotReceived"]</p>
+                        <div class="form-text mb-2">@Localizer["Bookings.ContactParentForMedicalSheet"]</div>
                     </div>
                 </div>
             }

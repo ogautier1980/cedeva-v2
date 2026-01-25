@@ -36,7 +36,7 @@
                     <div class="mb-3">
                         <label asp-for="OrganisationId" class="form-label"></label>
                         <select asp-for="OrganisationId" class="form-select" asp-items="ViewBag.Organisations">
-                            <option value="">-- Sélectionnez une organisation (optionnel) --</option>
+                            <option value="">@Localizer["SelectOrganisationOptional"]</option>
                         </select>
                         <span asp-validation-for="OrganisationId" class="text-danger"></span>
                     </div>
@@ -44,8 +44,8 @@
                     <div class="mb-3">
                         <label asp-for="Role" class="form-label"></label>
                         <select asp-for="Role" class="form-select">
-                            <option value="@Cedeva.Core.Enums.Role.Coordinator">Coordinateur</option>
-                            <option value="@Cedeva.Core.Enums.Role.Admin">Administrateur</option>
+                            <option value="@Cedeva.Core.Enums.Role.Coordinator">@Localizer["Enum.Role.Coordinator"]</option>
+                            <option value="@Cedeva.Core.Enums.Role.Admin">@Localizer["Enum.Role.Admin"]</option>
                         </select>
                         <span asp-validation-for="Role" class="text-danger"></span>
                     </div>
@@ -77,7 +77,7 @@
                             <i class="fas fa-times me-1"></i>@Localizer["Cancel"]
                         </a>
                         <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-save me-1"></i>Créer l'utilisateur
+                            <i class="fas fa-save me-1"></i>@Localizer["Users.CreateUser"]
                         </button>
                     </div>
                 </form>

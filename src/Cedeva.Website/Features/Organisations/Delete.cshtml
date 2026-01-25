@@ -21,8 +21,8 @@
                         {
                             <br />
                             <strong class="text-danger">
-                                Cette organisation a @totalRelated élément(s) associé(s).
-                                La suppression entraînera la suppression en cascade de toutes les données liées !
+                                @string.Format(Localizer["Organisations.DeleteRelatedWarning"].Value, totalRelated)
+                                @Localizer["Organisations.DeleteCascadeWarning"]
                             </strong>
                         }
                     </div>
@@ -46,7 +46,7 @@
                     @if (totalRelated > 0)
                     {
                         <hr />
-                        <h6 class="mb-3 text-danger"><i class="fas fa-link me-2"></i>Éléments associés</h6>
+                        <h6 class="mb-3 text-danger"><i class="fas fa-link me-2"></i>@Localizer["RelatedItems"]</h6>
                         <ul class="list-group mb-3">
                             @if (Model.ActivitiesCount > 0)
                             {

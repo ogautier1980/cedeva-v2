@@ -1,6 +1,6 @@
 @model Cedeva.Website.Features.Bookings.ViewModels.BookingViewModel
 @{
-    ViewData["Title"] = "Supprimer l'inscription";
+    ViewData["Title"] = Localizer["Bookings.DeleteBooking"];
 }
 
 <div class="container-fluid">
@@ -8,12 +8,12 @@
         <div class="col-lg-6">
             <div class="card shadow border-danger">
                 <div class="card-header bg-danger text-white">
-                    <h5 class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i>@Localizer["Bookings.DeleteBooking"]/h5>
+                    <h5 class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i>@Localizer["Bookings.DeleteBooking"]</h5>
                 </div>
                 <div class="card-body">
                     <div class="alert alert-warning" role="alert">
                         <i class="fas fa-exclamation-circle me-2"></i>
-                        <strong>Attention !</strong> Êtes-vous sûr de vouloir supprimer cette inscription ?
+                        @Localizer["Bookings.DeleteWarning"]
                         @{
                             var totalRelated = Model.DaysCount + Model.QuestionAnswersCount;
                         }
@@ -21,24 +21,24 @@
                         {
                             <br />
                             <strong class="text-danger">
-                                Cette inscription a @totalRelated élément(s) associé(s) qui seront également supprimés.
+                                @string.Format(Localizer["Bookings.DeleteRelatedWarning"].Value, totalRelated)
                             </strong>
                         }
                     </div>
 
-                    <h6 class="mb-3 text-primary"><i class="fas fa-clipboard-list me-2"></i>@Localizer["Bookings.BookingInformation"]/h6>
+                    <h6 class="mb-3 text-primary"><i class="fas fa-clipboard-list me-2"></i>@Localizer["Bookings.BookingInformation"]</h6>
 
                     <dl class="row">
-                        <dt class="col-sm-4">Date</dt>
+                        <dt class="col-sm-4">@Localizer["Date"]</dt>
                         <dd class="col-sm-8">@Model.BookingDate.ToString("dd/MM/yyyy")</dd>
 
-                        <dt class="col-sm-4">Enfant</dt>
+                        <dt class="col-sm-4">@Localizer["Child"]</dt>
                         <dd class="col-sm-8">@Model.ChildFullName</dd>
 
-                        <dt class="col-sm-4">Parent</dt>
+                        <dt class="col-sm-4">@Localizer["Parent"]</dt>
                         <dd class="col-sm-8">@Model.ParentFullName</dd>
 
-                        <dt class="col-sm-4">Activité</dt>
+                        <dt class="col-sm-4">@Localizer["Activity"]</dt>
                         <dd class="col-sm-8">
                             <strong>@Model.ActivityName</strong><br />
                             <small class="text-muted">
@@ -77,19 +77,19 @@
                     @if (totalRelated > 0)
                     {
                         <hr />
-                        <h6 class="mb-3 text-danger"><i class="fas fa-link me-2"></i>Éléments associés</h6>
+                        <h6 class="mb-3 text-danger"><i class="fas fa-link me-2"></i>@Localizer["RelatedItems"]</h6>
                         <ul class="list-group mb-3">
                             @if (Model.DaysCount > 0)
                             {
                                 <li class="list-group-item d-flex justify-content-between align-items-center">
-                                    <span><i class="fas fa-calendar-day me-2"></i>Jours réservés</span>
+                                    <span><i class="fas fa-calendar-day me-2"></i>@Localizer["BookedDays"]</span>
                                     <span class="badge bg-primary rounded-pill">@Model.DaysCount</span>
                                 </li>
                             }
                             @if (Model.QuestionAnswersCount > 0)
                             {
                                 <li class="list-group-item d-flex justify-content-between align-items-center">
-                                    <span><i class="fas fa-question-circle me-2"></i>Réponses aux questions</span>
+                                    <span><i class="fas fa-question-circle me-2"></i>@Localizer["QuestionAnswers"]</span>
                                     <span class="badge bg-info rounded-pill">@Model.QuestionAnswersCount</span>
                                 </li>
                             }
@@ -100,7 +100,7 @@
                         <input type="hidden" asp-for="Id" />
                         <div class="d-flex justify-content-between mt-4">
                             <a asp-action="Index" class="btn btn-outline-secondary">
-                                <i class="fas fa-arrow-left me-2"></i>Annuler
+                                <i class="fas fa-arrow-left me-2"></i>@Localizer["Cancel"]
                             </a>
                             <button type="submit" class="btn btn-danger">
                                 <i class="fas fa-trash me-2"></i>Confirmer la suppression

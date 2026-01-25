@@ -1806,4 +1806,88 @@
   <data name="Volunteer" xml:space="preserve">
     <value>[EN] Bénévole</value>
   </data>
+  <data name="Bookings.ActionRequired" xml:space="preserve">
+    <value>[EN] Action requise</value>
+  </data>
+  <data name="Bookings.ContactParentForMedicalSheet" xml:space="preserve">
+    <value>[EN] Contactez le parent pour demander la fiche médicale.</value>
+  </data>
+  <data name="Bookings.DeleteWarning" xml:space="preserve">
+    <value>[EN] Attention ! Êtes-vous sûr de vouloir supprimer cette inscription ?</value>
+  </data>
+  <data name="Bookings.MedicalSheetNotReceived" xml:space="preserve">
+    <value>[EN] La fiche médicale n'a pas été reçue.</value>
+  </data>
+  <data name="Bookings.NotYetConfirmed" xml:space="preserve">
+    <value>[EN] Cette inscription n'est pas encore confirmée.</value>
+  </data>
+  <data name="NoGroupOptional" xml:space="preserve">
+    <value>[EN] -- Aucun groupe (optionnel) --</value>
+  </data>
+  <data name="NoOrganisation" xml:space="preserve">
+    <value>[EN] Aucune organisation</value>
+  </data>
+  <data name="Organisations.LogoUrlOptional" xml:space="preserve">
+    <value>[EN] URL du logo de l'organisation (optionnel)</value>
+  </data>
+  <data name="PublicRegistration.ActivityQuestionsLead" xml:space="preserve">
+    <value>[EN] Veuillez répondre aux questions suivantes concernant l'activité.</value>
+  </data>
+  <data name="SelectOrganisation" xml:space="preserve">
+    <value>[EN] -- Sélectionnez une organisation --</value>
+  </data>
+  <data name="SelectOrganisationOptional" xml:space="preserve">
+    <value>[EN] -- Sélectionnez une organisation (optionnel) --</value>
+  </data>
+  <data name="AllOrganisations" xml:space="preserve">
+    <value>[EN] -- Toutes les organisations --</value>
+  </data>
+  <data name="Bookings.ConfirmedHelp" xml:space="preserve">
+    <value>[EN] Cocher si l'inscription est confirmée</value>
+  </data>
+  <data name="Bookings.DeleteRelatedWarning" xml:space="preserve">
+    <value>[EN] Cette inscription a {0} élément(s) associé(s) qui seront également supprimés.</value>
+  </data>
+  <data name="Bookings.Details" xml:space="preserve">
+    <value>[EN] Détails de l'inscription</value>
+  </data>
+  <data name="Bookings.MedicalSheetHelp" xml:space="preserve">
+    <value>[EN] Cocher si la fiche médicale a été reçue</value>
+  </data>
+  <data name="Continue" xml:space="preserve">
+    <value>[EN] Continuer</value>
+  </data>
+  <data name="Organisations.DeleteRelatedWarning" xml:space="preserve">
+    <value>[EN] Cette organisation a {0} élément(s) associé(s).</value>
+  </data>
+  <data name="Organisations.ViewActivities" xml:space="preserve">
+    <value>[EN] Voir les activités</value>
+  </data>
+  <data name="PublicRegistration.FinalizeRegistration" xml:space="preserve">
+    <value>[EN] Finaliser l'inscription</value>
+  </data>
+  <data name="SelectActivity" xml:space="preserve">
+    <value>[EN] -- Sélectionnez une activité --</value>
+  </data>
+  <data name="SelectChild" xml:space="preserve">
+    <value>[EN] -- Sélectionnez un enfant --</value>
+  </data>
+  <data name="BookedDays" xml:space="preserve">
+    <value>[EN] Jours réservés</value>
+  </data>
+  <data name="QuestionAnswers" xml:space="preserve">
+    <value>[EN] Réponses aux questions</value>
+  </data>
+  <data name="Organisations.DeleteCascadeWarning" xml:space="preserve">
+    <value>[EN] La suppression entraînera la suppression en cascade de toutes les données liées !</value>
+  </data>
+  <data name="Users.CreateUser" xml:space="preserve">
+    <value>[EN] Créer l'utilisateur</value>
+  </data>
+  <data name="Enum.Role.Coordinator" xml:space="preserve">
+    <value>[EN] Coordinateur</value>
+  </data>
+  <data name="Enum.Role.Admin" xml:space="preserve">
+    <value>[EN] Administrateur</value>
+  </data>
 </root>

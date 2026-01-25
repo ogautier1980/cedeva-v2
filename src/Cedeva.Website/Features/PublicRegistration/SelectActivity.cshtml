@@ -13,13 +13,13 @@
                     <h2 class="mb-0"><i class="fas fa-clipboard-list me-2"></i>@ViewData["Title"]</h2>
                 </div>
                 <div class="card-body">
-                    <p class="lead mb-4">Veuillez sélectionner l'activité pour laquelle vous souhaitez inscrire votre enfant.</p>
+                    <p class="lead mb-4">@Localizer["PublicRegistration.SelectActivityLead"]</p>
 
                     <form asp-action="SelectActivity" method="post">
                         @if (!Model.AvailableActivities.Any())
                         {
                             <div class="alert alert-info">
-                                <i class="fas fa-info-circle me-2"></i>Aucune activité disponible pour le moment.
+                                <i class="fas fa-info-circle me-2"></i>@Localizer["PublicRegistration.NoActivitiesAvailable"]
                             </div>
                         }
                         else

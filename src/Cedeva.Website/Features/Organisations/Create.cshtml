@@ -32,10 +32,10 @@
                             <label asp-for="LogoUrl" class="form-label"></label>
                             <input asp-for="LogoUrl" class="form-control" placeholder="https://..." />
                             <span asp-validation-for="LogoUrl" class="text-danger"></span>
-                            <div class="form-text">URL du logo de l'organisation (optionnel)</div>
+                            <div class="form-text">@Localizer["Organisations.LogoUrlOptional"]</div>
                         </div>
 
-                        <h6 class="mb-3 mt-4 text-primary"><i class="fas fa-map-marker-alt me-2"></i>@Localizer["Address"]/h6>
+                        <h6 class="mb-3 mt-4 text-primary"><i class="fas fa-map-marker-alt me-2"></i>@Localizer["Address"]</h6>
 
                         <div class="mb-3">
                             <label asp-for="Street" class="form-label"></label>
