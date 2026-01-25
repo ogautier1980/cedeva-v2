@@ -1,10 +1,10 @@
 @model Cedeva.Website.Features.Presence.ViewModels.SelectActivityViewModel
 @{
-    ViewData["Title"] = "Gestion des présences";
+    ViewData["Title"] = Localizer["Presence.ManagePresences"];
 }
 
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h2>Gestion des présences</h2>
+    <h2>@Localizer["Presence.ManagePresences"]</h2>
 </div>
 
 @if (TempData["SuccessMessage"] != null)
@@ -19,14 +19,14 @@
     <div class="card-body">
         <p class="text-muted mb-4">
             <i class="fas fa-info-circle me-2"></i>
-            Sélectionnez une activité pour gérer les présences quotidiennes des enfants.
+            @Localizer["Presence.SelectActivityInfo"]
         </p>
 
         @if (!Model.Activities.Any())
         {
             <div class="alert alert-info">
                 <i class="fas fa-info-circle me-2"></i>
-                Aucune activité active trouvée. Veuillez d'abord créer une activité.
+                @Localizer["Presence.NoActiveActivity"]
             </div>
         }
         else
@@ -43,7 +43,7 @@
                                     @activity.StartDate.ToString("dd/MM/yyyy") - @activity.EndDate.ToString("dd/MM/yyyy")
                                 </p>
                                 <a href="@Url.Action("SelectDay", new { id = activity.Id })" class="btn btn-primary w-100">
-                                    <i class="fas fa-clipboard-check me-2"></i>Gérer les présences
+                                    <i class="fas fa-clipboard-check me-2"></i>@Localizer["Presence.ManagePresencesButton"]
                                 </a>
                             </div>
                         </div>

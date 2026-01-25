@@ -596,6 +596,9 @@
   <data name="Presence.GeneratedBy" xml:space="preserve">
     <value>Document généré automatiquement par Cedeva - Liste de présence du</value>
   </data>
+  <data name="Presence.BirthDateShort" xml:space="preserve">
+    <value>Date naiss.</value>
+  </data>
 
   <!-- Bookings -->
   <data name="Bookings.NewBooking" xml:space="preserve">

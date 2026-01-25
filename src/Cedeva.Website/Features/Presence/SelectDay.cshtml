@@ -1,6 +1,6 @@
 @model Cedeva.Website.Features.Presence.ViewModels.SelectDayViewModel
 @{
-    ViewData["Title"] = "Sélectionner un jour";
+    ViewData["Title"] = Localizer["Presence.SelectDay"];
 }
 
 <div class="d-flex justify-content-between align-items-center mb-4">
@@ -12,7 +12,7 @@
         </p>
     </div>
     <a href="@Url.Action("Index")" class="btn btn-outline-secondary">
-        <i class="fas fa-arrow-left me-2"></i>Retour aux activités
+        <i class="fas fa-arrow-left me-2"></i>@Localizer["Presence.BackToActivities"]
     </a>
 </div>
 
@@ -20,14 +20,14 @@
     <div class="card-body">
         <p class="text-muted mb-4">
             <i class="fas fa-info-circle me-2"></i>
-            Sélectionnez un jour pour gérer les présences des enfants.
+            @Localizer["Presence.SelectDayInfo"]
         </p>
 
         @if (!Model.ActivityDays.Any())
         {
             <div class="alert alert-info">
                 <i class="fas fa-info-circle me-2"></i>
-                Aucun jour actif trouvé pour cette activité.
+                @Localizer["Presence.NoActiveDay"]
             </div>
         }
         else
@@ -43,7 +43,7 @@
                                 <h4 class="mb-3">@day.DayDate.ToString("dd/MM/yyyy")</h4>
                                 <a href="@Url.Action("List", new { activityId = Model.Activity.Id, dayId = day.DayId })"
                                    class="btn btn-primary w-100 mb-2">
-                                    <i class="fas fa-list me-2"></i>Liste de présence
+                                    <i class="fas fa-list me-2"></i>@Localizer["Presence.AttendanceList"]
                                 </a>
                             </div>
                         </div>

@@ -1,11 +1,11 @@
 @model Cedeva.Website.Features.Presence.ViewModels.PresenceListViewModel
 @{
-    ViewData["Title"] = "Liste de présence";
+    ViewData["Title"] = Localizer["Presence.AttendanceList"];
 }
 
 <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
-        <h2>Liste de présence</h2>
+        <h2>@Localizer["Presence.AttendanceList"]</h2>
         <p class="text-muted mb-0">
             <strong>@Model.Activity.Name</strong> -
             @Model.ActivityDay.DayDate.ToString("dddd dd MMMM yyyy", new System.Globalization.CultureInfo("fr-FR"))
@@ -14,10 +14,10 @@
     <div>
         <a href="@Url.Action("Print", new { activityId = Model.Activity.Id, dayId = Model.ActivityDay.DayId })"
            class="btn btn-outline-secondary" target="_blank">
-            <i class="fas fa-print me-2"></i>Imprimer
+            <i class="fas fa-print me-2"></i>@Localizer["Print"]
         </a>
         <a href="@Url.Action("SelectDay", new { id = Model.Activity.Id })" class="btn btn-outline-secondary">
-            <i class="fas fa-arrow-left me-2"></i>Retour
+            <i class="fas fa-arrow-left me-2"></i>@Localizer["Back"]
         </a>
     </div>
 </div>
@@ -36,7 +36,7 @@
         {
             <div class="alert alert-info">
                 <i class="fas fa-info-circle me-2"></i>
-                Aucune inscription trouvée pour ce jour.
+                @Localizer["Presence.NoBookings"]
             </div>
         }
         else
@@ -47,13 +47,13 @@
 
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <div>
-                        <span class="badge bg-primary">Total: @Model.PresenceItems.Count</span>
+                        <span class="badge bg-primary">@Localizer["Presence.Total"] @Model.PresenceItems.Count</span>
                         <span class="badge bg-success ms-2" id="presentCount">
-                            Présents: @Model.PresenceItems.Count(p => p.IsPresent)
+                            @Localizer["Presence.PresentCount"] @Model.PresenceItems.Count(p => p.IsPresent)
                         </span>
                     </div>
                     <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-save me-2"></i>Enregistrer les présences
+                        <i class="fas fa-save me-2"></i>@Localizer["Presence.SavePresences"]
                     </button>
                 </div>
 
@@ -64,12 +64,12 @@
                                 <th style="width: 50px">
                                     <input type="checkbox" id="checkAll" class="form-check-input" />
                                 </th>
-                                <th>Groupe</th>
-                                <th>Nom de l'enfant</th>
-                                <th>Date de naissance</th>
-                                <th>Parent</th>
-                                <th>Téléphone</th>
-                                <th class="text-center">Réservé</th>
+                                <th>@Localizer["Group"]</th>
+                                <th>@Localizer["Child"]</th>
+                                <th>@Localizer["BirthDate"]</th>
+                                <th>@Localizer["Parent"]</th>
+                                <th>@Localizer["Phone"]</th>
+                                <th class="text-center">@Localizer["Reserved"]</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -94,7 +94,7 @@
                                     <td>
                                         @if (isNewGroup)
                                         {
-                                            <span class="badge bg-info">@(item.ActivityGroupName ?? "Sans groupe")</span>
+                                            <span class="badge bg-info">@(item.ActivityGroupName ?? Localizer["Presence.NoGroup"].Value)</span>
                                         }
                                     </td>
                                     <td>
@@ -103,7 +103,7 @@
                                     <td>
                                         @item.ChildBirthDate.ToString("dd/MM/yyyy")
                                         <span class="text-muted small">
-                                            (@((DateTime.Today.Year - item.ChildBirthDate.Year)) ans)
+                                            (@((DateTime.Today.Year - item.ChildBirthDate.Year)) @Localizer["Presence.YearsOld"])
                                         </span>
                                     </td>
                                     <td>@item.ParentName</td>
@@ -126,7 +126,7 @@
 
                 <div class="d-flex justify-content-end mt-3">
                     <button type="submit" class="btn btn-primary btn-lg">
-                        <i class="fas fa-save me-2"></i>Enregistrer les présences
+                        <i class="fas fa-save me-2"></i>@Localizer["Presence.SavePresences"]
                     </button>
                 </div>
             </form>
@@ -150,7 +150,7 @@
 
         function updatePresentCount() {
             const checkedCount = document.querySelectorAll('.presence-checkbox:checked').length;
-            document.getElementById('presentCount').textContent = 'Présents: ' + checkedCount;
+            document.getElementById('presentCount').textContent = '@Localizer["Presence.PresentCount"] ' + checkedCount;
         }
 
         // Auto-save indicator
