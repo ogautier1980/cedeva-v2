@@ -1,8 +1,7 @@
-namespace Cedeva.Website.Localization;
+﻿namespace Cedeva.Website.Localization;
 
-/// <summary>
-/// Empty class used as a reference for shared localization resources
-/// </summary>
+// This is a marker class for localization resources
+// The actual translations are in SharedResources.{culture}.resx files
 public class SharedResources
 {
 }

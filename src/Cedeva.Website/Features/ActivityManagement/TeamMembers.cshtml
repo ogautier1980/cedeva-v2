@@ -1,18 +1,17 @@
 @model Cedeva.Website.Features.ActivityManagement.ViewModels.TeamMembersViewModel
-@using Cedeva.Core.Enums
 
 @{
-    ViewData["Title"] = "Équipe - " + Model.Activity.Name;
+    ViewData["Title"] = Localizer["TeamMembers"] + " - " + Model.Activity.Name;
 }
 
 <div class="container-fluid py-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h2 class="mb-1">@Model.Activity.Name</h2>
-            <p class="text-muted mb-0">Gestion de l'équipe</p>
+            <p class="text-muted mb-0">@Localizer["ActivityManagement.TeamManagement"]</p>
         </div>
         <a asp-action="Index" asp-route-id="@Model.Activity.Id" class="btn btn-outline-secondary">
-            <i class="fas fa-arrow-left"></i> Retour au tableau de bord
+            <i class="fas fa-arrow-left"></i> @Localizer["BackToDashboard"]
         </a>
     </div>
 
@@ -37,13 +36,13 @@
         <div class="col-md-7">
             <div class="card">
                 <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0"><i class="fas fa-users"></i> Équipe assignée (@Model.AssignedTeamMembers.Count())</h5>
+                    <h5 class="mb-0"><i class="fas fa-users"></i> @Localizer["ActivityManagement.AssignedTeam"] (@Model.AssignedTeamMembers.Count())</h5>
                 </div>
                 <div class="card-body">
                     @if (!Model.AssignedTeamMembers.Any())
                     {
                         <div class="alert alert-info">
-                            <i class="fas fa-info-circle"></i> Aucun membre de l'équipe n'est assigné à cette activité.
+                            <i class="fas fa-info-circle"></i> @Localizer["ActivityManagement.NoAssignedMembers"]
                         </div>
                     }
                     else
@@ -52,11 +51,11 @@
                             <table class="table table-hover">
                                 <thead class="table-light">
                                     <tr>
-                                        <th>Nom</th>
-                                        <th>Rôle</th>
-                                        <th>Licence</th>
-                                        <th>Statut</th>
-                                        <th class="text-end">Actions</th>
+                                        <th>@Localizer["Name"]</th>
+                                        <th>@Localizer["Role"]</th>
+                                        <th>@Localizer["License"]</th>
+                                        <th>@Localizer["Status"]</th>
+                                        <th class="text-end">@Localizer["Actions"]</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -75,25 +74,14 @@
                                             </td>
                                             <td>
                                                 <span class="badge bg-info">
-                                                    @switch (member.TeamRole)
-                                                    {
-                                                        case TeamRole.Coordinator:
-                                                            <text>Coordinateur</text>
-                                                            break;
-                                                        case TeamRole.Animator:
-                                                            <text>Animateur</text>
-                                                            break;
-                                                        default:
-                                                            @member.TeamRole.ToString()
-                                                            break;
-                                                    }
+                                                    @Localizer.GetLocalizedEnum(member.TeamRole)
                                                 </span>
                                             </td>
                                             <td>
                                                 @if (member.License != License.NoLicense)
                                                 {
                                                     <span class="badge bg-success">
-                                                        @member.License.ToString()
+                                                        @Localizer.GetLocalizedEnum(member.License)
                                                     </span>
                                                 }
                                                 else
@@ -102,14 +90,9 @@
                                                 }
                                             </td>
                                             <td>
-                                                @if (member.Status == Status.Compensated)
-                                                {
-                                                    <span class="badge bg-success">Rémunéré</span>
-                                                }
-                                                else
-                                                {
-                                                    <span class="badge bg-info">Bénévole</span>
-                                                }
+                                                <span class="badge @(member.Status == Status.Compensated ? "bg-success" : "bg-info")">
+                                                    @Localizer.GetLocalizedEnum(member.Status)
+                                                </span>
                                             </td>
                                             <td class="text-end">
                                                 <form asp-action="RemoveTeamMember" method="post" style="display: inline;">
@@ -117,8 +100,8 @@
                                                     <input type="hidden" name="id" value="@Model.Activity.Id" />
                                                     <input type="hidden" name="teamMemberId" value="@member.TeamMemberId" />
                                                     <button type="submit" class="btn btn-sm btn-outline-danger"
-                                                            onclick="return confirm('Retirer @member.FirstName @member.LastName de l\'équipe ?');">
-                                                        <i class="fas fa-user-minus"></i> Retirer
+                                                            onclick="return confirm('@string.Format(Localizer["ActivityManagement.RemoveConfirm"].Value, member.FirstName + " " + member.LastName)');">
+                                                        <i class="fas fa-user-minus"></i> @Localizer["Remove"]
                                                     </button>
                                                 </form>
                                             </td>
@@ -136,13 +119,13 @@
         <div class="col-md-5">
             <div class="card">
                 <div class="card-header bg-secondary text-white">
-                    <h5 class="mb-0"><i class="fas fa-user-plus"></i> Membres disponibles (@Model.AvailableTeamMembers.Count())</h5>
+                    <h5 class="mb-0"><i class="fas fa-user-plus"></i> @Localizer["ActivityManagement.AvailableMembers"] (@Model.AvailableTeamMembers.Count())</h5>
                 </div>
                 <div class="card-body">
                     @if (!Model.AvailableTeamMembers.Any())
                     {
                         <div class="alert alert-info">
-                            <i class="fas fa-info-circle"></i> Tous les membres de l'équipe sont déjà assignés à cette activité.
+                            <i class="fas fa-info-circle"></i> @Localizer["ActivityManagement.AllMembersAssigned"]
                         </div>
                     }
                     else
@@ -155,11 +138,11 @@
                                         <strong>@member.FirstName @member.LastName</strong>
                                         <br />
                                         <small class="text-muted">
-                                            <i class="fas fa-tag"></i> @member.TeamRole.ToString()
+                                            <i class="fas fa-tag"></i> @Localizer.GetLocalizedEnum(member.TeamRole)
                                             @if (member.License != License.NoLicense)
                                             {
                                                 <span class="ms-2">
-                                                    <i class="fas fa-certificate"></i> @member.License.ToString()
+                                                    <i class="fas fa-certificate"></i> @Localizer.GetLocalizedEnum(member.License)
                                                 </span>
                                             }
                                         </small>
@@ -169,7 +152,7 @@
                                         <input type="hidden" name="id" value="@Model.Activity.Id" />
                                         <input type="hidden" name="teamMemberId" value="@member.TeamMemberId" />
                                         <button type="submit" class="btn btn-sm btn-primary">
-                                            <i class="fas fa-plus"></i> Ajouter
+                                            <i class="fas fa-plus"></i> @Localizer["Add"]
                                         </button>
                                     </form>
                                 </div>
