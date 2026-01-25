@@ -350,6 +350,9 @@
   <data name="ActivityManagement.Exit" xml:space="preserve">
     <value>Quitter la gestion d'activité</value>
   </data>
+  <data name="ActivityManagement.Period" xml:space="preserve">
+    <value>Du {0} au {1}</value>
+  </data>
   <data name="ActivityManagement.ManageActivity" xml:space="preserve">
     <value>Gérer l'activité</value>
   </data>
@@ -504,6 +507,20 @@
   </data>
   <data name="Email.Tip4" xml:space="preserve">
     <value>Tous les envois sont enregistrés dans l'historique</value>
+  </data>
+  <data name="Email.Details" xml:space="preserve">
+    <value>Détails de l'e-mail</value>
+  </data>
+
+  <!-- Enums - EmailRecipient -->
+  <data name="Enum.EmailRecipient.AllParents" xml:space="preserve">
+    <value>Tous les parents</value>
+  </data>
+  <data name="Enum.EmailRecipient.MedicalSheetReminder" xml:space="preserve">
+    <value>Rappel fiche médicale</value>
+  </data>
+  <data name="Enum.EmailRecipient.ActivityGroup" xml:space="preserve">
+    <value>Groupe</value>
   </data>
 
   <!-- Presence Management -->

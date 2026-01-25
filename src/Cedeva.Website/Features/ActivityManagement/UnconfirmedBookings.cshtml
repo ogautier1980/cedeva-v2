@@ -1,7 +1,7 @@
 @model Cedeva.Website.Features.ActivityManagement.ViewModels.UnconfirmedBookingsViewModel
 
 @{
-    ViewData["Title"] = "Inscriptions en attente";
+    ViewData["Title"] = Localizer["ActivityManagement.PendingBookings"];
 }
 
 @if (TempData["SuccessMessage"] != null)
@@ -22,12 +22,12 @@
 
 <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
-        <h2 class="mb-1">Inscriptions en attente</h2>
-        <p class="text-muted">Activité: @Model.Activity.Name</p>
+        <h2 class="mb-1">@Localizer["ActivityManagement.PendingBookings"]</h2>
+        <p class="text-muted">@Localizer["Activity"]: @Model.Activity.Name</p>
     </div>
     <div>
         <a asp-action="Index" asp-route-id="@Model.Activity.Id" class="btn btn-secondary">
-            <i class="fas fa-arrow-left"></i> Retour
+            <i class="fas fa-arrow-left"></i> @Localizer["Back"]
         </a>
     </div>
 </div>
@@ -37,7 +37,7 @@
         @if (!Model.UnconfirmedBookings.Any())
         {
             <div class="alert alert-info mb-0">
-                <i class="fas fa-info-circle me-2"></i>Aucune inscription en attente de confirmation.
+                <i class="fas fa-info-circle me-2"></i>@Localizer["ActivityManagement.NoPendingBookings"]
             </div>
         }
         else
@@ -46,11 +46,11 @@
                 <table class="table table-hover">
                     <thead class="table-light">
                         <tr>
-                            <th>Enfant</th>
-                            <th>Parent</th>
-                            <th>Date d'inscription</th>
-                            <th style="width: 250px;">Groupe</th>
-                            <th class="text-end">Actions</th>
+                            <th>@Localizer["Child"]</th>
+                            <th>@Localizer["Parent"]</th>
+                            <th>@Localizer["ActivityManagement.RegistrationDate"]</th>
+                            <th style="width: 250px;">@Localizer["Group"]</th>
+                            <th class="text-end">@Localizer["Actions"]</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -61,7 +61,7 @@
                                     <strong>@booking.Child?.FirstName @booking.Child?.LastName</strong>
                                     @if (booking.Child?.BirthDate != null)
                                     {
-                                        <br><small class="text-muted">Né(e) le @booking.Child.BirthDate.ToString("dd/MM/yyyy")</small>
+                                        <br><small class="text-muted">@Localizer["ActivityManagement.BornOn"] @booking.Child.BirthDate.ToString("dd/MM/yyyy")</small>
                                     }
                                 </td>
                                 <td>
@@ -79,7 +79,7 @@
                                     <input type="hidden" name="bookingId" value="@booking.Id" />
                                     <td>
                                         <select name="groupId" class="form-select form-select-sm" required>
-                                            <option value="0">-- Sélectionner un groupe --</option>
+                                            <option value="0">@Localizer["ActivityManagement.SelectGroup"]</option>
                                             @foreach (var option in Model.GroupOptions)
                                             {
                                                 <option value="@option.Value">@option.Text</option>
@@ -88,7 +88,7 @@
                                     </td>
                                     <td class="text-end">
                                         <button type="submit" class="btn btn-success btn-sm">
-                                            <i class="fas fa-check"></i> Confirmer
+                                            <i class="fas fa-check"></i> @Localizer["Confirm"]
                                         </button>
                                     </td>
                                 </form>
@@ -100,7 +100,7 @@
 
             <div class="alert alert-warning mt-3">
                 <i class="fas fa-exclamation-triangle me-2"></i>
-                <strong>@Model.UnconfirmedBookings.Count()</strong> inscription(s) en attente de confirmation.
+                <strong>@Model.UnconfirmedBookings.Count()</strong> @Localizer["ActivityManagement.PendingCount"]
             </div>
         }
     </div>
