@@ -33,6 +33,15 @@ Guide for Claude Code when working with the Cedeva codebase.
    - Update this file with factual information only
    - Remove old/incorrect information
 
+6. **DIAGNOSE BEFORE CHANGING** ⚠️ CRITICAL
+   - When something doesn't work, NEVER make changes blindly
+   - First step: ALWAYS investigate and understand the root cause
+   - Use diagnostic commands: curl, grep, read files, check logs
+   - Only after understanding the problem, apply the fix
+   - Test the specific symptom to verify the fix works
+   - ❌ BAD: "Let me try creating this file / renaming that / moving files"
+   - ✅ GOOD: "Let me check what's actually happening by testing the endpoint / reading the config / checking the logs"
+
 **This applies to localization, bug fixes, features, refactoring, documentation - EVERYTHING.**
 
 ---
@@ -127,15 +136,17 @@ src/
 - [x] Presence Management (daily attendance tracking)
 - [x] ActivityManagement Module (centralized activity hub)
 
-### 🔄 Phase 5: Localization (IN PROGRESS)
+### ✅ Phase 5: Localization (WORKING)
 - [x] Localization infrastructure (FR/NL/EN resource files)
 - [x] Language switcher in navbar
 - [x] Most views localized with @Localizer pattern
 - [x] ViewModel validation messages localized
 - [x] Controller TempData messages localized
-- [ ] **VERIFICATION NEEDED**: User reported French text still exists in views
-- [ ] Full audit of all .cshtml files for hardcoded French text
-- [ ] Translation of NL and EN resource values (currently marked with [NL]/[EN] prefixes)
+- [x] **FIXED**: ResourcesPath configuration removed from Program.cs (was blocking localization)
+- [x] French translations working correctly on all pages
+- [ ] Full audit of all .cshtml files for any remaining hardcoded text
+- [ ] Translation of NL resource values (currently showing FR values with [NL] prefix markers)
+- [ ] Translation of EN resource values (currently showing FR values with [EN] prefix markers)
 
 ## Key Features
 
@@ -246,34 +257,34 @@ dotnet ef database update --project src/Cedeva.Infrastructure --startup-project 
 
 ## Localization Status
 
-**Current state** (as of last verified commit):
+**Current state**: French translations working correctly (verified 2026-01-25)
 
 ### Infrastructure
-- ✅ Resource files created (SharedResources.fr.resx, .nl.resx, .en.resx)
-- ✅ IStringLocalizer injected in controllers
-- ✅ DataAnnotationsLocalization configured
-- ✅ Language switcher in navbar
+- ✅ Resource files: `Localization/SharedResources.resx` (base), `.fr.resx`, `.nl.resx`, `.en.resx`
+- ✅ 600 resource keys defined
+- ✅ IStringLocalizer injected in views via `_ViewImports.cshtml`
+- ✅ DataAnnotationsLocalization configured to use SharedResources
+- ✅ Language switcher in navbar with cookie-based persistence
+- ✅ **CRITICAL FIX**: Removed `ResourcesPath` from `Program.cs` line 106
+  - ASP.NET Core has a known bug where setting `ResourcesPath` breaks shared resource localization
+  - See: https://github.com/aspnet/Localization/issues/268
+  - Files must be in `Localization/` folder with standard naming: `SharedResources.{culture}.resx`
 
 ### What's Localized
-Recent work localized:
-- 24 view files (Account, Activities, Bookings, Home, Organisations, PublicRegistration, Users)
-- Button labels (Save, Cancel, Back, Edit, Delete)
-- Dropdown placeholders
-- Role enum values
-- Help text and lead paragraphs
-- Warning and info messages
-
-13 resource keys added in last session:
-- BookedDays, QuestionAnswers, Account.CreateAccount
-- Edit, Delete, Save, Cancel, Back
-- Organisations.ViewActivities, Organisations.DeleteCascadeWarning
-- PublicRegistration.FinalizeBooking, Users.CreateUser
-- AllOrganisations, Enum.Role.Coordinator, Enum.Role.Admin
+Views localized with `@Localizer["Key"]` pattern:
+- Account (Login, Register)
+- Activities (Index, Create, Edit, Delete, Details)
+- Bookings (Index, Create, Edit, Delete, Details)
+- Home (Dashboard, Error)
+- Organisations (Index, Create, Edit, Delete)
+- PublicRegistration (all 5 steps)
+- Users (Index, Create, Edit, Delete)
+- Button labels, validation messages, enum values, help text
 
 ### What Still Needs Work
-- ⚠️ **User reported French text still exists** - full audit required
-- 🔄 Translate ~360 NL resource values (marked with [NL] prefix)
-- 🔄 Translate ~360 EN resource values (marked with [EN] prefix)
+- 🔄 Full audit for any remaining hardcoded French text in views
+- 🔄 Translate ~360 NL resource values (currently contain French text with `[NL]` prefix markers)
+- 🔄 Translate ~360 EN resource values (currently contain French text with `[EN]` prefix markers)
 
 ### Verification Commands
 ```bash
@@ -305,6 +316,20 @@ Always use `.IgnoreQueryFilters()` in seeders (no authenticated user context).
 
 ### Booking Status
 **IMPORTANT**: Booking uses `IsConfirmed` boolean (NOT a Status enum)
+
+### Localization ResourcesPath Issue (2026-01-25)
+**CRITICAL**: Do NOT set `ResourcesPath` in `Program.cs` when using shared resources
+```csharp
+// ❌ BROKEN - prevents localization from working
+builder.Services.AddLocalization(options => options.ResourcesPath = "Localization");
+
+// ✅ CORRECT - allows shared resources to work
+builder.Services.AddLocalization();
+```
+Known ASP.NET Core bug: https://github.com/aspnet/Localization/issues/268
+- Files must be in `Localization/` folder
+- Naming: `SharedResources.resx` (base), `SharedResources.{culture}.resx` (translations)
+- Base file is required for localization to work
 
 ## Known Issues & Future Work
 
