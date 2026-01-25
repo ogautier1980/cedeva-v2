@@ -87,6 +87,12 @@
   <data name="Users" xml:space="preserve">
     <value>Users</value>
   </data>
+  <data name="Presence" xml:space="preserve">
+    <value>Attendance</value>
+  </data>
+  <data name="Presences" xml:space="preserve">
+    <value>Attendance</value>
+  </data>
 
   <!-- Actions -->
   <data name="Add" xml:space="preserve">
@@ -122,6 +128,33 @@
   <data name="BackToList" xml:space="preserve">
     <value>Back to list</value>
   </data>
+  <data name="BackToDashboard" xml:space="preserve">
+    <value>Back to dashboard</value>
+  </data>
+  <data name="Send" xml:space="preserve">
+    <value>Send</value>
+  </data>
+  <data name="Print" xml:space="preserve">
+    <value>Print</value>
+  </data>
+  <data name="Filter" xml:space="preserve">
+    <value>Filter</value>
+  </data>
+  <data name="Reset" xml:space="preserve">
+    <value>Reset</value>
+  </data>
+  <data name="Confirm" xml:space="preserve">
+    <value>Confirm</value>
+  </data>
+  <data name="Remove" xml:space="preserve">
+    <value>Remove</value>
+  </data>
+  <data name="Close" xml:space="preserve">
+    <value>Close</value>
+  </data>
+  <data name="Manage" xml:space="preserve">
+    <value>Manage</value>
+  </data>
 
   <!-- Authentication -->
   <data name="Login" xml:space="preserve">
@@ -155,6 +188,9 @@
   </data>
   <data name="Name" xml:space="preserve">
     <value>Name</value>
+  </data>
+  <data name="FullName" xml:space="preserve">
+    <value>Full name</value>
   </data>
   <data name="Description" xml:space="preserve">
     <value>Description</value>
@@ -198,6 +234,33 @@
   <data name="Organisation" xml:space="preserve">
     <value>Organization</value>
   </data>
+  <data name="Activity" xml:space="preserve">
+    <value>Activity</value>
+  </data>
+  <data name="Child" xml:space="preserve">
+    <value>Child</value>
+  </data>
+  <data name="Parent" xml:space="preserve">
+    <value>Parent</value>
+  </data>
+  <data name="Group" xml:space="preserve">
+    <value>Group</value>
+  </data>
+  <data name="Role" xml:space="preserve">
+    <value>Role</value>
+  </data>
+  <data name="License" xml:space="preserve">
+    <value>License</value>
+  </data>
+  <data name="Actions" xml:space="preserve">
+    <value>Actions</value>
+  </data>
+  <data name="Dates" xml:space="preserve">
+    <value>Dates</value>
+  </data>
+  <data name="PricePerDay" xml:space="preserve">
+    <value>Price/day</value>
+  </data>
 
   <!-- Status & Confirmation -->
   <data name="Status" xml:space="preserve">
@@ -206,13 +269,22 @@
   <data name="Confirmed" xml:space="preserve">
     <value>Confirmed</value>
   </data>
+  <data name="ConfirmedFeminine" xml:space="preserve">
+    <value>Confirmed</value>
+  </data>
   <data name="Pending" xml:space="preserve">
     <value>Pending</value>
   </data>
   <data name="Active" xml:space="preserve">
     <value>Active</value>
   </data>
+  <data name="ActiveFeminine" xml:space="preserve">
+    <value>Active</value>
+  </data>
   <data name="Inactive" xml:space="preserve">
+    <value>Inactive</value>
+  </data>
+  <data name="InactiveFeminine" xml:space="preserve">
     <value>Inactive</value>
   </data>
   <data name="Yes" xml:space="preserve">
@@ -220,6 +292,12 @@
   </data>
   <data name="No" xml:space="preserve">
     <value>No</value>
+  </data>
+  <data name="Reserved" xml:space="preserve">
+    <value>Reserved</value>
+  </data>
+  <data name="Present" xml:space="preserve">
+    <value>Present</value>
   </data>
 
   <!-- Messages -->
@@ -245,5 +323,407 @@
   </data>
   <data name="WelcomeMessage" xml:space="preserve">
     <value>Children's vacation center management platform</value>
+  </data>
+
+  <!-- ActivityManagement -->
+  <data name="ActivityManagement" xml:space="preserve">
+    <value>Activity Management</value>
+  </data>
+  <data name="ActivityManagement.PendingBookings" xml:space="preserve">
+    <value>Pending Registrations</value>
+  </data>
+  <data name="ActivityManagement.Accounts" xml:space="preserve">
+    <value>Accounts</value>
+  </data>
+  <data name="ActivityManagement.Emails" xml:space="preserve">
+    <value>Emails</value>
+  </data>
+  <data name="ActivityManagement.Excursions" xml:space="preserve">
+    <value>Excursions</value>
+  </data>
+  <data name="ActivityManagement.Team" xml:space="preserve">
+    <value>Team</value>
+  </data>
+  <data name="ActivityManagement.Settings" xml:space="preserve">
+    <value>Activity Settings</value>
+  </data>
+  <data name="ActivityManagement.Exit" xml:space="preserve">
+    <value>Exit Activity Management</value>
+  </data>
+  <data name="ActivityManagement.Period" xml:space="preserve">
+    <value>From {0} to {1}</value>
+  </data>
+  <data name="ActivityManagement.ManageActivity" xml:space="preserve">
+    <value>Manage Activity</value>
+  </data>
+  <data name="ActivityManagement.ManagePresences" xml:space="preserve">
+    <value>Manage Attendance</value>
+  </data>
+  <data name="ActivityManagement.SelectDay" xml:space="preserve">
+    <value>Select Day</value>
+  </data>
+  <data name="ActivityManagement.NoActiveDay" xml:space="preserve">
+    <value>No day available</value>
+  </data>
+  <data name="ActivityManagement.NoConfirmedBookings" xml:space="preserve">
+    <value>No confirmed registrations for this day.</value>
+  </data>
+  <data name="ActivityManagement.ChildrenCount" xml:space="preserve">
+    <value>child(ren)</value>
+  </data>
+  <data name="ActivityManagement.SelectActivityDay" xml:space="preserve">
+    <value>Please select an activity day.</value>
+  </data>
+  <data name="ActivityManagement.UpdateError" xml:space="preserve">
+    <value>Error updating attendance.</value>
+  </data>
+  <data name="ActivityManagement.TeamManagement" xml:space="preserve">
+    <value>Team Management</value>
+  </data>
+  <data name="ActivityManagement.AssignedTeam" xml:space="preserve">
+    <value>Assigned Team</value>
+  </data>
+  <data name="ActivityManagement.NoAssignedMembers" xml:space="preserve">
+    <value>No team members are assigned to this activity.</value>
+  </data>
+  <data name="ActivityManagement.AvailableMembers" xml:space="preserve">
+    <value>Available Members</value>
+  </data>
+  <data name="ActivityManagement.AllMembersAssigned" xml:space="preserve">
+    <value>All team members are already assigned to this activity.</value>
+  </data>
+  <data name="ActivityManagement.RemoveConfirm" xml:space="preserve">
+    <value>Remove {0} from the team?</value>
+  </data>
+  <data name="ActivityManagement.NoPendingBookings" xml:space="preserve">
+    <value>No pending registrations awaiting confirmation.</value>
+  </data>
+  <data name="ActivityManagement.PendingCount" xml:space="preserve">
+    <value>registration(s) awaiting confirmation.</value>
+  </data>
+  <data name="ActivityManagement.SelectGroup" xml:space="preserve">
+    <value>-- Select a group --</value>
+  </data>
+  <data name="ActivityManagement.BornOn" xml:space="preserve">
+    <value>Born on</value>
+  </data>
+  <data name="ActivityManagement.RegistrationDate" xml:space="preserve">
+    <value>Registration Date</value>
+  </data>
+
+  <!-- Email Management -->
+  <data name="Email.SendTargeted" xml:space="preserve">
+    <value>Send Targeted Email</value>
+  </data>
+  <data name="Email.Recipient" xml:space="preserve">
+    <value>Recipient</value>
+  </data>
+  <data name="Email.SelectRecipient" xml:space="preserve">
+    <value>-- Select a recipient --</value>
+  </data>
+  <data name="Email.Subject" xml:space="preserve">
+    <value>Subject</value>
+  </data>
+  <data name="Email.SubjectPlaceholder" xml:space="preserve">
+    <value>Email subject</value>
+  </data>
+  <data name="Email.Message" xml:space="preserve">
+    <value>Message</value>
+  </data>
+  <data name="Email.MessagePlaceholder" xml:space="preserve">
+    <value>Message content...</value>
+  </data>
+  <data name="Email.MessageNote" xml:space="preserve">
+    <value>The message will be sent in HTML. Line breaks will be preserved.</value>
+  </data>
+  <data name="Email.Attachment" xml:space="preserve">
+    <value>Attachment (optional)</value>
+  </data>
+  <data name="Email.AttachmentFormats" xml:space="preserve">
+    <value>Accepted formats: PDF, DOC, DOCX, JPG, PNG (max 10 MB)</value>
+  </data>
+  <data name="Email.History" xml:space="preserve">
+    <value>Send History</value>
+  </data>
+  <data name="Email.SentHistory" xml:space="preserve">
+    <value>Sent Emails History</value>
+  </data>
+  <data name="Email.NewSend" xml:space="preserve">
+    <value>New Send</value>
+  </data>
+  <data name="Email.NoEmailsSent" xml:space="preserve">
+    <value>No emails have been sent yet for this activity.</value>
+  </data>
+  <data name="Email.SentDate" xml:space="preserve">
+    <value>Send Date</value>
+  </data>
+  <data name="Email.RecipientType" xml:space="preserve">
+    <value>Recipient Type</value>
+  </data>
+  <data name="Email.RecipientCount" xml:space="preserve">
+    <value>Number of Recipients</value>
+  </data>
+  <data name="Email.Recipients" xml:space="preserve">
+    <value>Recipients</value>
+  </data>
+  <data name="Email.AllParents" xml:space="preserve">
+    <value>All Parents</value>
+  </data>
+  <data name="Email.MedicalSheetReminder" xml:space="preserve">
+    <value>Medical Form Reminder</value>
+  </data>
+  <data name="Email.Group" xml:space="preserve">
+    <value>Group</value>
+  </data>
+  <data name="Email.Unknown" xml:space="preserve">
+    <value>Unknown</value>
+  </data>
+  <data name="Email.At" xml:space="preserve">
+    <value>at</value>
+  </data>
+  <data name="Email.Options" xml:space="preserve">
+    <value>Recipient Options</value>
+  </data>
+  <data name="Email.AllParentsDesc" xml:space="preserve">
+    <value>Send to all parents of children registered to this activity</value>
+  </data>
+  <data name="Email.MedicalSheetDesc" xml:space="preserve">
+    <value>Send only to parents whose child has not yet provided their medical form</value>
+  </data>
+  <data name="Email.GroupDesc" xml:space="preserve">
+    <value>Send only to parents of children in a specific group</value>
+  </data>
+  <data name="Email.Tips" xml:space="preserve">
+    <value>Tips</value>
+  </data>
+  <data name="Email.Tip1" xml:space="preserve">
+    <value>Write a clear and explicit subject</value>
+  </data>
+  <data name="Email.Tip2" xml:space="preserve">
+    <value>Check spelling before sending</value>
+  </data>
+  <data name="Email.Tip3" xml:space="preserve">
+    <value>Large attachments may increase send time</value>
+  </data>
+  <data name="Email.Tip4" xml:space="preserve">
+    <value>All sends are recorded in history</value>
+  </data>
+  <data name="Email.Details" xml:space="preserve">
+    <value>Email Details</value>
+  </data>
+
+  <!-- Enums - EmailRecipient -->
+  <data name="Enum.EmailRecipient.AllParents" xml:space="preserve">
+    <value>All Parents</value>
+  </data>
+  <data name="Enum.EmailRecipient.MedicalSheetReminder" xml:space="preserve">
+    <value>Medical Form Reminder</value>
+  </data>
+  <data name="Enum.EmailRecipient.ActivityGroup" xml:space="preserve">
+    <value>Group</value>
+  </data>
+
+  <!-- Presence Management -->
+  <data name="Presence.ManagePresences" xml:space="preserve">
+    <value>Manage Attendance</value>
+  </data>
+  <data name="Presence.SelectActivityInfo" xml:space="preserve">
+    <value>Select an activity to manage daily attendance of children.</value>
+  </data>
+  <data name="Presence.NoActiveActivity" xml:space="preserve">
+    <value>No active activity found. Please create an activity first.</value>
+  </data>
+  <data name="Presence.ManagePresencesButton" xml:space="preserve">
+    <value>Manage Attendance</value>
+  </data>
+  <data name="Presence.SelectDay" xml:space="preserve">
+    <value>Select Day</value>
+  </data>
+  <data name="Presence.BackToActivities" xml:space="preserve">
+    <value>Back to Activities</value>
+  </data>
+  <data name="Presence.SelectDayInfo" xml:space="preserve">
+    <value>Select a day to manage children's attendance.</value>
+  </data>
+  <data name="Presence.NoActiveDay" xml:space="preserve">
+    <value>No active day found for this activity.</value>
+  </data>
+  <data name="Presence.AttendanceList" xml:space="preserve">
+    <value>Attendance List</value>
+  </data>
+  <data name="Presence.NoBookings" xml:space="preserve">
+    <value>No registrations found for this day.</value>
+  </data>
+  <data name="Presence.Total" xml:space="preserve">
+    <value>Total:</value>
+  </data>
+  <data name="Presence.PresentCount" xml:space="preserve">
+    <value>Present:</value>
+  </data>
+  <data name="Presence.SavePresences" xml:space="preserve">
+    <value>Save Attendance</value>
+  </data>
+  <data name="Presence.NoGroup" xml:space="preserve">
+    <value>No Group</value>
+  </data>
+  <data name="Presence.YearsOld" xml:space="preserve">
+    <value>years old</value>
+  </data>
+  <data name="Presence.PrintList" xml:space="preserve">
+    <value>ATTENDANCE LIST</value>
+  </data>
+  <data name="Presence.TotalChildren" xml:space="preserve">
+    <value>Total number of children:</value>
+  </data>
+  <data name="Presence.PrintDate" xml:space="preserve">
+    <value>Print date:</value>
+  </data>
+  <data name="Presence.None" xml:space="preserve">
+    <value>None</value>
+  </data>
+  <data name="Presence.Remarks" xml:space="preserve">
+    <value>Remarks</value>
+  </data>
+  <data name="Presence.ActivityResponsible" xml:space="preserve">
+    <value>Activity Manager:</value>
+  </data>
+  <data name="Presence.NameAndSignature" xml:space="preserve">
+    <value>Name and signature</value>
+  </data>
+  <data name="Presence.Coordinator" xml:space="preserve">
+    <value>Coordinator:</value>
+  </data>
+  <data name="Presence.GeneratedBy" xml:space="preserve">
+    <value>Document automatically generated by Cedeva - Attendance list of</value>
+  </data>
+  <data name="Presence.BirthDateShort" xml:space="preserve">
+    <value>Birth Date</value>
+  </data>
+
+  <!-- Activities -->
+  <data name="Activities.ExportExcel" xml:space="preserve">
+    <value>Export Excel</value>
+  </data>
+  <data name="Activities.NewActivity" xml:space="preserve">
+    <value>New Activity</value>
+  </data>
+  <data name="Activities.SearchPlaceholder" xml:space="preserve">
+    <value>Name or description...</value>
+  </data>
+  <data name="Activities.All" xml:space="preserve">
+    <value>All</value>
+  </data>
+  <data name="Activities.ActiveOnly" xml:space="preserve">
+    <value>Active Only</value>
+  </data>
+  <data name="Activities.Filter" xml:space="preserve">
+    <value>Filter</value>
+  </data>
+  <data name="Activities.Reset" xml:space="preserve">
+    <value>Reset</value>
+  </data>
+  <data name="Activities.Dates" xml:space="preserve">
+    <value>Dates</value>
+  </data>
+  <data name="Activities.PricePerDay" xml:space="preserve">
+    <value>Price/day</value>
+  </data>
+  <data name="Activities.Bookings" xml:space="preserve">
+    <value>Registrations</value>
+  </data>
+  <data name="Activities.Inactive" xml:space="preserve">
+    <value>Inactive</value>
+  </data>
+  <data name="Activities.Manage" xml:space="preserve">
+    <value>Manage</value>
+  </data>
+  <data name="Activities.ManageActivity" xml:space="preserve">
+    <value>Manage Activity</value>
+  </data>
+  <data name="Activities.Previous" xml:space="preserve">
+    <value>Previous</value>
+  </data>
+  <data name="Activities.Next" xml:space="preserve">
+    <value>Next</value>
+  </data>
+  <data name="Activities.NoActivitiesFound" xml:space="preserve">
+    <value>No activities found</value>
+  </data>
+  <data name="Activities.CreateActivity" xml:space="preserve">
+    <value>Create Activity</value>
+  </data>
+
+  <!-- Bookings -->
+  <data name="Bookings.NewBooking" xml:space="preserve">
+    <value>New Registration</value>
+  </data>
+  <data name="Bookings.SearchPlaceholder" xml:space="preserve">
+    <value>Search by child or activity...</value>
+  </data>
+  <data name="Bookings.AllStatuses" xml:space="preserve">
+    <value>All Statuses</value>
+  </data>
+  <data name="Bookings.ConfirmedOnly" xml:space="preserve">
+    <value>Confirmed</value>
+  </data>
+  <data name="Bookings.PendingOnly" xml:space="preserve">
+    <value>Pending</value>
+  </data>
+  <data name="Bookings.MedicalSheet" xml:space="preserve">
+    <value>Medical Form</value>
+  </data>
+  <data name="Bookings.Showing" xml:space="preserve">
+    <value>Showing</value>
+  </data>
+  <data name="Bookings.Of" xml:space="preserve">
+    <value>of</value>
+  </data>
+  <data name="Bookings.NoBookingsFound" xml:space="preserve">
+    <value>No registrations found for your search.</value>
+  </data>
+  <data name="Bookings.NoBookingsYet" xml:space="preserve">
+    <value>No registrations recorded yet. Click "New Registration" to start.</value>
+  </data>
+  <data name="Bookings.Confirmed" xml:space="preserve">
+    <value>Confirmed</value>
+  </data>
+  <data name="Bookings.Pending" xml:space="preserve">
+    <value>Pending</value>
+  </data>
+  <data name="Bookings.To" xml:space="preserve">
+    <value>to</value>
+  </data>
+
+  <!-- Enums - TeamRole -->
+  <data name="Enum.TeamRole.Coordinator" xml:space="preserve">
+    <value>Coordinator</value>
+  </data>
+  <data name="Enum.TeamRole.Animator" xml:space="preserve">
+    <value>Animator</value>
+  </data>
+
+  <!-- Enums - License -->
+  <data name="Enum.License.License" xml:space="preserve">
+    <value>Licensed</value>
+  </data>
+  <data name="Enum.License.Assimilated" xml:space="preserve">
+    <value>Assimilated</value>
+  </data>
+  <data name="Enum.License.Internship" xml:space="preserve">
+    <value>Internship</value>
+  </data>
+  <data name="Enum.License.Training" xml:space="preserve">
+    <value>Training</value>
+  </data>
+  <data name="Enum.License.NoLicense" xml:space="preserve">
+    <value>No License</value>
+  </data>
+
+  <!-- Enums - Status -->
+  <data name="Enum.Status.Compensated" xml:space="preserve">
+    <value>Compensated</value>
+  </data>
+  <data name="Enum.Status.Volunteer" xml:space="preserve">
+    <value>Volunteer</value>
   </data>
 </root>
