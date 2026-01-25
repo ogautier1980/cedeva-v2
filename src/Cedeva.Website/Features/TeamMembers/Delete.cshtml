@@ -1,6 +1,6 @@
 @model Cedeva.Website.Features.TeamMembers.ViewModels.TeamMemberViewModel
 @{
-    ViewData["Title"] = "Supprimer le membre d'équipe";
+    ViewData["Title"] = Localizer["TeamMembers.DeleteMember"];
 }
 
 <div class="container-fluid">
@@ -8,56 +8,56 @@
         <div class="col-lg-6">
             <div class="card shadow border-danger">
                 <div class="card-header bg-danger text-white">
-                    <h5 class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i>Supprimer le membre d'équipe</h5>
+                    <h5 class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i>@Localizer["TeamMembers.DeleteMember"]</h5>
                 </div>
                 <div class="card-body">
                     <div class="alert alert-warning" role="alert">
                         <i class="fas fa-exclamation-circle me-2"></i>
-                        <strong>Attention !</strong> Êtes-vous sûr de vouloir supprimer ce membre d'équipe ?
+                        <strong>@Localizer["TeamMembers.DeleteWarning"]</strong> @Localizer["TeamMembers.DeleteConfirmation"]
                         @{
                             var totalRelated = Model.ActivitiesCount + Model.ExpensesCount;
                         }
                         @if (totalRelated > 0)
                         {
                             <br />
-                            <strong class="text-danger">Ce membre a @totalRelated élément(s) associé(s).</strong>
+                            <strong class="text-danger">@string.Format(Localizer["TeamMembers.HasRelatedItems"].Value, totalRelated)</strong>
                         }
                     </div>
 
-                    <h6 class="mb-3 text-primary"><i class="fas fa-user-tie me-2"></i>Informations du membre</h6>
+                    <h6 class="mb-3 text-primary"><i class="fas fa-user-tie me-2"></i>@Localizer["TeamMembers.MemberInformation"]</h6>
 
                     <dl class="row">
-                        <dt class="col-sm-4">Nom complet</dt>
+                        <dt class="col-sm-4">@Localizer["FullName"]</dt>
                         <dd class="col-sm-8">@Model.FirstName @Model.LastName</dd>
 
-                        <dt class="col-sm-4">Email</dt>
-                        <dd class="col-sm-8">@Model.Email</dd>
+                        <dt class="col-sm-4">@Localizer["Email"]</dt>
+                        <dd class="col-sm-8">@Model.@Localizer["Email"]</dd>
 
-                        <dt class="col-sm-4">Téléphone</dt>
+                        <dt class="col-sm-4">@Localizer["Phone"]</dt>
                         <dd class="col-sm-8">@Model.MobilePhoneNumber</dd>
 
-                        <dt class="col-sm-4">Rôle</dt>
+                        <dt class="col-sm-4">@Localizer["Role"]</dt>
                         <dd class="col-sm-8">
                             <span class="badge @(Model.TeamRole == Cedeva.Core.Enums.TeamRole.Coordinator ? "bg-success" : "bg-primary")">
                                 @Model.TeamRole
                             </span>
                         </dd>
 
-                        <dt class="col-sm-4">Brevet</dt>
+                        <dt class="col-sm-4">@Localizer["License"]</dt>
                         <dd class="col-sm-8">
                             <span class="badge @(Model.License == Cedeva.Core.Enums.License.License ? "bg-success" : "bg-warning")">
                                 @Model.License
                             </span>
                         </dd>
 
-                        <dt class="col-sm-4">Statut</dt>
+                        <dt class="col-sm-4">@Localizer["Status"]</dt>
                         <dd class="col-sm-8">
                             <span class="badge @(Model.Status == Cedeva.Core.Enums.Status.Compensated ? "bg-info" : "bg-secondary")">
-                                @(Model.Status == Cedeva.Core.Enums.Status.Compensated ? "Rémunéré" : "Bénévole")
+                                @(Model.Status == Cedeva.Core.Enums.Status.Compensated ? "@Localizer["Compensated"]" : "@Localizer["Volunteer"]")
                             </span>
                         </dd>
 
-                        <dt class="col-sm-4">Adresse</dt>
+                        <dt class="col-sm-4">@Localizer["Address"]</dt>
                         <dd class="col-sm-8">
                             @Model.Street<br />
                             @Model.PostalCode @Model.City
@@ -67,19 +67,19 @@
                     @if (totalRelated > 0)
                     {
                         <hr />
-                        <h6 class="mb-3 text-danger"><i class="fas fa-link me-2"></i>Éléments associés</h6>
+                        <h6 class="mb-3 text-danger"><i class="fas fa-link me-2"></i>@Localizer["TeamMembers.RelatedItems"]</h6>
                         <ul class="list-group mb-3">
                             @if (Model.ActivitiesCount > 0)
                             {
                                 <li class="list-group-item d-flex justify-content-between align-items-center">
-                                    <span><i class="fas fa-calendar-alt me-2"></i>Activités</span>
+                                    <span><i class="fas fa-calendar-alt me-2"></i>@Localizer["Activities"]</span>
                                     <span class="badge bg-primary rounded-pill">@Model.ActivitiesCount</span>
                                 </li>
                             }
                             @if (Model.ExpensesCount > 0)
                             {
                                 <li class="list-group-item d-flex justify-content-between align-items-center">
-                                    <span><i class="fas fa-receipt me-2"></i>Frais</span>
+                                    <span><i class="fas fa-receipt me-2"></i>@Localizer["Expenses"]</span>
                                     <span class="badge bg-success rounded-pill">@Model.ExpensesCount</span>
                                 </li>
                             }
@@ -90,10 +90,10 @@
                         <input type="hidden" asp-for="TeamMemberId" />
                         <div class="d-flex justify-content-between mt-4">
                             <a asp-action="Index" class="btn btn-outline-secondary">
-                                <i class="fas fa-arrow-left me-2"></i>Annuler
+                                <i class="fas fa-arrow-left me-2"></i>@Localizer["Cancel"]
                             </a>
                             <button type="submit" class="btn btn-danger">
-                                <i class="fas fa-trash me-2"></i>Confirmer la suppression
+                                <i class="fas fa-trash me-2"></i>@Localizer["TeamMembers.ConfirmDeletion"]
                             </button>
                         </div>
                     </form>

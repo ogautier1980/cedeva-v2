@@ -1,14 +1,14 @@
 @model Cedeva.Website.Features.Users.ViewModels.UserViewModel
 
 @{
-    ViewData["Title"] = "Nouvel utilisateur";
+    ViewData["Title"] = Localizer["Users.NewUser"];
 }
 
 <div class="row">
     <div class="col-md-8 offset-md-2">
         <div class="card shadow">
             <div class="card-header">
-                <h5 class="mb-0"><i class="fas fa-user-plus me-2"></i>Nouvel utilisateur</h5>
+                <h5 class="mb-0"><i class="fas fa-user-plus me-2"></i>@Localizer["Users.NewUser"]</h5>
             </div>
             <div class="card-body">
                 <form asp-action="Create" method="post">
@@ -74,7 +74,7 @@
 
                     <div class="d-flex justify-content-between">
                         <a asp-action="Index" class="btn btn-secondary">
-                            <i class="fas fa-times me-1"></i>Annuler
+                            <i class="fas fa-times me-1"></i>@Localizer["Cancel"]
                         </a>
                         <button type="submit" class="btn btn-primary">
                             <i class="fas fa-save me-1"></i>Créer l'utilisateur

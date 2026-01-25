@@ -8,21 +8,21 @@ public class SendEmailViewModel
     public int ActivityId { get; set; }
     public string ActivityName { get; set; } = string.Empty;
 
-    [Required(ErrorMessage = "Veuillez sélectionner un destinataire.")]
-    [Display(Name = "Destinataire")]
+    [Required]
+    [Display(Name = "Field.Recipient")]
     public string SelectedRecipient { get; set; } = string.Empty;
 
-    [Required(ErrorMessage = "Le sujet est obligatoire.")]
-    [StringLength(255, ErrorMessage = "Le sujet ne peut pas dépasser 255 caractères.")]
-    [Display(Name = "Sujet")]
+    [Required]
+    [StringLength(255)]
+    [Display(Name = "Field.Subject")]
     public string Subject { get; set; } = string.Empty;
 
-    [Required(ErrorMessage = "Le message est obligatoire.")]
-    [StringLength(1024, ErrorMessage = "Le message ne peut pas dépasser 1024 caractères.")]
-    [Display(Name = "Message")]
+    [Required]
+    [StringLength(1024)]
+    [Display(Name = "Field.Message")]
     public string Message { get; set; } = string.Empty;
 
-    [Display(Name = "Pièce jointe (optionnel)")]
+    [Display(Name = "Field.Attachment")]
     public IFormFile? AttachmentFile { get; set; }
 
     public List<SelectListItem> RecipientOptions { get; set; } = new();

@@ -6,47 +6,47 @@ public class ActivityViewModel
 {
     public int Id { get; set; }
 
-    [Required(ErrorMessage = "Le nom est requis")]
-    [StringLength(100, ErrorMessage = "Le nom ne peut pas dépasser 100 caractères")]
-    [Display(Name = "Nom")]
+    [Required]
+    [StringLength(100)]
+    [Display(Name = "Field.Name")]
     public string Name { get; set; } = string.Empty;
 
-    [Required(ErrorMessage = "La description est requise")]
-    [StringLength(500, ErrorMessage = "La description ne peut pas dépasser 500 caractères")]
-    [Display(Name = "Description")]
+    [Required]
+    [StringLength(500)]
+    [Display(Name = "Field.Description")]
     public string Description { get; set; } = string.Empty;
 
-    [Display(Name = "Active")]
+    [Display(Name = "Field.IsActive")]
     public bool IsActive { get; set; } = true;
 
-    [Display(Name = "Prix par jour (€)")]
-    [Range(0, 1000, ErrorMessage = "Le prix doit être entre 0 et 1000€")]
+    [Display(Name = "Field.PricePerDay")]
+    [Range(0, 1000)]
     [DataType(DataType.Currency)]
     public decimal? PricePerDay { get; set; }
 
-    [Required(ErrorMessage = "La date de début est requise")]
-    [Display(Name = "Date de début")]
+    [Required]
+    [Display(Name = "Field.StartDate")]
     [DataType(DataType.Date)]
     public DateTime StartDate { get; set; } = DateTime.Today;
 
-    [Required(ErrorMessage = "La date de fin est requise")]
-    [Display(Name = "Date de fin")]
+    [Required]
+    [Display(Name = "Field.EndDate")]
     [DataType(DataType.Date)]
     public DateTime EndDate { get; set; } = DateTime.Today.AddDays(7);
 
     public int OrganisationId { get; set; }
 
-    [Display(Name = "Organisation")]
+    [Display(Name = "Field.Organisation")]
     public string? OrganisationName { get; set; }
 
     // Stats for display
-    [Display(Name = "Inscriptions")]
+    [Display(Name = "Field.BookingsCount")]
     public int BookingsCount { get; set; }
 
-    [Display(Name = "Groupes")]
+    [Display(Name = "Field.GroupsCount")]
     public int GroupsCount { get; set; }
 
-    [Display(Name = "Équipe")]
+    [Display(Name = "Field.TeamMembersCount")]
     public int TeamMembersCount { get; set; }
 }
 

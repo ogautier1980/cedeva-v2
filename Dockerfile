@@ -9,7 +9,7 @@ COPY ["src/Cedeva.Infrastructure/Cedeva.Infrastructure.csproj", "src/Cedeva.Infr
 COPY ["src/Cedeva.Website/Cedeva.Website.csproj", "src/Cedeva.Website/"]
 
 # Restore dependencies
-RUN dotnet restore
+RUN dotnet restore "src/Cedeva.Website/Cedeva.Website.csproj"
 
 # Copy source code
 COPY . .

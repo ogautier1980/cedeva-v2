@@ -7,51 +7,51 @@ public class OrganisationViewModel
 {
     public int Id { get; set; }
 
-    [Required(ErrorMessage = "Le nom est requis")]
-    [StringLength(100, MinimumLength = 2, ErrorMessage = "Le nom doit contenir entre 2 et 100 caractères")]
-    [Display(Name = "Nom de l'organisation")]
+    [Required]
+    [StringLength(100, MinimumLength = 2)]
+    [Display(Name = "Field.Name")]
     public string Name { get; set; } = string.Empty;
 
-    [Required(ErrorMessage = "La description est requise")]
-    [StringLength(500, MinimumLength = 10, ErrorMessage = "La description doit contenir entre 10 et 500 caractères")]
-    [Display(Name = "Description")]
+    [Required]
+    [StringLength(500, MinimumLength = 10)]
+    [Display(Name = "Field.Description")]
     public string Description { get; set; } = string.Empty;
 
-    [Display(Name = "Logo")]
+    [Display(Name = "Field.LogoUrl")]
     public string? LogoUrl { get; set; }
 
     // Address
-    [Required(ErrorMessage = "La rue est requise")]
+    [Required]
     [StringLength(100, MinimumLength = 2)]
-    [Display(Name = "Rue et numéro")]
+    [Display(Name = "Field.Street")]
     public string Street { get; set; } = string.Empty;
 
-    [Required(ErrorMessage = "La ville est requise")]
+    [Required]
     [StringLength(100, MinimumLength = 2)]
-    [Display(Name = "Ville")]
+    [Display(Name = "Field.City")]
     public string City { get; set; } = string.Empty;
 
-    [Required(ErrorMessage = "Le code postal est requis")]
-    [Range(1000, 9999, ErrorMessage = "Code postal belge invalide")]
-    [Display(Name = "Code postal")]
+    [Required]
+    [Range(1000, 9999)]
+    [Display(Name = "Field.PostalCode")]
     public int PostalCode { get; set; }
 
-    [Display(Name = "Pays")]
+    [Display(Name = "Field.Country")]
     public Country Country { get; set; } = Country.Belgium;
 
     public int? AddressId { get; set; }
 
     // Summary counts
-    [Display(Name = "Nombre d'activités")]
+    [Display(Name = "Field.ActivitiesCount")]
     public int ActivitiesCount { get; set; }
 
-    [Display(Name = "Nombre de parents")]
+    [Display(Name = "Field.ParentsCount")]
     public int ParentsCount { get; set; }
 
-    [Display(Name = "Nombre de membres d'équipe")]
+    [Display(Name = "Field.TeamMembersCount")]
     public int TeamMembersCount { get; set; }
 
-    [Display(Name = "Nombre d'utilisateurs")]
+    [Display(Name = "Field.UsersCount")]
     public int UsersCount { get; set; }
 }
 

@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
+using Microsoft.Extensions.Localization;
 namespace Cedeva.Website.Features.Account;
 
 public class AccountController : Controller
@@ -14,17 +15,20 @@ public class AccountController : Controller
     private readonly UserManager<CedevaUser> _userManager;
     private readonly IRepository<Organisation> _organisationRepository;
     private readonly IEmailService _emailService;
+    private readonly IStringLocalizer<SharedResources> _localizer;
 
     public AccountController(
         SignInManager<CedevaUser> signInManager,
         UserManager<CedevaUser> userManager,
         IRepository<Organisation> organisationRepository,
-        IEmailService emailService)
+        IEmailService emailService,
+        IStringLocalizer<SharedResources> localizer)
     {
         _signInManager = signInManager;
         _userManager = userManager;
         _organisationRepository = organisationRepository;
         _emailService = emailService;
+        _localizer = localizer;
     }
 
     [AllowAnonymous]
@@ -182,7 +186,7 @@ public class AccountController : Controller
 
         if (result.Succeeded)
         {
-            TempData["SuccessMessage"] = "Profil mis à jour avec succès.";
+            TempData["SuccessMessage"] = _localizer["Message.ProfileUpdated"];
             return RedirectToAction(nameof(Profile));
         }
 

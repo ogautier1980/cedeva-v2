@@ -1,14 +1,14 @@
 @{
-    ViewData["Title"] = "Erreur";
+    ViewData["Title"] = Localizer["Home.Error"];
 }
 
 <div class="container">
     <div class="row justify-content-center">
         <div class="col-md-6 text-center">
             <h1 class="display-1 text-danger">Oops!</h1>
-            <h2>Une erreur s'est produite</h2>
-            <p class="lead">Nous sommes désolés, une erreur inattendue s'est produite.</p>
-            <a href="/" class="btn btn-primary">Retour à l'accueil</a>
+            <h2>@Localizer["Home.ErrorTitle"]</h2>
+            <p class="lead">@Localizer["Home.ErrorMessage"]</p>
+            <a href="/" class="btn btn-primary">@Localizer["Home.BackToHome"]/a>
         </div>
     </div>
 </div>

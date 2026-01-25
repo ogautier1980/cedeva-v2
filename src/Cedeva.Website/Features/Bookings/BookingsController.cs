@@ -6,6 +6,7 @@ using Cedeva.Core.Interfaces;
 using Cedeva.Website.Features.Bookings.ViewModels;
 using Cedeva.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Localization;
 
 namespace Cedeva.Website.Features.Bookings;
 
@@ -21,6 +22,7 @@ public class BookingsController : Controller
     private readonly IUnitOfWork _unitOfWork;
     private readonly IExcelExportService _excelExportService;
     private readonly IEmailService _emailService;
+    private readonly IStringLocalizer<SharedResources> _localizer;
 
     public BookingsController(
         IRepository<Booking> bookingRepository,
@@ -31,7 +33,8 @@ public class BookingsController : Controller
         ICurrentUserService currentUserService,
         IUnitOfWork unitOfWork,
         IExcelExportService excelExportService,
-        IEmailService emailService)
+        IEmailService emailService,
+        IStringLocalizer<SharedResources> localizer)
     {
         _bookingRepository = bookingRepository;
         _childRepository = childRepository;
@@ -42,6 +45,7 @@ public class BookingsController : Controller
         _unitOfWork = unitOfWork;
         _excelExportService = excelExportService;
         _emailService = emailService;
+        _localizer = localizer;
     }
 
     // GET: Bookings
@@ -179,7 +183,7 @@ public class BookingsController : Controller
             await _bookingRepository.AddAsync(booking);
             await _unitOfWork.SaveChangesAsync();
 
-            TempData["SuccessMessage"] = "L'inscription a été créée avec succès.";
+            TempData["SuccessMessage"] = _localizer["Message.BookingCreated"];
             return RedirectToAction(nameof(Details), new { id = booking.Id });
         }
 
@@ -270,7 +274,7 @@ public class BookingsController : Controller
                             activity.StartDate,
                             activity.EndDate);
 
-                        TempData["SuccessMessage"] = "L'inscription a été confirmée et un email a été envoyé au parent.";
+                        TempData["SuccessMessage"] = _localizer["Message.BookingConfirmedEmailSent"];
                     }
                     catch (Exception ex)
                     {
@@ -279,12 +283,12 @@ public class BookingsController : Controller
                 }
                 else
                 {
-                    TempData["SuccessMessage"] = "L'inscription a été modifiée avec succès.";
+                    TempData["SuccessMessage"] = _localizer["Message.BookingUpdated"];
                 }
             }
             else
             {
-                TempData["SuccessMessage"] = "L'inscription a été modifiée avec succès.";
+                TempData["SuccessMessage"] = _localizer["Message.BookingUpdated"];
             }
 
             return RedirectToAction(nameof(Details), new { id = booking.Id });
@@ -327,7 +331,7 @@ public class BookingsController : Controller
         await _bookingRepository.DeleteAsync(booking);
         await _unitOfWork.SaveChangesAsync();
 
-        TempData["SuccessMessage"] = "L'inscription a été supprimée avec succès.";
+        TempData["SuccessMessage"] = _localizer["Message.BookingDeleted"];
         return RedirectToAction(nameof(Index));
     }
 

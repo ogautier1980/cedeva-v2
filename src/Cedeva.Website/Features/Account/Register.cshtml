@@ -1,6 +1,6 @@
 @model Cedeva.Website.Features.Account.ViewModels.RegisterViewModel
 @{
-    ViewData["Title"] = "Créer un compte";
+    ViewData["Title"] = Localizer["Account.CreateAccount"];
     Layout = null;
 }
 
@@ -101,7 +101,7 @@
 
                     <div class="text-center">
                         <a asp-action="Login" class="text-decoration-none">
-                            Vous avez déjà un compte ? Connectez-vous
+                            @Localizer["Account.AlreadyHaveAccount"] Connectez-vous
                         </a>
                     </div>
                 </form>

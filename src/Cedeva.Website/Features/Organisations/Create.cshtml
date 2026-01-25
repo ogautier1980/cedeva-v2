@@ -1,6 +1,6 @@
 @model Cedeva.Website.Features.Organisations.ViewModels.OrganisationViewModel
 @{
-    ViewData["Title"] = "Ajouter une organisation";
+    ViewData["Title"] = Localizer["Organisations.NewOrganisation"];
 }
 
 <div class="container-fluid">
@@ -8,7 +8,7 @@
         <div class="col-lg-8">
             <div class="card shadow">
                 <div class="card-header">
-                    <h5 class="mb-0"><i class="fas fa-building me-2"></i>Ajouter une organisation</h5>
+                    <h5 class="mb-0"><i class="fas fa-building me-2"></i>@Localizer["Organisations.NewOrganisation"]</h5>
                 </div>
                 <div class="card-body">
                     <form asp-action="Create" method="post">
@@ -35,11 +35,11 @@
                             <div class="form-text">URL du logo de l'organisation (optionnel)</div>
                         </div>
 
-                        <h6 class="mb-3 mt-4 text-primary"><i class="fas fa-map-marker-alt me-2"></i>Adresse</h6>
+                        <h6 class="mb-3 mt-4 text-primary"><i class="fas fa-map-marker-alt me-2"></i>@Localizer["Address"]/h6>
 
                         <div class="mb-3">
                             <label asp-for="Street" class="form-label"></label>
-                            <input asp-for="Street" class="form-control" placeholder="Rue et numéro" />
+                            <input asp-for="Street" class="form-control" placeholder="@Localizer["Parents.StreetPlaceholder"]" />
                             <span asp-validation-for="Street" class="text-danger"></span>
                         </div>
 
@@ -62,10 +62,10 @@
 
                         <div class="d-flex justify-content-between">
                             <a asp-action="Index" class="btn btn-outline-secondary">
-                                <i class="fas fa-arrow-left me-2"></i>Annuler
+                                <i class="fas fa-arrow-left me-2"></i>@Localizer["Cancel"]
                             </a>
                             <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-save me-2"></i>Enregistrer
+                                <i class="fas fa-save me-2"></i>@Localizer["Save"]
                             </button>
                         </div>
                     </form>

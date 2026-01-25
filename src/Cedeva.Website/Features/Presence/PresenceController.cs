@@ -4,6 +4,7 @@ using Cedeva.Website.Features.Presence.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Localization;
 
 namespace Cedeva.Website.Features.Presence;
 
@@ -11,10 +12,12 @@ namespace Cedeva.Website.Features.Presence;
 public class PresenceController : Controller
 {
     private readonly CedevaDbContext _context;
+    private readonly IStringLocalizer<SharedResources> _localizer;
 
-    public PresenceController(CedevaDbContext context)
+    public PresenceController(CedevaDbContext context, IStringLocalizer<SharedResources> localizer)
     {
         _context = context;
+        _localizer = localizer;
     }
 
     // GET: Presence
@@ -149,7 +152,7 @@ public class PresenceController : Controller
 
         await _context.SaveChangesAsync();
 
-        TempData["SuccessMessage"] = "Présences enregistrées avec succès.";
+        TempData["SuccessMessage"] = _localizer["Message.PresencesSaved"];
         return RedirectToAction(nameof(List), new { activityId, dayId });
     }
 

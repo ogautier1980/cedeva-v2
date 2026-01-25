@@ -1,14 +1,14 @@
 @model Cedeva.Website.Features.Users.ViewModels.UserViewModel
 
 @{
-    ViewData["Title"] = "Détails de l'utilisateur";
+    ViewData["Title"] = Localizer["Users.UserDetails"];
 }
 
 <div class="row">
     <div class="col-md-8 offset-md-2">
         <div class="card shadow">
             <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="mb-0"><i class="fas fa-user me-2"></i>Détails de l'utilisateur</h5>
+                <h5 class="mb-0"><i class="fas fa-user me-2"></i>@Localizer["Users.UserDetails"]</h5>
                 <div>
                     <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-sm btn-warning">
                         <i class="fas fa-edit me-1"></i>Modifier
@@ -31,7 +31,7 @@
                     <dt class="col-sm-3">Nom complet</dt>
                     <dd class="col-sm-9">@Model.FirstName @Model.LastName</dd>
 
-                    <dt class="col-sm-3">Email</dt>
+                    <dt class="col-sm-3">@Localizer["Email"]/dt>
                     <dd class="col-sm-9">
                         @Model.Email
                         @if (!Model.EmailConfirmed)
@@ -44,7 +44,7 @@
                         }
                     </dd>
 
-                    <dt class="col-sm-3">Organisation</dt>
+                    <dt class="col-sm-3">@Localizer["Organisation"]/dt>
                     <dd class="col-sm-9">
                         @if (!string.IsNullOrEmpty(Model.OrganisationName))
                         {
@@ -58,7 +58,7 @@
                         }
                     </dd>
 
-                    <dt class="col-sm-3">Rôle</dt>
+                    <dt class="col-sm-3">@Localizer["Role"]/dt>
                     <dd class="col-sm-9">
                         @if (Model.Role == Cedeva.Core.Enums.Role.Admin)
                         {
@@ -85,7 +85,7 @@
 
                 <div class="mt-4">
                     <a asp-action="Index" class="btn btn-secondary">
-                        <i class="fas fa-arrow-left me-1"></i>Retour à la liste
+                        <i class="fas fa-arrow-left me-1"></i>@Localizer["BackToList"]
                     </a>
                 </div>
             </div>

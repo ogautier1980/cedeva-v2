@@ -1,6 +1,6 @@
 @model Cedeva.Website.Features.Children.ViewModels.ChildViewModel
 @{
-    ViewData["Title"] = "Ajouter un enfant";
+    ViewData["Title"] = Localizer["Children.AddChild"];
 }
 
 <div class="container-fluid">
@@ -8,13 +8,13 @@
         <div class="col-lg-8">
             <div class="card shadow">
                 <div class="card-header">
-                    <h5 class="mb-0"><i class="fas fa-child me-2"></i>Ajouter un enfant</h5>
+                    <h5 class="mb-0"><i class="fas fa-child me-2"></i>@Localizer["Children.AddChild"]</h5>
                 </div>
                 <div class="card-body">
                     <form asp-action="Create" method="post">
                         <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
 
-                        <h6 class="mb-3 text-primary"><i class="fas fa-user me-2"></i>Informations personnelles</h6>
+                        <h6 class="mb-3 text-primary"><i class="fas fa-user me-2"></i>@Localizer["Children.PersonalInformation"]</h6>
 
                         <div class="row">
                             <div class="col-md-6 mb-3">
@@ -32,7 +32,7 @@
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label asp-for="NationalRegisterNumber" class="form-label"></label>
-                                <input asp-for="NationalRegisterNumber" class="form-control" placeholder="YY.MM.DD-XXX.XX" />
+                                <input asp-for="NationalRegisterNumber" class="form-control" placeholder="@Localizer["Children.NRNPlaceholder"]" />
                                 <span asp-validation-for="NationalRegisterNumber" class="text-danger"></span>
                             </div>
                             <div class="col-md-6 mb-3">
@@ -42,22 +42,22 @@
                             </div>
                         </div>
 
-                        <h6 class="mb-3 mt-4 text-primary"><i class="fas fa-users me-2"></i>Parent</h6>
+                        <h6 class="mb-3 mt-4 text-primary"><i class="fas fa-users me-2"></i>@Localizer["Parent"]</h6>
 
                         <div class="mb-3">
                             <label asp-for="ParentId" class="form-label"></label>
                             <select asp-for="ParentId" class="form-select" asp-items="ViewBag.Parents">
-                                <option value="">-- Sélectionnez un parent --</option>
+                                <option value="">@Localizer["Children.SelectParent"]</option>
                             </select>
                             <span asp-validation-for="ParentId" class="text-danger"></span>
                             <div class="form-text">
                                 <a asp-controller="Parents" asp-action="Create" class="text-decoration-none">
-                                    <i class="fas fa-plus-circle me-1"></i>Créer un nouveau parent
+                                    <i class="fas fa-plus-circle me-1"></i>@Localizer["Children.CreateNewParent"]
                                 </a>
                             </div>
                         </div>
 
-                        <h6 class="mb-3 mt-4 text-primary"><i class="fas fa-info-circle me-2"></i>Informations spécifiques</h6>
+                        <h6 class="mb-3 mt-4 text-primary"><i class="fas fa-info-circle me-2"></i>@Localizer["Children.SpecificInformation"]</h6>
 
                         <div class="row">
                             <div class="col-md-4 mb-3">
@@ -84,10 +84,10 @@
 
                         <div class="d-flex justify-content-between">
                             <a asp-action="Index" class="btn btn-outline-secondary">
-                                <i class="fas fa-arrow-left me-2"></i>Annuler
+                                <i class="fas fa-arrow-left me-2"></i>@Localizer["Cancel"]
                             </a>
                             <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-save me-2"></i>Enregistrer
+                                <i class="fas fa-save me-2"></i>@Localizer["Save"]
                             </button>
                         </div>
                     </form>

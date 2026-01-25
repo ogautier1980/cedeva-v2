@@ -6,6 +6,7 @@ using Cedeva.Website.Features.ActivityManagement.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Localization;
 
 namespace Cedeva.Website.Features.ActivityManagement;
 
@@ -18,17 +19,20 @@ public class ActivityManagementController : Controller
     private readonly ILogger<ActivityManagementController> _logger;
     private readonly IEmailService _emailService;
     private readonly IEmailRecipientService _emailRecipientService;
+    private readonly IStringLocalizer<SharedResources> _localizer;
 
     public ActivityManagementController(
         CedevaDbContext context,
         ILogger<ActivityManagementController> logger,
         IEmailService emailService,
-        IEmailRecipientService emailRecipientService)
+        IEmailRecipientService emailRecipientService,
+        IStringLocalizer<SharedResources> localizer)
     {
         _context = context;
         _logger = logger;
         _emailService = emailService;
         _emailRecipientService = emailRecipientService;
+        _localizer = localizer;
     }
 
     [HttpGet]
@@ -146,7 +150,7 @@ public class ActivityManagementController : Controller
 
         await _context.SaveChangesAsync();
 
-        TempData["SuccessMessage"] = "Inscription confirmée avec succès.";
+        TempData["SuccessMessage"] = _localizer["Message.BookingConfirmed"];
         return RedirectToAction(nameof(UnconfirmedBookings), new { id = booking.ActivityId });
     }
 
@@ -452,7 +456,7 @@ public class ActivityManagementController : Controller
             _context.EmailsSent.Add(emailSent);
             await _context.SaveChangesAsync(ct);
 
-            TempData["SuccessMessage"] = $"Email envoyé avec succès à {recipientEmails.Count} destinataire(s).";
+            TempData["SuccessMessage"] = string.Format(_localizer["Message.EmailSent"].Value, recipientEmails.Count);
             return RedirectToAction(nameof(SendEmail), new { id = model.ActivityId });
         }
         catch (Exception ex)
@@ -599,7 +603,7 @@ public class ActivityManagementController : Controller
 
         if (teamMember == null)
         {
-            TempData["ErrorMessage"] = "Membre de l'équipe introuvable.";
+            TempData["ErrorMessage"] = _localizer["Message.TeamMemberNotFound"];
             return RedirectToAction(nameof(TeamMembers), new { id });
         }
 
@@ -607,7 +611,7 @@ public class ActivityManagementController : Controller
         {
             activity.TeamMembers.Add(teamMember);
             await _context.SaveChangesAsync();
-            TempData["SuccessMessage"] = $"{teamMember.FirstName} {teamMember.LastName} a été ajouté(e) à l'équipe.";
+            TempData["SuccessMessage"] = string.Format(_localizer["Message.TeamMemberAdded"].Value, teamMember.FirstName, teamMember.LastName);
         }
 
         return RedirectToAction(nameof(TeamMembers), new { id });
@@ -630,7 +634,7 @@ public class ActivityManagementController : Controller
         {
             activity.TeamMembers.Remove(teamMember);
             await _context.SaveChangesAsync();
-            TempData["SuccessMessage"] = $"{teamMember.FirstName} {teamMember.LastName} a été retiré(e) de l'équipe.";
+            TempData["SuccessMessage"] = string.Format(_localizer["Message.TeamMemberRemoved"].Value, teamMember.FirstName, teamMember.LastName);
         }
 
         return RedirectToAction(nameof(TeamMembers), new { id });

@@ -74,6 +74,12 @@ try
 
     // Add MVC with feature folders
     builder.Services.AddControllersWithViews()
+        .AddViewLocalization()
+        .AddDataAnnotationsLocalization(options =>
+        {
+            options.DataAnnotationLocalizerProvider = (type, factory) =>
+                factory.Create(typeof(SharedResources));
+        })
         .AddRazorOptions(options =>
         {
             // Feature folder view locations

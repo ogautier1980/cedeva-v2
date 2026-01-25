@@ -23,20 +23,20 @@
         <div class="col-lg-8">
             <div class="card shadow mb-4">
                 <div class="card-header">
-                    <h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>Informations générales</h6>
+                    <h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>@Localizer["Activities.GeneralInformation"]/h6>
                 </div>
                 <div class="card-body">
                     <dl class="row mb-0">
-                        <dt class="col-sm-3">Description</dt>
+                        <dt class="col-sm-3">@Localizer["Activities.Description"]</dt>
                         <dd class="col-sm-9">@Model.Description</dd>
 
-                        <dt class="col-sm-3">Dates</dt>
+                        <dt class="col-sm-3">@Localizer["Activities.Dates"]</dt>
                         <dd class="col-sm-9">
-                            Du @Model.StartDate.ToString("dd MMMM yyyy", new System.Globalization.CultureInfo("fr-BE"))
-                            au @Model.EndDate.ToString("dd MMMM yyyy", new System.Globalization.CultureInfo("fr-BE"))
+                            @Localizer["Activities.From"] @Model.StartDate.ToString("dd MMMM yyyy", new System.Globalization.CultureInfo("fr-BE"))
+                            @Localizer["Activities.ToDate"] @Model.EndDate.ToString("dd MMMM yyyy", new System.Globalization.CultureInfo("fr-BE"))
                         </dd>
 
-                        <dt class="col-sm-3">Prix par jour</dt>
+                        <dt class="col-sm-3">@Localizer["Activities.PricePerDay"]</dt>
                         <dd class="col-sm-9">
                             @if (Model.PricePerDay.HasValue)
                             {
@@ -44,19 +44,19 @@
                             }
                             else
                             {
-                                <span class="text-muted">Non défini</span>
+                                <span class="text-muted">@Localizer["Activities.NotDefined"]</span>
                             }
                         </dd>
 
-                        <dt class="col-sm-3">Statut</dt>
+                        <dt class="col-sm-3">@Localizer["Activities.StatusLabel"]</dt>
                         <dd class="col-sm-9">
                             @if (Model.IsActive)
                             {
-                                <span class="badge bg-success">Active</span>
+                                <span class="badge bg-success">@Localizer["Active"]</span>
                             }
                             else
                             {
-                                <span class="badge bg-secondary">Inactive</span>
+                                <span class="badge bg-secondary">@Localizer["Activities.Inactive"]</span>
                             }
                         </dd>
                     </dl>
@@ -67,21 +67,21 @@
         <div class="col-lg-4">
             <div class="card shadow mb-4">
                 <div class="card-header">
-                    <h6 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Statistiques</h6>
+                    <h6 class="mb-0"><i class="fas fa-chart-bar me-2"></i>@Localizer["Activities.Statistics"]</h6>
                 </div>
                 <div class="card-body">
                     <div class="row text-center">
                         <div class="col-4">
                             <div class="h4 mb-0 text-primary">@Model.BookingsCount</div>
-                            <small class="text-muted">Inscriptions</small>
+                            <small class="text-muted">@Localizer["Bookings"]</small>
                         </div>
                         <div class="col-4">
                             <div class="h4 mb-0 text-success">@Model.GroupsCount</div>
-                            <small class="text-muted">Groupes</small>
+                            <small class="text-muted">@Localizer["Activities.Groups"]</small>
                         </div>
                         <div class="col-4">
                             <div class="h4 mb-0 text-info">@Model.TeamMembersCount</div>
-                            <small class="text-muted">Équipe</small>
+                            <small class="text-muted">@Localizer["Activities.Team"]</small>
                         </div>
                     </div>
                 </div>
@@ -89,20 +89,20 @@
 
             <div class="card shadow">
                 <div class="card-header">
-                    <h6 class="mb-0"><i class="fas fa-cog me-2"></i>Actions rapides</h6>
+                    <h6 class="mb-0"><i class="fas fa-cog me-2"></i>@Localizer["Activities.QuickActions"]</h6>
                 </div>
                 <div class="list-group list-group-flush">
                     <a href="#" class="list-group-item list-group-item-action">
-                        <i class="fas fa-users me-2"></i>Gérer les groupes
+                        <i class="fas fa-users me-2"></i>@Localizer["Activities.ManageGroups"]
                     </a>
                     <a href="#" class="list-group-item list-group-item-action">
-                        <i class="fas fa-question-circle me-2"></i>Questions personnalisées
+                        <i class="fas fa-question-circle me-2"></i>@Localizer["Activities.CustomQuestions"]
                     </a>
                     <a href="#" class="list-group-item list-group-item-action">
-                        <i class="fas fa-clipboard-list me-2"></i>Voir les inscriptions
+                        <i class="fas fa-clipboard-list me-2"></i>@Localizer["Activities.ViewBookings"]
                     </a>
                     <a href="#" class="list-group-item list-group-item-action">
-                        <i class="fas fa-calendar-check me-2"></i>Gérer les présences
+                        <i class="fas fa-calendar-check me-2"></i>@Localizer["Activities.ManagePresences"]
                     </a>
                 </div>
             </div>

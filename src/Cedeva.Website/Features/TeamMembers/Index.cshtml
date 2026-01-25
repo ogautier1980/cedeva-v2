@@ -1,6 +1,6 @@
 @model IEnumerable<Cedeva.Website.Features.TeamMembers.ViewModels.TeamMemberViewModel>
 @{
-    ViewData["Title"] = "Membres d'équipe";
+    ViewData["Title"] = Localizer["TeamMembers"];
     var searchString = ViewData["SearchString"] as string;
     var pageNumber = (int)ViewData["PageNumber"];
     var pageSize = (int)ViewData["PageSize"];
@@ -10,13 +10,13 @@
 
 <div class="container-fluid">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2><i class="fas fa-user-tie me-2"></i>Membres d'équipe</h2>
+        <h2><i class="fas fa-user-tie me-2"></i>@Localizer["TeamMembers"]</h2>
         <div class="d-flex gap-2">
             <a asp-action="Export" asp-route-searchString="@searchString" class="btn btn-success">
-                <i class="fas fa-file-excel me-2"></i>Exporter Excel
+                <i class="fas fa-file-excel me-2"></i>@Localizer["ExportExcel"]
             </a>
             <a asp-action="Create" class="btn btn-primary">
-                <i class="fas fa-plus me-2"></i>Ajouter un membre
+                <i class="fas fa-plus me-2"></i>@Localizer["TeamMembers.AddMember"]
             </a>
         </div>
     </div>
@@ -35,13 +35,13 @@
                 <div class="col-md-8">
                     <div class="input-group">
                         <span class="input-group-text"><i class="fas fa-search"></i></span>
-                        <input type="text" class="form-control" name="searchString" value="@searchString" placeholder="Rechercher par nom, prénom ou email..." />
+                        <input type="text" class="form-control" name="searchString" value="@searchString" placeholder="@Localizer["TeamMembers.SearchPlaceholder"]" />
                     </div>
                 </div>
                 <div class="col-md-4">
                     <div class="d-flex gap-2">
                         <button type="submit" class="btn btn-primary flex-grow-1">
-                            <i class="fas fa-search me-2"></i>Rechercher
+                            <i class="fas fa-search me-2"></i>@Localizer["Search"]
                         </button>
                         <a asp-action="Index" class="btn btn-outline-secondary">
                             <i class="fas fa-redo"></i>
@@ -57,13 +57,13 @@
                     <table class="table table-hover">
                         <thead>
                             <tr>
-                                <th>Nom</th>
-                                <th>Email</th>
-                                <th>Téléphone</th>
-                                <th>Rôle</th>
-                                <th>Brevet</th>
-                                <th>Statut</th>
-                                <th class="text-end">Actions</th>
+                                <th>@Localizer["Name"]</th>
+                                <th>@Localizer["Email"]</th>
+                                <th>@Localizer["Phone"]</th>
+                                <th>@Localizer["Role"]</th>
+                                <th>@Localizer["License"]</th>
+                                <th>@Localizer["Status"]</th>
+                                <th class="text-end">@Localizer["Actions"]</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -87,18 +87,18 @@
                                     </td>
                                     <td>
                                         <span class="badge @(member.Status == Cedeva.Core.Enums.Status.Compensated ? "bg-info" : "bg-secondary")">
-                                            @(member.Status == Cedeva.Core.Enums.Status.Compensated ? "Rémunéré" : "Bénévole")
+                                            @(member.Status == Cedeva.Core.Enums.Status.Compensated ? Localizer["Compensated"] : Localizer["Volunteer"])
                                         </span>
                                     </td>
                                     <td class="text-end">
                                         <div class="btn-group" role="group">
-                                            <a asp-action="Details" asp-route-id="@member.TeamMemberId" class="btn btn-sm btn-info" title="Détails">
+                                            <a asp-action="Details" asp-route-id="@member.TeamMemberId" class="btn btn-sm btn-info" title="@Localizer["Details"]">
                                                 <i class="fas fa-eye"></i>
                                             </a>
-                                            <a asp-action="Edit" asp-route-id="@member.TeamMemberId" class="btn btn-sm btn-primary" title="Modifier">
+                                            <a asp-action="Edit" asp-route-id="@member.TeamMemberId" class="btn btn-sm btn-primary" title="@Localizer["Edit"]">
                                                 <i class="fas fa-edit"></i>
                                             </a>
-                                            <a asp-action="Delete" asp-route-id="@member.TeamMemberId" class="btn btn-sm btn-danger" title="Supprimer">
+                                            <a asp-action="Delete" asp-route-id="@member.TeamMemberId" class="btn btn-sm btn-danger" title="@Localizer["Delete"]">
                                                 <i class="fas fa-trash"></i>
                                             </a>
                                         </div>
@@ -113,7 +113,7 @@
                 <nav aria-label="Page navigation" class="mt-3">
                     <div class="d-flex justify-content-between align-items-center">
                         <div class="text-muted">
-                            Affichage de @((pageNumber - 1) * pageSize + 1) à @Math.Min(pageNumber * pageSize, totalItems) sur @totalItems membres
+                            @Localizer["Showing"] @((pageNumber - 1) * pageSize + 1) @Localizer["To"] @Math.Min(pageNumber * pageSize, totalItems) @Localizer["On"] @totalItems @Localizer["TeamMembers.MembersCount"]
                         </div>
                         @if (totalPages > 1)
                         {
@@ -147,11 +147,11 @@
                     <i class="fas fa-info-circle me-2"></i>
                     @if (!string.IsNullOrEmpty(searchString))
                     {
-                        <span>Aucun membre d'équipe trouvé pour votre recherche.</span>
+                        <span>@Localizer["TeamMembers.NoMembersFound"]</span>
                     }
                     else
                     {
-                        <span>Aucun membre d'équipe enregistré. Cliquez sur "Ajouter un membre" pour commencer.</span>
+                        <span>@Localizer["TeamMembers.NoMembersYet"]</span>
                     }
                 </div>
             }

@@ -1,6 +1,6 @@
 @model Cedeva.Website.Features.Activities.ViewModels.ActivityViewModel
 @{
-    ViewData["Title"] = "Nouvelle activité";
+    ViewData["Title"] = Localizer["Activities.NewActivity"];
 }
 
 <div class="container-fluid">
@@ -8,7 +8,7 @@
         <div class="col-lg-8">
             <div class="card shadow">
                 <div class="card-header">
-                    <h5 class="mb-0"><i class="fas fa-plus me-2"></i>Nouvelle activité</h5>
+                    <h5 class="mb-0"><i class="fas fa-plus me-2"></i>@Localizer["Activities.NewActivity"]/h5>
                 </div>
                 <div class="card-body">
                     <form asp-action="Create" method="post">
@@ -16,13 +16,13 @@
 
                         <div class="mb-3">
                             <label asp-for="Name" class="form-label"></label>
-                            <input asp-for="Name" class="form-control" placeholder="Ex: Stage de Pâques 2026" />
+                            <input asp-for="Name" class="form-control" placeholder="@Localizer["Activities.NamePlaceholder"]" />
                             <span asp-validation-for="Name" class="text-danger"></span>
                         </div>
 
                         <div class="mb-3">
                             <label asp-for="Description" class="form-label"></label>
-                            <textarea asp-for="Description" class="form-control" rows="3" placeholder="Description de l'activité..."></textarea>
+                            <textarea asp-for="Description" class="form-control" rows="3" placeholder="@Localizer["Activities.DescriptionPlaceholder"]"></textarea>
                             <span asp-validation-for="Description" class="text-danger"></span>
                         </div>
 
@@ -76,16 +76,16 @@
         <div class="col-lg-4">
             <div class="card shadow">
                 <div class="card-header">
-                    <h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>Informations</h6>
+                    <h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>@Localizer["Activities.Information"]/h6>
                 </div>
                 <div class="card-body">
                     <p class="small text-muted">
                         <i class="fas fa-lightbulb text-warning me-2"></i>
-                        Les jours de l'activité seront automatiquement générés en fonction des dates de début et de fin.
+                        @Localizer["Activities.DaysWillBeGenerated"]
                     </p>
                     <p class="small text-muted">
                         <i class="fas fa-lightbulb text-warning me-2"></i>
-                        Vous pourrez ensuite ajouter des groupes, des questions personnalisées et gérer les inscriptions.
+                        @Localizer["Activities.CanAddGroupsLater"]
                     </p>
                 </div>
             </div>

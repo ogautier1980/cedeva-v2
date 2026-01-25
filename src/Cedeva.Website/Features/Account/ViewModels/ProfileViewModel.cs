@@ -4,19 +4,19 @@ namespace Cedeva.Website.Features.Account.ViewModels;
 
 public class ProfileViewModel
 {
-    [Required(ErrorMessage = "Le prénom est requis")]
-    [StringLength(100, ErrorMessage = "Le prénom ne peut pas dépasser 100 caractères")]
-    [Display(Name = "Prénom")]
+    [Required]
+    [StringLength(100)]
+    [Display(Name = "Field.FirstName")]
     public string FirstName { get; set; } = string.Empty;
 
-    [Required(ErrorMessage = "Le nom est requis")]
-    [StringLength(100, ErrorMessage = "Le nom ne peut pas dépasser 100 caractères")]
-    [Display(Name = "Nom")]
+    [Required]
+    [StringLength(100)]
+    [Display(Name = "Field.LastName")]
     public string LastName { get; set; } = string.Empty;
 
-    [Display(Name = "Email")]
+    [Display(Name = "Field.Email")]
     public string Email { get; set; } = string.Empty;
 
-    [Display(Name = "Organisation")]
+    [Display(Name = "Field.Organisation")]
     public int? OrganisationId { get; set; }
 }

@@ -1,6 +1,6 @@
 @model Cedeva.Website.Features.Activities.ViewModels.ActivityViewModel
 @{
-    ViewData["Title"] = "Modifier l'activité";
+    ViewData["Title"] = Localizer["Activities.EditActivity"];
 }
 
 <div class="container-fluid">
@@ -8,7 +8,7 @@
         <div class="col-lg-8">
             <div class="card shadow">
                 <div class="card-header">
-                    <h5 class="mb-0"><i class="fas fa-edit me-2"></i>Modifier l'activité</h5>
+                    <h5 class="mb-0"><i class="fas fa-edit me-2"></i>@Localizer["Activities.EditActivity"]/h5>
                 </div>
                 <div class="card-body">
                     <form asp-action="Edit" method="post">

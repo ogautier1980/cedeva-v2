@@ -5,7 +5,7 @@ namespace Cedeva.Website.Features.PublicRegistration.ViewModels;
 
 public class SelectActivityViewModel
 {
-    [Required(ErrorMessage = "Veuillez sélectionner une activité")]
+    [Required]
     public int? ActivityId { get; set; }
 
     public List<Activity> AvailableActivities { get; set; } = new();

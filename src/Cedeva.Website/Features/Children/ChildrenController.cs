@@ -6,6 +6,7 @@ using Cedeva.Core.Interfaces;
 using Cedeva.Website.Features.Children.ViewModels;
 using Cedeva.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Localization;
 
 namespace Cedeva.Website.Features.Children;
 
@@ -17,19 +18,22 @@ public class ChildrenController : Controller
     private readonly CedevaDbContext _context;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IExcelExportService _excelExportService;
+    private readonly IStringLocalizer<SharedResources> _localizer;
 
     public ChildrenController(
         IRepository<Child> childRepository,
         IRepository<Parent> parentRepository,
         CedevaDbContext context,
         IUnitOfWork unitOfWork,
-        IExcelExportService excelExportService)
+        IExcelExportService excelExportService,
+        IStringLocalizer<SharedResources> localizer)
     {
         _childRepository = childRepository;
         _parentRepository = parentRepository;
         _context = context;
         _unitOfWork = unitOfWork;
         _excelExportService = excelExportService;
+        _localizer = localizer;
     }
 
     // GET: Children
@@ -201,7 +205,7 @@ public class ChildrenController : Controller
             await _childRepository.AddAsync(child);
             await _unitOfWork.SaveChangesAsync();
 
-            TempData["SuccessMessage"] = "L'enfant a été créé avec succès.";
+            TempData["SuccessMessage"] = _localizer["Message.ChildCreated"];
             return RedirectToAction(nameof(Details), new { id = child.Id });
         }
 
@@ -274,7 +278,7 @@ public class ChildrenController : Controller
             await _childRepository.UpdateAsync(child);
             await _unitOfWork.SaveChangesAsync();
 
-            TempData["SuccessMessage"] = "L'enfant a été modifié avec succès.";
+            TempData["SuccessMessage"] = _localizer["Message.ChildUpdated"];
             return RedirectToAction(nameof(Details), new { id = child.Id });
         }
 
@@ -315,7 +319,7 @@ public class ChildrenController : Controller
         await _childRepository.DeleteAsync(child);
         await _unitOfWork.SaveChangesAsync();
 
-        TempData["SuccessMessage"] = "L'enfant a été supprimé avec succès.";
+        TempData["SuccessMessage"] = _localizer["Message.ChildDeleted"];
         return RedirectToAction(nameof(Index));
     }
 

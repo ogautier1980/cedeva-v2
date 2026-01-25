@@ -1,6 +1,6 @@
 @model Cedeva.Website.Features.Account.ViewModels.LoginViewModel
 @{
-    ViewData["Title"] = "Connexion";
+    ViewData["Title"] = Localizer["Account.Login"];
     Layout = null;
 }
 
@@ -54,7 +54,7 @@
                         <label asp-for="Password" class="form-label"></label>
                         <div class="input-group">
                             <span class="input-group-text"><i class="fas fa-lock"></i></span>
-                            <input asp-for="Password" class="form-control" placeholder="Mot de passe" />
+                            <input asp-for="Password" class="form-control" placeholder="@Localizer["Account.Password"]" />
                         </div>
                         <span asp-validation-for="Password" class="text-danger small"></span>
                     </div>
@@ -72,7 +72,7 @@
 
                     <div class="text-center">
                         <a asp-action="Register" class="text-decoration-none">
-                            Pas encore de compte ? Inscrivez-vous
+                            @Localizer["Account.NoAccount"] Inscrivez-vous
                         </a>
                     </div>
                 </form>

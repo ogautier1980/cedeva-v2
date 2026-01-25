@@ -1,7 +1,7 @@
 @model Cedeva.Website.Features.PublicRegistration.ViewModels.ParentInformationViewModel
 
 @{
-    ViewData["Title"] = "Informations parent";
+    ViewData["Title"] = Localizer["PublicRegistration.ParentInformation"];
     Layout = "~/Features/Shared/Layouts/_PublicLayout.cshtml";
 }
 
@@ -57,7 +57,7 @@
 
                             <div class="col-12">
                                 <hr class="my-4">
-                                <h5><i class="fas fa-map-marker-alt me-2"></i>Adresse</h5>
+                                <h5><i class="fas fa-map-marker-alt me-2"></i>@Localizer["PublicRegistration.Address"]/h5>
                             </div>
 
                             <div class="col-12">

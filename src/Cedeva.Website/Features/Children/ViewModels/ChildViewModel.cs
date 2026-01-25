@@ -6,42 +6,41 @@ public class ChildViewModel
 {
     public int Id { get; set; }
 
-    [Required(ErrorMessage = "Le prénom est obligatoire")]
-    [StringLength(100, MinimumLength = 2, ErrorMessage = "Le prénom doit contenir entre 2 et 100 caractères")]
-    [Display(Name = "Prénom")]
+    [Required]
+    [StringLength(100, MinimumLength = 2)]
+    [Display(Name = "Field.FirstName")]
     public string FirstName { get; set; } = string.Empty;
 
-    [Required(ErrorMessage = "Le nom est obligatoire")]
-    [StringLength(100, MinimumLength = 2, ErrorMessage = "Le nom doit contenir entre 2 et 100 caractères")]
-    [Display(Name = "Nom")]
+    [Required]
+    [StringLength(100, MinimumLength = 2)]
+    [Display(Name = "Field.LastName")]
     public string LastName { get; set; } = string.Empty;
 
-    [Required(ErrorMessage = "Le numéro de registre national est obligatoire")]
-    [StringLength(15, MinimumLength = 11, ErrorMessage = "Le numéro de registre national doit contenir entre 11 et 15 caractères")]
-    [RegularExpression(@"^(\d{2})[.\- ]?(0[1-9]|1[0-2])[.\- ]?(0[1-9]|[12]\d|3[01])[.\- ]?(\d{3})[.\- ]?(\d{2})$",
-        ErrorMessage = "Format du numéro de registre national invalide")]
-    [Display(Name = "Numéro de registre national")]
+    [Required]
+    [StringLength(15, MinimumLength = 11)]
+    [RegularExpression(@"^(\d{2})[.\- ]?(0[1-9]|1[0-2])[.\- ]?(0[1-9]|[12]\d|3[01])[.\- ]?(\d{3})[.\- ]?(\d{2})$")]
+    [Display(Name = "Field.NationalRegisterNumber")]
     public string NationalRegisterNumber { get; set; } = string.Empty;
 
-    [Required(ErrorMessage = "La date de naissance est obligatoire")]
+    [Required]
     [DataType(DataType.Date)]
-    [Display(Name = "Date de naissance")]
+    [Display(Name = "Field.BirthDate")]
     public DateTime BirthDate { get; set; }
 
-    [Display(Name = "Environnement défavorisé")]
+    [Display(Name = "Field.IsDisadvantagedEnvironment")]
     public bool IsDisadvantagedEnvironment { get; set; }
 
-    [Display(Name = "Handicap léger")]
+    [Display(Name = "Field.IsMildDisability")]
     public bool IsMildDisability { get; set; }
 
-    [Display(Name = "Handicap sévère")]
+    [Display(Name = "Field.IsSevereDisability")]
     public bool IsSevereDisability { get; set; }
 
-    [Required(ErrorMessage = "Le parent est obligatoire")]
-    [Display(Name = "Parent")]
+    [Required]
+    [Display(Name = "Field.Parent")]
     public int ParentId { get; set; }
 
-    [Display(Name = "Groupe d'activité")]
+    [Display(Name = "Field.ActivityGroup")]
     public int? ActivityGroupId { get; set; }
 
     // Navigation properties for display

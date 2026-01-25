@@ -87,6 +87,12 @@
   <data name="Users" xml:space="preserve">
     <value>Utilisateurs</value>
   </data>
+  <data name="Team" xml:space="preserve">
+    <value>Équipe</value>
+  </data>
+  <data name="Members" xml:space="preserve">
+    <value>Membres</value>
+  </data>
   <data name="Presence" xml:space="preserve">
     <value>Présences</value>
   </data>
@@ -142,6 +148,12 @@
   </data>
   <data name="Reset" xml:space="preserve">
     <value>Réinitialiser</value>
+  </data>
+  <data name="Previous" xml:space="preserve">
+    <value>Précédent</value>
+  </data>
+  <data name="Next" xml:space="preserve">
+    <value>Suivant</value>
   </data>
   <data name="Confirm" xml:space="preserve">
     <value>Confirmer</value>
@@ -210,6 +222,15 @@
   <data name="Age" xml:space="preserve">
     <value>Âge</value>
   </data>
+  <data name="NationalRegisterNumber" xml:space="preserve">
+    <value>Numéro de registre national</value>
+  </data>
+  <data name="PersonalInformation" xml:space="preserve">
+    <value>Informations personnelles</value>
+  </data>
+  <data name="Contact" xml:space="preserve">
+    <value>Contact</value>
+  </data>
   <data name="Phone" xml:space="preserve">
     <value>Téléphone</value>
   </data>
@@ -265,6 +286,21 @@
   <!-- Status & Confirmation -->
   <data name="Status" xml:space="preserve">
     <value>Statut</value>
+  </data>
+  <data name="Compensated" xml:space="preserve">
+    <value>Rémunéré</value>
+  </data>
+  <data name="Volunteer" xml:space="preserve">
+    <value>Bénévole</value>
+  </data>
+  <data name="Showing" xml:space="preserve">
+    <value>Affichage de</value>
+  </data>
+  <data name="To" xml:space="preserve">
+    <value>à</value>
+  </data>
+  <data name="On" xml:space="preserve">
+    <value>sur</value>
   </data>
   <data name="Confirmed" xml:space="preserve">
     <value>Confirmé</value>
@@ -751,5 +787,1091 @@
   </data>
   <data name="Enum.Status.Volunteer" xml:space="preserve">
     <value>Bénévole</value>
+  </data>
+
+  <!-- Children -->
+  <data name="Children.AddChild" xml:space="preserve">
+    <value>Ajouter un enfant</value>
+  </data>
+  <data name="Children.EditChild" xml:space="preserve">
+    <value>Modifier l'enfant</value>
+  </data>
+  <data name="Children.ChildDetails" xml:space="preserve">
+    <value>Détails de l'enfant</value>
+  </data>
+  <data name="Children.YearsOld" xml:space="preserve">
+    <value>ans</value>
+  </data>
+  <data name="Children.NoBookingsRegistered" xml:space="preserve">
+    <value>Aucune inscription enregistrée</value>
+  </data>
+  <data name="Children.NewBooking" xml:space="preserve">
+    <value>Nouvelle inscription</value>
+  </data>
+  <data name="Children.DeleteChild" xml:space="preserve">
+    <value>Supprimer l'enfant</value>
+  </data>
+  <data name="Children.DeleteWarning" xml:space="preserve">
+    <value>Attention !</value>
+  </data>
+  <data name="Children.DeleteConfirmation" xml:space="preserve">
+    <value>Êtes-vous sûr de vouloir supprimer cet enfant ?</value>
+  </data>
+  <data name="Children.HasBookings" xml:space="preserve">
+    <value>Cet enfant a {0} inscription(s) associée(s).</value>
+  </data>
+  <data name="Children.ChildInformation" xml:space="preserve">
+    <value>Informations de l'enfant</value>
+  </data>
+  <data name="Children.AssociatedBookings" xml:space="preserve">
+    <value>Inscriptions associées</value>
+  </data>
+  <data name="Children.ConfirmDeletion" xml:space="preserve">
+    <value>Confirmer la suppression</value>
+  </data>
+  <data name="Children.SearchPlaceholder" xml:space="preserve">
+    <value>Rechercher par nom, prénom ou numéro de registre national...</value>
+  </data>
+  <data name="Children.NationalRegisterNumber" xml:space="preserve">
+    <value>N° Registre National</value>
+  </data>
+  <data name="Children.Showing" xml:space="preserve">
+    <value>Affichage de</value>
+  </data>
+  <data name="Children.To" xml:space="preserve">
+    <value>à</value>
+  </data>
+  <data name="Children.Of" xml:space="preserve">
+    <value>sur</value>
+  </data>
+  <data name="Children.ChildrenCount" xml:space="preserve">
+    <value>enfants</value>
+  </data>
+  <data name="Children.NoChildrenFound" xml:space="preserve">
+    <value>Aucun enfant trouvé pour votre recherche.</value>
+  </data>
+  <data name="Children.NoChildrenYet" xml:space="preserve">
+    <value>Aucun enfant enregistré. Cliquez sur "Ajouter un enfant" pour commencer.</value>
+  </data>
+  <data name="Children.PersonalInformation" xml:space="preserve">
+    <value>Informations personnelles</value>
+  </data>
+  <data name="Children.SpecificInformation" xml:space="preserve">
+    <value>Informations spécifiques</value>
+  </data>
+  <data name="Children.CreateNewParent" xml:space="preserve">
+    <value>Créer un nouveau parent</value>
+  </data>
+  <data name="Children.SelectParent" xml:space="preserve">
+    <value>-- Sélectionnez un parent --</value>
+  </data>
+  <data name="Children.NRNPlaceholder" xml:space="preserve">
+    <value>YY.MM.DD-XXX.XX</value>
+  </data>
+
+  <!-- Parents -->
+  <data name="Parents" xml:space="preserve">
+    <value>Parents</value>
+  </data>
+  <data name="Parents.AddParent" xml:space="preserve">
+    <value>Ajouter un parent</value>
+  </data>
+  <data name="Parents.NewParent" xml:space="preserve">
+    <value>Nouveau parent</value>
+  </data>
+  <data name="Parents.EditParent" xml:space="preserve">
+    <value>Modifier le parent</value>
+  </data>
+  <data name="Parents.ParentDetails" xml:space="preserve">
+    <value>Détails du parent</value>
+  </data>
+  <data name="Parents.DeleteParent" xml:space="preserve">
+    <value>Supprimer le parent</value>
+  </data>
+  <data name="Parents.SearchPlaceholder" xml:space="preserve">
+    <value>Rechercher par nom, email ou téléphone...</value>
+  </data>
+  <data name="Parents.SearchPlaceholderShort" xml:space="preserve">
+    <value>Nom, prénom ou email...</value>
+  </data>
+  <data name="Parents.ParentsCount" xml:space="preserve">
+    <value>parents</value>
+  </data>
+  <data name="Parents.NoParentsFound" xml:space="preserve">
+    <value>Aucun parent trouvé</value>
+  </data>
+  <data name="Parents.NoParentsYet" xml:space="preserve">
+    <value>Aucun parent enregistré. Cliquez sur "Ajouter un parent" pour commencer.</value>
+  </data>
+  <data name="Parents.CreateParent" xml:space="preserve">
+    <value>Créer le parent</value>
+  </data>
+  <data name="Parents.ParentInformation" xml:space="preserve">
+    <value>Informations du parent</value>
+  </data>
+  <data name="Parents.DeleteWarning" xml:space="preserve">
+    <value>Attention !</value>
+  </data>
+  <data name="Parents.DeleteConfirmation" xml:space="preserve">
+    <value>Êtes-vous sûr de vouloir supprimer ce parent ?</value>
+  </data>
+  <data name="Parents.HasChildren" xml:space="preserve">
+    <value>Ce parent a {0} enfant(s) associé(s).</value>
+  </data>
+  <data name="Parents.AssociatedChildren" xml:space="preserve">
+    <value>Enfants associés</value>
+  </data>
+  <data name="Parents.ConfirmDeletion" xml:space="preserve">
+    <value>Confirmer la suppression</value>
+  </data>
+  <data name="Parents.StreetPlaceholder" xml:space="preserve">
+    <value>Rue et numéro</value>
+  </data>
+  <data name="Parents.MobilePlaceholder" xml:space="preserve">
+    <value>+32 4XX XX XX XX</value>
+  </data>
+  <data name="Parents.PhonePlaceholder" xml:space="preserve">
+    <value>+32 XX XX XX XX</value>
+  </data>
+  <data name="Parents.NotSpecified" xml:space="preserve">
+    <value>Non renseigné</value>
+  </data>
+  <data name="Parents.NoChildren" xml:space="preserve">
+    <value>Aucun enfant enregistré</value>
+  </data>
+
+  <!-- TeamMembers -->
+  <data name="TeamMembers" xml:space="preserve">
+    <value>Membres d'équipe</value>
+  </data>
+  <data name="TeamMembers.AddMember" xml:space="preserve">
+    <value>Ajouter un membre</value>
+  </data>
+  <data name="TeamMembers.NewMember" xml:space="preserve">
+    <value>Nouveau membre</value>
+  </data>
+  <data name="TeamMembers.EditMember" xml:space="preserve">
+    <value>Modifier le membre</value>
+  </data>
+  <data name="TeamMembers.MemberDetails" xml:space="preserve">
+    <value>Détails du membre</value>
+  </data>
+  <data name="TeamMembers.DeleteMember" xml:space="preserve">
+    <value>Supprimer le membre</value>
+  </data>
+  <data name="TeamMembers.SearchPlaceholder" xml:space="preserve">
+    <value>Rechercher par nom, prénom ou email...</value>
+  </data>
+  <data name="TeamMembers.MembersCount" xml:space="preserve">
+    <value>membres</value>
+  </data>
+  <data name="TeamMembers.NoMembersFound" xml:space="preserve">
+    <value>Aucun membre trouvé pour votre recherche.</value>
+  </data>
+  <data name="TeamMembers.NoMembersYet" xml:space="preserve">
+    <value>Aucun membre enregistré. Cliquez sur "Ajouter un membre" pour commencer.</value>
+  </data>
+  <data name="TeamMembers.DailyCompensation" xml:space="preserve">
+    <value>Indemnité/jour</value>
+  </data>
+  <data name="TeamMembers.MemberInformation" xml:space="preserve">
+    <value>Informations du membre</value>
+  </data>
+  <data name="TeamMembers.DeleteWarning" xml:space="preserve">
+    <value>Attention !</value>
+  </data>
+  <data name="TeamMembers.DeleteConfirmation" xml:space="preserve">
+    <value>Êtes-vous sûr de vouloir supprimer ce membre d'équipe ?</value>
+  </data>
+  <data name="TeamMembers.ConfirmDeletion" xml:space="preserve">
+    <value>Confirmer la suppression</value>
+  </data>
+  <data name="TeamMembers.ProfessionalInformation" xml:space="preserve">
+    <value>Informations professionnelles</value>
+  </data>
+  <data name="TeamMembers.SelectRole" xml:space="preserve">
+    <value>-- Sélectionnez un rôle --</value>
+  </data>
+  <data name="TeamMembers.SelectLicense" xml:space="preserve">
+    <value>-- Sélectionnez un brevet --</value>
+  </data>
+  <data name="TeamMembers.SelectStatus" xml:space="preserve">
+    <value>-- Sélectionnez un statut --</value>
+  </data>
+  <data name="TeamMembers.LicenseUrlHelp" xml:space="preserve">
+    <value>URL du document de brevet scanné</value>
+  </data>
+  <data name="TeamMembers.DailyCompensationHelp" xml:space="preserve">
+    <value>Indemnité journalière (optionnel)</value>
+  </data>
+  <data name="TeamMembers.HasRelatedItems" xml:space="preserve">
+    <value>Ce membre a {0} élément(s) associé(s).</value>
+  </data>
+  <data name="TeamMembers.RelatedItems" xml:space="preserve">
+    <value>Éléments associés</value>
+  </data>
+  <data name="ViewDocument" xml:space="preserve">
+    <value>Voir le document</value>
+  </data>
+  <data name="Statistics" xml:space="preserve">
+    <value>Statistiques</value>
+  </data>
+  <data name="Expenses" xml:space="preserve">
+    <value>Frais</value>
+  </data>
+
+  <!-- Organisations -->
+  <data name="Organisations" xml:space="preserve">
+    <value>Organisations</value>
+  </data>
+  <data name="Organisations.AddOrganisation" xml:space="preserve">
+    <value>Ajouter une organisation</value>
+  </data>
+  <data name="Organisations.NewOrganisation" xml:space="preserve">
+    <value>Nouvelle organisation</value>
+  </data>
+  <data name="Organisations.EditOrganisation" xml:space="preserve">
+    <value>Modifier l'organisation</value>
+  </data>
+  <data name="Organisations.OrganisationDetails" xml:space="preserve">
+    <value>Détails de l'organisation</value>
+  </data>
+  <data name="Organisations.DeleteOrganisation" xml:space="preserve">
+    <value>Supprimer l'organisation</value>
+  </data>
+  <data name="Organisations.SearchPlaceholder" xml:space="preserve">
+    <value>Rechercher par nom...</value>
+  </data>
+  <data name="Organisations.OrganisationsCount" xml:space="preserve">
+    <value>organisations</value>
+  </data>
+  <data name="Organisations.NoOrganisationsFound" xml:space="preserve">
+    <value>Aucune organisation trouvée pour votre recherche.</value>
+  </data>
+  <data name="Organisations.NoOrganisationsYet" xml:space="preserve">
+    <value>Aucune organisation enregistrée. Cliquez sur "Ajouter une organisation" pour commencer.</value>
+  </data>
+  <data name="Organisations.OrganisationInformation" xml:space="preserve">
+    <value>Informations de l'organisation</value>
+  </data>
+  <data name="Organisations.DeleteWarning" xml:space="preserve">
+    <value>Attention !</value>
+  </data>
+  <data name="Organisations.DeleteConfirmation" xml:space="preserve">
+    <value>Êtes-vous sûr de vouloir supprimer cette organisation ?</value>
+  </data>
+  <data name="Organisations.ConfirmDeletion" xml:space="preserve">
+    <value>Confirmer la suppression</value>
+  </data>
+  <data name="Organisations.Logo" xml:space="preserve">
+    <value>Logo</value>
+  </data>
+  <data name="Organisations.LogoUrl" xml:space="preserve">
+    <value>URL du logo</value>
+  </data>
+
+  <!-- Users -->
+  <data name="Users.AddUser" xml:space="preserve">
+    <value>Ajouter un utilisateur</value>
+  </data>
+  <data name="Users.SearchPlaceholder" xml:space="preserve">
+    <value>Rechercher par nom ou email...</value>
+  </data>
+  <data name="Users.UsersCount" xml:space="preserve">
+    <value>utilisateurs</value>
+  </data>
+  <data name="Users.NoUsersFound" xml:space="preserve">
+    <value>Aucun utilisateur trouvé pour votre recherche.</value>
+  </data>
+  <data name="Users.NoUsersYet" xml:space="preserve">
+    <value>Aucun utilisateur enregistré. Cliquez sur "Ajouter un utilisateur" pour commencer.</value>
+  </data>
+  <data name="Users.NewUser" xml:space="preserve">
+    <value>Nouvel utilisateur</value>
+  </data>
+  <data name="Users.EditUser" xml:space="preserve">
+    <value>Modifier l'utilisateur</value>
+  </data>
+  <data name="Users.UserDetails" xml:space="preserve">
+    <value>Détails de l'utilisateur</value>
+  </data>
+  <data name="Users.DeleteUser" xml:space="preserve">
+    <value>Supprimer l'utilisateur</value>
+  </data>
+  <data name="Users.UserInformation" xml:space="preserve">
+    <value>Informations de l'utilisateur</value>
+  </data>
+  <data name="Users.DeleteWarning" xml:space="preserve">
+    <value>Attention !</value>
+  </data>
+  <data name="Users.DeleteConfirmation" xml:space="preserve">
+    <value>Êtes-vous sûr de vouloir supprimer cet utilisateur ?</value>
+  </data>
+  <data name="Users.ConfirmDeletion" xml:space="preserve">
+    <value>Confirmer la suppression</value>
+  </data>
+  <data name="Users.SelectOrganisation" xml:space="preserve">
+    <value>-- Sélectionnez une organisation --</value>
+  </data>
+  <data name="Users.SelectRole" xml:space="preserve">
+    <value>-- Sélectionnez un rôle --</value>
+  </data>
+
+  <!-- Account -->
+  <data name="Account.AccessDenied" xml:space="preserve">
+    <value>Accès refusé</value>
+  </data>
+  <data name="Account.Login" xml:space="preserve">
+    <value>Connexion</value>
+  </data>
+  <data name="Account.MyProfile" xml:space="preserve">
+    <value>Mon profil</value>
+  </data>
+  <data name="Account.CreateAccount" xml:space="preserve">
+    <value>Créer un compte</value>
+  </data>
+  <data name="Account.Register" xml:space="preserve">
+    <value>S'inscrire</value>
+  </data>
+  <data name="Account.Password" xml:space="preserve">
+    <value>Mot de passe</value>
+  </data>
+  <data name="Account.ConfirmPassword" xml:space="preserve">
+    <value>Confirmer le mot de passe</value>
+  </data>
+  <data name="Account.RememberMe" xml:space="preserve">
+    <value>Se souvenir de moi</value>
+  </data>
+  <data name="Account.ForgotPassword" xml:space="preserve">
+    <value>Mot de passe oublié ?</value>
+  </data>
+  <data name="Account.NoAccount" xml:space="preserve">
+    <value>Pas encore de compte ?</value>
+  </data>
+  <data name="Account.AlreadyHaveAccount" xml:space="preserve">
+    <value>Vous avez déjà un compte ?</value>
+  </data>
+  <data name="Account.LoginHere" xml:space="preserve">
+    <value>Connectez-vous ici</value>
+  </data>
+  <data name="Account.AccessDeniedMessage" xml:space="preserve">
+    <value>Vous n'avez pas l'autorisation d'accéder à cette ressource.</value>
+  </data>
+  <data name="Account.ReturnToHome" xml:space="preserve">
+    <value>Retour à l'accueil</value>
+  </data>
+  <data name="Account.ProfileInformation" xml:space="preserve">
+    <value>Informations du profil</value>
+  </data>
+  <data name="Account.UpdateProfile" xml:space="preserve">
+    <value>Mettre à jour le profil</value>
+  </data>
+
+  <!-- Home -->
+  <data name="Home.Error" xml:space="preserve">
+    <value>Erreur</value>
+  </data>
+  <data name="Home.ErrorTitle" xml:space="preserve">
+    <value>Une erreur s'est produite</value>
+  </data>
+  <data name="Home.ErrorMessage" xml:space="preserve">
+    <value>Nous sommes désolés, une erreur inattendue s'est produite.</value>
+  </data>
+  <data name="Home.BackToHome" xml:space="preserve">
+    <value>Retour à l'accueil</value>
+  </data>
+  <data name="Home.Dashboard" xml:space="preserve">
+    <value>Tableau de bord</value>
+  </data>
+  <data name="Home.ActiveActivities" xml:space="preserve">
+    <value>Activités actives</value>
+  </data>
+  <data name="Home.ConfirmedBookings" xml:space="preserve">
+    <value>Inscriptions confirmées</value>
+  </data>
+  <data name="Home.ChildrenParents" xml:space="preserve">
+    <value>Enfants / Parents</value>
+  </data>
+  <data name="Home.TeamMembers" xml:space="preserve">
+    <value>Membres d'équipe</value>
+  </data>
+  <data name="Home.RecentActivities" xml:space="preserve">
+    <value>Activités récentes</value>
+  </data>
+  <data name="Home.ViewAll" xml:space="preserve">
+    <value>Voir tout</value>
+  </data>
+  <data name="Home.BookingsCount" xml:space="preserve">
+    <value>inscriptions</value>
+  </data>
+  <data name="Home.NoActivities" xml:space="preserve">
+    <value>Aucune activité enregistrée.</value>
+  </data>
+  <data name="Home.RecentBookings" xml:space="preserve">
+    <value>Inscriptions récentes</value>
+  </data>
+  <data name="Home.NoBookings" xml:space="preserve">
+    <value>Aucune inscription enregistrée.</value>
+  </data>
+  <data name="Home.QuickActions" xml:space="preserve">
+    <value>Actions rapides</value>
+  </data>
+  <data name="Home.NewActivity" xml:space="preserve">
+    <value>Nouvelle activité</value>
+  </data>
+  <data name="Home.NewBooking" xml:space="preserve">
+    <value>Nouvelle inscription</value>
+  </data>
+  <data name="Home.NewChild" xml:space="preserve">
+    <value>Nouvel enfant</value>
+  </data>
+  <data name="Home.NewParent" xml:space="preserve">
+    <value>Nouveau parent</value>
+  </data>
+
+  <!-- Layout -->
+  <data name="Layout.Dashboard" xml:space="preserve">
+    <value>Tableau de bord</value>
+  </data>
+  <data name="Layout.Activities" xml:space="preserve">
+    <value>Activités</value>
+  </data>
+  <data name="Layout.Bookings" xml:space="preserve">
+    <value>Inscriptions</value>
+  </data>
+  <data name="Layout.Presences" xml:space="preserve">
+    <value>Présences</value>
+  </data>
+  <data name="Layout.Children" xml:space="preserve">
+    <value>Enfants</value>
+  </data>
+  <data name="Layout.Parents" xml:space="preserve">
+    <value>Parents</value>
+  </data>
+  <data name="Layout.Team" xml:space="preserve">
+    <value>Équipe</value>
+  </data>
+  <data name="Layout.IframeForm" xml:space="preserve">
+    <value>Formulaire iframe</value>
+  </data>
+  <data name="Layout.Administration" xml:space="preserve">
+    <value>Administration</value>
+  </data>
+  <data name="Layout.Organisations" xml:space="preserve">
+    <value>Organisations</value>
+  </data>
+  <data name="Layout.Users" xml:space="preserve">
+    <value>Utilisateurs</value>
+  </data>
+  <data name="Layout.Profile" xml:space="preserve">
+    <value>Profil</value>
+  </data>
+  <data name="Layout.Logout" xml:space="preserve">
+    <value>Déconnexion</value>
+  </data>
+  <data name="Layout.Privacy" xml:space="preserve">
+    <value>Vie privée</value>
+  </data>
+
+  <!-- PublicLayout -->
+  <data name="PublicLayout.Tagline" xml:space="preserve">
+    <value>Plateforme de gestion de centres de vacances</value>
+  </data>
+  <data name="PublicLayout.AllRightsReserved" xml:space="preserve">
+    <value>Tous droits réservés</value>
+  </data>
+
+  <!-- PublicRegistration -->
+  <data name="PublicRegistration.SelectActivity" xml:space="preserve">
+    <value>Sélectionner une activité</value>
+  </data>
+  <data name="PublicRegistration.SelectActivityLead" xml:space="preserve">
+    <value>Veuillez sélectionner l'activité pour laquelle vous souhaitez inscrire votre enfant.</value>
+  </data>
+  <data name="PublicRegistration.NoActivitiesAvailable" xml:space="preserve">
+    <value>Aucune activité disponible pour le moment.</value>
+  </data>
+  <data name="PublicRegistration.From" xml:space="preserve">
+    <value>Du:</value>
+  </data>
+  <data name="PublicRegistration.To" xml:space="preserve">
+    <value>Au:</value>
+  </data>
+  <data name="PublicRegistration.PricePerDay" xml:space="preserve">
+    <value>Prix par jour:</value>
+  </data>
+  <data name="PublicRegistration.Bookings" xml:space="preserve">
+    <value>Inscriptions:</value>
+  </data>
+  <data name="PublicRegistration.Continue" xml:space="preserve">
+    <value>Continuer</value>
+  </data>
+  <data name="PublicRegistration.ParentInformation" xml:space="preserve">
+    <value>Informations parent</value>
+  </data>
+  <data name="PublicRegistration.ParentInformationLead" xml:space="preserve">
+    <value>Veuillez renseigner vos informations personnelles.</value>
+  </data>
+  <data name="PublicRegistration.Address" xml:space="preserve">
+    <value>Adresse</value>
+  </data>
+  <data name="PublicRegistration.ChildInformation" xml:space="preserve">
+    <value>Informations enfant</value>
+  </data>
+  <data name="PublicRegistration.ChildInformationLead" xml:space="preserve">
+    <value>Veuillez renseigner les informations de votre enfant.</value>
+  </data>
+  <data name="PublicRegistration.MedicalSocialInfo" xml:space="preserve">
+    <value>Informations médicales et sociales</value>
+  </data>
+  <data name="PublicRegistration.MedicalSocialInfoHelp" xml:space="preserve">
+    <value>Ces informations nous permettent de mieux prendre en charge votre enfant.</value>
+  </data>
+  <data name="PublicRegistration.Questions" xml:space="preserve">
+    <value>Questions</value>
+  </data>
+  <data name="PublicRegistration.QuestionsLead" xml:space="preserve">
+    <value>Veuillez répondre aux questions suivantes concernant l'activité.</value>
+  </data>
+  <data name="PublicRegistration.SelectOption" xml:space="preserve">
+    <value>-- Sélectionnez --</value>
+  </data>
+  <data name="PublicRegistration.FinalizeBooking" xml:space="preserve">
+    <value>Finaliser l'inscription</value>
+  </data>
+  <data name="PublicRegistration.NoQuestionsRequired" xml:space="preserve">
+    <value>Aucune question n'est requise pour cette activité.</value>
+  </data>
+  <data name="PublicRegistration.BookingConfirmation" xml:space="preserve">
+    <value>Confirmation d'inscription</value>
+  </data>
+  <data name="PublicRegistration.BookingSuccess" xml:space="preserve">
+    <value>Inscription réussie!</value>
+  </data>
+  <data name="PublicRegistration.BookingSuccessMessage" xml:space="preserve">
+    <value>Nous avons bien reçu votre demande d'inscription. Un email de confirmation a été envoyé à</value>
+  </data>
+  <data name="PublicRegistration.BookingSummary" xml:space="preserve">
+    <value>Récapitulatif de votre inscription</value>
+  </data>
+  <data name="PublicRegistration.Activity" xml:space="preserve">
+    <value>Activité</value>
+  </data>
+  <data name="PublicRegistration.Name" xml:space="preserve">
+    <value>Nom:</value>
+  </data>
+  <data name="PublicRegistration.Child" xml:space="preserve">
+    <value>Enfant</value>
+  </data>
+  <data name="PublicRegistration.BirthDate" xml:space="preserve">
+    <value>Date de naissance:</value>
+  </data>
+  <data name="PublicRegistration.Age" xml:space="preserve">
+    <value>Âge:</value>
+  </data>
+  <data name="PublicRegistration.Years" xml:space="preserve">
+    <value>ans</value>
+  </data>
+  <data name="PublicRegistration.Parent" xml:space="preserve">
+    <value>Parent</value>
+  </data>
+  <data name="PublicRegistration.Mobile" xml:space="preserve">
+    <value>GSM:</value>
+  </data>
+  <data name="PublicRegistration.NextSteps" xml:space="preserve">
+    <value>Prochaines étapes</value>
+  </data>
+  <data name="PublicRegistration.NextStep1" xml:space="preserve">
+    <value>Vous recevrez un email de confirmation à l'adresse</value>
+  </data>
+  <data name="PublicRegistration.NextStep2" xml:space="preserve">
+    <value>Notre équipe vérifiera votre inscription dans les prochains jours</value>
+  </data>
+  <data name="PublicRegistration.NextStep3" xml:space="preserve">
+    <value>Vous recevrez un email de confirmation finale une fois votre inscription validée</value>
+  </data>
+  <data name="PublicRegistration.NextStep4" xml:space="preserve">
+    <value>N'oubliez pas de nous faire parvenir la fiche médicale de votre enfant</value>
+  </data>
+  <data name="PublicRegistration.BookingNumber" xml:space="preserve">
+    <value>Numéro de réservation:</value>
+  </data>
+  <data name="PublicRegistration.KeepNumber" xml:space="preserve">
+    <value>Conservez ce numéro pour toute correspondance</value>
+  </data>
+  <data name="PublicRegistration.EmbedCode" xml:space="preserve">
+    <value>Code d'intégration iframe</value>
+  </data>
+  <data name="PublicRegistration.IntegrationCode" xml:space="preserve">
+    <value>Code d'intégration</value>
+  </data>
+  <data name="PublicRegistration.EmbedInstructions" xml:space="preserve">
+    <value>Copiez et collez ce code HTML sur votre site web pour intégrer le formulaire d'inscription:</value>
+  </data>
+  <data name="PublicRegistration.Copy" xml:space="preserve">
+    <value>Copier</value>
+  </data>
+  <data name="PublicRegistration.Instructions" xml:space="preserve">
+    <value>Instructions</value>
+  </data>
+  <data name="PublicRegistration.Instruction1" xml:space="preserve">
+    <value>Copiez le code HTML ci-dessus</value>
+  </data>
+  <data name="PublicRegistration.Instruction2" xml:space="preserve">
+    <value>Collez-le dans le code source de votre page web à l'endroit où vous souhaitez afficher le formulaire</value>
+  </data>
+  <data name="PublicRegistration.Instruction3" xml:space="preserve">
+    <value>Le formulaire s'affichera automatiquement avec vos activités disponibles</value>
+  </data>
+  <data name="PublicRegistration.Instruction4" xml:space="preserve">
+    <value>Les inscriptions seront automatiquement enregistrées dans votre tableau de bord Cedeva</value>
+  </data>
+  <data name="PublicRegistration.Tip" xml:space="preserve">
+    <value>Astuce:</value>
+  </data>
+  <data name="PublicRegistration.ShareLinkText" xml:space="preserve">
+    <value>Vous pouvez également partager directement le lien suivant:</value>
+  </data>
+  <data name="PublicRegistration.Preview" xml:space="preserve">
+    <value>Aperçu</value>
+  </data>
+  <data name="PublicRegistration.CopySuccess" xml:space="preserve">
+    <value>Code copié dans le presse-papiers!</value>
+  </data>
+  <data name="PublicRegistration.CopyError" xml:space="preserve">
+    <value>Erreur lors de la copie:</value>
+  </data>
+
+  <!-- TempData Messages -->
+  <data name="Message.ProfileUpdated" xml:space="preserve">
+    <value>Profil mis à jour avec succès.</value>
+  </data>
+  <data name="Message.BookingConfirmed" xml:space="preserve">
+    <value>Inscription confirmée avec succès.</value>
+  </data>
+  <data name="Message.EmailSent" xml:space="preserve">
+    <value>Email envoyé avec succès à {0} destinataire(s).</value>
+  </data>
+  <data name="Message.TeamMemberNotFound" xml:space="preserve">
+    <value>Membre de l'équipe introuvable.</value>
+  </data>
+  <data name="Message.TeamMemberAdded" xml:space="preserve">
+    <value>{0} {1} a été ajouté(e) à l'équipe.</value>
+  </data>
+  <data name="Message.TeamMemberRemoved" xml:space="preserve">
+    <value>{0} {1} a été retiré(e) de l'équipe.</value>
+  </data>
+  <data name="Message.ChildCreated" xml:space="preserve">
+    <value>L'enfant a été créé avec succès.</value>
+  </data>
+  <data name="Message.ChildUpdated" xml:space="preserve">
+    <value>L'enfant a été modifié avec succès.</value>
+  </data>
+  <data name="Message.ChildDeleted" xml:space="preserve">
+    <value>L'enfant a été supprimé avec succès.</value>
+  </data>
+  <data name="Message.UserCreated" xml:space="preserve">
+    <value>L'utilisateur a été créé avec succès.</value>
+  </data>
+  <data name="Message.UserUpdated" xml:space="preserve">
+    <value>L'utilisateur a été modifié avec succès.</value>
+  </data>
+  <data name="Message.UserDeleted" xml:space="preserve">
+    <value>L'utilisateur a été supprimé avec succès.</value>
+  </data>
+  <data name="Message.OrganisationCreated" xml:space="preserve">
+    <value>L'organisation a été créée avec succès.</value>
+  </data>
+  <data name="Message.OrganisationUpdated" xml:space="preserve">
+    <value>L'organisation a été modifiée avec succès.</value>
+  </data>
+  <data name="Message.OrganisationDeleted" xml:space="preserve">
+    <value>L'organisation a été supprimée avec succès.</value>
+  </data>
+  <data name="Message.BookingCreated" xml:space="preserve">
+    <value>L'inscription a été créée avec succès.</value>
+  </data>
+  <data name="Message.BookingConfirmedEmailSent" xml:space="preserve">
+    <value>L'inscription a été confirmée et un email a été envoyé au parent.</value>
+  </data>
+  <data name="Message.BookingUpdated" xml:space="preserve">
+    <value>L'inscription a été modifiée avec succès.</value>
+  </data>
+  <data name="Message.BookingDeleted" xml:space="preserve">
+    <value>L'inscription a été supprimée avec succès.</value>
+  </data>
+  <data name="Message.PresencesSaved" xml:space="preserve">
+    <value>Présences enregistrées avec succès.</value>
+  </data>
+  <data name="Message.TeamMemberCreated" xml:space="preserve">
+    <value>Le membre d'équipe a été créé avec succès.</value>
+  </data>
+  <data name="Message.TeamMemberUpdated" xml:space="preserve">
+    <value>Le membre d'équipe a été modifié avec succès.</value>
+  </data>
+  <data name="Message.TeamMemberDeleted" xml:space="preserve">
+    <value>Le membre d'équipe a été supprimé avec succès.</value>
+  </data>
+  <data name="Message.ParentCreated" xml:space="preserve">
+    <value>Le parent a été créé avec succès.</value>
+  </data>
+  <data name="Message.ParentUpdated" xml:space="preserve">
+    <value>Le parent a été mis à jour avec succès.</value>
+  </data>
+  <data name="Message.ParentHasChildren" xml:space="preserve">
+    <value>Impossible de supprimer ce parent car il a des enfants enregistrés.</value>
+  </data>
+  <data name="Message.ParentDeleted" xml:space="preserve">
+    <value>Le parent a été supprimé avec succès.</value>
+  </data>
+  <data name="Message.ActivityCreated" xml:space="preserve">
+    <value>L'activité a été créée avec succès.</value>
+  </data>
+  <data name="Message.ActivityUpdated" xml:space="preserve">
+    <value>L'activité a été mise à jour avec succès.</value>
+  </data>
+  <data name="Message.ActivityHasBookings" xml:space="preserve">
+    <value>Impossible de supprimer cette activité car elle contient des inscriptions.</value>
+  </data>
+  <data name="Message.ActivityDeleted" xml:space="preserve">
+    <value>L'activité a été supprimée avec succès.</value>
+  </data>
+
+  <!-- Activities CRUD Views -->
+  <data name="Activities.EditActivity" xml:space="preserve">
+    <value>Modifier l'activité</value>
+  </data>
+  <data name="Activities.NamePlaceholder" xml:space="preserve">
+    <value>Ex: Stage de Pâques 2026</value>
+  </data>
+  <data name="Activities.DescriptionPlaceholder" xml:space="preserve">
+    <value>Description de l'activité...</value>
+  </data>
+  <data name="Activities.CreateButton" xml:space="preserve">
+    <value>Créer l'activité</value>
+  </data>
+  <data name="Activities.Information" xml:space="preserve">
+    <value>Informations</value>
+  </data>
+  <data name="Activities.DaysWillBeGenerated" xml:space="preserve">
+    <value>Les jours de l'activité seront automatiquement générés en fonction des dates de début et de fin.</value>
+  </data>
+  <data name="Activities.CanAddGroupsLater" xml:space="preserve">
+    <value>Vous pourrez ensuite ajouter des groupes, des questions personnalisées et gérer les inscriptions.</value>
+  </data>
+  <data name="Activities.GeneralInformation" xml:space="preserve">
+    <value>Informations générales</value>
+  </data>
+  <data name="Activities.Description" xml:space="preserve">
+    <value>Description</value>
+  </data>
+  <data name="Activities.From" xml:space="preserve">
+    <value>Du</value>
+  </data>
+  <data name="Activities.ToDate" xml:space="preserve">
+    <value>au</value>
+  </data>
+  <data name="Activities.NotDefined" xml:space="preserve">
+    <value>Non défini</value>
+  </data>
+  <data name="Activities.StatusLabel" xml:space="preserve">
+    <value>Statut</value>
+  </data>
+  <data name="Activities.Statistics" xml:space="preserve">
+    <value>Statistiques</value>
+  </data>
+  <data name="Activities.Groups" xml:space="preserve">
+    <value>Groupes</value>
+  </data>
+  <data name="Activities.Team" xml:space="preserve">
+    <value>Équipe</value>
+  </data>
+  <data name="Activities.QuickActions" xml:space="preserve">
+    <value>Actions rapides</value>
+  </data>
+  <data name="Activities.ManageGroups" xml:space="preserve">
+    <value>Gérer les groupes</value>
+  </data>
+  <data name="Activities.CustomQuestions" xml:space="preserve">
+    <value>Questions personnalisées</value>
+  </data>
+  <data name="Activities.ViewBookings" xml:space="preserve">
+    <value>Voir les inscriptions</value>
+  </data>
+  <data name="Activities.ManagePresences" xml:space="preserve">
+    <value>Gérer les présences</value>
+  </data>
+  <data name="Activities.DeleteActivity" xml:space="preserve">
+    <value>Supprimer l'activité</value>
+  </data>
+  <data name="Activities.ConfirmDeletionTitle" xml:space="preserve">
+    <value>Confirmer la suppression</value>
+  </data>
+  <data name="Activities.DeleteWarning" xml:space="preserve">
+    <value>Êtes-vous sûr de vouloir supprimer cette activité ?</value>
+  </data>
+  <data name="Activities.Organisation" xml:space="preserve">
+    <value>Organisation</value>
+  </data>
+  <data name="Activities.None" xml:space="preserve">
+    <value>Aucune</value>
+  </data>
+  <data name="Activities.BookingCount" xml:space="preserve">
+    <value>inscription(s)</value>
+  </data>
+  <data name="Activities.HasBookingsWarning" xml:space="preserve">
+    <value>Cette activité contient des inscriptions. La suppression n'est pas possible.</value>
+  </data>
+  <data name="Activities.DeletePermanently" xml:space="preserve">
+    <value>Supprimer définitivement</value>
+  </data>
+
+  <!-- Bookings CRUD Views -->
+  <data name="Bookings.NewBooking" xml:space="preserve">
+    <value>Nouvelle inscription</value>
+  </data>
+  <data name="Bookings.BasicInformation" xml:space="preserve">
+    <value>Informations de base</value>
+  </data>
+  <data name="Bookings.CreateNewChild" xml:space="preserve">
+    <value>Créer un nouvel enfant</value>
+  </data>
+  <data name="Bookings.ActivityGroupHelp" xml:space="preserve">
+    <value>Groupe d'activité (si applicable)</value>
+  </data>
+  <data name="Bookings.ConfirmBooking" xml:space="preserve">
+    <value>Confirmer l'inscription</value>
+  </data>
+  <data name="Bookings.MedicalSheetReceived" xml:space="preserve">
+    <value>Fiche médicale reçue</value>
+  </data>
+  <data name="Bookings.EditBooking" xml:space="preserve">
+    <value>Modifier l'inscription</value>
+  </data>
+  <data name="Bookings.BookingDetails" xml:space="preserve">
+    <value>Détails de l'inscription</value>
+  </data>
+  <data name="Bookings.BookingInformation" xml:space="preserve">
+    <value>Informations de l'inscription</value>
+  </data>
+  <data name="Bookings.BookingDate" xml:space="preserve">
+    <value>Date d'inscription</value>
+  </data>
+  <data name="Bookings.SelectedDays" xml:space="preserve">
+    <value>Jours sélectionnés</value>
+  </data>
+  <data name="Bookings.NoDaysSelected" xml:space="preserve">
+    <value>Aucun jour sélectionné</value>
+  </data>
+  <data name="Bookings.DaysBooked" xml:space="preserve">
+    <value>jour(s) réservé(s)</value>
+  </data>
+  <data name="Bookings.DeleteBooking" xml:space="preserve">
+    <value>Supprimer l'inscription</value>
+  </data>
+  <data name="Bookings.DeleteBookingWarning" xml:space="preserve">
+    <value>Êtes-vous sûr de vouloir supprimer cette inscription ?</value>
+  </data>
+  <data name="Bookings.ChildInformation" xml:space="preserve">
+    <value>Informations de l'enfant</value>
+  </data>
+  <data name="Bookings.ParentInformation" xml:space="preserve">
+    <value>Informations du parent</value>
+  </data>
+
+  <!-- Validation Error Messages -->
+  <data name="Validation.Required" xml:space="preserve">
+    <value>Le champ {0} est obligatoire</value>
+  </data>
+  <data name="Validation.StringLength" xml:space="preserve">
+    <value>Le champ {0} doit contenir entre {2} et {1} caractères</value>
+  </data>
+  <data name="Validation.EmailFormat" xml:space="preserve">
+    <value>Format d'email invalide</value>
+  </data>
+  <data name="Validation.PhoneFormat" xml:space="preserve">
+    <value>Format de téléphone invalide</value>
+  </data>
+  <data name="Validation.NRNFormat" xml:space="preserve">
+    <value>Format du numéro de registre national invalide</value>
+  </data>
+  <data name="Validation.PasswordLength" xml:space="preserve">
+    <value>Le mot de passe doit contenir au moins {1} caractères</value>
+  </data>
+  <data name="Validation.PasswordsMatch" xml:space="preserve">
+    <value>Les mots de passe ne correspondent pas</value>
+  </data>
+  <data name="Validation.Range" xml:space="preserve">
+    <value>La valeur doit être comprise entre {1} et {2}</value>
+  </data>
+
+  <!-- Field Display Names -->
+  <data name="Field.FirstName" xml:space="preserve">
+    <value>Prénom</value>
+  </data>
+  <data name="Field.LastName" xml:space="preserve">
+    <value>Nom</value>
+  </data>
+  <data name="Field.Email" xml:space="preserve">
+    <value>Email</value>
+  </data>
+  <data name="Field.PhoneNumber" xml:space="preserve">
+    <value>Téléphone</value>
+  </data>
+  <data name="Field.MobilePhoneNumber" xml:space="preserve">
+    <value>GSM</value>
+  </data>
+  <data name="Field.LandlineNumber" xml:space="preserve">
+    <value>Téléphone fixe</value>
+  </data>
+  <data name="Field.NationalRegisterNumber" xml:space="preserve">
+    <value>Numéro de registre national</value>
+  </data>
+  <data name="Field.BirthDate" xml:space="preserve">
+    <value>Date de naissance</value>
+  </data>
+  <data name="Field.Password" xml:space="preserve">
+    <value>Mot de passe</value>
+  </data>
+  <data name="Field.ConfirmPassword" xml:space="preserve">
+    <value>Confirmer le mot de passe</value>
+  </data>
+  <data name="Field.RememberMe" xml:space="preserve">
+    <value>Se souvenir de moi</value>
+  </data>
+  <data name="Field.IsDisadvantagedEnvironment" xml:space="preserve">
+    <value>Environnement défavorisé</value>
+  </data>
+  <data name="Field.IsMildDisability" xml:space="preserve">
+    <value>Handicap léger</value>
+  </data>
+  <data name="Field.IsSevereDisability" xml:space="preserve">
+    <value>Handicap sévère</value>
+  </data>
+  <data name="Field.Parent" xml:space="preserve">
+    <value>Parent</value>
+  </data>
+  <data name="Field.ActivityGroup" xml:space="preserve">
+    <value>Groupe d'activité</value>
+  </data>
+  <data name="Field.Street" xml:space="preserve">
+    <value>Rue</value>
+  </data>
+  <data name="Field.HouseNumber" xml:space="preserve">
+    <value>Numéro</value>
+  </data>
+  <data name="Field.City" xml:space="preserve">
+    <value>Ville</value>
+  </data>
+  <data name="Field.PostalCode" xml:space="preserve">
+    <value>Code postal</value>
+  </data>
+  <data name="Field.Organisation" xml:space="preserve">
+    <value>Organisation</value>
+  </data>
+  <data name="Field.Role" xml:space="preserve">
+    <value>Rôle</value>
+  </data>
+  <data name="Field.Country" xml:space="preserve">
+    <value>Pays</value>
+  </data>
+  <data name="Field.FullName" xml:space="preserve">
+    <value>Nom complet</value>
+  </data>
+  <data name="Field.ChildrenCount" xml:space="preserve">
+    <value>Enfants</value>
+  </data>
+  <data name="Field.Name" xml:space="preserve">
+    <value>Nom</value>
+  </data>
+  <data name="Field.Description" xml:space="preserve">
+    <value>Description</value>
+  </data>
+  <data name="Field.StartDate" xml:space="preserve">
+    <value>Date de début</value>
+  </data>
+  <data name="Field.EndDate" xml:space="preserve">
+    <value>Date de fin</value>
+  </data>
+  <data name="Field.PricePerDay" xml:space="preserve">
+    <value>Prix par jour</value>
+  </data>
+  <data name="Field.IsActive" xml:space="preserve">
+    <value>Active</value>
+  </data>
+  <data name="Field.LogoUrl" xml:space="preserve">
+    <value>URL du logo</value>
+  </data>
+  <data name="Field.Subject" xml:space="preserve">
+    <value>Sujet</value>
+  </data>
+  <data name="Field.Message" xml:space="preserve">
+    <value>Message</value>
+  </data>
+  <data name="Field.Attachment" xml:space="preserve">
+    <value>Pièce jointe</value>
+  </data>
+  <data name="Field.BookingsCount" xml:space="preserve">
+    <value>Inscriptions</value>
+  </data>
+  <data name="Field.GroupsCount" xml:space="preserve">
+    <value>Groupes</value>
+  </data>
+  <data name="Field.TeamMembersCount" xml:space="preserve">
+    <value>Équipe</value>
+  </data>
+  <data name="Field.TeamRole" xml:space="preserve">
+    <value>Rôle dans l'équipe</value>
+  </data>
+  <data name="Field.License" xml:space="preserve">
+    <value>Brevet</value>
+  </data>
+  <data name="Field.Status" xml:space="preserve">
+    <value>Statut</value>
+  </data>
+  <data name="Field.DailyCompensation" xml:space="preserve">
+    <value>Indemnité journalière</value>
+  </data>
+  <data name="Field.LicenseUrl" xml:space="preserve">
+    <value>URL du brevet</value>
+  </data>
+  <data name="Field.ActivitiesCount" xml:space="preserve">
+    <value>Nombre d'activités</value>
+  </data>
+  <data name="Field.ExpensesCount" xml:space="preserve">
+    <value>Nombre de frais</value>
+  </data>
+  <data name="Field.ParentsCount" xml:space="preserve">
+    <value>Nombre de parents</value>
+  </data>
+  <data name="Field.UsersCount" xml:space="preserve">
+    <value>Nombre d'utilisateurs</value>
+  </data>
+  <data name="Field.EmailConfirmed" xml:space="preserve">
+    <value>Email confirmé</value>
+  </data>
+  <data name="Field.IsLockedOut" xml:space="preserve">
+    <value>Compte verrouillé</value>
+  </data>
+  <data name="Field.BookingDate" xml:space="preserve">
+    <value>Date de réservation</value>
+  </data>
+  <data name="Field.Child" xml:space="preserve">
+    <value>Enfant</value>
+  </data>
+  <data name="Field.Activity" xml:space="preserve">
+    <value>Activité</value>
+  </data>
+  <data name="Field.Group" xml:space="preserve">
+    <value>Groupe</value>
+  </data>
+  <data name="Field.IsConfirmed" xml:space="preserve">
+    <value>Confirmée</value>
+  </data>
+  <data name="Field.IsMedicalSheet" xml:space="preserve">
+    <value>Fiche médicale reçue</value>
+  </data>
+  <data name="Field.Recipient" xml:space="preserve">
+    <value>Destinataire</value>
   </data>
 </root>

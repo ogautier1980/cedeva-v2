@@ -5,6 +5,7 @@ using Cedeva.Core.Interfaces;
 using Cedeva.Website.Features.TeamMembers.ViewModels;
 using Cedeva.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Localization;
 
 namespace Cedeva.Website.Features.TeamMembers;
 
@@ -17,6 +18,7 @@ public class TeamMembersController : Controller
     private readonly ICurrentUserService _currentUserService;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IExcelExportService _excelExportService;
+    private readonly IStringLocalizer<SharedResources> _localizer;
 
     public TeamMembersController(
         IRepository<TeamMember> teamMemberRepository,
@@ -24,7 +26,8 @@ public class TeamMembersController : Controller
         CedevaDbContext context,
         ICurrentUserService currentUserService,
         IUnitOfWork unitOfWork,
-        IExcelExportService excelExportService)
+        IExcelExportService excelExportService,
+        IStringLocalizer<SharedResources> localizer)
     {
         _teamMemberRepository = teamMemberRepository;
         _addressRepository = addressRepository;
@@ -32,6 +35,7 @@ public class TeamMembersController : Controller
         _currentUserService = currentUserService;
         _unitOfWork = unitOfWork;
         _excelExportService = excelExportService;
+        _localizer = localizer;
     }
 
     // GET: TeamMembers
@@ -211,7 +215,7 @@ public class TeamMembersController : Controller
             await _teamMemberRepository.AddAsync(teamMember);
             await _unitOfWork.SaveChangesAsync();
 
-            TempData["SuccessMessage"] = "Le membre d'équipe a été créé avec succès.";
+            TempData["SuccessMessage"] = _localizer["Message.TeamMemberCreated"];
             return RedirectToAction(nameof(Details), new { id = teamMember.TeamMemberId });
         }
 
@@ -306,7 +310,7 @@ public class TeamMembersController : Controller
             await _teamMemberRepository.UpdateAsync(teamMember);
             await _unitOfWork.SaveChangesAsync();
 
-            TempData["SuccessMessage"] = "Le membre d'équipe a été modifié avec succès.";
+            TempData["SuccessMessage"] = _localizer["Message.TeamMemberUpdated"];
             return RedirectToAction(nameof(Details), new { id = teamMember.TeamMemberId });
         }
 
@@ -357,7 +361,7 @@ public class TeamMembersController : Controller
             await _unitOfWork.SaveChangesAsync();
         }
 
-        TempData["SuccessMessage"] = "Le membre d'équipe a été supprimé avec succès.";
+        TempData["SuccessMessage"] = _localizer["Message.TeamMemberDeleted"];
         return RedirectToAction(nameof(Index));
     }
 

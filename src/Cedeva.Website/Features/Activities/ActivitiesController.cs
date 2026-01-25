@@ -5,6 +5,7 @@ using Cedeva.Website.Features.Activities.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Localization;
 
 namespace Cedeva.Website.Features.Activities;
 
@@ -15,17 +16,20 @@ public class ActivitiesController : Controller
     private readonly ICurrentUserService _currentUserService;
     private readonly ILogger<ActivitiesController> _logger;
     private readonly IExcelExportService _excelExportService;
+    private readonly IStringLocalizer<SharedResources> _localizer;
 
     public ActivitiesController(
         CedevaDbContext context,
         ICurrentUserService currentUserService,
         ILogger<ActivitiesController> logger,
-        IExcelExportService excelExportService)
+        IExcelExportService excelExportService,
+        IStringLocalizer<SharedResources> localizer)
     {
         _context = context;
         _currentUserService = currentUserService;
         _logger = logger;
         _excelExportService = excelExportService;
+        _localizer = localizer;
     }
 
     public async Task<IActionResult> Index(string? searchTerm, bool? showActiveOnly, int page = 1)
@@ -181,7 +185,7 @@ public class ActivitiesController : Controller
 
         _logger.LogInformation("Activity {Name} created by user {UserId}", activity.Name, _currentUserService.UserId);
 
-        TempData["Success"] = "L'activité a été créée avec succès.";
+        TempData["Success"] = _localizer["Message.ActivityCreated"];
         return RedirectToAction(nameof(Index));
     }
 
@@ -251,7 +255,7 @@ public class ActivitiesController : Controller
         {
             await _context.SaveChangesAsync();
             _logger.LogInformation("Activity {Name} updated by user {UserId}", activity.Name, _currentUserService.UserId);
-            TempData["Success"] = "L'activité a été mise à jour avec succès.";
+            TempData["Success"] = _localizer["Message.ActivityUpdated"];
         }
         catch (DbUpdateConcurrencyException)
         {
@@ -301,7 +305,7 @@ public class ActivitiesController : Controller
 
         if (activity.Bookings.Any())
         {
-            TempData["Error"] = "Impossible de supprimer cette activité car elle contient des inscriptions.";
+            TempData["Error"] = _localizer["Message.ActivityHasBookings"];
             return RedirectToAction(nameof(Index));
         }
 
@@ -309,7 +313,7 @@ public class ActivitiesController : Controller
         await _context.SaveChangesAsync();
 
         _logger.LogInformation("Activity {Name} deleted by user {UserId}", activity.Name, _currentUserService.UserId);
-        TempData["Success"] = "L'activité a été supprimée avec succès.";
+        TempData["Success"] = _localizer["Message.ActivityDeleted"];
 
         return RedirectToAction(nameof(Index));
     }

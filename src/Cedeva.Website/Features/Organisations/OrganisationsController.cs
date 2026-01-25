@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Localization;
 using Cedeva.Core.Entities;
 using Cedeva.Core.Interfaces;
 using Cedeva.Website.Features.Organisations.ViewModels;
@@ -15,17 +16,20 @@ public class OrganisationsController : Controller
     private readonly IRepository<Address> _addressRepository;
     private readonly CedevaDbContext _context;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IStringLocalizer<SharedResources> _localizer;
 
     public OrganisationsController(
         IRepository<Organisation> organisationRepository,
         IRepository<Address> addressRepository,
         CedevaDbContext context,
-        IUnitOfWork unitOfWork)
+        IUnitOfWork unitOfWork,
+        IStringLocalizer<SharedResources> localizer)
     {
         _organisationRepository = organisationRepository;
         _addressRepository = addressRepository;
         _context = context;
         _unitOfWork = unitOfWork;
+        _localizer = localizer;
     }
 
     // GET: Organisations
@@ -170,7 +174,7 @@ public class OrganisationsController : Controller
             await _organisationRepository.AddAsync(organisation);
             await _unitOfWork.SaveChangesAsync();
 
-            TempData["SuccessMessage"] = "L'organisation a été créée avec succès.";
+            TempData["SuccessMessage"] = _localizer["Message.OrganisationCreated"];
             return RedirectToAction(nameof(Details), new { id = organisation.Id });
         }
 
@@ -248,7 +252,7 @@ public class OrganisationsController : Controller
             await _organisationRepository.UpdateAsync(organisation);
             await _unitOfWork.SaveChangesAsync();
 
-            TempData["SuccessMessage"] = "L'organisation a été modifiée avec succès.";
+            TempData["SuccessMessage"] = _localizer["Message.OrganisationUpdated"];
             return RedirectToAction(nameof(Details), new { id = organisation.Id });
         }
 
@@ -304,7 +308,7 @@ public class OrganisationsController : Controller
             await _unitOfWork.SaveChangesAsync();
         }
 
-        TempData["SuccessMessage"] = "L'organisation a été supprimée avec succès.";
+        TempData["SuccessMessage"] = _localizer["Message.OrganisationDeleted"];
         return RedirectToAction(nameof(Index));
     }
 

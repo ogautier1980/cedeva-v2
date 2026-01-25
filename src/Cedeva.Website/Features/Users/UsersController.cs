@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Localization;
 using Cedeva.Core.Entities;
 using Cedeva.Core.Enums;
 using Cedeva.Website.Features.Users.ViewModels;
@@ -15,13 +16,16 @@ public class UsersController : Controller
 {
     private readonly UserManager<CedevaUser> _userManager;
     private readonly CedevaDbContext _context;
+    private readonly IStringLocalizer<SharedResources> _localizer;
 
     public UsersController(
         UserManager<CedevaUser> userManager,
-        CedevaDbContext context)
+        CedevaDbContext context,
+        IStringLocalizer<SharedResources> localizer)
     {
         _userManager = userManager;
         _context = context;
+        _localizer = localizer;
     }
 
     // GET: Users
@@ -151,7 +155,7 @@ public class UsersController : Controller
                 var roleName = viewModel.Role == Role.Admin ? "Admin" : "Coordinator";
                 await _userManager.AddToRoleAsync(user, roleName);
 
-                TempData["SuccessMessage"] = "L'utilisateur a été créé avec succès.";
+                TempData["SuccessMessage"] = _localizer["Message.UserCreated"];
                 return RedirectToAction(nameof(Details), new { id = user.Id });
             }
 
@@ -245,7 +249,7 @@ public class UsersController : Controller
                 var roleName = viewModel.Role == Role.Admin ? "Admin" : "Coordinator";
                 await _userManager.AddToRoleAsync(user, roleName);
 
-                TempData["SuccessMessage"] = "L'utilisateur a été modifié avec succès.";
+                TempData["SuccessMessage"] = _localizer["Message.UserUpdated"];
                 return RedirectToAction(nameof(Details), new { id = user.Id });
             }
 
@@ -298,7 +302,7 @@ public class UsersController : Controller
 
         if (result.Succeeded)
         {
-            TempData["SuccessMessage"] = "L'utilisateur a été supprimé avec succès.";
+            TempData["SuccessMessage"] = _localizer["Message.UserDeleted"];
             return RedirectToAction(nameof(Index));
         }
 

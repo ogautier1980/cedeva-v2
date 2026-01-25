@@ -1,14 +1,14 @@
 @{
-    ViewData["Title"] = "Accès refusé";
+    ViewData["Title"] = Localizer["Account.AccessDenied"];
 }
 
 <div class="container">
     <div class="row justify-content-center">
         <div class="col-md-6 text-center">
             <h1 class="display-1 text-warning">403</h1>
-            <h2>Accès refusé</h2>
+            <h2>@Localizer["Account.AccessDenied"]</h2>
             <p class="lead">Vous n'avez pas les permissions nécessaires pour accéder à cette page.</p>
-            <a href="/" class="btn btn-primary">Retour à l'accueil</a>
+            <a href="/" class="btn btn-primary">@Localizer["Account.ReturnToHome"]</a>
         </div>
     </div>
 </div>

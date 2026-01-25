@@ -6,6 +6,7 @@ using Cedeva.Website.Features.Parents.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Localization;
 
 namespace Cedeva.Website.Features.Parents;
 
@@ -16,17 +17,20 @@ public class ParentsController : Controller
     private readonly ICurrentUserService _currentUserService;
     private readonly ILogger<ParentsController> _logger;
     private readonly IExcelExportService _excelExportService;
+    private readonly IStringLocalizer<SharedResources> _localizer;
 
     public ParentsController(
         CedevaDbContext context,
         ICurrentUserService currentUserService,
         ILogger<ParentsController> logger,
-        IExcelExportService excelExportService)
+        IExcelExportService excelExportService,
+        IStringLocalizer<SharedResources> localizer)
     {
         _context = context;
         _currentUserService = currentUserService;
         _logger = logger;
         _excelExportService = excelExportService;
+        _localizer = localizer;
     }
 
     public async Task<IActionResult> Index(string? searchTerm, int page = 1)
@@ -207,7 +211,7 @@ public class ParentsController : Controller
 
         _logger.LogInformation("Parent {Name} created by user {UserId}", parent.FullName, _currentUserService.UserId);
 
-        TempData["Success"] = "Le parent a été créé avec succès.";
+        TempData["Success"] = _localizer["Message.ParentCreated"];
         return RedirectToAction(nameof(Index));
     }
 
@@ -270,7 +274,7 @@ public class ParentsController : Controller
         {
             await _context.SaveChangesAsync();
             _logger.LogInformation("Parent {Name} updated by user {UserId}", parent.FullName, _currentUserService.UserId);
-            TempData["Success"] = "Le parent a été mis à jour avec succès.";
+            TempData["Success"] = _localizer["Message.ParentUpdated"];
         }
         catch (DbUpdateConcurrencyException)
         {
@@ -317,7 +321,7 @@ public class ParentsController : Controller
 
         if (parent.Children.Any())
         {
-            TempData["Error"] = "Impossible de supprimer ce parent car il a des enfants enregistrés.";
+            TempData["Error"] = _localizer["Message.ParentHasChildren"];
             return RedirectToAction(nameof(Index));
         }
 
@@ -326,7 +330,7 @@ public class ParentsController : Controller
         await _context.SaveChangesAsync();
 
         _logger.LogInformation("Parent {Name} deleted by user {UserId}", parent.FullName, _currentUserService.UserId);
-        TempData["Success"] = "Le parent a été supprimé avec succès.";
+        TempData["Success"] = _localizer["Message.ParentDeleted"];
 
         return RedirectToAction(nameof(Index));
     }

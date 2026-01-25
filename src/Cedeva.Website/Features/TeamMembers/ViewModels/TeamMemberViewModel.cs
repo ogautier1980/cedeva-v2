@@ -7,92 +7,91 @@ public class TeamMemberViewModel
 {
     public int TeamMemberId { get; set; }
 
-    [Required(ErrorMessage = "Le prénom est requis")]
-    [StringLength(100, MinimumLength = 2, ErrorMessage = "Le prénom doit contenir entre 2 et 100 caractères")]
-    [Display(Name = "Prénom")]
+    [Required]
+    [StringLength(100, MinimumLength = 2)]
+    [Display(Name = "Field.FirstName")]
     public string FirstName { get; set; } = string.Empty;
 
-    [Required(ErrorMessage = "Le nom est requis")]
-    [StringLength(100, MinimumLength = 2, ErrorMessage = "Le nom doit contenir entre 2 et 100 caractères")]
-    [Display(Name = "Nom")]
+    [Required]
+    [StringLength(100, MinimumLength = 2)]
+    [Display(Name = "Field.LastName")]
     public string LastName { get; set; } = string.Empty;
 
-    [Required(ErrorMessage = "L'email est requis")]
-    [EmailAddress(ErrorMessage = "Format d'email invalide")]
+    [Required]
+    [EmailAddress]
     [StringLength(100)]
-    [Display(Name = "Email")]
+    [Display(Name = "Field.Email")]
     public string Email { get; set; } = string.Empty;
 
-    [Required(ErrorMessage = "Le GSM est requis")]
-    [Phone(ErrorMessage = "Format de GSM invalide")]
+    [Required]
+    [Phone]
     [StringLength(100)]
-    [Display(Name = "GSM")]
+    [Display(Name = "Field.MobilePhoneNumber")]
     public string MobilePhoneNumber { get; set; } = string.Empty;
 
-    [Required(ErrorMessage = "Le numéro national est requis")]
-    [StringLength(15, MinimumLength = 11, ErrorMessage = "Le numéro national doit contenir entre 11 et 15 caractères")]
-    [RegularExpression(@"^(\d{2})[.\- ]?(0[1-9]|1[0-2])[.\- ]?(0[1-9]|[12]\d|3[01])[.\- ]?(\d{3})[.\- ]?(\d{2})$",
-        ErrorMessage = "Format du numéro national invalide")]
-    [Display(Name = "Numéro national")]
+    [Required]
+    [StringLength(15, MinimumLength = 11)]
+    [RegularExpression(@"^(\d{2})[.\- ]?(0[1-9]|1[0-2])[.\- ]?(0[1-9]|[12]\d|3[01])[.\- ]?(\d{3})[.\- ]?(\d{2})$")]
+    [Display(Name = "Field.NationalRegisterNumber")]
     public string NationalRegisterNumber { get; set; } = string.Empty;
 
-    [Required(ErrorMessage = "La date de naissance est requise")]
+    [Required]
     [DataType(DataType.Date)]
-    [Display(Name = "Date de naissance")]
+    [Display(Name = "Field.BirthDate")]
     public DateTime BirthDate { get; set; }
 
     // Address
-    [Required(ErrorMessage = "La rue est requise")]
+    [Required]
     [StringLength(100, MinimumLength = 2)]
-    [Display(Name = "Rue et numéro")]
+    [Display(Name = "Field.Street")]
     public string Street { get; set; } = string.Empty;
 
-    [Required(ErrorMessage = "La ville est requise")]
+    [Required]
     [StringLength(100, MinimumLength = 2)]
-    [Display(Name = "Ville")]
+    [Display(Name = "Field.City")]
     public string City { get; set; } = string.Empty;
 
-    [Required(ErrorMessage = "Le code postal est requis")]
-    [Range(1000, 9999, ErrorMessage = "Code postal belge invalide")]
-    [Display(Name = "Code postal")]
+    [Required]
+    [Range(1000, 9999)]
+    [Display(Name = "Field.PostalCode")]
     public int PostalCode { get; set; }
 
-    [Display(Name = "Pays")]
+    [Display(Name = "Field.Country")]
     public Country Country { get; set; } = Country.Belgium;
 
     // Team specific
-    [Required(ErrorMessage = "Le rôle est requis")]
-    [Display(Name = "Rôle dans l'équipe")]
+    [Required]
+    [Display(Name = "Field.TeamRole")]
     public TeamRole TeamRole { get; set; }
 
-    [Required(ErrorMessage = "Le brevet est requis")]
-    [Display(Name = "Brevet")]
+    [Required]
+    [Display(Name = "Field.License")]
     public License License { get; set; }
 
-    [Required(ErrorMessage = "Le statut est requis")]
-    [Display(Name = "Statut")]
+    [Required]
+    [Display(Name = "Field.Status")]
     public Status Status { get; set; }
 
-    [Display(Name = "Indemnité journalière")]
-    [Range(0, 10000, ErrorMessage = "L'indemnité doit être entre 0 et 10000€")]
+    [Display(Name = "Field.DailyCompensation")]
+    [Range(0, 10000)]
     [DataType(DataType.Currency)]
     public decimal? DailyCompensation { get; set; }
 
-    [Required(ErrorMessage = "L'URL du brevet est requise")]
+    [Required]
     [StringLength(100)]
-    [Display(Name = "URL du brevet")]
+    [Display(Name = "Field.LicenseUrl")]
     public string LicenseUrl { get; set; } = string.Empty;
 
     public int? AddressId { get; set; }
     public int OrganisationId { get; set; }
 
-    [Display(Name = "Nom complet")]
+    [Display(Name = "Field.FullName")]
     public string FullName => $"{LastName}, {FirstName}";
 
     // Summary counts
-    [Display(Name = "Nombre d'activités")]
+    [Display(Name = "Field.ActivitiesCount")]
     public int ActivitiesCount { get; set; }
 
-    [Display(Name = "Nombre de frais")]
+    [Display(Name = "Field.ExpensesCount")]
     public int ExpensesCount { get; set; }
 }

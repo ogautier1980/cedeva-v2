@@ -6,26 +6,26 @@ public class BookingViewModel
 {
     public int Id { get; set; }
 
-    [Required(ErrorMessage = "La date de réservation est requise")]
+    [Required]
     [DataType(DataType.Date)]
-    [Display(Name = "Date de réservation")]
+    [Display(Name = "Field.BookingDate")]
     public DateTime BookingDate { get; set; }
 
-    [Required(ErrorMessage = "L'enfant est requis")]
-    [Display(Name = "Enfant")]
+    [Required]
+    [Display(Name = "Field.Child")]
     public int ChildId { get; set; }
 
-    [Required(ErrorMessage = "L'activité est requise")]
-    [Display(Name = "Activité")]
+    [Required]
+    [Display(Name = "Field.Activity")]
     public int ActivityId { get; set; }
 
-    [Display(Name = "Groupe")]
+    [Display(Name = "Field.Group")]
     public int? GroupId { get; set; }
 
-    [Display(Name = "Confirmée")]
+    [Display(Name = "Field.IsConfirmed")]
     public bool IsConfirmed { get; set; }
 
-    [Display(Name = "Fiche médicale reçue")]
+    [Display(Name = "Field.IsMedicalSheet")]
     public bool IsMedicalSheet { get; set; }
 
     // Navigation properties for display
