@@ -2,6 +2,41 @@
 
 Guide for Claude Code when working with the Cedeva codebase.
 
+## ⚠️ Working Principles - READ THIS FIRST
+
+**CRITICAL**: Apply absolute rigor and thoroughness to ALL work on this project.
+
+### Golden Rules
+1. **Never make claims without verification**
+   - ❌ Never say "100% complete", "fully done", "all X are Y" without actual proof
+   - ✅ Say "I've completed X, Y, Z" with specific file names and line numbers
+   - ✅ If unsure, say "I believe X is done, but let me verify" then actually verify
+
+2. **Verify before stating**
+   - Read files before claiming they're modified
+   - Run searches before claiming nothing remains
+   - Test changes before claiming they work
+   - Double-check before pushing code
+
+3. **Be specific and factual**
+   - Bad: "All views are localized"
+   - Good: "I localized 24 files: Account/Login.cshtml (lines 10, 25), Activities/Create.cshtml (lines 15, 30)..."
+
+4. **When asked to verify**
+   - Actually read files line by line if needed
+   - Don't rely only on grep - patterns can miss things
+   - If you find errors, fix them immediately
+   - Never say "looks good" without checking
+
+5. **Document what you actually did**
+   - Commit messages must list specific changes
+   - Update this file with factual information only
+   - Remove old/incorrect information
+
+**This applies to localization, bug fixes, features, refactoring, documentation - EVERYTHING.**
+
+---
+
 ## Project Overview
 
 **Cedeva** is an ASP.NET Core MVC application for managing children's vacation activity centers in Belgium. Multi-tenant SaaS where organizations manage activities, child registrations, team members, and parent communications.
@@ -31,6 +66,12 @@ docker-compose up -d
 - **Coordinator (Org 1)**: coordinator@cedeva.be / Coord@123456
 - **Coordinator (Org 2)**: coordinator.liege@cedeva.be / Coord@123456
 
+### Key Files
+- **cedeva.md** - Complete technical specification with entity schemas
+- **appsettings.json** - Connection strings, Brevo API, Azure Storage keys
+- **docker-compose.yml** - SQL Server 2022 configuration
+- **Program.cs** - Service registration, middleware pipeline
+
 ## Architecture
 
 ### Project Structure
@@ -48,6 +89,8 @@ src/
 - **Feature folders**: `/Features/{Controller}/{View}.cshtml`
 - **DI**: Autofac for service registration
 - **Auth**: ASP.NET Identity with Admin/Coordinator roles
+- **Repository Pattern**: `IRepository<T>` with Unit of Work
+- **Localization**: `IStringLocalizer<SharedResources>` throughout
 
 ### Technology Stack
 | Component | Technology |
@@ -61,500 +104,225 @@ src/
 | Localization | FR/NL/EN (resource files) |
 | Frontend | Bootstrap 5 + jQuery + FontAwesome |
 
+### Key Entities
+- **Organisation** - Multi-tenant root entity (Name, Address, LogoUrl)
+- **Activity** - Stage/vacation program (Name, StartDate, EndDate, PricePerDay, IsActive)
+- **Booking** - Child registration (Child, Activity, Group, IsConfirmed, IsMedicalSheet)
+- **Child** - Registered child (FirstName, LastName, **BirthDate**, Parent, disability flags)
+- **Parent** - Guardian contact (Name, Email, Phone, Address, NationalRegisterNumber)
+- **TeamMember** - Staff member (Name, TeamRole, License, Status, DailyCompensation)
+  - Uses `TeamMemberId` as primary key (not `Id`)
+- **CedevaUser** - Identity user (FirstName, LastName, OrganisationId, Role)
+
 ## Implementation Status
 
-### ✅ Phase 1: Project Setup (COMPLETED)
-- Solution structure (Core, Infrastructure, Website)
-- Docker support with SQL Server 2022
-- Initial migration and database setup
+### ✅ Phase 1-4: Core Features (COMPLETED)
+- [x] Project setup with Docker, SQL Server 2022
+- [x] Activities, Bookings, Children, Parents, TeamMembers CRUD
+- [x] Dashboard with role-based navigation
+- [x] Authentication & Authorization (ASP.NET Identity)
+- [x] Excel Export (ClosedXML)
+- [x] Email Service (Brevo API)
+- [x] Public Registration Form (multi-step wizard, embeddable iframe)
+- [x] Presence Management (daily attendance tracking)
+- [x] ActivityManagement Module (centralized activity hub)
 
-### ✅ Phase 2: Core CRUD Features (COMPLETED)
-- [x] Activities - Full CRUD with search, pagination, active/inactive filtering
-- [x] Bookings - Registration management with child/activity/group relationships
-- [x] Children - CRUD with parent linking, disability flags
-- [x] Parents - CRUD with address management, national register number
-- [x] TeamMembers - CRUD with roles, licenses, compensation tracking
-- [x] Organisations - Admin-only CRUD with address, logo
+### 🔄 Phase 5: Localization (IN PROGRESS)
+- [x] Localization infrastructure (FR/NL/EN resource files)
+- [x] Language switcher in navbar
+- [x] Most views localized with @Localizer pattern
+- [x] ViewModel validation messages localized
+- [x] Controller TempData messages localized
+- [ ] **VERIFICATION NEEDED**: User reported French text still exists in views
+- [ ] Full audit of all .cshtml files for hardcoded French text
+- [ ] Translation of NL and EN resource values (currently marked with [NL]/[EN] prefixes)
 
-### ✅ Phase 3: Advanced Features (COMPLETED)
-- [x] **Dashboard & Navigation** - Sidebar menu, statistics, role-based access
-- [x] **Authentication** - Login, register, profile, lockout protection
-- [x] **Excel Export** - ClosedXML integration for all major entities
-- [x] **Email Sending** - Brevo integration with booking confirmation & welcome emails
-- [x] **Localization** - FR/NL/EN support with language switcher
-- [x] **Iframe Registration Form** - Public booking form with multi-step wizard, embeddable code
-- [x] **Presence Management** - Daily attendance tracking with list printing
+## Key Features
 
-### ✅ Phase 4: ActivityManagement Module (COMPLETED)
-- [x] **Dashboard** - Centralized activity management hub with action cards
-- [x] **UnconfirmedBookings** - Confirm bookings and assign groups
-- [x] **Presences** - Daily attendance tracking with AJAX updates
-- [x] **SendEmail** - Targeted email sending (all parents, by group, medical sheet reminders)
-- [x] **SentEmails** - Email history with detailed view
-- [x] **TeamMembers** - Assign/unassign team members to activity
-
-## Key Technical Details
+### Multi-Tenancy
+All entities filtered by `OrganisationId` via EF Core global query filters:
+```csharp
+modelBuilder.Entity<Activity>().HasQueryFilter(a =>
+    a.OrganisationId == _currentUserService.GetOrganisationId());
+```
+Admin users bypass filters. Seeding requires `.IgnoreQueryFilters()`.
 
 ### Database Seeding
 Auto-seeding on startup includes:
 - Admin and Coordinator roles
 - Demo users (admin@cedeva.be, coordinator@cedeva.be, coordinator.liege@cedeva.be)
-- Two demo organisations:
-  - **Plaine de Bossière** (Gembloux) - Org 1
-  - **Centre Récréatif Les Aventuriers** (Liège) - Org 2
+- Two demo organisations (Gembloux, Liège)
 - 150+ Belgian municipalities for address autocomplete
-- Realistic test data for each organisation (via TestDataSeeder):
-  - 25 parents with 1-3 children each (Belgian names, valid national register numbers)
-  - 12 team members with valid phone numbers
-  - 4 activities with days and groups
-  - Bookings for 60% of children
+- Test data: 25 parents, 12 team members, 4 activities per organisation (Belgian names, valid national register numbers)
 
-### Multi-tenancy Implementation
-All entities filtered by `OrganisationId` via EF Core:
-```csharp
-// Global query filter in DbContext
-modelBuilder.Entity<Activity>().HasQueryFilter(a =>
-    a.OrganisationId == _currentUserService.GetOrganisationId());
-```
-Admin users bypass filters to see all organisations.
-
-### Email Service
-Brevo integration with professional HTML templates:
-- **Booking confirmation** - Green theme, sent when booking confirmed
-- **Welcome email** - Blue theme, sent on user registration
-- Configuration: `appsettings.json` → Brevo:ApiKey, SenderEmail, SenderName
+### Email Service (Brevo)
+Professional HTML templates for:
+- Booking confirmation (green theme)
+- Welcome email (blue theme)
+Configuration in `appsettings.json`: Brevo:ApiKey, SenderEmail, SenderName
 
 ### Excel Export
-Generic service using `Dictionary<string, Func<T, object>>` for column mapping:
-```csharp
-var columns = new Dictionary<string, Func<Booking, object>> {
-    { "Enfant", b => $"{b.Child.FirstName} {b.Child.LastName}" },
-    { "Activité", b => b.Activity.Name },
-    // ...
-};
-var excelData = _excelExportService.ExportToExcel(bookings, "Inscriptions", columns);
-```
-Features: Auto-formatting, timestamped filenames, filter preservation
+Generic service using `Dictionary<string, Func<T, object>>` for column mapping. Features: auto-formatting, timestamped filenames, filter preservation.
 
 ### Localization
 Cookie-based language preference (FR/NL/EN):
 - Resource files: `Localization/SharedResources.{culture}.resx`
+- Usage: `@inject IStringLocalizer<SharedResources> Localizer` then `@Localizer["Key"]`
+- Validation: DataAnnotationsLocalization configured to use SharedResources
 - Switcher: Navbar dropdown with flag emojis
-- Default: French (fr)
-- Controller action: `HomeController.SetLanguage(culture, returnUrl)`
 
-### Iframe Registration Form
-Public booking form accessible without authentication at `/PublicRegistration/SelectActivity?orgId={id}`:
-- **Multi-step wizard**: Activity selection → Parent info → Child info → Custom questions → Confirmation
-- **Smart parent/child detection**: Checks email/national register number to update existing records
-- **Custom questions**: Supports Text, Checkbox, Radio, Dropdown types via ActivityQuestion entity
-- **Email confirmation**: Sends booking details to parent email via Brevo
-- **Embeddable code**: Generate iframe HTML at `/PublicRegistration/EmbedCode?orgId={id}` (Admin/Coordinator only)
-- **Gradient UI**: Beautiful standalone public layout with purple gradient background
-- **TempData state**: Maintains wizard state across steps
+Pattern for validation:
 ```csharp
-// Example: Get embed code for organisation 1
-// Navigate to: /PublicRegistration/EmbedCode?orgId=1
-// Copy generated iframe code to embed on external website
+// Before (hardcoded)
+[Required(ErrorMessage = "Le prénom est requis")]
+[Display(Name = "Prénom")]
+
+// After (localized)
+[Required]
+[Display(Name = "Field.FirstName")]
 ```
+
+### Public Registration Form
+Multi-step wizard at `/PublicRegistration/SelectActivity?orgId={id}`:
+1. Activity selection (choose activity and days)
+2. Parent information (email, name, phone, address)
+3. Child information (birth date, medical info, disabilities)
+4. Custom questions (if configured for activity)
+5. Confirmation (review and submit)
+
+- State managed via TempData
+- Smart duplicate detection by email (parent) and national register number (child)
+- Email confirmation via Brevo
+- Embeddable iframe code at `/PublicRegistration/EmbedCode?orgId={id}`
 
 ### Presence Management
-Daily attendance tracking feature at `/Presence`:
-- **Activity selection**: Card-based view of all active activities
-- **Day selection**: Choose specific activity day for attendance tracking
-- **Interactive list**: Real-time present count, check all/uncheck all functionality
-- **Printable format**: A4 print view with signature boxes for coordinators
-- **Workflow**: Index → SelectDay → List (with AJAX updates) → Print view
-```csharp
-// Presence tracking accessible at:
-// 1. /Presence - Select activity
-// 2. /Presence/SelectDay?activityId={id} - Select day
-// 3. /Presence/List?activityId={id}&dayId={dayId} - Mark attendance
-// 4. /Presence/Print?activityId={id}&dayId={dayId} - Print list
-```
+Daily attendance tracking at `/Presence`:
+1. **Index** - Card grid of activities
+2. **SelectDay** - Choose activity day
+3. **List** - Interactive checklist with AJAX updates
+4. **Print** - A4 printable format with signature boxes
 
-### Custom Claims Authentication
-Custom `CedevaUserClaimsPrincipalFactory` adds Role and OrganisationId claims:
-```csharp
-public class CedevaUserClaimsPrincipalFactory : UserClaimsPrincipalFactory<CedevaUser, IdentityRole>
-{
-    protected override async Task<ClaimsIdentity> GenerateClaimsAsync(CedevaUser user)
-    {
-        var identity = await base.GenerateClaimsAsync(user);
-        identity.AddClaim(new Claim("Role", user.Role.ToString()));
-        if (user.OrganisationId.HasValue)
-            identity.AddClaim(new Claim("OrganisationId", user.OrganisationId.Value.ToString()));
-        return identity;
-    }
-}
-```
-Registered in `Program.cs`: `.AddClaimsPrincipalFactory<CedevaUserClaimsPrincipalFactory>()`
-
-### Test Data Seeder
-Automatic seeding of realistic Belgian test data for all organisations:
-- **Belgian names**: Mix of French (Antoine, Emma) and Dutch (Lucas, Mila) names
-- **Valid national register numbers**: Format YY.MM.DD-XXX.YY with proper checksum
-- **Valid phone numbers**: Mobile (04XX XX XX XX) and landline (0X XXX XX XX)
-- **Intelligent seeding**: Only seeds if organisation has <10 parents/team members
-- **Multi-org support**: Loops through all organisations and seeds independently
-```csharp
-// Seeded for each organisation:
-// - 25 parents with 1-3 children each
-// - 12 team members (mix of roles and licenses)
-// - 4 activities with days and groups
-// - Bookings for ~60% of children with booking days
-```
-
-## Bug Fixes & Improvements
-
-### Nullable Parameter Fix (Phase 3)
-Fixed 400 Bad Request errors in all index pages by making `searchString` parameter nullable:
-```csharp
-// Before: public async Task<IActionResult> Index(string searchString, int page = 1)
-// After:  public async Task<IActionResult> Index(string? searchString, int page = 1)
-```
-Affected controllers: Bookings, Children, TeamMembers, Organisations, Users
-
-### Query Filter Bypass in Seeding
-Added `.IgnoreQueryFilters()` to database queries in `TestDataSeeder` and `DbSeeder`:
-```csharp
-// Required because seeding runs without authenticated user context
-var children = await _context.Children
-    .IgnoreQueryFilters()
-    .Include(c => c.Parent)
-    .Where(c => c.Parent.OrganisationId == organisationId)
-    .ToListAsync();
-```
-
-### Custom Claims for Authorization
-Fixed admin menu visibility by properly inheriting from `UserClaimsPrincipalFactory<CedevaUser, IdentityRole>` instead of `UserClaimsPrincipalFactory<CedevaUser>`. This ensures role claims are properly added alongside custom claims.
-
-## Entity Quick Reference
-
-### Key Entities
-- **Organisation** - Multi-tenant root entity (Name, Address, LogoUrl)
-- **Activity** - Stage/vacation program (Name, StartDate, EndDate, PricePerDay, IsActive)
-- **Booking** - Child registration (Child, Activity, Group, IsConfirmed, IsMedicalSheet)
-- **Child** - Registered child (FirstName, LastName, BirthDate, Parent, disability flags)
-- **Parent** - Guardian contact (Name, Email, Phone, Address, NationalRegisterNumber)
-- **TeamMember** - Staff member (Name, TeamRole, License, Status, DailyCompensation)
-- **CedevaUser** - Identity user (FirstName, LastName, OrganisationId, Role)
-
-### Important Notes
-- **Child** uses `BirthDate` property (not `DateOfBirth`)
-- **Booking** uses `IsConfirmed` boolean (no Status enum)
-- **TeamMember** uses `TeamMemberId` as primary key (not `Id`)
-- **Address** is separate entity shared by Parent, TeamMember, Organisation
-
-## Key Feature Details
-
-### Excel Export Implementation
-Uses `ClosedXMLExportService` implementing `IExcelExportService`:
-```csharp
-// Example usage in BookingsController
-var columns = new Dictionary<string, Func<Booking, object>>
-{
-    { "Enfant", b => $"{b.Child.FirstName} {b.Child.LastName}" },
-    { "Parent", b => $"{b.Child.Parent.FirstName} {b.Child.Parent.LastName}" },
-    { "Email Parent", b => b.Child.Parent.Email },
-    { "Activité", b => b.Activity.Name },
-    { "Groupe", b => b.Group?.Label ?? "N/A" },
-    { "Date d'inscription", b => b.BookingDate.ToString("dd/MM/yyyy") },
-    { "Confirmé", b => b.IsConfirmed ? "Oui" : "Non" },
-    { "Fiche médicale", b => b.IsMedicalSheet ? "Oui" : "Non" }
-};
-var excelData = _excelExportService.ExportToExcel(filteredBookings, "Inscriptions", columns);
-return File(excelData, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-    $"Inscriptions_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx");
-```
-
-### Presence Management Workflow
-Four-step process for daily attendance tracking:
-1. **Index** - Shows card grid of all activities (active only for coordinators)
-2. **SelectDay** - Calendar-like view of activity days with date badges
-3. **List** - Interactive checklist with real-time counter and AJAX updates
-4. **Print** - A4 printable format with coordinator signature boxes
-
-Key implementation details:
-- Uses `BookingDay.IsPresent` boolean for attendance status
-- Real-time count updates via JavaScript on checkbox change
-- Filters by activity and day using composite query
-- Supports bulk check/uncheck all functionality
+Uses `BookingDay.IsPresent` boolean. Real-time count updates via JavaScript.
 
 ### ActivityManagement Module
-Centralized module for managing all aspects of an activity in one place. Accessible from the Activities list.
+Centralized activity management hub accessible from Activities list.
 
-**Features implemented**:
-1. **Dashboard** (`/ActivityManagement/Index`) - Hub with 7 action cards:
-   - Inscriptions en attente (Unconfirmed Bookings) ✅
-   - Présences (Attendance tracking) ✅
-   - Comptes (Accounts - placeholder)
-   - E-mails (Targeted email sending) ✅
-   - Excursions (placeholder)
-   - Équipe (Team management) ✅
-   - ONE (Office National de l'Enfance - placeholder)
+Features:
+1. **Dashboard** - 7 action cards (bookings, presences, emails, team, etc.)
+2. **UnconfirmedBookings** - Confirm bookings and assign groups
+3. **Presences** - Enhanced attendance tracking with group view
+4. **SendEmail** - Targeted emails (all parents, by group, medical reminders)
+5. **SentEmails** - Email history with detail modal
+6. **TeamMembers** - Assign/unassign team members to activity
 
-2. **UnconfirmedBookings** (`/ActivityManagement/UnconfirmedBookings`) - Confirm bookings and assign groups:
-   - List all bookings where `IsConfirmed = false`
-   - Dropdown to select target group for each child
-   - One-click confirmation with group assignment
-   - Automatically updates `Booking.GroupId` and `IsConfirmed` flag
+Session-based activity selection. Direct `DbContext` access.
 
-3. **Presences** (`/ActivityManagement/Presences`) - Enhanced attendance tracking:
-   - Activity day selector (dropdown with dates)
-   - Children grouped by `ActivityGroup`
-   - Real-time checkbox updates via AJAX endpoint `UpdatePresence`
-   - Visual feedback with `table-success` class for present children
-   - Displays `IsReserved` status alongside presence checkbox
-
-4. **SendEmail** (`/ActivityManagement/SendEmail`) - Targeted email communications:
-   - **Recipient selection**:
-     - All parents (children registered to activity)
-     - Medical sheet reminder (parents with `IsMedicalSheet = false`)
-     - By group (specific ActivityGroup)
-   - Subject and message composition
-   - Optional file attachment support (saved to `wwwroot/uploads/attachments`)
-   - Sends via Brevo API using `IEmailService`
-   - Logs to `EmailsSent` table with full details
-   - Uses `IEmailRecipientService` for dynamic recipient filtering
-
-5. **SentEmails** (`/ActivityManagement/SentEmails`) - Email history:
-   - Displays all emails sent for the activity (ordered by date DESC)
-   - Shows recipient type, count, subject, attachment indicator
-   - Modal detail view with full message and recipient list
-   - Link to send new email
-
-6. **TeamMembers** (`/ActivityManagement/TeamMembers`) - Team assignment:
-   - **Two-column layout**:
-     - Left: Assigned team members with details (role, license, status)
-     - Right: Available team members (not yet assigned)
-   - One-click add/remove team member assignments
-   - Uses existing many-to-many relationship (`Activity.TeamMembers`)
-   - Filters available members by organisation
-   - Shows role badges (Coordinator, Animator, Cook, Maintenance)
-   - Shows license badges (Breveté, Coordinateur, None)
-   - Confirmation prompt before removing team member
-
-**Technical implementation**:
-- Session-based activity selection (`SessionActivityId` constant)
-- Direct `DbContext` access for queries (no repository pattern in this module)
-- Service dependencies: `IEmailService`, `IEmailRecipientService`
-- `EmailRecipientService` filters recipients based on criteria:
-  - `allparents`: All confirmed bookings for activity
-  - `medicalsheetreminder`: Bookings where `IsMedicalSheet = false`
-  - `group_X`: Bookings in specific `ActivityGroup`
-
-**Access pattern**:
-```
-Activities → Select activity → ActivityManagement/Index (session stored)
-   → All actions use session to maintain context
-   → Can override via query parameter: ?id=X
-```
-
-### Public Registration Form Flow
-Multi-step wizard with state management via TempData:
-```
-Step 1: SelectActivity (choose activity and days)
-   ↓ TempData["SelectedActivity"]
-Step 2: ParentInformation (email, name, phone, address)
-   ↓ TempData["ParentInfo"]
-Step 3: ChildInformation (child details, medical info)
-   ↓ TempData["ChildInfo"]
-Step 4: ActivityQuestions (custom questions if configured)
-   ↓ TempData["QuestionAnswers"]
-Step 5: Confirmation (review and submit)
-   ↓ Creates Booking, sends email
-```
-
-Smart duplicate detection:
-- Parent: Matches by email address (updates if exists)
-- Child: Matches by national register number (updates if exists)
-- Prevents duplicate bookings for same child/activity combination
-
-### Localization Strategy
-Three-language support (FR, NL, EN) using resource files:
-- **SharedResources.fr.resx** - French (default)
-- **SharedResources.nl.resx** - Dutch
-- **SharedResources.en.resx** - English
-
-Usage in views:
+### Custom Claims Authentication
+`CedevaUserClaimsPrincipalFactory` adds Role and OrganisationId claims:
 ```csharp
-@using Microsoft.Extensions.Localization
-@inject IStringLocalizer<SharedResources> Localizer
-
-<h1>@Localizer["Activities"]</h1>
+identity.AddClaim(new Claim("Role", user.Role.ToString()));
+if (user.OrganisationId.HasValue)
+    identity.AddClaim(new Claim("OrganisationId", user.OrganisationId.Value.ToString()));
 ```
-
-Language selection stored in cookie, persists across sessions. Switcher in navbar with flag emojis.
+Registered in `Program.cs`: `.AddClaimsPrincipalFactory<CedevaUserClaimsPrincipalFactory>()`
 
 ## Development Workflow
 
 ### First Run
 1. Start SQL Server: `docker-compose up -d`
 2. Run app: `dotnet run --project src/Cedeva.Website`
-3. Auto-seeding creates DB, applies migrations, seeds 2 organisations with test data
-4. Login options:
-   - Admin: admin@cedeva.be / Admin@123456 (sees all organisations)
-   - Coordinator Org 1: coordinator@cedeva.be / Coord@123456
-   - Coordinator Org 2: coordinator.liege@cedeva.be / Coord@123456
+3. Auto-seeding creates DB, applies migrations, seeds test data
+4. Login as admin or coordinator (see credentials above)
 
 ### Adding Migrations
 ```bash
-# After modifying entities
 dotnet ef migrations add DescriptiveName --project src/Cedeva.Infrastructure --startup-project src/Cedeva.Website
 dotnet ef database update --project src/Cedeva.Infrastructure --startup-project src/Cedeva.Website
 ```
 
 ### Repository Pattern
-Interface methods: `GetAllAsync()`, `GetByIdAsync(id)`, `AddAsync(entity)`, `UpdateAsync(entity)`, `DeleteAsync(entity)`
+- Interface methods: `GetAllAsync()`, `GetByIdAsync(id)`, `AddAsync(entity)`, `UpdateAsync(entity)`, `DeleteAsync(entity)`
+- Unit of Work: `await _unitOfWork.SaveChangesAsync()` after operations
 
-Unit of Work: `await _unitOfWork.SaveChangesAsync()` after repository operations
+## Localization Status
 
-### Enum Dropdowns
-```csharp
-ViewBag.Roles = Html.GetEnumSelectList<TeamRole>();
+**Current state** (as of last verified commit):
+
+### Infrastructure
+- ✅ Resource files created (SharedResources.fr.resx, .nl.resx, .en.resx)
+- ✅ IStringLocalizer injected in controllers
+- ✅ DataAnnotationsLocalization configured
+- ✅ Language switcher in navbar
+
+### What's Localized
+Recent work localized:
+- 24 view files (Account, Activities, Bookings, Home, Organisations, PublicRegistration, Users)
+- Button labels (Save, Cancel, Back, Edit, Delete)
+- Dropdown placeholders
+- Role enum values
+- Help text and lead paragraphs
+- Warning and info messages
+
+13 resource keys added in last session:
+- BookedDays, QuestionAnswers, Account.CreateAccount
+- Edit, Delete, Save, Cancel, Back
+- Organisations.ViewActivities, Organisations.DeleteCascadeWarning
+- PublicRegistration.FinalizeBooking, Users.CreateUser
+- AllOrganisations, Enum.Role.Coordinator, Enum.Role.Admin
+
+### What Still Needs Work
+- ⚠️ **User reported French text still exists** - full audit required
+- 🔄 Translate ~360 NL resource values (marked with [NL] prefix)
+- 🔄 Translate ~360 EN resource values (marked with [EN] prefix)
+
+### Verification Commands
+```bash
+# Search for French text in views (excluding localized patterns)
+cd src/Cedeva.Website/Features
+grep -rn --include="*.cshtml" "Aucun\|Veuillez\|Sélectionne\|Modifier\|Supprimer" . | grep -v '@Localizer'
+
+# List all .cshtml files for manual review
+find Features -name "*.cshtml" -type f
+
+# Check resource file counts
+grep -c '<data name=' Localization/SharedResources.fr.resx
 ```
 
-## Configuration Files
+## Bug Fixes & Important Notes
 
-- **cedeva.md** - Complete technical specification with entity schemas
-- **appsettings.json** - Connection strings, Brevo API, Azure Storage keys
-- **docker-compose.yml** - SQL Server 2022 configuration
-- **Program.cs** - Service registration, middleware pipeline
+### Nullable Parameter Fix
+Fixed 400 Bad Request errors by making `searchString` nullable in Index actions:
+```csharp
+public async Task<IActionResult> Index(string? searchString, int page = 1)
+```
+Affected: Bookings, Children, TeamMembers, Organisations, Users
 
-## Known Issues & TODOs
+### Query Filter Bypass in Seeding
+Always use `.IgnoreQueryFilters()` in seeders (no authenticated user context).
+
+### Child Entity Property Name
+**IMPORTANT**: Child uses `BirthDate` property (NOT `DateOfBirth`)
+
+### Booking Status
+**IMPORTANT**: Booking uses `IsConfirmed` boolean (NOT a Status enum)
+
+## Known Issues & Future Work
 
 ### Current Warnings
 - 17 nullable conversion warnings in Index.cshtml files (ViewData casts)
-- Can be safely ignored - these are non-critical nullable reference warnings
+- Non-critical, can be ignored
 
 ### Future Enhancements
 - Password reset functionality
 - Email confirmation for new registrations
-- Audit fields (CreatedAt/UpdatedAt) on Activity and Booking entities
+- Audit fields (CreatedAt/UpdatedAt) on entities
 - Reports and analytics dashboard
-- Payment integration for activity fees
-- Advanced search and filtering across all modules
+- Payment integration (Mollie/Stripe)
+- Advanced search and filtering
 - Mobile app for team members (presence tracking)
-
-### Phase 4 Candidates
-- **Reports Module**: Activity reports, financial reports, attendance statistics
-- **Payment Integration**: Mollie/Stripe integration for online payments
-- **Advanced Notifications**: SMS notifications, reminder emails
-- **Mobile Optimization**: PWA support, mobile-first presence tracking
-- **API Development**: RESTful API for third-party integrations
-
-## Localization (FR/NL/EN)
-
-Complete multi-language support implemented across the entire application.
-
-### Status: COMPLETED ✅ (100%)
-
-**⚠️ IMPORTANT - Rigor in Localization:**
-Localization requires **absolute rigor and thoroughness**. When localizing:
-- ✅ **Read files carefully** - Never claim completion without verifying ALL French text is localized
-- ✅ **Check ALL locations** - Views, ViewModels, Controllers, placeholders, help text, buttons, labels
-- ✅ **Validate ValidationMessages** - Remove hardcoded ErrorMessage attributes, use resource keys
-- ✅ **Test systematically** - Go through each file methodically, don't skip or assume
-- ❌ **Never claim "100% ready"** or "fully localized" without thorough verification
-- ❌ **Never batch work** - Complete one module fully before moving to the next
-
-**Completed Work:**
-- ✅ **All view files localized** (58 views across 13 features)
-- ✅ **All controller TempData messages localized** (33 messages across 10 controllers)
-- ✅ **All ViewModel validation attributes localized** (14 ViewModels)
-- ✅ **Shared layouts and partial views localized**
-- ✅ **Public registration form fully localized**
-- ✅ **Dashboard and navigation localized**
-- ✅ **Resource files synchronized**:
-  - SharedResources.fr.resx: 584 keys (French - complete)
-  - SharedResources.nl.resx: 572 keys (Dutch - 212 translated, 360 marked with [NL] prefix for translation)
-  - SharedResources.en.resx: 572 keys (English - 212 translated, 360 marked with [EN] prefix for translation)
-
-**Views Localized:**
-- Activities (5 views) - Create, Edit, Details, Delete, Index
-- Bookings (5 views) - Create, Edit, Details, Delete, Index
-- Presence (4 views) - Index, SelectDay, List, Print
-- ActivityManagement (6 views) - Index, UnconfirmedBookings, Presences, SendEmail, SentEmails, TeamMembers
-- Children (5 views) - Create, Edit, Details, Delete, Index
-- Parents (5 views) - Create, Edit, Details, Delete, Index
-- TeamMembers (5 views) - Create, Edit, Details, Delete, Index
-- Organisations (5 views) - Create, Edit, Details, Delete, Index
-- Users (5 views) - Create, Edit, Details, Delete, Index
-- Account (4 views) - Login, Register, Profile, AccessDenied
-- Home (2 views) - Index (Dashboard), Error
-- Shared Layouts (3 views) - _Layout, _PublicLayout, Components
-- PublicRegistration (6 views) - SelectActivity, ParentInformation, ChildInformation, ActivityQuestions, Confirmation, EmbedCode
-
-**ViewModels with Localized Validations:**
-1. ChildViewModel - All Display and ErrorMessage attributes localized
-2. ParentViewModel - All Display and ErrorMessage attributes localized
-3. ActivityViewModel - All Display and ErrorMessage attributes localized
-4. TeamMemberViewModel - All Display and ErrorMessage attributes localized
-5. OrganisationViewModel - All Display and ErrorMessage attributes localized
-6. UserViewModel - All Display and ErrorMessage attributes localized
-7. LoginViewModel - All Display and ErrorMessage attributes localized
-8. RegisterViewModel - All Display and ErrorMessage attributes localized
-9. ProfileViewModel - All Display and ErrorMessage attributes localized
-10. BookingViewModel - All Display and ErrorMessage attributes localized
-11. ChildInformationViewModel - All Display and ErrorMessage attributes localized
-12. ParentInformationViewModel - All Display and ErrorMessage attributes localized
-13. SelectActivityViewModel - All Display and ErrorMessage attributes localized
-14. SendEmailViewModel - All Display and ErrorMessage attributes localized
-
-**Controllers with Localized TempData:**
-- ActivitiesController, BookingsController, ChildrenController, ParentsController
-- TeamMembersController, OrganisationsController, UsersController, AccountController
-- PresenceController, ActivityManagementController
-
-**Resource Keys Categories (584 total in FR):**
-- Field.* (90+ keys) - Display names for form fields
-- Validation.* (20+ keys) - Validation error messages
-- Activities.* (40+ keys) - Activities feature
-- Bookings.* (35+ keys) - Bookings feature
-- Children.* (25+ keys) - Children feature
-- Parents.* (25+ keys) - Parents feature
-- TeamMembers.* (30+ keys) - Team members feature
-- Account.* (20+ keys) - Account & Authentication
-- PublicRegistration.* (40+ keys) - Public registration form
-- Home.* (25+ keys) - Dashboard and navigation
-- Presence.* (20+ keys) - Presence tracking
-- ActivityManagement.* (30+ keys) - Activity management module
-- Shared UI (50+ keys) - Buttons, labels, common text
-- Enums (80+ keys) - Localized enum values
-
-**Remaining Work for Full Multi-Language Support:**
-- 🔄 Translate 360 keys in SharedResources.nl.resx (marked with [NL] prefix)
-- 🔄 Translate 360 keys in SharedResources.en.resx (marked with [EN] prefix)
-- Note: All infrastructure is in place, only translations needed
-
-**Technical Implementation:**
-- Uses `IStringLocalizer<SharedResources>` pattern
-- DataAnnotationsLocalization configured in Program.cs to use SharedResources for all validation messages
-- Cookie-based language preference
-- Language switcher in navbar with flag emojis
-- Format strings support with placeholders: `string.Format(_localizer["Key"].Value, param)`
-- All controllers have IStringLocalizer injected via dependency injection
-- All validation attributes use resource keys instead of hardcoded ErrorMessage
-- All Display(Name) attributes use Field.* resource keys
-
-**Validation Localization Pattern:**
-```csharp
-// Before (hardcoded French)
-[Required(ErrorMessage = "Le prénom est requis")]
-[StringLength(100, MinimumLength = 2, ErrorMessage = "Le prénom doit contenir entre 2 et 100 caractères")]
-[Display(Name = "Prénom")]
-public string FirstName { get; set; }
-
-// After (localized via resources)
-[Required]
-[StringLength(100, MinimumLength = 2)]
-[Display(Name = "Field.FirstName")]
-public string FirstName { get; set; }
-```
+- PWA support
 
 ---
 
 **Last updated**: 2026-01-25
-**Current phase**: Phase 5 (Localization - COMPLETED)
-**Status**: Production-ready MVP with complete FR localization and NL/EN infrastructure ready for translation
+**Current phase**: Phase 5 (Localization - IN PROGRESS, verification needed)
