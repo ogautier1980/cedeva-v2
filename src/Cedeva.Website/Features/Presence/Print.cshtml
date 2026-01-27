@@ -157,15 +157,15 @@
     </button>
 
     <div class="header">
-        <h1>@Localizer["Presence.PrintList"]</h1>
+        <h1>@Localizer["Presence.PrintList"]<</h1>
         <p><strong>@Model.Activity.Name</strong></p>
         <p>@Model.ActivityDay.DayDate.ToString("dddd dd MMMM yyyy", new System.Globalization.CultureInfo("fr-FR"))</p>
-    </div>
+    <</div>
 
     <div class="info-box">
         <p><strong>@Localizer["Presence.TotalChildren"]</strong> @Model.PresenceItems.Count</p>
         <p><strong>@Localizer["Presence.PrintDate"]</strong> @DateTime.Now.ToString("dd/MM/yyyy HH:mm")</p>
-    </div>
+    <</div>
 
     @if (!Model.PresenceItems.Any())
     {
@@ -178,14 +178,14 @@
         <table>
             <thead>
                 <tr>
-                    <th class="checkbox-cell">✓</th>
-                    <th style="width: 80px">@Localizer["Group"]</th>
-                    <th>@Localizer["FullName"]</th>
-                    <th style="width: 100px">@Localizer["Presence.BirthDateShort"]</th>
-                    <th style="width: 70px">@Localizer["Age"]</th>
-                    <th>@Localizer["Parent"]</th>
-                    <th style="width: 110px">@Localizer["Phone"]</th>
-                    <th style="width: 150px">@Localizer["Presence.Remarks"]</th>
+                    <th class="checkbox-cell">✓<</th>
+                    <th style="width: 80px">@Localizer["Group"]<</th>
+                    <th>@Localizer["FullName"]<</th>
+                    <th style="width: 100px">@Localizer["Presence.BirthDateShort"]<</th>
+                    <th style="width: 70px">@Localizer["Age"]<</th>
+                    <th>@Localizer["Parent"]<</th>
+                    <th style="width: 110px">@Localizer["Phone"]<</th>
+                    <th style="width: 150px">@Localizer["Presence.Remarks"]<</th>
                 </tr>
             </thead>
             <tbody>
@@ -201,25 +201,25 @@
                     <tr class="@(isNewGroup && i > 0 ? "group-row" : "")">
                         <td class="checkbox-cell">
                             <span class="checkbox"></span>
-                        </td>
+                        <</td>
                         <td>
                             @if (isNewGroup)
                             {
                                 <span class="group-badge">@(item.ActivityGroupName ?? Localizer["Presence.None"].Value)</span>
                             }
-                        </td>
+                        <</td>
                         <td>
                             <strong>@item.ChildFirstName @item.ChildLastName</strong>
-                        </td>
+                        <</td>
                         <td>
                             @item.ChildBirthDate.ToString("dd/MM/yyyy")
-                        </td>
+                        <</td>
                         <td style="text-align: center">
                             @((DateTime.Today.Year - item.ChildBirthDate.Year)) @Localizer["Presence.YearsOld"]
-                        </td>
-                        <td>@item.ParentName</td>
-                        <td>@item.ParentPhone</td>
-                        <td></td>
+                        <</td>
+                        <td>@item.ParentName<</td>
+                        <td>@item.ParentPhone<</td>
+                        <td><</td>
                     </tr>
                 }
             </tbody>
@@ -228,20 +228,20 @@
         <div class="signature-box">
             <div class="signature">
                 <p><strong>@Localizer["Presence.ActivityResponsible"]</strong></p>
-                <div class="signature-line"></div>
+                <div class="signature-line"><</div>
                 <p style="text-align: center; margin-top: 5px; font-size: 9pt;">@Localizer["Presence.NameAndSignature"]</p>
-            </div>
+            <</div>
             <div class="signature">
                 <p><strong>@Localizer["Presence.Coordinator"]</strong></p>
-                <div class="signature-line"></div>
+                <div class="signature-line"><</div>
                 <p style="text-align: center; margin-top: 5px; font-size: 9pt;">@Localizer["Presence.NameAndSignature"]</p>
-            </div>
-        </div>
+            <</div>
+        <</div>
     }
 
     <div class="footer">
         <p>@Localizer["Presence.GeneratedBy"] @Model.ActivityDay.DayDate.ToString("dd/MM/yyyy")</p>
-    </div>
+    <</div>
 
     <script>
         // Auto-print when page loads (optional)

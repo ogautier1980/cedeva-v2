@@ -8,22 +8,22 @@
         <div class="col-lg-6">
             <div class="card shadow">
                 <div class="card-header bg-danger text-white">
-                    <h5 class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i>@Localizer["Activities.ConfirmDeletionTitle"]</h5>
-                </div>
+                    <h5 class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i>@Localizer["Activities.ConfirmDeletionTitle"]<</h5>
+                <</div>
                 <div class="card-body">
                     <p class="lead">@Localizer["Activities.DeleteWarning"]</p>
 
                     <dl class="row">
-                        <dt class="col-sm-4">@Localizer["Name"]</dt>
-                        <dd class="col-sm-8">@Model.Name</dd>
+                        <dt class="col-sm-4">@Localizer["Name"]<</dt>
+                        <dd class="col-sm-8">@Model.Name<</dd>
 
-                        <dt class="col-sm-4">@Localizer["Activities.Organisation"]</dt>
-                        <dd class="col-sm-8">@Model.OrganisationName</dd>
+                        <dt class="col-sm-4">@Localizer["Activities.Organisation"]<</dt>
+                        <dd class="col-sm-8">@Model.OrganisationName<</dd>
 
-                        <dt class="col-sm-4">@Localizer["Activities.Dates"]</dt>
-                        <dd class="col-sm-8">@Model.StartDate.ToString("dd/MM/yyyy") - @Model.EndDate.ToString("dd/MM/yyyy")</dd>
+                        <dt class="col-sm-4">@Localizer["Activities.Dates"]<</dt>
+                        <dd class="col-sm-8">@Model.StartDate.ToString("dd/MM/yyyy") - @Model.EndDate.ToString("dd/MM/yyyy")<</dd>
 
-                        <dt class="col-sm-4">@Localizer["Bookings"]</dt>
+                        <dt class="col-sm-4">@Localizer["Bookings"]<</dt>
                         <dd class="col-sm-8">
                             @if (Model.BookingsCount > 0)
                             {
@@ -33,7 +33,7 @@
                             {
                                 <span class="badge bg-secondary">@Localizer["Activities.None"]</span>
                             }
-                        </dd>
+                        <</dd>
                     </dl>
 
                     @if (Model.BookingsCount > 0)
@@ -41,7 +41,7 @@
                         <div class="alert alert-warning">
                             <i class="fas fa-exclamation-circle me-2"></i>
                             @Localizer["Activities.HasBookingsWarning"]
-                        </div>
+                        <</div>
                     }
 
                     <hr />
@@ -60,9 +60,9 @@
                                 </button>
                             </form>
                         }
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+                    <</div>
+                <</div>
+            <</div>
+        <</div>
+    <</div>
+<</div>

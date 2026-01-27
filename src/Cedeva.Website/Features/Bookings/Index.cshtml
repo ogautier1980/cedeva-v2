@@ -13,7 +13,7 @@
 
 <div class="container-fluid">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2><i class="fas fa-clipboard-list me-2"></i>@Localizer["Bookings"]</h2>
+        <h2><i class="fas fa-clipboard-list me-2"></i>@Localizer["Bookings"]<</h2>
         <div class="d-flex gap-2">
             <a asp-action="Export" asp-route-searchString="@searchString" asp-route-activityId="@activityId" asp-route-childId="@childId" asp-route-isConfirmed="@isConfirmed" class="btn btn-success text-nowrap">
                 <i class="fas fa-file-excel me-2"></i>@Localizer["Activities.ExportExcel"]
@@ -21,15 +21,15 @@
             <a asp-action="Create" class="btn btn-primary text-nowrap">
                 <i class="fas fa-plus me-2"></i>@Localizer["Bookings.NewBooking"]
             </a>
-        </div>
-    </div>
+        <</div>
+    <</div>
 
     @if (TempData["SuccessMessage"] != null)
     {
         <div class="alert alert-success alert-dismissible fade show" role="alert">
             <i class="fas fa-check-circle me-2"></i>@TempData["SuccessMessage"]
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
+        <</div>
     }
 
     <div class="card shadow">
@@ -39,15 +39,15 @@
                     <div class="input-group">
                         <span class="input-group-text"><i class="fas fa-search"></i></span>
                         <input type="text" class="form-control" name="searchString" value="@searchString" placeholder="@Localizer["Bookings.SearchPlaceholder"]" />
-                    </div>
-                </div>
+                    <</div>
+                <</div>
                 <div class="col-md-2">
                     <select name="isConfirmed" class="form-select">
-                        <option value="">@Localizer["Bookings.AllStatuses"]</option>
-                        <option value="true" selected="@(isConfirmed == true)">@Localizer["Bookings.ConfirmedOnly"]</option>
-                        <option value="false" selected="@(isConfirmed == false)">@Localizer["Bookings.PendingOnly"]</option>
+                        <option value="">@Localizer["Bookings.AllStatuses"]<</option>
+                        <option value="true" selected="@(isConfirmed == true)">@Localizer["Bookings.ConfirmedOnly"]<</option>
+                        <option value="false" selected="@(isConfirmed == false)">@Localizer["Bookings.PendingOnly"]<</option>
                     </select>
-                </div>
+                <</div>
                 <div class="col-md-4">
                     <div class="d-flex gap-2">
                         <button type="submit" class="btn btn-primary flex-grow-1">
@@ -56,12 +56,12 @@
                         <a asp-action="Index" class="btn btn-outline-secondary">
                             <i class="fas fa-redo"></i>
                         </a>
-                    </div>
-                </div>
+                    <</div>
+                <</div>
                 <input type="hidden" name="activityId" value="@activityId" />
                 <input type="hidden" name="childId" value="@childId" />
             </form>
-        </div>
+        <</div>
         <div class="card-body">
             @if (Model.Any())
             {
@@ -69,33 +69,33 @@
                     <table class="table table-hover">
                         <thead>
                             <tr>
-                                <th>@Localizer["Date"]</th>
-                                <th>@Localizer["Child"]</th>
-                                <th>@Localizer["Parent"]</th>
-                                <th>@Localizer["Activity"]</th>
-                                <th>@Localizer["Group"]</th>
-                                <th>@Localizer["Status"]</th>
-                                <th>@Localizer["Bookings.MedicalSheet"]</th>
-                                <th class="text-end">@Localizer["Actions"]</th>
+                                <th>@Localizer["Date"]<</th>
+                                <th>@Localizer["Child"]<</th>
+                                <th>@Localizer["Parent"]<</th>
+                                <th>@Localizer["Activity"]<</th>
+                                <th>@Localizer["Group"]<</th>
+                                <th>@Localizer["Status"]<</th>
+                                <th>@Localizer["Bookings.MedicalSheet"]<</th>
+                                <th class="text-end">@Localizer["Actions"]<</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach (var booking in Model)
                             {
                                 <tr>
-                                    <td>@booking.BookingDate.ToString("dd/MM/yyyy")</td>
+                                    <td>@booking.BookingDate.ToString("dd/MM/yyyy")<</td>
                                     <td>
                                         <a asp-controller="Children" asp-action="Details" asp-route-id="@booking.ChildId">
                                             @booking.ChildFullName
                                         </a>
-                                    </td>
-                                    <td>@booking.ParentFullName</td>
+                                    <</td>
+                                    <td>@booking.ParentFullName<</td>
                                     <td>
                                         <strong>@booking.ActivityName</strong><br />
                                         <small class="text-muted">
                                             @booking.ActivityStartDate?.ToString("dd/MM/yyyy") - @booking.ActivityEndDate?.ToString("dd/MM/yyyy")
                                         </small>
-                                    </td>
+                                    <</td>
                                     <td>
                                         @if (!string.IsNullOrEmpty(booking.GroupLabel))
                                         {
@@ -105,12 +105,12 @@
                                         {
                                             <span class="text-muted">-</span>
                                         }
-                                    </td>
+                                    <</td>
                                     <td>
                                         <span class="badge @(booking.IsConfirmed ? "bg-success" : "bg-warning")">
                                             @(booking.IsConfirmed ? Localizer["Bookings.Confirmed"] : Localizer["Bookings.Pending"])
                                         </span>
-                                    </td>
+                                    <</td>
                                     <td>
                                         @if (booking.IsMedicalSheet)
                                         {
@@ -120,7 +120,7 @@
                                         {
                                             <i class="fas fa-times-circle text-danger"></i>
                                         }
-                                    </td>
+                                    <</td>
                                     <td class="text-end">
                                         <div class="btn-group" role="group">
                                             <a asp-action="Details" asp-route-id="@booking.Id" class="btn btn-sm btn-info" title="@Localizer["Details"]">
@@ -132,20 +132,20 @@
                                             <a asp-action="Delete" asp-route-id="@booking.Id" class="btn btn-sm btn-danger" title="@Localizer["Delete"]">
                                                 <i class="fas fa-trash"></i>
                                             </a>
-                                        </div>
-                                    </td>
+                                        <</div>
+                                    <</td>
                                 </tr>
                             }
                         </tbody>
                     </table>
-                </div>
+                <</div>
 
                 <!-- Pagination -->
                 <nav aria-label="Page navigation" class="mt-3">
                     <div class="d-flex justify-content-between align-items-center">
                         <div class="text-muted">
                             @Localizer["Bookings.Showing"] @((pageNumber - 1) * pageSize + 1) @Localizer["Bookings.To"] @Math.Min(pageNumber * pageSize, totalItems) @Localizer["Bookings.Of"] @totalItems @Localizer["Bookings"].Value.ToLower()
-                        </div>
+                        <</div>
                         @if (totalPages > 1)
                         {
                             <ul class="pagination mb-0">
@@ -169,7 +169,7 @@
                                 </li>
                             </ul>
                         }
-                    </div>
+                    <</div>
                 </nav>
             }
             else
@@ -184,8 +184,8 @@
                     {
                         <span>@Localizer["Bookings.NoBookingsYet"]</span>
                     }
-                </div>
+                <</div>
             }
-        </div>
-    </div>
-</div>
+        <</div>
+    <</div>
+<</div>

@@ -8,7 +8,7 @@
         <div class="col-lg-8">
             <div class="card shadow">
                 <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0"><i class="fas fa-clipboard-list me-2"></i>@Localizer["Bookings.BookingDetails"]/h5>
+                    <h5 class="mb-0"><i class="fas fa-clipboard-list me-2"></i>@Localizer["Bookings.BookingDetails"]</h5>
                     <div class="d-flex gap-2">
                         <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-sm btn-primary text-nowrap">
                             <i class="fas fa-edit me-1"></i>@Localizer["Edit"]
@@ -16,28 +16,28 @@
                         <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-sm btn-danger text-nowrap">
                             <i class="fas fa-trash me-1"></i>@Localizer["Delete"]
                         </a>
-                    </div>
-                </div>
+                    <</div>
+                <</div>
                 <div class="card-body">
-                    <h6 class="mb-3 text-primary"><i class="fas fa-info-circle me-2"></i>@Localizer["Activities.GeneralInformation"]/h6>
+                    <h6 class="mb-3 text-primary"><i class="fas fa-info-circle me-2"></i>@Localizer["Activities.GeneralInformation"]</h6>
 
                     <dl class="row">
-                        <dt class="col-sm-4">@Localizer["Bookings.BookingDate"]/dt>
-                        <dd class="col-sm-8">@Model.BookingDate.ToString("dd/MM/yyyy")</dd>
+                        <dt class="col-sm-4">@Localizer["Bookings.BookingDate"]</dt>
+                        <dd class="col-sm-8">@Model.BookingDate.ToString("dd/MM/yyyy")<</dd>
 
-                        <dt class="col-sm-4">@Localizer["Child"]/dt>
+                        <dt class="col-sm-4">@Localizer["Child"]</dt>
                         <dd class="col-sm-8">
                             <a asp-controller="Children" asp-action="Details" asp-route-id="@Model.ChildId">
                                 <i class="fas fa-child me-1"></i>@Model.ChildFullName
                             </a>
-                        </dd>
+                        <</dd>
 
-                        <dt class="col-sm-4">@Localizer["Parent"]/dt>
+                        <dt class="col-sm-4">@Localizer["Parent"]</dt>
                         <dd class="col-sm-8">
                             <i class="fas fa-user me-1"></i>@Model.ParentFullName
-                        </dd>
+                        <</dd>
 
-                        <dt class="col-sm-4">@Localizer["Activity"]/dt>
+                        <dt class="col-sm-4">@Localizer["Activity"]</dt>
                         <dd class="col-sm-8">
                             <a asp-controller="Activities" asp-action="Details" asp-route-id="@Model.ActivityId">
                                 <strong>@Model.ActivityName</strong>
@@ -46,30 +46,30 @@
                                 <i class="fas fa-calendar me-1"></i>
                                 @Model.ActivityStartDate?.ToString("dd/MM/yyyy") - @Model.ActivityEndDate?.ToString("dd/MM/yyyy")
                             </small>
-                        </dd>
+                        <</dd>
 
                         @if (!string.IsNullOrEmpty(Model.GroupLabel))
                         {
-                            <dt class="col-sm-4">@Localizer["Group"]</dt>
+                            <dt class="col-sm-4">@Localizer["Group"]<</dt>
                             <dd class="col-sm-8">
                                 <span class="badge bg-secondary">@Model.GroupLabel</span>
-                            </dd>
+                            <</dd>
                         }
                     </dl>
 
                     <hr />
 
-                    <h6 class="mb-3 text-primary"><i class="fas fa-check-circle me-2"></i>@Localizer["Status"]</h6>
+                    <h6 class="mb-3 text-primary"><i class="fas fa-check-circle me-2"></i>@Localizer["Status"]<</h6>
 
                     <dl class="row">
-                        <dt class="col-sm-4">Confirmation</dt>
+                        <dt class="col-sm-4">Confirmation<</dt>
                         <dd class="col-sm-8">
                             <span class="badge @(Model.IsConfirmed ? "bg-success" : "bg-warning")">
                                 @(Model.IsConfirmed ? "Confirmée" : "En attente")
                             </span>
-                        </dd>
+                        <</dd>
 
-                        <dt class="col-sm-4">@Localizer["Bookings.MedicalSheetReceived"]/dt>
+                        <dt class="col-sm-4">@Localizer["Bookings.MedicalSheetReceived"]</dt>
                         <dd class="col-sm-8">
                             @if (Model.IsMedicalSheet)
                             {
@@ -83,7 +83,7 @@
                                     <i class="fas fa-times me-1"></i>Non reçue
                                 </span>
                             }
-                        </dd>
+                        <</dd>
                     </dl>
 
                     <hr />
@@ -92,16 +92,16 @@
                         <a asp-action="Index" class="btn btn-outline-secondary text-nowrap">
                             <i class="fas fa-arrow-left me-2"></i>@Localizer["BackToList"]
                         </a>
-                    </div>
-                </div>
-            </div>
-        </div>
+                    <</div>
+                <</div>
+            <</div>
+        <</div>
 
         <div class="col-lg-4">
             <div class="card shadow">
                 <div class="card-header">
-                    <h6 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Statistiques</h6>
-                </div>
+                    <h6 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Statistiques<</h6>
+                <</div>
                 <div class="card-body">
                     <ul class="list-group list-group-flush">
                         <li class="list-group-item d-flex justify-content-between align-items-center px-0">
@@ -113,15 +113,15 @@
                             <span class="badge bg-info rounded-pill">@Model.QuestionAnswersCount</span>
                         </li>
                     </ul>
-                </div>
-            </div>
+                <</div>
+            <</div>
 
             @if (!Model.IsConfirmed)
             {
                 <div class="card shadow mt-3">
                     <div class="card-header bg-warning">
-                        <h6 class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i>@Localizer["Bookings.ActionRequired"]</h6>
-                    </div>
+                        <h6 class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i>@Localizer["Bookings.ActionRequired"]<</h6>
+                    <</div>
                     <div class="card-body">
                         <p class="mb-2">@Localizer["Bookings.NotYetConfirmed"]</p>
                         <form asp-action="Edit" method="post">
@@ -136,22 +136,22 @@
                                 <i class="fas fa-check me-2"></i>@Localizer["Bookings.ConfirmBooking"]
                             </button>
                         </form>
-                    </div>
-                </div>
+                    <</div>
+                <</div>
             }
 
             @if (!Model.IsMedicalSheet)
             {
                 <div class="card shadow mt-3">
                     <div class="card-header bg-danger text-white">
-                        <h6 class="mb-0"><i class="fas fa-file-medical me-2"></i>@Localizer["Bookings.MedicalSheetReceived"]</h6>
-                    </div>
+                        <h6 class="mb-0"><i class="fas fa-file-medical me-2"></i>@Localizer["Bookings.MedicalSheetReceived"]<</h6>
+                    <</div>
                     <div class="card-body">
                         <p class="mb-2">@Localizer["Bookings.MedicalSheetNotReceived"]</p>
-                        <div class="form-text mb-2">@Localizer["Bookings.ContactParentForMedicalSheet"]</div>
-                    </div>
-                </div>
+                        <div class="form-text mb-2">@Localizer["Bookings.ContactParentForMedicalSheet"]<</div>
+                    <</div>
+                <</div>
             }
-        </div>
-    </div>
-</div>
+        <</div>
+    <</div>
+<</div>

@@ -6,9 +6,9 @@
 <div class="container-fluid">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h1 class="h3 mb-0">@Model.Name</h1>
+            <h1 class="h3 mb-0">@Model.Name<</h1>
             <small class="text-muted">@Model.OrganisationName</small>
-        </div>
+        <</div>
         <div class="d-flex gap-2">
             <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning text-nowrap">
                 <i class="fas fa-edit me-2"></i>@Localizer["Edit"]
@@ -16,27 +16,27 @@
             <a asp-action="Index" class="btn btn-outline-secondary text-nowrap">
                 <i class="fas fa-arrow-left me-2"></i>@Localizer["Back"]
             </a>
-        </div>
-    </div>
+        <</div>
+    <</div>
 
     <div class="row">
         <div class="col-lg-8">
             <div class="card shadow mb-4">
                 <div class="card-header">
-                    <h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>@Localizer["Activities.GeneralInformation"]</h6>
-                </div>
+                    <h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>@Localizer["Activities.GeneralInformation"]<</h6>
+                <</div>
                 <div class="card-body">
                     <dl class="row mb-0">
-                        <dt class="col-sm-3">@Localizer["Activities.Description"]</dt>
-                        <dd class="col-sm-9">@Model.Description</dd>
+                        <dt class="col-sm-3">@Localizer["Activities.Description"]<</dt>
+                        <dd class="col-sm-9">@Model.Description<</dd>
 
-                        <dt class="col-sm-3">@Localizer["Activities.Dates"]</dt>
+                        <dt class="col-sm-3">@Localizer["Activities.Dates"]<</dt>
                         <dd class="col-sm-9">
                             @Localizer["Activities.From"] @Model.StartDate.ToString("dd MMMM yyyy", new System.Globalization.CultureInfo("fr-BE"))
                             @Localizer["Activities.ToDate"] @Model.EndDate.ToString("dd MMMM yyyy", new System.Globalization.CultureInfo("fr-BE"))
-                        </dd>
+                        <</dd>
 
-                        <dt class="col-sm-3">@Localizer["Activities.PricePerDay"]</dt>
+                        <dt class="col-sm-3">@Localizer["Activities.PricePerDay"]<</dt>
                         <dd class="col-sm-9">
                             @if (Model.PricePerDay.HasValue)
                             {
@@ -46,9 +46,9 @@
                             {
                                 <span class="text-muted">@Localizer["Activities.NotDefined"]</span>
                             }
-                        </dd>
+                        <</dd>
 
-                        <dt class="col-sm-3">@Localizer["Activities.StatusLabel"]</dt>
+                        <dt class="col-sm-3">@Localizer["Activities.StatusLabel"]<</dt>
                         <dd class="col-sm-9">
                             @if (Model.IsActive)
                             {
@@ -58,39 +58,39 @@
                             {
                                 <span class="badge bg-secondary">@Localizer["Activities.Inactive"]</span>
                             }
-                        </dd>
+                        <</dd>
                     </dl>
-                </div>
-            </div>
-        </div>
+                <</div>
+            <</div>
+        <</div>
 
         <div class="col-lg-4">
             <div class="card shadow mb-4">
                 <div class="card-header">
-                    <h6 class="mb-0"><i class="fas fa-chart-bar me-2"></i>@Localizer["Activities.Statistics"]</h6>
-                </div>
+                    <h6 class="mb-0"><i class="fas fa-chart-bar me-2"></i>@Localizer["Activities.Statistics"]<</h6>
+                <</div>
                 <div class="card-body">
                     <div class="row text-center">
                         <div class="col-4">
-                            <div class="h4 mb-0 text-primary">@Model.BookingsCount</div>
+                            <div class="h4 mb-0 text-primary">@Model.BookingsCount<</div>
                             <small class="text-muted">@Localizer["Bookings"]</small>
-                        </div>
+                        <</div>
                         <div class="col-4">
-                            <div class="h4 mb-0 text-success">@Model.GroupsCount</div>
+                            <div class="h4 mb-0 text-success">@Model.GroupsCount<</div>
                             <small class="text-muted">@Localizer["Activities.Groups"]</small>
-                        </div>
+                        <</div>
                         <div class="col-4">
-                            <div class="h4 mb-0 text-info">@Model.TeamMembersCount</div>
+                            <div class="h4 mb-0 text-info">@Model.TeamMembersCount<</div>
                             <small class="text-muted">@Localizer["Activities.Team"]</small>
-                        </div>
-                    </div>
-                </div>
-            </div>
+                        <</div>
+                    <</div>
+                <</div>
+            <</div>
 
             <div class="card shadow">
                 <div class="card-header">
-                    <h6 class="mb-0"><i class="fas fa-cog me-2"></i>@Localizer["Activities.QuickActions"]</h6>
-                </div>
+                    <h6 class="mb-0"><i class="fas fa-cog me-2"></i>@Localizer["Activities.QuickActions"]<</h6>
+                <</div>
                 <div class="list-group list-group-flush">
                     <a href="#" class="list-group-item list-group-item-action">
                         <i class="fas fa-users me-2"></i>@Localizer["Activities.ManageGroups"]
@@ -104,8 +104,8 @@
                     <a href="#" class="list-group-item list-group-item-action">
                         <i class="fas fa-calendar-check me-2"></i>@Localizer["Activities.ManagePresences"]
                     </a>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+                <</div>
+            <</div>
+        <</div>
+    <</div>
+<</div>

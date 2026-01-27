@@ -7,20 +7,20 @@
 <div class="container-fluid py-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h2 class="mb-1">@Model.Activity.Name</h2>
+            <h2 class="mb-1">@Model.Activity.Name<</h2>
             <p class="text-muted mb-0">@Localizer["ActivityManagement.ManagePresences"]</p>
-        </div>
+        <</div>
         <a asp-action="Index" asp-route-id="@Model.Activity.Id" class="btn btn-outline-secondary">
             <i class="fas fa-arrow-left"></i> @Localizer["BackToDashboard"]
         </a>
-    </div>
+    <</div>
 
     @if (TempData["SuccessMessage"] != null)
     {
         <div class="alert alert-success alert-dismissible fade show" role="alert">
             @TempData["SuccessMessage"]
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
+        <</div>
     }
 
     @if (TempData["ErrorMessage"] != null)
@@ -28,7 +28,7 @@
         <div class="alert alert-danger alert-dismissible fade show" role="alert">
             @TempData["ErrorMessage"]
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
+        <</div>
     }
 
     <!-- Sélection du jour -->
@@ -37,24 +37,24 @@
             <form asp-action="Presences" method="get" class="row g-3 align-items-end">
                 <input type="hidden" name="id" value="@Model.Activity.Id" />
                 <div class="col-md-6">
-                    <label class="form-label fw-bold">@Localizer["ActivityManagement.SelectDay"]</label>
+                    <label class="form-label fw-bold">@Localizer["ActivityManagement.SelectDay"]<</label>
                     <select name="dayId" class="form-select" onchange="this.form.submit()">
                         @if (!Model.ActivityDayOptions.Any())
                         {
-                            <option value="">@Localizer["ActivityManagement.NoActiveDay"]</option>
+                            <option value="">@Localizer["ActivityManagement.NoActiveDay"]<</option>
                         }
                         else
                         {
                             @foreach (var option in Model.ActivityDayOptions)
                             {
-                                <option value="@option.Value" selected="@option.Selected">@option.Text</option>
+                                <option value="@option.Value" selected="@option.Selected">@option.Text<</option>
                             }
                         }
                     </select>
-                </div>
+                <</div>
             </form>
-        </div>
-    </div>
+        <</div>
+    <</div>
 
     @if (Model.SelectedActivityDay != null)
     {
@@ -62,7 +62,7 @@
         {
             <div class="alert alert-info">
                 <i class="fas fa-info-circle"></i> @Localizer["ActivityManagement.NoConfirmedBookings"]
-            </div>
+            <</div>
         }
         else
         {
@@ -77,25 +77,25 @@
                         <h5 class="mb-0">
                             <i class="fas fa-users"></i> @group.Label
                             <span class="badge bg-light text-dark ms-2">@children.Count @Localizer["ActivityManagement.ChildrenCount"]</span>
-                        </h5>
-                    </div>
+                        <</h5>
+                    <</div>
                     <div class="card-body p-0">
                         <div class="table-responsive">
                             <table class="table table-hover mb-0">
                                 <thead class="table-light">
                                     <tr>
-                                        <th>@Localizer["LastName"]</th>
-                                        <th>@Localizer["FirstName"]</th>
-                                        <th class="text-center">@Localizer["Reserved"]</th>
-                                        <th class="text-center">@Localizer["Present"]</th>
+                                        <th>@Localizer["LastName"]<</th>
+                                        <th>@Localizer["FirstName"]<</th>
+                                        <th class="text-center">@Localizer["Reserved"]<</th>
+                                        <th class="text-center">@Localizer["Present"]<</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     @foreach (var child in children)
                                     {
                                         <tr class="@(child.IsPresent ? "table-success" : "")">
-                                            <td>@child.ChildLastName</td>
-                                            <td>@child.ChildFirstName</td>
+                                            <td>@child.ChildLastName<</td>
+                                            <td>@child.ChildFirstName<</td>
                                             <td class="text-center">
                                                 @if (child.IsReserved)
                                                 {
@@ -105,7 +105,7 @@
                                                 {
                                                     <i class="fas fa-times text-danger"></i>
                                                 }
-                                            </td>
+                                            <</td>
                                             <td class="text-center">
                                                 @if (child.BookingDayId.HasValue)
                                                 {
@@ -115,20 +115,20 @@
                                                                data-bookingday-id="@child.BookingDayId.Value"
                                                                @(child.IsPresent ? "checked" : "")
                                                                style="cursor: pointer;" />
-                                                    </div>
+                                                    <</div>
                                                 }
                                                 else
                                                 {
                                                     <span class="text-muted">N/A</span>
                                                 }
-                                            </td>
+                                            <</td>
                                         </tr>
                                     }
                                 </tbody>
                             </table>
-                        </div>
-                    </div>
-                </div>
+                        <</div>
+                    <</div>
+                <</div>
             }
         }
     }
@@ -136,9 +136,9 @@
     {
         <div class="alert alert-warning">
             <i class="fas fa-exclamation-triangle"></i> @Localizer["ActivityManagement.SelectActivityDay"]
-        </div>
+        <</div>
     }
-</div>
+<</div>
 
 @section Scripts {
     @Html.AntiForgeryToken()

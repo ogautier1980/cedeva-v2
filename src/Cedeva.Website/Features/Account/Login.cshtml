@@ -32,53 +32,53 @@
             <div class="card-body p-5">
                 <div class="text-center mb-4">
                     <i class="fas fa-campground fa-3x text-primary mb-3"></i>
-                    <h2 class="fw-bold">Cedeva</h2>
+                    <h2 class="fw-bold">Cedeva<</h2>
                     <p class="text-muted">Connectez-vous à votre compte</p>
-                </div>
+                <</div>
 
                 <form asp-action="Login" method="post">
                     <input type="hidden" name="returnUrl" value="@ViewData["ReturnUrl"]" />
 
-                    <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"><</div>
 
                     <div class="mb-3">
-                        <label asp-for="Email" class="form-label"></label>
+                        <label asp-for="Email" class="form-label"><</label>
                         <div class="input-group">
                             <span class="input-group-text"><i class="fas fa-envelope"></i></span>
                             <input asp-for="Email" class="form-control" placeholder="votre@email.com" />
-                        </div>
+                        <</div>
                         <span asp-validation-for="Email" class="text-danger small"></span>
-                    </div>
+                    <</div>
 
                     <div class="mb-3">
-                        <label asp-for="Password" class="form-label"></label>
+                        <label asp-for="Password" class="form-label"><</label>
                         <div class="input-group">
                             <span class="input-group-text"><i class="fas fa-lock"></i></span>
                             <input asp-for="Password" class="form-control" placeholder="@Localizer["Account.Password"]" />
-                        </div>
+                        <</div>
                         <span asp-validation-for="Password" class="text-danger small"></span>
-                    </div>
+                    <</div>
 
                     <div class="mb-3 form-check">
                         <input asp-for="RememberMe" class="form-check-input" />
-                        <label asp-for="RememberMe" class="form-check-label"></label>
-                    </div>
+                        <label asp-for="RememberMe" class="form-check-label"><</label>
+                    <</div>
 
                     <div class="d-grid mb-3">
                         <button type="submit" class="btn btn-primary btn-lg">
                             <i class="fas fa-sign-in-alt me-2"></i>Se connecter
                         </button>
-                    </div>
+                    <</div>
 
                     <div class="text-center">
                         <a asp-action="Register" class="text-decoration-none">
                             @Localizer["Account.NoAccount"] Inscrivez-vous
                         </a>
-                    </div>
+                    <</div>
                 </form>
-            </div>
-        </div>
-    </div>
+            <</div>
+        <</div>
+    <</div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>

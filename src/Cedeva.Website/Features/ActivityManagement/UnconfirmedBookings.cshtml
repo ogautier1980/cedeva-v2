@@ -9,7 +9,7 @@
     <div class="alert alert-success alert-dismissible fade show" role="alert">
         @TempData["SuccessMessage"]
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
+    <</div>
 }
 
 @if (TempData["ErrorMessage"] != null)
@@ -17,20 +17,20 @@
     <div class="alert alert-danger alert-dismissible fade show" role="alert">
         @TempData["ErrorMessage"]
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
+    <</div>
 }
 
 <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
-        <h2 class="mb-1">@Localizer["ActivityManagement.PendingBookings"]</h2>
+        <h2 class="mb-1">@Localizer["ActivityManagement.PendingBookings"]<</h2>
         <p class="text-muted">@Localizer["Activity"]: @Model.Activity.Name</p>
-    </div>
+    <</div>
     <div>
         <a asp-action="Index" asp-route-id="@Model.Activity.Id" class="btn btn-secondary">
             <i class="fas fa-arrow-left"></i> @Localizer["Back"]
         </a>
-    </div>
-</div>
+    <</div>
+<</div>
 
 <div class="card shadow">
     <div class="card-body">
@@ -38,7 +38,7 @@
         {
             <div class="alert alert-info mb-0">
                 <i class="fas fa-info-circle me-2"></i>@Localizer["ActivityManagement.NoPendingBookings"]
-            </div>
+            <</div>
         }
         else
         {
@@ -46,11 +46,11 @@
                 <table class="table table-hover">
                     <thead class="table-light">
                         <tr>
-                            <th>@Localizer["Child"]</th>
-                            <th>@Localizer["Parent"]</th>
-                            <th>@Localizer["ActivityManagement.RegistrationDate"]</th>
-                            <th style="width: 250px;">@Localizer["Group"]</th>
-                            <th class="text-end">@Localizer["Actions"]</th>
+                            <th>@Localizer["Child"]<</th>
+                            <th>@Localizer["Parent"]<</th>
+                            <th>@Localizer["ActivityManagement.RegistrationDate"]<</th>
+                            <th style="width: 250px;">@Localizer["Group"]<</th>
+                            <th class="text-end">@Localizer["Actions"]<</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -63,45 +63,45 @@
                                     {
                                         <br><small class="text-muted">@Localizer["ActivityManagement.BornOn"] @booking.Child.BirthDate.ToString("dd/MM/yyyy")</small>
                                     }
-                                </td>
+                                <</td>
                                 <td>
                                     @if (booking.Child?.Parent != null)
                                     {
                                         <span>@booking.Child.Parent.FirstName @booking.Child.Parent.LastName</span>
                                         <br><small class="text-muted">@booking.Child.Parent.Email</small>
                                     }
-                                </td>
+                                <</td>
                                 <td>
                                     @booking.BookingDate.ToString("dd/MM/yyyy")
-                                </td>
+                                <</td>
                                 <form asp-action="ConfirmBooking" method="post" class="d-inline">
                                     @Html.AntiForgeryToken()
                                     <input type="hidden" name="bookingId" value="@booking.Id" />
                                     <td>
                                         <select name="groupId" class="form-select form-select-sm" required>
-                                            <option value="0">@Localizer["ActivityManagement.SelectGroup"]</option>
+                                            <option value="0">@Localizer["ActivityManagement.SelectGroup"]<</option>
                                             @foreach (var option in Model.GroupOptions)
                                             {
-                                                <option value="@option.Value">@option.Text</option>
+                                                <option value="@option.Value">@option.Text<</option>
                                             }
                                         </select>
-                                    </td>
+                                    <</td>
                                     <td class="text-end">
                                         <button type="submit" class="btn btn-success btn-sm">
                                             <i class="fas fa-check"></i> @Localizer["Confirm"]
                                         </button>
-                                    </td>
+                                    <</td>
                                 </form>
                             </tr>
                         }
                     </tbody>
                 </table>
-            </div>
+            <</div>
 
             <div class="alert alert-warning mt-3">
                 <i class="fas fa-exclamation-triangle me-2"></i>
                 <strong>@Model.UnconfirmedBookings.Count()</strong> @Localizer["ActivityManagement.PendingCount"]
-            </div>
+            <</div>
         }
-    </div>
-</div>
+    <</div>
+<</div>
