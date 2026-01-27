@@ -15,10 +15,10 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2><i class="fas fa-clipboard-list me-2"></i>@Localizer["Bookings"]</h2>
         <div class="d-flex gap-2">
-            <a asp-action="Export" asp-route-searchString="@searchString" asp-route-activityId="@activityId" asp-route-childId="@childId" asp-route-isConfirmed="@isConfirmed" class="btn btn-success">
+            <a asp-action="Export" asp-route-searchString="@searchString" asp-route-activityId="@activityId" asp-route-childId="@childId" asp-route-isConfirmed="@isConfirmed" class="btn btn-success text-nowrap">
                 <i class="fas fa-file-excel me-2"></i>@Localizer["Activities.ExportExcel"]
             </a>
-            <a asp-action="Create" class="btn btn-primary">
+            <a asp-action="Create" class="btn btn-primary text-nowrap">
                 <i class="fas fa-plus me-2"></i>@Localizer["Bookings.NewBooking"]
             </a>
         </div>
