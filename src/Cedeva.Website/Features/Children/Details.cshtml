@@ -10,10 +10,10 @@
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h5 class="mb-0"><i class="fas fa-child me-2"></i>@Localizer["Children.ChildDetails"]</h5>
                     <div>
-                        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-sm btn-primary">
+                        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-sm btn-primary text-nowrap">
                             <i class="fas fa-edit me-1"></i>@Localizer["Edit"]
                         </a>
-                        <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-sm btn-danger">
+                        <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-sm btn-danger text-nowrap">
                             <i class="fas fa-trash me-1"></i>@Localizer["Delete"]
                         </a>
                     </div>
@@ -55,7 +55,7 @@
                     <hr />
 
                     <div class="mt-4">
-                        <a asp-action="Index" class="btn btn-outline-secondary">
+                        <a asp-action="Index" class="btn btn-outline-secondary text-nowrap">
                             <i class="fas fa-arrow-left me-2"></i>@Localizer["BackToList"]
                         </a>
                     </div>
@@ -88,7 +88,7 @@
                                         </span>
                                     </div>
                                     <div class="mt-2">
-                                        <a asp-controller="Bookings" asp-action="Details" asp-route-id="@booking.Id" class="btn btn-sm btn-outline-primary">
+                                        <a asp-controller="Bookings" asp-action="Details" asp-route-id="@booking.Id" class="btn btn-sm btn-outline-primary text-nowrap">
                                             <i class="fas fa-eye me-1"></i>@Localizer["Details"]
                                         </a>
                                     </div>
@@ -101,7 +101,7 @@
                         <p class="text-muted mb-0">@Localizer["Children.NoBookingsRegistered"]</p>
                     }
                     <div class="mt-3">
-                        <a asp-controller="Bookings" asp-action="Create" asp-route-childId="@Model.Id" class="btn btn-sm btn-success w-100">
+                        <a asp-controller="Bookings" asp-action="Create" asp-route-childId="@Model.Id" class="btn btn-sm btn-success w-100 text-nowrap">
                             <i class="fas fa-plus me-1"></i>@Localizer["Children.NewBooking"]
                         </a>
                     </div>
