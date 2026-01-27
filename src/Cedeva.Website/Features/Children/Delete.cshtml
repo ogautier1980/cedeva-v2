@@ -8,8 +8,8 @@
         <div class="col-lg-6">
             <div class="card shadow border-danger">
                 <div class="card-header bg-danger text-white">
-                    <h5 class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i>@Localizer["Children.DeleteChild"]<</h5>
-                <</div>
+                    <h5 class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i>@Localizer["Children.DeleteChild"]</h5>
+                </div>
                 <div class="card-body">
                     <div class="alert alert-warning" role="alert">
                         <i class="fas fa-exclamation-circle me-2"></i>
@@ -19,28 +19,28 @@
                             <br />
                             <strong class="text-danger">@string.Format(Localizer["Children.HasBookings"].Value, Model.Bookings.Count)</strong>
                         }
-                    <</div>
+                    </div>
 
-                    <h6 class="mb-3 text-primary"><i class="fas fa-child me-2"></i>@Localizer["Children.ChildInformation"]<</h6>
+                    <h6 class="mb-3 text-primary"><i class="fas fa-child me-2"></i>@Localizer["Children.ChildInformation"]</h6>
 
                     <dl class="row">
-                        <dt class="col-sm-4">@Localizer["FullName"]<</dt>
-                        <dd class="col-sm-8">@Model.FirstName @Model.LastName<</dd>
+                        <dt class="col-sm-4">@Localizer["FullName"]</dt>
+                        <dd class="col-sm-8">@Model.FirstName @Model.LastName</dd>
 
-                        <dt class="col-sm-4">@Localizer["BirthDate"]<</dt>
-                        <dd class="col-sm-8">@Model.BirthDate.ToString("dd/MM/yyyy")<</dd>
+                        <dt class="col-sm-4">@Localizer["BirthDate"]</dt>
+                        <dd class="col-sm-8">@Model.BirthDate.ToString("dd/MM/yyyy")</dd>
 
-                        <dt class="col-sm-4">@Localizer["Parent"]<</dt>
-                        <dd class="col-sm-8">@Model.ParentFullName<</dd>
+                        <dt class="col-sm-4">@Localizer["Parent"]</dt>
+                        <dd class="col-sm-8">@Model.ParentFullName</dd>
 
-                        <dt class="col-sm-4">@Localizer["Children.NationalRegisterNumber"]<</dt>
-                        <dd class="col-sm-8">@Model.NationalRegisterNumber<</dd>
+                        <dt class="col-sm-4">@Localizer["Children.NationalRegisterNumber"]</dt>
+                        <dd class="col-sm-8">@Model.NationalRegisterNumber</dd>
                     </dl>
 
                     @if (Model.Bookings != null && Model.Bookings.Any())
                     {
                         <hr />
-                        <h6 class="mb-3 text-danger"><i class="fas fa-calendar-alt me-2"></i>@Localizer["Children.AssociatedBookings"]<</h6>
+                        <h6 class="mb-3 text-danger"><i class="fas fa-calendar-alt me-2"></i>@Localizer["Children.AssociatedBookings"]</h6>
                         <ul class="list-group mb-3">
                             @foreach (var booking in Model.Bookings)
                             {
@@ -50,7 +50,7 @@
                                         <small class="text-muted">
                                             @booking.StartDate.ToString("dd/MM/yyyy") - @booking.EndDate.ToString("dd/MM/yyyy")
                                         </small>
-                                    <</div>
+                                    </div>
                                     <span class="badge @(booking.IsConfirmed ? "bg-success" : "bg-warning")">
                                         @(booking.IsConfirmed ? Localizer["Bookings.Confirmed"] : Localizer["Bookings.Pending"])
                                     </span>
@@ -68,10 +68,10 @@
                             <button type="submit" class="btn btn-danger text-nowrap">
                                 <i class="fas fa-trash me-2"></i>@Localizer["Children.ConfirmDeletion"]
                             </button>
-                        <</div>
+                        </div>
                     </form>
-                <</div>
-            <</div>
-        <</div>
-    <</div>
-<</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

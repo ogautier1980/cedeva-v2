@@ -7,20 +7,20 @@
 <div class="container-fluid py-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h2 class="mb-1">@Model.ActivityName<</h2>
+            <h2 class="mb-1">@Model.ActivityName</h2>
             <p class="text-muted mb-0">@Localizer["Email.SendTargeted"]</p>
-        <</div>
+        </div>
         <a asp-action="Index" asp-route-id="@Model.ActivityId" class="btn btn-outline-secondary">
             <i class="fas fa-arrow-left"></i> @Localizer["BackToDashboard"]
         </a>
-    <</div>
+    </div>
 
     @if (TempData["SuccessMessage"] != null)
     {
         <div class="alert alert-success alert-dismissible fade show" role="alert">
             <i class="fas fa-check-circle"></i> @TempData["SuccessMessage"]
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        <</div>
+        </div>
     }
 
     @if (TempData["ErrorMessage"] != null)
@@ -28,7 +28,7 @@
         <div class="alert alert-danger alert-dismissible fade show" role="alert">
             <i class="fas fa-exclamation-circle"></i> @TempData["ErrorMessage"]
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        <</div>
+        </div>
     }
 
     <div class="row">
@@ -36,37 +36,37 @@
             <div class="card">
                 <div class="card-body">
                     <form asp-action="SendEmail" method="post" enctype="multipart/form-data">
-                        <div asp-validation-summary="ModelOnly" class="alert alert-danger"><</div>
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
                         <input type="hidden" asp-for="ActivityId" />
                         <input type="hidden" asp-for="ActivityName" />
 
                         <div class="mb-3">
-                            <label asp-for="SelectedRecipient" class="form-label">@Localizer["Email.Recipient"]<</label>
+                            <label asp-for="SelectedRecipient" class="form-label">@Localizer["Email.Recipient"]</label>
                             <select asp-for="SelectedRecipient" asp-items="Model.RecipientOptions" class="form-select">
-                                <option value="">@Localizer["Email.SelectRecipient"]<</option>
+                                <option value="">@Localizer["Email.SelectRecipient"]</option>
                             </select>
                             <span asp-validation-for="SelectedRecipient" class="text-danger"></span>
-                        <</div>
+                        </div>
 
                         <div class="mb-3">
-                            <label asp-for="Subject" class="form-label">@Localizer["Email.Subject"]<</label>
+                            <label asp-for="Subject" class="form-label">@Localizer["Email.Subject"]</label>
                             <input asp-for="Subject" class="form-control" placeholder="@Localizer["Email.SubjectPlaceholder"]" />
                             <span asp-validation-for="Subject" class="text-danger"></span>
-                        <</div>
+                        </div>
 
                         <div class="mb-3">
-                            <label asp-for="Message" class="form-label">@Localizer["Email.Message"]<</label>
+                            <label asp-for="Message" class="form-label">@Localizer["Email.Message"]</label>
                             <textarea asp-for="Message" class="form-control" rows="8" placeholder="@Localizer["Email.MessagePlaceholder"]"></textarea>
                             <span asp-validation-for="Message" class="text-danger"></span>
-                            <div class="form-text">@Localizer["Email.MessageNote"]<</div>
-                        <</div>
+                            <div class="form-text">@Localizer["Email.MessageNote"]</div>
+                        </div>
 
                         <div class="mb-3">
-                            <label asp-for="AttachmentFile" class="form-label">@Localizer["Email.Attachment"]<</label>
+                            <label asp-for="AttachmentFile" class="form-label">@Localizer["Email.Attachment"]</label>
                             <input asp-for="AttachmentFile" type="file" class="form-control" />
                             <span asp-validation-for="AttachmentFile" class="text-danger"></span>
-                            <div class="form-text">@Localizer["Email.AttachmentFormats"]<</div>
-                        <</div>
+                            <div class="form-text">@Localizer["Email.AttachmentFormats"]</div>
+                        </div>
 
                         <div class="d-flex gap-2">
                             <button type="submit" class="btn btn-primary">
@@ -78,37 +78,37 @@
                             <a asp-action="SentEmails" asp-route-id="@Model.ActivityId" class="btn btn-outline-info ms-auto">
                                 <i class="fas fa-history"></i> @Localizer["Email.SentHistory"]
                             </a>
-                        <</div>
+                        </div>
                     </form>
-                <</div>
-            <</div>
-        <</div>
+                </div>
+            </div>
+        </div>
 
         <div class="col-md-4 col-lg-6">
             <div class="card bg-light">
                 <div class="card-header bg-info text-white">
                     <i class="fas fa-info-circle"></i> @Localizer["Information"]
-                <</div>
+                </div>
                 <div class="card-body">
-                    <h6 class="fw-bold">@Localizer["Email.Options"]<</h6>
+                    <h6 class="fw-bold">@Localizer["Email.Options"]</h6>
                     <ul class="mb-3">
                         <li><strong>@Localizer["Email.AllParents"]</strong> : @Localizer["Email.AllParentsDesc"]</li>
                         <li><strong>@Localizer["Email.MedicalSheetReminder"]</strong> : @Localizer["Email.MedicalSheetDesc"]</li>
                         <li><strong>@Localizer["Email.Group"]</strong> : @Localizer["Email.GroupDesc"]</li>
                     </ul>
 
-                    <h6 class="fw-bold">@Localizer["Email.Tips"]<</h6>
+                    <h6 class="fw-bold">@Localizer["Email.Tips"]</h6>
                     <ul class="mb-0">
                         <li>@Localizer["Email.Tip1"]</li>
                         <li>@Localizer["Email.Tip2"]</li>
                         <li>@Localizer["Email.Tip3"]</li>
                         <li>@Localizer["Email.Tip4"]</li>
                     </ul>
-                <</div>
-            <</div>
-        <</div>
-    <</div>
-<</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}

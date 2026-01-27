@@ -8,9 +8,9 @@
 <div class="container-fluid py-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h2 class="mb-1">@Model.Activity.Name<</h2>
+            <h2 class="mb-1">@Model.Activity.Name</h2>
             <p class="text-muted mb-0">@Localizer["Email.SentHistory"]</p>
-        <</div>
+        </div>
         <div class="d-flex gap-2">
             <a asp-action="SendEmail" asp-route-id="@Model.Activity.Id" class="btn btn-primary">
                 <i class="fas fa-paper-plane"></i> @Localizer["Email.NewSend"]
@@ -18,14 +18,14 @@
             <a asp-action="Index" asp-route-id="@Model.Activity.Id" class="btn btn-outline-secondary">
                 <i class="fas fa-arrow-left"></i> @Localizer["BackToDashboard"]
             </a>
-        <</div>
-    <</div>
+        </div>
+    </div>
 
     @if (!Model.SentEmails.Any())
     {
         <div class="alert alert-info">
             <i class="fas fa-info-circle"></i> @Localizer["Email.NoEmailsSent"]
-        <</div>
+        </div>
     }
     else
     {
@@ -35,12 +35,12 @@
                     <table class="table table-hover">
                         <thead class="table-light">
                             <tr>
-                                <th>@Localizer["Email.SentDate"]<</th>
-                                <th>@Localizer["Email.RecipientType"]<</th>
-                                <th>@Localizer["Email.RecipientCount"]<</th>
-                                <th>@Localizer["Email.Subject"]<</th>
-                                <th class="text-center">@Localizer["Email.Attachment"]<</th>
-                                <th class="text-end">@Localizer["Actions"]<</th>
+                                <th>@Localizer["Email.SentDate"]</th>
+                                <th>@Localizer["Email.RecipientType"]</th>
+                                <th>@Localizer["Email.RecipientCount"]</th>
+                                <th>@Localizer["Email.Subject"]</th>
+                                <th class="text-center">@Localizer["Email.Attachment"]</th>
+                                <th class="text-end">@Localizer["Actions"]</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -55,17 +55,17 @@
                                     <td>
                                         <i class="fas fa-calendar-alt text-muted me-1"></i>
                                         @email.SentDate.ToString("dd/MM/yyyy HH:mm")
-                                    <</td>
+                                    </td>
                                     <td>
                                         <span class="badge bg-info">@recipientTypeLabel</span>
-                                    <</td>
+                                    </td>
                                     <td>
                                         <i class="fas fa-users text-muted me-1"></i>
                                         @recipientCount
-                                    <</td>
+                                    </td>
                                     <td>
                                         <strong>@email.Subject</strong>
-                                    <</td>
+                                    </td>
                                     <td class="text-center">
                                         @if (!string.IsNullOrEmpty(email.AttachmentFileName))
                                         {
@@ -75,21 +75,21 @@
                                         {
                                             <i class="fas fa-minus text-muted"></i>
                                         }
-                                    <</td>
+                                    </td>
                                     <td class="text-end">
                                         <button type="button" class="btn btn-sm btn-outline-primary"
                                                 data-bs-toggle="modal"
                                                 data-bs-target="#emailModal@(email.Id)">
                                             <i class="fas fa-eye"></i> @Localizer["Details"]
                                         </button>
-                                    <</td>
+                                    </td>
                                 </tr>
                             }
                         </tbody>
                     </table>
-                <</div>
-            <</div>
-        <</div>
+                </div>
+            </div>
+        </div>
 
         <!-- Modals for email details -->
         @foreach (var email in Model.SentEmails)
@@ -100,28 +100,28 @@
                 <div class="modal-dialog modal-lg">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h5 class="modal-title" id="emailModalLabel@(email.Id)">@Localizer["Email.Details"]<</h5>
+                            <h5 class="modal-title" id="emailModalLabel@(email.Id)">@Localizer["Email.Details"]</h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        <</div>
+                        </div>
                         <div class="modal-body">
                             <div class="mb-3">
                                 <strong>@Localizer["Email.SentDate"] :</strong> @email.SentDate.ToString($"dd/MM/yyyy {Localizer["Email.At"]} HH:mm")
-                            <</div>
+                            </div>
                             <div class="mb-3">
                                 <strong>@Localizer["Email.Subject"] :</strong> @email.Subject
-                            <</div>
+                            </div>
                             <div class="mb-3">
                                 <strong>@Localizer["Email.Message"] :</strong>
                                 <div class="border rounded p-3 bg-light mt-2">
                                     @Html.Raw(email.Message.Replace("\n", "<br/>"))
-                                <</div>
-                            <</div>
+                                </div>
+                            </div>
                             @if (!string.IsNullOrEmpty(email.AttachmentFileName))
                             {
                                 <div class="mb-3">
                                     <strong>@Localizer["Email.Attachment"] :</strong>
                                     <i class="fas fa-paperclip text-success me-1"></i> @email.AttachmentFileName
-                                <</div>
+                                </div>
                             }
                             <div class="mb-3">
                                 <strong>@Localizer["Email.Recipients"] (@recipientList.Length) :</strong>
@@ -132,15 +132,15 @@
                                             <li>@recipient.Trim()</li>
                                         }
                                     </ul>
-                                <</div>
-                            <</div>
-                        <</div>
+                                </div>
+                            </div>
+                        </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">@Localizer["Close"]</button>
-                        <</div>
-                    <</div>
-                <</div>
-            <</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         }
     }
-<</div>
+</div>

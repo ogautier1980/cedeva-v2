@@ -5,7 +5,7 @@
 
 <div class="container-fluid">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 class="h3 mb-0">@Localizer["Parents"]<</h1>
+        <h1 class="h3 mb-0">@Localizer["Parents"]</h1>
         <div class="d-flex gap-2">
             <a asp-action="Export" asp-route-searchTerm="@Model.SearchTerm" class="btn btn-success text-nowrap">
                 <i class="fas fa-file-excel me-2"></i>@Localizer["ExportExcel"]
@@ -13,15 +13,15 @@
             <a asp-action="Create" class="btn btn-primary text-nowrap">
                 <i class="fas fa-plus me-2"></i>@Localizer["Parents.NewParent"]
             </a>
-        <</div>
-    <</div>
+        </div>
+    </div>
 
     @if (TempData["Success"] != null)
     {
         <div class="alert alert-success alert-dismissible fade show" role="alert">
             @TempData["Success"]
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        <</div>
+        </div>
     }
 
     @if (TempData["Error"] != null)
@@ -29,7 +29,7 @@
         <div class="alert alert-danger alert-dismissible fade show" role="alert">
             @TempData["Error"]
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        <</div>
+        </div>
     }
 
     <!-- Search -->
@@ -37,22 +37,22 @@
         <div class="card-body">
             <form method="get" class="row g-3">
                 <div class="col-md-6">
-                    <label class="form-label">@Localizer["Search"]<</label>
+                    <label class="form-label">@Localizer["Search"]</label>
                     <input type="text" name="searchTerm" class="form-control" value="@Model.SearchTerm" placeholder="@Localizer["Parents.SearchPlaceholderShort"]">
-                <</div>
+                </div>
                 <div class="col-md-2 d-flex align-items-end">
                     <button type="submit" class="btn btn-secondary w-100">
                         <i class="fas fa-search me-2"></i>@Localizer["Search"]
                     </button>
-                <</div>
+                </div>
                 <div class="col-md-2 d-flex align-items-end">
                     <a asp-action="Index" class="btn btn-outline-secondary w-100">
                         <i class="fas fa-times me-2"></i>@Localizer["Reset"]
                     </a>
-                <</div>
+                </div>
             </form>
-        <</div>
-    <</div>
+        </div>
+    </div>
 
     <!-- Parents Table -->
     <div class="card shadow">
@@ -63,11 +63,11 @@
                     <table class="table table-hover">
                         <thead class="table-light">
                             <tr>
-                                <th>@Localizer["Name"]<</th>
-                                <th>@Localizer["Contact"]<</th>
-                                <th>@Localizer["Address"]<</th>
-                                <th class="text-center">@Localizer["Children"]<</th>
-                                <th class="text-end">@Localizer["Actions"]<</th>
+                                <th>@Localizer["Name"]</th>
+                                <th>@Localizer["Contact"]</th>
+                                <th>@Localizer["Address"]</th>
+                                <th class="text-center">@Localizer["Children"]</th>
+                                <th class="text-end">@Localizer["Actions"]</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -76,19 +76,19 @@
                                 <tr>
                                     <td>
                                         <strong>@parent.LastName @parent.FirstName</strong>
-                                    <</td>
+                                    </td>
                                     <td>
                                         <small>
                                             <i class="fas fa-envelope me-1 text-muted"></i>@parent.Email<br>
                                             <i class="fas fa-mobile-alt me-1 text-muted"></i>@parent.MobilePhoneNumber
                                         </small>
-                                    <</td>
+                                    </td>
                                     <td>
                                         <small>@parent.Street<br>@parent.PostalCode @parent.City</small>
-                                    <</td>
+                                    </td>
                                     <td class="text-center">
                                         <span class="badge bg-info">@parent.ChildrenCount</span>
-                                    <</td>
+                                    </td>
                                     <td class="text-end">
                                         <div class="btn-group">
                                             <a asp-action="Details" asp-route-id="@parent.Id" class="btn btn-sm btn-outline-primary" title="@Localizer["Details"]">
@@ -100,13 +100,13 @@
                                             <a asp-action="Delete" asp-route-id="@parent.Id" class="btn btn-sm btn-outline-danger" title="@Localizer["Delete"]">
                                                 <i class="fas fa-trash"></i>
                                             </a>
-                                        <</div>
-                                    <</td>
+                                        </div>
+                                    </td>
                                 </tr>
                             }
                         </tbody>
                     </table>
-                <</div>
+                </div>
 
                 @if (Model.TotalPages > 1)
                 {
@@ -134,8 +134,8 @@
                     <i class="fas fa-user-friends fa-3x text-muted mb-3"></i>
                     <p class="text-muted">@Localizer["Parents.NoParentsFound"]</p>
                     <a asp-action="Create" class="btn btn-primary">@Localizer["Parents.AddParent"]</a>
-                <</div>
+                </div>
             }
-        <</div>
-    <</div>
-<</div>
+        </div>
+    </div>
+</div>

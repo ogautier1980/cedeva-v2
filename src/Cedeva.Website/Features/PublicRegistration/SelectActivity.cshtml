@@ -10,8 +10,8 @@
         <div class="col-md-10">
             <div class="card shadow">
                 <div class="card-header bg-primary text-white">
-                    <h2 class="mb-0"><i class="fas fa-clipboard-list me-2"></i>@ViewData["Title"]<</h2>
-                <</div>
+                    <h2 class="mb-0"><i class="fas fa-clipboard-list me-2"></i>@ViewData["Title"]</h2>
+                </div>
                 <div class="card-body">
                     <p class="lead mb-4">@Localizer["PublicRegistration.SelectActivityLead"]</p>
 
@@ -20,7 +20,7 @@
                         {
                             <div class="alert alert-info">
                                 <i class="fas fa-info-circle me-2"></i>@Localizer["PublicRegistration.NoActivitiesAvailable"]
-                            <</div>
+                            </div>
                         }
                         else
                         {
@@ -33,7 +33,7 @@
                                                 <div class="form-check">
                                                     <input class="form-check-input" type="radio" asp-for="ActivityId" value="@activity.Id" id="activity_@activity.Id">
                                                     <label class="form-check-label w-100" for="activity_@activity.Id">
-                                                        <h5 class="card-title">@activity.Name<</h5>
+                                                        <h5 class="card-title">@activity.Name</h5>
                                                         <p class="card-text text-muted">@activity.Description</p>
                                                         <div class="activity-details">
                                                             <p class="mb-1">
@@ -55,28 +55,28 @@
                                                                 <i class="fas fa-users me-2"></i>
                                                                 <strong>@Localizer["PublicRegistration.Bookings"]/strong> @activity.Bookings.Count
                                                             </p>
-                                                        <</div>
-                                                    <</label>
-                                                <</div>
-                                            <</div>
-                                        <</div>
-                                    <</div>
+                                                        </div>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 }
-                            <</div>
+                            </div>
                             <span asp-validation-for="ActivityId" class="text-danger"></span>
 
                             <div class="d-grid gap-2 mt-4">
                                 <button type="submit" class="btn btn-primary btn-lg">
                                     <i class="fas fa-arrow-right me-2"></i>Continuer
                                 </button>
-                            <</div>
+                            </div>
                         }
                     </form>
-                <</div>
-            <</div>
-        <</div>
-    <</div>
-<</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 <style>
     .activity-card {

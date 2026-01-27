@@ -8,8 +8,8 @@
         <div class="col-lg-6">
             <div class="card shadow border-danger">
                 <div class="card-header bg-danger text-white">
-                    <h5 class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i>@Localizer["Bookings.DeleteBooking"]<</h5>
-                <</div>
+                    <h5 class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i>@Localizer["Bookings.DeleteBooking"]</h5>
+                </div>
                 <div class="card-body">
                     <div class="alert alert-warning" role="alert">
                         <i class="fas fa-exclamation-circle me-2"></i>
@@ -24,60 +24,60 @@
                                 @string.Format(Localizer["Bookings.DeleteRelatedWarning"].Value, totalRelated)
                             </strong>
                         }
-                    <</div>
+                    </div>
 
-                    <h6 class="mb-3 text-primary"><i class="fas fa-clipboard-list me-2"></i>@Localizer["Bookings.BookingInformation"]<</h6>
+                    <h6 class="mb-3 text-primary"><i class="fas fa-clipboard-list me-2"></i>@Localizer["Bookings.BookingInformation"]</h6>
 
                     <dl class="row">
-                        <dt class="col-sm-4">@Localizer["Date"]<</dt>
-                        <dd class="col-sm-8">@Model.BookingDate.ToString("dd/MM/yyyy")<</dd>
+                        <dt class="col-sm-4">@Localizer["Date"]</dt>
+                        <dd class="col-sm-8">@Model.BookingDate.ToString("dd/MM/yyyy")</dd>
 
-                        <dt class="col-sm-4">@Localizer["Child"]<</dt>
-                        <dd class="col-sm-8">@Model.ChildFullName<</dd>
+                        <dt class="col-sm-4">@Localizer["Child"]</dt>
+                        <dd class="col-sm-8">@Model.ChildFullName</dd>
 
-                        <dt class="col-sm-4">@Localizer["Parent"]<</dt>
-                        <dd class="col-sm-8">@Model.ParentFullName<</dd>
+                        <dt class="col-sm-4">@Localizer["Parent"]</dt>
+                        <dd class="col-sm-8">@Model.ParentFullName</dd>
 
-                        <dt class="col-sm-4">@Localizer["Activity"]<</dt>
+                        <dt class="col-sm-4">@Localizer["Activity"]</dt>
                         <dd class="col-sm-8">
                             <strong>@Model.ActivityName</strong><br />
                             <small class="text-muted">
                                 @Model.ActivityStartDate?.ToString("dd/MM/yyyy") - @Model.ActivityEndDate?.ToString("dd/MM/yyyy")
                             </small>
-                        <</dd>
+                        </dd>
 
                         @if (!string.IsNullOrEmpty(Model.GroupLabel))
                         {
-                            <dt class="col-sm-4">Groupe<</dt>
+                            <dt class="col-sm-4">@Localizer["Group"]</dt>
                             <dd class="col-sm-8">
                                 <span class="badge bg-secondary">@Model.GroupLabel</span>
-                            <</dd>
+                            </dd>
                         }
 
-                        <dt class="col-sm-4">Statut<</dt>
+                        <dt class="col-sm-4">@Localizer["Status"]</dt>
                         <dd class="col-sm-8">
                             <span class="badge @(Model.IsConfirmed ? "bg-success" : "bg-warning")">
-                                @(Model.IsConfirmed ? "Confirmée" : "En attente")
+                                @(Model.IsConfirmed ? Localizer["Confirmed"] : Localizer["Pending"])
                             </span>
-                        <</dd>
+                        </dd>
 
-                        <dt class="col-sm-4">Fiche médicale<</dt>
+                        <dt class="col-sm-4">@Localizer["Bookings.MedicalSheet"]</dt>
                         <dd class="col-sm-8">
                             @if (Model.IsMedicalSheet)
                             {
-                                <span class="badge bg-success">Reçue</span>
+                                <span class="badge bg-success">@Localizer["Received"]</span>
                             }
                             else
                             {
-                                <span class="badge bg-danger">Non reçue</span>
+                                <span class="badge bg-danger">@Localizer["NotReceived"]</span>
                             }
-                        <</dd>
+                        </dd>
                     </dl>
 
                     @if (totalRelated > 0)
                     {
                         <hr />
-                        <h6 class="mb-3 text-danger"><i class="fas fa-link me-2"></i>@Localizer["RelatedItems"]<</h6>
+                        <h6 class="mb-3 text-danger"><i class="fas fa-link me-2"></i>@Localizer["RelatedItems"]</h6>
                         <ul class="list-group mb-3">
                             @if (Model.DaysCount > 0)
                             {
@@ -105,10 +105,10 @@
                             <button type="submit" class="btn btn-danger text-nowrap">
                                 <i class="fas fa-trash me-2"></i>Confirmer la suppression
                             </button>
-                        <</div>
+                        </div>
                     </form>
-                <</div>
-            <</div>
-        <</div>
-    <</div>
-<</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

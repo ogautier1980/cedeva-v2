@@ -8,7 +8,7 @@
         <div class="col-lg-8">
             <div class="card shadow">
                 <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0"><i class="fas fa-user me-2"></i>@Localizer["Parents.ParentDetails"]<</h5>
+                    <h5 class="mb-0"><i class="fas fa-user me-2"></i>@Localizer["Parents.ParentDetails"]</h5>
                     <div class="d-flex gap-2">
                         <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-sm btn-primary text-nowrap">
                             <i class="fas fa-edit me-1"></i>@Localizer["Edit"]
@@ -16,33 +16,33 @@
                         <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-sm btn-danger text-nowrap">
                             <i class="fas fa-trash me-1"></i>@Localizer["Delete"]
                         </a>
-                    <</div>
-                <</div>
+                    </div>
+                </div>
                 <div class="card-body">
-                    <h6 class="mb-3 text-primary"><i class="fas fa-user me-2"></i>@Localizer["PersonalInformation"]<</h6>
+                    <h6 class="mb-3 text-primary"><i class="fas fa-user me-2"></i>@Localizer["PersonalInformation"]</h6>
 
                     <dl class="row">
-                        <dt class="col-sm-4">@Localizer["FirstName"]<</dt>
-                        <dd class="col-sm-8">@Model.FirstName<</dd>
+                        <dt class="col-sm-4">@Localizer["FirstName"]</dt>
+                        <dd class="col-sm-8">@Model.FirstName</dd>
 
-                        <dt class="col-sm-4">@Localizer["LastName"]<</dt>
-                        <dd class="col-sm-8">@Model.LastName<</dd>
+                        <dt class="col-sm-4">@Localizer["LastName"]</dt>
+                        <dd class="col-sm-8">@Model.LastName</dd>
 
-                        <dt class="col-sm-4">@Localizer["NationalRegisterNumber"]<</dt>
-                        <dd class="col-sm-8">@Model.NationalRegisterNumber<</dd>
+                        <dt class="col-sm-4">@Localizer["NationalRegisterNumber"]</dt>
+                        <dd class="col-sm-8">@Model.NationalRegisterNumber</dd>
                     </dl>
 
                     <hr />
 
-                    <h6 class="mb-3 text-primary"><i class="fas fa-phone me-2"></i>@Localizer["Contact"]<</h6>
+                    <h6 class="mb-3 text-primary"><i class="fas fa-phone me-2"></i>@Localizer["Contact"]</h6>
 
                     <dl class="row">
-                        <dt class="col-sm-4">@Localizer["Email"]<</dt>
+                        <dt class="col-sm-4">@Localizer["Email"]</dt>
                         <dd class="col-sm-8">
                             <a href="mailto:@Model.Email">@Model.Email</a>
-                        <</dd>
+                        </dd>
 
-                        <dt class="col-sm-4">@Localizer["Mobile"]<</dt>
+                        <dt class="col-sm-4">@Localizer["Mobile"]</dt>
                         <dd class="col-sm-8">
                             @if (!string.IsNullOrEmpty(Model.MobilePhoneNumber))
                             {
@@ -52,9 +52,9 @@
                             {
                                 <span class="text-muted">@Localizer["Parents.NotSpecified"]</span>
                             }
-                        <</dd>
+                        </dd>
 
-                        <dt class="col-sm-4">@Localizer["Phone"]<</dt>
+                        <dt class="col-sm-4">@Localizer["Phone"]</dt>
                         <dd class="col-sm-8">
                             @if (!string.IsNullOrEmpty(Model.PhoneNumber))
                             {
@@ -64,25 +64,25 @@
                             {
                                 <span class="text-muted">@Localizer["Parents.NotSpecified"]</span>
                             }
-                        <</dd>
+                        </dd>
                     </dl>
 
                     <hr />
 
-                    <h6 class="mb-3 text-primary"><i class="fas fa-map-marker-alt me-2"></i>@Localizer["Address"]<</h6>
+                    <h6 class="mb-3 text-primary"><i class="fas fa-map-marker-alt me-2"></i>@Localizer["Address"]</h6>
 
                     <dl class="row">
-                        <dt class="col-sm-4">@Localizer["Street"]<</dt>
-                        <dd class="col-sm-8">@Model.Street<</dd>
+                        <dt class="col-sm-4">@Localizer["Street"]</dt>
+                        <dd class="col-sm-8">@Model.Street</dd>
 
-                        <dt class="col-sm-4">@Localizer["PostalCode"]<</dt>
-                        <dd class="col-sm-8">@Model.PostalCode<</dd>
+                        <dt class="col-sm-4">@Localizer["PostalCode"]</dt>
+                        <dd class="col-sm-8">@Model.PostalCode</dd>
 
-                        <dt class="col-sm-4">@Localizer["City"]<</dt>
-                        <dd class="col-sm-8">@Model.City<</dd>
+                        <dt class="col-sm-4">@Localizer["City"]</dt>
+                        <dd class="col-sm-8">@Model.City</dd>
 
-                        <dt class="col-sm-4">@Localizer["Country"]<</dt>
-                        <dd class="col-sm-8">@Model.Country<</dd>
+                        <dt class="col-sm-4">@Localizer["Country"]</dt>
+                        <dd class="col-sm-8">@Model.Country</dd>
                     </dl>
 
                     <hr />
@@ -91,16 +91,16 @@
                         <a asp-action="Index" class="btn btn-outline-secondary">
                             <i class="fas fa-arrow-left me-2"></i>@Localizer["BackToList"]
                         </a>
-                    <</div>
-                <</div>
-            <</div>
-        <</div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <div class="col-lg-4">
             <div class="card shadow">
                 <div class="card-header">
-                    <h6 class="mb-0"><i class="fas fa-child me-2"></i>@Localizer["Children"]<</h6>
-                <</div>
+                    <h6 class="mb-0"><i class="fas fa-child me-2"></i>@Localizer["Children"]</h6>
+                </div>
                 <div class="card-body">
                     @if (Model.Children != null && Model.Children.Any())
                     {
@@ -124,9 +124,9 @@
                         <a asp-controller="Children" asp-action="Create" asp-route-parentId="@Model.Id" class="btn btn-sm btn-success w-100">
                             <i class="fas fa-plus me-1"></i>@Localizer["Children.AddChild"]
                         </a>
-                    <</div>
-                <</div>
-            <</div>
-        <</div>
-    <</div>
-<</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

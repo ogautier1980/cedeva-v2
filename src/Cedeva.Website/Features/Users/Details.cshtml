@@ -8,7 +8,7 @@
     <div class="col-md-8 offset-md-2">
         <div class="card shadow">
             <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="mb-0"><i class="fas fa-user me-2"></i>@Localizer["Users.UserDetails"]<</h5>
+                <h5 class="mb-0"><i class="fas fa-user me-2"></i>@Localizer["Users.UserDetails"]</h5>
                 <div class="d-flex gap-2">
                     <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-sm btn-warning text-nowrap">
                         <i class="fas fa-edit me-1"></i>@Localizer["Edit"]
@@ -16,33 +16,33 @@
                     <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-sm btn-danger text-nowrap">
                         <i class="fas fa-trash me-1"></i>@Localizer["Delete"]
                     </a>
-                <</div>
-            <</div>
+                </div>
+            </div>
             <div class="card-body">
                 @if (TempData["SuccessMessage"] != null)
                 {
                     <div class="alert alert-success alert-dismissible fade show" role="alert">
                         @TempData["SuccessMessage"]
                         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    <</div>
+                    </div>
                 }
 
                 <dl class="row">
-                    <dt class="col-sm-3">Nom complet<</dt>
-                    <dd class="col-sm-9">@Model.FirstName @Model.LastName<</dd>
+                    <dt class="col-sm-3">@Localizer["FullName"]</dt>
+                    <dd class="col-sm-9">@Model.FirstName @Model.LastName</dd>
 
                     <dt class="col-sm-3">@Localizer["Email"]</dt>
                     <dd class="col-sm-9">
                         @Model.Email
                         @if (!Model.EmailConfirmed)
                         {
-                            <span class="badge bg-warning text-dark ms-2">Non confirmé</span>
+                            <span class="badge bg-warning text-dark ms-2">@Localizer["NotConfirmed"]</span>
                         }
                         else
                         {
-                            <span class="badge bg-success ms-2">Confirmé</span>
+                            <span class="badge bg-success ms-2">@Localizer["Confirmed"]</span>
                         }
-                    <</dd>
+                    </dd>
 
                     <dt class="col-sm-3">@Localizer["Organisation"]</dt>
                     <dd class="col-sm-9">
@@ -56,7 +56,7 @@
                         {
                             <em class="text-muted">@Localizer["NoOrganisation"]</em>
                         }
-                    <</dd>
+                    </dd>
 
                     <dt class="col-sm-3">@Localizer["Role"]</dt>
                     <dd class="col-sm-9">
@@ -68,27 +68,27 @@
                         {
                             <span class="badge bg-info">@Localizer["Enum.Role.Coordinator"]</span>
                         }
-                    <</dd>
+                    </dd>
 
-                    <dt class="col-sm-3">Statut du compte<</dt>
+                    <dt class="col-sm-3">@Localizer["AccountStatus"]</dt>
                     <dd class="col-sm-9">
                         @if (Model.IsLockedOut)
                         {
-                            <span class="badge bg-danger">Verrouillé</span>
+                            <span class="badge bg-danger">@Localizer["LockedOut"]</span>
                         }
                         else
                         {
-                            <span class="badge bg-success">Actif</span>
+                            <span class="badge bg-success">@Localizer["Active"]</span>
                         }
-                    <</dd>
+                    </dd>
                 </dl>
 
                 <div class="mt-4">
                     <a asp-action="Index" class="btn btn-secondary text-nowrap">
                         <i class="fas fa-arrow-left me-1"></i>@Localizer["BackToList"]
                     </a>
-                <</div>
-            <</div>
-        <</div>
-    <</div>
-<</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -5,7 +5,7 @@
 
 <div class="container-fluid">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 class="h3 mb-0">@Localizer["Activities"]<</h1>
+        <h1 class="h3 mb-0">@Localizer["Activities"]</h1>
         <div class="d-flex gap-2">
             <a asp-action="Export" asp-route-searchTerm="@Model.SearchTerm" asp-route-showActiveOnly="@Model.ShowActiveOnly" class="btn btn-success text-nowrap">
                 <i class="fas fa-file-excel me-2"></i>@Localizer["Activities.ExportExcel"]
@@ -13,15 +13,15 @@
             <a asp-action="Create" class="btn btn-primary text-nowrap">
                 <i class="fas fa-plus me-2"></i>@Localizer["Activities.NewActivity"]
             </a>
-        <</div>
-    <</div>
+        </div>
+    </div>
 
     @if (TempData["Success"] != null)
     {
         <div class="alert alert-success alert-dismissible fade show" role="alert">
             @TempData["Success"]
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        <</div>
+        </div>
     }
 
     @if (TempData["Error"] != null)
@@ -29,7 +29,7 @@
         <div class="alert alert-danger alert-dismissible fade show" role="alert">
             @TempData["Error"]
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        <</div>
+        </div>
     }
 
     <!-- Filters -->
@@ -37,29 +37,29 @@
         <div class="card-body">
             <form method="get" class="row g-3">
                 <div class="col-md-4">
-                    <label class="form-label">@Localizer["Search"]<</label>
+                    <label class="form-label">@Localizer["Search"]</label>
                     <input type="text" name="searchTerm" class="form-control" value="@Model.SearchTerm" placeholder="@Localizer["Activities.SearchPlaceholder"]">
-                <</div>
+                </div>
                 <div class="col-md-3">
-                    <label class="form-label">@Localizer["Status"]<</label>
+                    <label class="form-label">@Localizer["Status"]</label>
                     <select name="showActiveOnly" class="form-select">
-                        <option value="">@Localizer["Activities.All"]<</option>
-                        <option value="true" selected="@(Model.ShowActiveOnly == true)">@Localizer["Activities.ActiveOnly"]<</option>
+                        <option value="">@Localizer["Activities.All"]</option>
+                        <option value="true" selected="@(Model.ShowActiveOnly == true)">@Localizer["Activities.ActiveOnly"]</option>
                     </select>
-                <</div>
+                </div>
                 <div class="col-md-2 d-flex align-items-end">
                     <button type="submit" class="btn btn-secondary w-100">
                         <i class="fas fa-search me-2"></i>@Localizer["Activities.Filter"]
                     </button>
-                <</div>
+                </div>
                 <div class="col-md-2 d-flex align-items-end">
                     <a asp-action="Index" class="btn btn-outline-secondary w-100">
                         <i class="fas fa-times me-2"></i>@Localizer["Activities.Reset"]
                     </a>
-                <</div>
+                </div>
             </form>
-        <</div>
-    <</div>
+        </div>
+    </div>
 
     <!-- Activities Table -->
     <div class="card shadow">
@@ -70,12 +70,12 @@
                     <table class="table table-hover">
                         <thead class="table-light">
                             <tr>
-                                <th>@Localizer["Name"]<</th>
-                                <th>@Localizer["Activities.Dates"]<</th>
-                                <th class="text-center">@Localizer["Activities.PricePerDay"]<</th>
-                                <th class="text-center">@Localizer["Activities.Bookings"]<</th>
-                                <th class="text-center">@Localizer["Status"]<</th>
-                                <th class="text-end">@Localizer["Actions"]<</th>
+                                <th>@Localizer["Name"]</th>
+                                <th>@Localizer["Activities.Dates"]</th>
+                                <th class="text-center">@Localizer["Activities.PricePerDay"]</th>
+                                <th class="text-center">@Localizer["Activities.Bookings"]</th>
+                                <th class="text-center">@Localizer["Status"]</th>
+                                <th class="text-end">@Localizer["Actions"]</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -85,10 +85,10 @@
                                     <td>
                                         <strong>@activity.Name</strong>
                                         <br><small class="text-muted">@activity.OrganisationName</small>
-                                    <</td>
+                                    </td>
                                     <td>
                                         @activity.StartDate.ToString("dd/MM/yyyy") - @activity.EndDate.ToString("dd/MM/yyyy")
-                                    <</td>
+                                    </td>
                                     <td class="text-center">
                                         @if (activity.PricePerDay.HasValue)
                                         {
@@ -98,10 +98,10 @@
                                         {
                                             <span class="text-muted">-</span>
                                         }
-                                    <</td>
+                                    </td>
                                     <td class="text-center">
                                         <span class="badge bg-info">@activity.BookingsCount</span>
-                                    <</td>
+                                    </td>
                                     <td class="text-center">
                                         @if (activity.IsActive)
                                         {
@@ -111,7 +111,7 @@
                                         {
                                             <span class="badge bg-secondary">@Localizer["Activities.Inactive"]</span>
                                         }
-                                    <</td>
+                                    </td>
                                     <td class="text-end">
                                         <div class="btn-group">
                                             <a asp-controller="ActivityManagement" asp-action="Index" asp-route-id="@activity.Id" class="btn btn-sm btn-success" title="@Localizer["Activities.ManageActivity"]">
@@ -126,13 +126,13 @@
                                             <a asp-action="Delete" asp-route-id="@activity.Id" class="btn btn-sm btn-outline-danger" title="@Localizer["Delete"]">
                                                 <i class="fas fa-trash"></i>
                                             </a>
-                                        <</div>
-                                    <</td>
+                                        </div>
+                                    </td>
                                 </tr>
                             }
                         </tbody>
                     </table>
-                <</div>
+                </div>
 
                 <!-- Pagination -->
                 @if (Model.TotalPages > 1)
@@ -167,8 +167,8 @@
                     <i class="fas fa-calendar-times fa-3x text-muted mb-3"></i>
                     <p class="text-muted">@Localizer["Activities.NoActivitiesFound"]</p>
                     <a asp-action="Create" class="btn btn-primary">@Localizer["Activities.CreateActivity"]</a>
-                <</div>
+                </div>
             }
-        <</div>
-    <</div>
-<</div>
+        </div>
+    </div>
+</div>

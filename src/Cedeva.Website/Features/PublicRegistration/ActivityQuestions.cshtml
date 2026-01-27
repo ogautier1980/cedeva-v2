@@ -10,8 +10,8 @@
         <div class="col-md-8">
             <div class="card shadow">
                 <div class="card-header bg-primary text-white">
-                    <h2 class="mb-0"><i class="fas fa-question-circle me-2"></i>@ViewData["Title"]<</h2>
-                <</div>
+                    <h2 class="mb-0"><i class="fas fa-question-circle me-2"></i>@ViewData["Title"]</h2>
+                </div>
                 <div class="card-body">
                     <p class="lead mb-4">@Localizer["PublicRegistration.ActivityQuestionsLead"]</p>
 
@@ -35,7 +35,7 @@
                                                     {
                                                         <span class="text-danger">*</span>
                                                     }
-                                                <</label>
+                                                </label>
 
                                                 @switch (question.QuestionType)
                                                 {
@@ -51,8 +51,8 @@
                                                                 <input type="checkbox" name="Answers[@question.Id]" value="@option.Trim()" class="form-check-input" id="@($"q{question.Id}_{option.Trim()}")" />
                                                                 <label class="form-check-label" for="@($"q{question.Id}_{option.Trim()}")">
                                                                     @option.Trim()
-                                                                <</label>
-                                                            <</div>
+                                                                </label>
+                                                            </div>
                                                         }
                                                         break;
 
@@ -64,46 +64,46 @@
                                                                 <input type="radio" name="Answers[@question.Id]" value="@option.Trim()" class="form-check-input" id="@($"q{question.Id}_{option.Trim()}")" required="@question.IsRequired" />
                                                                 <label class="form-check-label" for="@($"q{question.Id}_{option.Trim()}")">
                                                                     @option.Trim()
-                                                                <</label>
-                                                            <</div>
+                                                                </label>
+                                                            </div>
                                                         }
                                                         break;
 
                                                     case Cedeva.Core.Enums.QuestionType.Dropdown:
                                                         var dropdownOptions = question.Options?.Split(',') ?? Array.Empty<string>();
                                                         <select name="Answers[@question.Id]" class="form-select" required="@question.IsRequired">
-                                                            <option value="">@Localizer["PublicRegistration.SelectOption"]<</option>
+                                                            <option value="">@Localizer["PublicRegistration.SelectOption"]</option>
                                                             @foreach (var option in dropdownOptions)
                                                             {
-                                                                <option value="@option.Trim()">@option.Trim()<</option>
+                                                                <option value="@option.Trim()">@option.Trim()</option>
                                                             }
                                                         </select>
                                                         break;
                                                 }
-                                            <</div>
-                                        <</div>
-                                    <</div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 }
-                            <</div>
+                            </div>
 
                             <div class="d-grid gap-2 mt-4">
                                 <button type="submit" class="btn btn-primary btn-lg">
                                     <i class="fas fa-check me-2"></i>@Localizer["PublicRegistration.FinalizeBooking"]
                                 </button>
-                            <</div>
+                            </div>
                         }
                         else
                         {
                             <div class="alert alert-info">
                                 <i class="fas fa-info-circle me-2"></i>@Localizer["PublicRegistration.NoQuestionsRequired"]
-                            <</div>
+                            </div>
                         }
                     </form>
-                <</div>
-            <</div>
-        <</div>
-    <</div>
-<</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}

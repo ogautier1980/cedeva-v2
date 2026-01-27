@@ -8,7 +8,7 @@
         <div class="col-lg-8">
             <div class="card shadow">
                 <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0"><i class="fas fa-child me-2"></i>@Localizer["Children.ChildDetails"]<</h5>
+                    <h5 class="mb-0"><i class="fas fa-child me-2"></i>@Localizer["Children.ChildDetails"]</h5>
                     <div class="d-flex gap-2">
                         <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-sm btn-primary text-nowrap">
                             <i class="fas fa-edit me-1"></i>@Localizer["Edit"]
@@ -16,39 +16,39 @@
                         <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-sm btn-danger text-nowrap">
                             <i class="fas fa-trash me-1"></i>@Localizer["Delete"]
                         </a>
-                    <</div>
-                <</div>
+                    </div>
+                </div>
                 <div class="card-body">
-                    <h6 class="mb-3 text-primary"><i class="fas fa-user me-2"></i>@Localizer["Children.PersonalInformation"]<</h6>
+                    <h6 class="mb-3 text-primary"><i class="fas fa-user me-2"></i>@Localizer["Children.PersonalInformation"]</h6>
 
                     <dl class="row">
-                        <dt class="col-sm-4">@Localizer["FirstName"]<</dt>
-                        <dd class="col-sm-8">@Model.FirstName<</dd>
+                        <dt class="col-sm-4">@Localizer["FirstName"]</dt>
+                        <dd class="col-sm-8">@Model.FirstName</dd>
 
-                        <dt class="col-sm-4">@Localizer["LastName"]<</dt>
-                        <dd class="col-sm-8">@Model.LastName<</dd>
+                        <dt class="col-sm-4">@Localizer["LastName"]</dt>
+                        <dd class="col-sm-8">@Model.LastName</dd>
 
-                        <dt class="col-sm-4">@Localizer["BirthDate"]<</dt>
+                        <dt class="col-sm-4">@Localizer["BirthDate"]</dt>
                         <dd class="col-sm-8">
                             @Model.BirthDate.ToString("dd/MM/yyyy")
                             <span class="badge bg-info ms-2">@((DateTime.Now.Year - Model.BirthDate.Year)) @Localizer["Children.YearsOld"]</span>
-                        <</dd>
+                        </dd>
 
-                        <dt class="col-sm-4">@Localizer["Children.NationalRegisterNumber"]<</dt>
-                        <dd class="col-sm-8">@Model.NationalRegisterNumber<</dd>
+                        <dt class="col-sm-4">@Localizer["Children.NationalRegisterNumber"]</dt>
+                        <dd class="col-sm-8">@Model.NationalRegisterNumber</dd>
                     </dl>
 
                     <hr />
 
-                    <h6 class="mb-3 text-primary"><i class="fas fa-users me-2"></i>@Localizer["Parent"]<</h6>
+                    <h6 class="mb-3 text-primary"><i class="fas fa-users me-2"></i>@Localizer["Parent"]</h6>
 
                     <dl class="row">
-                        <dt class="col-sm-4">@Localizer["Parent"]<</dt>
+                        <dt class="col-sm-4">@Localizer["Parent"]</dt>
                         <dd class="col-sm-8">
                             <a asp-controller="Parents" asp-action="Details" asp-route-id="@Model.ParentId">
                                 <i class="fas fa-user me-1"></i>@Model.ParentFullName
                             </a>
-                        <</dd>
+                        </dd>
                     </dl>
 
 
@@ -58,16 +58,16 @@
                         <a asp-action="Index" class="btn btn-outline-secondary text-nowrap">
                             <i class="fas fa-arrow-left me-2"></i>@Localizer["BackToList"]
                         </a>
-                    <</div>
-                <</div>
-            <</div>
-        <</div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <div class="col-lg-4">
             <div class="card shadow">
                 <div class="card-header">
-                    <h6 class="mb-0"><i class="fas fa-calendar-alt me-2"></i>@Localizer["Bookings"]<</h6>
-                <</div>
+                    <h6 class="mb-0"><i class="fas fa-calendar-alt me-2"></i>@Localizer["Bookings"]</h6>
+                </div>
                 <div class="card-body">
                     @if (Model.Bookings != null && Model.Bookings.Any())
                     {
@@ -77,21 +77,21 @@
                                 <li class="list-group-item px-0">
                                     <div class="d-flex justify-content-between align-items-start">
                                         <div class="d-flex gap-2">
-                                            <h6 class="mb-1">@booking.ActivityName<</h6>
+                                            <h6 class="mb-1">@booking.ActivityName</h6>
                                             <small class="text-muted">
                                                 <i class="fas fa-calendar me-1"></i>
                                                 @booking.StartDate.ToString("dd/MM/yyyy") - @booking.EndDate.ToString("dd/MM/yyyy")
                                             </small>
-                                        <</div>
+                                        </div>
                                         <span class="badge @(booking.IsConfirmed ? "bg-success" : "bg-warning")">
                                             @(booking.IsConfirmed ? Localizer["Bookings.Confirmed"] : Localizer["Bookings.Pending"])
                                         </span>
-                                    <</div>
+                                    </div>
                                     <div class="mt-2">
                                         <a asp-controller="Bookings" asp-action="Details" asp-route-id="@booking.Id" class="btn btn-sm btn-outline-primary text-nowrap">
                                             <i class="fas fa-eye me-1"></i>@Localizer["Details"]
                                         </a>
-                                    <</div>
+                                    </div>
                                 </li>
                             }
                         </ul>
@@ -104,9 +104,9 @@
                         <a asp-controller="Bookings" asp-action="Create" asp-route-childId="@Model.Id" class="btn btn-sm btn-success w-100 text-nowrap">
                             <i class="fas fa-plus me-1"></i>@Localizer["Children.NewBooking"]
                         </a>
-                    <</div>
-                <</div>
-            <</div>
-        <</div>
-    <</div>
-<</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
