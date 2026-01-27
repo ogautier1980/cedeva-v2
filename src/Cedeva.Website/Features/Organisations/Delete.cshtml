@@ -82,10 +82,10 @@
                     <form asp-action="Delete" method="post">
                         <input type="hidden" asp-for="Id" />
                         <div class="d-flex justify-content-between mt-4">
-                            <a asp-action="Index" class="btn btn-outline-secondary">
+                            <a asp-action="Index" class="btn btn-outline-secondary text-nowrap">
                                 <i class="fas fa-arrow-left me-2"></i>@Localizer["Cancel"]
                             </a>
-                            <button type="submit" class="btn btn-danger">
+                            <button type="submit" class="btn btn-danger text-nowrap">
                                 <i class="fas fa-trash me-2"></i>@Localizer["Organisations.ConfirmDeletion"]
                             </button>
                         </div>

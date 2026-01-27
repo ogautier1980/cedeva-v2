@@ -10,10 +10,10 @@
             <small class="text-muted">@Model.OrganisationName</small>
         </div>
         <div>
-            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">
+            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning text-nowrap">
                 <i class="fas fa-edit me-2"></i>@Localizer["Edit"]
             </a>
-            <a asp-action="Index" class="btn btn-outline-secondary">
+            <a asp-action="Index" class="btn btn-outline-secondary text-nowrap">
                 <i class="fas fa-arrow-left me-2"></i>@Localizer["Back"]
             </a>
         </div>
@@ -23,7 +23,7 @@
         <div class="col-lg-8">
             <div class="card shadow mb-4">
                 <div class="card-header">
-                    <h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>@Localizer["Activities.GeneralInformation"]/h6>
+                    <h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>@Localizer["Activities.GeneralInformation"]</h6>
                 </div>
                 <div class="card-body">
                     <dl class="row mb-0">

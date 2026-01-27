@@ -10,10 +10,10 @@
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h5 class="mb-0"><i class="fas fa-building me-2"></i>@Localizer["Organisations.OrganisationDetails"]</h5>
                     <div>
-                        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-sm btn-primary">
+                        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-sm btn-primary text-nowrap">
                             <i class="fas fa-edit me-1"></i>@Localizer["Edit"]
                         </a>
-                        <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-sm btn-danger">
+                        <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-sm btn-danger text-nowrap">
                             <i class="fas fa-trash me-1"></i>@Localizer["Delete"]
                         </a>
                     </div>
@@ -29,10 +29,10 @@
                     <h6 class="mb-3 text-primary"><i class="fas fa-info-circle me-2"></i>@Localizer["GeneralInformation"]</h6>
 
                     <dl class="row">
-                        <dt class="col-sm-4">@Localizer["Name"]/dt>
+                        <dt class="col-sm-4">@Localizer["Name"]</dt>
                         <dd class="col-sm-8">@Model.Name</dd>
 
-                        <dt class="col-sm-4">Description</dt>
+                        <dt class="col-sm-4">@Localizer["Description"]</dt>
                         <dd class="col-sm-8">@Model.Description</dd>
                     </dl>
 
