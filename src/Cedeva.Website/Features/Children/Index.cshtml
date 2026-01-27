@@ -3,10 +3,10 @@
     ViewData["Title"] = Localizer["Children"];
     var searchString = ViewData["SearchString"] as string;
     var parentId = ViewData["ParentId"] as int?;
-    var pageNumber = (int)ViewData["PageNumber"];
-    var pageSize = (int)ViewData["PageSize"];
-    var totalPages = (int)ViewData["TotalPages"];
-    var totalItems = (int)ViewData["TotalItems"];
+    var pageNumber = (ViewData["PageNumber"] as int?) ?? 1;
+    var pageSize = (ViewData["PageSize"] as int?) ?? 10;
+    var totalPages = (ViewData["TotalPages"] as int?) ?? 1;
+    var totalItems = (ViewData["TotalItems"] as int?) ?? 0;
 }
 
 <div class="container-fluid">

@@ -383,7 +383,7 @@ public class ActivitiesController : Controller
             { "Organisation", a => a.Organisation.Name },
             { "Date début", a => a.StartDate },
             { "Date fin", a => a.EndDate },
-            { "Prix par jour", a => a.PricePerDay },
+            { "Prix par jour", a => (object?)a.PricePerDay ?? "N/A" },
             { "Actif", a => a.IsActive },
             { "Inscriptions", a => a.Bookings.Count },
             { "Groupes", a => a.Groups.Count },

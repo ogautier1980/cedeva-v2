@@ -10,7 +10,6 @@ using System.Text.Json;
 
 namespace Cedeva.Website.Features.PublicRegistration;
 
-[AllowAnonymous]
 public class PublicRegistrationController : Controller
 {
     private readonly CedevaDbContext _context;
@@ -25,6 +24,7 @@ public class PublicRegistrationController : Controller
     }
 
     // GET: PublicRegistration/SelectActivity?orgId=1
+    [AllowAnonymous]
     public async Task<IActionResult> SelectActivity(int orgId)
     {
         var activities = await _context.Activities
@@ -45,6 +45,7 @@ public class PublicRegistrationController : Controller
     // POST: PublicRegistration/SelectActivity
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [AllowAnonymous]
     public IActionResult SelectActivity(SelectActivityViewModel model)
     {
         if (!ModelState.IsValid)
@@ -59,6 +60,7 @@ public class PublicRegistrationController : Controller
     }
 
     // GET: PublicRegistration/ParentInformation
+    [AllowAnonymous]
     public IActionResult ParentInformation()
     {
         if (TempData["ActivityId"] == null)
@@ -80,6 +82,7 @@ public class PublicRegistrationController : Controller
     // POST: PublicRegistration/ParentInformation
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [AllowAnonymous]
     public async Task<IActionResult> ParentInformation(ParentInformationViewModel model)
     {
         if (!ModelState.IsValid)
@@ -162,6 +165,7 @@ public class PublicRegistrationController : Controller
     }
 
     // GET: PublicRegistration/ChildInformation
+    [AllowAnonymous]
     public IActionResult ChildInformation()
     {
         if (TempData["ActivityId"] == null || TempData["ParentId"] == null)
@@ -185,6 +189,7 @@ public class PublicRegistrationController : Controller
     // POST: PublicRegistration/ChildInformation
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [AllowAnonymous]
     public async Task<IActionResult> ChildInformation(ChildInformationViewModel model)
     {
         if (!ModelState.IsValid)
@@ -240,6 +245,7 @@ public class PublicRegistrationController : Controller
     }
 
     // GET: PublicRegistration/ActivityQuestions
+    [AllowAnonymous]
     public async Task<IActionResult> ActivityQuestions()
     {
         if (TempData["ActivityId"] == null || TempData["ParentId"] == null || TempData["ChildId"] == null)
@@ -279,6 +285,7 @@ public class PublicRegistrationController : Controller
     // POST: PublicRegistration/ActivityQuestions
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [AllowAnonymous]
     public async Task<IActionResult> ActivityQuestions(ActivityQuestionsViewModel model)
     {
         // Validate required questions
@@ -314,6 +321,7 @@ public class PublicRegistrationController : Controller
     }
 
     // GET: PublicRegistration/CreateBooking
+    [AllowAnonymous]
     public async Task<IActionResult> CreateBooking()
     {
         if (TempData["ActivityId"] == null || TempData["ParentId"] == null || TempData["ChildId"] == null)
@@ -383,6 +391,7 @@ public class PublicRegistrationController : Controller
     }
 
     // GET: PublicRegistration/Confirmation/5
+    [AllowAnonymous]
     public async Task<IActionResult> Confirmation(int bookingId)
     {
         var booking = await _context.Bookings
