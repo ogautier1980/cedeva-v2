@@ -38,22 +38,22 @@
                                                         <div class="activity-details">
                                                             <p class="mb-1">
                                                                 <i class="fas fa-calendar me-2"></i>
-                                                                <strong>@Localizer["PublicRegistration.From"]/strong> @activity.StartDate.ToString("dd/MM/yyyy")
+                                                                <strong>@Localizer["PublicRegistration.From"]</strong> @activity.StartDate.ToString("dd/MM/yyyy")
                                                             </p>
                                                             <p class="mb-1">
                                                                 <i class="fas fa-calendar-check me-2"></i>
-                                                                <strong>@Localizer["PublicRegistration.To"]/strong> @activity.EndDate.ToString("dd/MM/yyyy")
+                                                                <strong>@Localizer["PublicRegistration.To"]</strong> @activity.EndDate.ToString("dd/MM/yyyy")
                                                             </p>
                                                             @if (activity.PricePerDay.HasValue)
                                                             {
                                                                 <p class="mb-1">
                                                                     <i class="fas fa-euro-sign me-2"></i>
-                                                                    <strong>@Localizer["PublicRegistration.PricePerDay"]/strong> @activity.PricePerDay.Value.ToString("C")
+                                                                    <strong>@Localizer["PublicRegistration.PricePerDay"]</strong> @activity.PricePerDay.Value.ToString("C")
                                                                 </p>
                                                             }
                                                             <p class="mb-0">
                                                                 <i class="fas fa-users me-2"></i>
-                                                                <strong>@Localizer["PublicRegistration.Bookings"]/strong> @activity.Bookings.Count
+                                                                <strong>@Localizer["PublicRegistration.Bookings"]</strong> @activity.Bookings.Count
                                                             </p>
                                                         </div>
                                                     </label>
@@ -67,7 +67,7 @@
 
                             <div class="d-grid gap-2 mt-4">
                                 <button type="submit" class="btn btn-primary btn-lg">
-                                    <i class="fas fa-arrow-right me-2"></i>Continuer
+                                    <i class="fas fa-arrow-right me-2"></i>@Localizer["Continue"]
                                 </button>
                             </div>
                         }
