@@ -412,7 +412,7 @@ public class BookingsController : Controller
     }
 
     // GET: Bookings/Export
-    public async Task<IActionResult> Export(string searchString, int? activityId, int? childId, bool? isConfirmed)
+    public async Task<IActionResult> Export(string? searchString, int? activityId, int? childId, bool? isConfirmed)
     {
         if (!ModelState.IsValid)
         {

@@ -89,7 +89,7 @@ public class TeamMembersController : Controller
     }
 
     // GET: TeamMembers/Export
-    public async Task<IActionResult> Export(string searchString)
+    public async Task<IActionResult> Export(string? searchString)
     {
         if (!ModelState.IsValid)
         {

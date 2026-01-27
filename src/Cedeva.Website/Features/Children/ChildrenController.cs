@@ -95,7 +95,7 @@ public class ChildrenController : Controller
     }
 
     // GET: Children/Export
-    public async Task<IActionResult> Export(string searchString, int? parentId)
+    public async Task<IActionResult> Export(string? searchString, int? parentId)
     {
         if (!ModelState.IsValid)
         {
