@@ -1,6 +1,7 @@
 using Cedeva.Core.Entities;
 using Cedeva.Infrastructure.Data;
 using Cedeva.Website.Features.Presence.ViewModels;
+using Cedeva.Website.Localization;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -11,6 +12,8 @@ namespace Cedeva.Website.Features.Presence;
 [Authorize]
 public class PresenceController : Controller
 {
+    private const string TempDataSuccessMessage = "SuccessMessage";
+
     private readonly CedevaDbContext _context;
     private readonly IStringLocalizer<SharedResources> _localizer;
 
@@ -39,6 +42,11 @@ public class PresenceController : Controller
     // GET: Presence/SelectDay/5
     public async Task<IActionResult> SelectDay(int id)
     {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
         var activity = await _context.Activities
             .Include(a => a.Days)
             .FirstOrDefaultAsync(a => a.Id == id);
@@ -63,6 +71,11 @@ public class PresenceController : Controller
     // GET: Presence/List/5/10
     public async Task<IActionResult> List(int activityId, int dayId)
     {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
         var activity = await _context.Activities
             .FirstOrDefaultAsync(a => a.Id == activityId);
 
@@ -138,6 +151,11 @@ public class PresenceController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> UpdatePresence(int activityId, int dayId, Dictionary<int, bool> presence)
     {
+        if (!ModelState.IsValid)
+        {
+            return RedirectToAction(nameof(List), new { activityId, dayId });
+        }
+
         foreach (var kvp in presence)
         {
             var bookingDayId = kvp.Key;
@@ -152,13 +170,18 @@ public class PresenceController : Controller
 
         await _context.SaveChangesAsync();
 
-        TempData["SuccessMessage"] = _localizer["Message.PresencesSaved"];
+        TempData[TempDataSuccessMessage] = _localizer["Message.PresencesSaved"];
         return RedirectToAction(nameof(List), new { activityId, dayId });
     }
 
     // GET: Presence/Print/5/10
     public async Task<IActionResult> Print(int activityId, int dayId)
     {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
         var activity = await _context.Activities
             .FirstOrDefaultAsync(a => a.Id == activityId);
 

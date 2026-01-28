@@ -6,6 +6,7 @@ namespace Cedeva.Infrastructure.Services;
 public class UnitOfWork : IUnitOfWork
 {
     private readonly CedevaDbContext _context;
+    private bool _disposed;
 
     public UnitOfWork(CedevaDbContext context)
     {
@@ -19,6 +20,19 @@ public class UnitOfWork : IUnitOfWork
 
     public void Dispose()
     {
-        _context.Dispose();
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
+
+    protected virtual void Dispose(bool disposing)
+    {
+        if (!_disposed)
+        {
+            if (disposing)
+            {
+                _context.Dispose();
+            }
+            _disposed = true;
+        }
     }
 }

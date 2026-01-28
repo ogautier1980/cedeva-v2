@@ -30,13 +30,13 @@
                 <div class="col-md-8">
                     <div class="input-group">
                         <span class="input-group-text"><i class="fas fa-search"></i></span>
-                        <input type="text" class="form-control" name="searchString" value="@searchString" placeholder="Rechercher par nom ou description..." />
+                        <input type="text" class="form-control" name="searchString" value="@searchString" placeholder="@Localizer["Search.ByNameOrDescription"]" />
                     </div>
                 </div>
                 <div class="col-md-4">
                     <div class="d-flex gap-2">
                         <button type="submit" class="btn btn-primary flex-grow-1">
-                            <i class="fas fa-search me-2"></i>Rechercher
+                            <i class="fas fa-search me-2"></i>@Localizer["Search.Search"]
                         </button>
                         <a asp-action="Index" class="btn btn-outline-secondary">
                             <i class="fas fa-redo"></i>
@@ -75,7 +75,7 @@
                                     <td><span class="badge bg-success">@org.TeamMembersCount</span></td>
                                     <td><span class="badge bg-warning">@org.UsersCount</span></td>
                                     <td class="text-end">
-                                        <div class="btn-group" role="group">
+                                        <div class="btn-group">
                                             <a asp-action="Details" asp-route-id="@org.Id" class="btn btn-sm btn-info" title="@Localizer["Details"]">
                                                 <i class="fas fa-eye"></i>
                                             </a>

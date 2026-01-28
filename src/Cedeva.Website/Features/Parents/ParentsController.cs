@@ -3,6 +3,7 @@ using Cedeva.Core.Enums;
 using Cedeva.Core.Interfaces;
 using Cedeva.Infrastructure.Data;
 using Cedeva.Website.Features.Parents.ViewModels;
+using Cedeva.Website.Localization;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -13,6 +14,9 @@ namespace Cedeva.Website.Features.Parents;
 [Authorize]
 public class ParentsController : Controller
 {
+    private const string TempDataSuccess = "Success";
+    private const string TempDataError = "Error";
+
     private readonly CedevaDbContext _context;
     private readonly ICurrentUserService _currentUserService;
     private readonly ILogger<ParentsController> _logger;
@@ -119,21 +123,22 @@ public class ParentsController : Controller
 
         var columns = new Dictionary<string, Func<Parent, object>>
         {
-            { "Prénom", p => p.FirstName },
-            { "Nom", p => p.LastName },
-            { "Email", p => p.Email },
-            { "Téléphone", p => p.PhoneNumber ?? "" },
-            { "GSM", p => p.MobilePhoneNumber ?? "" },
-            { "Numéro national", p => p.NationalRegisterNumber },
-            { "Rue", p => p.Address?.Street ?? "" },
-            { "Code postal", p => p.Address?.PostalCode.ToString() ?? "" },
-            { "Ville", p => p.Address?.City ?? "" },
-            { "Pays", p => p.Address?.Country.ToString() ?? "" },
-            { "Nombre d'enfants", p => p.Children.Count }
+            { _localizer["Excel.FirstName"], p => p.FirstName },
+            { _localizer["Excel.LastName"], p => p.LastName },
+            { _localizer["Excel.Email"], p => p.Email },
+            { _localizer["Excel.Phone"], p => p.PhoneNumber ?? "" },
+            { _localizer["Excel.MobilePhone"], p => p.MobilePhoneNumber ?? "" },
+            { _localizer["Excel.NationalRegisterNumber"], p => p.NationalRegisterNumber },
+            { _localizer["Excel.Street"], p => p.Address?.Street ?? "" },
+            { _localizer["Excel.PostalCode"], p => p.Address?.PostalCode.ToString() ?? "" },
+            { _localizer["Excel.City"], p => p.Address?.City ?? "" },
+            { _localizer["Excel.Country"], p => p.Address?.Country.ToString() ?? "" },
+            { _localizer["Excel.ChildrenCount"], p => p.Children.Count }
         };
 
-        var excelData = _excelExportService.ExportToExcel(parents, "Parents", columns);
-        var fileName = $"Parents_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx";
+        var sheetName = _localizer["Excel.ParentsSheet"];
+        var excelData = _excelExportService.ExportToExcel(parents, sheetName, columns);
+        var fileName = $"{sheetName}_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx";
 
         return File(excelData, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
     }
@@ -211,7 +216,7 @@ public class ParentsController : Controller
 
         _logger.LogInformation("Parent {Name} created by user {UserId}", parent.FullName, _currentUserService.UserId);
 
-        TempData["Success"] = _localizer["Message.ParentCreated"];
+        TempData[TempDataSuccess] = _localizer["Message.ParentCreated"];
         return RedirectToAction(nameof(Index));
     }
 
@@ -274,15 +279,16 @@ public class ParentsController : Controller
         {
             await _context.SaveChangesAsync();
             _logger.LogInformation("Parent {Name} updated by user {UserId}", parent.FullName, _currentUserService.UserId);
-            TempData["Success"] = _localizer["Message.ParentUpdated"];
+            TempData[TempDataSuccess] = _localizer["Message.ParentUpdated"];
         }
-        catch (DbUpdateConcurrencyException)
+        catch (DbUpdateConcurrencyException ex)
         {
             if (!await ParentExists(id))
             {
                 return NotFound();
             }
-            throw;
+            _logger.LogError(ex, "Concurrency error updating parent {Id}", id);
+            throw new InvalidOperationException($"Failed to update parent {id} due to concurrency conflict", ex);
         }
 
         return RedirectToAction(nameof(Index));
@@ -296,19 +302,18 @@ public class ParentsController : Controller
         }
 
         var viewModel = await GetParentViewModelAsync(id);
-
-        if (viewModel == null)
-        {
-            return NotFound();
-        }
-
-        return View(viewModel);
+        return viewModel == null ? NotFound() : View(viewModel);
     }
 
     [HttpPost, ActionName("Delete")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteConfirmed(int id)
     {
+        if (!ModelState.IsValid)
+        {
+            return RedirectToAction(nameof(Index));
+        }
+
         var parent = await _context.Parents
             .Include(p => p.Children)
             .Include(p => p.Address)
@@ -321,7 +326,7 @@ public class ParentsController : Controller
 
         if (parent.Children.Any())
         {
-            TempData["Error"] = _localizer["Message.ParentHasChildren"];
+            TempData[TempDataError] = _localizer["Message.ParentHasChildren"];
             return RedirectToAction(nameof(Index));
         }
 
@@ -330,7 +335,7 @@ public class ParentsController : Controller
         await _context.SaveChangesAsync();
 
         _logger.LogInformation("Parent {Name} deleted by user {UserId}", parent.FullName, _currentUserService.UserId);
-        TempData["Success"] = _localizer["Message.ParentDeleted"];
+        TempData[TempDataSuccess] = _localizer["Message.ParentDeleted"];
 
         return RedirectToAction(nameof(Index));
     }

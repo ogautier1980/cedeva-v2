@@ -3,6 +3,7 @@ using Cedeva.Core.Enums;
 using Cedeva.Core.Interfaces;
 using Cedeva.Infrastructure.Data;
 using Cedeva.Website.Features.ActivityManagement.ViewModels;
+using Cedeva.Website.Localization;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -14,6 +15,11 @@ namespace Cedeva.Website.Features.ActivityManagement;
 public class ActivityManagementController : Controller
 {
     private const string SessionActivityId = "Activity_Id";
+    private const string RecipientAllParents = "allparents";
+    private const string RecipientMedicalSheetReminder = "medicalsheetreminder";
+    private const string RecipientGroupPrefix = "group_";
+    private const string TempDataSuccessMessage = "SuccessMessage";
+    private const string TempDataErrorMessage = "ErrorMessage";
 
     private readonly CedevaDbContext _context;
     private readonly ILogger<ActivityManagementController> _logger;
@@ -38,6 +44,11 @@ public class ActivityManagementController : Controller
     [HttpGet]
     public async Task<IActionResult> Index(int? id)
     {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
         if (id is null)
         {
             var idStr = HttpContext.Session.GetString(SessionActivityId);
@@ -72,6 +83,11 @@ public class ActivityManagementController : Controller
     [ActionName("Index")]
     public IActionResult IndexPost(int id)
     {
+        if (!ModelState.IsValid)
+        {
+            return RedirectToAction(nameof(Index));
+        }
+
         HttpContext.Session.SetString(SessionActivityId, id.ToString());
 
         return RedirectToAction(nameof(Index));
@@ -80,6 +96,11 @@ public class ActivityManagementController : Controller
     [HttpGet]
     public async Task<IActionResult> UnconfirmedBookings(int? id)
     {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
         if (id is null)
         {
             var idStr = HttpContext.Session.GetString(SessionActivityId);
@@ -124,6 +145,11 @@ public class ActivityManagementController : Controller
     [ActionName("BeginUnconfirmedBookings")]
     public IActionResult UnconfirmedBookingsPost(int id)
     {
+        if (!ModelState.IsValid)
+        {
+            return RedirectToAction(nameof(Index));
+        }
+
         HttpContext.Session.SetString(SessionActivityId, id.ToString());
         return RedirectToAction(nameof(UnconfirmedBookings));
     }
@@ -132,6 +158,11 @@ public class ActivityManagementController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> ConfirmBooking(int bookingId, int groupId)
     {
+        if (!ModelState.IsValid)
+        {
+            return RedirectToAction(nameof(UnconfirmedBookings));
+        }
+
         var booking = await _context.Bookings
             .Include(b => b.Activity)
             .FirstOrDefaultAsync(b => b.Id == bookingId);
@@ -141,7 +172,7 @@ public class ActivityManagementController : Controller
 
         if (groupId <= 0)
         {
-            ModelState.AddModelError(string.Empty, "Veuillez sélectionner un groupe.");
+            ModelState.AddModelError(string.Empty, _localizer["Message.SelectGroup"]);
             return RedirectToAction(nameof(UnconfirmedBookings), new { id = booking.ActivityId });
         }
 
@@ -150,13 +181,18 @@ public class ActivityManagementController : Controller
 
         await _context.SaveChangesAsync();
 
-        TempData["SuccessMessage"] = _localizer["Message.BookingConfirmed"];
+        TempData[TempDataSuccessMessage] = _localizer["Message.BookingConfirmed"];
         return RedirectToAction(nameof(UnconfirmedBookings), new { id = booking.ActivityId });
     }
 
     [HttpGet]
     public async Task<IActionResult> Presences(int? id, int? dayId)
     {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
         if (id is null)
         {
             var idStr = HttpContext.Session.GetString(SessionActivityId);
@@ -183,7 +219,7 @@ public class ActivityManagementController : Controller
         if (activity == null)
             return NotFound();
 
-        // Si aucun jour n'est sélectionné, prendre le premier jour actif
+        // If no day is selected, take the first active day
         if (dayId == null)
         {
             var firstDay = activity.Days.Where(d => d.IsActive).OrderBy(d => d.DayDate).FirstOrDefault();
@@ -192,7 +228,7 @@ public class ActivityManagementController : Controller
 
         var selectedDay = activity.Days.FirstOrDefault(d => d.DayId == dayId);
 
-        // Créer les options pour le dropdown des jours
+        // Create options for the day dropdown
         var dayOptions = activity.Days
             .Where(d => d.IsActive)
             .OrderBy(d => d.DayDate)
@@ -204,7 +240,7 @@ public class ActivityManagementController : Controller
             })
             .ToList();
 
-        // Grouper les enfants par groupe
+        // Group children by activity group
         var childrenByGroup = new Dictionary<Core.Entities.ActivityGroup, List<PresenceChildInfo>>();
 
         foreach (var group in activity.Groups.OrderBy(g => g.Label))
@@ -252,6 +288,11 @@ public class ActivityManagementController : Controller
     [ActionName("BeginPresences")]
     public IActionResult PresencesPost(int id)
     {
+        if (!ModelState.IsValid)
+        {
+            return RedirectToAction(nameof(Index));
+        }
+
         HttpContext.Session.SetString(SessionActivityId, id.ToString());
         return RedirectToAction(nameof(Presences));
     }
@@ -259,10 +300,15 @@ public class ActivityManagementController : Controller
     [HttpPost]
     public async Task<IActionResult> UpdatePresence(int bookingDayId, bool isPresent)
     {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
         var bookingDay = await _context.BookingDays.FindAsync(bookingDayId);
 
         if (bookingDay == null)
-            return Json(new { success = false, message = "Jour d'inscription introuvable." });
+            return Json(new { success = false, message = _localizer["Message.BookingDayNotFound"].Value });
 
         bookingDay.IsPresent = isPresent;
         await _context.SaveChangesAsync();
@@ -273,6 +319,11 @@ public class ActivityManagementController : Controller
     [HttpGet]
     public async Task<IActionResult> SendEmail(int? id)
     {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
         if (id is null)
         {
             var idStr = HttpContext.Session.GetString(SessionActivityId);
@@ -296,32 +347,10 @@ public class ActivityManagementController : Controller
         {
             ActivityId = activity.Id,
             ActivityName = activity.Name,
-            RecipientOptions = new List<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem>
-            {
-                new() { Value = "allparents", Text = "Tous les parents (enfants inscrits à l'activité)" },
-                new() { Value = "medicalsheetreminder", Text = "Rappel fiche médicale (enfants sans fiche médicale)" }
-            }
+            RecipientOptions = GetRecipientOptions(activity.Groups)
         };
 
-        foreach (var group in activity.Groups)
-        {
-            viewModel.RecipientOptions.Add(new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem
-            {
-                Value = $"group_{group.Id}",
-                Text = $"Groupe : {group.Label}"
-            });
-        }
-
         return View(viewModel);
-    }
-
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    [ActionName("BeginSendEmail")]
-    public IActionResult SendEmailPost(int id)
-    {
-        HttpContext.Session.SetString(SessionActivityId, id.ToString());
-        return RedirectToAction(nameof(SendEmail));
     }
 
     [HttpPost]
@@ -330,42 +359,11 @@ public class ActivityManagementController : Controller
     {
         if (!ModelState.IsValid)
         {
-            var activity = await _context.Activities
-                .Include(a => a.Groups)
-                .FirstOrDefaultAsync(a => a.Id == model.ActivityId, ct);
-
-            if (activity != null)
-            {
-                model.RecipientOptions = new List<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem>
-                {
-                    new() { Value = "allparents", Text = "Tous les parents (enfants inscrits à l'activité)" },
-                    new() { Value = "medicalsheetreminder", Text = "Rappel fiche médicale (enfants sans fiche médicale)" }
-                };
-
-                foreach (var group in activity.Groups)
-                {
-                    model.RecipientOptions.Add(new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem
-                    {
-                        Value = $"group_{group.Id}",
-                        Text = $"Groupe : {group.Label}"
-                    });
-                }
-            }
-
+            await RepopulateRecipientOptionsAsync(model, ct);
             return View(model);
         }
 
-        // Extract recipient type and group ID
-        int? recipientGroupId = null;
-        if (model.SelectedRecipient.StartsWith("group_"))
-        {
-            if (int.TryParse(model.SelectedRecipient.Substring(6), out var groupId))
-            {
-                recipientGroupId = groupId;
-            }
-        }
-
-        // Get recipient emails
+        var recipientGroupId = ExtractRecipientGroupId(model.SelectedRecipient);
         var recipientEmails = await _emailRecipientService.GetRecipientEmailsAsync(
             model.ActivityId,
             model.SelectedRecipient,
@@ -374,125 +372,53 @@ public class ActivityManagementController : Controller
 
         if (!recipientEmails.Any())
         {
-            ModelState.AddModelError(string.Empty, "Aucun destinataire trouvé pour ce critère.");
-
-            var activity = await _context.Activities
-                .Include(a => a.Groups)
-                .FirstOrDefaultAsync(a => a.Id == model.ActivityId, ct);
-
-            if (activity != null)
-            {
-                model.RecipientOptions = new List<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem>
-                {
-                    new() { Value = "allparents", Text = "Tous les parents (enfants inscrits à l'activité)" },
-                    new() { Value = "medicalsheetreminder", Text = "Rappel fiche médicale (enfants sans fiche médicale)" }
-                };
-
-                foreach (var group in activity.Groups)
-                {
-                    model.RecipientOptions.Add(new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem
-                    {
-                        Value = $"group_{group.Id}",
-                        Text = $"Groupe : {group.Label}"
-                    });
-                }
-            }
-
+            ModelState.AddModelError(string.Empty, _localizer["Message.NoRecipientsFound"]);
+            await RepopulateRecipientOptionsAsync(model, ct);
             return View(model);
         }
 
-        // Handle file attachment
-        string? attachmentFileName = null;
-        string? attachmentFilePath = null;
-
-        if (model.AttachmentFile != null && model.AttachmentFile.Length > 0)
-        {
-            var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", "attachments");
-            if (!Directory.Exists(uploadsFolder))
-            {
-                Directory.CreateDirectory(uploadsFolder);
-            }
-
-            attachmentFileName = Path.GetFileName(model.AttachmentFile.FileName);
-            var uniqueFileName = Guid.NewGuid().ToString() + "_" + attachmentFileName;
-            attachmentFilePath = Path.Combine(uploadsFolder, uniqueFileName);
-
-            using (var fileStream = new FileStream(attachmentFilePath, FileMode.Create))
-            {
-                await model.AttachmentFile.CopyToAsync(fileStream, ct);
-            }
-        }
-
-        // Construct HTML email content
+        var (attachmentFileName, attachmentFilePath) = await SaveAttachmentAsync(model.AttachmentFile, ct);
         var htmlContent = $"<p>{model.Message.Replace("\n", "<br/>")}</p>";
 
-        // Send emails
         try
         {
             await _emailService.SendEmailAsync(recipientEmails, model.Subject, htmlContent, attachmentFilePath);
+            await LogSentEmailAsync(model, recipientGroupId, recipientEmails, attachmentFileName, attachmentFilePath, ct);
 
-            // Log sent email
-            var recipientType = model.SelectedRecipient switch
-            {
-                "allparents" => EmailRecipient.AllParents,
-                "medicalsheetreminder" => EmailRecipient.MedicalSheetReminder,
-                _ when model.SelectedRecipient.StartsWith("group_") => EmailRecipient.ActivityGroup,
-                _ => EmailRecipient.AllParents
-            };
-
-            var emailSent = new EmailSent
-            {
-                ActivityId = model.ActivityId,
-                RecipientType = recipientType,
-                RecipientGroupId = recipientGroupId,
-                RecipientEmails = string.Join("; ", recipientEmails),
-                Subject = model.Subject,
-                Message = model.Message,
-                AttachmentFileName = attachmentFileName,
-                AttachmentFilePath = attachmentFilePath,
-                SentDate = DateTime.Now
-            };
-
-            _context.EmailsSent.Add(emailSent);
-            await _context.SaveChangesAsync(ct);
-
-            TempData["SuccessMessage"] = string.Format(_localizer["Message.EmailSent"].Value, recipientEmails.Count);
+            TempData[TempDataSuccessMessage] = string.Format(_localizer["Message.EmailSent"].Value, recipientEmails.Count);
             return RedirectToAction(nameof(SendEmail), new { id = model.ActivityId });
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error sending email for activity {ActivityId}", model.ActivityId);
-            ModelState.AddModelError(string.Empty, "Une erreur est survenue lors de l'envoi de l'email.");
-
-            var activity = await _context.Activities
-                .Include(a => a.Groups)
-                .FirstOrDefaultAsync(a => a.Id == model.ActivityId, ct);
-
-            if (activity != null)
-            {
-                model.RecipientOptions = new List<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem>
-                {
-                    new() { Value = "allparents", Text = "Tous les parents (enfants inscrits à l'activité)" },
-                    new() { Value = "medicalsheetreminder", Text = "Rappel fiche médicale (enfants sans fiche médicale)" }
-                };
-
-                foreach (var group in activity.Groups)
-                {
-                    model.RecipientOptions.Add(new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem
-                    {
-                        Value = $"group_{group.Id}",
-                        Text = $"Groupe : {group.Label}"
-                    });
-                }
-            }
-
+            ModelState.AddModelError(string.Empty, _localizer["Message.EmailSendError"]);
+            await RepopulateRecipientOptionsAsync(model, ct);
             return View(model);
         }
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [ActionName("BeginSendEmail")]
+    public IActionResult SendEmailPost(int id)
+    {
+        if (!ModelState.IsValid)
+        {
+            return RedirectToAction(nameof(Index));
+        }
+
+        HttpContext.Session.SetString(SessionActivityId, id.ToString());
+        return RedirectToAction(nameof(SendEmail));
     }
 
     [HttpGet]
     public async Task<IActionResult> SentEmails(int? id)
     {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
         if (id is null)
         {
             var idStr = HttpContext.Session.GetString(SessionActivityId);
@@ -530,6 +456,11 @@ public class ActivityManagementController : Controller
     [ActionName("BeginSentEmails")]
     public IActionResult SentEmailsPost(int id)
     {
+        if (!ModelState.IsValid)
+        {
+            return RedirectToAction(nameof(Index));
+        }
+
         HttpContext.Session.SetString(SessionActivityId, id.ToString());
         return RedirectToAction(nameof(SentEmails));
     }
@@ -537,6 +468,11 @@ public class ActivityManagementController : Controller
     [HttpGet]
     public async Task<IActionResult> TeamMembers(int? id)
     {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
         if (id is null)
         {
             var idStr = HttpContext.Session.GetString(SessionActivityId);
@@ -582,6 +518,11 @@ public class ActivityManagementController : Controller
     [ActionName("BeginTeamMembers")]
     public IActionResult TeamMembersPost(int id)
     {
+        if (!ModelState.IsValid)
+        {
+            return RedirectToAction(nameof(Index));
+        }
+
         HttpContext.Session.SetString(SessionActivityId, id.ToString());
         return RedirectToAction(nameof(TeamMembers));
     }
@@ -590,6 +531,11 @@ public class ActivityManagementController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> AddTeamMember(int id, int teamMemberId)
     {
+        if (!ModelState.IsValid)
+        {
+            return RedirectToAction(nameof(TeamMembers), new { id });
+        }
+
         var activity = await _context.Activities
             .Include(a => a.TeamMembers)
             .FirstOrDefaultAsync(a => a.Id == id);
@@ -603,7 +549,7 @@ public class ActivityManagementController : Controller
 
         if (teamMember == null)
         {
-            TempData["ErrorMessage"] = _localizer["Message.TeamMemberNotFound"];
+            TempData[TempDataErrorMessage] = _localizer["Message.TeamMemberNotFound"];
             return RedirectToAction(nameof(TeamMembers), new { id });
         }
 
@@ -611,7 +557,7 @@ public class ActivityManagementController : Controller
         {
             activity.TeamMembers.Add(teamMember);
             await _context.SaveChangesAsync();
-            TempData["SuccessMessage"] = string.Format(_localizer["Message.TeamMemberAdded"].Value, teamMember.FirstName, teamMember.LastName);
+            TempData[TempDataSuccessMessage] = string.Format(_localizer["Message.TeamMemberAdded"].Value, teamMember.FirstName, teamMember.LastName);
         }
 
         return RedirectToAction(nameof(TeamMembers), new { id });
@@ -621,6 +567,11 @@ public class ActivityManagementController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> RemoveTeamMember(int id, int teamMemberId)
     {
+        if (!ModelState.IsValid)
+        {
+            return RedirectToAction(nameof(TeamMembers), new { id });
+        }
+
         var activity = await _context.Activities
             .Include(a => a.TeamMembers)
             .FirstOrDefaultAsync(a => a.Id == id);
@@ -634,9 +585,109 @@ public class ActivityManagementController : Controller
         {
             activity.TeamMembers.Remove(teamMember);
             await _context.SaveChangesAsync();
-            TempData["SuccessMessage"] = string.Format(_localizer["Message.TeamMemberRemoved"].Value, teamMember.FirstName, teamMember.LastName);
+            TempData[TempDataSuccessMessage] = string.Format(_localizer["Message.TeamMemberRemoved"].Value, teamMember.FirstName, teamMember.LastName);
         }
 
         return RedirectToAction(nameof(TeamMembers), new { id });
+    }
+
+    private List<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem> GetRecipientOptions(IEnumerable<Core.Entities.ActivityGroup> groups)
+    {
+        var options = new List<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem>
+        {
+            new() { Value = RecipientAllParents, Text = _localizer["Email.RecipientAllParents"] },
+            new() { Value = RecipientMedicalSheetReminder, Text = _localizer["Email.RecipientMedicalSheetReminder"] }
+        };
+
+        foreach (var group in groups)
+        {
+            options.Add(new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem
+            {
+                Value = $"{RecipientGroupPrefix}{group.Id}",
+                Text = $"{_localizer["Email.RecipientGroup"]}: {group.Label}"
+            });
+        }
+
+        return options;
+    }
+
+    private async Task RepopulateRecipientOptionsAsync(SendEmailViewModel model, CancellationToken ct)
+    {
+        var activity = await _context.Activities
+            .Include(a => a.Groups)
+            .FirstOrDefaultAsync(a => a.Id == model.ActivityId, ct);
+
+        if (activity != null)
+        {
+            model.RecipientOptions = GetRecipientOptions(activity.Groups);
+        }
+    }
+
+    private static int? ExtractRecipientGroupId(string selectedRecipient)
+    {
+        if (selectedRecipient.StartsWith(RecipientGroupPrefix) &&
+            int.TryParse(selectedRecipient.Substring(RecipientGroupPrefix.Length), out var groupId))
+        {
+            return groupId;
+        }
+        return null;
+    }
+
+    private static async Task<(string? fileName, string? filePath)> SaveAttachmentAsync(IFormFile? attachmentFile, CancellationToken ct)
+    {
+        if (attachmentFile == null || attachmentFile.Length == 0)
+        {
+            return (null, null);
+        }
+
+        var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", "attachments");
+        if (!Directory.Exists(uploadsFolder))
+        {
+            Directory.CreateDirectory(uploadsFolder);
+        }
+
+        var fileName = Path.GetFileName(attachmentFile.FileName);
+        var uniqueFileName = Guid.NewGuid().ToString() + "_" + fileName;
+        var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+        using (var fileStream = new FileStream(filePath, FileMode.Create))
+        {
+            await attachmentFile.CopyToAsync(fileStream, ct);
+        }
+
+        return (fileName, filePath);
+    }
+
+    private async Task LogSentEmailAsync(
+        SendEmailViewModel model,
+        int? recipientGroupId,
+        IEnumerable<string> recipientEmails,
+        string? attachmentFileName,
+        string? attachmentFilePath,
+        CancellationToken ct)
+    {
+        var recipientType = model.SelectedRecipient switch
+        {
+            var r when r == RecipientAllParents => EmailRecipient.AllParents,
+            var r when r == RecipientMedicalSheetReminder => EmailRecipient.MedicalSheetReminder,
+            var r when r.StartsWith(RecipientGroupPrefix) => EmailRecipient.ActivityGroup,
+            _ => EmailRecipient.AllParents
+        };
+
+        var emailSent = new EmailSent
+        {
+            ActivityId = model.ActivityId,
+            RecipientType = recipientType,
+            RecipientGroupId = recipientGroupId,
+            RecipientEmails = string.Join("; ", recipientEmails),
+            Subject = model.Subject,
+            Message = model.Message,
+            AttachmentFileName = attachmentFileName,
+            AttachmentFilePath = attachmentFilePath,
+            SentDate = DateTime.Now
+        };
+
+        _context.EmailsSent.Add(emailSent);
+        await _context.SaveChangesAsync(ct);
     }
 }

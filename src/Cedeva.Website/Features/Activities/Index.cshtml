@@ -37,12 +37,12 @@
         <div class="card-body">
             <form method="get" class="row g-3">
                 <div class="col-md-4">
-                    <label class="form-label">@Localizer["Search"]</label>
-                    <input type="text" name="searchTerm" class="form-control" value="@Model.SearchTerm" placeholder="@Localizer["Activities.SearchPlaceholder"]">
+                    <label for="searchTerm" class="form-label">@Localizer["Search"]</label>
+                    <input type="text" name="searchTerm" id="searchTerm" class="form-control" value="@Model.SearchTerm" placeholder="@Localizer["Activities.SearchPlaceholder"]">
                 </div>
                 <div class="col-md-3">
-                    <label class="form-label">@Localizer["Status"]</label>
-                    <select name="showActiveOnly" class="form-select">
+                    <label for="showActiveOnly" class="form-label">@Localizer["Status"]</label>
+                    <select name="showActiveOnly" id="showActiveOnly" class="form-select">
                         <option value="">@Localizer["Activities.All"]</option>
                         <option value="true" selected="@(Model.ShowActiveOnly == true)">@Localizer["Activities.ActiveOnly"]</option>
                     </select>

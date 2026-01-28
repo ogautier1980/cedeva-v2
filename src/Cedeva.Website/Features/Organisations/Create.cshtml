@@ -17,20 +17,20 @@
                         <h6 class="mb-3 text-primary"><i class="fas fa-info-circle me-2"></i>@Localizer["GeneralInformation"]</h6>
 
                         <div class="mb-3">
-                            <label asp-for="Name" class="form-label"></label>
-                            <input asp-for="Name" class="form-control" />
+                            <label for="Name" class="form-label">@Localizer["Field.Name"]</label>
+                            <input asp-for="Name" class="form-control" id="Name" />
                             <span asp-validation-for="Name" class="text-danger"></span>
                         </div>
 
                         <div class="mb-3">
-                            <label asp-for="Description" class="form-label"></label>
-                            <textarea asp-for="Description" class="form-control" rows="3"></textarea>
+                            <label for="Description" class="form-label">@Localizer["Field.Description"]</label>
+                            <textarea asp-for="Description" class="form-control" rows="3" id="Description"></textarea>
                             <span asp-validation-for="Description" class="text-danger"></span>
                         </div>
 
                         <div class="mb-3">
-                            <label asp-for="LogoUrl" class="form-label"></label>
-                            <input asp-for="LogoUrl" class="form-control" placeholder="https://..." />
+                            <label for="LogoUrl" class="form-label">@Localizer["Field.LogoUrl"]</label>
+                            <input asp-for="LogoUrl" class="form-control" placeholder="https://..." id="LogoUrl" />
                             <span asp-validation-for="LogoUrl" class="text-danger"></span>
                             <div class="form-text">@Localizer["Organisations.LogoUrlOptional"]</div>
                         </div>
@@ -38,20 +38,20 @@
                         <h6 class="mb-3 mt-4 text-primary"><i class="fas fa-map-marker-alt me-2"></i>@Localizer["Address"]</h6>
 
                         <div class="mb-3">
-                            <label asp-for="Street" class="form-label"></label>
-                            <input asp-for="Street" class="form-control" placeholder="@Localizer["Parents.StreetPlaceholder"]" />
+                            <label for="Street" class="form-label">@Localizer["Field.Street"]</label>
+                            <input asp-for="Street" class="form-control" placeholder="@Localizer["Parents.StreetPlaceholder"]" id="Street" />
                             <span asp-validation-for="Street" class="text-danger"></span>
                         </div>
 
                         <div class="row">
                             <div class="col-md-4 mb-3">
-                                <label asp-for="PostalCode" class="form-label"></label>
-                                <input asp-for="PostalCode" type="number" class="form-control" />
+                                <label for="PostalCode" class="form-label">@Localizer["Field.PostalCode"]</label>
+                                <input asp-for="PostalCode" type="number" class="form-control" id="PostalCode" />
                                 <span asp-validation-for="PostalCode" class="text-danger"></span>
                             </div>
                             <div class="col-md-8 mb-3">
-                                <label asp-for="City" class="form-label"></label>
-                                <input asp-for="City" class="form-control" />
+                                <label for="City" class="form-label">@Localizer["Field.City"]</label>
+                                <input asp-for="City" class="form-control" id="City" />
                                 <span asp-validation-for="City" class="text-danger"></span>
                             </div>
                         </div>

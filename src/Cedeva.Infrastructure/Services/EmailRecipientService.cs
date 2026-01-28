@@ -64,7 +64,8 @@ public class EmailRecipientService : IEmailRecipientService
         {
             _logger.LogError(ex,
                 "Error retrieving recipient emails for activity {ActivityId}", activityId);
-            throw;
+            throw new InvalidOperationException(
+                $"Error retrieving recipient emails for activity {activityId}", ex);
         }
 
         return emails;

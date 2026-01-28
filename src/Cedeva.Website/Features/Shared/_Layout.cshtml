@@ -92,9 +92,9 @@
                                 };
                             }
                             <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle" href="#" id="languageDropdown" role="button" data-bs-toggle="dropdown">
+                                <button class="nav-link dropdown-toggle btn btn-link text-white text-decoration-none" id="languageDropdown" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                                     <span class="me-1">@languageIcon</span>@languageName
-                                </a>
+                                </button>
                                 <ul class="dropdown-menu dropdown-menu-end">
                                     <li>
                                         <form asp-controller="Home" asp-action="SetLanguage" method="post" class="dropdown-item p-0">
@@ -128,9 +128,9 @@
                             @if (User.Identity?.IsAuthenticated == true)
                             {
                                 <li class="nav-item dropdown">
-                                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+                                    <button class="nav-link dropdown-toggle btn btn-link text-white text-decoration-none" id="navbarDropdown" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                                         <i class="fas fa-user-circle me-1"></i>@User.Identity.Name
-                                    </a>
+                                    </button>
                                     <ul class="dropdown-menu dropdown-menu-end">
                                         <li><a class="dropdown-item" href="/Account/Profile">@Localizer["Layout.Profile"]</a></li>
                                         <li><hr class="dropdown-divider"></li>
@@ -158,7 +158,7 @@
             <footer class="footer mt-auto py-3 bg-dark">
                 <div class="container">
                     <span class="text-center txt-footer d-block">
-                        <small>&copy; @DateTime.Now.Year - Cedeva - <a class="text-reset" href="/Home/Privacy">@Localizer["Layout.Privacy"]/a></small>
+                        <small>&copy; @DateTime.Now.Year - Cedeva - <a class="text-reset" href="/Home/Privacy">@Localizer["Layout.Privacy"]</a></small>
                     </span>
                 </div>
             </footer>

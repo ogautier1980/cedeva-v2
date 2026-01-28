@@ -21,26 +21,26 @@
 
                         <div class="row g-3">
                             <div class="col-md-6">
-                                <label asp-for="FirstName" class="form-label"></label>
-                                <input asp-for="FirstName" class="form-control" />
+                                <label for="FirstName" class="form-label">@Localizer["Field.FirstName"]</label>
+                                <input asp-for="FirstName" class="form-control" id="FirstName" />
                                 <span asp-validation-for="FirstName" class="text-danger"></span>
                             </div>
 
                             <div class="col-md-6">
-                                <label asp-for="LastName" class="form-label"></label>
-                                <input asp-for="LastName" class="form-control" />
+                                <label for="LastName" class="form-label">@Localizer["Field.LastName"]</label>
+                                <input asp-for="LastName" class="form-control" id="LastName" />
                                 <span asp-validation-for="LastName" class="text-danger"></span>
                             </div>
 
                             <div class="col-md-6">
-                                <label asp-for="BirthDate" class="form-label"></label>
-                                <input asp-for="BirthDate" class="form-control" type="date" />
+                                <label for="BirthDate" class="form-label">@Localizer["Field.BirthDate"]</label>
+                                <input asp-for="BirthDate" class="form-control" type="date" id="BirthDate" />
                                 <span asp-validation-for="BirthDate" class="text-danger"></span>
                             </div>
 
                             <div class="col-md-6">
-                                <label asp-for="NationalRegisterNumber" class="form-label"></label>
-                                <input asp-for="NationalRegisterNumber" class="form-control" placeholder="Ex: 15.03.10-123.45" />
+                                <label for="NationalRegisterNumber" class="form-label">@Localizer["Field.NationalRegisterNumber"]</label>
+                                <input asp-for="NationalRegisterNumber" class="form-control" placeholder="Ex: 15.03.10-123.45" id="NationalRegisterNumber" />
                                 <span asp-validation-for="NationalRegisterNumber" class="text-danger"></span>
                             </div>
 
@@ -52,29 +52,29 @@
 
                             <div class="col-12">
                                 <div class="form-check">
-                                    <input asp-for="IsDisadvantagedEnvironment" class="form-check-input" />
-                                    <label asp-for="IsDisadvantagedEnvironment" class="form-check-label"></label>
+                                    <input asp-for="IsDisadvantagedEnvironment" class="form-check-input" id="IsDisadvantagedEnvironment" />
+                                    <label for="IsDisadvantagedEnvironment" class="form-check-label">@Localizer["Field.IsDisadvantagedEnvironment"]</label>
                                 </div>
                             </div>
 
                             <div class="col-12">
                                 <div class="form-check">
-                                    <input asp-for="IsMildDisability" class="form-check-input" />
-                                    <label asp-for="IsMildDisability" class="form-check-label"></label>
+                                    <input asp-for="IsMildDisability" class="form-check-input" id="IsMildDisability" />
+                                    <label for="IsMildDisability" class="form-check-label">@Localizer["Field.IsMildDisability"]</label>
                                 </div>
                             </div>
 
                             <div class="col-12">
                                 <div class="form-check">
-                                    <input asp-for="IsSevereDisability" class="form-check-input" />
-                                    <label asp-for="IsSevereDisability" class="form-check-label"></label>
+                                    <input asp-for="IsSevereDisability" class="form-check-input" id="IsSevereDisability" />
+                                    <label for="IsSevereDisability" class="form-check-label">@Localizer["Field.IsSevereDisability"]</label>
                                 </div>
                             </div>
                         </div>
 
                         <div class="d-grid gap-2 mt-4">
                             <button type="submit" class="btn btn-primary btn-lg">
-                                <i class="fas fa-arrow-right me-2"></i>Continuer
+                                <i class="fas fa-arrow-right me-2"></i>@Localizer["Button.Continue"]
                             </button>
                         </div>
                     </form>

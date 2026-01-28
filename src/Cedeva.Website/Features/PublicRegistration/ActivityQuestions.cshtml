@@ -29,49 +29,77 @@
                                     <div class="col-12">
                                         <div class="card">
                                             <div class="card-body">
-                                                <label class="form-label">
-                                                    <strong>@question.QuestionText</strong>
-                                                    @if (question.IsRequired)
-                                                    {
-                                                        <span class="text-danger">*</span>
-                                                    }
-                                                </label>
-
                                                 @switch (question.QuestionType)
                                                 {
                                                     case Cedeva.Core.Enums.QuestionType.Text:
-                                                        <input type="text" name="Answers[@question.Id]" class="form-control" required="@question.IsRequired" />
+                                                        var textInputId = $"text_{question.Id}";
+                                                        <label class="form-label" for="@textInputId">
+                                                            <strong>@question.QuestionText</strong>
+                                                            @if (question.IsRequired)
+                                                            {
+                                                                <span class="text-danger">*</span>
+                                                            }
+                                                        </label>
+                                                        <input type="text" name="Answers[@question.Id]" id="@textInputId" class="form-control" required="@question.IsRequired" />
                                                         break;
 
                                                     case Cedeva.Core.Enums.QuestionType.Checkbox:
+                                                        <div class="mb-2">
+                                                            <strong>@question.QuestionText</strong>
+                                                            @if (question.IsRequired)
+                                                            {
+                                                                <span class="text-danger">*</span>
+                                                            }
+                                                        </div>
                                                         var checkboxOptions = question.Options?.Split(',') ?? Array.Empty<string>();
+                                                        var checkboxIndex = 0;
                                                         @foreach (var option in checkboxOptions)
                                                         {
+                                                            var checkboxId = $"checkbox_{question.Id}_{checkboxIndex}";
                                                             <div class="form-check">
-                                                                <input type="checkbox" name="Answers[@question.Id]" value="@option.Trim()" class="form-check-input" id="@($"q{question.Id}_{option.Trim()}")" />
-                                                                <label class="form-check-label" for="@($"q{question.Id}_{option.Trim()}")">
+                                                                <input type="checkbox" name="Answers[@question.Id]" value="@option.Trim()" class="form-check-input" id="@checkboxId" />
+                                                                <label class="form-check-label" for="@checkboxId">
                                                                     @option.Trim()
                                                                 </label>
                                                             </div>
+                                                            checkboxIndex++;
                                                         }
                                                         break;
 
                                                     case Cedeva.Core.Enums.QuestionType.Radio:
+                                                        <div class="mb-2">
+                                                            <strong>@question.QuestionText</strong>
+                                                            @if (question.IsRequired)
+                                                            {
+                                                                <span class="text-danger">*</span>
+                                                            }
+                                                        </div>
                                                         var radioOptions = question.Options?.Split(',') ?? Array.Empty<string>();
+                                                        var radioIndex = 0;
                                                         @foreach (var option in radioOptions)
                                                         {
+                                                            var radioId = $"radio_{question.Id}_{radioIndex}";
                                                             <div class="form-check">
-                                                                <input type="radio" name="Answers[@question.Id]" value="@option.Trim()" class="form-check-input" id="@($"q{question.Id}_{option.Trim()}")" required="@question.IsRequired" />
-                                                                <label class="form-check-label" for="@($"q{question.Id}_{option.Trim()}")">
+                                                                <input type="radio" name="Answers[@question.Id]" value="@option.Trim()" class="form-check-input" id="@radioId" required="@question.IsRequired" />
+                                                                <label class="form-check-label" for="@radioId">
                                                                     @option.Trim()
                                                                 </label>
                                                             </div>
+                                                            radioIndex++;
                                                         }
                                                         break;
 
                                                     case Cedeva.Core.Enums.QuestionType.Dropdown:
+                                                        var dropdownInputId = $"dropdown_{question.Id}";
+                                                        <label class="form-label" for="@dropdownInputId">
+                                                            <strong>@question.QuestionText</strong>
+                                                            @if (question.IsRequired)
+                                                            {
+                                                                <span class="text-danger">*</span>
+                                                            }
+                                                        </label>
                                                         var dropdownOptions = question.Options?.Split(',') ?? Array.Empty<string>();
-                                                        <select name="Answers[@question.Id]" class="form-select" required="@question.IsRequired">
+                                                        <select name="Answers[@question.Id]" id="@dropdownInputId" class="form-select" required="@question.IsRequired">
                                                             <option value="">@Localizer["PublicRegistration.SelectOption"]</option>
                                                             @foreach (var option in dropdownOptions)
                                                             {

@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Cedeva.Core.Entities;
 using Cedeva.Core.Interfaces;
 using Cedeva.Website.Features.Children.ViewModels;
+using Cedeva.Website.Localization;
 using Cedeva.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Localization;
@@ -13,6 +14,8 @@ namespace Cedeva.Website.Features.Children;
 [Authorize]
 public class ChildrenController : Controller
 {
+    private const string TempDataSuccessMessage = "SuccessMessage";
+
     private readonly IRepository<Child> _childRepository;
     private readonly IRepository<Parent> _parentRepository;
     private readonly CedevaDbContext _context;
@@ -60,10 +63,10 @@ public class ChildrenController : Controller
             query = query.Where(c => c.ParentId == parentId.Value);
         }
 
-        var totalItems = query.Count();
+        var totalItems = await query.CountAsync();
         var totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
 
-        var children = query
+        var children = await query
             .OrderBy(c => c.LastName)
             .ThenBy(c => c.FirstName)
             .Skip((pageNumber - 1) * pageSize)
@@ -82,7 +85,7 @@ public class ChildrenController : Controller
                 ParentFullName = c.Parent != null ? $"{c.Parent.FirstName} {c.Parent.LastName}" : "",
                 ActivityGroupId = c.ActivityGroupId
             })
-            .ToList();
+            .ToListAsync();
 
         ViewData["SearchString"] = searchString;
         ViewData["ParentId"] = parentId;
@@ -126,21 +129,22 @@ public class ChildrenController : Controller
 
         var columns = new Dictionary<string, Func<Child, object>>
         {
-            { "Prénom", c => c.FirstName },
-            { "Nom", c => c.LastName },
-            { "Numéro national", c => c.NationalRegisterNumber },
-            { "Date de naissance", c => c.BirthDate },
-            { "Âge", c => DateTime.Today.Year - c.BirthDate.Year - (DateTime.Today.DayOfYear < c.BirthDate.DayOfYear ? 1 : 0) },
-            { "Parent", c => c.Parent != null ? $"{c.Parent.FirstName} {c.Parent.LastName}" : "" },
-            { "Email parent", c => c.Parent?.Email ?? "" },
-            { "Téléphone parent", c => c.Parent?.MobilePhoneNumber ?? c.Parent?.PhoneNumber ?? "" },
-            { "Milieu défavorisé", c => c.IsDisadvantagedEnvironment },
-            { "Handicap léger", c => c.IsMildDisability },
-            { "Handicap lourd", c => c.IsSevereDisability }
+            { _localizer["Excel.FirstName"], c => c.FirstName },
+            { _localizer["Excel.LastName"], c => c.LastName },
+            { _localizer["Excel.NationalRegisterNumber"], c => c.NationalRegisterNumber },
+            { _localizer["Excel.BirthDate"], c => c.BirthDate },
+            { _localizer["Excel.Age"], c => DateTime.Today.Year - c.BirthDate.Year - (DateTime.Today.DayOfYear < c.BirthDate.DayOfYear ? 1 : 0) },
+            { _localizer["Excel.Parent"], c => c.Parent != null ? $"{c.Parent.FirstName} {c.Parent.LastName}" : "" },
+            { _localizer["Excel.ParentEmail"], c => c.Parent?.Email ?? "" },
+            { _localizer["Excel.ParentPhone"], c => c.Parent?.MobilePhoneNumber ?? c.Parent?.PhoneNumber ?? "" },
+            { _localizer["Excel.DisadvantagedEnvironment"], c => c.IsDisadvantagedEnvironment },
+            { _localizer["Excel.MildDisability"], c => c.IsMildDisability },
+            { _localizer["Excel.SevereDisability"], c => c.IsSevereDisability }
         };
 
-        var excelData = _excelExportService.ExportToExcel(children, "Enfants", columns);
-        var fileName = $"Enfants_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx";
+        var sheetName = _localizer["Excel.ChildrenSheet"];
+        var excelData = _excelExportService.ExportToExcel(children, sheetName, columns);
+        var fileName = $"{sheetName}_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx";
 
         return File(excelData, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
     }
@@ -205,7 +209,7 @@ public class ChildrenController : Controller
             await _childRepository.AddAsync(child);
             await _unitOfWork.SaveChangesAsync();
 
-            TempData["SuccessMessage"] = _localizer["Message.ChildCreated"];
+            TempData[TempDataSuccessMessage] = _localizer["Message.ChildCreated"];
             return RedirectToAction(nameof(Details), new { id = child.Id });
         }
 
@@ -278,7 +282,7 @@ public class ChildrenController : Controller
             await _childRepository.UpdateAsync(child);
             await _unitOfWork.SaveChangesAsync();
 
-            TempData["SuccessMessage"] = _localizer["Message.ChildUpdated"];
+            TempData[TempDataSuccessMessage] = _localizer["Message.ChildUpdated"];
             return RedirectToAction(nameof(Details), new { id = child.Id });
         }
 
@@ -295,13 +299,7 @@ public class ChildrenController : Controller
         }
 
         var viewModel = await GetChildViewModelAsync(id);
-
-        if (viewModel == null)
-        {
-            return NotFound();
-        }
-
-        return View(viewModel);
+        return viewModel == null ? NotFound() : View(viewModel);
     }
 
     // POST: Children/Delete/5
@@ -309,6 +307,11 @@ public class ChildrenController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteConfirmed(int id)
     {
+        if (!ModelState.IsValid)
+        {
+            return RedirectToAction(nameof(Index));
+        }
+
         var child = await _childRepository.GetByIdAsync(id);
 
         if (child == null)
@@ -319,7 +322,7 @@ public class ChildrenController : Controller
         await _childRepository.DeleteAsync(child);
         await _unitOfWork.SaveChangesAsync();
 
-        TempData["SuccessMessage"] = _localizer["Message.ChildDeleted"];
+        TempData[TempDataSuccessMessage] = _localizer["Message.ChildDeleted"];
         return RedirectToAction(nameof(Index));
     }
 
@@ -334,7 +337,7 @@ public class ChildrenController : Controller
         }
 
         var parent = await _context.Parents.FindAsync(child.ParentId);
-        var bookings = _context.Bookings
+        var bookings = await _context.Bookings
             .Where(b => b.ChildId == id)
             .Select(b => new BookingSummaryViewModel
             {
@@ -344,7 +347,7 @@ public class ChildrenController : Controller
                 EndDate = b.Activity.EndDate,
                 IsConfirmed = b.IsConfirmed
             })
-            .ToList();
+            .ToListAsync();
 
         return new ChildViewModel
         {

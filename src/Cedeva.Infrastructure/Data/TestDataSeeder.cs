@@ -11,6 +11,8 @@ public class TestDataSeeder
     private readonly ILogger<TestDataSeeder> _logger;
     private readonly Random _random = new Random(42); // Fixed seed for reproducibility
 
+    private const string ExampleLicenseUrl = "https://example.com/license.pdf";
+
     private static readonly string[] FrenchFirstNamesMale = {
         "Antoine", "Thomas", "Lucas", "Louis", "Hugo", "Arthur", "Jules", "Gabriel", "Léo", "Nathan",
         "Mathis", "Alexandre", "Maxime", "Victor", "Noah", "Raphaël", "Théo", "Simon", "Julien", "Baptiste"
@@ -58,8 +60,6 @@ public class TestDataSeeder
     {
         try
         {
-            _logger.LogInformation("Starting test data seeding...");
-
             // Get all organisations
             var organisations = await _context.Organisations.IgnoreQueryFilters().ToListAsync();
             if (!organisations.Any())
@@ -68,13 +68,11 @@ public class TestDataSeeder
                 return;
             }
 
-            _logger.LogInformation("Found {Count} organisation(s) to seed data for", organisations.Count);
+            _logger.LogInformation("Starting test data seeding for {Count} organisation(s)", organisations.Count);
 
             // Loop through each organisation and seed data
             foreach (var organisation in organisations)
             {
-                _logger.LogInformation("Seeding data for organisation: {OrganisationName} (ID: {OrganisationId})",
-                    organisation.Name, organisation.Id);
 
                 // Seed test data only if it doesn't exist
                 var parentCount = await _context.Parents.IgnoreQueryFilters().CountAsync(p => p.OrganisationId == organisation.Id);
@@ -82,32 +80,17 @@ public class TestDataSeeder
                 {
                     await SeedParentsAndChildrenAsync(organisation.Id, 25);
                 }
-                else
-                {
-                    _logger.LogInformation("Organisation {OrganisationName} already has {Count} parents. Skipping parent seeding.",
-                        organisation.Name, parentCount);
-                }
 
                 var teamMemberCount = await _context.TeamMembers.IgnoreQueryFilters().CountAsync(t => t.OrganisationId == organisation.Id);
                 if (teamMemberCount < 10)
                 {
                     await SeedTeamMembersAsync(organisation.Id, 12);
                 }
-                else
-                {
-                    _logger.LogInformation("Organisation {OrganisationName} already has {Count} team members. Skipping team member seeding.",
-                        organisation.Name, teamMemberCount);
-                }
 
                 var activityCount = await _context.Activities.IgnoreQueryFilters().CountAsync(a => a.OrganisationId == organisation.Id);
                 if (activityCount < 3)
                 {
                     await SeedActivitiesAsync(organisation.Id, 4);
-                }
-                else
-                {
-                    _logger.LogInformation("Organisation {OrganisationName} already has {Count} activities. Skipping activity seeding.",
-                        organisation.Name, activityCount);
                 }
 
                 var bookingCount = await _context.Bookings.IgnoreQueryFilters()
@@ -118,15 +101,8 @@ public class TestDataSeeder
                 {
                     await SeedBookingsAsync(organisation.Id);
                 }
-                else
-                {
-                    _logger.LogInformation("Organisation {OrganisationName} already has {Count} bookings. Skipping booking seeding.",
-                        organisation.Name, bookingCount);
-                }
 
                 await _context.SaveChangesAsync();
-
-                _logger.LogInformation("Completed seeding data for organisation: {OrganisationName}", organisation.Name);
             }
 
             _logger.LogInformation("Test data seeding completed successfully for all organisations");
@@ -134,7 +110,7 @@ public class TestDataSeeder
         catch (Exception ex)
         {
             _logger.LogError(ex, "An error occurred while seeding test data");
-            throw;
+            throw new InvalidOperationException("Test data seeding failed", ex);
         }
     }
 
@@ -147,12 +123,7 @@ public class TestDataSeeder
             var isFemale = _random.Next(2) == 0;
             var isFrench = _random.Next(2) == 0;
 
-            var firstName = isFemale
-                ? (isFrench ? FrenchFirstNamesFemale[_random.Next(FrenchFirstNamesFemale.Length)]
-                            : DutchFirstNamesFemale[_random.Next(DutchFirstNamesFemale.Length)])
-                : (isFrench ? FrenchFirstNamesMale[_random.Next(FrenchFirstNamesMale.Length)]
-                            : DutchFirstNamesMale[_random.Next(DutchFirstNamesMale.Length)]);
-
+            var firstName = GetRandomFirstName(isFemale, isFrench);
             var lastName = BelgianLastNames[_random.Next(BelgianLastNames.Length)];
             var birthDate = GenerateRandomBirthDate(1975, 1995);
             var nationalRegisterNumber = GenerateNationalRegisterNumber(birthDate, isFemale);
@@ -185,11 +156,7 @@ public class TestDataSeeder
             for (int j = 0; j < childCount; j++)
             {
                 var childIsFemale = _random.Next(2) == 0;
-                var childFirstName = childIsFemale
-                    ? (isFrench ? FrenchFirstNamesFemale[_random.Next(FrenchFirstNamesFemale.Length)]
-                                : DutchFirstNamesFemale[_random.Next(DutchFirstNamesFemale.Length)])
-                    : (isFrench ? FrenchFirstNamesMale[_random.Next(FrenchFirstNamesMale.Length)]
-                                : DutchFirstNamesMale[_random.Next(DutchFirstNamesMale.Length)]);
+                var childFirstName = GetRandomFirstName(childIsFemale, isFrench);
 
                 var childBirthDate = GenerateRandomBirthDate(2010, 2020);
 
@@ -222,12 +189,7 @@ public class TestDataSeeder
             var isFemale = _random.Next(2) == 0;
             var isFrench = _random.Next(2) == 0;
 
-            var firstName = isFemale
-                ? (isFrench ? FrenchFirstNamesFemale[_random.Next(FrenchFirstNamesFemale.Length)]
-                            : DutchFirstNamesFemale[_random.Next(DutchFirstNamesFemale.Length)])
-                : (isFrench ? FrenchFirstNamesMale[_random.Next(FrenchFirstNamesMale.Length)]
-                            : DutchFirstNamesMale[_random.Next(DutchFirstNamesMale.Length)]);
-
+            var firstName = GetRandomFirstName(isFemale, isFrench);
             var lastName = BelgianLastNames[_random.Next(BelgianLastNames.Length)];
             var birthDate = GenerateRandomBirthDate(1990, 2005);
 
@@ -254,7 +216,7 @@ public class TestDataSeeder
                 TeamRole = role,
                 Status = status,
                 License = license,
-                LicenseUrl = "https://example.com/license.pdf",
+                LicenseUrl = ExampleLicenseUrl,
                 DailyCompensation = _random.Next(2) == 0 ? _random.Next(30, 100) : null,
                 Address = address,
                 OrganisationId = organisationId
@@ -399,12 +361,28 @@ public class TestDataSeeder
         _logger.LogInformation("Successfully seeded bookings and booking days");
     }
 
+    private string GetRandomFirstName(bool isFemale, bool isFrench)
+    {
+        if (isFemale)
+        {
+            return isFrench
+                ? FrenchFirstNamesFemale[_random.Next(FrenchFirstNamesFemale.Length)]
+                : DutchFirstNamesFemale[_random.Next(DutchFirstNamesFemale.Length)];
+        }
+        else
+        {
+            return isFrench
+                ? FrenchFirstNamesMale[_random.Next(FrenchFirstNamesMale.Length)]
+                : DutchFirstNamesMale[_random.Next(DutchFirstNamesMale.Length)];
+        }
+    }
+
     private DateTime GenerateRandomBirthDate(int minYear, int maxYear)
     {
         var year = _random.Next(minYear, maxYear + 1);
         var month = _random.Next(1, 13);
         var day = _random.Next(1, DateTime.DaysInMonth(year, month) + 1);
-        return new DateTime(year, month, day);
+        return new DateTime(year, month, day, 0, 0, 0, DateTimeKind.Unspecified);
     }
 
     private string GenerateNationalRegisterNumber(DateTime birthDate, bool isFemale)

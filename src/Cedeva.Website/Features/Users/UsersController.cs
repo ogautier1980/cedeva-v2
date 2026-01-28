@@ -7,6 +7,7 @@ using Microsoft.Extensions.Localization;
 using Cedeva.Core.Entities;
 using Cedeva.Core.Enums;
 using Cedeva.Website.Features.Users.ViewModels;
+using Cedeva.Website.Localization;
 using Cedeva.Infrastructure.Data;
 
 namespace Cedeva.Website.Features.Users;
@@ -14,6 +15,8 @@ namespace Cedeva.Website.Features.Users;
 [Authorize(Roles = "Admin")]
 public class UsersController : Controller
 {
+    private const string TempDataSuccessMessage = "SuccessMessage";
+
     private readonly UserManager<CedevaUser> _userManager;
     private readonly CedevaDbContext _context;
     private readonly IStringLocalizer<SharedResources> _localizer;
@@ -155,7 +158,7 @@ public class UsersController : Controller
                 var roleName = viewModel.Role == Role.Admin ? "Admin" : "Coordinator";
                 await _userManager.AddToRoleAsync(user, roleName);
 
-                TempData["SuccessMessage"] = _localizer["Message.UserCreated"];
+                TempData[TempDataSuccessMessage] = _localizer["Message.UserCreated"];
                 return RedirectToAction(nameof(Details), new { id = user.Id });
             }
 
@@ -249,7 +252,7 @@ public class UsersController : Controller
                 var roleName = viewModel.Role == Role.Admin ? "Admin" : "Coordinator";
                 await _userManager.AddToRoleAsync(user, roleName);
 
-                TempData["SuccessMessage"] = _localizer["Message.UserUpdated"];
+                TempData[TempDataSuccessMessage] = _localizer["Message.UserUpdated"];
                 return RedirectToAction(nameof(Details), new { id = user.Id });
             }
 
@@ -277,13 +280,7 @@ public class UsersController : Controller
         }
 
         var viewModel = await GetUserViewModelAsync(id);
-
-        if (viewModel == null)
-        {
-            return NotFound();
-        }
-
-        return View(viewModel);
+        return viewModel == null ? NotFound() : View(viewModel);
     }
 
     // POST: Users/Delete/5
@@ -291,6 +288,11 @@ public class UsersController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteConfirmed(string id)
     {
+        if (!ModelState.IsValid)
+        {
+            return RedirectToAction(nameof(Index));
+        }
+
         var user = await _userManager.FindByIdAsync(id);
 
         if (user == null)
@@ -302,7 +304,7 @@ public class UsersController : Controller
 
         if (result.Succeeded)
         {
-            TempData["SuccessMessage"] = _localizer["Message.UserDeleted"];
+            TempData[TempDataSuccessMessage] = _localizer["Message.UserDeleted"];
             return RedirectToAction(nameof(Index));
         }
 

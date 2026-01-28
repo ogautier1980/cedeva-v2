@@ -33,7 +33,7 @@
                 <div class="text-center mb-4">
                     <i class="fas fa-campground fa-3x text-primary mb-3"></i>
                     <h2 class="fw-bold">Cedeva</h2>
-                    <p class="text-muted">Connectez-vous à votre compte</p>
+                    <p class="text-muted">@Localizer["Account.LoginToYourAccount"]</p>
                 </div>
 
                 <form asp-action="Login" method="post">
@@ -42,37 +42,37 @@
                     <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
 
                     <div class="mb-3">
-                        <label asp-for="Email" class="form-label"></label>
+                        <label for="Email" class="form-label">@Localizer["Field.Email"]</label>
                         <div class="input-group">
                             <span class="input-group-text"><i class="fas fa-envelope"></i></span>
-                            <input asp-for="Email" class="form-control" placeholder="votre@email.com" />
+                            <input asp-for="Email" class="form-control" placeholder="@Localizer["Account.EmailPlaceholder"]" id="Email" />
                         </div>
                         <span asp-validation-for="Email" class="text-danger small"></span>
                     </div>
 
                     <div class="mb-3">
-                        <label asp-for="Password" class="form-label"></label>
+                        <label for="Password" class="form-label">@Localizer["Account.Password"]</label>
                         <div class="input-group">
                             <span class="input-group-text"><i class="fas fa-lock"></i></span>
-                            <input asp-for="Password" class="form-control" placeholder="@Localizer["Account.Password"]" />
+                            <input asp-for="Password" class="form-control" placeholder="@Localizer["Account.Password"]" id="Password" />
                         </div>
                         <span asp-validation-for="Password" class="text-danger small"></span>
                     </div>
 
                     <div class="mb-3 form-check">
-                        <input asp-for="RememberMe" class="form-check-input" />
-                        <label asp-for="RememberMe" class="form-check-label"></label>
+                        <input asp-for="RememberMe" class="form-check-input" id="RememberMe" />
+                        <label for="RememberMe" class="form-check-label">@Localizer["Account.RememberMe"]</label>
                     </div>
 
                     <div class="d-grid mb-3">
                         <button type="submit" class="btn btn-primary btn-lg">
-                            <i class="fas fa-sign-in-alt me-2"></i>Se connecter
+                            <i class="fas fa-sign-in-alt me-2"></i>@Localizer["Account.Login"]
                         </button>
                     </div>
 
                     <div class="text-center">
                         <a asp-action="Register" class="text-decoration-none">
-                            @Localizer["Account.NoAccount"] Inscrivez-vous
+                            @Localizer["Account.NoAccountRegister"]
                         </a>
                     </div>
                 </form>

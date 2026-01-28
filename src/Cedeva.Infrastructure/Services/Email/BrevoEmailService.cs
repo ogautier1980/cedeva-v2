@@ -25,11 +25,15 @@ public class BrevoEmailService : IEmailService
         var apiKey = configuration["Brevo:ApiKey"]
             ?? throw new InvalidOperationException("Brevo API key not configured");
 
-        _senderEmail = configuration["Brevo:SenderEmail"] ?? "noreply@cedeva.be";
-        _senderName = configuration["Brevo:SenderName"] ?? "Cedeva";
+        var apiBaseUrl = configuration["Brevo:ApiBaseUrl"]
+            ?? throw new InvalidOperationException("Brevo API base URL not configured");
+        _senderEmail = configuration["Brevo:SenderEmail"]
+            ?? throw new InvalidOperationException("Brevo sender email not configured");
+        _senderName = configuration["Brevo:SenderName"]
+            ?? throw new InvalidOperationException("Brevo sender name not configured");
 
         _httpClient = httpClient ?? new HttpClient();
-        _httpClient.BaseAddress = new Uri("https://api.brevo.com/v3/");
+        _httpClient.BaseAddress = new Uri(apiBaseUrl);
         _httpClient.DefaultRequestHeaders.Add("api-key", apiKey);
         _httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
     }
@@ -70,8 +74,8 @@ public class BrevoEmailService : IEmailService
         }
         catch (Exception ex) when (ex is not InvalidOperationException)
         {
-            _logger.LogError(ex, "Error sending email via Brevo");
-            throw;
+            _logger.LogError(ex, "Error sending email via Brevo to {Recipients}", string.Join(", ", to));
+            throw new InvalidOperationException($"Error sending email to {string.Join(", ", to)}", ex);
         }
     }
 
@@ -104,7 +108,7 @@ public class BrevoEmailService : IEmailService
                         </div>
                         <div class='content'>
                             <p>Bonjour {parentName},</p>
-                            <p>Nous confirmons l'inscription de <strong>{childName}</strong> à l'activité suivante :</p>
+                            <p>Nous confirmons l'inscription de <strong>{childName}</strong> pour l'activité suivante :</p>
                             <div class='details'>
                                 <h3>{activityName}</h3>
                                 <p><strong>Date de début :</strong> {startDate:dd/MM/yyyy}</p>

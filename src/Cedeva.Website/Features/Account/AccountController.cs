@@ -1,16 +1,21 @@
 using Cedeva.Core.Entities;
 using Cedeva.Core.Interfaces;
 using Cedeva.Website.Features.Account.ViewModels;
+using Cedeva.Website.Localization;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-
 using Microsoft.Extensions.Localization;
+
 namespace Cedeva.Website.Features.Account;
 
 public class AccountController : Controller
 {
+    private const string TempDataSuccessMessage = "SuccessMessage";
+    private const string TempDataWarningMessage = "WarningMessage";
+    private const string ViewDataReturnUrl = "ReturnUrl";
+
     private readonly SignInManager<CedevaUser> _signInManager;
     private readonly UserManager<CedevaUser> _userManager;
     private readonly IRepository<Organisation> _organisationRepository;
@@ -34,7 +39,7 @@ public class AccountController : Controller
     [AllowAnonymous]
     public IActionResult Login(string? returnUrl = null)
     {
-        ViewData["ReturnUrl"] = returnUrl;
+        ViewData[ViewDataReturnUrl] = returnUrl;
         return View();
     }
 
@@ -43,7 +48,7 @@ public class AccountController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Login(LoginViewModel model, string? returnUrl = null)
     {
-        ViewData["ReturnUrl"] = returnUrl;
+        ViewData[ViewDataReturnUrl] = returnUrl;
 
         if (!ModelState.IsValid)
             return View(model);
@@ -61,11 +66,11 @@ public class AccountController : Controller
 
         if (result.IsLockedOut)
         {
-            ModelState.AddModelError(string.Empty, "Ce compte est temporairement verrouillé.");
+            ModelState.AddModelError(string.Empty, _localizer["Login.AccountLockedOut"]);
             return View(model);
         }
 
-        ModelState.AddModelError(string.Empty, "Email ou mot de passe incorrect.");
+        ModelState.AddModelError(string.Empty, _localizer["Login.InvalidCredentials"]);
         return View(model);
     }
 
@@ -80,7 +85,7 @@ public class AccountController : Controller
     [AllowAnonymous]
     public async Task<IActionResult> Register(string? returnUrl = null)
     {
-        ViewData["ReturnUrl"] = returnUrl;
+        ViewData[ViewDataReturnUrl] = returnUrl;
         await PopulateOrganisationDropdown();
         return View();
     }
@@ -90,7 +95,7 @@ public class AccountController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Register(RegisterViewModel model, string? returnUrl = null)
     {
-        ViewData["ReturnUrl"] = returnUrl;
+        ViewData[ViewDataReturnUrl] = returnUrl;
 
         if (!ModelState.IsValid)
         {
@@ -130,7 +135,7 @@ public class AccountController : Controller
             {
                 // Log error but don't block registration
                 // Email sending failure should not prevent user from using the app
-                TempData["WarningMessage"] = $"Votre compte a été créé mais l'email de bienvenue n'a pas pu être envoyé: {ex.Message}";
+                TempData[TempDataWarningMessage] = string.Format(_localizer["Message.WelcomeEmailFailed"].Value, ex.Message);
             }
 
             await _signInManager.SignInAsync(user, isPersistent: false);
@@ -186,7 +191,7 @@ public class AccountController : Controller
 
         if (result.Succeeded)
         {
-            TempData["SuccessMessage"] = _localizer["Message.ProfileUpdated"];
+            TempData[TempDataSuccessMessage] = _localizer["Message.ProfileUpdated"];
             return RedirectToAction(nameof(Profile));
         }
 

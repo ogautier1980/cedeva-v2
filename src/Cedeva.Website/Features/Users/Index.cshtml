@@ -106,7 +106,7 @@
                                     }
                                 </td>
                                 <td class="text-end">
-                                    <div class="btn-group" role="group">
+                                    <div class="btn-group">
                                         <a asp-action="Details" asp-route-id="@user.Id" class="btn btn-sm btn-info" title="@Localizer["Details"]">
                                             <i class="fas fa-eye"></i>
                                         </a>
@@ -129,7 +129,7 @@
                 <nav aria-label="Page navigation">
                     <ul class="pagination justify-content-center">
                         <li class="page-item @(pageNumber == 1 ? "disabled" : "")">
-                            <a class="page-link" asp-action="Index" asp-route-searchString="@searchString" asp-route-organisationId="@organisationId" asp-route-pageNumber="@(pageNumber - 1)" asp-route-pageSize="@pageSize">Précédent</a>
+                            <a class="page-link" asp-action="Index" asp-route-searchString="@searchString" asp-route-organisationId="@organisationId" asp-route-pageNumber="@(pageNumber - 1)" asp-route-pageSize="@pageSize">@Localizer["Pagination.Previous"]</a>
                         </li>
 
                         @for (int i = 1; i <= totalPages; i++)
@@ -140,7 +140,7 @@
                         }
 
                         <li class="page-item @(pageNumber == totalPages ? "disabled" : "")">
-                            <a class="page-link" asp-action="Index" asp-route-searchString="@searchString" asp-route-organisationId="@organisationId" asp-route-pageNumber="@(pageNumber + 1)" asp-route-pageSize="@pageSize">Suivant</a>
+                            <a class="page-link" asp-action="Index" asp-route-searchString="@searchString" asp-route-organisationId="@organisationId" asp-route-pageNumber="@(pageNumber + 1)" asp-route-pageSize="@pageSize">@Localizer["Pagination.Next"]</a>
                         </li>
                     </ul>
                 </nav>

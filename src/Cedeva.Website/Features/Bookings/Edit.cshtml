@@ -18,22 +18,22 @@
                         <h6 class="mb-3 text-primary"><i class="fas fa-info-circle me-2"></i>@Localizer["Bookings.BasicInformation"]</h6>
 
                         <div class="mb-3">
-                            <label asp-for="BookingDate" class="form-label"></label>
-                            <input asp-for="BookingDate" type="date" class="form-control" />
+                            <label for="BookingDate" class="form-label">@Localizer["Field.BookingDate"]</label>
+                            <input asp-for="BookingDate" type="date" class="form-control" id="BookingDate" />
                             <span asp-validation-for="BookingDate" class="text-danger"></span>
                         </div>
 
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label asp-for="ChildId" class="form-label"></label>
-                                <select asp-for="ChildId" class="form-select" asp-items="ViewBag.Children">
+                                <label for="ChildId" class="form-label">@Localizer["Field.Child"]</label>
+                                <select asp-for="ChildId" class="form-select" asp-items="ViewBag.Children" id="ChildId">
                                     <option value="">@Localizer["SelectChild"]</option>
                                 </select>
                                 <span asp-validation-for="ChildId" class="text-danger"></span>
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label asp-for="ActivityId" class="form-label"></label>
-                                <select asp-for="ActivityId" class="form-select" asp-items="ViewBag.Activities">
+                                <label for="ActivityId" class="form-label">@Localizer["Field.Activity"]</label>
+                                <select asp-for="ActivityId" class="form-select" asp-items="ViewBag.Activities" id="ActivityId">
                                     <option value="">@Localizer["SelectActivity"]</option>
                                 </select>
                                 <span asp-validation-for="ActivityId" class="text-danger"></span>
@@ -41,8 +41,8 @@
                         </div>
 
                         <div class="mb-3">
-                            <label asp-for="GroupId" class="form-label"></label>
-                            <select asp-for="GroupId" class="form-select" asp-items="ViewBag.Groups">
+                            <label for="GroupId" class="form-label">@Localizer["Field.Group"]</label>
+                            <select asp-for="GroupId" class="form-select" asp-items="ViewBag.Groups" id="GroupId">
                                 <option value="">@Localizer["NoGroupOptional"]</option>
                             </select>
                             <span asp-validation-for="GroupId" class="text-danger"></span>
@@ -54,15 +54,15 @@
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <div class="form-check">
-                                    <input asp-for="IsConfirmed" class="form-check-input" type="checkbox" />
-                                    <label asp-for="IsConfirmed" class="form-check-label"></label>
+                                    <input asp-for="IsConfirmed" class="form-check-input" type="checkbox" id="IsConfirmed" />
+                                    <label for="IsConfirmed" class="form-check-label">@Localizer["Field.IsConfirmed"]</label>
                                 </div>
                                 <div class="form-text">@Localizer["Bookings.ConfirmedHelp"]</div>
                             </div>
                             <div class="col-md-6 mb-3">
                                 <div class="form-check">
-                                    <input asp-for="IsMedicalSheet" class="form-check-input" type="checkbox" />
-                                    <label asp-for="IsMedicalSheet" class="form-check-label"></label>
+                                    <input asp-for="IsMedicalSheet" class="form-check-input" type="checkbox" id="IsMedicalSheet" />
+                                    <label for="IsMedicalSheet" class="form-check-label">@Localizer["Field.IsMedicalSheet"]</label>
                                 </div>
                                 <div class="form-text">@Localizer["Bookings.MedicalSheetHelp"]</div>
                             </div>
@@ -87,4 +87,33 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script>
+        $(document).ready(function () {
+            var $activitySelect = $('#ActivityId');
+            var $groupSelect = $('#GroupId');
+            var initialGroupId = $groupSelect.val();
+
+            $activitySelect.on('change', function () {
+                var activityId = $(this).val();
+
+                // Clear and disable group select
+                $groupSelect.empty();
+                $groupSelect.append('<option value="">@Localizer["NoGroupOptional"]</option>');
+
+                if (activityId) {
+                    // Fetch groups for selected activity
+                    $.get('@Url.Action("GetGroupsByActivity", "Bookings")', { activityId: activityId }, function (groups) {
+                        $.each(groups, function (index, group) {
+                            var option = $('<option></option>').val(group.id).text(group.label);
+                            // Restore previously selected group if it exists in new list
+                            if (group.id == initialGroupId) {
+                                option.attr('selected', 'selected');
+                            }
+                            $groupSelect.append(option);
+                        });
+                    });
+                }
+            });
+        });
+    </script>
 }

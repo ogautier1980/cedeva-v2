@@ -20,38 +20,38 @@
 
                         <div class="row g-3">
                             <div class="col-md-6">
-                                <label asp-for="FirstName" class="form-label"></label>
-                                <input asp-for="FirstName" class="form-control" />
+                                <label for="FirstName" class="form-label">@Localizer["Field.FirstName"]</label>
+                                <input asp-for="FirstName" class="form-control" id="FirstName" />
                                 <span asp-validation-for="FirstName" class="text-danger"></span>
                             </div>
 
                             <div class="col-md-6">
-                                <label asp-for="LastName" class="form-label"></label>
-                                <input asp-for="LastName" class="form-control" />
+                                <label for="LastName" class="form-label">@Localizer["Field.LastName"]</label>
+                                <input asp-for="LastName" class="form-control" id="LastName" />
                                 <span asp-validation-for="LastName" class="text-danger"></span>
                             </div>
 
                             <div class="col-12">
-                                <label asp-for="Email" class="form-label"></label>
-                                <input asp-for="Email" class="form-control" type="email" />
+                                <label for="Email" class="form-label">@Localizer["Field.Email"]</label>
+                                <input asp-for="Email" class="form-control" type="email" id="Email" />
                                 <span asp-validation-for="Email" class="text-danger"></span>
                             </div>
 
                             <div class="col-md-6">
-                                <label asp-for="PhoneNumber" class="form-label"></label>
-                                <input asp-for="PhoneNumber" class="form-control" />
+                                <label for="PhoneNumber" class="form-label">@Localizer["Field.PhoneNumber"]</label>
+                                <input asp-for="PhoneNumber" class="form-control" id="PhoneNumber" />
                                 <span asp-validation-for="PhoneNumber" class="text-danger"></span>
                             </div>
 
                             <div class="col-md-6">
-                                <label asp-for="MobilePhoneNumber" class="form-label"></label>
-                                <input asp-for="MobilePhoneNumber" class="form-control" />
+                                <label for="MobilePhoneNumber" class="form-label">@Localizer["Field.MobilePhoneNumber"]</label>
+                                <input asp-for="MobilePhoneNumber" class="form-control" id="MobilePhoneNumber" />
                                 <span asp-validation-for="MobilePhoneNumber" class="text-danger"></span>
                             </div>
 
                             <div class="col-12">
-                                <label asp-for="NationalRegisterNumber" class="form-label"></label>
-                                <input asp-for="NationalRegisterNumber" class="form-control" placeholder="Ex: 85.05.12-123.45" />
+                                <label for="NationalRegisterNumber" class="form-label">@Localizer["Field.NationalRegisterNumber"]</label>
+                                <input asp-for="NationalRegisterNumber" class="form-control" placeholder="Ex: 85.05.12-123.45" id="NationalRegisterNumber" />
                                 <span asp-validation-for="NationalRegisterNumber" class="text-danger"></span>
                             </div>
 
@@ -61,27 +61,27 @@
                             </div>
 
                             <div class="col-12">
-                                <label asp-for="Street" class="form-label"></label>
-                                <input asp-for="Street" class="form-control" />
+                                <label for="Street" class="form-label">@Localizer["Field.Street"]</label>
+                                <input asp-for="Street" class="form-control" id="Street" />
                                 <span asp-validation-for="Street" class="text-danger"></span>
                             </div>
 
                             <div class="col-md-4">
-                                <label asp-for="PostalCode" class="form-label"></label>
-                                <input asp-for="PostalCode" class="form-control" />
+                                <label for="PostalCode" class="form-label">@Localizer["Field.PostalCode"]</label>
+                                <input asp-for="PostalCode" class="form-control" id="PostalCode" />
                                 <span asp-validation-for="PostalCode" class="text-danger"></span>
                             </div>
 
                             <div class="col-md-8">
-                                <label asp-for="City" class="form-label"></label>
-                                <input asp-for="City" class="form-control" />
+                                <label for="City" class="form-label">@Localizer["Field.City"]</label>
+                                <input asp-for="City" class="form-control" id="City" />
                                 <span asp-validation-for="City" class="text-danger"></span>
                             </div>
                         </div>
 
                         <div class="d-grid gap-2 mt-4">
                             <button type="submit" class="btn btn-primary btn-lg">
-                                <i class="fas fa-arrow-right me-2"></i>Continuer
+                                <i class="fas fa-arrow-right me-2"></i>@Localizer["Continue"]
                             </button>
                         </div>
                     </form>

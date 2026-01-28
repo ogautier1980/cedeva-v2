@@ -3,30 +3,46 @@ using Cedeva.Core.Enums;
 using Cedeva.Core.Interfaces;
 using Cedeva.Infrastructure.Data;
 using Cedeva.Website.Features.PublicRegistration.ViewModels;
+using Cedeva.Website.Localization;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Localization;
 using System.Text.Json;
 
 namespace Cedeva.Website.Features.PublicRegistration;
 
 public class PublicRegistrationController : Controller
 {
+    private const string TempDataOrganisationId = "OrganisationId";
+    private const string TempDataActivityId = "ActivityId";
+    private const string TempDataParentId = "ParentId";
+    private const string TempDataChildId = "ChildId";
+    private const string TempDataQuestionAnswers = "QuestionAnswers";
+
     private readonly CedevaDbContext _context;
     private readonly IEmailService _emailService;
+    private readonly IStringLocalizer<SharedResources> _localizer;
 
     public PublicRegistrationController(
         CedevaDbContext context,
-        IEmailService emailService)
+        IEmailService emailService,
+        IStringLocalizer<SharedResources> localizer)
     {
         _context = context;
         _emailService = emailService;
+        _localizer = localizer;
     }
 
     // GET: PublicRegistration/SelectActivity?orgId=1
     [AllowAnonymous]
     public async Task<IActionResult> SelectActivity(int orgId)
     {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
         var activities = await _context.Activities
             .Where(a => a.OrganisationId == orgId && a.StartDate > DateTime.Now)
             .OrderBy(a => a.StartDate)
@@ -37,7 +53,7 @@ public class PublicRegistrationController : Controller
             AvailableActivities = activities
         };
 
-        TempData["OrganisationId"] = orgId;
+        TempData[TempDataOrganisationId] = orgId;
 
         return View(viewModel);
     }
@@ -53,8 +69,8 @@ public class PublicRegistrationController : Controller
             return View(model);
         }
 
-        TempData["ActivityId"] = model.ActivityId;
-        TempData.Keep("OrganisationId");
+        TempData[TempDataActivityId] = model.ActivityId;
+        TempData.Keep(TempDataOrganisationId);
 
         return RedirectToAction(nameof(ParentInformation));
     }
@@ -63,18 +79,18 @@ public class PublicRegistrationController : Controller
     [AllowAnonymous]
     public IActionResult ParentInformation()
     {
-        if (TempData["ActivityId"] == null)
+        if (TempData[TempDataActivityId] == null)
         {
             return RedirectToAction(nameof(SelectActivity));
         }
 
         var viewModel = new ParentInformationViewModel
         {
-            ActivityId = (int)TempData["ActivityId"]!
+            ActivityId = (int)TempData[TempDataActivityId]!
         };
 
-        TempData.Keep("ActivityId");
-        TempData.Keep("OrganisationId");
+        TempData.Keep(TempDataActivityId);
+        TempData.Keep(TempDataOrganisationId);
 
         return View(viewModel);
     }
@@ -90,7 +106,7 @@ public class PublicRegistrationController : Controller
             return View(model);
         }
 
-        var organisationId = (int)TempData["OrganisationId"]!;
+        var organisationId = (int)TempData[TempDataOrganisationId]!;
 
         // Check if parent already exists by email
         var existingParent = await _context.Parents
@@ -157,9 +173,9 @@ public class PublicRegistrationController : Controller
             parentId = parent.Id;
         }
 
-        TempData["ParentId"] = parentId;
-        TempData.Keep("ActivityId");
-        TempData.Keep("OrganisationId");
+        TempData[TempDataParentId] = parentId;
+        TempData.Keep(TempDataActivityId);
+        TempData.Keep(TempDataOrganisationId);
 
         return RedirectToAction(nameof(ChildInformation));
     }
@@ -168,20 +184,20 @@ public class PublicRegistrationController : Controller
     [AllowAnonymous]
     public IActionResult ChildInformation()
     {
-        if (TempData["ActivityId"] == null || TempData["ParentId"] == null)
+        if (TempData[TempDataActivityId] == null || TempData[TempDataParentId] == null)
         {
             return RedirectToAction(nameof(SelectActivity));
         }
 
         var viewModel = new ChildInformationViewModel
         {
-            ActivityId = (int)TempData["ActivityId"]!,
-            ParentId = (int)TempData["ParentId"]!
+            ActivityId = (int)TempData[TempDataActivityId]!,
+            ParentId = (int)TempData[TempDataParentId]!
         };
 
-        TempData.Keep("ActivityId");
-        TempData.Keep("ParentId");
-        TempData.Keep("OrganisationId");
+        TempData.Keep(TempDataActivityId);
+        TempData.Keep(TempDataParentId);
+        TempData.Keep(TempDataOrganisationId);
 
         return View(viewModel);
     }
@@ -236,10 +252,10 @@ public class PublicRegistrationController : Controller
             childId = child.Id;
         }
 
-        TempData["ChildId"] = childId;
-        TempData.Keep("ActivityId");
-        TempData.Keep("ParentId");
-        TempData.Keep("OrganisationId");
+        TempData[TempDataChildId] = childId;
+        TempData.Keep(TempDataActivityId);
+        TempData.Keep(TempDataParentId);
+        TempData.Keep(TempDataOrganisationId);
 
         return RedirectToAction(nameof(ActivityQuestions));
     }
@@ -248,12 +264,12 @@ public class PublicRegistrationController : Controller
     [AllowAnonymous]
     public async Task<IActionResult> ActivityQuestions()
     {
-        if (TempData["ActivityId"] == null || TempData["ParentId"] == null || TempData["ChildId"] == null)
+        if (TempData[TempDataActivityId] == null || TempData[TempDataParentId] == null || TempData[TempDataChildId] == null)
         {
             return RedirectToAction(nameof(SelectActivity));
         }
 
-        var activityId = (int)TempData["ActivityId"]!;
+        var activityId = (int)TempData[TempDataActivityId]!;
 
         var questions = await _context.ActivityQuestions
             .Where(q => q.ActivityId == activityId)
@@ -263,15 +279,15 @@ public class PublicRegistrationController : Controller
         var viewModel = new ActivityQuestionsViewModel
         {
             ActivityId = activityId,
-            ParentId = (int)TempData["ParentId"]!,
-            ChildId = (int)TempData["ChildId"]!,
+            ParentId = (int)TempData[TempDataParentId]!,
+            ChildId = (int)TempData[TempDataChildId]!,
             Questions = questions
         };
 
-        TempData.Keep("ActivityId");
-        TempData.Keep("ParentId");
-        TempData.Keep("ChildId");
-        TempData.Keep("OrganisationId");
+        TempData.Keep(TempDataActivityId);
+        TempData.Keep(TempDataParentId);
+        TempData.Keep(TempDataChildId);
+        TempData.Keep(TempDataOrganisationId);
 
         // If no questions, skip to confirmation
         if (!questions.Any())
@@ -293,12 +309,13 @@ public class PublicRegistrationController : Controller
             .Where(q => q.ActivityId == model.ActivityId && q.IsRequired)
             .ToListAsync();
 
-        foreach (var question in questions)
+        var missingQuestions = questions
+            .Where(q => !model.Answers.ContainsKey(q.Id) || string.IsNullOrWhiteSpace(model.Answers[q.Id]))
+            .ToList();
+
+        foreach (var question in missingQuestions)
         {
-            if (!model.Answers.ContainsKey(question.Id) || string.IsNullOrWhiteSpace(model.Answers[question.Id]))
-            {
-                ModelState.AddModelError("", $"La question '{question.QuestionText}' est obligatoire.");
-            }
+            ModelState.AddModelError("", $"La question '{question.QuestionText}' est obligatoire.");
         }
 
         if (!ModelState.IsValid)
@@ -311,11 +328,11 @@ public class PublicRegistrationController : Controller
         }
 
         // Store answers in TempData
-        TempData["QuestionAnswers"] = JsonSerializer.Serialize(model.Answers);
-        TempData.Keep("ActivityId");
-        TempData.Keep("ParentId");
-        TempData.Keep("ChildId");
-        TempData.Keep("OrganisationId");
+        TempData[TempDataQuestionAnswers] = JsonSerializer.Serialize(model.Answers);
+        TempData.Keep(TempDataActivityId);
+        TempData.Keep(TempDataParentId);
+        TempData.Keep(TempDataChildId);
+        TempData.Keep(TempDataOrganisationId);
 
         return RedirectToAction(nameof(CreateBooking));
     }
@@ -324,13 +341,13 @@ public class PublicRegistrationController : Controller
     [AllowAnonymous]
     public async Task<IActionResult> CreateBooking()
     {
-        if (TempData["ActivityId"] == null || TempData["ParentId"] == null || TempData["ChildId"] == null)
+        if (TempData[TempDataActivityId] == null || TempData[TempDataParentId] == null || TempData[TempDataChildId] == null)
         {
             return RedirectToAction(nameof(SelectActivity));
         }
 
-        var activityId = (int)TempData["ActivityId"]!;
-        var childId = (int)TempData["ChildId"]!;
+        var activityId = (int)TempData[TempDataActivityId]!;
+        var childId = (int)TempData[TempDataChildId]!;
 
         // Check if booking already exists
         var existingBooking = await _context.Bookings
@@ -338,7 +355,7 @@ public class PublicRegistrationController : Controller
 
         if (existingBooking)
         {
-            ModelState.AddModelError("", "Une inscription existe déjà pour cet enfant et cette activité.");
+            ModelState.AddModelError("", _localizer["Message.BookingAlreadyExists"]);
             return RedirectToAction(nameof(SelectActivity));
         }
 
@@ -356,9 +373,9 @@ public class PublicRegistrationController : Controller
         await _context.SaveChangesAsync();
 
         // Save question answers if any
-        if (TempData["QuestionAnswers"] != null)
+        if (TempData[TempDataQuestionAnswers] != null)
         {
-            var answersJson = TempData["QuestionAnswers"]!.ToString();
+            var answersJson = TempData[TempDataQuestionAnswers]!.ToString();
             var answers = JsonSerializer.Deserialize<Dictionary<int, string>>(answersJson!);
 
             if (answers != null)
@@ -378,7 +395,7 @@ public class PublicRegistrationController : Controller
         }
 
         // Send confirmation email
-        var parent = await _context.Parents.FindAsync((int)TempData["ParentId"]!);
+        var parent = await _context.Parents.FindAsync((int)TempData[TempDataParentId]!);
         var child = await _context.Children.FindAsync(childId);
         var activity = await _context.Activities.FindAsync(activityId);
 
@@ -394,6 +411,11 @@ public class PublicRegistrationController : Controller
     [AllowAnonymous]
     public async Task<IActionResult> Confirmation(int bookingId)
     {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
         var booking = await _context.Bookings
             .Include(b => b.Activity)
             .Include(b => b.Child)
@@ -443,6 +465,11 @@ public class PublicRegistrationController : Controller
     [Authorize(Roles = "Admin,Coordinator")]
     public IActionResult EmbedCode(int orgId)
     {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
         var baseUrl = $"{Request.Scheme}://{Request.Host}";
         var iframeUrl = $"{baseUrl}/PublicRegistration/SelectActivity?orgId={orgId}";
 

@@ -22,25 +22,25 @@
                     <form asp-action="Profile" method="post">
                         <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
 
-                        <h6 class="mb-3 text-primary"><i class="fas fa-user me-2"></i>Informations personnelles</h6>
+                        <h6 class="mb-3 text-primary"><i class="fas fa-user me-2"></i>@Localizer["Account.PersonalInformation"]</h6>
 
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label asp-for="FirstName" class="form-label"></label>
-                                <input asp-for="FirstName" class="form-control" />
+                                <label for="FirstName" class="form-label">@Localizer["Field.FirstName"]</label>
+                                <input asp-for="FirstName" class="form-control" id="FirstName" />
                                 <span asp-validation-for="FirstName" class="text-danger"></span>
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label asp-for="LastName" class="form-label"></label>
-                                <input asp-for="LastName" class="form-control" />
+                                <label for="LastName" class="form-label">@Localizer["Field.LastName"]</label>
+                                <input asp-for="LastName" class="form-control" id="LastName" />
                                 <span asp-validation-for="LastName" class="text-danger"></span>
                             </div>
                         </div>
 
                         <div class="mb-3">
-                            <label asp-for="Email" class="form-label"></label>
-                            <input asp-for="Email" class="form-control" disabled />
-                            <div class="form-text">L'email ne peut pas être modifié</div>
+                            <label for="Email" class="form-label">@Localizer["Field.Email"]</label>
+                            <input asp-for="Email" class="form-control" id="Email" disabled />
+                            <div class="form-text">@Localizer["Account.EmailCannotBeModified"]</div>
                         </div>
 
                         <hr />
@@ -61,7 +61,7 @@
         <div class="col-lg-4">
             <div class="card shadow">
                 <div class="card-header">
-                    <h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>Informations du compte</h6>
+                    <h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>@Localizer["Account.AccountInformation"]</h6>
                 </div>
                 <div class="card-body">
                     <dl class="row mb-0">
@@ -78,10 +78,10 @@
 
             <div class="card shadow mt-3">
                 <div class="card-header">
-                    <h6 class="mb-0"><i class="fas fa-key me-2"></i>Sécurité</h6>
+                    <h6 class="mb-0"><i class="fas fa-key me-2"></i>@Localizer["Account.Security"]</h6>
                 </div>
                 <div class="card-body">
-                    <p class="mb-2">Pour modifier votre mot de passe, veuillez contacter votre administrateur.</p>
+                    <p class="mb-2">@Localizer["Account.PasswordChangeContactAdmin"]</p>
                 </div>
             </div>
         </div>

@@ -31,9 +31,9 @@ public class HomeController : Controller
 
     public async Task<IActionResult> Index()
     {
-        var children = await _childRepository.GetAllAsync();
-        var parents = await _parentRepository.GetAllAsync();
-        var teamMembers = await _teamMemberRepository.GetAllAsync();
+        var children = (await _childRepository.GetAllAsync()).ToList();
+        var parents = (await _parentRepository.GetAllAsync()).ToList();
+        var teamMembers = (await _teamMemberRepository.GetAllAsync()).ToList();
 
         // Load activities with bookings count using DbContext for proper Include
         var activities = await _context.Activities
@@ -52,9 +52,9 @@ public class HomeController : Controller
             ActiveActivities = activities.Count(a => a.StartDate <= DateTime.Now && a.EndDate >= DateTime.Now),
             TotalBookings = bookings.Count,
             ConfirmedBookings = bookings.Count(b => b.IsConfirmed),
-            TotalChildren = children.Count(),
-            TotalParents = parents.Count(),
-            TotalTeamMembers = teamMembers.Count(),
+            TotalChildren = children.Count,
+            TotalParents = parents.Count,
+            TotalTeamMembers = teamMembers.Count,
             RecentActivities = activities
                 .OrderByDescending(a => a.StartDate)
                 .Take(5)

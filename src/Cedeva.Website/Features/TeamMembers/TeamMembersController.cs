@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Cedeva.Core.Entities;
 using Cedeva.Core.Interfaces;
 using Cedeva.Website.Features.TeamMembers.ViewModels;
+using Cedeva.Website.Localization;
 using Cedeva.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Localization;
@@ -12,6 +13,8 @@ namespace Cedeva.Website.Features.TeamMembers;
 [Authorize]
 public class TeamMembersController : Controller
 {
+    private const string TempDataSuccessMessage = "SuccessMessage";
+
     private readonly IRepository<TeamMember> _teamMemberRepository;
     private readonly IRepository<Address> _addressRepository;
     private readonly CedevaDbContext _context;
@@ -57,10 +60,10 @@ public class TeamMembersController : Controller
                 t.Email.Contains(searchString, StringComparison.OrdinalIgnoreCase));
         }
 
-        var totalItems = query.Count();
+        var totalItems = await query.CountAsync();
         var totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
 
-        var teamMembers = query
+        var teamMembers = await query
             .OrderBy(t => t.LastName)
             .ThenBy(t => t.FirstName)
             .Skip((pageNumber - 1) * pageSize)
@@ -77,7 +80,7 @@ public class TeamMembersController : Controller
                 Status = t.Status,
                 OrganisationId = t.OrganisationId
             })
-            .ToList();
+            .ToListAsync();
 
         ViewData["SearchString"] = searchString;
         ViewData["PageNumber"] = pageNumber;
@@ -116,25 +119,26 @@ public class TeamMembersController : Controller
 
         var columns = new Dictionary<string, Func<TeamMember, object>>
         {
-            { "Prénom", t => t.FirstName },
-            { "Nom", t => t.LastName },
-            { "Email", t => t.Email },
-            { "GSM", t => t.MobilePhoneNumber },
-            { "Numéro national", t => t.NationalRegisterNumber },
-            { "Date de naissance", t => t.BirthDate },
-            { "Âge", t => DateTime.Today.Year - t.BirthDate.Year - (DateTime.Today.DayOfYear < t.BirthDate.DayOfYear ? 1 : 0) },
-            { "Rôle", t => t.TeamRole.ToString() },
-            { "Brevet", t => t.License.ToString() },
-            { "Statut", t => t.Status.ToString() },
-            { "Indemnité journalière", t => t.DailyCompensation ?? 0m },
-            { "Organisation", t => t.Organisation?.Name ?? "" },
-            { "Rue", t => t.Address?.Street ?? "" },
-            { "Code postal", t => t.Address?.PostalCode.ToString() ?? "" },
-            { "Ville", t => t.Address?.City ?? "" }
+            { _localizer["Excel.FirstName"], t => t.FirstName },
+            { _localizer["Excel.LastName"], t => t.LastName },
+            { _localizer["Excel.Email"], t => t.Email },
+            { _localizer["Excel.MobilePhone"], t => t.MobilePhoneNumber },
+            { _localizer["Excel.NationalRegisterNumber"], t => t.NationalRegisterNumber },
+            { _localizer["Excel.BirthDate"], t => t.BirthDate },
+            { _localizer["Excel.Age"], t => DateTime.Today.Year - t.BirthDate.Year - (DateTime.Today.DayOfYear < t.BirthDate.DayOfYear ? 1 : 0) },
+            { _localizer["Excel.Role"], t => t.TeamRole.ToString() },
+            { _localizer["Excel.License"], t => t.License.ToString() },
+            { _localizer["Excel.Status"], t => t.Status.ToString() },
+            { _localizer["Excel.DailyCompensation"], t => t.DailyCompensation ?? 0m },
+            { _localizer["Excel.Organisation"], t => t.Organisation?.Name ?? "" },
+            { _localizer["Excel.Street"], t => t.Address?.Street ?? "" },
+            { _localizer["Excel.PostalCode"], t => t.Address?.PostalCode.ToString() ?? "" },
+            { _localizer["Excel.City"], t => t.Address?.City ?? "" }
         };
 
-        var excelData = _excelExportService.ExportToExcel(teamMembers, "Équipe", columns);
-        var fileName = $"Equipe_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx";
+        var sheetName = _localizer["Excel.TeamMembersSheet"];
+        var excelData = _excelExportService.ExportToExcel(teamMembers, sheetName, columns);
+        var fileName = $"{sheetName}_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx";
 
         return File(excelData, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
     }
@@ -215,7 +219,7 @@ public class TeamMembersController : Controller
             await _teamMemberRepository.AddAsync(teamMember);
             await _unitOfWork.SaveChangesAsync();
 
-            TempData["SuccessMessage"] = _localizer["Message.TeamMemberCreated"];
+            TempData[TempDataSuccessMessage] = _localizer["Message.TeamMemberCreated"];
             return RedirectToAction(nameof(Details), new { id = teamMember.TeamMemberId });
         }
 
@@ -310,7 +314,7 @@ public class TeamMembersController : Controller
             await _teamMemberRepository.UpdateAsync(teamMember);
             await _unitOfWork.SaveChangesAsync();
 
-            TempData["SuccessMessage"] = _localizer["Message.TeamMemberUpdated"];
+            TempData[TempDataSuccessMessage] = _localizer["Message.TeamMemberUpdated"];
             return RedirectToAction(nameof(Details), new { id = teamMember.TeamMemberId });
         }
 
@@ -326,13 +330,7 @@ public class TeamMembersController : Controller
         }
 
         var viewModel = await GetTeamMemberViewModelAsync(id);
-
-        if (viewModel == null)
-        {
-            return NotFound();
-        }
-
-        return View(viewModel);
+        return viewModel == null ? NotFound() : View(viewModel);
     }
 
     // POST: TeamMembers/Delete/5
@@ -340,6 +338,11 @@ public class TeamMembersController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteConfirmed(int id)
     {
+        if (!ModelState.IsValid)
+        {
+            return RedirectToAction(nameof(Index));
+        }
+
         var teamMember = await _teamMemberRepository.GetByIdAsync(id);
 
         if (teamMember == null)
@@ -361,7 +364,7 @@ public class TeamMembersController : Controller
             await _unitOfWork.SaveChangesAsync();
         }
 
-        TempData["SuccessMessage"] = _localizer["Message.TeamMemberDeleted"];
+        TempData[TempDataSuccessMessage] = _localizer["Message.TeamMemberDeleted"];
         return RedirectToAction(nameof(Index));
     }
 

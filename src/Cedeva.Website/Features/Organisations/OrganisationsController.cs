@@ -5,6 +5,7 @@ using Microsoft.Extensions.Localization;
 using Cedeva.Core.Entities;
 using Cedeva.Core.Interfaces;
 using Cedeva.Website.Features.Organisations.ViewModels;
+using Cedeva.Website.Localization;
 using Cedeva.Infrastructure.Data;
 
 namespace Cedeva.Website.Features.Organisations;
@@ -12,6 +13,8 @@ namespace Cedeva.Website.Features.Organisations;
 [Authorize(Roles = "Admin")]
 public class OrganisationsController : Controller
 {
+    private const string TempDataSuccessMessage = "SuccessMessage";
+
     private readonly IRepository<Organisation> _organisationRepository;
     private readonly IRepository<Address> _addressRepository;
     private readonly CedevaDbContext _context;
@@ -174,7 +177,7 @@ public class OrganisationsController : Controller
             await _organisationRepository.AddAsync(organisation);
             await _unitOfWork.SaveChangesAsync();
 
-            TempData["SuccessMessage"] = _localizer["Message.OrganisationCreated"];
+            TempData[TempDataSuccessMessage] = _localizer["Message.OrganisationCreated"];
             return RedirectToAction(nameof(Details), new { id = organisation.Id });
         }
 
@@ -252,7 +255,7 @@ public class OrganisationsController : Controller
             await _organisationRepository.UpdateAsync(organisation);
             await _unitOfWork.SaveChangesAsync();
 
-            TempData["SuccessMessage"] = _localizer["Message.OrganisationUpdated"];
+            TempData[TempDataSuccessMessage] = _localizer["Message.OrganisationUpdated"];
             return RedirectToAction(nameof(Details), new { id = organisation.Id });
         }
 
@@ -308,7 +311,7 @@ public class OrganisationsController : Controller
             await _unitOfWork.SaveChangesAsync();
         }
 
-        TempData["SuccessMessage"] = _localizer["Message.OrganisationDeleted"];
+        TempData[TempDataSuccessMessage] = _localizer["Message.OrganisationDeleted"];
         return RedirectToAction(nameof(Index));
     }
 

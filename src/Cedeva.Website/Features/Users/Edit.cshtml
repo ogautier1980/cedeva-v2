@@ -17,34 +17,34 @@
 
                     <div class="row mb-3">
                         <div class="col-md-6">
-                            <label asp-for="FirstName" class="form-label"></label>
-                            <input asp-for="FirstName" class="form-control" />
+                            <label for="FirstName" class="form-label">@Localizer["Field.FirstName"]</label>
+                            <input asp-for="FirstName" class="form-control" id="FirstName" />
                             <span asp-validation-for="FirstName" class="text-danger"></span>
                         </div>
                         <div class="col-md-6">
-                            <label asp-for="LastName" class="form-label"></label>
-                            <input asp-for="LastName" class="form-control" />
+                            <label for="LastName" class="form-label">@Localizer["Field.LastName"]</label>
+                            <input asp-for="LastName" class="form-control" id="LastName" />
                             <span asp-validation-for="LastName" class="text-danger"></span>
                         </div>
                     </div>
 
                     <div class="mb-3">
-                        <label asp-for="Email" class="form-label"></label>
-                        <input asp-for="Email" class="form-control" type="email" />
+                        <label for="Email" class="form-label">@Localizer["Field.Email"]</label>
+                        <input asp-for="Email" class="form-control" type="email" id="Email" />
                         <span asp-validation-for="Email" class="text-danger"></span>
                     </div>
 
                     <div class="mb-3">
-                        <label asp-for="OrganisationId" class="form-label"></label>
-                        <select asp-for="OrganisationId" class="form-select" asp-items="ViewBag.Organisations">
+                        <label for="OrganisationId" class="form-label">@Localizer["Field.Organisation"]</label>
+                        <select asp-for="OrganisationId" class="form-select" asp-items="ViewBag.Organisations" id="OrganisationId">
                             <option value="">@Localizer["SelectOrganisationOptional"]</option>
                         </select>
                         <span asp-validation-for="OrganisationId" class="text-danger"></span>
                     </div>
 
                     <div class="mb-3">
-                        <label asp-for="Role" class="form-label"></label>
-                        <select asp-for="Role" class="form-select">
+                        <label for="Role" class="form-label">@Localizer["Field.Role"]</label>
+                        <select asp-for="Role" class="form-select" id="Role">
                             <option value="@Cedeva.Core.Enums.Role.Coordinator">@Localizer["Enum.Role.Coordinator"]</option>
                             <option value="@Cedeva.Core.Enums.Role.Admin">@Localizer["Enum.Role.Admin"]</option>
                         </select>
@@ -55,27 +55,27 @@
 
                     <div class="alert alert-info" role="alert">
                         <i class="fas fa-info-circle me-2"></i>
-                        Laissez les champs de mot de passe vides si vous ne souhaitez pas le modifier
+                        @Localizer["Users.LeavePasswordFieldsEmptyToKeep"]
                     </div>
 
                     <div class="row mb-3">
                         <div class="col-md-6">
-                            <label asp-for="Password" class="form-label">Nouveau mot de passe (optionnel)</label>
-                            <input asp-for="Password" class="form-control" type="password" />
+                            <label for="Password" class="form-label">@Localizer["Users.NewPasswordOptional"]</label>
+                            <input asp-for="Password" class="form-control" type="password" id="Password" />
                             <span asp-validation-for="Password" class="text-danger"></span>
-                            <small class="form-text text-muted">Minimum 8 caractères</small>
+                            <small class="form-text text-muted">@Localizer["Users.MinimumCharacters"]</small>
                         </div>
                         <div class="col-md-6">
-                            <label asp-for="ConfirmPassword" class="form-label"></label>
-                            <input asp-for="ConfirmPassword" class="form-control" type="password" />
+                            <label for="ConfirmPassword" class="form-label">@Localizer["Account.ConfirmPassword"]</label>
+                            <input asp-for="ConfirmPassword" class="form-control" type="password" id="ConfirmPassword" />
                             <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
                         </div>
                     </div>
 
                     <div class="mb-3">
                         <div class="form-check">
-                            <input asp-for="EmailConfirmed" class="form-check-input" type="checkbox" />
-                            <label asp-for="EmailConfirmed" class="form-check-label"></label>
+                            <input asp-for="EmailConfirmed" class="form-check-input" type="checkbox" id="EmailConfirmed" />
+                            <label for="EmailConfirmed" class="form-check-label">@Localizer["Field.EmailConfirmed"]</label>
                         </div>
                     </div>
 
@@ -84,7 +84,7 @@
                             <i class="fas fa-times me-1"></i>@Localizer["Cancel"]
                         </a>
                         <button type="submit" class="btn btn-primary text-nowrap">
-                            <i class="fas fa-save me-1"></i>@Localizer["Save"] les modifications
+                            <i class="fas fa-save me-1"></i>@Localizer["Users.SaveChanges"]
                         </button>
                     </div>
                 </form>

@@ -41,29 +41,29 @@
                         <input type="hidden" asp-for="ActivityName" />
 
                         <div class="mb-3">
-                            <label asp-for="SelectedRecipient" class="form-label">@Localizer["Email.Recipient"]</label>
-                            <select asp-for="SelectedRecipient" asp-items="Model.RecipientOptions" class="form-select">
+                            <label for="SelectedRecipient" class="form-label">@Localizer["Email.Recipient"]</label>
+                            <select asp-for="SelectedRecipient" asp-items="Model.RecipientOptions" class="form-select" id="SelectedRecipient">
                                 <option value="">@Localizer["Email.SelectRecipient"]</option>
                             </select>
                             <span asp-validation-for="SelectedRecipient" class="text-danger"></span>
                         </div>
 
                         <div class="mb-3">
-                            <label asp-for="Subject" class="form-label">@Localizer["Email.Subject"]</label>
-                            <input asp-for="Subject" class="form-control" placeholder="@Localizer["Email.SubjectPlaceholder"]" />
+                            <label for="Subject" class="form-label">@Localizer["Email.Subject"]</label>
+                            <input asp-for="Subject" class="form-control" placeholder="@Localizer["Email.SubjectPlaceholder"]" id="Subject" />
                             <span asp-validation-for="Subject" class="text-danger"></span>
                         </div>
 
                         <div class="mb-3">
-                            <label asp-for="Message" class="form-label">@Localizer["Email.Message"]</label>
-                            <textarea asp-for="Message" class="form-control" rows="8" placeholder="@Localizer["Email.MessagePlaceholder"]"></textarea>
+                            <label for="Message" class="form-label">@Localizer["Email.Message"]</label>
+                            <textarea asp-for="Message" class="form-control" rows="8" placeholder="@Localizer["Email.MessagePlaceholder"]" id="Message"></textarea>
                             <span asp-validation-for="Message" class="text-danger"></span>
                             <div class="form-text">@Localizer["Email.MessageNote"]</div>
                         </div>
 
                         <div class="mb-3">
-                            <label asp-for="AttachmentFile" class="form-label">@Localizer["Email.Attachment"]</label>
-                            <input asp-for="AttachmentFile" type="file" class="form-control" />
+                            <label for="AttachmentFile" class="form-label">@Localizer["Email.Attachment"]</label>
+                            <input asp-for="AttachmentFile" type="file" class="form-control" id="AttachmentFile" />
                             <span asp-validation-for="AttachmentFile" class="text-danger"></span>
                             <div class="form-text">@Localizer["Email.AttachmentFormats"]</div>
                         </div>

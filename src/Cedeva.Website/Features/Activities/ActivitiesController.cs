@@ -2,6 +2,7 @@ using Cedeva.Core.Entities;
 using Cedeva.Core.Interfaces;
 using Cedeva.Infrastructure.Data;
 using Cedeva.Website.Features.Activities.ViewModels;
+using Cedeva.Website.Localization;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -12,6 +13,9 @@ namespace Cedeva.Website.Features.Activities;
 [Authorize]
 public class ActivitiesController : Controller
 {
+    private const string TempDataSuccess = "Success";
+    private const string TempDataError = "Error";
+
     private readonly CedevaDbContext _context;
     private readonly ICurrentUserService _currentUserService;
     private readonly ILogger<ActivitiesController> _logger;
@@ -147,7 +151,7 @@ public class ActivitiesController : Controller
 
         if (viewModel.EndDate < viewModel.StartDate)
         {
-            ModelState.AddModelError("EndDate", "La date de fin doit être postérieure à la date de début");
+            ModelState.AddModelError("EndDate", _localizer["Validation.EndDateAfterStartDate"]);
             return View(viewModel);
         }
 
@@ -185,7 +189,7 @@ public class ActivitiesController : Controller
 
         _logger.LogInformation("Activity {Name} created by user {UserId}", activity.Name, _currentUserService.UserId);
 
-        TempData["Success"] = _localizer["Message.ActivityCreated"];
+        TempData[TempDataSuccess] = _localizer["Message.ActivityCreated"];
         return RedirectToAction(nameof(Index));
     }
 
@@ -234,7 +238,7 @@ public class ActivitiesController : Controller
 
         if (viewModel.EndDate < viewModel.StartDate)
         {
-            ModelState.AddModelError("EndDate", "La date de fin doit être postérieure à la date de début");
+            ModelState.AddModelError("EndDate", _localizer["Validation.EndDateAfterStartDate"]);
             return View(viewModel);
         }
 
@@ -255,15 +259,16 @@ public class ActivitiesController : Controller
         {
             await _context.SaveChangesAsync();
             _logger.LogInformation("Activity {Name} updated by user {UserId}", activity.Name, _currentUserService.UserId);
-            TempData["Success"] = _localizer["Message.ActivityUpdated"];
+            TempData[TempDataSuccess] = _localizer["Message.ActivityUpdated"];
         }
-        catch (DbUpdateConcurrencyException)
+        catch (DbUpdateConcurrencyException ex)
         {
             if (!await ActivityExists(id))
             {
                 return NotFound();
             }
-            throw;
+            _logger.LogError(ex, "Concurrency error updating activity {Id}", id);
+            throw new InvalidOperationException($"Failed to update activity {id} due to concurrency conflict", ex);
         }
 
         return RedirectToAction(nameof(Index));
@@ -294,6 +299,11 @@ public class ActivitiesController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteConfirmed(int id)
     {
+        if (!ModelState.IsValid)
+        {
+            return RedirectToAction(nameof(Index));
+        }
+
         var activity = await _context.Activities
             .Include(a => a.Bookings)
             .FirstOrDefaultAsync(a => a.Id == id);
@@ -305,7 +315,7 @@ public class ActivitiesController : Controller
 
         if (activity.Bookings.Any())
         {
-            TempData["Error"] = _localizer["Message.ActivityHasBookings"];
+            TempData[TempDataError] = _localizer["Message.ActivityHasBookings"];
             return RedirectToAction(nameof(Index));
         }
 
@@ -313,7 +323,7 @@ public class ActivitiesController : Controller
         await _context.SaveChangesAsync();
 
         _logger.LogInformation("Activity {Name} deleted by user {UserId}", activity.Name, _currentUserService.UserId);
-        TempData["Success"] = _localizer["Message.ActivityDeleted"];
+        TempData[TempDataSuccess] = _localizer["Message.ActivityDeleted"];
 
         return RedirectToAction(nameof(Index));
     }
@@ -378,20 +388,21 @@ public class ActivitiesController : Controller
 
         var columns = new Dictionary<string, Func<Activity, object>>
         {
-            { "Nom", a => a.Name },
-            { "Description", a => a.Description },
-            { "Organisation", a => a.Organisation.Name },
-            { "Date début", a => a.StartDate },
-            { "Date fin", a => a.EndDate },
-            { "Prix par jour", a => (object?)a.PricePerDay ?? "N/A" },
-            { "Actif", a => a.IsActive },
-            { "Inscriptions", a => a.Bookings.Count },
-            { "Groupes", a => a.Groups.Count },
-            { "Équipe", a => a.TeamMembers.Count }
+            { _localizer["Excel.Name"], a => a.Name },
+            { _localizer["Excel.Description"], a => a.Description },
+            { _localizer["Excel.Organisation"], a => a.Organisation.Name },
+            { _localizer["Excel.StartDate"], a => a.StartDate },
+            { _localizer["Excel.EndDate"], a => a.EndDate },
+            { _localizer["Excel.PricePerDay"], a => (object?)a.PricePerDay ?? "N/A" },
+            { _localizer["Excel.Active"], a => a.IsActive },
+            { _localizer["Excel.Bookings"], a => a.Bookings.Count },
+            { _localizer["Excel.Groups"], a => a.Groups.Count },
+            { _localizer["Excel.Team"], a => a.TeamMembers.Count }
         };
 
-        var excelData = _excelExportService.ExportToExcel(activities, "Activités", columns);
-        var fileName = $"Activites_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx";
+        var sheetName = _localizer["Excel.ActivitiesSheet"];
+        var excelData = _excelExportService.ExportToExcel(activities, sheetName, columns);
+        var fileName = $"{sheetName}_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx";
 
         return File(excelData, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
     }

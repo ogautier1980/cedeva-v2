@@ -1,0 +1,59 @@
+@model Cedeva.Website.Features.ActivityGroups.ViewModels.ActivityGroupViewModel
+@{
+    ViewData["Title"] = Localizer["ActivityGroups.Edit"];
+}
+
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-edit me-2"></i>@Localizer["ActivityGroups.Edit"]</h5>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Edit" method="post">
+                        <input type="hidden" asp-for="Id" />
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+                        <div class="mb-3">
+                            <label for="ActivityId" class="form-label">@Localizer["Field.Activity"]</label>
+                            <select asp-for="ActivityId" class="form-select" asp-items="ViewBag.Activities" id="ActivityId">
+                                <option value="">@Localizer["SelectActivity"]</option>
+                            </select>
+                            <span asp-validation-for="ActivityId" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="Label" class="form-label">@Localizer["Field.Label"]</label>
+                            <input asp-for="Label" class="form-control" placeholder="@Localizer["ActivityGroups.LabelPlaceholder"]" id="Label" />
+                            <span asp-validation-for="Label" class="text-danger"></span>
+                            <div class="form-text">@Localizer["ActivityGroups.LabelHelp"]</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="Capacity" class="form-label">@Localizer["Field.Capacity"]</label>
+                            <input asp-for="Capacity" type="number" min="1" class="form-control" placeholder="@Localizer["ActivityGroups.CapacityPlaceholder"]" id="Capacity" />
+                            <span asp-validation-for="Capacity" class="text-danger"></span>
+                            <div class="form-text">@Localizer["ActivityGroups.CapacityHelp"]</div>
+                        </div>
+
+                        <hr />
+
+                        <div class="d-flex justify-content-between">
+                            <a asp-action="Index" asp-route-activityId="@Model.ActivityId" class="btn btn-outline-secondary text-nowrap">
+                                <i class="fas fa-arrow-left me-2"></i>@Localizer["Cancel"]
+                            </a>
+                            <button type="submit" class="btn btn-primary text-nowrap">
+                                <i class="fas fa-save me-2"></i>@Localizer["Save"]
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

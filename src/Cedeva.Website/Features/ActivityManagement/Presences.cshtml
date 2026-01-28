@@ -37,8 +37,8 @@
             <form asp-action="Presences" method="get" class="row g-3 align-items-end">
                 <input type="hidden" name="id" value="@Model.Activity.Id" />
                 <div class="col-md-6">
-                    <label class="form-label fw-bold">@Localizer["ActivityManagement.SelectDay"]</label>
-                    <select name="dayId" class="form-select" onchange="this.form.submit()">
+                    <label for="dayId" class="form-label fw-bold">@Localizer["ActivityManagement.SelectDay"]</label>
+                    <select name="dayId" id="dayId" class="form-select" onchange="this.form.submit()">
                         @if (!Model.ActivityDayOptions.Any())
                         {
                             <option value="">@Localizer["ActivityManagement.NoActiveDay"]</option>

@@ -42,7 +42,7 @@ public class BelgianMunicipalityService : IBelgianMunicipalityService
     {
         if (!File.Exists(filePath))
         {
-            throw new FileNotFoundException($"Le fichier CSV n'a pas été trouvé à l'emplacement : {filePath}");
+            throw new FileNotFoundException($"CSV file not found at location: {filePath}");
         }
 
         using var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read);
@@ -62,16 +62,13 @@ public class BelgianMunicipalityService : IBelgianMunicipalityService
         while (await reader.ReadLineAsync() is { } line)
         {
             var parts = line.Split(';');
-            if (parts.Length == 2)
+            if (parts.Length == 2 && int.TryParse(parts[0].Trim(), out int postalCode))
             {
-                if (int.TryParse(parts[0].Trim(), out int postalCode))
-                {
-                    string city = parts[1].Trim();
+                string city = parts[1].Trim();
 
-                    if (!existingMunicipalities.Any(m => m.PostalCode == postalCode && m.City.Equals(city, StringComparison.OrdinalIgnoreCase)))
-                    {
-                        newMunicipalities.Add(new BelgianMunicipality { PostalCode = postalCode, City = city });
-                    }
+                if (!existingMunicipalities.Any(m => m.PostalCode == postalCode && m.City.Equals(city, StringComparison.OrdinalIgnoreCase)))
+                {
+                    newMunicipalities.Add(new BelgianMunicipality { PostalCode = postalCode, City = city });
                 }
             }
         }
