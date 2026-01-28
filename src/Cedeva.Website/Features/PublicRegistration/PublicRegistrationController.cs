@@ -461,22 +461,255 @@ public class PublicRegistrationController : Controller
         await _emailService.SendEmailAsync(parent.Email, subject, body);
     }
 
-    // GET: PublicRegistration/EmbedCode?orgId=1
-    [Authorize(Roles = "Admin,Coordinator")]
-    public IActionResult EmbedCode(int orgId)
+    // GET: PublicRegistration/Register?activityId=1&bg=ffffff
+    [AllowAnonymous]
+    public async Task<IActionResult> Register(int activityId, string? bg)
     {
         if (!ModelState.IsValid)
         {
             return BadRequest(ModelState);
         }
 
-        var baseUrl = $"{Request.Scheme}://{Request.Host}";
-        var iframeUrl = $"{baseUrl}/PublicRegistration/SelectActivity?orgId={orgId}";
+        var activity = await _context.Activities
+            .FirstOrDefaultAsync(a => a.Id == activityId && a.StartDate > DateTime.Now);
 
-        var embedCode = $@"<iframe src=""{iframeUrl}"" width=""100%"" height=""800"" frameborder=""0"" style=""border: 1px solid #ddd; border-radius: 8px;""></iframe>";
+        if (activity == null)
+        {
+            return NotFound();
+        }
 
-        ViewBag.EmbedCode = embedCode;
-        ViewBag.IframeUrl = iframeUrl;
+        var questions = await _context.ActivityQuestions
+            .Where(q => q.ActivityId == activityId)
+            .OrderBy(q => q.Id)
+            .ToListAsync();
+
+        var viewModel = new SimpleRegistrationViewModel
+        {
+            ActivityId = activityId,
+            ActivityName = activity.Name,
+            ActivityDescription = activity.Description,
+            ActivityStartDate = activity.StartDate,
+            ActivityEndDate = activity.EndDate,
+            PricePerDay = activity.PricePerDay
+        };
+
+        ViewBag.Questions = questions;
+        ViewBag.BackgroundColor = bg ?? "ffffff";
+
+        return View(viewModel);
+    }
+
+    // POST: PublicRegistration/Register
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [AllowAnonymous]
+    public async Task<IActionResult> Register(SimpleRegistrationViewModel model, string? bg)
+    {
+        // Load questions for validation
+        var questions = await _context.ActivityQuestions
+            .Where(q => q.ActivityId == model.ActivityId)
+            .ToListAsync();
+
+        // Validate required questions
+        var requiredQuestions = questions.Where(q => q.IsRequired).ToList();
+        foreach (var question in requiredQuestions)
+        {
+            if (!model.QuestionAnswers.ContainsKey(question.Id) ||
+                string.IsNullOrWhiteSpace(model.QuestionAnswers[question.Id]))
+            {
+                ModelState.AddModelError("", $"{_localizer["PublicRegistration.QuestionRequired"]}: {question.QuestionText}");
+            }
+        }
+
+        if (!ModelState.IsValid)
+        {
+            // Reload activity info
+            var activity = await _context.Activities.FindAsync(model.ActivityId);
+            if (activity != null)
+            {
+                model.ActivityName = activity.Name;
+                model.ActivityDescription = activity.Description;
+                model.ActivityStartDate = activity.StartDate;
+                model.ActivityEndDate = activity.EndDate;
+                model.PricePerDay = activity.PricePerDay;
+            }
+            ViewBag.Questions = questions;
+            ViewBag.BackgroundColor = bg ?? "ffffff";
+            return View(model);
+        }
+
+        var activityEntity = await _context.Activities.FindAsync(model.ActivityId);
+        if (activityEntity == null)
+        {
+            return NotFound();
+        }
+
+        // Check/create parent
+        var existingParent = await _context.Parents
+            .Include(p => p.Address)
+            .FirstOrDefaultAsync(p => p.Email == model.ParentEmail && p.OrganisationId == activityEntity.OrganisationId);
+
+        int parentId;
+        if (existingParent != null)
+        {
+            existingParent.FirstName = model.ParentFirstName;
+            existingParent.LastName = model.ParentLastName;
+            existingParent.PhoneNumber = model.ParentPhoneNumber;
+            existingParent.MobilePhoneNumber = model.ParentMobilePhoneNumber ?? string.Empty;
+            existingParent.NationalRegisterNumber = model.ParentNationalRegisterNumber ?? string.Empty;
+
+            if (existingParent.Address != null)
+            {
+                existingParent.Address.Street = model.ParentStreet;
+                existingParent.Address.PostalCode = int.TryParse(model.ParentPostalCode, out var postalCode) ? postalCode : 0;
+                existingParent.Address.City = model.ParentCity;
+            }
+            else
+            {
+                existingParent.Address = new Address
+                {
+                    Street = model.ParentStreet,
+                    PostalCode = int.TryParse(model.ParentPostalCode, out var postalCode) ? postalCode : 0,
+                    City = model.ParentCity,
+                    Country = Country.Belgium
+                };
+            }
+            await _context.SaveChangesAsync();
+            parentId = existingParent.Id;
+        }
+        else
+        {
+            var address = new Address
+            {
+                Street = model.ParentStreet,
+                PostalCode = int.TryParse(model.ParentPostalCode, out var postalCode) ? postalCode : 0,
+                City = model.ParentCity,
+                Country = Country.Belgium
+            };
+
+            var newParent = new Parent
+            {
+                FirstName = model.ParentFirstName,
+                LastName = model.ParentLastName,
+                Email = model.ParentEmail,
+                PhoneNumber = model.ParentPhoneNumber,
+                MobilePhoneNumber = model.ParentMobilePhoneNumber ?? string.Empty,
+                NationalRegisterNumber = model.ParentNationalRegisterNumber ?? string.Empty,
+                Address = address,
+                OrganisationId = activityEntity.OrganisationId
+            };
+
+            _context.Parents.Add(newParent);
+            await _context.SaveChangesAsync();
+            parentId = newParent.Id;
+        }
+
+        // Check/create child
+        var existingChild = await _context.Children
+            .FirstOrDefaultAsync(c => c.NationalRegisterNumber == model.ChildNationalRegisterNumber && c.ParentId == parentId);
+
+        int childId;
+        if (existingChild != null)
+        {
+            existingChild.FirstName = model.ChildFirstName;
+            existingChild.LastName = model.ChildLastName;
+            existingChild.BirthDate = model.ChildBirthDate;
+            existingChild.IsDisadvantagedEnvironment = model.IsDisadvantagedEnvironment;
+            existingChild.IsMildDisability = model.IsMildDisability;
+            existingChild.IsSevereDisability = model.IsSevereDisability;
+            await _context.SaveChangesAsync();
+            childId = existingChild.Id;
+        }
+        else
+        {
+            var newChild = new Child
+            {
+                FirstName = model.ChildFirstName,
+                LastName = model.ChildLastName,
+                BirthDate = model.ChildBirthDate,
+                NationalRegisterNumber = model.ChildNationalRegisterNumber,
+                IsDisadvantagedEnvironment = model.IsDisadvantagedEnvironment,
+                IsMildDisability = model.IsMildDisability,
+                IsSevereDisability = model.IsSevereDisability,
+                ParentId = parentId
+            };
+            _context.Children.Add(newChild);
+            await _context.SaveChangesAsync();
+            childId = newChild.Id;
+        }
+
+        // Check if booking already exists
+        var existingBooking = await _context.Bookings
+            .AnyAsync(b => b.ActivityId == model.ActivityId && b.ChildId == childId);
+
+        if (existingBooking)
+        {
+            ModelState.AddModelError("", _localizer["Message.BookingAlreadyExists"]);
+            model.ActivityName = activityEntity.Name;
+            model.ActivityDescription = activityEntity.Description;
+            model.ActivityStartDate = activityEntity.StartDate;
+            model.ActivityEndDate = activityEntity.EndDate;
+            model.PricePerDay = activityEntity.PricePerDay;
+            ViewBag.Questions = questions;
+            ViewBag.BackgroundColor = bg ?? "ffffff";
+            return View(model);
+        }
+
+        // Create booking
+        var booking = new Booking
+        {
+            ActivityId = model.ActivityId,
+            ChildId = childId,
+            BookingDate = DateTime.Now,
+            IsConfirmed = false,
+            IsMedicalSheet = false
+        };
+
+        _context.Bookings.Add(booking);
+        await _context.SaveChangesAsync();
+
+        // Save question answers
+        foreach (var answer in model.QuestionAnswers.Where(a => !string.IsNullOrWhiteSpace(a.Value)))
+        {
+            var questionAnswer = new ActivityQuestionAnswer
+            {
+                BookingId = booking.Id,
+                ActivityQuestionId = answer.Key,
+                AnswerText = answer.Value
+            };
+            _context.ActivityQuestionAnswers.Add(questionAnswer);
+        }
+        await _context.SaveChangesAsync();
+
+        // Send confirmation email
+        var parent = await _context.Parents.FindAsync(parentId);
+        var child = await _context.Children.FindAsync(childId);
+
+        if (parent != null && child != null)
+        {
+            await SendConfirmationEmail(parent, child, activityEntity, booking);
+        }
+
+        return RedirectToAction(nameof(Confirmation), new { bookingId = booking.Id });
+    }
+
+    // GET: PublicRegistration/EmbedCode?activityId=1
+    [Authorize(Roles = "Admin,Coordinator")]
+    public async Task<IActionResult> EmbedCode(int activityId)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
+        var activity = await _context.Activities.FindAsync(activityId);
+        if (activity == null)
+        {
+            return NotFound();
+        }
+
+        ViewBag.ActivityId = activityId;
+        ViewBag.ActivityName = activity.Name;
 
         return View();
     }

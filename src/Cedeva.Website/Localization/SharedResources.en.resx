@@ -2008,4 +2008,46 @@
   <data name="SelectType" xml:space="preserve">
     <value>[EN] Sélectionnez un type</value>
   </data>
+  <data name="PublicRegistration.Registration" xml:space="preserve">
+    <value>[EN] Inscription</value>
+  </data>
+  <data name="PublicRegistration.AdditionalQuestions" xml:space="preserve">
+    <value>[EN] Questions supplémentaires</value>
+  </data>
+  <data name="PublicRegistration.Submit" xml:space="preserve">
+    <value>[EN] Envoyer l'inscription</value>
+  </data>
+  <data name="PublicRegistration.QuestionRequired" xml:space="preserve">
+    <value>[EN] Cette question est obligatoire</value>
+  </data>
+  <data name="PublicRegistration.Customization" xml:space="preserve">
+    <value>[EN] Personnalisation</value>
+  </data>
+  <data name="PublicRegistration.BackgroundColor" xml:space="preserve">
+    <value>[EN] Couleur de fond</value>
+  </data>
+  <data name="PublicRegistration.ChooseColor" xml:space="preserve">
+    <value>[EN] Choisir une couleur</value>
+  </data>
+  <data name="PublicRegistration.ColorHelp" xml:space="preserve">
+    <value>[EN] Couleur de fond de l'iframe (code hexadécimal sans #)</value>
+  </data>
+  <data name="PublicRegistration.Height" xml:space="preserve">
+    <value>[EN] Hauteur</value>
+  </data>
+  <data name="PublicRegistration.UpdateCode" xml:space="preserve">
+    <value>[EN] Actualiser le code</value>
+  </data>
+  <data name="PublicRegistration.DirectLink" xml:space="preserve">
+    <value>[EN] Lien direct</value>
+  </data>
+  <data name="SelectOption" xml:space="preserve">
+    <value>[EN] Sélectionnez une option</value>
+  </data>
+  <data name="Field.Day" xml:space="preserve">
+    <value>[EN] jour</value>
+  </data>
+  <data name="Activities.IntegrationCode" xml:space="preserve">
+    <value>[EN] Code d'intégration iframe</value>
+  </data>
 </root>

@@ -1,0 +1,281 @@
+@model Cedeva.Website.Features.PublicRegistration.ViewModels.SimpleRegistrationViewModel
+@{
+    ViewData["Title"] = Localizer["PublicRegistration.Registration"];
+    Layout = null;
+    var bgColor = ViewBag.BackgroundColor as string ?? "ffffff";
+    var questions = ViewBag.Questions as List<Cedeva.Core.Entities.ActivityQuestion> ?? new List<Cedeva.Core.Entities.ActivityQuestion>();
+}
+
+<!DOCTYPE html>
+<html lang="@System.Globalization.CultureInfo.CurrentCulture.TwoLetterISOLanguageName">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - @Model.ActivityName</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <style>
+        body {
+            background-color: #@bgColor;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        }
+        .registration-container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+        .activity-header {
+            background: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .activity-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+        .activity-dates {
+            color: #666;
+            font-size: 0.95rem;
+        }
+        .registration-form {
+            background: white;
+            border-radius: 8px;
+            padding: 2rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .section-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        .form-label {
+            font-weight: 500;
+            color: #555;
+            margin-bottom: 0.25rem;
+        }
+        .form-control, .form-select, .form-check-input {
+            border-radius: 6px;
+        }
+        .btn-primary {
+            border-radius: 6px;
+            padding: 0.75rem 2rem;
+            font-weight: 500;
+        }
+        .required-mark::after {
+            content: " *";
+            color: #dc3545;
+        }
+    </style>
+</head>
+<body>
+    <div class="registration-container">
+        <div class="activity-header">
+            <div class="activity-title">@Model.ActivityName</div>
+            @if (!string.IsNullOrEmpty(Model.ActivityDescription))
+            {
+                <div class="text-muted mb-2">@Model.ActivityDescription</div>
+            }
+            <div class="activity-dates">
+                <i class="fas fa-calendar-alt me-1"></i>
+                @if (Model.ActivityStartDate.HasValue && Model.ActivityEndDate.HasValue)
+                {
+                    <span>@Model.ActivityStartDate.Value.ToString("dd/MM/yyyy") - @Model.ActivityEndDate.Value.ToString("dd/MM/yyyy")</span>
+                }
+                @if (Model.PricePerDay.HasValue)
+                {
+                    <span class="ms-3"><i class="fas fa-euro-sign me-1"></i>@Model.PricePerDay.Value.ToString("F2") / @Localizer["Field.Day"]</span>
+                }
+            </div>
+        </div>
+
+        <div class="registration-form">
+            <form asp-action="Register" method="post">
+                <input type="hidden" asp-for="ActivityId" />
+                <input type="hidden" name="bg" value="@bgColor" />
+                <div asp-validation-summary="All" class="alert alert-danger" role="alert"></div>
+
+                <div class="section-title">
+                    <i class="fas fa-user me-2"></i>@Localizer["PublicRegistration.ParentInformation"]
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label asp-for="ParentFirstName" class="form-label required-mark"></label>
+                        <input asp-for="ParentFirstName" class="form-control" />
+                        <span asp-validation-for="ParentFirstName" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="ParentLastName" class="form-label required-mark"></label>
+                        <input asp-for="ParentLastName" class="form-control" />
+                        <span asp-validation-for="ParentLastName" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label asp-for="ParentEmail" class="form-label required-mark"></label>
+                        <input asp-for="ParentEmail" class="form-control" type="email" />
+                        <span asp-validation-for="ParentEmail" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="ParentPhoneNumber" class="form-label required-mark"></label>
+                        <input asp-for="ParentPhoneNumber" class="form-control" type="tel" />
+                        <span asp-validation-for="ParentPhoneNumber" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="ParentMobilePhoneNumber" class="form-label"></label>
+                    <input asp-for="ParentMobilePhoneNumber" class="form-control" type="tel" />
+                    <span asp-validation-for="ParentMobilePhoneNumber" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="ParentStreet" class="form-label required-mark"></label>
+                    <input asp-for="ParentStreet" class="form-control" />
+                    <span asp-validation-for="ParentStreet" class="text-danger"></span>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <label asp-for="ParentPostalCode" class="form-label required-mark"></label>
+                        <input asp-for="ParentPostalCode" class="form-control" />
+                        <span asp-validation-for="ParentPostalCode" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-8">
+                        <label asp-for="ParentCity" class="form-label required-mark"></label>
+                        <input asp-for="ParentCity" class="form-control" />
+                        <span asp-validation-for="ParentCity" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label asp-for="ParentNationalRegisterNumber" class="form-label"></label>
+                    <input asp-for="ParentNationalRegisterNumber" class="form-control" />
+                    <span asp-validation-for="ParentNationalRegisterNumber" class="text-danger"></span>
+                </div>
+
+                <div class="section-title">
+                    <i class="fas fa-child me-2"></i>@Localizer["PublicRegistration.ChildInformation"]
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label asp-for="ChildFirstName" class="form-label required-mark"></label>
+                        <input asp-for="ChildFirstName" class="form-control" />
+                        <span asp-validation-for="ChildFirstName" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="ChildLastName" class="form-label required-mark"></label>
+                        <input asp-for="ChildLastName" class="form-control" />
+                        <span asp-validation-for="ChildLastName" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label asp-for="ChildBirthDate" class="form-label required-mark"></label>
+                        <input asp-for="ChildBirthDate" class="form-control" type="date" />
+                        <span asp-validation-for="ChildBirthDate" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="ChildNationalRegisterNumber" class="form-label required-mark"></label>
+                        <input asp-for="ChildNationalRegisterNumber" class="form-control" />
+                        <span asp-validation-for="ChildNationalRegisterNumber" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <div class="form-check mb-2">
+                        <input asp-for="IsDisadvantagedEnvironment" class="form-check-input" type="checkbox" />
+                        <label asp-for="IsDisadvantagedEnvironment" class="form-check-label"></label>
+                    </div>
+                    <div class="form-check mb-2">
+                        <input asp-for="IsMildDisability" class="form-check-input" type="checkbox" />
+                        <label asp-for="IsMildDisability" class="form-check-label"></label>
+                    </div>
+                    <div class="form-check">
+                        <input asp-for="IsSevereDisability" class="form-check-input" type="checkbox" />
+                        <label asp-for="IsSevereDisability" class="form-check-label"></label>
+                    </div>
+                </div>
+
+                @if (questions.Any())
+                {
+                    <div class="section-title">
+                        <i class="fas fa-question-circle me-2"></i>@Localizer["PublicRegistration.AdditionalQuestions"]
+                    </div>
+
+                    @foreach (var question in questions)
+                    {
+                        <div class="mb-3">
+                            <label class="form-label @(question.IsRequired ? "required-mark" : "")">@question.QuestionText</label>
+
+                            @switch (question.QuestionType)
+                            {
+                                case Cedeva.Core.Enums.QuestionType.Text:
+                                    <textarea name="QuestionAnswers[@question.Id]" class="form-control" rows="3" @(question.IsRequired ? "required" : "")></textarea>
+                                    break;
+
+                                case Cedeva.Core.Enums.QuestionType.Checkbox:
+                                    <div class="form-check">
+                                        <input type="checkbox" name="QuestionAnswers[@question.Id]" value="Oui" class="form-check-input" id="q_@question.Id" />
+                                        <label class="form-check-label" for="q_@question.Id">@Localizer["Yes"]</label>
+                                    </div>
+                                    break;
+
+                                case Cedeva.Core.Enums.QuestionType.Radio:
+                                    @if (!string.IsNullOrWhiteSpace(question.Options))
+                                    {
+                                        var options = question.Options.Split(',');
+                                        foreach (var option in options)
+                                        {
+                                            var optionId = $"q_{question.Id}_{option.Trim()}";
+                                            <div class="form-check">
+                                                <input type="radio" name="QuestionAnswers[@question.Id]" value="@option.Trim()" class="form-check-input" id="@optionId" @(question.IsRequired ? "required" : "") />
+                                                <label class="form-check-label" for="@optionId">@option.Trim()</label>
+                                            </div>
+                                        }
+                                    }
+                                    break;
+
+                                case Cedeva.Core.Enums.QuestionType.Dropdown:
+                                    @if (!string.IsNullOrWhiteSpace(question.Options))
+                                    {
+                                        var options = question.Options.Split(',');
+                                        <select name="QuestionAnswers[@question.Id]" class="form-select" @(question.IsRequired ? "required" : "")>
+                                            <option value="">@Localizer["SelectOption"]</option>
+                                            @foreach (var option in options)
+                                            {
+                                                <option value="@option.Trim()">@option.Trim()</option>
+                                            }
+                                        </select>
+                                    }
+                                    break;
+                            }
+                        </div>
+                    }
+                }
+
+                <div class="text-center mt-4">
+                    <button type="submit" class="btn btn-primary btn-lg">
+                        <i class="fas fa-paper-plane me-2"></i>@Localizer["PublicRegistration.Submit"]
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/4.0.0/jquery.validate.unobtrusive.min.js"></script>
+</body>
+</html>

@@ -104,6 +104,9 @@
                     <a asp-controller="ActivityManagement" asp-action="Presences" asp-route-activityId="@Model.Id" class="list-group-item list-group-item-action">
                         <i class="fas fa-calendar-check me-2"></i>@Localizer["Activities.ManagePresences"]
                     </a>
+                    <a asp-controller="PublicRegistration" asp-action="EmbedCode" asp-route-activityId="@Model.Id" class="list-group-item list-group-item-action">
+                        <i class="fas fa-code me-2"></i>@Localizer["Activities.IntegrationCode"]
+                    </a>
                 </div>
             </div>
         </div>
