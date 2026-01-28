@@ -130,7 +130,7 @@ public class ParentsController : Controller
             { _localizer["Excel.MobilePhone"], p => p.MobilePhoneNumber ?? "" },
             { _localizer["Excel.NationalRegisterNumber"], p => p.NationalRegisterNumber },
             { _localizer["Excel.Street"], p => p.Address?.Street ?? "" },
-            { _localizer["Excel.PostalCode"], p => p.Address?.PostalCode.ToString() ?? "" },
+            { _localizer["Excel.PostalCode"], p => p.Address?.PostalCode ?? "" },
             { _localizer["Excel.City"], p => p.Address?.City ?? "" },
             { _localizer["Excel.Country"], p => p.Address?.Country.ToString() ?? "" },
             { _localizer["Excel.ChildrenCount"], p => p.Children.Count }
@@ -374,7 +374,7 @@ public class ParentsController : Controller
             NationalRegisterNumber = parent.NationalRegisterNumber,
             Street = parent.Address?.Street ?? string.Empty,
             City = parent.Address?.City ?? string.Empty,
-            PostalCode = parent.Address?.PostalCode ?? 0,
+            PostalCode = parent.Address?.PostalCode ?? "",
             Country = parent.Address?.Country ?? Country.Belgium,
             AddressId = parent.AddressId,
             OrganisationId = parent.OrganisationId,

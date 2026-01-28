@@ -123,7 +123,7 @@ public class OrganisationsController : Controller
             LogoUrl = organisation.LogoUrl,
             Street = address?.Street ?? "",
             City = address?.City ?? "",
-            PostalCode = address?.PostalCode ?? 0,
+            PostalCode = address?.PostalCode ?? "",
             Country = address?.Country ?? Core.Enums.Country.Belgium,
             AddressId = organisation.AddressId,
             ActivitiesCount = activitiesCount,
@@ -209,7 +209,7 @@ public class OrganisationsController : Controller
             LogoUrl = organisation.LogoUrl,
             Street = address?.Street ?? "",
             City = address?.City ?? "",
-            PostalCode = address?.PostalCode ?? 0,
+            PostalCode = address?.PostalCode ?? "",
             Country = address?.Country ?? Core.Enums.Country.Belgium,
             AddressId = organisation.AddressId
         };
@@ -341,7 +341,7 @@ public class OrganisationsController : Controller
             LogoUrl = organisation.LogoUrl,
             Street = address?.Street ?? "",
             City = address?.City ?? "",
-            PostalCode = address?.PostalCode ?? 0,
+            PostalCode = address?.PostalCode ?? "",
             Country = address?.Country ?? Core.Enums.Country.Belgium,
             AddressId = organisation.AddressId,
             ActivitiesCount = activitiesCount,

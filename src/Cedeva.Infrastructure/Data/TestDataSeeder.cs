@@ -131,7 +131,7 @@ public class TestDataSeeder
             var address = new Address
             {
                 Street = $"{BelgianStreets[_random.Next(BelgianStreets.Length)]} {_random.Next(1, 200)}",
-                PostalCode = _random.Next(1000, 10000),
+                PostalCode = _random.Next(1000, 10000).ToString(),
                 City = BelgianCities[_random.Next(BelgianCities.Length)],
                 Country = Country.Belgium
             };
@@ -196,7 +196,7 @@ public class TestDataSeeder
             var address = new Address
             {
                 Street = $"{BelgianStreets[_random.Next(BelgianStreets.Length)]} {_random.Next(1, 200)}",
-                PostalCode = _random.Next(1000, 10000),
+                PostalCode = _random.Next(1000, 10000).ToString(),
                 City = BelgianCities[_random.Next(BelgianCities.Length)],
                 Country = Country.Belgium
             };

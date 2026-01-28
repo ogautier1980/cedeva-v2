@@ -16,7 +16,8 @@ public class Address
     public string City { get; set; } = string.Empty;
 
     [Required]
-    public int PostalCode { get; set; }
+    [StringLength(10)]
+    public string PostalCode { get; set; } = string.Empty;
 
     [Required]
     public Country Country { get; set; } = Country.Belgium;

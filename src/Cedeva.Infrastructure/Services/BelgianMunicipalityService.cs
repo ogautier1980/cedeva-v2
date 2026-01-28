@@ -14,7 +14,7 @@ public class BelgianMunicipalityService : IBelgianMunicipalityService
         _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
     }
 
-    public async Task<bool> IsValidMunicipalityAsync(int postalCode, string city)
+    public async Task<bool> IsValidMunicipalityAsync(string postalCode, string city)
     {
         return await _dbContext.BelgianMunicipalities
             .AnyAsync(m => m.PostalCode == postalCode &&
@@ -33,7 +33,7 @@ public class BelgianMunicipalityService : IBelgianMunicipalityService
 
         return await _dbContext.BelgianMunicipalities
             .Where(m => m.City.ToLower().StartsWith(lowerSearchTerm) ||
-                        EF.Functions.Like(m.PostalCode.ToString(), lowerSearchTerm + "%"))
+                        m.PostalCode.StartsWith(lowerSearchTerm))
             .OrderBy(m => m.City)
             .ToListAsync();
     }
@@ -62,11 +62,13 @@ public class BelgianMunicipalityService : IBelgianMunicipalityService
         while (await reader.ReadLineAsync() is { } line)
         {
             var parts = line.Split(';');
-            if (parts.Length == 2 && int.TryParse(parts[0].Trim(), out int postalCode))
+            if (parts.Length == 2)
             {
-                string city = parts[1].Trim();
+                var postalCode = parts[0].Trim();
+                var city = parts[1].Trim();
 
-                if (!existingMunicipalities.Any(m => m.PostalCode == postalCode && m.City.Equals(city, StringComparison.OrdinalIgnoreCase)))
+                if (!string.IsNullOrWhiteSpace(postalCode) && !string.IsNullOrWhiteSpace(city) &&
+                    !existingMunicipalities.Any(m => m.PostalCode == postalCode && m.City.Equals(city, StringComparison.OrdinalIgnoreCase)))
                 {
                     newMunicipalities.Add(new BelgianMunicipality { PostalCode = postalCode, City = city });
                 }

@@ -43,8 +43,9 @@ public class ParentInformationViewModel
     public string Street { get; set; } = string.Empty;
 
     [Required]
+    [StringLength(10)]
     [Display(Name = "Field.PostalCode")]
-    public int PostalCode { get; set; }
+    public string PostalCode { get; set; } = string.Empty;
 
     [Required]
     [StringLength(100)]

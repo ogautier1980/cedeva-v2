@@ -35,12 +35,7 @@ public class AddressApiController : ControllerBase
             return Ok(new { isValid = false });
         }
 
-        if (!int.TryParse(postalCode, out int postalCodeInt))
-        {
-            return Ok(new { isValid = false });
-        }
-
-        var isValid = await _municipalityService.IsValidMunicipalityAsync(postalCodeInt, city);
+        var isValid = await _municipalityService.IsValidMunicipalityAsync(postalCode, city);
         return Ok(new { isValid });
     }
 }

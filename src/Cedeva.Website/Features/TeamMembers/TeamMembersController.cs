@@ -131,7 +131,7 @@ public class TeamMembersController : Controller
             { _localizer["Excel.DailyCompensation"], t => t.DailyCompensation ?? 0m },
             { _localizer["Excel.Organisation"], t => t.Organisation?.Name ?? "" },
             { _localizer["Excel.Street"], t => t.Address?.Street ?? "" },
-            { _localizer["Excel.PostalCode"], t => t.Address?.PostalCode.ToString() ?? "" },
+            { _localizer["Excel.PostalCode"], t => t.Address?.PostalCode ?? "" },
             { _localizer["Excel.City"], t => t.Address?.City ?? "" }
         };
 
@@ -253,7 +253,7 @@ public class TeamMembersController : Controller
             BirthDate = teamMember.BirthDate,
             Street = address?.Street ?? "",
             City = address?.City ?? "",
-            PostalCode = address?.PostalCode ?? 0,
+            PostalCode = address?.PostalCode ?? "",
             Country = address?.Country ?? Core.Enums.Country.Belgium,
             TeamRole = teamMember.TeamRole,
             License = teamMember.License,
@@ -390,7 +390,7 @@ public class TeamMembersController : Controller
             BirthDate = teamMember.BirthDate,
             Street = address?.Street ?? "",
             City = address?.City ?? "",
-            PostalCode = address?.PostalCode ?? 0,
+            PostalCode = address?.PostalCode ?? "",
             Country = address?.Country ?? Core.Enums.Country.Belgium,
             TeamRole = teamMember.TeamRole,
             License = teamMember.License,

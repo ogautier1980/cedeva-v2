@@ -52,9 +52,9 @@ public class ParentViewModel
     public string City { get; set; } = string.Empty;
 
     [Required]
-    [Range(1000, 9999)]
+    [StringLength(10)]
     [Display(Name = "Field.PostalCode")]
-    public int PostalCode { get; set; }
+    public string PostalCode { get; set; } = string.Empty;
 
     [Display(Name = "Field.Country")]
     public Country Country { get; set; } = Country.Belgium;

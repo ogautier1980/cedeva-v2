@@ -561,7 +561,7 @@ public class PublicRegistrationController : Controller
             if (existingParent.Address != null)
             {
                 existingParent.Address.Street = model.ParentStreet;
-                existingParent.Address.PostalCode = int.TryParse(model.ParentPostalCode, out var postalCode) ? postalCode : 0;
+                existingParent.Address.PostalCode = model.ParentPostalCode;
                 existingParent.Address.City = model.ParentCity;
             }
             else
@@ -569,7 +569,7 @@ public class PublicRegistrationController : Controller
                 existingParent.Address = new Address
                 {
                     Street = model.ParentStreet,
-                    PostalCode = int.TryParse(model.ParentPostalCode, out var postalCode) ? postalCode : 0,
+                    PostalCode = model.ParentPostalCode,
                     City = model.ParentCity,
                     Country = Country.Belgium
                 };
@@ -582,7 +582,7 @@ public class PublicRegistrationController : Controller
             var address = new Address
             {
                 Street = model.ParentStreet,
-                PostalCode = int.TryParse(model.ParentPostalCode, out var postalCode) ? postalCode : 0,
+                PostalCode = model.ParentPostalCode,
                 City = model.ParentCity,
                 Country = Country.Belgium
             };

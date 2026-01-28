@@ -104,7 +104,7 @@ public class DbSeeder
             {
                 Street = "Rue de la Plaine 1",
                 City = "Gembloux",
-                PostalCode = 5030,
+                PostalCode = "5030",
                 Country = Country.Belgium
             };
 
@@ -155,7 +155,7 @@ public class DbSeeder
             {
                 Street = "Avenue des Sports 25",
                 City = "Liège",
-                PostalCode = 4000,
+                PostalCode = "4000",
                 Country = Country.Belgium
             };
 
@@ -241,7 +241,8 @@ public class DbSeeder
             if (parts.Length != 2)
                 continue;
 
-            if (int.TryParse(parts[0].Trim(), out var postalCode))
+            var postalCode = parts[0].Trim();
+            if (!string.IsNullOrWhiteSpace(postalCode))
             {
                 municipalities.Add(new BelgianMunicipality
                 {
