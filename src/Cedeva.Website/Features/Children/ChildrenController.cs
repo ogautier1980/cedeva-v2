@@ -47,14 +47,13 @@ public class ChildrenController : Controller
             return BadRequest(ModelState);
         }
 
-        var allChildren = await _childRepository.GetAllAsync();
-        var query = allChildren.AsQueryable();
+        var query = _context.Children.AsQueryable();
 
         if (!string.IsNullOrEmpty(searchString))
         {
             query = query.Where(c =>
-                c.FirstName.Contains(searchString, StringComparison.OrdinalIgnoreCase) ||
-                c.LastName.Contains(searchString, StringComparison.OrdinalIgnoreCase) ||
+                c.FirstName.Contains(searchString) ||
+                c.LastName.Contains(searchString) ||
                 c.NationalRegisterNumber.Contains(searchString));
         }
 

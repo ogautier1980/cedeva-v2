@@ -113,7 +113,7 @@ public class ActivityQuestionsController : Controller
         await _context.ActivityQuestions.AddAsync(question);
         await _unitOfWork.SaveChangesAsync();
 
-        TempData[TempDataSuccessMessage] = _localizer["ActivityQuestions.CreateSuccess"];
+        TempData[TempDataSuccessMessage] = _localizer["ActivityQuestions.CreateSuccess"].ToString();
 
         return RedirectToAction(nameof(Index), new { activityId = model.ActivityId });
     }
@@ -186,7 +186,7 @@ public class ActivityQuestionsController : Controller
         _context.ActivityQuestions.Update(question);
         await _unitOfWork.SaveChangesAsync();
 
-        TempData[TempDataSuccessMessage] = _localizer["ActivityQuestions.UpdateSuccess"];
+        TempData[TempDataSuccessMessage] = _localizer["ActivityQuestions.UpdateSuccess"].ToString();
 
         return RedirectToAction(nameof(Index), new { activityId = model.ActivityId });
     }
@@ -245,7 +245,7 @@ public class ActivityQuestionsController : Controller
         _context.ActivityQuestions.Remove(question);
         await _unitOfWork.SaveChangesAsync();
 
-        TempData[TempDataSuccessMessage] = _localizer["ActivityQuestions.DeleteSuccess"];
+        TempData[TempDataSuccessMessage] = _localizer["ActivityQuestions.DeleteSuccess"].ToString();
 
         return RedirectToAction(nameof(Index), new { activityId });
     }

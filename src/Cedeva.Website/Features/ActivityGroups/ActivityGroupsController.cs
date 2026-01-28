@@ -99,7 +99,7 @@ public class ActivityGroupsController : Controller
         await _context.ActivityGroups.AddAsync(group);
         await _unitOfWork.SaveChangesAsync();
 
-        TempData[TempDataSuccessMessage] = _localizer["ActivityGroups.CreateSuccess"];
+        TempData[TempDataSuccessMessage] = _localizer["ActivityGroups.CreateSuccess"].ToString();
 
         return RedirectToAction(nameof(Index), new { activityId = model.ActivityId });
     }
@@ -159,7 +159,7 @@ public class ActivityGroupsController : Controller
         _context.ActivityGroups.Update(group);
         await _unitOfWork.SaveChangesAsync();
 
-        TempData[TempDataSuccessMessage] = _localizer["ActivityGroups.UpdateSuccess"];
+        TempData[TempDataSuccessMessage] = _localizer["ActivityGroups.UpdateSuccess"].ToString();
 
         return RedirectToAction(nameof(Index), new { activityId = model.ActivityId });
     }
@@ -216,7 +216,7 @@ public class ActivityGroupsController : Controller
         _context.ActivityGroups.Remove(group);
         await _unitOfWork.SaveChangesAsync();
 
-        TempData[TempDataSuccessMessage] = _localizer["ActivityGroups.DeleteSuccess"];
+        TempData[TempDataSuccessMessage] = _localizer["ActivityGroups.DeleteSuccess"].ToString();
 
         return RedirectToAction(nameof(Index), new { activityId });
     }
