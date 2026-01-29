@@ -36,7 +36,7 @@ public class OrganisationsController : Controller
     }
 
     // GET: Organisations
-    public async Task<IActionResult> Index(string? searchString, int pageNumber = 1, int pageSize = 10)
+    public async Task<IActionResult> Index(string? searchString, string? sortBy = null, string? sortOrder = "asc", int pageNumber = 1, int pageSize = 10)
     {
         if (!ModelState.IsValid)
         {
@@ -58,11 +58,21 @@ public class OrganisationsController : Controller
                 o.Description.Contains(searchString, StringComparison.OrdinalIgnoreCase));
         }
 
+        // Apply sorting
+        query = (sortBy?.ToLower(), sortOrder?.ToLower()) switch
+        {
+            ("name", "desc") => query.OrderByDescending(o => o.Name),
+            ("city", "asc") => query.OrderBy(o => o.Address.City),
+            ("city", "desc") => query.OrderByDescending(o => o.Address.City),
+            ("postalcode", "asc") => query.OrderBy(o => o.Address.PostalCode),
+            ("postalcode", "desc") => query.OrderByDescending(o => o.Address.PostalCode),
+            _ => query.OrderBy(o => o.Name) // default
+        };
+
         var totalItems = await query.CountAsync();
         var totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
 
         var organisations = await query
-            .OrderBy(o => o.Name)
             .Skip((pageNumber - 1) * pageSize)
             .Take(pageSize)
             .Select(o => new OrganisationViewModel
@@ -84,6 +94,8 @@ public class OrganisationsController : Controller
             .ToListAsync();
 
         ViewData["SearchString"] = searchString;
+        ViewData["SortBy"] = sortBy;
+        ViewData["SortOrder"] = sortOrder;
         ViewData["PageNumber"] = pageNumber;
         ViewData["PageSize"] = pageSize;
         ViewData["TotalPages"] = totalPages;

@@ -2050,4 +2050,10 @@
   <data name="Activities.IntegrationCode" xml:space="preserve">
     <value>Code d'intégration iframe</value>
   </data>
+  <data name="ItemsPerPage" xml:space="preserve">
+    <value>Éléments par page</value>
+  </data>
+  <data name="Of" xml:space="preserve">
+    <value>sur</value>
+  </data>
 </root>

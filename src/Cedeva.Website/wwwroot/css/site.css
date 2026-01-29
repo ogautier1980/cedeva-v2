@@ -177,3 +177,43 @@ h2 {
 .stats-card:hover {
     transform: translateY(-2px);
 }
+
+/* Pagination Improvements */
+.pagination .page-item.active .page-link {
+    background-color: #007bff !important;
+    border-color: #007bff !important;
+    color: #fff !important;
+    font-weight: 600;
+}
+
+.pagination .page-link {
+    color: #007bff;
+    cursor: pointer;
+}
+
+.pagination .page-link:hover:not(.disabled .page-link) {
+    background-color: #e9ecef;
+}
+
+.pagination .page-item.disabled .page-link {
+    cursor: not-allowed;
+}
+
+/* Sortable Column Headers */
+.sortable-header {
+    cursor: pointer;
+    user-select: none;
+}
+
+.sortable-header:hover {
+    background-color: #f8f9fa;
+}
+
+.sortable-header i {
+    opacity: 0.5;
+    font-size: 0.875rem;
+}
+
+.sortable-header.active i {
+    opacity: 1;
+}

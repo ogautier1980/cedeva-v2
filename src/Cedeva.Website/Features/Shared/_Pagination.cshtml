@@ -1,0 +1,83 @@
+@inject IStringLocalizer<SharedResources> Localizer
+@using Cedeva.Website.Localization
+
+@{
+    var pageNumber = (int)(ViewData["PageNumber"] ?? 1);
+    var totalPages = (int)(ViewData["TotalPages"] ?? 1);
+    var pageSize = (int)(ViewData["PageSize"] ?? 10);
+    var totalItems = (int)(ViewData["TotalItems"] ?? 0);
+
+    var startItem = totalItems == 0 ? 0 : (pageNumber - 1) * pageSize + 1;
+    var endItem = Math.Min(pageNumber * pageSize, totalItems);
+}
+
+<div class="row align-items-center mt-3">
+    <div class="col-md-4">
+        <div class="d-flex align-items-center">
+            <label class="me-2 mb-0">@Localizer["ItemsPerPage"]:</label>
+            <select class="form-select form-select-sm" style="width: auto;" onchange="changePageSize(this.value)">
+                <option value="10" selected="@(pageSize == 10)">10</option>
+                <option value="25" selected="@(pageSize == 25)">25</option>
+                <option value="50" selected="@(pageSize == 50)">50</option>
+                <option value="100" selected="@(pageSize == 100)">100</option>
+            </select>
+            <span class="ms-3 text-muted">
+                @Localizer["Showing"] @startItem-@endItem @Localizer["Of"] @totalItems
+            </span>
+        </div>
+    </div>
+
+    <div class="col-md-8">
+        @if (totalPages > 1)
+        {
+            <nav>
+                <ul class="pagination justify-content-end mb-0">
+                    <li class="page-item @(pageNumber == 1 ? "disabled" : "")">
+                        <a class="page-link" onclick="goToPage(@(pageNumber - 1))">
+                            <i class="fas fa-chevron-left"></i>
+                        </a>
+                    </li>
+
+                    @for (int i = 1; i <= totalPages; i++)
+                    {
+                        if (i == 1 || i == totalPages || (i >= pageNumber - 2 && i <= pageNumber + 2))
+                        {
+                            <li class="page-item @(i == pageNumber ? "active" : "")">
+                                <a class="page-link" onclick="goToPage(@i)">@i</a>
+                            </li>
+                        }
+                        else if (i == pageNumber - 3 || i == pageNumber + 3)
+                        {
+                            <li class="page-item disabled">
+                                <span class="page-link">...</span>
+                            </li>
+                        }
+                    }
+
+                    <li class="page-item @(pageNumber == totalPages ? "disabled" : "")">
+                        <a class="page-link" onclick="goToPage(@(pageNumber + 1))">
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        }
+    </div>
+</div>
+
+<script>
+    function goToPage(page) {
+        if (page < 1 || page > @totalPages) return;
+
+        const url = new URL(window.location);
+        url.searchParams.set('pageNumber', page);
+        window.location.href = url.toString();
+    }
+
+    function changePageSize(size) {
+        const url = new URL(window.location);
+        url.searchParams.set('pageSize', size);
+        url.searchParams.set('pageNumber', '1'); // Reset to first page
+        window.location.href = url.toString();
+    }
+</script>

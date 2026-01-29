@@ -42,7 +42,7 @@ public class TeamMembersController : Controller
     }
 
     // GET: TeamMembers
-    public async Task<IActionResult> Index(string? searchString, int pageNumber = 1, int pageSize = 10)
+    public async Task<IActionResult> Index(string? searchString, string? sortBy = null, string? sortOrder = "asc", int pageNumber = 1, int pageSize = 10)
     {
         if (!ModelState.IsValid)
         {
@@ -59,12 +59,25 @@ public class TeamMembersController : Controller
                 t.Email.Contains(searchString));
         }
 
+        // Apply sorting
+        query = (sortBy?.ToLower(), sortOrder?.ToLower()) switch
+        {
+            ("firstname", "asc") => query.OrderBy(t => t.FirstName).ThenBy(t => t.LastName),
+            ("firstname", "desc") => query.OrderByDescending(t => t.FirstName).ThenByDescending(t => t.LastName),
+            ("lastname", "desc") => query.OrderByDescending(t => t.LastName).ThenByDescending(t => t.FirstName),
+            ("email", "asc") => query.OrderBy(t => t.Email),
+            ("email", "desc") => query.OrderByDescending(t => t.Email),
+            ("teamrole", "asc") => query.OrderBy(t => t.TeamRole),
+            ("teamrole", "desc") => query.OrderByDescending(t => t.TeamRole),
+            ("status", "asc") => query.OrderBy(t => t.Status),
+            ("status", "desc") => query.OrderByDescending(t => t.Status),
+            _ => query.OrderBy(t => t.LastName).ThenBy(t => t.FirstName) // default
+        };
+
         var totalItems = await query.CountAsync();
         var totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
 
         var teamMembers = await query
-            .OrderBy(t => t.LastName)
-            .ThenBy(t => t.FirstName)
             .Skip((pageNumber - 1) * pageSize)
             .Take(pageSize)
             .Select(t => new TeamMemberViewModel
@@ -82,6 +95,8 @@ public class TeamMembersController : Controller
             .ToListAsync();
 
         ViewData["SearchString"] = searchString;
+        ViewData["SortBy"] = sortBy;
+        ViewData["SortOrder"] = sortOrder;
         ViewData["PageNumber"] = pageNumber;
         ViewData["PageSize"] = pageSize;
         ViewData["TotalPages"] = totalPages;

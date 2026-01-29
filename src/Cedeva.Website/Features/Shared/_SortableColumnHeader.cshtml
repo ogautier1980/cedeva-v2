@@ -1,0 +1,40 @@
+@model (string ColumnName, string DisplayName, string CurrentSortBy, string CurrentSortOrder)
+
+@{
+    var sortBy = Model.ColumnName;
+    var currentSortBy = Model.CurrentSortBy ?? "";
+    var currentSortOrder = Model.CurrentSortOrder ?? "asc";
+
+    string newSortOrder = "asc";
+    string icon = "";
+
+    if (currentSortBy.Equals(sortBy, StringComparison.OrdinalIgnoreCase))
+    {
+        newSortOrder = currentSortOrder == "asc" ? "desc" : "asc";
+        icon = currentSortOrder == "asc" ? "fa-sort-up" : "fa-sort-down";
+    }
+    else
+    {
+        icon = "fa-sort";
+    }
+
+    var routeValues = new Dictionary<string, string>();
+
+    // Preserve existing query string parameters
+    foreach (var key in Context.Request.Query.Keys)
+    {
+        if (!key.Equals("sortBy", StringComparison.OrdinalIgnoreCase) &&
+            !key.Equals("sortOrder", StringComparison.OrdinalIgnoreCase))
+        {
+            routeValues[key] = Context.Request.Query[key].ToString();
+        }
+    }
+
+    routeValues["sortBy"] = sortBy;
+    routeValues["sortOrder"] = newSortOrder;
+}
+
+<a asp-action="Index" asp-all-route-data="routeValues" class="text-decoration-none text-dark">
+    @Model.DisplayName
+    <i class="fas @icon ms-1"></i>
+</a>

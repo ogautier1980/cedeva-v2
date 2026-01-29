@@ -64,10 +64,10 @@
                 <table class="table table-hover">
                     <thead>
                         <tr>
-                            <th>@Localizer["Name"]</th>
-                            <th>@Localizer["Email"]</th>
-                            <th>@Localizer["Organisation"]</th>
-                            <th>@Localizer["Role"]</th>
+                            <th>@await Html.PartialAsync("_SortableColumnHeader", ("LastName", Localizer["Name"].Value, ViewData["SortBy"] as string, ViewData["SortOrder"] as string))</th>
+                            <th>@await Html.PartialAsync("_SortableColumnHeader", ("Email", Localizer["Email"].Value, ViewData["SortBy"] as string, ViewData["SortOrder"] as string))</th>
+                            <th>@await Html.PartialAsync("_SortableColumnHeader", ("OrganisationName", Localizer["Organisation"].Value, ViewData["SortBy"] as string, ViewData["SortOrder"] as string))</th>
+                            <th>@await Html.PartialAsync("_SortableColumnHeader", ("Role", Localizer["Role"].Value, ViewData["SortBy"] as string, ViewData["SortOrder"] as string))</th>
                             <th>@Localizer["Status"]</th>
                             <th class="text-end">@Localizer["Actions"]</th>
                         </tr>
@@ -124,27 +124,7 @@
                 </table>
             </div>
 
-            @if (totalPages > 1)
-            {
-                <nav aria-label="Page navigation">
-                    <ul class="pagination justify-content-center">
-                        <li class="page-item @(pageNumber == 1 ? "disabled" : "")">
-                            <a class="page-link" asp-action="Index" asp-route-searchString="@searchString" asp-route-organisationId="@organisationId" asp-route-pageNumber="@(pageNumber - 1)" asp-route-pageSize="@pageSize">@Localizer["Pagination.Previous"]</a>
-                        </li>
-
-                        @for (int i = 1; i <= totalPages; i++)
-                        {
-                            <li class="page-item @(i == pageNumber ? "active" : "")">
-                                <a class="page-link" asp-action="Index" asp-route-searchString="@searchString" asp-route-organisationId="@organisationId" asp-route-pageNumber="@i" asp-route-pageSize="@pageSize">@i</a>
-                            </li>
-                        }
-
-                        <li class="page-item @(pageNumber == totalPages ? "disabled" : "")">
-                            <a class="page-link" asp-action="Index" asp-route-searchString="@searchString" asp-route-organisationId="@organisationId" asp-route-pageNumber="@(pageNumber + 1)" asp-route-pageSize="@pageSize">@Localizer["Pagination.Next"]</a>
-                        </li>
-                    </ul>
-                </nav>
-            }
+            @await Html.PartialAsync("_Pagination")
         }
         else
         {

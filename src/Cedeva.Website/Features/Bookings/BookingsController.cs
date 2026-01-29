@@ -41,7 +41,7 @@ public class BookingsController : Controller
     }
 
     // GET: Bookings
-    public async Task<IActionResult> Index(string? searchString, int? activityId, int? childId, bool? isConfirmed, int pageNumber = 1, int pageSize = 10)
+    public async Task<IActionResult> Index(string? searchString, int? activityId, int? childId, bool? isConfirmed, string? sortBy = null, string? sortOrder = "asc", int pageNumber = 1, int pageSize = 10)
     {
         if (!ModelState.IsValid)
         {
@@ -50,11 +50,26 @@ public class BookingsController : Controller
 
         var query = BuildBookingsQuery(_context, searchString, activityId, childId, isConfirmed);
 
+        // Apply sorting
+        query = (sortBy?.ToLower(), sortOrder?.ToLower()) switch
+        {
+            ("bookingdate", "asc") => query.OrderBy(b => b.BookingDate),
+            ("bookingdate", "desc") => query.OrderByDescending(b => b.BookingDate),
+            ("childname", "asc") => query.OrderBy(b => b.Child.LastName).ThenBy(b => b.Child.FirstName),
+            ("childname", "desc") => query.OrderByDescending(b => b.Child.LastName).ThenByDescending(b => b.Child.FirstName),
+            ("activityname", "asc") => query.OrderBy(b => b.Activity.Name),
+            ("activityname", "desc") => query.OrderByDescending(b => b.Activity.Name),
+            ("activitystartdate", "asc") => query.OrderBy(b => b.Activity.StartDate),
+            ("activitystartdate", "desc") => query.OrderByDescending(b => b.Activity.StartDate),
+            ("isconfirmed", "asc") => query.OrderBy(b => b.IsConfirmed),
+            ("isconfirmed", "desc") => query.OrderByDescending(b => b.IsConfirmed),
+            _ => query.OrderByDescending(b => b.BookingDate) // default
+        };
+
         var totalItems = await query.CountAsync();
         var totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
 
         var bookings = await query
-            .OrderByDescending(b => b.BookingDate)
             .Skip((pageNumber - 1) * pageSize)
             .Take(pageSize)
             .Select(b => new BookingViewModel
@@ -79,6 +94,8 @@ public class BookingsController : Controller
         ViewData["ActivityId"] = activityId;
         ViewData["ChildId"] = childId;
         ViewData["IsConfirmed"] = isConfirmed;
+        ViewData["SortBy"] = sortBy;
+        ViewData["SortOrder"] = sortOrder;
         ViewData["PageNumber"] = pageNumber;
         ViewData["PageSize"] = pageSize;
         ViewData["TotalPages"] = totalPages;
