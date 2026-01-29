@@ -95,11 +95,11 @@ h2 {
 
 /* Info - Cyan par défaut Bootstrap */
 .bg-info {
-    background-color: #17a2b8 !important;
+    background-color: #007faf !important;
 }
 
 .badge.bg-info {
-    background-color: #17a2b8 !important;
+    background-color: #007faf !important;
 }
 
 /* === BOUTONS === */
@@ -258,8 +258,8 @@ h2 {
 
 /* Bouton Info */
 .btn-info {
-    background-color: #17a2b8;
-    border-color: #17a2b8;
+    background-color: #007faf;
+    border-color: #007faf;
     color: #fff;
 }
 
@@ -274,13 +274,13 @@ h2 {
 }
 
 .btn-outline-info {
-    color: #17a2b8;
-    border-color: #17a2b8;
+    color: #007faf;
+    border-color: #007faf;
 }
 
 .btn-outline-info:hover {
-    background-color: #17a2b8;
-    border-color: #17a2b8;
+    background-color: #007faf;
+    border-color: #007faf;
     color: #fff;
 }
 
@@ -405,7 +405,7 @@ h2 {
 }
 
 .border-left-info {
-    border-left: 4px solid #17a2b8 !important;
+    border-left: 4px solid #007faf !important;
 }
 
 /* === TABLES === */
@@ -498,7 +498,7 @@ h2 {
 .alert-info {
     background-color: #d1ecf1;
     border-color: #bee5eb;
-    border-left-color: #17a2b8;
+    border-left-color: #007faf;
     color: #0c5460;
 }
 
