@@ -36,7 +36,7 @@ public class ActivitiesController : Controller
         _localizer = localizer;
     }
 
-    public async Task<IActionResult> Index(string? searchTerm, bool? showActiveOnly, int page = 1)
+    public async Task<IActionResult> Index(string? searchString, bool? showActiveOnly, string? sortBy = null, string? sortOrder = "asc", int pageNumber = 1, int pageSize = 10)
     {
         if (!ModelState.IsValid)
         {
@@ -50,9 +50,9 @@ public class ActivitiesController : Controller
             .Include(a => a.TeamMembers)
             .AsQueryable();
 
-        if (!string.IsNullOrWhiteSpace(searchTerm))
+        if (!string.IsNullOrWhiteSpace(searchString))
         {
-            query = query.Where(a => a.Name.Contains(searchTerm) || a.Description.Contains(searchTerm));
+            query = query.Where(a => a.Name.Contains(searchString) || a.Description.Contains(searchString));
         }
 
         if (showActiveOnly == true)
@@ -60,13 +60,25 @@ public class ActivitiesController : Controller
             query = query.Where(a => a.IsActive);
         }
 
+        // Apply sorting
+        query = (sortBy?.ToLower(), sortOrder?.ToLower()) switch
+        {
+            ("name", "asc") => query.OrderBy(a => a.Name),
+            ("name", "desc") => query.OrderByDescending(a => a.Name),
+            ("startdate", "asc") => query.OrderBy(a => a.StartDate),
+            ("startdate", "desc") => query.OrderByDescending(a => a.StartDate),
+            ("enddate", "asc") => query.OrderBy(a => a.EndDate),
+            ("enddate", "desc") => query.OrderByDescending(a => a.EndDate),
+            ("isactive", "asc") => query.OrderBy(a => a.IsActive),
+            ("isactive", "desc") => query.OrderByDescending(a => a.IsActive),
+            _ => query.OrderByDescending(a => a.StartDate)
+        };
+
         var totalItems = await query.CountAsync();
-        var pageSize = 10;
         var totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
 
         var activities = await query
-            .OrderByDescending(a => a.StartDate)
-            .Skip((page - 1) * pageSize)
+            .Skip((pageNumber - 1) * pageSize)
             .Take(pageSize)
             .Select(a => new ActivityViewModel
             {
@@ -85,12 +97,21 @@ public class ActivitiesController : Controller
             })
             .ToListAsync();
 
+        ViewData["SearchString"] = searchString;
+        ViewData["ShowActiveOnly"] = showActiveOnly;
+        ViewData["SortBy"] = sortBy;
+        ViewData["SortOrder"] = sortOrder;
+        ViewData["PageNumber"] = pageNumber;
+        ViewData["PageSize"] = pageSize;
+        ViewData["TotalPages"] = totalPages;
+        ViewData["TotalItems"] = totalItems;
+
         var viewModel = new ActivityListViewModel
         {
             Activities = activities,
-            SearchTerm = searchTerm,
+            SearchTerm = searchString,
             ShowActiveOnly = showActiveOnly,
-            CurrentPage = page,
+            CurrentPage = pageNumber,
             TotalPages = totalPages,
             PageSize = pageSize
         };

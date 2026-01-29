@@ -1,5 +1,4 @@
 @model IEnumerable<Cedeva.Website.Features.Users.ViewModels.UserViewModel>
-
 @{
     ViewData["Title"] = Localizer["Users"];
     var searchString = ViewData["SearchString"]?.ToString() ?? "";
@@ -10,127 +9,127 @@
     var totalItems = (int)ViewData["TotalItems"]!;
 }
 
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h2><i class="fas fa-users-cog me-2"></i>@Localizer["Users"]</h2>
-    <a asp-action="Create" class="btn btn-primary text-nowrap">
-        <i class="fas fa-plus me-1"></i>@Localizer["Users.NewUser"]
-    </a>
-</div>
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="fas fa-users-cog me-2"></i>@Localizer["Users"]</h2>
+        <a asp-action="Create" class="btn btn-primary text-nowrap">
+            <i class="fas fa-plus me-2"></i>@Localizer["Users.NewUser"]
+        </a>
+    </div>
 
-@if (TempData["SuccessMessage"] != null)
-{
-    <div class="alert alert-success alert-dismissible fade show" role="alert">
-        @TempData["SuccessMessage"]
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
-}
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle me-2"></i>@TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
 
-<div class="card shadow mb-4">
-    <div class="card-header py-3">
-        <h6 class="m-0 fw-bold text-primary">@Localizer["Filters"]</h6>
-    </div>
-    <div class="card-body">
-        <form method="get" class="row g-3">
-            <div class="col-md-4">
-                <label for="searchString" class="form-label">@Localizer["Search"]</label>
-                <input type="text" class="form-control" id="searchString" name="searchString" value="@searchString" placeholder="@Localizer["Users.SearchPlaceholder"]">
-            </div>
-            <div class="col-md-4">
-                <label for="organisationId" class="form-label">@Localizer["Organisation"]</label>
-                <select class="form-select" id="organisationId" name="organisationId" asp-items="ViewBag.Organisations">
-                    <option value="">@Localizer["AllOrganisations"]</option>
-                </select>
-            </div>
-            <div class="col-md-4 d-flex align-items-end">
-                <button type="submit" class="btn btn-primary me-2">
-                    <i class="fas fa-search me-1"></i>@Localizer["Filter"]
-                </button>
-                <a asp-action="Index" class="btn btn-secondary">
-                    <i class="fas fa-redo me-1"></i>@Localizer["Reset"]
-                </a>
-            </div>
-        </form>
-    </div>
-</div>
-
-<div class="card shadow mb-4">
-    <div class="card-header py-3">
-        <h6 class="m-0 fw-bold text-primary">@Localizer["Users.UsersList"] (@totalItems)</h6>
-    </div>
-    <div class="card-body">
-        @if (Model.Any())
-        {
-            <div class="table-responsive">
-                <table class="table table-hover">
-                    <thead>
-                        <tr>
-                            <th>@await Html.PartialAsync("_SortableColumnHeader", ("LastName", Localizer["Name"].Value, ViewData["SortBy"] as string, ViewData["SortOrder"] as string))</th>
-                            <th>@await Html.PartialAsync("_SortableColumnHeader", ("Email", Localizer["Email"].Value, ViewData["SortBy"] as string, ViewData["SortOrder"] as string))</th>
-                            <th>@await Html.PartialAsync("_SortableColumnHeader", ("OrganisationName", Localizer["Organisation"].Value, ViewData["SortBy"] as string, ViewData["SortOrder"] as string))</th>
-                            <th>@await Html.PartialAsync("_SortableColumnHeader", ("Role", Localizer["Role"].Value, ViewData["SortBy"] as string, ViewData["SortOrder"] as string))</th>
-                            <th>@Localizer["Status"]</th>
-                            <th class="text-end">@Localizer["Actions"]</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var user in Model)
-                        {
+    <div class="card shadow">
+        <div class="card-header">
+            <form method="get" class="row g-3">
+                <div class="col-md-5">
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-search"></i></span>
+                        <input type="text" class="form-control" name="searchString" value="@searchString" placeholder="@Localizer["Users.SearchPlaceholder"]">
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <select class="form-select" name="organisationId" asp-items="ViewBag.Organisations">
+                        <option value="">@Localizer["AllOrganisations"]</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary flex-grow-1">
+                            <i class="fas fa-search me-2"></i>@Localizer["Filter"]
+                        </button>
+                        <a asp-action="Index" class="btn btn-outline-secondary">
+                            <i class="fas fa-redo"></i>
+                        </a>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="card-body">
+            @if (Model.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
                             <tr>
-                                <td>@user.FirstName @user.LastName</td>
-                                <td>
-                                    @user.Email
-                                    @if (!user.EmailConfirmed)
-                                    {
-                                        <span class="badge bg-warning text-dark ms-2">@Localizer["NotConfirmed"]</span>
-                                    }
-                                </td>
-                                <td>@user.OrganisationName</td>
-                                <td>
-                                    @if (user.Role == Cedeva.Core.Enums.Role.Admin)
-                                    {
-                                        <span class="badge bg-danger">@Localizer["Enum.Role.Admin"]</span>
-                                    }
-                                    else
-                                    {
-                                        <span class="badge bg-info">@Localizer["Enum.Role.Coordinator"]</span>
-                                    }
-                                </td>
-                                <td>
-                                    @if (user.IsLockedOut)
-                                    {
-                                        <span class="badge bg-danger">@Localizer["LockedOut"]</span>
-                                    }
-                                    else
-                                    {
-                                        <span class="badge bg-success">@Localizer["Active"]</span>
-                                    }
-                                </td>
-                                <td class="text-end">
-                                    <div class="btn-group">
-                                        <a asp-action="Details" asp-route-id="@user.Id" class="btn btn-sm btn-info" title="@Localizer["Details"]">
-                                            <i class="fas fa-eye"></i>
-                                        </a>
-                                        <a asp-action="Edit" asp-route-id="@user.Id" class="btn btn-sm btn-warning" title="@Localizer["Edit"]">
-                                            <i class="fas fa-edit"></i>
-                                        </a>
-                                        <a asp-action="Delete" asp-route-id="@user.Id" class="btn btn-sm btn-danger" title="@Localizer["Delete"]">
-                                            <i class="fas fa-trash"></i>
-                                        </a>
-                                    </div>
-                                </td>
+                                <th>@await Html.PartialAsync("_SortableColumnHeader", ("LastName", Localizer["Name"].Value, ViewData["SortBy"] as string, ViewData["SortOrder"] as string))</th>
+                                <th>@await Html.PartialAsync("_SortableColumnHeader", ("Email", Localizer["Email"].Value, ViewData["SortBy"] as string, ViewData["SortOrder"] as string))</th>
+                                <th>@await Html.PartialAsync("_SortableColumnHeader", ("OrganisationName", Localizer["Organisation"].Value, ViewData["SortBy"] as string, ViewData["SortOrder"] as string))</th>
+                                <th>@await Html.PartialAsync("_SortableColumnHeader", ("Role", Localizer["Role"].Value, ViewData["SortBy"] as string, ViewData["SortOrder"] as string))</th>
+                                <th>@Localizer["Status"]</th>
+                                <th class="text-end">@Localizer["Actions"]</th>
                             </tr>
-                        }
-                    </tbody>
-                </table>
-            </div>
+                        </thead>
+                        <tbody>
+                            @foreach (var user in Model)
+                            {
+                                <tr>
+                                    <td>@user.FirstName @user.LastName</td>
+                                    <td>
+                                        @user.Email
+                                        @if (!user.EmailConfirmed)
+                                        {
+                                            <span class="badge bg-warning text-dark ms-2">@Localizer["NotConfirmed"]</span>
+                                        }
+                                    </td>
+                                    <td>@user.OrganisationName</td>
+                                    <td>
+                                        @if (user.Role == Cedeva.Core.Enums.Role.Admin)
+                                        {
+                                            <span class="badge bg-danger">@Localizer["Enum.Role.Admin"]</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-info">@Localizer["Enum.Role.Coordinator"]</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (user.IsLockedOut)
+                                        {
+                                            <span class="badge bg-danger">@Localizer["LockedOut"]</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-success">@Localizer["Active"]</span>
+                                        }
+                                    </td>
+                                    <td class="text-end">
+                                        <div class="btn-group">
+                                            <a asp-action="Details" asp-route-id="@user.Id" class="btn btn-sm btn-info" title="@Localizer["Details"]">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            <a asp-action="Edit" asp-route-id="@user.Id" class="btn btn-sm btn-warning" title="@Localizer["Edit"]">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <a asp-action="Delete" asp-route-id="@user.Id" class="btn btn-sm btn-danger" title="@Localizer["Delete"]">
+                                                <i class="fas fa-trash"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
 
-            @await Html.PartialAsync("_Pagination")
-        }
-        else
-        {
-            <div class="alert alert-info" role="alert">
-                <i class="fas fa-info-circle me-2"></i>@Localizer["Users.NoUsersFound"]
-            </div>
-        }
+                @await Html.PartialAsync("_Pagination")
+            }
+            else
+            {
+                <div class="text-center py-5">
+                    <i class="fas fa-users-cog fa-3x text-muted mb-3"></i>
+                    <p class="text-muted">@Localizer["Users.NoUsersFound"]</p>
+                    <a asp-action="Create" class="btn btn-primary">
+                        <i class="fas fa-plus me-2"></i>@Localizer["Users.NewUser"]
+                    </a>
+                </div>
+            }
+        </div>
     </div>
 </div>

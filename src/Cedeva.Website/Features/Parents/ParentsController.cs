@@ -37,7 +37,7 @@ public class ParentsController : Controller
         _localizer = localizer;
     }
 
-    public async Task<IActionResult> Index(string? searchTerm, int page = 1)
+    public async Task<IActionResult> Index(string? searchString, string? sortBy = null, string? sortOrder = "asc", int pageNumber = 1, int pageSize = 10)
     {
         if (!ModelState.IsValid)
         {
@@ -49,22 +49,32 @@ public class ParentsController : Controller
             .Include(p => p.Children)
             .AsQueryable();
 
-        if (!string.IsNullOrWhiteSpace(searchTerm))
+        if (!string.IsNullOrWhiteSpace(searchString))
         {
             query = query.Where(p =>
-                p.FirstName.Contains(searchTerm) ||
-                p.LastName.Contains(searchTerm) ||
-                p.Email.Contains(searchTerm));
+                p.FirstName.Contains(searchString) ||
+                p.LastName.Contains(searchString) ||
+                p.Email.Contains(searchString));
         }
 
+        // Apply sorting
+        query = (sortBy?.ToLower(), sortOrder?.ToLower()) switch
+        {
+            ("firstname", "asc") => query.OrderBy(p => p.FirstName),
+            ("firstname", "desc") => query.OrderByDescending(p => p.FirstName),
+            ("lastname", "desc") => query.OrderByDescending(p => p.LastName),
+            ("email", "asc") => query.OrderBy(p => p.Email),
+            ("email", "desc") => query.OrderByDescending(p => p.Email),
+            ("city", "asc") => query.OrderBy(p => p.Address.City),
+            ("city", "desc") => query.OrderByDescending(p => p.Address.City),
+            _ => query.OrderBy(p => p.LastName).ThenBy(p => p.FirstName)
+        };
+
         var totalItems = await query.CountAsync();
-        var pageSize = 10;
         var totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
 
         var parents = await query
-            .OrderBy(p => p.LastName)
-            .ThenBy(p => p.FirstName)
-            .Skip((page - 1) * pageSize)
+            .Skip((pageNumber - 1) * pageSize)
             .Take(pageSize)
             .Select(p => new ParentViewModel
             {
@@ -83,11 +93,18 @@ public class ParentsController : Controller
             })
             .ToListAsync();
 
+        ViewData["SortBy"] = sortBy;
+        ViewData["SortOrder"] = sortOrder;
+        ViewData["PageNumber"] = pageNumber;
+        ViewData["PageSize"] = pageSize;
+        ViewData["TotalPages"] = totalPages;
+        ViewData["TotalItems"] = totalItems;
+
         var viewModel = new ParentListViewModel
         {
             Parents = parents,
-            SearchTerm = searchTerm,
-            CurrentPage = page,
+            SearchTerm = searchString,
+            CurrentPage = pageNumber,
             TotalPages = totalPages,
             PageSize = pageSize
         };
