@@ -3,24 +3,25 @@
     ViewData["Title"] = Localizer["Presence.AttendanceList"];
 }
 
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <div>
-        <h2>@Localizer["Presence.AttendanceList"]</h2>
-        <p class="text-muted mb-0">
-            <strong>@Model.Activity.Name</strong> -
-            @Model.ActivityDay.DayDate.ToString("dddd dd MMMM yyyy", new System.Globalization.CultureInfo("fr-FR"))
-        </p>
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2>@Localizer["Presence.AttendanceList"]</h2>
+            <p class="text-muted mb-0">
+                <strong>@Model.Activity.Name</strong> -
+                @Model.ActivityDay.DayDate.ToString("dddd dd MMMM yyyy", new System.Globalization.CultureInfo("fr-FR"))
+            </p>
+        </div>
+        <div>
+            <a href="@Url.Action("Print", new { activityId = Model.Activity.Id, dayId = Model.ActivityDay.DayId })"
+               class="btn btn-outline-secondary" target="_blank">
+                <i class="fas fa-print me-2"></i>@Localizer["Print"]
+            </a>
+            <a href="@Url.Action("SelectDay", new { id = Model.Activity.Id })" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-2"></i>@Localizer["Back"]
+            </a>
+        </div>
     </div>
-    <div>
-        <a href="@Url.Action("Print", new { activityId = Model.Activity.Id, dayId = Model.ActivityDay.DayId })"
-           class="btn btn-outline-secondary" target="_blank">
-            <i class="fas fa-print me-2"></i>@Localizer["Print"]
-        </a>
-        <a href="@Url.Action("SelectDay", new { id = Model.Activity.Id })" class="btn btn-outline-secondary">
-            <i class="fas fa-arrow-left me-2"></i>@Localizer["Back"]
-        </a>
-    </div>
-</div>
 
 @if (TempData["SuccessMessage"] != null)
 {
@@ -175,3 +176,4 @@
         });
     </script>
 }
+</div>
