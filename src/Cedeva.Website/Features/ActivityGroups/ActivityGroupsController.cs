@@ -16,6 +16,7 @@ public class ActivityGroupsController : Controller
 {
     private const string TempDataSuccessMessage = "SuccessMessage";
     private const string TempDataErrorMessage = "ErrorMessage";
+    private const string SessionKeyActivityId = "ActivityGroups_ActivityId";
 
     private readonly CedevaDbContext _context;
     private readonly IUnitOfWork _unitOfWork;
@@ -34,6 +35,17 @@ public class ActivityGroupsController : Controller
     // GET: ActivityGroups?activityId=5
     public async Task<IActionResult> Index(int? activityId)
     {
+        // Store activityId in session if provided in URL
+        if (activityId.HasValue)
+        {
+            HttpContext.Session.SetInt32(SessionKeyActivityId, activityId.Value);
+        }
+        else
+        {
+            // Try to retrieve from session
+            activityId = HttpContext.Session.GetInt32(SessionKeyActivityId);
+        }
+
         var query = _context.ActivityGroups
             .Include(g => g.Activity)
             .Include(g => g.Bookings)
@@ -101,7 +113,8 @@ public class ActivityGroupsController : Controller
 
         TempData[TempDataSuccessMessage] = _localizer["ActivityGroups.CreateSuccess"].ToString();
 
-        return RedirectToAction(nameof(Index), new { activityId = model.ActivityId });
+        // ActivityId is already in session
+        return RedirectToAction(nameof(Index));
     }
 
     // GET: ActivityGroups/Edit/5
@@ -161,7 +174,8 @@ public class ActivityGroupsController : Controller
 
         TempData[TempDataSuccessMessage] = _localizer["ActivityGroups.UpdateSuccess"].ToString();
 
-        return RedirectToAction(nameof(Index), new { activityId = model.ActivityId });
+        // ActivityId is already in session
+        return RedirectToAction(nameof(Index));
     }
 
     // GET: ActivityGroups/Delete/5
@@ -204,8 +218,6 @@ public class ActivityGroupsController : Controller
             return NotFound();
         }
 
-        var activityId = group.ActivityId;
-
         // Check if group has bookings
         if (group.Bookings.Any())
         {
@@ -218,7 +230,8 @@ public class ActivityGroupsController : Controller
 
         TempData[TempDataSuccessMessage] = _localizer["ActivityGroups.DeleteSuccess"].ToString();
 
-        return RedirectToAction(nameof(Index), new { activityId });
+        // ActivityId is already in session
+        return RedirectToAction(nameof(Index));
     }
 
     private async Task PopulateActivitiesDropdown(int? selectedActivityId = null)

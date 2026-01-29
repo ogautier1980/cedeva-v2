@@ -173,7 +173,7 @@ public class ActivityManagementController : Controller
         if (groupId <= 0)
         {
             ModelState.AddModelError(string.Empty, _localizer["Message.SelectGroup"]);
-            return RedirectToAction(nameof(UnconfirmedBookings), new { id = booking.ActivityId });
+            return RedirectToAction(nameof(UnconfirmedBookings));
         }
 
         booking.GroupId = groupId;
@@ -182,7 +182,7 @@ public class ActivityManagementController : Controller
         await _context.SaveChangesAsync();
 
         TempData[TempDataSuccessMessage] = _localizer["Message.BookingConfirmed"];
-        return RedirectToAction(nameof(UnconfirmedBookings), new { id = booking.ActivityId });
+        return RedirectToAction(nameof(UnconfirmedBookings));
     }
 
     [HttpGet]
@@ -386,7 +386,7 @@ public class ActivityManagementController : Controller
             await LogSentEmailAsync(model, recipientGroupId, recipientEmails, attachmentFileName, attachmentFilePath, ct);
 
             TempData[TempDataSuccessMessage] = string.Format(_localizer["Message.EmailSent"].Value, recipientEmails.Count);
-            return RedirectToAction(nameof(SendEmail), new { id = model.ActivityId });
+            return RedirectToAction(nameof(SendEmail));
         }
         catch (Exception ex)
         {
@@ -533,7 +533,7 @@ public class ActivityManagementController : Controller
     {
         if (!ModelState.IsValid)
         {
-            return RedirectToAction(nameof(TeamMembers), new { id });
+            return RedirectToAction(nameof(TeamMembers));
         }
 
         var activity = await _context.Activities
@@ -550,7 +550,7 @@ public class ActivityManagementController : Controller
         if (teamMember == null)
         {
             TempData[TempDataErrorMessage] = _localizer["Message.TeamMemberNotFound"];
-            return RedirectToAction(nameof(TeamMembers), new { id });
+            return RedirectToAction(nameof(TeamMembers));
         }
 
         if (!activity.TeamMembers.Any(tm => tm.TeamMemberId == teamMemberId))
@@ -560,7 +560,7 @@ public class ActivityManagementController : Controller
             TempData[TempDataSuccessMessage] = string.Format(_localizer["Message.TeamMemberAdded"].Value, teamMember.FirstName, teamMember.LastName);
         }
 
-        return RedirectToAction(nameof(TeamMembers), new { id });
+        return RedirectToAction(nameof(TeamMembers));
     }
 
     [HttpPost]
@@ -569,7 +569,7 @@ public class ActivityManagementController : Controller
     {
         if (!ModelState.IsValid)
         {
-            return RedirectToAction(nameof(TeamMembers), new { id });
+            return RedirectToAction(nameof(TeamMembers));
         }
 
         var activity = await _context.Activities
@@ -588,7 +588,7 @@ public class ActivityManagementController : Controller
             TempData[TempDataSuccessMessage] = string.Format(_localizer["Message.TeamMemberRemoved"].Value, teamMember.FirstName, teamMember.LastName);
         }
 
-        return RedirectToAction(nameof(TeamMembers), new { id });
+        return RedirectToAction(nameof(TeamMembers));
     }
 
     private List<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem> GetRecipientOptions(IEnumerable<Core.Entities.ActivityGroup> groups)

@@ -13,6 +13,8 @@ namespace Cedeva.Website.Features.Presence;
 public class PresenceController : Controller
 {
     private const string TempDataSuccessMessage = "SuccessMessage";
+    private const string SessionKeyActivityId = "Presence_ActivityId";
+    private const string SessionKeyDayId = "Presence_DayId";
 
     private readonly CedevaDbContext _context;
     private readonly IStringLocalizer<SharedResources> _localizer;
@@ -69,18 +71,37 @@ public class PresenceController : Controller
     }
 
     // GET: Presence/List/5/10
-    public async Task<IActionResult> List(int activityId, int dayId)
+    public async Task<IActionResult> List(int? activityId, int? dayId)
     {
-        if (!ModelState.IsValid)
+        // Store in session if provided
+        if (activityId.HasValue)
         {
-            return BadRequest(ModelState);
+            HttpContext.Session.SetInt32(SessionKeyActivityId, activityId.Value);
+        }
+        else
+        {
+            activityId = HttpContext.Session.GetInt32(SessionKeyActivityId);
+        }
+
+        if (dayId.HasValue)
+        {
+            HttpContext.Session.SetInt32(SessionKeyDayId, dayId.Value);
+        }
+        else
+        {
+            dayId = HttpContext.Session.GetInt32(SessionKeyDayId);
+        }
+
+        if (!activityId.HasValue || !dayId.HasValue)
+        {
+            return BadRequest();
         }
 
         var activity = await _context.Activities
-            .FirstOrDefaultAsync(a => a.Id == activityId);
+            .FirstOrDefaultAsync(a => a.Id == activityId.Value);
 
         var activityDay = await _context.ActivityDays
-            .FirstOrDefaultAsync(d => d.DayId == dayId);
+            .FirstOrDefaultAsync(d => d.DayId == dayId.Value);
 
         if (activity == null || activityDay == null)
         {
@@ -93,7 +114,7 @@ public class PresenceController : Controller
                 .ThenInclude(c => c.Parent)
             .Include(b => b.Group)
             .Include(b => b.Days)
-            .Where(b => b.ActivityId == activityId)
+            .Where(b => b.ActivityId == activityId.Value)
             .ToListAsync();
 
         var presenceItems = new List<PresenceItemViewModel>();
@@ -101,14 +122,14 @@ public class PresenceController : Controller
         foreach (var booking in bookings)
         {
             // Get or create BookingDay for this activity day
-            var bookingDay = booking.Days.FirstOrDefault(bd => bd.ActivityDayId == dayId);
+            var bookingDay = booking.Days.FirstOrDefault(bd => bd.ActivityDayId == dayId.Value);
 
             if (bookingDay == null)
             {
                 // Create a new BookingDay if it doesn't exist
                 bookingDay = new BookingDay
                 {
-                    ActivityDayId = dayId,
+                    ActivityDayId = dayId.Value,
                     BookingId = booking.Id,
                     IsReserved = true,
                     IsPresent = false
@@ -149,11 +170,11 @@ public class PresenceController : Controller
     // POST: Presence/UpdatePresence
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> UpdatePresence(int activityId, int dayId, Dictionary<int, bool> presence)
+    public async Task<IActionResult> UpdatePresence(Dictionary<int, bool> presence)
     {
         if (!ModelState.IsValid)
         {
-            return RedirectToAction(nameof(List), new { activityId, dayId });
+            return RedirectToAction(nameof(List));
         }
 
         foreach (var kvp in presence)
@@ -171,22 +192,26 @@ public class PresenceController : Controller
         await _context.SaveChangesAsync();
 
         TempData[TempDataSuccessMessage] = _localizer["Message.PresencesSaved"];
-        return RedirectToAction(nameof(List), new { activityId, dayId });
+        return RedirectToAction(nameof(List));
     }
 
-    // GET: Presence/Print/5/10
-    public async Task<IActionResult> Print(int activityId, int dayId)
+    // GET: Presence/Print
+    public async Task<IActionResult> Print()
     {
-        if (!ModelState.IsValid)
+        // Get from session
+        var activityId = HttpContext.Session.GetInt32(SessionKeyActivityId);
+        var dayId = HttpContext.Session.GetInt32(SessionKeyDayId);
+
+        if (!activityId.HasValue || !dayId.HasValue)
         {
-            return BadRequest(ModelState);
+            return BadRequest();
         }
 
         var activity = await _context.Activities
-            .FirstOrDefaultAsync(a => a.Id == activityId);
+            .FirstOrDefaultAsync(a => a.Id == activityId.Value);
 
         var activityDay = await _context.ActivityDays
-            .FirstOrDefaultAsync(d => d.DayId == dayId);
+            .FirstOrDefaultAsync(d => d.DayId == dayId.Value);
 
         if (activity == null || activityDay == null)
         {
@@ -198,14 +223,14 @@ public class PresenceController : Controller
                 .ThenInclude(c => c.Parent)
             .Include(b => b.Group)
             .Include(b => b.Days)
-            .Where(b => b.ActivityId == activityId)
+            .Where(b => b.ActivityId == activityId.Value)
             .ToListAsync();
 
         var presenceItems = new List<PresenceItemViewModel>();
 
         foreach (var booking in bookings)
         {
-            var bookingDay = booking.Days.FirstOrDefault(bd => bd.ActivityDayId == dayId);
+            var bookingDay = booking.Days.FirstOrDefault(bd => bd.ActivityDayId == dayId.Value);
 
             if (bookingDay != null && bookingDay.IsReserved)
             {

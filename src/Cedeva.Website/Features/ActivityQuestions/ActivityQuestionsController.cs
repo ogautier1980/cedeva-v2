@@ -17,6 +17,7 @@ public class ActivityQuestionsController : Controller
 {
     private const string TempDataSuccessMessage = "SuccessMessage";
     private const string TempDataErrorMessage = "ErrorMessage";
+    private const string SessionKeyActivityId = "ActivityQuestions_ActivityId";
 
     private readonly CedevaDbContext _context;
     private readonly IUnitOfWork _unitOfWork;
@@ -35,6 +36,17 @@ public class ActivityQuestionsController : Controller
     // GET: ActivityQuestions?activityId=5
     public async Task<IActionResult> Index(int? activityId)
     {
+        // Store activityId in session if provided in URL
+        if (activityId.HasValue)
+        {
+            HttpContext.Session.SetInt32(SessionKeyActivityId, activityId.Value);
+        }
+        else
+        {
+            // Try to retrieve from session
+            activityId = HttpContext.Session.GetInt32(SessionKeyActivityId);
+        }
+
         var query = _context.ActivityQuestions
             .Include(q => q.Activity)
             .Include(q => q.Answers)
@@ -115,7 +127,8 @@ public class ActivityQuestionsController : Controller
 
         TempData[TempDataSuccessMessage] = _localizer["ActivityQuestions.CreateSuccess"].ToString();
 
-        return RedirectToAction(nameof(Index), new { activityId = model.ActivityId });
+        // ActivityId is already in session
+        return RedirectToAction(nameof(Index));
     }
 
     // GET: ActivityQuestions/Edit/5
@@ -188,7 +201,8 @@ public class ActivityQuestionsController : Controller
 
         TempData[TempDataSuccessMessage] = _localizer["ActivityQuestions.UpdateSuccess"].ToString();
 
-        return RedirectToAction(nameof(Index), new { activityId = model.ActivityId });
+        // ActivityId is already in session
+        return RedirectToAction(nameof(Index));
     }
 
     // GET: ActivityQuestions/Delete/5
@@ -233,8 +247,6 @@ public class ActivityQuestionsController : Controller
             return NotFound();
         }
 
-        var activityId = question.ActivityId;
-
         // Check if question has answers
         if (question.Answers.Any())
         {
@@ -247,7 +259,8 @@ public class ActivityQuestionsController : Controller
 
         TempData[TempDataSuccessMessage] = _localizer["ActivityQuestions.DeleteSuccess"].ToString();
 
-        return RedirectToAction(nameof(Index), new { activityId });
+        // ActivityId is already in session
+        return RedirectToAction(nameof(Index));
     }
 
     private async Task PopulateDropdowns(int? selectedActivityId = null)
