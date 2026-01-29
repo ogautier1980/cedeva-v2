@@ -1,4 +1,4 @@
-@model IEnumerable<Cedeva.Website.Features.Activities.ViewModels.ActivityViewModel>
+@model Cedeva.Website.Features.Activities.ViewModels.ActivityListViewModel
 @{
     ViewData["Title"] = Localizer["Activities"];
     var searchString = ViewData["SearchString"] as string;
@@ -66,7 +66,7 @@
             </form>
         </div>
         <div class="card-body">
-            @if (Model.Any())
+            @if (Model.Activities.Any())
             {
                 <div class="table-responsive">
                     <table class="table table-hover">
@@ -81,7 +81,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach (var activity in Model)
+                            @foreach (var activity in Model.Activities)
                             {
                                 <tr>
                                     <td>
