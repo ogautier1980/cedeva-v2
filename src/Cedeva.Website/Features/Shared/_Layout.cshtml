@@ -45,11 +45,7 @@
                 <div class="border-top border-secondary my-2"></div>
                 @{
                     var currentUser = User;
-                    var organisationId = 1; // TODO: Get actual organisation ID from current user
                 }
-                <a href="/PublicRegistration/EmbedCode?orgId=@organisationId" class="list-group-item list-group-item-action bg-dark text-white border-0">
-                    <i class="fas fa-code me-2"></i>Formulaire iframe
-                </a>
                 @if (User.IsInRole("Admin"))
                 {
                     <div class="border-top border-secondary my-2"></div>

@@ -21,6 +21,7 @@ public class ChildrenController : Controller
     private readonly CedevaDbContext _context;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IExcelExportService _excelExportService;
+    private readonly IPdfExportService _pdfExportService;
     private readonly IStringLocalizer<SharedResources> _localizer;
 
     public ChildrenController(
@@ -29,6 +30,7 @@ public class ChildrenController : Controller
         CedevaDbContext context,
         IUnitOfWork unitOfWork,
         IExcelExportService excelExportService,
+        IPdfExportService pdfExportService,
         IStringLocalizer<SharedResources> localizer)
     {
         _childRepository = childRepository;
@@ -36,6 +38,7 @@ public class ChildrenController : Controller
         _context = context;
         _unitOfWork = unitOfWork;
         _excelExportService = excelExportService;
+        _pdfExportService = pdfExportService;
         _localizer = localizer;
     }
 
@@ -159,6 +162,53 @@ public class ChildrenController : Controller
         var fileName = $"{sheetName}_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx";
 
         return File(excelData, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
+    }
+
+    // GET: Children/ExportPdf
+    public async Task<IActionResult> ExportPdf(string? searchString, int? parentId)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
+        var query = _context.Children
+            .Include(c => c.Parent)
+            .AsQueryable();
+
+        if (!string.IsNullOrEmpty(searchString))
+        {
+            query = query.Where(c =>
+                c.FirstName.Contains(searchString, StringComparison.OrdinalIgnoreCase) ||
+                c.LastName.Contains(searchString, StringComparison.OrdinalIgnoreCase) ||
+                c.NationalRegisterNumber.Contains(searchString));
+        }
+
+        if (parentId.HasValue)
+        {
+            query = query.Where(c => c.ParentId == parentId.Value);
+        }
+
+        var children = await query
+            .OrderBy(c => c.LastName)
+            .ThenBy(c => c.FirstName)
+            .ToListAsync();
+
+        var columns = new Dictionary<string, Func<Child, object>>
+        {
+            { _localizer["Excel.FirstName"], c => c.FirstName },
+            { _localizer["Excel.LastName"], c => c.LastName },
+            { _localizer["Excel.BirthDate"], c => c.BirthDate },
+            { _localizer["Excel.Age"], c => DateTime.Today.Year - c.BirthDate.Year - (DateTime.Today.DayOfYear < c.BirthDate.DayOfYear ? 1 : 0) },
+            { _localizer["Excel.Parent"], c => c.Parent != null ? $"{c.Parent.FirstName} {c.Parent.LastName}" : "" },
+            { _localizer["Excel.ParentPhone"], c => c.Parent?.MobilePhoneNumber ?? c.Parent?.PhoneNumber ?? "" }
+        };
+
+        var title = _localizer["Excel.ChildrenSheet"];
+        var pdfData = _pdfExportService.ExportToPdf(children, title, columns);
+        var fileName = $"{title}_{DateTime.Now:yyyyMMdd_HHmmss}.pdf";
+
+        return File(pdfData, "application/pdf", fileName);
     }
 
     // GET: Children/Details/5

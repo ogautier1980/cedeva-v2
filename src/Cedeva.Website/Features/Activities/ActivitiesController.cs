@@ -20,6 +20,7 @@ public class ActivitiesController : Controller
     private readonly ICurrentUserService _currentUserService;
     private readonly ILogger<ActivitiesController> _logger;
     private readonly IExcelExportService _excelExportService;
+    private readonly IPdfExportService _pdfExportService;
     private readonly IStringLocalizer<SharedResources> _localizer;
 
     public ActivitiesController(
@@ -27,12 +28,14 @@ public class ActivitiesController : Controller
         ICurrentUserService currentUserService,
         ILogger<ActivitiesController> logger,
         IExcelExportService excelExportService,
+        IPdfExportService pdfExportService,
         IStringLocalizer<SharedResources> localizer)
     {
         _context = context;
         _currentUserService = currentUserService;
         _logger = logger;
         _excelExportService = excelExportService;
+        _pdfExportService = pdfExportService;
         _localizer = localizer;
     }
 
@@ -426,5 +429,55 @@ public class ActivitiesController : Controller
         var fileName = $"{sheetName}_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx";
 
         return File(excelData, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
+    }
+
+    // GET: Activities/ExportPdf
+    public async Task<IActionResult> ExportPdf(string? searchTerm, bool? showActiveOnly)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
+        var query = _context.Activities
+            .Include(a => a.Organisation)
+            .Include(a => a.Bookings)
+            .Include(a => a.Groups)
+            .Include(a => a.TeamMembers)
+            .AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(searchTerm))
+        {
+            query = query.Where(a => a.Name.Contains(searchTerm) || a.Description.Contains(searchTerm));
+        }
+
+        if (showActiveOnly == true)
+        {
+            query = query.Where(a => a.IsActive);
+        }
+
+        var activities = await query
+            .OrderByDescending(a => a.StartDate)
+            .ToListAsync();
+
+        var columns = new Dictionary<string, Func<Activity, object>>
+        {
+            { _localizer["Excel.Name"], a => a.Name },
+            { _localizer["Excel.Description"], a => a.Description },
+            { _localizer["Excel.Organisation"], a => a.Organisation.Name },
+            { _localizer["Excel.StartDate"], a => a.StartDate },
+            { _localizer["Excel.EndDate"], a => a.EndDate },
+            { _localizer["Excel.PricePerDay"], a => (object?)a.PricePerDay ?? "N/A" },
+            { _localizer["Excel.Active"], a => a.IsActive },
+            { _localizer["Excel.Bookings"], a => a.Bookings.Count },
+            { _localizer["Excel.Groups"], a => a.Groups.Count },
+            { _localizer["Excel.Team"], a => a.TeamMembers.Count }
+        };
+
+        var title = _localizer["Excel.ActivitiesSheet"];
+        var pdfData = _pdfExportService.ExportToPdf(activities, title, columns);
+        var fileName = $"{title}_{DateTime.Now:yyyyMMdd_HHmmss}.pdf";
+
+        return File(pdfData, "application/pdf", fileName);
     }
 }

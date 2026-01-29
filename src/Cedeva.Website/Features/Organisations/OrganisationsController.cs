@@ -20,19 +20,25 @@ public class OrganisationsController : Controller
     private readonly CedevaDbContext _context;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IStringLocalizer<SharedResources> _localizer;
+    private readonly IExcelExportService _excelExportService;
+    private readonly IPdfExportService _pdfExportService;
 
     public OrganisationsController(
         IRepository<Organisation> organisationRepository,
         IRepository<Address> addressRepository,
         CedevaDbContext context,
         IUnitOfWork unitOfWork,
-        IStringLocalizer<SharedResources> localizer)
+        IStringLocalizer<SharedResources> localizer,
+        IExcelExportService excelExportService,
+        IPdfExportService pdfExportService)
     {
         _organisationRepository = organisationRepository;
         _addressRepository = addressRepository;
         _context = context;
         _unitOfWork = unitOfWork;
         _localizer = localizer;
+        _excelExportService = excelExportService;
+        _pdfExportService = pdfExportService;
     }
 
     // GET: Organisations
@@ -361,5 +367,81 @@ public class OrganisationsController : Controller
             TeamMembersCount = teamMembersCount,
             UsersCount = usersCount
         };
+    }
+
+    // GET: Organisations/Export
+    public async Task<IActionResult> Export(string? searchString)
+    {
+        var query = _context.Organisations
+            .Include(o => o.Address)
+            .Include(o => o.Activities)
+            .Include(o => o.Parents)
+            .Include(o => o.TeamMembers)
+            .Include(o => o.Users)
+            .IgnoreQueryFilters()
+            .AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(searchString))
+        {
+            query = query.Where(o => o.Name.Contains(searchString) ||
+                                     (o.Description != null && o.Description.Contains(searchString)));
+        }
+
+        var organisations = await query.OrderBy(o => o.Name).ToListAsync();
+
+        var columns = new Dictionary<string, Func<Organisation, object>>
+        {
+            { _localizer["Excel.Name"], o => o.Name },
+            { _localizer["Excel.Description"], o => o.Description ?? "" },
+            { _localizer["Excel.Address"], o => $"{o.Address?.Street}, {o.Address?.PostalCode} {o.Address?.City}" },
+            { _localizer["Excel.Activities"], o => o.Activities.Count },
+            { _localizer["Excel.Parents"], o => o.Parents.Count },
+            { _localizer["Excel.Team"], o => o.TeamMembers.Count },
+            { _localizer["Excel.Users"], o => o.Users.Count }
+        };
+
+        var sheetName = _localizer["Excel.OrganisationsSheet"];
+        var excelData = _excelExportService.ExportToExcel(organisations, sheetName, columns);
+        var fileName = $"{sheetName}_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx";
+
+        return File(excelData, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
+    }
+
+    // GET: Organisations/ExportPdf
+    public async Task<IActionResult> ExportPdf(string? searchString)
+    {
+        var query = _context.Organisations
+            .Include(o => o.Address)
+            .Include(o => o.Activities)
+            .Include(o => o.Parents)
+            .Include(o => o.TeamMembers)
+            .Include(o => o.Users)
+            .IgnoreQueryFilters()
+            .AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(searchString))
+        {
+            query = query.Where(o => o.Name.Contains(searchString) ||
+                                     (o.Description != null && o.Description.Contains(searchString)));
+        }
+
+        var organisations = await query.OrderBy(o => o.Name).ToListAsync();
+
+        var columns = new Dictionary<string, Func<Organisation, object>>
+        {
+            { _localizer["Excel.Name"], o => o.Name },
+            { _localizer["Excel.Description"], o => o.Description ?? "" },
+            { _localizer["Excel.Address"], o => $"{o.Address?.Street}, {o.Address?.PostalCode} {o.Address?.City}" },
+            { _localizer["Excel.Activities"], o => o.Activities.Count },
+            { _localizer["Excel.Parents"], o => o.Parents.Count },
+            { _localizer["Excel.Team"], o => o.TeamMembers.Count },
+            { _localizer["Excel.Users"], o => o.Users.Count }
+        };
+
+        var title = _localizer["Excel.OrganisationsSheet"];
+        var pdfData = _pdfExportService.ExportToPdf(organisations, title, columns);
+        var fileName = $"{title}_{DateTime.Now:yyyyMMdd_HHmmss}.pdf";
+
+        return File(pdfData, "application/pdf", fileName);
     }
 }

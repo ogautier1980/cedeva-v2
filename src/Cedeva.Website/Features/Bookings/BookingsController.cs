@@ -21,6 +21,7 @@ public class BookingsController : Controller
     private readonly CedevaDbContext _context;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IExcelExportService _excelExportService;
+    private readonly IPdfExportService _pdfExportService;
     private readonly IEmailService _emailService;
     private readonly IStringLocalizer<SharedResources> _localizer;
 
@@ -29,6 +30,7 @@ public class BookingsController : Controller
         CedevaDbContext context,
         IUnitOfWork unitOfWork,
         IExcelExportService excelExportService,
+        IPdfExportService pdfExportService,
         IEmailService emailService,
         IStringLocalizer<SharedResources> localizer)
     {
@@ -36,6 +38,7 @@ public class BookingsController : Controller
         _context = context;
         _unitOfWork = unitOfWork;
         _excelExportService = excelExportService;
+        _pdfExportService = pdfExportService;
         _emailService = emailService;
         _localizer = localizer;
     }
@@ -502,5 +505,65 @@ public class BookingsController : Controller
         var fileName = $"{sheetName}_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx";
 
         return File(excelData, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
+    }
+
+    // GET: Bookings/ExportPdf
+    public async Task<IActionResult> ExportPdf(string? searchString, int? activityId, int? childId, bool? isConfirmed)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
+        var allBookings = await _bookingRepository.GetAllAsync();
+        var query = allBookings.AsQueryable();
+
+        if (!string.IsNullOrEmpty(searchString))
+        {
+            query = query.Where(b =>
+                b.Child.FirstName.Contains(searchString, StringComparison.OrdinalIgnoreCase) ||
+                b.Child.LastName.Contains(searchString, StringComparison.OrdinalIgnoreCase) ||
+                b.Activity.Name.Contains(searchString, StringComparison.OrdinalIgnoreCase));
+        }
+
+        if (activityId.HasValue)
+        {
+            query = query.Where(b => b.ActivityId == activityId.Value);
+        }
+
+        if (childId.HasValue)
+        {
+            query = query.Where(b => b.ChildId == childId.Value);
+        }
+
+        if (isConfirmed.HasValue)
+        {
+            query = query.Where(b => b.IsConfirmed == isConfirmed.Value);
+        }
+
+        var bookings = await query
+            .OrderByDescending(b => b.BookingDate)
+            .ToListAsync();
+
+        var columns = new Dictionary<string, Func<Booking, object>>
+        {
+            { _localizer["Excel.BookingDate"], b => b.BookingDate },
+            { _localizer["Excel.Child"], b => $"{b.Child.FirstName} {b.Child.LastName}" },
+            { _localizer["Excel.Parent"], b => $"{b.Child.Parent.FirstName} {b.Child.Parent.LastName}" },
+            { _localizer["Excel.ParentEmail"], b => b.Child.Parent.Email },
+            { _localizer["Excel.ParentPhone"], b => b.Child.Parent.MobilePhoneNumber ?? b.Child.Parent.PhoneNumber ?? "" },
+            { _localizer["Excel.Activity"], b => b.Activity.Name },
+            { _localizer["Excel.StartDate"], b => b.Activity.StartDate },
+            { _localizer["Excel.EndDate"], b => b.Activity.EndDate },
+            { _localizer["Excel.Group"], b => b.Group?.Label ?? "" },
+            { _localizer["Excel.Confirmed"], b => b.IsConfirmed },
+            { _localizer["Excel.MedicalSheet"], b => b.IsMedicalSheet }
+        };
+
+        var title = _localizer["Excel.BookingsSheet"];
+        var pdfData = _pdfExportService.ExportToPdf(bookings, title, columns);
+        var fileName = $"{title}_{DateTime.Now:yyyyMMdd_HHmmss}.pdf";
+
+        return File(pdfData, "application/pdf", fileName);
     }
 }

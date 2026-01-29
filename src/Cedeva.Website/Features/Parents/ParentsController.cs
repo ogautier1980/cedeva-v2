@@ -21,6 +21,7 @@ public class ParentsController : Controller
     private readonly ICurrentUserService _currentUserService;
     private readonly ILogger<ParentsController> _logger;
     private readonly IExcelExportService _excelExportService;
+    private readonly IPdfExportService _pdfExportService;
     private readonly IStringLocalizer<SharedResources> _localizer;
 
     public ParentsController(
@@ -28,12 +29,14 @@ public class ParentsController : Controller
         ICurrentUserService currentUserService,
         ILogger<ParentsController> logger,
         IExcelExportService excelExportService,
+        IPdfExportService pdfExportService,
         IStringLocalizer<SharedResources> localizer)
     {
         _context = context;
         _currentUserService = currentUserService;
         _logger = logger;
         _excelExportService = excelExportService;
+        _pdfExportService = pdfExportService;
         _localizer = localizer;
     }
 
@@ -158,6 +161,52 @@ public class ParentsController : Controller
         var fileName = $"{sheetName}_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx";
 
         return File(excelData, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
+    }
+
+    // GET: Parents/ExportPdf
+    public async Task<IActionResult> ExportPdf(string? searchTerm)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
+        var query = _context.Parents
+            .Include(p => p.Address)
+            .Include(p => p.Children)
+            .AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(searchTerm))
+        {
+            query = query.Where(p =>
+                p.FirstName.Contains(searchTerm) ||
+                p.LastName.Contains(searchTerm) ||
+                p.Email.Contains(searchTerm));
+        }
+
+        var parents = await query
+            .OrderBy(p => p.LastName)
+            .ThenBy(p => p.FirstName)
+            .ToListAsync();
+
+        var columns = new Dictionary<string, Func<Parent, object>>
+        {
+            { _localizer["Excel.FirstName"], p => p.FirstName },
+            { _localizer["Excel.LastName"], p => p.LastName },
+            { _localizer["Excel.Email"], p => p.Email },
+            { _localizer["Excel.Phone"], p => p.PhoneNumber ?? "" },
+            { _localizer["Excel.MobilePhone"], p => p.MobilePhoneNumber ?? "" },
+            { _localizer["Excel.Street"], p => p.Address?.Street ?? "" },
+            { _localizer["Excel.PostalCode"], p => p.Address?.PostalCode ?? "" },
+            { _localizer["Excel.City"], p => p.Address?.City ?? "" },
+            { _localizer["Excel.ChildrenCount"], p => p.Children.Count }
+        };
+
+        var title = _localizer["Excel.ParentsSheet"];
+        var pdfData = _pdfExportService.ExportToPdf(parents, title, columns);
+        var fileName = $"{title}_{DateTime.Now:yyyyMMdd_HHmmss}.pdf";
+
+        return File(pdfData, "application/pdf", fileName);
     }
 
     public async Task<IActionResult> Details(int id)

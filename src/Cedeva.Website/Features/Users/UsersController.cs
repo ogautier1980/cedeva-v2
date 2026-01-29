@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Localization;
 using Cedeva.Core.Entities;
 using Cedeva.Core.Enums;
+using Cedeva.Core.Interfaces;
 using Cedeva.Website.Features.Users.ViewModels;
 using Cedeva.Website.Localization;
 using Cedeva.Infrastructure.Data;
@@ -20,15 +21,21 @@ public class UsersController : Controller
     private readonly UserManager<CedevaUser> _userManager;
     private readonly CedevaDbContext _context;
     private readonly IStringLocalizer<SharedResources> _localizer;
+    private readonly IExcelExportService _excelExportService;
+    private readonly IPdfExportService _pdfExportService;
 
     public UsersController(
         UserManager<CedevaUser> userManager,
         CedevaDbContext context,
-        IStringLocalizer<SharedResources> localizer)
+        IStringLocalizer<SharedResources> localizer,
+        IExcelExportService excelExportService,
+        IPdfExportService pdfExportService)
     {
         _userManager = userManager;
         _context = context;
         _localizer = localizer;
+        _excelExportService = excelExportService;
+        _pdfExportService = pdfExportService;
     }
 
     // GET: Users
@@ -369,5 +376,91 @@ public class UsersController : Controller
             EmailConfirmed = user.EmailConfirmed,
             IsLockedOut = user.LockoutEnd.HasValue && user.LockoutEnd.Value > DateTimeOffset.UtcNow
         };
+    }
+
+    // GET: Users/Export
+    public async Task<IActionResult> Export(string? searchString, int? organisationId)
+    {
+        var query = _userManager.Users
+            .Include(u => u.Organisation)
+            .AsQueryable();
+
+        if (!string.IsNullOrEmpty(searchString))
+        {
+            query = query.Where(u =>
+                u.FirstName.Contains(searchString, StringComparison.OrdinalIgnoreCase) ||
+                u.LastName.Contains(searchString, StringComparison.OrdinalIgnoreCase) ||
+                u.Email.Contains(searchString, StringComparison.OrdinalIgnoreCase));
+        }
+
+        if (organisationId.HasValue)
+        {
+            query = query.Where(u => u.OrganisationId == organisationId.Value);
+        }
+
+        var users = await query
+            .OrderBy(u => u.LastName)
+            .ThenBy(u => u.FirstName)
+            .ToListAsync();
+
+        var columns = new Dictionary<string, Func<CedevaUser, object>>
+        {
+            { _localizer["Excel.FirstName"], u => u.FirstName },
+            { _localizer["Excel.LastName"], u => u.LastName },
+            { _localizer["Excel.Email"], u => u.Email ?? "" },
+            { _localizer["Excel.Organisation"], u => u.Organisation?.Name ?? "" },
+            { _localizer["Excel.Role"], u => _localizer[$"Enum.Role.{u.Role}"].Value },
+            { _localizer["Excel.EmailConfirmed"], u => u.EmailConfirmed },
+            { _localizer["Excel.Status"], u => u.LockoutEnd.HasValue && u.LockoutEnd.Value > DateTimeOffset.UtcNow ? _localizer["LockedOut"].Value : _localizer["Active"].Value }
+        };
+
+        var sheetName = _localizer["Excel.UsersSheet"];
+        var excelData = _excelExportService.ExportToExcel(users, sheetName, columns);
+        var fileName = $"{sheetName}_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx";
+
+        return File(excelData, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
+    }
+
+    // GET: Users/ExportPdf
+    public async Task<IActionResult> ExportPdf(string? searchString, int? organisationId)
+    {
+        var query = _userManager.Users
+            .Include(u => u.Organisation)
+            .AsQueryable();
+
+        if (!string.IsNullOrEmpty(searchString))
+        {
+            query = query.Where(u =>
+                u.FirstName.Contains(searchString, StringComparison.OrdinalIgnoreCase) ||
+                u.LastName.Contains(searchString, StringComparison.OrdinalIgnoreCase) ||
+                u.Email.Contains(searchString, StringComparison.OrdinalIgnoreCase));
+        }
+
+        if (organisationId.HasValue)
+        {
+            query = query.Where(u => u.OrganisationId == organisationId.Value);
+        }
+
+        var users = await query
+            .OrderBy(u => u.LastName)
+            .ThenBy(u => u.FirstName)
+            .ToListAsync();
+
+        var columns = new Dictionary<string, Func<CedevaUser, object>>
+        {
+            { _localizer["Excel.FirstName"], u => u.FirstName },
+            { _localizer["Excel.LastName"], u => u.LastName },
+            { _localizer["Excel.Email"], u => u.Email ?? "" },
+            { _localizer["Excel.Organisation"], u => u.Organisation?.Name ?? "" },
+            { _localizer["Excel.Role"], u => _localizer[$"Enum.Role.{u.Role}"].Value },
+            { _localizer["Excel.EmailConfirmed"], u => u.EmailConfirmed },
+            { _localizer["Excel.Status"], u => u.LockoutEnd.HasValue && u.LockoutEnd.Value > DateTimeOffset.UtcNow ? _localizer["LockedOut"].Value : _localizer["Active"].Value }
+        };
+
+        var title = _localizer["Excel.UsersSheet"];
+        var pdfData = _pdfExportService.ExportToPdf(users, title, columns);
+        var fileName = $"{title}_{DateTime.Now:yyyyMMdd_HHmmss}.pdf";
+
+        return File(pdfData, "application/pdf", fileName);
     }
 }

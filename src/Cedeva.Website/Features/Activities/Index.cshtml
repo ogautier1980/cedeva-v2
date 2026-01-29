@@ -16,6 +16,9 @@
             <a asp-action="Export" asp-route-searchString="@searchString" asp-route-showActiveOnly="@showActiveOnly" class="btn btn-success text-nowrap">
                 <i class="fas fa-file-excel me-2"></i>@Localizer["Activities.ExportExcel"]
             </a>
+            <a asp-action="ExportPdf" asp-route-searchTerm="@searchString" asp-route-showActiveOnly="@showActiveOnly" class="btn btn-success text-nowrap">
+                <i class="fas fa-file-pdf me-2"></i>@Localizer["ExportPdf"]
+            </a>
             <a asp-action="Create" class="btn btn-primary text-nowrap">
                 <i class="fas fa-plus me-2"></i>@Localizer["Activities.NewActivity"]
             </a>

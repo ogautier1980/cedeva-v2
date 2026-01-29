@@ -112,6 +112,9 @@
   <data name="ExportExcel" xml:space="preserve">
     <value>Excel exporteren</value>
   </data>
+  <data name="ExportPdf" xml:space="preserve">
+    <value>PDF exporteren</value>
+  </data>
   <data name="Save" xml:space="preserve">
     <value>Opslaan</value>
   </data>

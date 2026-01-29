@@ -21,6 +21,7 @@ public class TeamMembersController : Controller
     private readonly ICurrentUserService _currentUserService;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IExcelExportService _excelExportService;
+    private readonly IPdfExportService _pdfExportService;
     private readonly IStringLocalizer<SharedResources> _localizer;
 
     public TeamMembersController(
@@ -30,6 +31,7 @@ public class TeamMembersController : Controller
         ICurrentUserService currentUserService,
         IUnitOfWork unitOfWork,
         IExcelExportService excelExportService,
+        IPdfExportService pdfExportService,
         IStringLocalizer<SharedResources> localizer)
     {
         _teamMemberRepository = teamMemberRepository;
@@ -38,6 +40,7 @@ public class TeamMembersController : Controller
         _currentUserService = currentUserService;
         _unitOfWork = unitOfWork;
         _excelExportService = excelExportService;
+        _pdfExportService = pdfExportService;
         _localizer = localizer;
     }
 
@@ -155,6 +158,51 @@ public class TeamMembersController : Controller
         var fileName = $"{sheetName}_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx";
 
         return File(excelData, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
+    }
+
+    // GET: TeamMembers/ExportPdf
+    public async Task<IActionResult> ExportPdf(string? searchString)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
+        var query = _context.TeamMembers
+            .Include(t => t.Address)
+            .Include(t => t.Organisation)
+            .AsQueryable();
+
+        if (!string.IsNullOrEmpty(searchString))
+        {
+            query = query.Where(t =>
+                t.FirstName.Contains(searchString, StringComparison.OrdinalIgnoreCase) ||
+                t.LastName.Contains(searchString, StringComparison.OrdinalIgnoreCase) ||
+                t.Email.Contains(searchString, StringComparison.OrdinalIgnoreCase));
+        }
+
+        var teamMembers = await query
+            .OrderBy(t => t.LastName)
+            .ThenBy(t => t.FirstName)
+            .ToListAsync();
+
+        var columns = new Dictionary<string, Func<TeamMember, object>>
+        {
+            { _localizer["Excel.FirstName"], t => t.FirstName },
+            { _localizer["Excel.LastName"], t => t.LastName },
+            { _localizer["Excel.Email"], t => t.Email },
+            { _localizer["Excel.MobilePhone"], t => t.MobilePhoneNumber },
+            { _localizer["Excel.Role"], t => t.TeamRole.ToString() },
+            { _localizer["Excel.License"], t => t.License.ToString() },
+            { _localizer["Excel.Status"], t => t.Status.ToString() },
+            { _localizer["Excel.City"], t => t.Address?.City ?? "" }
+        };
+
+        var title = _localizer["Excel.TeamMembersSheet"];
+        var pdfData = _pdfExportService.ExportToPdf(teamMembers, title, columns);
+        var fileName = $"{title}_{DateTime.Now:yyyyMMdd_HHmmss}.pdf";
+
+        return File(pdfData, "application/pdf", fileName);
     }
 
     // GET: TeamMembers/Details/5
