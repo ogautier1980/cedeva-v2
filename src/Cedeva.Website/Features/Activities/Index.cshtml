@@ -105,7 +105,7 @@
                                         }
                                     </td>
                                     <td class="text-center">
-                                        <span class="badge bg-info">@activity.BookingsCount</span>
+                                        <span class="badge bg-primary">@activity.BookingsCount</span>
                                     </td>
                                     <td class="text-center">
                                         @if (activity.IsActive)
@@ -122,10 +122,10 @@
                                             <a asp-controller="ActivityManagement" asp-action="Index" asp-route-id="@activity.Id" class="btn btn-sm btn-success" title="@Localizer["Activities.ManageActivity"]">
                                                 <i class="fas fa-tasks"></i>
                                             </a>
-                                            <a asp-action="Details" asp-route-id="@activity.Id" class="btn btn-sm btn-info" title="@Localizer["Details"]">
+                                            <a asp-action="Details" asp-route-id="@activity.Id" class="btn btn-sm btn-primary" title="@Localizer["Details"]">
                                                 <i class="fas fa-eye"></i>
                                             </a>
-                                            <a asp-action="Edit" asp-route-id="@activity.Id" class="btn btn-sm btn-warning" title="@Localizer["Edit"]">
+                                            <a asp-action="Edit" asp-route-id="@activity.Id" class="btn btn-sm btn-primary" title="@Localizer["Edit"]">
                                                 <i class="fas fa-edit"></i>
                                             </a>
                                             <a asp-action="Delete" asp-route-id="@activity.Id" class="btn btn-sm btn-danger" title="@Localizer["Delete"]">

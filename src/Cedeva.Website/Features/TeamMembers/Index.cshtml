@@ -89,13 +89,13 @@
                                         </span>
                                     </td>
                                     <td>
-                                        <span class="badge @(member.Status == Cedeva.Core.Enums.Status.Compensated ? "bg-info" : "bg-secondary")">
+                                        <span class="badge @(member.Status == Cedeva.Core.Enums.Status.Compensated ? "bg-primary" : "bg-secondary")">
                                             @(member.Status == Cedeva.Core.Enums.Status.Compensated ? Localizer["Compensated"] : Localizer["Volunteer"])
                                         </span>
                                     </td>
                                     <td class="text-end">
                                         <div class="btn-group">
-                                            <a asp-action="Details" asp-route-id="@member.TeamMemberId" class="btn btn-sm btn-info" title="@Localizer["Details"]">
+                                            <a asp-action="Details" asp-route-id="@member.TeamMemberId" class="btn btn-sm btn-primary" title="@Localizer["Details"]">
                                                 <i class="fas fa-eye"></i>
                                             </a>
                                             <a asp-action="Edit" asp-route-id="@member.TeamMemberId" class="btn btn-sm btn-primary" title="@Localizer["Edit"]">

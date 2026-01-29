@@ -31,7 +31,7 @@
                         <dt class="col-sm-4">@Localizer["BirthDate"]</dt>
                         <dd class="col-sm-8">
                             @Model.BirthDate.ToString("dd/MM/yyyy")
-                            <span class="badge bg-info ms-2">@((DateTime.Now.Year - Model.BirthDate.Year)) @Localizer["Children.YearsOld"]</span>
+                            <span class="badge bg-primary ms-2">@((DateTime.Now.Year - Model.BirthDate.Year)) @Localizer["Children.YearsOld"]</span>
                         </dd>
 
                         <dt class="col-sm-4">@Localizer["NationalRegisterNumber"]</dt>
@@ -99,7 +99,7 @@
 
                         <dt class="col-sm-4">@Localizer["Status"]</dt>
                         <dd class="col-sm-8">
-                            <span class="badge @(Model.Status == Cedeva.Core.Enums.Status.Compensated ? "bg-info" : "bg-secondary")">
+                            <span class="badge @(Model.Status == Cedeva.Core.Enums.Status.Compensated ? "bg-primary" : "bg-secondary")">
                                 @(Model.Status == Cedeva.Core.Enums.Status.Compensated ? Localizer["Enum.Status.Compensated"] : Localizer["Enum.Status.Volunteer"])
                             </span>
                         </dd>
