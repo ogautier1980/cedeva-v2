@@ -299,6 +299,48 @@ find Features -name "*.cshtml" -type f
 grep -c '<data name=' Localization/SharedResources.fr.resx
 ```
 
+## Recent Updates (2026-01-28/29)
+
+### PostalCode Type Change
+Changed PostalCode from `int` to `string` for international compatibility:
+- Modified entities: Address, BelgianMunicipality
+- Updated all ViewModels: validation from `[Range(1000, 9999)]` to `[StringLength(10)]`
+- Updated 8 controllers to handle string postal codes
+- Created migration: ChangePostalCodeToString
+- Enables support for foreign postal codes with letters (e.g., "1234AB")
+
+### TempData Serialization Fix
+Fixed InvalidOperationException when creating ActivityGroups/ActivityQuestions:
+- Issue: LocalizedString objects cannot be serialized by DefaultTempDataSerializer
+- Solution: Convert to string with `.ToString()` before storing in TempData
+- Files fixed: ActivityGroupsController.cs, ActivityQuestionsController.cs
+
+### IAsyncQueryProvider Fix
+Fixed InvalidOperationException on Children and TeamMembers Index pages:
+- Issue: Repository returns materialized List<T>, then `.AsQueryable()` creates EnumerableQuery which doesn't support async EF operations
+- Solution: Use `_context.Children` and `_context.TeamMembers` directly to maintain IQueryable chain
+- Files fixed: ChildrenController.cs:49, TeamMembersController.cs:52
+
+### Sortable Columns & Enhanced Pagination
+Added interactive sorting and improved pagination to all Index pages:
+- Created reusable partials: `_SortableColumnHeader.cshtml`, `_Pagination.cshtml`
+- Sortable columns: Click to sort ascending, click again for descending
+- Visual indicators: fa-sort (default), fa-sort-up, fa-sort-down
+- Page size selector: 10, 25, 50, or 100 items per page
+- Item counter: "Affichage de X-Y sur Z"
+- Smart pagination with ellipsis for large page counts
+- All filters and search terms preserved across sorting/pagination
+- Updated controllers: Bookings, Children, Organisations, TeamMembers, Users
+- Added CSS for active pagination visibility (#007bff background)
+- Added 3 localization keys: ItemsPerPage, Showing, Of
+
+### Test Accounts on Login Page
+Added quick-fill buttons on login page for testing:
+- 3 clickable buttons with full credentials
+- Auto-fills email and password fields on click
+- Visual icons (shield for Admin, tie for Coordinators)
+- Speeds up development and testing workflow
+
 ## Bug Fixes & Important Notes
 
 ### Nullable Parameter Fix
@@ -349,5 +391,5 @@ Known ASP.NET Core bug: https://github.com/aspnet/Localization/issues/268
 
 ---
 
-**Last updated**: 2026-01-25
-**Current phase**: Phase 5 (Localization - IN PROGRESS, verification needed)
+**Last updated**: 2026-01-29
+**Current phase**: Phase 5 (Localization - IN PROGRESS) + UX Improvements (Sorting/Pagination - COMPLETED)
