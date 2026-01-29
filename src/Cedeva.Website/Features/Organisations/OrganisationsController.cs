@@ -130,6 +130,7 @@ public class OrganisationsController : Controller
         // Calculate counts asynchronously
         var activitiesCount = await _context.Activities.CountAsync(a => a.OrganisationId == id);
         var parentsCount = await _context.Parents.CountAsync(p => p.OrganisationId == id);
+        var childrenCount = await _context.Children.CountAsync(c => c.Parent != null && c.Parent.OrganisationId == id);
         var teamMembersCount = await _context.TeamMembers.CountAsync(t => t.OrganisationId == id);
         var usersCount = await _context.Users.CountAsync(u => u.OrganisationId == id);
 
@@ -146,6 +147,7 @@ public class OrganisationsController : Controller
             AddressId = organisation.AddressId,
             ActivitiesCount = activitiesCount,
             ParentsCount = parentsCount,
+            ChildrenCount = childrenCount,
             TeamMembersCount = teamMembersCount,
             UsersCount = usersCount
         };

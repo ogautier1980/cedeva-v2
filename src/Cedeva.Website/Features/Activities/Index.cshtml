@@ -92,7 +92,9 @@
                                         <br><small class="text-muted">@activity.OrganisationName</small>
                                     </td>
                                     <td>
-                                        @activity.StartDate.ToString("dd/MM/yyyy") - @activity.EndDate.ToString("dd/MM/yyyy")
+                                        <small>
+                                            <i class="fas fa-calendar me-1 text-muted"></i>@activity.StartDate.ToString("dd/MM/yyyy") - @activity.EndDate.ToString("dd/MM/yyyy")
+                                        </small>
                                     </td>
                                     <td class="text-center">
                                         @if (activity.PricePerDay.HasValue)

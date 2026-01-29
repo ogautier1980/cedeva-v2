@@ -53,6 +53,9 @@ public class OrganisationViewModel
 
     [Display(Name = "Field.UsersCount")]
     public int UsersCount { get; set; }
+
+    [Display(Name = "Field.ChildrenCount")]
+    public int ChildrenCount { get; set; }
 }
 
 public class OrganisationListViewModel

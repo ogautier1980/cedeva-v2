@@ -81,6 +81,10 @@
                             <span class="badge bg-primary rounded-pill">@Model.ParentsCount</span>
                         </li>
                         <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                            <span><i class="fas fa-child me-2 text-primary"></i>@Localizer["Children"]</span>
+                            <span class="badge bg-primary rounded-pill">@Model.ChildrenCount</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center px-0">
                             <span><i class="fas fa-user-tie me-2 text-success"></i>@Localizer["TeamMembers"]</span>
                             <span class="badge bg-success rounded-pill">@Model.TeamMembersCount</span>
                         </li>

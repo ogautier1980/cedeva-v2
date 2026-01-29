@@ -78,15 +78,19 @@
                             @foreach (var user in Model)
                             {
                                 <tr>
-                                    <td>@user.FirstName @user.LastName</td>
                                     <td>
-                                        @user.Email
-                                        @if (!user.EmailConfirmed)
-                                        {
-                                            <span class="badge bg-warning text-dark ms-2">@Localizer["NotConfirmed"]</span>
-                                        }
+                                        <strong>@user.LastName @user.FirstName</strong>
                                     </td>
-                                    <td>@user.OrganisationName</td>
+                                    <td>
+                                        <small>
+                                            <i class="fas fa-envelope me-1 text-muted"></i>@user.Email
+                                            @if (!user.EmailConfirmed)
+                                            {
+                                                <span class="badge bg-warning text-dark ms-2">@Localizer["NotConfirmed"]</span>
+                                            }
+                                        </small>
+                                    </td>
+                                    <td><small>@user.OrganisationName</small></td>
                                     <td>
                                         @if (user.Role == Cedeva.Core.Enums.Role.Admin)
                                         {

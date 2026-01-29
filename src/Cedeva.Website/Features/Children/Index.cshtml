@@ -62,11 +62,10 @@
                     <table class="table table-hover">
                         <thead>
                             <tr>
-                                <th>@await Html.PartialAsync("_SortableColumnHeader", ("FirstName", Localizer["FirstName"].Value, ViewData["SortBy"] as string, ViewData["SortOrder"] as string))</th>
-                                <th>@await Html.PartialAsync("_SortableColumnHeader", ("LastName", Localizer["LastName"].Value, ViewData["SortBy"] as string, ViewData["SortOrder"] as string))</th>
+                                <th>@await Html.PartialAsync("_SortableColumnHeader", ("LastName", Localizer["Name"].Value, ViewData["SortBy"] as string, ViewData["SortOrder"] as string))</th>
                                 <th>@await Html.PartialAsync("_SortableColumnHeader", ("BirthDate", Localizer["BirthDate"].Value, ViewData["SortBy"] as string, ViewData["SortOrder"] as string))</th>
                                 <th>@Localizer["Parent"]</th>
-                                <th>@await Html.PartialAsync("_SortableColumnHeader", ("NationalRegisterNumber", Localizer["Children.NationalRegisterNumber"].Value, ViewData["SortBy"] as string, ViewData["SortOrder"] as string))</th>
+                                <th>@Localizer["Children.NationalRegisterNumber"]</th>
                                 <th class="text-end">@Localizer["Actions"]</th>
                             </tr>
                         </thead>
@@ -74,15 +73,20 @@
                             @foreach (var child in Model)
                             {
                                 <tr>
-                                    <td>@child.FirstName</td>
-                                    <td>@child.LastName</td>
-                                    <td>@child.BirthDate.ToString("dd/MM/yyyy")</td>
+                                    <td>
+                                        <strong>@child.LastName @child.FirstName</strong>
+                                    </td>
+                                    <td>
+                                        <small>
+                                            <i class="fas fa-birthday-cake me-1 text-muted"></i>@child.BirthDate.ToString("dd/MM/yyyy")
+                                        </small>
+                                    </td>
                                     <td>
                                         <a asp-controller="Parents" asp-action="Details" asp-route-id="@child.ParentId">
                                             @child.ParentFullName
                                         </a>
                                     </td>
-                                    <td>@child.NationalRegisterNumber</td>
+                                    <td><small>@child.NationalRegisterNumber</small></td>
                                     <td class="text-end">
                                         <div class="btn-group">
                                             <a asp-action="Details" asp-route-id="@child.Id" class="btn btn-sm btn-primary" title="@Localizer["Details"]">

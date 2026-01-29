@@ -1150,6 +1150,9 @@
   <data name="Home.NewParent" xml:space="preserve">
     <value>Nouveau parent</value>
   </data>
+  <data name="Home.NewTeamMember" xml:space="preserve">
+    <value>Nouveau membre équipe</value>
+  </data>
   <data name="Layout.Dashboard" xml:space="preserve">
     <value>Tableau de bord</value>
   </data>

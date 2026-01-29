@@ -74,10 +74,18 @@
                             {
                                 <tr>
                                     <td>
-                                        <strong>@member.FirstName @member.LastName</strong>
+                                        <strong>@member.LastName @member.FirstName</strong>
                                     </td>
-                                    <td>@member.Email</td>
-                                    <td>@member.MobilePhoneNumber</td>
+                                    <td>
+                                        <small>
+                                            <i class="fas fa-envelope me-1 text-muted"></i>@member.Email
+                                        </small>
+                                    </td>
+                                    <td>
+                                        <small>
+                                            <i class="fas fa-mobile-alt me-1 text-muted"></i>@member.MobilePhoneNumber
+                                        </small>
+                                    </td>
                                     <td>
                                         <span class="badge @(member.TeamRole == Cedeva.Core.Enums.TeamRole.Coordinator ? "bg-success" : "bg-primary")">
                                             @member.TeamRole

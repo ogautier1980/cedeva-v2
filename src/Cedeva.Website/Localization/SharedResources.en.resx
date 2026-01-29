@@ -1174,6 +1174,9 @@
   <data name="Home.NewParent" xml:space="preserve">
     <value>[EN] Nouveau parent</value>
   </data>
+  <data name="Home.NewTeamMember" xml:space="preserve">
+    <value>New Team Member</value>
+  </data>
   <data name="Home.NoActivities" xml:space="preserve">
     <value>[EN] Aucune activité enregistrée.</value>
   </data>
