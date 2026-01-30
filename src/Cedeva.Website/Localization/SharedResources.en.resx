@@ -745,6 +745,51 @@
   <data name="Account.UpdateProfile" xml:space="preserve">
     <value>[EN] Mettre à jour le profil</value>
   </data>
+  <data name="Account.LoginToYourAccount" xml:space="preserve">
+    <value>[EN] Connectez-vous à votre compte</value>
+  </data>
+  <data name="Account.EmailPlaceholder" xml:space="preserve">
+    <value>[EN] votre@email.be</value>
+  </data>
+  <data name="Account.NoAccountRegister" xml:space="preserve">
+    <value>[EN] Pas de compte ? Inscrivez-vous</value>
+  </data>
+  <data name="Account.TestAccounts" xml:space="preserve">
+    <value>[EN] Comptes de test</value>
+  </data>
+  <data name="Account.CreateYourAccount" xml:space="preserve">
+    <value>[EN] Créez votre compte</value>
+  </data>
+  <data name="Account.FirstNamePlaceholder" xml:space="preserve">
+    <value>[EN] Jean</value>
+  </data>
+  <data name="Account.LastNamePlaceholder" xml:space="preserve">
+    <value>[EN] Dupont</value>
+  </data>
+  <data name="Account.PasswordPlaceholder" xml:space="preserve">
+    <value>[EN] Mot de passe sécurisé</value>
+  </data>
+  <data name="Account.ConfirmPasswordPlaceholder" xml:space="preserve">
+    <value>[EN] Confirmez le mot de passe</value>
+  </data>
+  <data name="Account.AlreadyHaveAccountLogin" xml:space="preserve">
+    <value>[EN] Vous avez déjà un compte ? Connectez-vous</value>
+  </data>
+  <data name="Account.PersonalInformation" xml:space="preserve">
+    <value>[EN] Informations personnelles</value>
+  </data>
+  <data name="Account.EmailCannotBeModified" xml:space="preserve">
+    <value>[EN] L'adresse e-mail ne peut pas être modifiée</value>
+  </data>
+  <data name="Account.AccountInformation" xml:space="preserve">
+    <value>[EN] Informations du compte</value>
+  </data>
+  <data name="Account.Security" xml:space="preserve">
+    <value>[EN] Sécurité</value>
+  </data>
+  <data name="Account.PasswordChangeContactAdmin" xml:space="preserve">
+    <value>[EN] Pour changer votre mot de passe, veuillez contacter un administrateur</value>
+  </data>
   <data name="Activities.BookingCount" xml:space="preserve">
     <value>[EN] inscription(s)</value>
   </data>

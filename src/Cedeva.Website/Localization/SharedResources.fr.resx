@@ -1090,6 +1090,51 @@
   <data name="Account.UpdateProfile" xml:space="preserve">
     <value>Mettre à jour le profil</value>
   </data>
+  <data name="Account.LoginToYourAccount" xml:space="preserve">
+    <value>Connectez-vous à votre compte</value>
+  </data>
+  <data name="Account.EmailPlaceholder" xml:space="preserve">
+    <value>votre@email.be</value>
+  </data>
+  <data name="Account.NoAccountRegister" xml:space="preserve">
+    <value>Pas de compte ? Inscrivez-vous</value>
+  </data>
+  <data name="Account.TestAccounts" xml:space="preserve">
+    <value>Comptes de test</value>
+  </data>
+  <data name="Account.CreateYourAccount" xml:space="preserve">
+    <value>Créez votre compte</value>
+  </data>
+  <data name="Account.FirstNamePlaceholder" xml:space="preserve">
+    <value>Jean</value>
+  </data>
+  <data name="Account.LastNamePlaceholder" xml:space="preserve">
+    <value>Dupont</value>
+  </data>
+  <data name="Account.PasswordPlaceholder" xml:space="preserve">
+    <value>Mot de passe sécurisé</value>
+  </data>
+  <data name="Account.ConfirmPasswordPlaceholder" xml:space="preserve">
+    <value>Confirmez le mot de passe</value>
+  </data>
+  <data name="Account.AlreadyHaveAccountLogin" xml:space="preserve">
+    <value>Vous avez déjà un compte ? Connectez-vous</value>
+  </data>
+  <data name="Account.PersonalInformation" xml:space="preserve">
+    <value>Informations personnelles</value>
+  </data>
+  <data name="Account.EmailCannotBeModified" xml:space="preserve">
+    <value>L'adresse e-mail ne peut pas être modifiée</value>
+  </data>
+  <data name="Account.AccountInformation" xml:space="preserve">
+    <value>Informations du compte</value>
+  </data>
+  <data name="Account.Security" xml:space="preserve">
+    <value>Sécurité</value>
+  </data>
+  <data name="Account.PasswordChangeContactAdmin" xml:space="preserve">
+    <value>Pour changer votre mot de passe, veuillez contacter un administrateur</value>
+  </data>
   <data name="Home.Error" xml:space="preserve">
     <value>Erreur</value>
   </data>

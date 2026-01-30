@@ -12,9 +12,10 @@
     <title>@ViewData["Title"] - Cedeva</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet" />
+    <link href="~/css/cedeva.css" rel="stylesheet" />
     <style>
         body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #007faf 0%, #005a7f 100%);
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -83,18 +84,18 @@
         <div class="card shadow-lg mt-3">
             <div class="card-body p-4">
                 <h6 class="text-center fw-bold mb-3">
-                    <i class="fas fa-flask me-2"></i>Comptes de test
+                    <i class="fas fa-flask me-2"></i>@Localizer["Account.TestAccounts"]
                 </h6>
                 <div class="d-grid gap-2">
                     <button type="button" class="btn btn-outline-primary btn-sm text-start" onclick="fillLogin('admin@cedeva.be', 'Admin@123456')">
                         <i class="fas fa-user-shield me-2"></i>
                         <strong>Admin:</strong> admin@cedeva.be / Admin@123456
                     </button>
-                    <button type="button" class="btn btn-outline-info btn-sm text-start" onclick="fillLogin('coordinator@cedeva.be', 'Coord@123456')">
+                    <button type="button" class="btn btn-outline-primary btn-sm text-start" onclick="fillLogin('coordinator@cedeva.be', 'Coord@123456')">
                         <i class="fas fa-user-tie me-2"></i>
                         <strong>Coordinateur (Gembloux):</strong> coordinator@cedeva.be / Coord@123456
                     </button>
-                    <button type="button" class="btn btn-outline-info btn-sm text-start" onclick="fillLogin('coordinator.liege@cedeva.be', 'Coord@123456')">
+                    <button type="button" class="btn btn-outline-primary btn-sm text-start" onclick="fillLogin('coordinator.liege@cedeva.be', 'Coord@123456')">
                         <i class="fas fa-user-tie me-2"></i>
                         <strong>Coordinateur (Liège):</strong> coordinator.liege@cedeva.be / Coord@123456
                     </button>
