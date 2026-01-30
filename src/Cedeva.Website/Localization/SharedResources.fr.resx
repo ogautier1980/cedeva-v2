@@ -2062,4 +2062,10 @@
   <data name="Of" xml:space="preserve">
     <value>sur</value>
   </data>
+  <data name="Validation.InvalidLandlineNumber" xml:space="preserve">
+    <value>Le format du numéro de téléphone fixe belge est invalide. Ex: 02 12 34 56 ou 010 20 30 40</value>
+  </data>
+  <data name="Validation.InvalidMobileNumber" xml:space="preserve">
+    <value>Le format du numéro de téléphone mobile belge est invalide. Ex: 0478 12 34 56</value>
+  </data>
 </root>

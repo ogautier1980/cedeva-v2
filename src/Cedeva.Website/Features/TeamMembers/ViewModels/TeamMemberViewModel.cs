@@ -24,8 +24,8 @@ public class TeamMemberViewModel
     public string Email { get; set; } = string.Empty;
 
     [Required]
-    [Phone]
     [StringLength(100)]
+    [RegularExpression(@"^((\+32|0032)[\s\.\-\/]?|0)[\s\.\-\/]?4[789]([\s\.\-\/]?\d){7}$", ErrorMessage = "Validation.InvalidMobileNumber")]
     [Display(Name = "Field.MobilePhoneNumber")]
     public string MobilePhoneNumber { get; set; } = string.Empty;
 

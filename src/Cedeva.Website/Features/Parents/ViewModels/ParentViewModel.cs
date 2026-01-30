@@ -23,14 +23,14 @@ public class ParentViewModel
     [Display(Name = "Field.Email")]
     public string Email { get; set; } = string.Empty;
 
-    [Phone]
     [StringLength(100)]
+    [RegularExpression(@"^((\+32|0032)[\s\.\-\/]?|0)[\s\.\-\/]?\d([\s\.\-\/]?\d){7}$", ErrorMessage = "Validation.InvalidLandlineNumber")]
     [Display(Name = "Field.LandlineNumber")]
     public string? PhoneNumber { get; set; }
 
     [Required]
-    [Phone]
     [StringLength(100)]
+    [RegularExpression(@"^((\+32|0032)[\s\.\-\/]?|0)[\s\.\-\/]?4[789]([\s\.\-\/]?\d){7}$", ErrorMessage = "Validation.InvalidMobileNumber")]
     [Display(Name = "Field.MobilePhoneNumber")]
     public string MobilePhoneNumber { get; set; } = string.Empty;
 

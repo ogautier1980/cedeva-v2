@@ -48,7 +48,7 @@
                         <div class="row">
                             <div class="col-md-4 mb-3">
                                 <label for="PostalCode" class="form-label">@Localizer["Field.PostalCode"]</label>
-                                <input asp-for="PostalCode" type="number" class="form-control" id="PostalCode" />
+                                <input asp-for="PostalCode" class="form-control" id="PostalCode" />
                                 <span asp-validation-for="PostalCode" class="text-danger"></span>
                             </div>
                             <div class="col-md-8 mb-3">
@@ -79,4 +79,12 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script src="~/js/belgian-municipality-validator.js"></script>
+    <script src="~/js/address-autocomplete.js"></script>
+
+    <script>
+        $(function () {
+            initializeAddressAutocomplete("#City", "#PostalCode");
+        });
+    </script>
 }

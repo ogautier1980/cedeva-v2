@@ -2062,4 +2062,10 @@
   <data name="Of" xml:space="preserve">
     <value>[NL] sur</value>
   </data>
+  <data name="Validation.InvalidLandlineNumber" xml:space="preserve">
+    <value>Het formaat van het Belgische vaste telefoonnummer is ongeldig. Vb: 02 12 34 56 of 010 20 30 40</value>
+  </data>
+  <data name="Validation.InvalidMobileNumber" xml:space="preserve">
+    <value>Het formaat van het Belgische mobiele nummer is ongeldig. Vb: 0478 12 34 56</value>
+  </data>
 </root>
