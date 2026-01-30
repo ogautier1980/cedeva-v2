@@ -118,8 +118,14 @@ public class TestDataSeeder
     {
         _logger.LogInformation("Seeding {Count} parents with children...", count);
 
-        for (int i = 0; i < count; i++)
+        var attempts = 0;
+        var maxAttempts = count * 3; // Allow more attempts to handle collisions
+        var created = 0;
+
+        while (created < count && attempts < maxAttempts)
         {
+            attempts++;
+
             var isFemale = _random.Next(2) == 0;
             var isFrench = _random.Next(2) == 0;
 
@@ -127,6 +133,16 @@ public class TestDataSeeder
             var lastName = BelgianLastNames[_random.Next(BelgianLastNames.Length)];
             var birthDate = GenerateRandomBirthDate(1975, 1995);
             var nationalRegisterNumber = GenerateNationalRegisterNumber(birthDate, isFemale);
+            var email = $"{firstName.ToLower()}.{lastName.ToLower()}.{created}@example.be"; // Add counter to email
+
+            // Check for duplicates
+            var emailExists = await _context.Parents.IgnoreQueryFilters().AnyAsync(p => p.Email == email);
+            var nrnExists = await _context.Parents.IgnoreQueryFilters().AnyAsync(p => p.NationalRegisterNumber == nationalRegisterNumber);
+
+            if (emailExists || nrnExists)
+            {
+                continue; // Skip this iteration and try again
+            }
 
             var address = new Address
             {
@@ -140,7 +156,7 @@ public class TestDataSeeder
             {
                 FirstName = firstName,
                 LastName = lastName,
-                Email = $"{firstName.ToLower()}.{lastName.ToLower()}@example.be",
+                Email = email,
                 PhoneNumber = GenerateBelgianPhoneNumber(false),
                 MobilePhoneNumber = GenerateBelgianPhoneNumber(true),
                 NationalRegisterNumber = nationalRegisterNumber,
@@ -150,29 +166,47 @@ public class TestDataSeeder
 
             _context.Parents.Add(parent);
             await _context.SaveChangesAsync(); // Save to get parent ID
+            created++;
 
             // Add 1-3 children per parent
             var childCount = _random.Next(1, 4);
             for (int j = 0; j < childCount; j++)
             {
-                var childIsFemale = _random.Next(2) == 0;
-                var childFirstName = GetRandomFirstName(childIsFemale, isFrench);
+                var childAttempts = 0;
+                var maxChildAttempts = 10;
+                var childCreated = false;
 
-                var childBirthDate = GenerateRandomBirthDate(2010, 2020);
-
-                var child = new Child
+                while (!childCreated && childAttempts < maxChildAttempts)
                 {
-                    FirstName = childFirstName,
-                    LastName = lastName,
-                    BirthDate = childBirthDate,
-                    ParentId = parent.Id,
-                    NationalRegisterNumber = GenerateNationalRegisterNumber(childBirthDate, childIsFemale),
-                    IsDisadvantagedEnvironment = _random.Next(5) == 0, // 20% chance
-                    IsMildDisability = _random.Next(10) == 0, // 10% chance
-                    IsSevereDisability = _random.Next(20) == 0 // 5% chance
-                };
+                    childAttempts++;
 
-                _context.Children.Add(child);
+                    var childIsFemale = _random.Next(2) == 0;
+                    var childFirstName = GetRandomFirstName(childIsFemale, isFrench);
+                    var childBirthDate = GenerateRandomBirthDate(2010, 2020);
+                    var childNrn = GenerateNationalRegisterNumber(childBirthDate, childIsFemale);
+
+                    // Check if NRN already exists
+                    var childNrnExists = await _context.Children.IgnoreQueryFilters().AnyAsync(c => c.NationalRegisterNumber == childNrn);
+                    if (childNrnExists)
+                    {
+                        continue; // Try again with different birth date
+                    }
+
+                    var child = new Child
+                    {
+                        FirstName = childFirstName,
+                        LastName = lastName,
+                        BirthDate = childBirthDate,
+                        ParentId = parent.Id,
+                        NationalRegisterNumber = childNrn,
+                        IsDisadvantagedEnvironment = _random.Next(5) == 0, // 20% chance
+                        IsMildDisability = _random.Next(10) == 0, // 10% chance
+                        IsSevereDisability = _random.Next(20) == 0 // 5% chance
+                    };
+
+                    _context.Children.Add(child);
+                    childCreated = true;
+                }
             }
         }
 
@@ -184,14 +218,31 @@ public class TestDataSeeder
     {
         _logger.LogInformation("Seeding {Count} team members...", count);
 
-        for (int i = 0; i < count; i++)
+        var attempts = 0;
+        var maxAttempts = count * 3;
+        var created = 0;
+
+        while (created < count && attempts < maxAttempts)
         {
+            attempts++;
+
             var isFemale = _random.Next(2) == 0;
             var isFrench = _random.Next(2) == 0;
 
             var firstName = GetRandomFirstName(isFemale, isFrench);
             var lastName = BelgianLastNames[_random.Next(BelgianLastNames.Length)];
             var birthDate = GenerateRandomBirthDate(1990, 2005);
+            var nationalRegisterNumber = GenerateNationalRegisterNumber(birthDate, isFemale);
+            var email = $"{firstName.ToLower()}.{lastName.ToLower()}.team.{created}@example.be"; // Add counter to email
+
+            // Check for duplicates
+            var emailExists = await _context.TeamMembers.IgnoreQueryFilters().AnyAsync(t => t.Email == email);
+            var nrnExists = await _context.TeamMembers.IgnoreQueryFilters().AnyAsync(t => t.NationalRegisterNumber == nationalRegisterNumber);
+
+            if (emailExists || nrnExists)
+            {
+                continue; // Skip and try again
+            }
 
             var address = new Address
             {
@@ -209,10 +260,10 @@ public class TestDataSeeder
             {
                 FirstName = firstName,
                 LastName = lastName,
-                Email = $"{firstName.ToLower()}.{lastName.ToLower()}.team@example.be",
+                Email = email,
                 MobilePhoneNumber = GenerateBelgianPhoneNumber(true),
                 BirthDate = birthDate,
-                NationalRegisterNumber = GenerateNationalRegisterNumber(birthDate, isFemale),
+                NationalRegisterNumber = nationalRegisterNumber,
                 TeamRole = role,
                 Status = status,
                 License = license,
@@ -223,10 +274,11 @@ public class TestDataSeeder
             };
 
             _context.TeamMembers.Add(teamMember);
+            created++;
         }
 
         await _context.SaveChangesAsync();
-        _logger.LogInformation("Successfully seeded team members");
+        _logger.LogInformation("Successfully seeded {Created} team members", created);
     }
 
     private async Task SeedActivitiesAsync(int organisationId, int count)
