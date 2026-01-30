@@ -282,7 +282,7 @@ public class ParentsController : Controller
 
         _logger.LogInformation("Parent {Name} created by user {UserId}", parent.FullName, _currentUserService.UserId);
 
-        TempData[TempDataSuccess] = _localizer["Message.ParentCreated"];
+        TempData[TempDataSuccess] = _localizer["Message.ParentCreated"].Value;
         return RedirectToAction(nameof(Index));
     }
 
@@ -345,7 +345,7 @@ public class ParentsController : Controller
         {
             await _context.SaveChangesAsync();
             _logger.LogInformation("Parent {Name} updated by user {UserId}", parent.FullName, _currentUserService.UserId);
-            TempData[TempDataSuccess] = _localizer["Message.ParentUpdated"];
+            TempData[TempDataSuccess] = _localizer["Message.ParentUpdated"].Value;
         }
         catch (DbUpdateConcurrencyException ex)
         {
@@ -392,7 +392,7 @@ public class ParentsController : Controller
 
         if (parent.Children.Any())
         {
-            TempData[TempDataError] = _localizer["Message.ParentHasChildren"];
+            TempData[TempDataError] = _localizer["Message.ParentHasChildren"].Value;
             return RedirectToAction(nameof(Index));
         }
 
@@ -401,7 +401,7 @@ public class ParentsController : Controller
         await _context.SaveChangesAsync();
 
         _logger.LogInformation("Parent {Name} deleted by user {UserId}", parent.FullName, _currentUserService.UserId);
-        TempData[TempDataSuccess] = _localizer["Message.ParentDeleted"];
+        TempData[TempDataSuccess] = _localizer["Message.ParentDeleted"].Value;
 
         return RedirectToAction(nameof(Index));
     }

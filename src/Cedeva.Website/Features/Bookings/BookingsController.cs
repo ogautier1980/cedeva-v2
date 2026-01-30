@@ -202,7 +202,7 @@ public class BookingsController : Controller
             await _bookingRepository.AddAsync(booking);
             await _unitOfWork.SaveChangesAsync();
 
-            TempData[TempDataSuccessMessage] = _localizer["Message.BookingCreated"];
+            TempData[TempDataSuccessMessage] = _localizer["Message.BookingCreated"].Value;
             return RedirectToAction(nameof(Details), new { id = booking.Id });
         }
 
@@ -278,7 +278,7 @@ public class BookingsController : Controller
             }
             else
             {
-                TempData[TempDataSuccessMessage] = _localizer["Message.BookingUpdated"];
+                TempData[TempDataSuccessMessage] = _localizer["Message.BookingUpdated"].Value;
             }
 
             return RedirectToAction(nameof(Details), new { id = booking.Id });
@@ -320,7 +320,7 @@ public class BookingsController : Controller
         await _bookingRepository.DeleteAsync(booking);
         await _unitOfWork.SaveChangesAsync();
 
-        TempData["SuccessMessage"] = _localizer["Message.BookingDeleted"];
+        TempData["SuccessMessage"] = _localizer["Message.BookingDeleted"].Value;
         return RedirectToAction(nameof(Index));
     }
 
@@ -380,7 +380,7 @@ public class BookingsController : Controller
                     activity.StartDate,
                     activity.EndDate);
 
-                TempData[TempDataSuccessMessage] = _localizer["Message.BookingConfirmedEmailSent"];
+                TempData[TempDataSuccessMessage] = _localizer["Message.BookingConfirmedEmailSent"].Value;
             }
             catch (Exception ex)
             {
@@ -389,7 +389,7 @@ public class BookingsController : Controller
         }
         else
         {
-            TempData[TempDataSuccessMessage] = _localizer["Message.BookingUpdated"];
+            TempData[TempDataSuccessMessage] = _localizer["Message.BookingUpdated"].Value;
         }
     }
 

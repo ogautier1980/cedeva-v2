@@ -14,6 +14,21 @@
                     <form asp-action="Create" method="post">
                         <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
 
+                        @if (User.IsInRole("Admin") && ViewBag.Organisations != null)
+                        {
+                            <div class="mb-3">
+                                <label for="OrganisationId" class="form-label">@Localizer["Field.Organisation"]</label>
+                                <select asp-for="OrganisationId" class="form-select" id="OrganisationId">
+                                    <option value="0">@Localizer["SelectOrganisation"]</option>
+                                    @foreach (var org in ViewBag.Organisations)
+                                    {
+                                        <option value="@org.Id">@org.Name</option>
+                                    }
+                                </select>
+                                <span asp-validation-for="OrganisationId" class="text-danger"></span>
+                            </div>
+                        }
+
                         <div class="mb-3">
                             <label for="Name" class="form-label">@Localizer["Field.Name"]</label>
                             <input asp-for="Name" class="form-control" placeholder="@Localizer["Activities.NamePlaceholder"]" id="Name" />

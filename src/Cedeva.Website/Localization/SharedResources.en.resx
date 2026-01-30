@@ -2068,4 +2068,13 @@
   <data name="Validation.InvalidMobileNumber" xml:space="preserve">
     <value>The Belgian mobile phone number format is invalid. E.g.: 0478 12 34 56</value>
   </data>
+  <data name="Validation.OrganisationRequired" xml:space="preserve">
+    <value>Please select an organisation</value>
+  </data>
+  <data name="SelectOrganisation" xml:space="preserve">
+    <value>-- Select an organisation --</value>
+  </data>
+  <data name="Field.Organisation" xml:space="preserve">
+    <value>Organisation</value>
+  </data>
 </root>

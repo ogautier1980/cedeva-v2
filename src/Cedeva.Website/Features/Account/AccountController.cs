@@ -191,7 +191,7 @@ public class AccountController : Controller
 
         if (result.Succeeded)
         {
-            TempData[TempDataSuccessMessage] = _localizer["Message.ProfileUpdated"];
+            TempData[TempDataSuccessMessage] = _localizer["Message.ProfileUpdated"].Value;
             return RedirectToAction(nameof(Profile));
         }
 

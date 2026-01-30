@@ -146,7 +146,7 @@ public class ActivitiesController : Controller
         return View(viewModel);
     }
 
-    public IActionResult Create()
+    public async Task<IActionResult> Create()
     {
         if (!ModelState.IsValid)
         {
@@ -161,6 +161,15 @@ public class ActivitiesController : Controller
             OrganisationId = _currentUserService.OrganisationId ?? 0
         };
 
+        // For admins, load organisations list
+        if (_currentUserService.IsAdmin)
+        {
+            ViewBag.Organisations = await _context.Organisations
+                .IgnoreQueryFilters()
+                .Select(o => new { o.Id, o.Name })
+                .ToListAsync();
+        }
+
         return View(viewModel);
     }
 
@@ -170,12 +179,28 @@ public class ActivitiesController : Controller
     {
         if (!ModelState.IsValid)
         {
+            // Reload organisations for admins
+            if (_currentUserService.IsAdmin)
+            {
+                ViewBag.Organisations = await _context.Organisations
+                    .IgnoreQueryFilters()
+                    .Select(o => new { o.Id, o.Name })
+                    .ToListAsync();
+            }
             return View(viewModel);
         }
 
         if (viewModel.EndDate < viewModel.StartDate)
         {
             ModelState.AddModelError("EndDate", _localizer["Validation.EndDateAfterStartDate"]);
+            // Reload organisations for admins
+            if (_currentUserService.IsAdmin)
+            {
+                ViewBag.Organisations = await _context.Organisations
+                    .IgnoreQueryFilters()
+                    .Select(o => new { o.Id, o.Name })
+                    .ToListAsync();
+            }
             return View(viewModel);
         }
 
@@ -183,6 +208,17 @@ public class ActivitiesController : Controller
         if (!_currentUserService.IsAdmin && organisationId == null)
         {
             return Forbid();
+        }
+
+        // For admins, validate that an organisation is selected
+        if (_currentUserService.IsAdmin && viewModel.OrganisationId == 0)
+        {
+            ModelState.AddModelError("OrganisationId", _localizer["Validation.OrganisationRequired"]);
+            ViewBag.Organisations = await _context.Organisations
+                .IgnoreQueryFilters()
+                .Select(o => new { o.Id, o.Name })
+                .ToListAsync();
+            return View(viewModel);
         }
 
         var activity = new Activity
@@ -213,7 +249,7 @@ public class ActivitiesController : Controller
 
         _logger.LogInformation("Activity {Name} created by user {UserId}", activity.Name, _currentUserService.UserId);
 
-        TempData[TempDataSuccess] = _localizer["Message.ActivityCreated"];
+        TempData[TempDataSuccess] = _localizer["Message.ActivityCreated"].Value;
         return RedirectToAction(nameof(Index));
     }
 
@@ -283,7 +319,7 @@ public class ActivitiesController : Controller
         {
             await _context.SaveChangesAsync();
             _logger.LogInformation("Activity {Name} updated by user {UserId}", activity.Name, _currentUserService.UserId);
-            TempData[TempDataSuccess] = _localizer["Message.ActivityUpdated"];
+            TempData[TempDataSuccess] = _localizer["Message.ActivityUpdated"].Value;
         }
         catch (DbUpdateConcurrencyException ex)
         {
@@ -339,7 +375,7 @@ public class ActivitiesController : Controller
 
         if (activity.Bookings.Any())
         {
-            TempData[TempDataError] = _localizer["Message.ActivityHasBookings"];
+            TempData[TempDataError] = _localizer["Message.ActivityHasBookings"].Value;
             return RedirectToAction(nameof(Index));
         }
 
@@ -347,7 +383,7 @@ public class ActivitiesController : Controller
         await _context.SaveChangesAsync();
 
         _logger.LogInformation("Activity {Name} deleted by user {UserId}", activity.Name, _currentUserService.UserId);
-        TempData[TempDataSuccess] = _localizer["Message.ActivityDeleted"];
+        TempData[TempDataSuccess] = _localizer["Message.ActivityDeleted"].Value;
 
         return RedirectToAction(nameof(Index));
     }

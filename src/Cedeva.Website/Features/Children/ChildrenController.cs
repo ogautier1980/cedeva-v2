@@ -271,7 +271,7 @@ public class ChildrenController : Controller
             await _childRepository.AddAsync(child);
             await _unitOfWork.SaveChangesAsync();
 
-            TempData[TempDataSuccessMessage] = _localizer["Message.ChildCreated"];
+            TempData[TempDataSuccessMessage] = _localizer["Message.ChildCreated"].Value;
             return RedirectToAction(nameof(Details), new { id = child.Id });
         }
 
@@ -344,7 +344,7 @@ public class ChildrenController : Controller
             await _childRepository.UpdateAsync(child);
             await _unitOfWork.SaveChangesAsync();
 
-            TempData[TempDataSuccessMessage] = _localizer["Message.ChildUpdated"];
+            TempData[TempDataSuccessMessage] = _localizer["Message.ChildUpdated"].Value;
             return RedirectToAction(nameof(Details), new { id = child.Id });
         }
 
@@ -384,7 +384,7 @@ public class ChildrenController : Controller
         await _childRepository.DeleteAsync(child);
         await _unitOfWork.SaveChangesAsync();
 
-        TempData[TempDataSuccessMessage] = _localizer["Message.ChildDeleted"];
+        TempData[TempDataSuccessMessage] = _localizer["Message.ChildDeleted"].Value;
         return RedirectToAction(nameof(Index));
     }
 

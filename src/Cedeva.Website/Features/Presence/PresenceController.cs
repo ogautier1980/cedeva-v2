@@ -191,7 +191,7 @@ public class PresenceController : Controller
 
         await _context.SaveChangesAsync();
 
-        TempData[TempDataSuccessMessage] = _localizer["Message.PresencesSaved"];
+        TempData[TempDataSuccessMessage] = _localizer["Message.PresencesSaved"].Value;
         return RedirectToAction(nameof(List));
     }
 

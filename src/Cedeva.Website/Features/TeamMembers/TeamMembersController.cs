@@ -281,7 +281,7 @@ public class TeamMembersController : Controller
             await _teamMemberRepository.AddAsync(teamMember);
             await _unitOfWork.SaveChangesAsync();
 
-            TempData[TempDataSuccessMessage] = _localizer["Message.TeamMemberCreated"];
+            TempData[TempDataSuccessMessage] = _localizer["Message.TeamMemberCreated"].Value;
             return RedirectToAction(nameof(Details), new { id = teamMember.TeamMemberId });
         }
 
@@ -376,7 +376,7 @@ public class TeamMembersController : Controller
             await _teamMemberRepository.UpdateAsync(teamMember);
             await _unitOfWork.SaveChangesAsync();
 
-            TempData[TempDataSuccessMessage] = _localizer["Message.TeamMemberUpdated"];
+            TempData[TempDataSuccessMessage] = _localizer["Message.TeamMemberUpdated"].Value;
             return RedirectToAction(nameof(Details), new { id = teamMember.TeamMemberId });
         }
 
@@ -426,7 +426,7 @@ public class TeamMembersController : Controller
             await _unitOfWork.SaveChangesAsync();
         }
 
-        TempData[TempDataSuccessMessage] = _localizer["Message.TeamMemberDeleted"];
+        TempData[TempDataSuccessMessage] = _localizer["Message.TeamMemberDeleted"].Value;
         return RedirectToAction(nameof(Index));
     }
 

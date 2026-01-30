@@ -221,7 +221,7 @@ public class ActivityGroupsController : Controller
         // Check if group has bookings
         if (group.Bookings.Any())
         {
-            TempData[TempDataErrorMessage] = _localizer["ActivityGroups.DeleteErrorHasBookings"];
+            TempData[TempDataErrorMessage] = _localizer["ActivityGroups.DeleteErrorHasBookings"].Value;
             return RedirectToAction(nameof(Delete), new { id });
         }
 

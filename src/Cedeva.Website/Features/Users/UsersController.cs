@@ -180,7 +180,7 @@ public class UsersController : Controller
                 var roleName = viewModel.Role == Role.Admin ? "Admin" : "Coordinator";
                 await _userManager.AddToRoleAsync(user, roleName);
 
-                TempData[TempDataSuccessMessage] = _localizer["Message.UserCreated"];
+                TempData[TempDataSuccessMessage] = _localizer["Message.UserCreated"].Value;
                 return RedirectToAction(nameof(Details), new { id = user.Id });
             }
 
@@ -274,7 +274,7 @@ public class UsersController : Controller
                 var roleName = viewModel.Role == Role.Admin ? "Admin" : "Coordinator";
                 await _userManager.AddToRoleAsync(user, roleName);
 
-                TempData[TempDataSuccessMessage] = _localizer["Message.UserUpdated"];
+                TempData[TempDataSuccessMessage] = _localizer["Message.UserUpdated"].Value;
                 return RedirectToAction(nameof(Details), new { id = user.Id });
             }
 
@@ -326,7 +326,7 @@ public class UsersController : Controller
 
         if (result.Succeeded)
         {
-            TempData[TempDataSuccessMessage] = _localizer["Message.UserDeleted"];
+            TempData[TempDataSuccessMessage] = _localizer["Message.UserDeleted"].Value;
             return RedirectToAction(nameof(Index));
         }
 

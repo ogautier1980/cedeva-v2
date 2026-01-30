@@ -197,7 +197,7 @@ public class OrganisationsController : Controller
             await _organisationRepository.AddAsync(organisation);
             await _unitOfWork.SaveChangesAsync();
 
-            TempData[TempDataSuccessMessage] = _localizer["Message.OrganisationCreated"];
+            TempData[TempDataSuccessMessage] = _localizer["Message.OrganisationCreated"].Value;
             return RedirectToAction(nameof(Details), new { id = organisation.Id });
         }
 
@@ -275,7 +275,7 @@ public class OrganisationsController : Controller
             await _organisationRepository.UpdateAsync(organisation);
             await _unitOfWork.SaveChangesAsync();
 
-            TempData[TempDataSuccessMessage] = _localizer["Message.OrganisationUpdated"];
+            TempData[TempDataSuccessMessage] = _localizer["Message.OrganisationUpdated"].Value;
             return RedirectToAction(nameof(Details), new { id = organisation.Id });
         }
 
@@ -331,7 +331,7 @@ public class OrganisationsController : Controller
             await _unitOfWork.SaveChangesAsync();
         }
 
-        TempData[TempDataSuccessMessage] = _localizer["Message.OrganisationDeleted"];
+        TempData[TempDataSuccessMessage] = _localizer["Message.OrganisationDeleted"].Value;
         return RedirectToAction(nameof(Index));
     }
 

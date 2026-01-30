@@ -181,7 +181,7 @@ public class ActivityManagementController : Controller
 
         await _context.SaveChangesAsync();
 
-        TempData[TempDataSuccessMessage] = _localizer["Message.BookingConfirmed"];
+        TempData[TempDataSuccessMessage] = _localizer["Message.BookingConfirmed"].Value;
         return RedirectToAction(nameof(UnconfirmedBookings));
     }
 
@@ -549,7 +549,7 @@ public class ActivityManagementController : Controller
 
         if (teamMember == null)
         {
-            TempData[TempDataErrorMessage] = _localizer["Message.TeamMemberNotFound"];
+            TempData[TempDataErrorMessage] = _localizer["Message.TeamMemberNotFound"].Value;
             return RedirectToAction(nameof(TeamMembers));
         }
 

@@ -250,7 +250,7 @@ public class ActivityQuestionsController : Controller
         // Check if question has answers
         if (question.Answers.Any())
         {
-            TempData[TempDataErrorMessage] = _localizer["ActivityQuestions.DeleteErrorHasAnswers"];
+            TempData[TempDataErrorMessage] = _localizer["ActivityQuestions.DeleteErrorHasAnswers"].Value;
             return RedirectToAction(nameof(Delete), new { id });
         }
 
