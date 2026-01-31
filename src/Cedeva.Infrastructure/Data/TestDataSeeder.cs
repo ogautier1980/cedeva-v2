@@ -252,9 +252,9 @@ public class TestDataSeeder
                 Country = Country.Belgium
             };
 
-            var role = (TeamRole)_random.Next(0, 4); // Random role
-            var status = (Status)_random.Next(0, 3); // Random status
-            var license = (License)_random.Next(0, 4); // Random license
+            var role = (TeamRole)_random.Next(0, 2); // Animator, Coordinator
+            var status = (Status)_random.Next(0, 2); // Compensated, Volunteer
+            var license = (License)_random.Next(0, 5); // License..NoLicense
 
             var teamMember = new TeamMember
             {
