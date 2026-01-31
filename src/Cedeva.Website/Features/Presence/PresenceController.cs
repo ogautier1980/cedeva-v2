@@ -60,15 +60,24 @@ public class PresenceController : Controller
 
         // Auto-redirect to today's list if we're during the activity period
         var today = DateTime.Today;
-        if (today >= activity.StartDate && today <= activity.EndDate)
-        {
-            var todayActivityDay = activity.Days
-                .FirstOrDefault(d => d.IsActive && d.DayDate.Date == today);
 
-            if (todayActivityDay != null)
-            {
-                return RedirectToAction(nameof(List), new { activityId = activity.Id, dayId = todayActivityDay.DayId });
-            }
+        // Try to find today's activity day first, or the closest future active day
+        var targetDay = activity.Days
+            .Where(d => d.IsActive)
+            .OrderBy(d => d.DayDate)
+            .FirstOrDefault(d => d.DayDate.Date >= today);
+
+        // If no future day found, try to get today's day even if in the past
+        if (targetDay == null)
+        {
+            targetDay = activity.Days
+                .FirstOrDefault(d => d.IsActive && d.DayDate.Date == today);
+        }
+
+        // Redirect if we found a valid day
+        if (targetDay != null && today >= activity.StartDate.Date && today <= activity.EndDate.Date)
+        {
+            return RedirectToAction(nameof(List), new { activityId = activity.Id, dayId = targetDay.DayId });
         }
 
         var viewModel = new SelectDayViewModel
