@@ -169,6 +169,146 @@ public class BankReconciliationService : IBankReconciliationService
             .ToListAsync();
     }
 
+    public async Task<List<ReconciliationSuggestionDto>> GetReconciliationSuggestionsAsync(int organisationId)
+    {
+        var suggestions = new List<ReconciliationSuggestionDto>();
+
+        // Récupérer les transactions non rapprochées
+        var transactions = await _context.BankTransactions
+            .Where(bt => bt.OrganisationId == organisationId && !bt.IsReconciled && bt.Amount > 0)
+            .ToListAsync();
+
+        // Récupérer les réservations non payées avec leurs relations
+        var bookings = await _context.Bookings
+            .Include(b => b.Child)
+                .ThenInclude(c => c.Parent)
+            .Include(b => b.Activity)
+            .Where(b => b.Activity.OrganisationId == organisationId &&
+                       b.PaymentStatus != PaymentStatus.Paid &&
+                       b.PaymentStatus != PaymentStatus.Overpaid &&
+                       b.IsConfirmed)
+            .ToListAsync();
+
+        // Pour chaque transaction, chercher les bookings qui pourraient correspondre
+        foreach (var transaction in transactions)
+        {
+            foreach (var booking in bookings)
+            {
+                var suggestion = CalculateReconciliationMatch(transaction, booking);
+
+                // Ajouter seulement si le score est suffisant (>= 50)
+                if (suggestion != null && suggestion.ConfidenceScore >= 50)
+                {
+                    suggestions.Add(suggestion);
+                }
+            }
+        }
+
+        // Trier par score décroissant
+        return suggestions.OrderByDescending(s => s.ConfidenceScore).ToList();
+    }
+
+    /// <summary>
+    /// Calcule le score de correspondance entre une transaction et une réservation.
+    /// </summary>
+    private ReconciliationSuggestionDto? CalculateReconciliationMatch(BankTransaction transaction, Booking booking)
+    {
+        var score = 0;
+        var reasons = new List<string>();
+        var remainingAmount = booking.TotalAmount - booking.PaidAmount;
+
+        // Vérifier la correspondance du montant
+        score += CalculateAmountMatchScore(transaction.Amount, remainingAmount, reasons);
+
+        // Vérifier la correspondance du nom
+        score += CalculateNameMatchScore(transaction.CounterpartyName, booking.Child.Parent, reasons);
+
+        // Vérifier la proximité des dates
+        score += CalculateDateMatchScore(transaction.TransactionDate, booking.Activity.StartDate, reasons);
+
+        if (score < 50)
+        {
+            return null;
+        }
+
+        return new ReconciliationSuggestionDto
+        {
+            TransactionId = transaction.Id,
+            BookingId = booking.Id,
+            TransactionDate = transaction.TransactionDate,
+            TransactionAmount = transaction.Amount,
+            CounterpartyName = transaction.CounterpartyName,
+            ChildName = $"{booking.Child.FirstName} {booking.Child.LastName}",
+            ParentName = $"{booking.Child.Parent.FirstName} {booking.Child.Parent.LastName}",
+            ActivityName = booking.Activity.Name,
+            BookingRemainingAmount = remainingAmount,
+            ConfidenceScore = score,
+            MatchReasons = reasons
+        };
+    }
+
+    private static int CalculateAmountMatchScore(decimal transactionAmount, decimal remainingAmount, List<string> reasons)
+    {
+        if (transactionAmount == remainingAmount)
+        {
+            reasons.Add("Montant exact");
+            return 50;
+        }
+
+        if (Math.Abs(transactionAmount - remainingAmount) <= remainingAmount * 0.05m)
+        {
+            reasons.Add("Montant proche");
+            return 30;
+        }
+
+        return 0;
+    }
+
+    private static int CalculateNameMatchScore(string? counterpartyName, Parent parent, List<string> reasons)
+    {
+        if (string.IsNullOrWhiteSpace(counterpartyName))
+        {
+            return 0;
+        }
+
+        var counterpartyLower = counterpartyName.ToLowerInvariant();
+        var parentLastName = parent.LastName.ToLowerInvariant();
+        var parentFirstName = parent.FirstName.ToLowerInvariant();
+
+        if (counterpartyLower.Contains(parentLastName) && counterpartyLower.Contains(parentFirstName))
+        {
+            reasons.Add("Nom et prénom du parent");
+            return 30;
+        }
+
+        if (counterpartyLower.Contains(parentLastName))
+        {
+            reasons.Add("Nom du parent");
+            return 20;
+        }
+
+        if (counterpartyLower.Contains(parentFirstName))
+        {
+            reasons.Add("Prénom du parent");
+            return 10;
+        }
+
+        return 0;
+    }
+
+    private static int CalculateDateMatchScore(DateTime transactionDate, DateTime activityStartDate, List<string> reasons)
+    {
+        var daysDifference = Math.Abs((transactionDate - activityStartDate).TotalDays);
+
+        if (daysDifference <= 14)
+        {
+            reasons.Add($"Date proche de l'activité ({daysDifference:F0} jours)");
+            return 10;
+        }
+
+        return 0;
+    }
+
     /// <summary>
     /// Rapproche une transaction avec une réservation en créant un Payment
     /// et en mettant à jour les statuts.

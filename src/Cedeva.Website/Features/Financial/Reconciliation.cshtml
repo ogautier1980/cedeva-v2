@@ -31,7 +31,7 @@
     }
 
     <div class="row mb-3">
-        <div class="col-md-6">
+        <div class="col-md-4">
             <div class="card border-warning">
                 <div class="card-header bg-warning text-white">
                     <h5 class="mb-0">
@@ -43,7 +43,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-6">
+        <div class="col-md-4">
             <div class="card border-danger">
                 <div class="card-header bg-danger text-white">
                     <h5 class="mb-0">
@@ -55,7 +55,99 @@
                 </div>
             </div>
         </div>
+        <div class="col-md-4">
+            <div class="card border-success">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-lightbulb"></i>
+                        @Localizer["Financial.Suggestions"]
+                        <span class="badge bg-white text-success">@Model.SuggestionsCount</span>
+                    </h5>
+                    <small>@Localizer["Financial.AutomaticSuggestions"]</small>
+                </div>
+            </div>
+        </div>
     </div>
+
+    <!-- Suggestions de rapprochement -->
+    @if (Model.Suggestions.Any())
+    {
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card border-success">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-magic"></i>
+                            @Localizer["Financial.ReconciliationSuggestions"]
+                        </h5>
+                        <small>@Localizer["Financial.SuggestionsDescription"]</small>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>@Localizer["Financial.Confidence"]</th>
+                                        <th>@Localizer["Field.Transaction"]</th>
+                                        <th>@Localizer["Field.Booking"]</th>
+                                        <th>@Localizer["Financial.MatchReasons"]</th>
+                                        <th>@Localizer["Common.Actions"]</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var suggestion in Model.Suggestions)
+                                    {
+                                        var confidenceClass = suggestion.ConfidenceScore >= 80 ? "success" : suggestion.ConfidenceScore >= 60 ? "warning" : "info";
+                                        <tr>
+                                            <td>
+                                                <div class="progress" style="height: 25px;">
+                                                    <div class="progress-bar bg-@confidenceClass" role="progressbar"
+                                                         style="width: @suggestion.ConfidenceScore%"
+                                                         aria-valuenow="@suggestion.ConfidenceScore" aria-valuemin="0" aria-valuemax="100">
+                                                        @suggestion.ConfidenceScore%
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <strong class="text-success">@suggestion.TransactionAmount.ToString("C")</strong><br />
+                                                <small class="text-muted">@suggestion.TransactionDate.ToString("dd/MM/yyyy")</small><br />
+                                                <small>@suggestion.CounterpartyName</small>
+                                            </td>
+                                            <td>
+                                                <strong>@suggestion.ChildName</strong><br />
+                                                <small class="text-muted">@suggestion.ParentName</small><br />
+                                                <small>@suggestion.ActivityName</small><br />
+                                                <strong class="text-danger">@suggestion.BookingRemainingAmount.ToString("C")</strong>
+                                            </td>
+                                            <td>
+                                                @foreach (var reason in suggestion.MatchReasons)
+                                                {
+                                                    <span class="badge bg-light text-dark me-1 mb-1">
+                                                        <i class="fas fa-check-circle text-success"></i> @reason
+                                                    </span>
+                                                }
+                                            </td>
+                                            <td>
+                                                <form asp-action="ManualReconcile" method="post" class="d-inline">
+                                                    @Html.AntiForgeryToken()
+                                                    <input type="hidden" name="TransactionId" value="@suggestion.TransactionId" />
+                                                    <input type="hidden" name="BookingId" value="@suggestion.BookingId" />
+                                                    <button type="submit" class="btn btn-sm btn-success"
+                                                            onclick="return confirm('@Localizer["Financial.ConfirmReconciliation"]');">
+                                                        <i class="fas fa-link"></i> @Localizer["Financial.Validate"]
+                                                    </button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
 
     <div class="row">
         <!-- Transactions non rapprochées -->

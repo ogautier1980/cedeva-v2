@@ -2248,4 +2248,31 @@
   <data name="Error.InvalidData" xml:space="preserve">
     <value>[NL] Données invalides</value>
   </data>
+  <data name="Financial.Suggestions" xml:space="preserve">
+    <value>[NL] Suggestions</value>
+  </data>
+  <data name="Financial.AutomaticSuggestions" xml:space="preserve">
+    <value>[NL] Rapprochements suggérés</value>
+  </data>
+  <data name="Financial.ReconciliationSuggestions" xml:space="preserve">
+    <value>[NL] Suggestions de rapprochement automatique</value>
+  </data>
+  <data name="Financial.SuggestionsDescription" xml:space="preserve">
+    <value>[NL] Ces rapprochements sont suggérés automatiquement en fonction du montant, du nom et de la date</value>
+  </data>
+  <data name="Financial.Confidence" xml:space="preserve">
+    <value>[NL] Confiance</value>
+  </data>
+  <data name="Financial.MatchReasons" xml:space="preserve">
+    <value>[NL] Raisons de la correspondance</value>
+  </data>
+  <data name="Financial.Validate" xml:space="preserve">
+    <value>[NL] Valider</value>
+  </data>
+  <data name="Field.Transaction" xml:space="preserve">
+    <value>[NL] Transaction</value>
+  </data>
+  <data name="Field.Booking" xml:space="preserve">
+    <value>[NL] Réservation</value>
+  </data>
 </root>

@@ -1273,6 +1273,33 @@
   <data name="Error.InvalidData" xml:space="preserve">
     <value>Données invalides</value>
   </data>
+  <data name="Financial.Suggestions" xml:space="preserve">
+    <value>Suggestions</value>
+  </data>
+  <data name="Financial.AutomaticSuggestions" xml:space="preserve">
+    <value>Rapprochements suggérés</value>
+  </data>
+  <data name="Financial.ReconciliationSuggestions" xml:space="preserve">
+    <value>Suggestions de rapprochement automatique</value>
+  </data>
+  <data name="Financial.SuggestionsDescription" xml:space="preserve">
+    <value>Ces rapprochements sont suggérés automatiquement en fonction du montant, du nom et de la date</value>
+  </data>
+  <data name="Financial.Confidence" xml:space="preserve">
+    <value>Confiance</value>
+  </data>
+  <data name="Financial.MatchReasons" xml:space="preserve">
+    <value>Raisons de la correspondance</value>
+  </data>
+  <data name="Financial.Validate" xml:space="preserve">
+    <value>Valider</value>
+  </data>
+  <data name="Field.Transaction" xml:space="preserve">
+    <value>Transaction</value>
+  </data>
+  <data name="Field.Booking" xml:space="preserve">
+    <value>Réservation</value>
+  </data>
   <data name="Home.Error" xml:space="preserve">
     <value>Erreur</value>
   </data>

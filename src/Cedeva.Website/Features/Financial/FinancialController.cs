@@ -153,7 +153,8 @@ public class FinancialController : Controller
         var viewModel = new ReconciliationViewModel
         {
             UnreconciledTransactions = await _reconciliationService.GetUnreconciledTransactionsAsync(organisationId.Value),
-            UnpaidBookings = await _reconciliationService.GetUnpaidBookingsAsync(organisationId.Value)
+            UnpaidBookings = await _reconciliationService.GetUnpaidBookingsAsync(organisationId.Value),
+            Suggestions = await _reconciliationService.GetReconciliationSuggestionsAsync(organisationId.Value)
         };
 
         return View(viewModel);

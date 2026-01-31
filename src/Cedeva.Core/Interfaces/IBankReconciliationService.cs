@@ -35,6 +35,13 @@ public interface IBankReconciliationService
     /// <param name="organisationId">ID de l'organisation</param>
     /// <returns>Liste des réservations en attente de paiement</returns>
     Task<List<UnpaidBookingDto>> GetUnpaidBookingsAsync(int organisationId);
+
+    /// <summary>
+    /// Suggère des rapprochements probables basés sur le montant et le nom du bénéficiaire.
+    /// </summary>
+    /// <param name="organisationId">ID de l'organisation</param>
+    /// <returns>Liste des suggestions de rapprochement avec score de confiance</returns>
+    Task<List<ReconciliationSuggestionDto>> GetReconciliationSuggestionsAsync(int organisationId);
 }
 
 /// <summary>
@@ -66,4 +73,22 @@ public class UnpaidBookingDto
     public string ParentName { get; set; } = string.Empty;
     public string ActivityName { get; set; } = string.Empty;
     public DateTime ActivityStartDate { get; set; }
+}
+
+/// <summary>
+/// DTO pour une suggestion de rapprochement semi-automatique
+/// </summary>
+public class ReconciliationSuggestionDto
+{
+    public int TransactionId { get; set; }
+    public int BookingId { get; set; }
+    public DateTime TransactionDate { get; set; }
+    public decimal TransactionAmount { get; set; }
+    public string? CounterpartyName { get; set; }
+    public string ChildName { get; set; } = string.Empty;
+    public string ParentName { get; set; } = string.Empty;
+    public string ActivityName { get; set; } = string.Empty;
+    public decimal BookingRemainingAmount { get; set; }
+    public int ConfidenceScore { get; set; } // 0-100
+    public List<string> MatchReasons { get; set; } = new();
 }

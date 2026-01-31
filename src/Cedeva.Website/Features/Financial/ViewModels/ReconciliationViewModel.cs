@@ -10,11 +10,13 @@ public class ReconciliationViewModel
 {
     public List<UnreconciledTransactionDto> UnreconciledTransactions { get; set; } = new();
     public List<UnpaidBookingDto> UnpaidBookings { get; set; } = new();
+    public List<ReconciliationSuggestionDto> Suggestions { get; set; } = new();
 
     public int TotalUnreconciledCount => UnreconciledTransactions.Count;
     public int TotalUnpaidCount => UnpaidBookings.Count;
     public decimal TotalUnreconciledAmount => UnreconciledTransactions.Sum(t => t.Amount);
     public decimal TotalUnpaidAmount => UnpaidBookings.Sum(b => b.RemainingAmount);
+    public int SuggestionsCount => Suggestions.Count;
 }
 
 /// <summary>
