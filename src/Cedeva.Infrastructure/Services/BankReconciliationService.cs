@@ -184,7 +184,7 @@ public class BankReconciliationService : IBankReconciliationService
                 Amount = transaction.Amount,
                 PaymentDate = transaction.TransactionDate,
                 PaymentMethod = PaymentMethod.BankTransfer,
-                Status = PaymentStatus.Completed,
+                Status = PaymentStatus.Paid,
                 StructuredCommunication = transaction.StructuredCommunication,
                 BankTransactionId = transaction.Id
             };
