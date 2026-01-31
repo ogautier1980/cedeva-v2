@@ -630,6 +630,17 @@ h2 {
     color: #fff !important;
 }
 
+/* Tableaux avec fond teinté (correction variable CSS Bootstrap) */
+.table-primary {
+    --bs-table-bg: rgba(0, 127, 175, 0.1) !important;
+    --bs-table-striped-bg: rgba(0, 127, 175, 0.15) !important;
+}
+
+.table-warning {
+    --bs-table-bg: rgba(255, 152, 0, 0.1) !important;
+    --bs-table-striped-bg: rgba(255, 152, 0, 0.15) !important;
+}
+
 /* === ICONS === */
 .fa-white-head {
     color: white;
