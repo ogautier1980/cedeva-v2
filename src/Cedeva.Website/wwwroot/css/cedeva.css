@@ -582,6 +582,54 @@ h2 {
     outline: none;
 }
 
+/* Barre de navigation contextuelle (sous-pages du module) */
+.nav-pills .nav-link {
+    color: #5a5c69;
+    font-weight: 500;
+    font-size: 0.85rem;
+    border-radius: 0.25rem;
+    padding: 0.4rem 0.75rem;
+    transition: all 0.2s;
+}
+
+.nav-pills .nav-link:not(.active):not(.disabled):hover {
+    background-color: #f0f7fb;
+    color: #007faf;
+}
+
+.nav-pills .nav-link.active {
+    background-color: #007faf !important;
+    color: #fff !important;
+}
+
+.nav-pills .nav-link.disabled {
+    color: #adb5bd !important;
+    opacity: 1;
+}
+
+/* Dropdown toggle actif dans les pills */
+.nav-pills .dropdown .nav-link.active {
+    background-color: #007faf !important;
+    color: #fff !important;
+}
+
+/* Dropdown items dans le contexte nav-pills */
+.nav-pills .dropdown-menu .dropdown-item {
+    color: #5a5c69;
+    font-weight: 500;
+    font-size: 0.85rem;
+}
+
+.nav-pills .dropdown-menu .dropdown-item:hover {
+    background-color: #f0f7fb;
+    color: #007faf;
+}
+
+.nav-pills .dropdown-menu .dropdown-item.active {
+    background-color: #007faf !important;
+    color: #fff !important;
+}
+
 /* === ICONS === */
 .fa-white-head {
     color: white;
