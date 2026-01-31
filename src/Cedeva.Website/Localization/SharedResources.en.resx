@@ -2122,4 +2122,88 @@
   <data name="Field.Organisation" xml:space="preserve">
     <value>Organisation</value>
   </data>
+  <data name="Financial.ImportCoda" xml:space="preserve">
+    <value>[EN] Importer un fichier CODA</value>
+  </data>
+  <data name="Financial.ImportCodaDescription" xml:space="preserve">
+    <value>[EN] Importez vos relevés bancaires au format CODA pour rapprocher automatiquement les paiements</value>
+  </data>
+  <data name="Financial.UploadCodaFile" xml:space="preserve">
+    <value>[EN] Uploader un fichier CODA</value>
+  </data>
+  <data name="Financial.ImportFile" xml:space="preserve">
+    <value>[EN] Importer le fichier</value>
+  </data>
+  <data name="Financial.CodaFileHelp" xml:space="preserve">
+    <value>[EN] Formats acceptés : .cod, .txt (128 caractères par ligne)</value>
+  </data>
+  <data name="Financial.WhatIsCoda" xml:space="preserve">
+    <value>[EN] Qu'est-ce qu'un fichier CODA ?</value>
+  </data>
+  <data name="Financial.CodaExplanation" xml:space="preserve">
+    <value>[EN] CODA est le format standard belge pour les relevés bancaires électroniques. Vous pouvez télécharger ces fichiers depuis votre banque en ligne.</value>
+  </data>
+  <data name="Financial.ImportedFiles" xml:space="preserve">
+    <value>[EN] Fichiers importés</value>
+  </data>
+  <data name="Financial.NoCodaFilesImported" xml:space="preserve">
+    <value>[EN] Aucun fichier CODA importé pour le moment</value>
+  </data>
+  <data name="Financial.Unreconciled" xml:space="preserve">
+    <value>[EN] non rapprochées</value>
+  </data>
+  <data name="Financial.CodaFileDetails" xml:space="preserve">
+    <value>[EN] Détails du fichier CODA</value>
+  </data>
+  <data name="Financial.ImportedOn" xml:space="preserve">
+    <value>[EN] Importé le</value>
+  </data>
+  <data name="Financial.OldBalance" xml:space="preserve">
+    <value>[EN] Ancien solde</value>
+  </data>
+  <data name="Financial.NewBalance" xml:space="preserve">
+    <value>[EN] Nouveau solde</value>
+  </data>
+  <data name="Financial.Difference" xml:space="preserve">
+    <value>[EN] Différence</value>
+  </data>
+  <data name="Financial.Transactions" xml:space="preserve">
+    <value>[EN] Transactions</value>
+  </data>
+  <data name="Financial.NoTransactions" xml:space="preserve">
+    <value>[EN] Aucune transaction</value>
+  </data>
+  <data name="Financial.StructuredCommunication" xml:space="preserve">
+    <value>[EN] Communication structurée</value>
+  </data>
+  <data name="Financial.Reconciled" xml:space="preserve">
+    <value>[EN] Rapproché</value>
+  </data>
+  <data name="Financial.NotReconciled" xml:space="preserve">
+    <value>[EN] Non rapproché</value>
+  </data>
+  <data name="Field.CodaFile" xml:space="preserve">
+    <value>[EN] Fichier CODA</value>
+  </data>
+  <data name="Field.FileName" xml:space="preserve">
+    <value>[EN] Nom du fichier</value>
+  </data>
+  <data name="Field.StatementDate" xml:space="preserve">
+    <value>[EN] Date du relevé</value>
+  </data>
+  <data name="Field.Counterparty" xml:space="preserve">
+    <value>[EN] Contrepartie</value>
+  </data>
+  <data name="Field.Communication" xml:space="preserve">
+    <value>[EN] Communication</value>
+  </data>
+  <data name="Validation.InvalidCodaFileExtension" xml:space="preserve">
+    <value>[EN] Format de fichier invalide. Formats acceptés : .cod, .txt</value>
+  </data>
+  <data name="Message.CodaFileImported" xml:space="preserve">
+    <value>[EN] Fichier CODA importé avec succès ({0} transactions)</value>
+  </data>
+  <data name="Error.CodaImportFailed" xml:space="preserve">
+    <value>[EN] Erreur lors de l'import du fichier CODA : {0}</value>
+  </data>
 </root>
