@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <ItemGroup>
     <ProjectReference Include="..\Cedeva.Core\Cedeva.Core.csproj" />
@@ -23,6 +23,7 @@
     <TargetFramework>net9.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>577def3c-52e5-4e5e-b618-6985eac5d55f</UserSecretsId>
   </PropertyGroup>
 
 </Project>
