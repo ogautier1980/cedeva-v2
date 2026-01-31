@@ -1841,7 +1841,7 @@
     <value>[EN] Détails des revenus</value>
   </data>
   <data name="Financial.SalaryCalculationInfo" xml:space="preserve">
-    <value>[EN] Informations sur le calcul du salaire</value>
+    <value>The amount to pay is calculated as follows: Prestations (Days × Daily compensation) + Reimbursements − Personal consumptions.</value>
   </data>
   <data name="Financial.SelectOrganisation" xml:space="preserve">
     <value>[EN] Sélectionner une organisation</value>

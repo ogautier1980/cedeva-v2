@@ -1841,7 +1841,7 @@
     <value>[NL] Détails des revenus</value>
   </data>
   <data name="Financial.SalaryCalculationInfo" xml:space="preserve">
-    <value>[NL] Informations sur le calcul du salaire</value>
+    <value>Het te betalen bedrag wordt als volgt berekend: Prestaties (Dagen × Dagvergoeding) + Terugbeteningen − Persoonlijke consumaties.</value>
   </data>
   <data name="Financial.SelectOrganisation" xml:space="preserve">
     <value>[NL] Sélectionner une organisation</value>

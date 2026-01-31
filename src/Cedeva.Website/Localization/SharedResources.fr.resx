@@ -1844,7 +1844,7 @@
     <value>Détails des revenus</value>
   </data>
   <data name="Financial.SalaryCalculationInfo" xml:space="preserve">
-    <value>Informations sur le calcul du salaire</value>
+    <value>Le montant à verser est calculé comme suit : Prestations (Jours × Indemnité journalière) + Remboursements − Consommations personnelles.</value>
   </data>
   <data name="Financial.SelectOrganisation" xml:space="preserve">
     <value>Sélectionner une organisation</value>
