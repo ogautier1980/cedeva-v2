@@ -1135,6 +1135,144 @@
   <data name="Account.PasswordChangeContactAdmin" xml:space="preserve">
     <value>Pour changer votre mot de passe, veuillez contacter un administrateur</value>
   </data>
+  <data name="Financial.ImportCoda" xml:space="preserve">
+    <value>Importer un fichier CODA</value>
+  </data>
+  <data name="Financial.ImportCodaDescription" xml:space="preserve">
+    <value>Importez vos relevés bancaires au format CODA pour rapprocher automatiquement les paiements</value>
+  </data>
+  <data name="Financial.UploadCodaFile" xml:space="preserve">
+    <value>Uploader un fichier CODA</value>
+  </data>
+  <data name="Financial.ImportFile" xml:space="preserve">
+    <value>Importer le fichier</value>
+  </data>
+  <data name="Financial.CodaFileHelp" xml:space="preserve">
+    <value>Formats acceptés : .cod, .txt (128 caractères par ligne)</value>
+  </data>
+  <data name="Financial.WhatIsCoda" xml:space="preserve">
+    <value>Qu'est-ce qu'un fichier CODA ?</value>
+  </data>
+  <data name="Financial.CodaExplanation" xml:space="preserve">
+    <value>CODA est le format standard belge pour les relevés bancaires électroniques. Vous pouvez télécharger ces fichiers depuis votre banque en ligne.</value>
+  </data>
+  <data name="Financial.ImportedFiles" xml:space="preserve">
+    <value>Fichiers importés</value>
+  </data>
+  <data name="Financial.NoCodaFilesImported" xml:space="preserve">
+    <value>Aucun fichier CODA importé pour le moment</value>
+  </data>
+  <data name="Financial.Unreconciled" xml:space="preserve">
+    <value>non rapprochées</value>
+  </data>
+  <data name="Financial.CodaFileDetails" xml:space="preserve">
+    <value>Détails du fichier CODA</value>
+  </data>
+  <data name="Financial.ImportedOn" xml:space="preserve">
+    <value>Importé le</value>
+  </data>
+  <data name="Financial.OldBalance" xml:space="preserve">
+    <value>Ancien solde</value>
+  </data>
+  <data name="Financial.NewBalance" xml:space="preserve">
+    <value>Nouveau solde</value>
+  </data>
+  <data name="Financial.Difference" xml:space="preserve">
+    <value>Différence</value>
+  </data>
+  <data name="Financial.Transactions" xml:space="preserve">
+    <value>Transactions</value>
+  </data>
+  <data name="Financial.NoTransactions" xml:space="preserve">
+    <value>Aucune transaction</value>
+  </data>
+  <data name="Financial.StructuredCommunication" xml:space="preserve">
+    <value>Communication structurée</value>
+  </data>
+  <data name="Financial.Reconciled" xml:space="preserve">
+    <value>Rapproché</value>
+  </data>
+  <data name="Financial.NotReconciled" xml:space="preserve">
+    <value>Non rapproché</value>
+  </data>
+  <data name="Field.CodaFile" xml:space="preserve">
+    <value>Fichier CODA</value>
+  </data>
+  <data name="Field.FileName" xml:space="preserve">
+    <value>Nom du fichier</value>
+  </data>
+  <data name="Field.StatementDate" xml:space="preserve">
+    <value>Date du relevé</value>
+  </data>
+  <data name="Field.AccountNumber" xml:space="preserve">
+    <value>Numéro de compte</value>
+  </data>
+  <data name="Field.Reconciled" xml:space="preserve">
+    <value>Rapprochées</value>
+  </data>
+  <data name="Field.Counterparty" xml:space="preserve">
+    <value>Contrepartie</value>
+  </data>
+  <data name="Field.Communication" xml:space="preserve">
+    <value>Communication</value>
+  </data>
+  <data name="Field.Status" xml:space="preserve">
+    <value>Statut</value>
+  </data>
+  <data name="Validation.FileRequired" xml:space="preserve">
+    <value>Veuillez sélectionner un fichier</value>
+  </data>
+  <data name="Validation.InvalidCodaFileExtension" xml:space="preserve">
+    <value>Format de fichier invalide. Formats acceptés : .cod, .txt</value>
+  </data>
+  <data name="Message.CodaFileImported" xml:space="preserve">
+    <value>Fichier CODA importé avec succès ({0} transactions)</value>
+  </data>
+  <data name="Error.CodaImportFailed" xml:space="preserve">
+    <value>Erreur lors de l'import du fichier CODA : {0}</value>
+  </data>
+  <data name="Financial.Reconciliation" xml:space="preserve">
+    <value>Rapprochement bancaire</value>
+  </data>
+  <data name="Financial.UnreconciledTransactions" xml:space="preserve">
+    <value>Transactions non rapprochées</value>
+  </data>
+  <data name="Financial.UnpaidBookings" xml:space="preserve">
+    <value>Réservations non payées</value>
+  </data>
+  <data name="Financial.BankTransactions" xml:space="preserve">
+    <value>Transactions bancaires</value>
+  </data>
+  <data name="Financial.AllTransactionsReconciled" xml:space="preserve">
+    <value>Toutes les transactions ont été rapprochées</value>
+  </data>
+  <data name="Financial.AllBookingsPaid" xml:space="preserve">
+    <value>Toutes les réservations sont payées</value>
+  </data>
+  <data name="Financial.RemainingAmount" xml:space="preserve">
+    <value>Montant restant</value>
+  </data>
+  <data name="Financial.TotalAmount" xml:space="preserve">
+    <value>Montant total</value>
+  </data>
+  <data name="Financial.PleaseSelectTransaction" xml:space="preserve">
+    <value>Veuillez d'abord sélectionner une transaction</value>
+  </data>
+  <data name="Financial.ConfirmReconciliation" xml:space="preserve">
+    <value>Êtes-vous sûr de vouloir rapprocher cette transaction avec cette réservation ?</value>
+  </data>
+  <data name="Message.CodaFileImportedWithReconciliation" xml:space="preserve">
+    <value>Fichier CODA importé avec succès ({0} transactions, {1} rapprochées automatiquement)</value>
+  </data>
+  <data name="Message.TransactionReconciled" xml:space="preserve">
+    <value>Transaction rapprochée avec succès</value>
+  </data>
+  <data name="Error.ReconciliationFailed" xml:space="preserve">
+    <value>Échec du rapprochement de la transaction</value>
+  </data>
+  <data name="Error.InvalidData" xml:space="preserve">
+    <value>Données invalides</value>
+  </data>
   <data name="Home.Error" xml:space="preserve">
     <value>Erreur</value>
   </data>

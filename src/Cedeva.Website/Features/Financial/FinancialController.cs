@@ -16,6 +16,7 @@ public class FinancialController : Controller
     private readonly CedevaDbContext _context;
     private readonly ICurrentUserService _currentUserService;
     private readonly ICodaParserService _codaParserService;
+    private readonly IBankReconciliationService _reconciliationService;
     private readonly IStringLocalizer<SharedResources> _localizer;
     private readonly ILogger<FinancialController> _logger;
 
@@ -26,12 +27,14 @@ public class FinancialController : Controller
         CedevaDbContext context,
         ICurrentUserService currentUserService,
         ICodaParserService codaParserService,
+        IBankReconciliationService reconciliationService,
         IStringLocalizer<SharedResources> localizer,
         ILogger<FinancialController> logger)
     {
         _context = context;
         _currentUserService = currentUserService;
         _codaParserService = codaParserService;
+        _reconciliationService = reconciliationService;
         _localizer = localizer;
         _logger = logger;
     }
@@ -106,10 +109,14 @@ public class FinancialController : Controller
 
             _logger.LogInformation("CODA file {FileName} imported successfully by user {UserId}", viewModel.CodaFile.FileName, userId);
 
-            TempData[TempDataSuccess] = _localizer["Message.CodaFileImported", codaData.Transactions.Count].Value;
+            // Lancer le rapprochement automatique
+            var reconciledCount = await _reconciliationService.AutoReconcileTransactionsAsync(codaFileId);
 
-            // Rediriger vers une page de réconciliation ou de détails
-            return RedirectToAction(nameof(ImportCoda));
+            TempData[TempDataSuccess] = reconciledCount > 0
+                ? _localizer["Message.CodaFileImportedWithReconciliation", codaData.Transactions.Count, reconciledCount].Value
+                : _localizer["Message.CodaFileImported", codaData.Transactions.Count].Value;
+
+            return RedirectToAction(nameof(CodaFileDetails), new { id = codaFileId });
         }
         catch (Exception ex)
         {
@@ -132,5 +139,48 @@ public class FinancialController : Controller
         }
 
         return View(codaFile);
+    }
+
+    // GET: Financial/Reconciliation
+    public async Task<IActionResult> Reconciliation()
+    {
+        var organisationId = _currentUserService.OrganisationId;
+        if (!organisationId.HasValue)
+        {
+            return Unauthorized();
+        }
+
+        var viewModel = new ReconciliationViewModel
+        {
+            UnreconciledTransactions = await _reconciliationService.GetUnreconciledTransactionsAsync(organisationId.Value),
+            UnpaidBookings = await _reconciliationService.GetUnpaidBookingsAsync(organisationId.Value)
+        };
+
+        return View(viewModel);
+    }
+
+    // POST: Financial/ManualReconcile
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> ManualReconcile(ManualReconcileViewModel model)
+    {
+        if (!ModelState.IsValid)
+        {
+            TempData[TempDataError] = _localizer["Error.InvalidData"].Value;
+            return RedirectToAction(nameof(Reconciliation));
+        }
+
+        var success = await _reconciliationService.ManualReconcileAsync(model.TransactionId, model.BookingId);
+
+        if (success)
+        {
+            TempData[TempDataSuccess] = _localizer["Message.TransactionReconciled"].Value;
+        }
+        else
+        {
+            TempData[TempDataError] = _localizer["Error.ReconciliationFailed"].Value;
+        }
+
+        return RedirectToAction(nameof(Reconciliation));
     }
 }

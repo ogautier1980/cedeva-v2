@@ -1,0 +1,137 @@
+@model Cedeva.Website.Features.Financial.ViewModels.ImportCodaViewModel
+@inject IStringLocalizer<SharedResources> Localizer
+
+@{
+    ViewData["Title"] = Localizer["Financial.ImportCoda"];
+    var codaFiles = ViewBag.CodaFiles as List<Cedeva.Website.Features.Financial.ViewModels.CodaFileListItemViewModel>;
+}
+
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col">
+            <h2><i class="fas fa-file-import me-2"></i>@Localizer["Financial.ImportCoda"]</h2>
+            <p class="text-muted">@Localizer["Financial.ImportCodaDescription"]</p>
+        </div>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle me-2"></i>@TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-circle me-2"></i>@TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <div class="row">
+        <!-- Upload Form -->
+        <div class="col-lg-4">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-upload me-2"></i>@Localizer["Financial.UploadCodaFile"]</h5>
+                </div>
+                <div class="card-body">
+                    <form asp-action="ImportCoda" method="post" enctype="multipart/form-data">
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+                        <div class="mb-3">
+                            <label asp-for="CodaFile" class="form-label">@Localizer["Field.CodaFile"]</label>
+                            <input asp-for="CodaFile" type="file" class="form-control" accept=".cod,.txt" />
+                            <span asp-validation-for="CodaFile" class="text-danger"></span>
+                            <div class="form-text">
+                                <i class="fas fa-info-circle me-1"></i>@Localizer["Financial.CodaFileHelp"]
+                            </div>
+                        </div>
+
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-upload me-2"></i>@Localizer["Financial.ImportFile"]
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card shadow mt-3">
+                <div class="card-body">
+                    <h6 class="fw-bold mb-2"><i class="fas fa-question-circle me-2"></i>@Localizer["Financial.WhatIsCoda"]</h6>
+                    <p class="small text-muted mb-0">@Localizer["Financial.CodaExplanation"]</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- List of imported files -->
+        <div class="col-lg-8">
+            <div class="card shadow">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-history me-2"></i>@Localizer["Financial.ImportedFiles"]</h5>
+                </div>
+                <div class="card-body">
+                    @if (codaFiles != null && codaFiles.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>@Localizer["Field.FileName"]</th>
+                                        <th>@Localizer["Field.StatementDate"]</th>
+                                        <th>@Localizer["Field.AccountNumber"]</th>
+                                        <th class="text-end">@Localizer["Field.Transactions"]</th>
+                                        <th class="text-end">@Localizer["Field.Reconciled"]</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var file in codaFiles)
+                                    {
+                                        <tr>
+                                            <td>
+                                                <i class="fas fa-file-alt me-2"></i>@file.FileName
+                                                <br><small class="text-muted">@file.ImportDate.ToString("dd/MM/yyyy HH:mm")</small>
+                                            </td>
+                                            <td>@file.StatementDate.ToString("dd/MM/yyyy")</td>
+                                            <td><code>@file.AccountNumber</code></td>
+                                            <td class="text-end">
+                                                <span class="badge bg-info">@file.TransactionCount</span>
+                                            </td>
+                                            <td class="text-end">
+                                                <span class="badge bg-success">@file.ReconciledCount</span>
+                                                @if (file.UnreconciledCount > 0)
+                                                {
+                                                    <span class="badge bg-warning text-dark">@file.UnreconciledCount @Localizer["Financial.Unreconciled"]</span>
+                                                }
+                                            </td>
+                                            <td class="text-end">
+                                                <a asp-action="CodaFileDetails" asp-route-id="@file.Id" class="btn btn-sm btn-outline-primary" title="@Localizer["Details"]">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center py-5">
+                            <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                            <p class="text-muted">@Localizer["Financial.NoCodaFilesImported"]</p>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

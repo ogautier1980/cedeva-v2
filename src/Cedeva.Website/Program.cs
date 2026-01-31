@@ -44,6 +44,8 @@ try
         containerBuilder.RegisterType<QuestPdfExportService>().As<IPdfExportService>().InstancePerLifetimeScope();
         containerBuilder.RegisterType<BelgianMunicipalityService>().As<IBelgianMunicipalityService>().InstancePerLifetimeScope();
         containerBuilder.RegisterType<StructuredCommunicationService>().As<IStructuredCommunicationService>().InstancePerLifetimeScope();
+        containerBuilder.RegisterType<CodaParserService>().As<ICodaParserService>().InstancePerLifetimeScope();
+        containerBuilder.RegisterType<BankReconciliationService>().As<IBankReconciliationService>().InstancePerLifetimeScope();
         containerBuilder.RegisterType<UnitOfWork>().As<IUnitOfWork>().InstancePerLifetimeScope();
         containerBuilder.RegisterGeneric(typeof(Repository<>)).As(typeof(IRepository<>)).InstancePerLifetimeScope();
     });

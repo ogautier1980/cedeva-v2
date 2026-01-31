@@ -1,0 +1,183 @@
+@model Cedeva.Core.Entities.CodaFile
+@inject IStringLocalizer<SharedResources> Localizer
+
+@{
+    ViewData["Title"] = Localizer["Financial.CodaFileDetails"];
+}
+
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2><i class="fas fa-file-alt me-2"></i>@Model.FileName</h2>
+                    <p class="text-muted mb-0">
+                        @Localizer["Financial.ImportedOn"] @Model.ImportDate.ToString("dd/MM/yyyy HH:mm")
+                    </p>
+                </div>
+                <div>
+                    <a asp-action="ImportCoda" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left me-2"></i>@Localizer["Back"]
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- File Summary -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card shadow">
+                <div class="card-body text-center">
+                    <i class="fas fa-calendar-alt fa-2x text-primary mb-2"></i>
+                    <h6 class="text-muted mb-1">@Localizer["Field.StatementDate"]</h6>
+                    <h4 class="mb-0">@Model.StatementDate.ToString("dd/MM/yyyy")</h4>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card shadow">
+                <div class="card-body text-center">
+                    <i class="fas fa-university fa-2x text-info mb-2"></i>
+                    <h6 class="text-muted mb-1">@Localizer["Field.AccountNumber"]</h6>
+                    <h4 class="mb-0"><code>@Model.AccountNumber</code></h4>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card shadow">
+                <div class="card-body text-center">
+                    <i class="fas fa-exchange-alt fa-2x text-success mb-2"></i>
+                    <h6 class="text-muted mb-1">@Localizer["Field.Transactions"]</h6>
+                    <h4 class="mb-0">@Model.TransactionCount</h4>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card shadow">
+                <div class="card-body text-center">
+                    <i class="fas fa-check-circle fa-2x text-warning mb-2"></i>
+                    <h6 class="text-muted mb-1">@Localizer["Field.Reconciled"]</h6>
+                    <h4 class="mb-0">
+                        @Model.Transactions.Count(t => t.IsReconciled) / @Model.TransactionCount
+                    </h4>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Balance Summary -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h6 class="text-muted">@Localizer["Financial.OldBalance"]</h6>
+                    <h3 class="mb-0">@Model.OldBalance.ToString("N2") €</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h6 class="text-muted">@Localizer["Financial.NewBalance"]</h6>
+                    <h3 class="mb-0">@Model.NewBalance.ToString("N2") €</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h6 class="text-muted">@Localizer["Financial.Difference"]</h6>
+                    <h3 class="mb-0">
+                        @{
+                            var diff = Model.NewBalance - Model.OldBalance;
+                            var diffClass = diff >= 0 ? "text-success" : "text-danger";
+                        }
+                        <span class="@diffClass">@diff.ToString("N2") €</span>
+                    </h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Transactions List -->
+    <div class="card shadow">
+        <div class="card-header">
+            <h5 class="mb-0"><i class="fas fa-list me-2"></i>@Localizer["Financial.Transactions"]</h5>
+        </div>
+        <div class="card-body">
+            @if (Model.Transactions.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>@Localizer["Field.Date"]</th>
+                                <th>@Localizer["Field.Counterparty"]</th>
+                                <th>@Localizer["Field.Communication"]</th>
+                                <th class="text-end">@Localizer["Field.Amount"]</th>
+                                <th class="text-center">@Localizer["Field.Status"]</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var transaction in Model.Transactions.OrderBy(t => t.TransactionDate))
+                            {
+                                <tr class="@(transaction.IsReconciled ? "table-success" : "")">
+                                    <td>
+                                        <small class="text-muted">@transaction.TransactionDate.ToString("dd/MM/yyyy")</small>
+                                    </td>
+                                    <td>
+                                        <strong>@(transaction.CounterpartyName ?? "-")</strong><br>
+                                        @if (!string.IsNullOrEmpty(transaction.CounterpartyAccount))
+                                        {
+                                            <small class="text-muted"><code>@transaction.CounterpartyAccount</code></small>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (!string.IsNullOrEmpty(transaction.StructuredCommunication))
+                                        {
+                                            <span class="badge bg-primary" title="@Localizer["Financial.StructuredCommunication"]">
+                                                <code class="text-white">@transaction.StructuredCommunication</code>
+                                            </span>
+                                        }
+                                        @if (!string.IsNullOrEmpty(transaction.FreeCommunication))
+                                        {
+                                            <br><small class="text-muted">@transaction.FreeCommunication</small>
+                                        }
+                                    </td>
+                                    <td class="text-end">
+                                        @{
+                                            var amountClass = transaction.Amount >= 0 ? "text-success" : "text-danger";
+                                        }
+                                        <strong class="@amountClass">@transaction.Amount.ToString("N2") €</strong>
+                                    </td>
+                                    <td class="text-center">
+                                        @if (transaction.IsReconciled)
+                                        {
+                                            <span class="badge bg-success" title="@Localizer["Financial.Reconciled"]">
+                                                <i class="fas fa-check"></i> @Localizer["Financial.Reconciled"]
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-warning text-dark" title="@Localizer["Financial.NotReconciled"]">
+                                                <i class="fas fa-exclamation-triangle"></i> @Localizer["Financial.NotReconciled"]
+                                            </span>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="text-center py-5">
+                    <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                    <p class="text-muted">@Localizer["Financial.NoTransactions"]</p>
+                </div>
+            }
+        </div>
+    </div>
+</div>

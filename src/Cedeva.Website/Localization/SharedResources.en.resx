@@ -2206,4 +2206,46 @@
   <data name="Error.CodaImportFailed" xml:space="preserve">
     <value>[EN] Erreur lors de l'import du fichier CODA : {0}</value>
   </data>
+  <data name="Financial.Reconciliation" xml:space="preserve">
+    <value>[EN] Rapprochement bancaire</value>
+  </data>
+  <data name="Financial.UnreconciledTransactions" xml:space="preserve">
+    <value>[EN] Transactions non rapprochées</value>
+  </data>
+  <data name="Financial.UnpaidBookings" xml:space="preserve">
+    <value>[EN] Réservations non payées</value>
+  </data>
+  <data name="Financial.BankTransactions" xml:space="preserve">
+    <value>[EN] Transactions bancaires</value>
+  </data>
+  <data name="Financial.AllTransactionsReconciled" xml:space="preserve">
+    <value>[EN] Toutes les transactions ont été rapprochées</value>
+  </data>
+  <data name="Financial.AllBookingsPaid" xml:space="preserve">
+    <value>[EN] Toutes les réservations sont payées</value>
+  </data>
+  <data name="Financial.RemainingAmount" xml:space="preserve">
+    <value>[EN] Montant restant</value>
+  </data>
+  <data name="Financial.TotalAmount" xml:space="preserve">
+    <value>[EN] Montant total</value>
+  </data>
+  <data name="Financial.PleaseSelectTransaction" xml:space="preserve">
+    <value>[EN] Veuillez d'abord sélectionner une transaction</value>
+  </data>
+  <data name="Financial.ConfirmReconciliation" xml:space="preserve">
+    <value>[EN] Êtes-vous sûr de vouloir rapprocher cette transaction avec cette réservation ?</value>
+  </data>
+  <data name="Message.CodaFileImportedWithReconciliation" xml:space="preserve">
+    <value>[EN] Fichier CODA importé avec succès ({0} transactions, {1} rapprochées automatiquement)</value>
+  </data>
+  <data name="Message.TransactionReconciled" xml:space="preserve">
+    <value>[EN] Transaction rapprochée avec succès</value>
+  </data>
+  <data name="Error.ReconciliationFailed" xml:space="preserve">
+    <value>[EN] Échec du rapprochement de la transaction</value>
+  </data>
+  <data name="Error.InvalidData" xml:space="preserve">
+    <value>[EN] Données invalides</value>
+  </data>
 </root>

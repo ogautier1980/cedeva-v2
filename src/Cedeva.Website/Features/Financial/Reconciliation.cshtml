@@ -1,0 +1,255 @@
+@model ReconciliationViewModel
+@inject IStringLocalizer<SharedResources> Localizer
+
+@{
+    ViewData["Title"] = Localizer["Financial.Reconciliation"];
+}
+
+<div class="container-fluid mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>@Localizer["Financial.Reconciliation"]</h2>
+        <a asp-action="ImportCoda" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> @Localizer["Common.Back"]
+        </a>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <div class="card border-warning">
+                <div class="card-header bg-warning text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-university"></i>
+                        @Localizer["Financial.UnreconciledTransactions"]
+                        <span class="badge bg-white text-warning">@Model.TotalUnreconciledCount</span>
+                    </h5>
+                    <small>@Localizer["Financial.TotalAmount"]: @Model.TotalUnreconciledAmount.ToString("C")</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-exclamation-circle"></i>
+                        @Localizer["Financial.UnpaidBookings"]
+                        <span class="badge bg-white text-danger">@Model.TotalUnpaidCount</span>
+                    </h5>
+                    <small>@Localizer["Financial.TotalAmount"]: @Model.TotalUnpaidAmount.ToString("C")</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Transactions non rapprochées -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">@Localizer["Financial.BankTransactions"]</h5>
+
+                    @if (!Model.UnreconciledTransactions.Any())
+                    {
+                        <div class="alert alert-success">
+                            <i class="fas fa-check-circle"></i>
+                            @Localizer["Financial.AllTransactionsReconciled"]
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="table-responsive" style="max-height: 600px; overflow-y: auto;">
+                            <table class="table table-sm table-hover">
+                                <thead class="table-light sticky-top">
+                                    <tr>
+                                        <th>@Localizer["Field.Date"]</th>
+                                        <th>@Localizer["Field.Amount"]</th>
+                                        <th>@Localizer["Financial.StructuredCommunication"]</th>
+                                        <th>@Localizer["Field.Counterparty"]</th>
+                                        <th>@Localizer["Common.Actions"]</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var transaction in Model.UnreconciledTransactions)
+                                    {
+                                        <tr data-transaction-id="@transaction.Id">
+                                            <td><small>@transaction.TransactionDate.ToString("dd/MM/yyyy")</small></td>
+                                            <td><strong class="text-success">@transaction.Amount.ToString("C")</strong></td>
+                                            <td>
+                                                @if (!string.IsNullOrEmpty(transaction.StructuredCommunication))
+                                                {
+                                                    <code class="text-primary">@transaction.StructuredCommunication</code>
+                                                }
+                                                else if (!string.IsNullOrEmpty(transaction.FreeCommunication))
+                                                {
+                                                    <small class="text-muted">@transaction.FreeCommunication</small>
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-muted">-</span>
+                                                }
+                                            </td>
+                                            <td>
+                                                <small>@transaction.CounterpartyName</small><br />
+                                                <small class="text-muted">@transaction.CounterpartyAccount</small>
+                                            </td>
+                                            <td>
+                                                <button type="button" class="btn btn-sm btn-outline-primary select-transaction"
+                                                        data-transaction-id="@transaction.Id"
+                                                        data-amount="@transaction.Amount"
+                                                        data-communication="@transaction.StructuredCommunication">
+                                                    <i class="fas fa-hand-pointer"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Réservations non payées -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">@Localizer["Financial.UnpaidBookings"]</h5>
+
+                    @if (!Model.UnpaidBookings.Any())
+                    {
+                        <div class="alert alert-success">
+                            <i class="fas fa-check-circle"></i>
+                            @Localizer["Financial.AllBookingsPaid"]
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="table-responsive" style="max-height: 600px; overflow-y: auto;">
+                            <table class="table table-sm table-hover">
+                                <thead class="table-light sticky-top">
+                                    <tr>
+                                        <th>@Localizer["Field.Activity"]</th>
+                                        <th>@Localizer["Field.Child"]</th>
+                                        <th>@Localizer["Field.Parent"]</th>
+                                        <th>@Localizer["Financial.StructuredCommunication"]</th>
+                                        <th>@Localizer["Financial.RemainingAmount"]</th>
+                                        <th>@Localizer["Common.Actions"]</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var booking in Model.UnpaidBookings)
+                                    {
+                                        <tr data-booking-id="@booking.Id">
+                                            <td>
+                                                <small><strong>@booking.ActivityName</strong></small><br />
+                                                <small class="text-muted">@booking.ActivityStartDate.ToString("dd/MM/yyyy")</small>
+                                            </td>
+                                            <td><small>@booking.ChildName</small></td>
+                                            <td><small>@booking.ParentName</small></td>
+                                            <td>
+                                                @if (!string.IsNullOrEmpty(booking.StructuredCommunication))
+                                                {
+                                                    <code class="text-primary">@booking.StructuredCommunication</code>
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-muted">-</span>
+                                                }
+                                            </td>
+                                            <td>
+                                                <strong class="text-danger">@booking.RemainingAmount.ToString("C")</strong><br />
+                                                <small class="text-muted">(@booking.PaidAmount.ToString("C") / @booking.TotalAmount.ToString("C"))</small>
+                                            </td>
+                                            <td>
+                                                <button type="button" class="btn btn-sm btn-success reconcile-btn"
+                                                        data-booking-id="@booking.Id"
+                                                        data-communication="@booking.StructuredCommunication"
+                                                        disabled>
+                                                    <i class="fas fa-link"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Formulaire caché pour le rapprochement manuel -->
+<form id="reconcileForm" asp-action="ManualReconcile" method="post" style="display:none;">
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="TransactionId" id="selectedTransactionId" />
+    <input type="hidden" name="BookingId" id="selectedBookingId" />
+</form>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            var selectedTransactionId = null;
+
+            // Sélectionner une transaction
+            $('.select-transaction').click(function () {
+                // Désélectionner toutes les transactions
+                $('tr[data-transaction-id]').removeClass('table-primary');
+                $('.select-transaction').removeClass('btn-primary').addClass('btn-outline-primary');
+                $('.reconcile-btn').prop('disabled', true);
+
+                // Sélectionner cette transaction
+                selectedTransactionId = $(this).data('transaction-id');
+                $(this).closest('tr').addClass('table-primary');
+                $(this).removeClass('btn-outline-primary').addClass('btn-primary');
+
+                var communication = $(this).data('communication');
+
+                // Si une communication structurée existe, chercher automatiquement le booking correspondant
+                if (communication) {
+                    var matchingBooking = $('tr[data-booking-id] code:contains("' + communication + '")').closest('tr');
+                    if (matchingBooking.length > 0) {
+                        matchingBooking.addClass('table-warning');
+                        matchingBooking.find('.reconcile-btn').prop('disabled', false).removeClass('btn-success').addClass('btn-warning');
+                    }
+                }
+
+                // Activer tous les boutons de rapprochement
+                $('.reconcile-btn').prop('disabled', false);
+            });
+
+            // Rapprocher avec un booking
+            $('.reconcile-btn').click(function () {
+                if (!selectedTransactionId) {
+                    alert('@Localizer["Financial.PleaseSelectTransaction"]');
+                    return;
+                }
+
+                var bookingId = $(this).data('booking-id');
+
+                if (confirm('@Localizer["Financial.ConfirmReconciliation"]')) {
+                    $('#selectedTransactionId').val(selectedTransactionId);
+                    $('#selectedBookingId').val(bookingId);
+                    $('#reconcileForm').submit();
+                }
+            });
+        });
+    </script>
+}
