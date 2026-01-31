@@ -916,9 +916,6 @@
   <data name="Bookings.NoDaysReserved" xml:space="preserve">
     <value>[EN] Aucun jour n'a été réservé pour cette inscription.</value>
   </data>
-  <data name="Present" xml:space="preserve">
-    <value>[EN] Présent</value>
-  </data>
   <data name="NotMarked" xml:space="preserve">
     <value>[EN] Non marqué</value>
   </data>
@@ -1927,9 +1924,6 @@
   <data name="PublicRegistration.ActivityQuestionsLead" xml:space="preserve">
     <value>[EN] Veuillez répondre aux questions suivantes concernant l'activité.</value>
   </data>
-  <data name="SelectOrganisation" xml:space="preserve">
-    <value>[EN] -- Sélectionnez une organisation --</value>
-  </data>
   <data name="SelectOrganisationOptional" xml:space="preserve">
     <value>[EN] -- Sélectionnez une organisation (optionnel) --</value>
   </data>
@@ -2710,9 +2704,6 @@
   <data name="Button.Print" xml:space="preserve">
     <value>[EN] Imprimer</value>
   </data>
-  <data name="Financial.Transactions" xml:space="preserve">
-    <value>[EN] Transactions</value>
-  </data>
   <data name="Financial.TotalIncome" xml:space="preserve">
     <value>[EN] Total des entrées</value>
   </data>
@@ -2730,9 +2721,6 @@
   </data>
   <data name="Financial.TransactionsList" xml:space="preserve">
     <value>[EN] Liste des transactions</value>
-  </data>
-  <data name="Financial.NoTransactions" xml:space="preserve">
-    <value>[EN] Aucune transaction trouvée</value>
   </data>
   <data name="Financial.Income" xml:space="preserve">
     <value>[EN] Entrée</value>
@@ -2760,12 +2748,6 @@
   </data>
   <data name="Payments.BookingsWithOutstandingPayments" xml:space="preserve">
     <value>[EN] Réservations avec paiements en attente</value>
-  </data>
-  <data name="Payments.PaidAmount" xml:space="preserve">
-    <value>[EN] Montant payé</value>
-  </data>
-  <data name="Payments.RemainingAmount" xml:space="preserve">
-    <value>[EN] Montant restant</value>
   </data>
   <data name="Payments.CreatePayment" xml:space="preserve">
     <value>[EN] Créer un paiement</value>

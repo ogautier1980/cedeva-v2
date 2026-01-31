@@ -29,7 +29,7 @@
         </div>
     </div>
 
-    @if (!bookings.Any())
+    @if (bookings == null || !bookings.Any())
     {
         <div class="alert alert-info">
             <i class="fas fa-info-circle me-2"></i>@Localizer["Payments.AllBookingsPaid"]

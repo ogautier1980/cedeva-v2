@@ -390,7 +390,7 @@ public class UsersController : Controller
             query = query.Where(u =>
                 u.FirstName.Contains(searchString, StringComparison.OrdinalIgnoreCase) ||
                 u.LastName.Contains(searchString, StringComparison.OrdinalIgnoreCase) ||
-                u.Email.Contains(searchString, StringComparison.OrdinalIgnoreCase));
+                (u.Email != null && u.Email.Contains(searchString, StringComparison.OrdinalIgnoreCase)));
         }
 
         if (organisationId.HasValue)
@@ -433,7 +433,7 @@ public class UsersController : Controller
             query = query.Where(u =>
                 u.FirstName.Contains(searchString, StringComparison.OrdinalIgnoreCase) ||
                 u.LastName.Contains(searchString, StringComparison.OrdinalIgnoreCase) ||
-                u.Email.Contains(searchString, StringComparison.OrdinalIgnoreCase));
+                (u.Email != null && u.Email.Contains(searchString, StringComparison.OrdinalIgnoreCase)));
         }
 
         if (organisationId.HasValue)

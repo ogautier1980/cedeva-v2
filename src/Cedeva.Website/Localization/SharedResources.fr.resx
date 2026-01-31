@@ -1561,9 +1561,6 @@
   <data name="Button.Print" xml:space="preserve">
     <value>Imprimer</value>
   </data>
-  <data name="Financial.Transactions" xml:space="preserve">
-    <value>Transactions</value>
-  </data>
   <data name="Financial.TotalIncome" xml:space="preserve">
     <value>Total des entrées</value>
   </data>
@@ -1581,9 +1578,6 @@
   </data>
   <data name="Financial.TransactionsList" xml:space="preserve">
     <value>Liste des transactions</value>
-  </data>
-  <data name="Financial.NoTransactions" xml:space="preserve">
-    <value>Aucune transaction trouvée</value>
   </data>
   <data name="Financial.Income" xml:space="preserve">
     <value>Entrée</value>
@@ -1651,9 +1645,6 @@
   <data name="Payments.BookingInformation" xml:space="preserve">
     <value>Informations de réservation</value>
   </data>
-  <data name="Payments.RemainingAmount" xml:space="preserve">
-    <value>Montant restant</value>
-  </data>
   <data name="Payments.ReferenceHelp" xml:space="preserve">
     <value>Numéro de reçu, note, etc.</value>
   </data>
@@ -1665,9 +1656,6 @@
   </data>
   <data name="Payments.AlreadyPaid" xml:space="preserve">
     <value>Déjà payé</value>
-  </data>
-  <data name="Payments.PaidAmount" xml:space="preserve">
-    <value>Montant payé</value>
   </data>
   <data name="Payments.ManualPaymentWarning" xml:space="preserve">
     <value>Assurez-vous que le paiement a bien été reçu avant de l'enregistrer.</value>
@@ -2248,9 +2236,6 @@
   <data name="Bookings.NoDaysReserved" xml:space="preserve">
     <value>Aucun jour n'a été réservé pour cette inscription.</value>
   </data>
-  <data name="Present" xml:space="preserve">
-    <value>Présent</value>
-  </data>
   <data name="NotMarked" xml:space="preserve">
     <value>Non marqué</value>
   </data>
@@ -2496,9 +2481,6 @@
   </data>
   <data name="NoGroupOptional" xml:space="preserve">
     <value>-- Aucun groupe (optionnel) --</value>
-  </data>
-  <data name="SelectOrganisation" xml:space="preserve">
-    <value>-- Sélectionnez une organisation --</value>
   </data>
   <data name="Bookings.DeleteWarning" xml:space="preserve">
     <value>Attention ! Êtes-vous sûr de vouloir supprimer cette inscription ?</value>
