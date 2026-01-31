@@ -142,20 +142,37 @@ public class FinancialController : Controller
     }
 
     // GET: Financial/Reconciliation
-    public async Task<IActionResult> Reconciliation()
+    public async Task<IActionResult> Reconciliation(int? organisationId = null)
     {
-        var organisationId = _currentUserService.OrganisationId;
-        if (!organisationId.HasValue)
+        // Pour les coordinateurs : utiliser leur organisation
+        // Pour les admins : utiliser l'organisation passée en paramètre ou la première disponible
+        var orgId = _currentUserService.OrganisationId ?? organisationId;
+
+        if (!orgId.HasValue)
         {
-            return Unauthorized();
+            // Si l'admin n'a pas spécifié d'organisation, utiliser la première disponible
+            var firstOrg = await _context.Organisations.FirstOrDefaultAsync();
+            if (firstOrg == null)
+            {
+                TempData[TempDataError] = _localizer["Error.NoOrganisationAvailable"].Value;
+                return RedirectToAction("Index", "Home");
+            }
+            orgId = firstOrg.Id;
         }
 
         var viewModel = new ReconciliationViewModel
         {
-            UnreconciledTransactions = await _reconciliationService.GetUnreconciledTransactionsAsync(organisationId.Value),
-            UnpaidBookings = await _reconciliationService.GetUnpaidBookingsAsync(organisationId.Value),
-            Suggestions = await _reconciliationService.GetReconciliationSuggestionsAsync(organisationId.Value)
+            UnreconciledTransactions = await _reconciliationService.GetUnreconciledTransactionsAsync(orgId.Value),
+            UnpaidBookings = await _reconciliationService.GetUnpaidBookingsAsync(orgId.Value),
+            Suggestions = await _reconciliationService.GetReconciliationSuggestionsAsync(orgId.Value)
         };
+
+        // Pour les admins, ajouter la liste des organisations pour pouvoir changer
+        if (_currentUserService.IsAdmin)
+        {
+            ViewBag.Organisations = await _context.Organisations.ToListAsync();
+            ViewBag.CurrentOrganisationId = orgId.Value;
+        }
 
         return View(viewModel);
     }

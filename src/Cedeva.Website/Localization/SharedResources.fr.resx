@@ -1411,6 +1411,9 @@
   <data name="Error.CannotCancelBankPayment" xml:space="preserve">
     <value>Impossible d'annuler un paiement lié à une transaction bancaire</value>
   </data>
+  <data name="Error.NoOrganisationAvailable" xml:space="preserve">
+    <value>Aucune organisation disponible</value>
+  </data>
   <data name="Bookings.ViewBooking" xml:space="preserve">
     <value>Voir la réservation</value>
   </data>
