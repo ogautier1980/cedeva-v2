@@ -26,6 +26,8 @@ public class ActivityManagementController : Controller
     private readonly ILogger<ActivityManagementController> _logger;
     private readonly IEmailService _emailService;
     private readonly IEmailRecipientService _emailRecipientService;
+    private readonly IEmailVariableReplacementService _variableReplacementService;
+    private readonly IEmailTemplateService _templateService;
     private readonly IStringLocalizer<SharedResources> _localizer;
 
     public ActivityManagementController(
@@ -33,12 +35,16 @@ public class ActivityManagementController : Controller
         ILogger<ActivityManagementController> logger,
         IEmailService emailService,
         IEmailRecipientService emailRecipientService,
+        IEmailVariableReplacementService variableReplacementService,
+        IEmailTemplateService templateService,
         IStringLocalizer<SharedResources> localizer)
     {
         _context = context;
         _logger = logger;
         _emailService = emailService;
         _emailRecipientService = emailRecipientService;
+        _variableReplacementService = variableReplacementService;
+        _templateService = templateService;
         _localizer = localizer;
     }
 
@@ -414,6 +420,7 @@ public class ActivityManagementController : Controller
 
         var activity = await _context.Activities
             .Include(a => a.Groups)
+            .Include(a => a.Days)
             .FirstOrDefaultAsync(a => a.Id == id);
 
         if (activity == null)
@@ -422,11 +429,14 @@ public class ActivityManagementController : Controller
         // Store the activity ID in session and cookie for future visits
         SetSelectedActivityId(id.Value);
 
+        ViewBag.Templates = await _templateService.GetAllTemplatesAsync(activity.OrganisationId);
+
         var viewModel = new SendEmailViewModel
         {
             ActivityId = activity.Id,
             ActivityName = activity.Name,
-            RecipientOptions = GetRecipientOptions(activity.Groups)
+            RecipientOptions = GetRecipientOptions(activity.Groups),
+            DayOptions = GetDayOptions(activity.Days)
         };
 
         return View(viewModel);
@@ -438,42 +448,150 @@ public class ActivityManagementController : Controller
     {
         if (!ModelState.IsValid)
         {
-            await RepopulateRecipientOptionsAsync(model, ct);
+            await RepopulateViewModelAsync(model, ct);
             return View(model);
         }
 
         var recipientGroupId = ExtractRecipientGroupId(model.SelectedRecipient);
-        var recipientEmails = await _emailRecipientService.GetRecipientEmailsAsync(
-            model.ActivityId,
-            model.SelectedRecipient,
-            recipientGroupId,
-            ct);
-
-        if (!recipientEmails.Any())
-        {
-            ModelState.AddModelError(string.Empty, _localizer["Message.NoRecipientsFound"]);
-            await RepopulateRecipientOptionsAsync(model, ct);
-            return View(model);
-        }
-
         var (attachmentFileName, attachmentFilePath) = await SaveAttachmentAsync(model.AttachmentFile, ct);
-        var htmlContent = $"<p>{model.Message.Replace("\n", "<br/>")}</p>";
 
         try
         {
-            await _emailService.SendEmailAsync(recipientEmails, model.Subject, htmlContent, attachmentFilePath);
-            await LogSentEmailAsync(model, recipientGroupId, recipientEmails, attachmentFileName, attachmentFilePath, ct);
+            var organisationId = await _context.Activities
+                .Where(a => a.Id == model.ActivityId)
+                .Select(a => a.OrganisationId)
+                .FirstOrDefaultAsync(ct);
+            var organisation = await _context.Organisations.FirstOrDefaultAsync(o => o.Id == organisationId, ct);
 
-            TempData[TempDataSuccessMessage] = string.Format(_localizer["Message.EmailSent"].Value, recipientEmails.Count);
+            int emailsSentCount;
+
+            if (model.SendSeparateEmailPerChild)
+            {
+                // 1 email per child: replace variables per booking
+                emailsSentCount = await SendPerChildAsync(model, recipientGroupId, organisation!, attachmentFilePath, ct);
+            }
+            else
+            {
+                // 1 email per parent: send same message to unique parent emails
+                emailsSentCount = await SendPerParentAsync(model, recipientGroupId, attachmentFilePath, ct);
+            }
+
+            if (emailsSentCount == 0)
+            {
+                ModelState.AddModelError(string.Empty, _localizer["Message.NoRecipientsFound"]);
+                await RepopulateViewModelAsync(model, ct);
+                return View(model);
+            }
+
+            // Log the sent email
+            var allEmails = await _emailRecipientService.GetRecipientEmailsAsync(
+                model.ActivityId, model.SelectedRecipient, recipientGroupId, model.SelectedDayId, ct);
+            await LogSentEmailAsync(model, recipientGroupId, allEmails, attachmentFileName, attachmentFilePath, ct);
+
+            TempData[TempDataSuccessMessage] = string.Format(_localizer["Message.EmailSent"].Value, emailsSentCount);
             return RedirectToAction(nameof(SendEmail));
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error sending email for activity {ActivityId}", model.ActivityId);
             ModelState.AddModelError(string.Empty, _localizer["Message.EmailSendError"]);
-            await RepopulateRecipientOptionsAsync(model, ct);
+            await RepopulateViewModelAsync(model, ct);
             return View(model);
         }
+    }
+
+    /// <summary>
+    /// Sends one personalized email per child booking, replacing variables with booking-specific data
+    /// </summary>
+    private async Task<int> SendPerChildAsync(
+        SendEmailViewModel model,
+        int? recipientGroupId,
+        Organisation organisation,
+        string? attachmentFilePath,
+        CancellationToken ct)
+    {
+        var bookings = await GetFilteredBookingsAsync(model.ActivityId, model.SelectedRecipient, recipientGroupId, model.SelectedDayId, ct);
+
+        int count = 0;
+        foreach (var booking in bookings)
+        {
+            var personalizedSubject = _variableReplacementService.ReplaceVariables(model.Subject, booking, organisation);
+            var personalizedMessage = _variableReplacementService.ReplaceVariables(model.Message, booking, organisation);
+
+            await _emailService.SendEmailAsync(
+                new List<string> { booking.Child.Parent.Email },
+                personalizedSubject,
+                personalizedMessage,
+                attachmentFilePath);
+            count++;
+        }
+
+        return count;
+    }
+
+    /// <summary>
+    /// Sends one email per unique parent (no variable replacement, or uses first child's data)
+    /// </summary>
+    private async Task<int> SendPerParentAsync(
+        SendEmailViewModel model,
+        int? recipientGroupId,
+        string? attachmentFilePath,
+        CancellationToken ct)
+    {
+        var recipientEmails = await _emailRecipientService.GetRecipientEmailsAsync(
+            model.ActivityId, model.SelectedRecipient, recipientGroupId, model.SelectedDayId, ct);
+
+        if (!recipientEmails.Any())
+            return 0;
+
+        // Send same message to all unique parent emails (HTML content used as-is from TinyMCE)
+        foreach (var email in recipientEmails)
+        {
+            await _emailService.SendEmailAsync(
+                new List<string> { email },
+                model.Subject,
+                model.Message,
+                attachmentFilePath);
+        }
+
+        return recipientEmails.Count;
+    }
+
+    /// <summary>
+    /// Gets bookings matching the filters, with navigation properties loaded for variable replacement
+    /// </summary>
+    private async Task<List<Booking>> GetFilteredBookingsAsync(
+        int activityId,
+        string selectedRecipient,
+        int? recipientGroupId,
+        int? scheduledDayId,
+        CancellationToken ct)
+    {
+        var query = _context.Bookings
+            .Include(b => b.Child)
+                .ThenInclude(c => c.Parent)
+            .Include(b => b.Activity)
+            .Include(b => b.Group)
+            .Include(b => b.Days)
+            .Where(b => b.ActivityId == activityId && b.IsConfirmed);
+
+        // Apply day filter
+        if (scheduledDayId.HasValue)
+        {
+            query = query.Where(b => b.Days.Any(bd => bd.ActivityDayId == scheduledDayId.Value && bd.IsReserved));
+        }
+
+        // Apply recipient type filter
+        if (selectedRecipient == RecipientMedicalSheetReminder)
+        {
+            query = query.Where(b => !b.IsMedicalSheet);
+        }
+        else if (selectedRecipient.StartsWith(RecipientGroupPrefix) && recipientGroupId.HasValue)
+        {
+            query = query.Where(b => b.GroupId == recipientGroupId);
+        }
+
+        return await query.ToListAsync(ct);
     }
 
     [HttpPost]
@@ -724,16 +842,31 @@ public class ActivityManagementController : Controller
         return options;
     }
 
-    private async Task RepopulateRecipientOptionsAsync(SendEmailViewModel model, CancellationToken ct)
+    private async Task RepopulateViewModelAsync(SendEmailViewModel model, CancellationToken ct)
     {
         var activity = await _context.Activities
             .Include(a => a.Groups)
+            .Include(a => a.Days)
             .FirstOrDefaultAsync(a => a.Id == model.ActivityId, ct);
 
         if (activity != null)
         {
             model.RecipientOptions = GetRecipientOptions(activity.Groups);
+            model.DayOptions = GetDayOptions(activity.Days);
         }
+    }
+
+    private static List<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem> GetDayOptions(IEnumerable<ActivityDay> days)
+    {
+        return days
+            .Where(d => d.IsActive)
+            .OrderBy(d => d.DayDate)
+            .Select(d => new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem
+            {
+                Value = d.DayId.ToString(),
+                Text = $"{d.Label} - {d.DayDate:dd/MM/yyyy}"
+            })
+            .ToList();
     }
 
     private static int? ExtractRecipientGroupId(string selectedRecipient)
@@ -792,9 +925,11 @@ public class ActivityManagementController : Controller
             ActivityId = model.ActivityId,
             RecipientType = recipientType,
             RecipientGroupId = recipientGroupId,
+            ScheduledDayId = model.SelectedDayId,
             RecipientEmails = string.Join("; ", recipientEmails),
             Subject = model.Subject,
             Message = model.Message,
+            SendSeparateEmailPerChild = model.SendSeparateEmailPerChild,
             AttachmentFileName = attachmentFileName,
             AttachmentFilePath = attachmentFilePath,
             SentDate = DateTime.Now

@@ -1,7 +1,10 @@
 @model Cedeva.Website.Features.ActivityManagement.ViewModels.SendEmailViewModel
+@inject Cedeva.Core.Interfaces.IEmailVariableReplacementService VariableService
 
 @{
     ViewData["Title"] = Localizer["Email.SendTargeted"] + " - " + Model.ActivityName;
+    var availableVariables = VariableService.GetAvailableVariables();
+    bool hasTemplates = ViewBag.Templates != null && ((dynamic)ViewBag.Templates).Count > 0;
 }
 
 <div class="container-fluid py-4">
@@ -32,14 +35,15 @@
     }
 
     <div class="row">
-        <div class="col-md-8 col-lg-6">
+        <div class="col-lg-7">
             <div class="card">
                 <div class="card-body">
-                    <form asp-action="SendEmail" method="post" enctype="multipart/form-data">
+                    <form asp-action="SendEmail" method="post" enctype="multipart/form-data" id="sendEmailForm">
                         <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
                         <input type="hidden" asp-for="ActivityId" />
                         <input type="hidden" asp-for="ActivityName" />
 
+                        <!-- Recipient filter -->
                         <div class="mb-3">
                             <label for="SelectedRecipient" class="form-label">@Localizer["Email.Recipient"]</label>
                             <select asp-for="SelectedRecipient" asp-items="Model.RecipientOptions" class="form-select" id="SelectedRecipient">
@@ -48,19 +52,64 @@
                             <span asp-validation-for="SelectedRecipient" class="text-danger"></span>
                         </div>
 
+                        <!-- Day filter -->
+                        <div class="mb-3">
+                            <label for="SelectedDayId" class="form-label">@Localizer["Email.ScheduledForDay"]</label>
+                            <select asp-for="SelectedDayId" asp-items="Model.DayOptions" class="form-select" id="SelectedDayId">
+                                <option value="">@Localizer["Email.AllDays"]</option>
+                            </select>
+                            <div class="form-text">@Localizer["Email.DayFilterHelp"]</div>
+                        </div>
+
+                        <!-- Template selector -->
+                        @if (hasTemplates)
+                        {
+                            <div class="mb-3">
+                                <label for="templateSelect" class="form-label">@Localizer["Email.UseTemplate"]</label>
+                                <div class="input-group">
+                                    <select class="form-select" id="templateSelect">
+                                        <option value="">@Localizer["Email.NoTemplate"]</option>
+                                        @foreach (dynamic tmpl in ViewBag.Templates)
+                                        {
+                                            <option value="@tmpl.Id">
+                                                @tmpl.Name
+                                                @if (tmpl.IsDefault) { <span>(default)</span> }
+                                                - @Localizer[$"EmailTemplateType.{tmpl.TemplateType}"]
+                                            </option>
+                                        }
+                                    </select>
+                                    <button type="button" class="btn btn-outline-primary" id="loadTemplateBtn">
+                                        <i class="fas fa-download me-1"></i>@Localizer["Email.LoadTemplate"]
+                                    </button>
+                                </div>
+                            </div>
+                        }
+
+                        <!-- Subject -->
                         <div class="mb-3">
                             <label for="Subject" class="form-label">@Localizer["Email.Subject"]</label>
                             <input asp-for="Subject" class="form-control" placeholder="@Localizer["Email.SubjectPlaceholder"]" id="Subject" />
                             <span asp-validation-for="Subject" class="text-danger"></span>
                         </div>
 
+                        <!-- Message (TinyMCE) -->
                         <div class="mb-3">
                             <label for="Message" class="form-label">@Localizer["Email.Message"]</label>
-                            <textarea asp-for="Message" class="form-control" rows="8" placeholder="@Localizer["Email.MessagePlaceholder"]" id="Message"></textarea>
+                            <textarea asp-for="Message" class="form-control tinymce-editor" rows="10" id="Message"></textarea>
                             <span asp-validation-for="Message" class="text-danger"></span>
-                            <div class="form-text">@Localizer["Email.MessageNote"]</div>
                         </div>
 
+                        <!-- Send per child checkbox -->
+                        <div class="mb-3 form-check">
+                            <input asp-for="SendSeparateEmailPerChild" class="form-check-input" id="SendSeparateEmailPerChild" />
+                            <label asp-for="SendSeparateEmailPerChild" class="form-check-label"></label>
+                            <div class="form-text">
+                                <span id="perChildInfo" class="text-muted">@Localizer["Email.PerChildInfo"]</span>
+                                <span id="perParentInfo" class="text-muted d-none">@Localizer["Email.PerParentInfo"]</span>
+                            </div>
+                        </div>
+
+                        <!-- Attachment -->
                         <div class="mb-3">
                             <label for="AttachmentFile" class="form-label">@Localizer["Email.Attachment"]</label>
                             <input asp-for="AttachmentFile" type="file" class="form-control" id="AttachmentFile" />
@@ -68,6 +117,7 @@
                             <div class="form-text">@Localizer["Email.AttachmentFormats"]</div>
                         </div>
 
+                        <!-- Action buttons -->
                         <div class="d-flex gap-2">
                             <button type="submit" class="btn btn-primary">
                                 <i class="fas fa-paper-plane"></i> @Localizer["Send"]
@@ -84,8 +134,38 @@
             </div>
         </div>
 
-        <div class="col-md-4 col-lg-6">
-            <div class="card bg-light">
+        <!-- Right column: Variable legend -->
+        <div class="col-lg-5">
+            <div class="card border-success">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-code me-2"></i>@Localizer["Email.MergeFields"]
+                    </h5>
+                </div>
+                <div class="card-body" style="max-height: 500px; overflow-y: auto;">
+                    <p class="small text-muted">@Localizer["Email.MergeFieldsHelp"]</p>
+                    <table class="table table-sm table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="small">@Localizer["EmailTemplate.Variable"]</th>
+                                <th class="small">@Localizer["EmailTemplate.Description"]</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var variable in availableVariables)
+                            {
+                                <tr class="variable-row" style="cursor: pointer;" data-variable="@variable.Key">
+                                    <td><code class="text-success">@variable.Key</code></td>
+                                    <td><small>@variable.Value</small></td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Info card -->
+            <div class="card bg-light mt-3">
                 <div class="card-header bg-primary text-white">
                     <i class="fas fa-info-circle"></i> @Localizer["Information"]
                 </div>
@@ -112,4 +192,90 @@
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+    <!-- TinyMCE CDN -->
+    <script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
+
+    <script>
+        // Initialize TinyMCE
+        tinymce.init({
+            selector: '#Message',
+            height: 350,
+            menubar: false,
+            plugins: [
+                'advlist', 'autolink', 'lists', 'link', 'charmap',
+                'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
+                'table', 'help', 'wordcount'
+            ],
+            toolbar: 'undo redo | blocks | bold italic underline forecolor | alignleft aligncenter alignright | bullist numlist | link | code | removeformat',
+            protect: [
+                /%\w+%/g  // Protect variables from being modified by formatting
+            ],
+            branding: false,
+            content_style: 'body { font-family: Arial, sans-serif; font-size: 14px; }'
+        });
+
+        // Click on variable row => insert into TinyMCE or Subject field
+        document.querySelectorAll('.variable-row').forEach(row => {
+            row.addEventListener('click', function () {
+                const variable = this.dataset.variable;
+
+                // Insert into active element (Subject field or TinyMCE)
+                const subjectInput = document.getElementById('Subject');
+                if (document.activeElement === subjectInput) {
+                    // Insert at cursor position in Subject
+                    const start = subjectInput.selectionStart;
+                    const end = subjectInput.selectionEnd;
+                    subjectInput.value = subjectInput.value.substring(0, start) + variable + subjectInput.value.substring(end);
+                    subjectInput.setSelectionRange(start + variable.length, start + variable.length);
+                    subjectInput.focus();
+                } else {
+                    // Default: insert into TinyMCE editor
+                    if (tinymce.activeEditor) {
+                        tinymce.activeEditor.insertContent(variable);
+                    }
+                }
+            });
+        });
+
+        // Load template via AJAX
+        document.getElementById('loadTemplateBtn')?.addEventListener('click', function () {
+            const templateSelect = document.getElementById('templateSelect');
+            const templateId = templateSelect?.value;
+
+            if (!templateId) {
+                alert('@Localizer["Email.SelectTemplateFirst"]');
+                return;
+            }
+
+            fetch('/EmailTemplates/GetTemplate/' + templateId)
+                .then(response => {
+                    if (!response.ok) throw new Error('Template not found');
+                    return response.json();
+                })
+                .then(data => {
+                    // Fill Subject
+                    document.getElementById('Subject').value = data.subject;
+
+                    // Fill TinyMCE editor
+                    if (tinymce.activeEditor) {
+                        tinymce.activeEditor.setContent(data.htmlContent);
+                    }
+                })
+                .catch(err => {
+                    alert('@Localizer["Email.TemplateLoadError"]');
+                });
+        });
+
+        // Toggle per-child / per-parent info text
+        document.getElementById('SendSeparateEmailPerChild').addEventListener('change', function () {
+            document.getElementById('perChildInfo').classList.toggle('d-none', !this.checked);
+            document.getElementById('perParentInfo').classList.toggle('d-none', this.checked);
+        });
+
+        // Ensure TinyMCE saves content before form submit
+        document.getElementById('sendEmailForm').addEventListener('submit', function () {
+            tinymce.triggerSave();
+        });
+    </script>
 }

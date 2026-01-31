@@ -22,43 +22,42 @@ public class EmailRecipientService : IEmailRecipientService
         int activityId,
         string selectedRecipient,
         int? recipientGroupId = null,
+        int? scheduledDayId = null,
         CancellationToken cancellationToken = default)
     {
-        var emails = new List<string>();
+        List<string> emails;
 
         try
         {
-            if (selectedRecipient == "allparents")
+            // Base query: confirmed bookings for this activity
+            var query = _context.Bookings
+                .Where(b => b.ActivityId == activityId && b.IsConfirmed);
+
+            // Apply day filter if specified
+            if (scheduledDayId.HasValue)
             {
-                // All parents with children registered to this activity
-                emails = await _context.Bookings
-                    .Where(b => b.ActivityId == activityId && b.IsConfirmed)
-                    .Select(b => b.Child.Parent.Email)
-                    .Distinct()
-                    .ToListAsync(cancellationToken);
+                query = query.Where(b => b.Days.Any(bd =>
+                    bd.ActivityDayId == scheduledDayId.Value && bd.IsReserved));
             }
-            else if (selectedRecipient == "medicalsheetreminder")
+
+            // Apply recipient type filter
+            if (selectedRecipient == "medicalsheetreminder")
             {
-                // Parents of children without medical sheet
-                emails = await _context.Bookings
-                    .Where(b => b.ActivityId == activityId && b.IsConfirmed && !b.IsMedicalSheet)
-                    .Select(b => b.Child.Parent.Email)
-                    .Distinct()
-                    .ToListAsync(cancellationToken);
+                query = query.Where(b => !b.IsMedicalSheet);
             }
             else if (selectedRecipient.StartsWith("group_") && recipientGroupId.HasValue)
             {
-                // Parents of children in specific group
-                emails = await _context.Bookings
-                    .Where(b => b.ActivityId == activityId && b.IsConfirmed && b.GroupId == recipientGroupId)
-                    .Select(b => b.Child.Parent.Email)
-                    .Distinct()
-                    .ToListAsync(cancellationToken);
+                query = query.Where(b => b.GroupId == recipientGroupId);
             }
 
+            emails = await query
+                .Select(b => b.Child.Parent.Email)
+                .Distinct()
+                .ToListAsync(cancellationToken);
+
             _logger.LogInformation(
-                "Retrieved {Count} email addresses for activity {ActivityId} with criteria {Criteria}",
-                emails.Count, activityId, selectedRecipient);
+                "Retrieved {Count} email addresses for activity {ActivityId} with criteria {Criteria}, day filter: {DayId}",
+                emails.Count, activityId, selectedRecipient, scheduledDayId);
         }
         catch (Exception ex)
         {

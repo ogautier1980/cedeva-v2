@@ -1,0 +1,140 @@
+@model Cedeva.Website.Features.EmailTemplates.ViewModels.EmailTemplateViewModel
+@inject IStringLocalizer<SharedResources> Localizer
+@inject Cedeva.Core.Interfaces.IEmailVariableReplacementService VariableService
+
+@{
+    ViewData["Title"] = Localizer["EmailTemplate.CreateNew"];
+    var availableVariables = VariableService.GetAvailableVariables();
+}
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">@Localizer["EmailTemplate.CreateNew"]</h4>
+            </div>
+            <div class="card-body">
+                <form asp-action="Create" method="post">
+                    <div class="mb-3">
+                        <label asp-for="Name" class="form-label"></label>
+                        <input asp-for="Name" class="form-control" />
+                        <span asp-validation-for="Name" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="TemplateType" class="form-label"></label>
+                        <select asp-for="TemplateType" asp-items="Model.TemplateTypeOptions" class="form-select">
+                            <option value="">@Localizer["Common.SelectOption"]</option>
+                        </select>
+                        <span asp-validation-for="TemplateType" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Subject" class="form-label"></label>
+                        <input asp-for="Subject" class="form-control" />
+                        <span asp-validation-for="Subject" class="text-danger"></span>
+                        <small class="form-text text-muted">@Localizer["EmailTemplate.SubjectHelp"]</small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="HtmlContent" class="form-label"></label>
+                        <textarea asp-for="HtmlContent" class="form-control tinymce-editor" rows="15"></textarea>
+                        <span asp-validation-for="HtmlContent" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3 form-check">
+                        <input asp-for="IsDefault" class="form-check-input" />
+                        <label asp-for="IsDefault" class="form-check-label"></label>
+                        <small class="form-text text-muted d-block">@Localizer["EmailTemplate.IsDefaultHelp"]</small>
+                    </div>
+
+                    <div class="mb-3 form-check">
+                        <input asp-for="IsShared" class="form-check-input" />
+                        <label asp-for="IsShared" class="form-check-label"></label>
+                        <small class="form-text text-muted d-block">@Localizer["EmailTemplate.IsSharedHelp"]</small>
+                    </div>
+
+                    <div class="mt-4">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-1"></i>@Localizer["Button.Save"]
+                        </button>
+                        <a asp-action="Index" class="btn btn-secondary">
+                            <i class="fas fa-times me-1"></i>@Localizer["Button.Cancel"]
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Variable Legend Card -->
+    <div class="col-md-4">
+        <div class="card border-success">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-code me-2"></i>@Localizer["Email.MergeFields"]
+                </h5>
+            </div>
+            <div class="card-body" style="max-height: 600px; overflow-y: auto;">
+                <p class="small">@Localizer["Email.MergeFieldsHelp"]</p>
+                <table class="table table-sm">
+                    <thead>
+                        <tr>
+                            <th>@Localizer["EmailTemplate.Variable"]</th>
+                            <th>@Localizer["EmailTemplate.Description"]</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var variable in availableVariables)
+                        {
+                            <tr class="variable-row" style="cursor: pointer;" data-variable="@variable.Key">
+                                <td><code>@variable.Key</code></td>
+                                <td><small>@variable.Value</small></td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <!-- TinyMCE CDN -->
+    <script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
+
+    <script>
+        // Initialize TinyMCE
+        tinymce.init({
+            selector: '.tinymce-editor',
+            height: 400,
+            menubar: false,
+            plugins: [
+                'advlist', 'autolink', 'lists', 'link', 'charmap',
+                'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
+                'table', 'help', 'wordcount'
+            ],
+            toolbar: 'undo redo | blocks | bold italic forecolor | alignleft aligncenter alignright | bullist numlist | link | code | removeformat',
+            protect: [
+                /%\w+%/g  // Protect variables from formatting
+            ],
+            branding: false,
+            content_style: 'body { font-family: Arial, sans-serif; font-size: 14px; }'
+        });
+
+        // Click to insert variable
+        document.querySelectorAll('.variable-row').forEach(row => {
+            row.addEventListener('click', function() {
+                const variable = this.dataset.variable;
+                tinymce.activeEditor.insertContent(variable + ' ');
+            });
+        });
+
+        // Ensure TinyMCE content is saved before form submit
+        document.querySelector('form').addEventListener('submit', function() {
+            tinymce.triggerSave();
+        });
+    </script>
+}

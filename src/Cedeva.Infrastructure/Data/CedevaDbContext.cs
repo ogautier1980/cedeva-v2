@@ -34,6 +34,7 @@ public class CedevaDbContext : IdentityDbContext<CedevaUser>, IUnitOfWork
     public DbSet<TeamMember> TeamMembers => Set<TeamMember>();
     public DbSet<Expense> Expenses => Set<Expense>();
     public DbSet<EmailSent> EmailsSent => Set<EmailSent>();
+    public DbSet<EmailTemplate> EmailTemplates => Set<EmailTemplate>();
     public DbSet<Payment> Payments => Set<Payment>();
     public DbSet<CodaFile> CodaFiles => Set<CodaFile>();
     public DbSet<BankTransaction> BankTransactions => Set<BankTransaction>();
@@ -81,6 +82,12 @@ public class CedevaDbContext : IdentityDbContext<CedevaUser>, IUnitOfWork
             .HasQueryFilter(bt => _currentUserService == null ||
                                   _currentUserService.IsAdmin ||
                                   bt.OrganisationId == _currentUserService.OrganisationId);
+
+        // Filter email templates by organisation
+        builder.Entity<EmailTemplate>()
+            .HasQueryFilter(et => _currentUserService == null ||
+                                  _currentUserService.IsAdmin ||
+                                  et.OrganisationId == _currentUserService.OrganisationId);
     }
 
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)

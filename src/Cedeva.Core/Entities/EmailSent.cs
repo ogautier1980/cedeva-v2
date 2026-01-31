@@ -15,6 +15,12 @@ public class EmailSent
 
     public int? RecipientGroupId { get; set; }
 
+    /// <summary>
+    /// Optional day filter - when set, email was sent only to parents with bookings on this specific day
+    /// </summary>
+    public int? ScheduledDayId { get; set; }
+    public ActivityDay? ScheduledDay { get; set; }
+
     [Required]
     public string RecipientEmails { get; set; } = string.Empty;
 
@@ -22,9 +28,18 @@ public class EmailSent
     [StringLength(255)]
     public string Subject { get; set; } = string.Empty;
 
+    /// <summary>
+    /// Email template content (may contain variables like %prenom_enfant%)
+    /// Increased from 1024 to 5000 to accommodate HTML content
+    /// </summary>
     [Required]
-    [StringLength(1024)]
+    [StringLength(5000)]
     public string Message { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Whether a separate email was sent per child (true) or one email per parent (false)
+    /// </summary>
+    public bool SendSeparateEmailPerChild { get; set; } = true;
 
     [StringLength(255)]
     public string? AttachmentFileName { get; set; }

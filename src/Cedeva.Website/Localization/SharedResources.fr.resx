@@ -3130,4 +3130,140 @@
   <data name="Yes" xml:space="preserve">
     <value>Oui</value>
   </data>
+  <!-- EmailTemplate Module -->
+  <data name="EmailTemplate.Title" xml:space="preserve">
+    <value>Modèles d'email</value>
+  </data>
+  <data name="EmailTemplate.CreateNew" xml:space="preserve">
+    <value>Nouveau modèle</value>
+  </data>
+  <data name="EmailTemplate.Edit" xml:space="preserve">
+    <value>Modifier le modèle</value>
+  </data>
+  <data name="EmailTemplate.AllTypes" xml:space="preserve">
+    <value>Tous les types</value>
+  </data>
+  <data name="EmailTemplate.NoTemplates" xml:space="preserve">
+    <value>Aucun modèle d'email trouvé</value>
+  </data>
+  <data name="EmailTemplate.TemplateType" xml:space="preserve">
+    <value>Type de modèle</value>
+  </data>
+  <data name="EmailTemplate.HtmlContent" xml:space="preserve">
+    <value>Contenu HTML</value>
+  </data>
+  <data name="EmailTemplate.IsDefault" xml:space="preserve">
+    <value>Modèle par défaut</value>
+  </data>
+  <data name="EmailTemplate.IsShared" xml:space="preserve">
+    <value>Partagé</value>
+  </data>
+  <data name="EmailTemplate.Default" xml:space="preserve">
+    <value>Par défaut</value>
+  </data>
+  <data name="EmailTemplate.SetAsDefault" xml:space="preserve">
+    <value>Définir par défaut</value>
+  </data>
+  <data name="EmailTemplate.Duplicate" xml:space="preserve">
+    <value>Dupliquer</value>
+  </data>
+  <data name="EmailTemplate.ConfirmDelete" xml:space="preserve">
+    <value>Confirmer la suppression</value>
+  </data>
+  <data name="EmailTemplate.DeleteConfirmMessage" xml:space="preserve">
+    <value>Êtes-vous sûr de vouloir supprimer le modèle "{0}" ?</value>
+  </data>
+  <data name="EmailTemplate.SubjectHelp" xml:space="preserve">
+    <value>Vous pouvez utiliser des variables comme %prenom_enfant% dans le sujet</value>
+  </data>
+  <data name="EmailTemplate.IsDefaultHelp" xml:space="preserve">
+    <value>Si coché, ce modèle sera utilisé par défaut pour ce type d'email</value>
+  </data>
+  <data name="EmailTemplate.IsSharedHelp" xml:space="preserve">
+    <value>Si coché, ce modèle sera visible par tous les coordinateurs de l'organisation</value>
+  </data>
+  <data name="EmailTemplate.Variable" xml:space="preserve">
+    <value>Variable</value>
+  </data>
+  <data name="EmailTemplate.Description" xml:space="preserve">
+    <value>Description</value>
+  </data>
+  <data name="EmailTemplate.CreateSuccess" xml:space="preserve">
+    <value>Modèle créé avec succès</value>
+  </data>
+  <data name="EmailTemplate.UpdateSuccess" xml:space="preserve">
+    <value>Modèle mis à jour avec succès</value>
+  </data>
+  <data name="EmailTemplate.DeleteSuccess" xml:space="preserve">
+    <value>Modèle supprimé avec succès</value>
+  </data>
+  <data name="EmailTemplate.SetDefaultSuccess" xml:space="preserve">
+    <value>Modèle défini comme défaut avec succès</value>
+  </data>
+  <!-- EmailTemplateType Enum -->
+  <data name="EmailTemplateType.BookingConfirmation" xml:space="preserve">
+    <value>Confirmation de réservation</value>
+  </data>
+  <data name="EmailTemplateType.WelcomeEmail" xml:space="preserve">
+    <value>Email de bienvenue</value>
+  </data>
+  <data name="EmailTemplateType.MedicalSheetReminder" xml:space="preserve">
+    <value>Rappel fiche médicale</value>
+  </data>
+  <data name="EmailTemplateType.PaymentReminder" xml:space="preserve">
+    <value>Rappel paiement</value>
+  </data>
+  <data name="EmailTemplateType.ActivityCancellation" xml:space="preserve">
+    <value>Annulation jour/activité</value>
+  </data>
+  <data name="EmailTemplateType.Custom" xml:space="preserve">
+    <value>Personnalisé</value>
+  </data>
+  <!-- Email Variables -->
+  <data name="Email.ScheduledForDay" xml:space="preserve">
+    <value>Prévu le</value>
+  </data>
+  <data name="Email.AllDays" xml:space="preserve">
+    <value>Tous les jours</value>
+  </data>
+  <data name="Email.DayFilterHelp" xml:space="preserve">
+    <value>Filtrer les destinataires par jour spécifique (optionnel)</value>
+  </data>
+  <data name="Email.MergeFields" xml:space="preserve">
+    <value>Variables de personnalisation</value>
+  </data>
+  <data name="Email.MergeFieldsHelp" xml:space="preserve">
+    <value>Cliquez sur une variable pour l'insérer dans le message. Les variables seront remplacées par les données réelles lors de l'envoi.</value>
+  </data>
+  <data name="Email.SendSeparateEmailPerChild" xml:space="preserve">
+    <value>Envoyer un email séparé par enfant</value>
+  </data>
+  <data name="Email.UseTemplate" xml:space="preserve">
+    <value>Utiliser un modèle</value>
+  </data>
+  <data name="Email.NoTemplate" xml:space="preserve">
+    <value>Aucun modèle</value>
+  </data>
+  <data name="Email.LoadTemplate" xml:space="preserve">
+    <value>Charger le modèle</value>
+  </data>
+  <data name="Email.SaveAsTemplate" xml:space="preserve">
+    <value>Sauvegarder comme modèle</value>
+  </data>
+  <data name="Email.PerChildInfo" xml:space="preserve">
+    <value>Les variables (%prenom_enfant%, etc.) seront remplacées par les données de chaque enfant</value>
+  </data>
+  <data name="Email.PerParentInfo" xml:space="preserve">
+    <value>Un seul email envoyé par parent, les variables enfant ne seront pas remplacées</value>
+  </data>
+  <data name="Email.SelectTemplateFirst" xml:space="preserve">
+    <value>Veuillez sélectionner un modèle avant de charger</value>
+  </data>
+  <data name="Email.TemplateLoadError" xml:space="preserve">
+    <value>Erreur lors du chargement du modèle</value>
+  </data>
+  <!-- Common -->
+  <data name="Common.SelectOption" xml:space="preserve">
+    <value>-- Sélectionner --</value>
+  </data>
 </root>

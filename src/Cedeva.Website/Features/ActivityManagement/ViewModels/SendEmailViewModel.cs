@@ -12,18 +12,25 @@ public class SendEmailViewModel
     [Display(Name = "Field.Recipient")]
     public string SelectedRecipient { get; set; } = string.Empty;
 
+    [Display(Name = "Email.ScheduledForDay")]
+    public int? SelectedDayId { get; set; }
+
     [Required]
     [StringLength(255)]
     [Display(Name = "Field.Subject")]
     public string Subject { get; set; } = string.Empty;
 
     [Required]
-    [StringLength(1024)]
+    [StringLength(5000)]
     [Display(Name = "Field.Message")]
     public string Message { get; set; } = string.Empty;
+
+    [Display(Name = "Email.SendSeparateEmailPerChild")]
+    public bool SendSeparateEmailPerChild { get; set; } = true;
 
     [Display(Name = "Field.Attachment")]
     public IFormFile? AttachmentFile { get; set; }
 
     public List<SelectListItem> RecipientOptions { get; set; } = new();
+    public List<SelectListItem> DayOptions { get; set; } = new();
 }

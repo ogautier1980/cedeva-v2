@@ -4,6 +4,7 @@ using Cedeva.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Cedeva.Infrastructure.Migrations
 {
     [DbContext(typeof(CedevaDbContext))]
-    partial class CedevaDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260131165908_AddEmailTemplatesAndUpdateEmailSent")]
+    partial class AddEmailTemplatesAndUpdateEmailSent
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
