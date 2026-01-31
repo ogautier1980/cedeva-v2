@@ -19,8 +19,20 @@ public class Organisation
 
     public string? LogoUrl { get; set; }
 
+    /// <summary>
+    /// Numéro de compte bancaire (IBAN) pour les paiements
+    /// </summary>
+    public string? BankAccountNumber { get; set; }
+
+    /// <summary>
+    /// Nom du titulaire du compte bancaire
+    /// </summary>
+    public string? BankAccountName { get; set; }
+
     public ICollection<Activity> Activities { get; set; } = new List<Activity>();
     public ICollection<Parent> Parents { get; set; } = new List<Parent>();
     public ICollection<TeamMember> TeamMembers { get; set; } = new List<TeamMember>();
     public ICollection<CedevaUser> Users { get; set; } = new List<CedevaUser>();
+    public ICollection<CodaFile> CodaFiles { get; set; } = new List<CodaFile>();
+    public ICollection<BankTransaction> BankTransactions { get; set; } = new List<BankTransaction>();
 }

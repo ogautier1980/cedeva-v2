@@ -87,6 +87,7 @@ public class BrevoEmailService : IEmailService
         DateTime startDate,
         DateTime endDate)
     {
+        // Version de compatibilité sans informations de paiement
         var subject = $"Confirmation d'inscription - {activityName}";
 
         var htmlContent = $@"
@@ -113,6 +114,67 @@ public class BrevoEmailService : IEmailService
                                 <h3>{activityName}</h3>
                                 <p><strong>Date de début :</strong> {startDate:dd/MM/yyyy}</p>
                                 <p><strong>Date de fin :</strong> {endDate:dd/MM/yyyy}</p>
+                            </div>
+                            <p>Nous sommes impatients d'accueillir votre enfant pour cette activité !</p>
+                            <p>Si vous avez des questions, n'hésitez pas à nous contacter.</p>
+                            <p>Cordialement,<br>L'équipe Cedeva</p>
+                        </div>
+                        <div class='footer'>
+                            <p>Cet email a été envoyé automatiquement par Cedeva.</p>
+                        </div>
+                    </div>
+                </body>
+            </html>";
+
+        await SendEmailAsync(parentEmail, subject, htmlContent);
+    }
+
+    public async Task SendBookingConfirmationEmailAsync(
+        string parentEmail,
+        string parentName,
+        string childName,
+        string activityName,
+        DateTime startDate,
+        DateTime endDate,
+        decimal totalAmount,
+        string structuredCommunication,
+        string bankAccount)
+    {
+        var subject = $"Confirmation d'inscription - {activityName}";
+
+        var htmlContent = $@"
+            <html>
+                <head>
+                    <style>
+                        body {{ font-family: Arial, sans-serif; line-height: 1.6; color: #333; }}
+                        .container {{ max-width: 600px; margin: 0 auto; padding: 20px; }}
+                        .header {{ background-color: #4CAF50; color: white; padding: 20px; text-align: center; }}
+                        .content {{ padding: 20px; background-color: #f9f9f9; }}
+                        .details {{ background-color: white; padding: 15px; margin: 15px 0; border-left: 4px solid #4CAF50; }}
+                        .payment-info {{ background-color: #fff8e1; padding: 15px; margin: 15px 0; border-left: 4px solid #FFC107; }}
+                        .highlight {{ font-size: 18px; font-weight: bold; color: #4CAF50; }}
+                        .footer {{ text-align: center; padding: 20px; font-size: 12px; color: #666; }}
+                    </style>
+                </head>
+                <body>
+                    <div class='container'>
+                        <div class='header'>
+                            <h1>Confirmation d'inscription</h1>
+                        </div>
+                        <div class='content'>
+                            <p>Bonjour {parentName},</p>
+                            <p>Nous confirmons l'inscription de <strong>{childName}</strong> pour l'activité suivante :</p>
+                            <div class='details'>
+                                <h3>{activityName}</h3>
+                                <p><strong>Date de début :</strong> {startDate:dd/MM/yyyy}</p>
+                                <p><strong>Date de fin :</strong> {endDate:dd/MM/yyyy}</p>
+                            </div>
+                            <div class='payment-info'>
+                                <h3>Informations de paiement</h3>
+                                <p class='highlight'>Montant à payer : {totalAmount:F2} €</p>
+                                <p><strong>Compte bancaire (IBAN) :</strong><br>{bankAccount}</p>
+                                <p><strong>Communication structurée (OBLIGATOIRE) :</strong><br><span style='font-size: 16px; font-family: monospace; font-weight: bold;'>{structuredCommunication}</span></p>
+                                <p style='color: #d32f2f; font-weight: bold;'>⚠ IMPORTANT : N'oubliez pas d'indiquer la communication structurée lors de votre virement !</p>
                             </div>
                             <p>Nous sommes impatients d'accueillir votre enfant pour cette activité !</p>
                             <p>Si vous avez des questions, n'hésitez pas à nous contacter.</p>
