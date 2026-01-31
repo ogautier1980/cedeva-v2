@@ -280,6 +280,9 @@
   <data name="Status" xml:space="preserve">
     <value>Statut</value>
   </data>
+  <data name="Today" xml:space="preserve">
+    <value>Aujourd'hui</value>
+  </data>
   <data name="Compensated" xml:space="preserve">
     <value>Rémunéré</value>
   </data>

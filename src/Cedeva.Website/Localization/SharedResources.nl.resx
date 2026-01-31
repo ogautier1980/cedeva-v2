@@ -259,6 +259,9 @@
   <data name="Status" xml:space="preserve">
     <value>Status</value>
   </data>
+  <data name="Today" xml:space="preserve">
+    <value>[NL] Aujourd'hui</value>
+  </data>
   <data name="Confirmed" xml:space="preserve">
     <value>Bevestigd</value>
   </data>

@@ -58,6 +58,19 @@ public class PresenceController : Controller
             return NotFound();
         }
 
+        // Auto-redirect to today's list if we're during the activity period
+        var today = DateTime.Today;
+        if (today >= activity.StartDate && today <= activity.EndDate)
+        {
+            var todayActivityDay = activity.Days
+                .FirstOrDefault(d => d.IsActive && d.DayDate.Date == today);
+
+            if (todayActivityDay != null)
+            {
+                return RedirectToAction(nameof(List), new { activityId = activity.Id, dayId = todayActivityDay.DayId });
+            }
+        }
+
         var viewModel = new SelectDayViewModel
         {
             Activity = activity,
