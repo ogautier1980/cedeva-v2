@@ -56,4 +56,7 @@ public class BookingSummaryViewModel
     public DateTime StartDate { get; set; }
     public DateTime EndDate { get; set; }
     public bool IsConfirmed { get; set; }
+    public int DaysCount { get; set; }
+    public int DaysPresent { get; set; }
+    public bool IsPastActivity { get; set; }
 }

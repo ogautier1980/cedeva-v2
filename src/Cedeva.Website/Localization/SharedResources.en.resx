@@ -1012,6 +1012,24 @@
   <data name="Children.NewBooking" xml:space="preserve">
     <value>[EN] Nouvelle inscription</value>
   </data>
+  <data name="Children.CurrentBookings" xml:space="preserve">
+    <value>[EN] Inscriptions en cours</value>
+  </data>
+  <data name="Children.NoCurrentBookings" xml:space="preserve">
+    <value>[EN] Aucune inscription en cours</value>
+  </data>
+  <data name="Children.ActivityHistory" xml:space="preserve">
+    <value>[EN] Historique des activités</value>
+  </data>
+  <data name="Children.DaysReserved" xml:space="preserve">
+    <value>[EN] jours réservés</value>
+  </data>
+  <data name="Children.DaysPresent" xml:space="preserve">
+    <value>[EN] jours présent</value>
+  </data>
+  <data name="Completed" xml:space="preserve">
+    <value>[EN] Terminé</value>
+  </data>
   <data name="Children.NoBookingsRegistered" xml:space="preserve">
     <value>[EN] Aucune inscription enregistrée</value>
   </data>

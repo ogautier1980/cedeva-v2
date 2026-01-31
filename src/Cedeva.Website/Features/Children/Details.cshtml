@@ -64,30 +64,32 @@
         </div>
 
         <div class="col-lg-4">
-            <div class="card shadow">
-                <div class="card-header">
-                    <h6 class="mb-0"><i class="fas fa-calendar-alt me-2"></i>@Localizer["Bookings"]</h6>
+            @{
+                var currentBookings = Model.Bookings?.Where(b => !b.IsPastActivity).OrderByDescending(b => b.StartDate).ToList() ?? new List<BookingSummaryViewModel>();
+                var pastBookings = Model.Bookings?.Where(b => b.IsPastActivity).OrderByDescending(b => b.StartDate).ToList() ?? new List<BookingSummaryViewModel>();
+            }
+
+            <!-- Current/Future Bookings -->
+            <div class="card shadow mb-3">
+                <div class="card-header bg-primary text-white">
+                    <h6 class="mb-0"><i class="fas fa-calendar-alt me-2"></i>@Localizer["Children.CurrentBookings"]</h6>
                 </div>
                 <div class="card-body">
-                    @if (Model.Bookings != null && Model.Bookings.Any())
+                    @if (currentBookings.Any())
                     {
                         <ul class="list-group list-group-flush">
-                            @foreach (var booking in Model.Bookings.OrderByDescending(b => b.StartDate))
+                            @foreach (var booking in currentBookings)
                             {
                                 <li class="list-group-item px-0">
-                                    <div class="d-flex justify-content-between align-items-start">
-                                        <div class="d-flex gap-2">
-                                            <h6 class="mb-1">@booking.ActivityName</h6>
-                                            <small class="text-muted">
-                                                <i class="fas fa-calendar me-1"></i>
-                                                @booking.StartDate.ToString("dd/MM/yyyy") - @booking.EndDate.ToString("dd/MM/yyyy")
-                                            </small>
-                                        </div>
-                                        <span class="badge @(booking.IsConfirmed ? "bg-success" : "bg-warning")">
+                                    <h6 class="mb-1">@booking.ActivityName</h6>
+                                    <small class="text-muted">
+                                        <i class="fas fa-calendar me-1"></i>
+                                        @booking.StartDate.ToString("dd/MM/yyyy") - @booking.EndDate.ToString("dd/MM/yyyy")
+                                    </small>
+                                    <div class="mt-2">
+                                        <span class="badge @(booking.IsConfirmed ? "bg-success" : "bg-warning") me-2">
                                             @(booking.IsConfirmed ? Localizer["Bookings.Confirmed"] : Localizer["Bookings.Pending"])
                                         </span>
-                                    </div>
-                                    <div class="mt-2">
                                         <a asp-controller="Bookings" asp-action="Details" asp-route-id="@booking.Id" class="btn btn-sm btn-outline-primary text-nowrap">
                                             <i class="fas fa-eye me-1"></i>@Localizer["Details"]
                                         </a>
@@ -98,7 +100,7 @@
                     }
                     else
                     {
-                        <p class="text-muted mb-0">@Localizer["Children.NoBookingsRegistered"]</p>
+                        <p class="text-muted mb-0">@Localizer["Children.NoCurrentBookings"]</p>
                     }
                     <div class="mt-3">
                         <a asp-controller="Bookings" asp-action="Create" asp-route-childId="@Model.Id" class="btn btn-sm btn-success w-100 text-nowrap">
@@ -107,6 +109,49 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Past Activities (History) -->
+            @if (pastBookings.Any())
+            {
+                <div class="card shadow">
+                    <div class="card-header bg-secondary text-white">
+                        <h6 class="mb-0"><i class="fas fa-history me-2"></i>@Localizer["Children.ActivityHistory"]</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="list-group list-group-flush">
+                            @foreach (var booking in pastBookings)
+                            {
+                                <div class="list-group-item px-0">
+                                    <div class="d-flex justify-content-between align-items-start mb-2">
+                                        <h6 class="mb-0">@booking.ActivityName</h6>
+                                        <span class="badge bg-secondary">@Localizer["Completed"]</span>
+                                    </div>
+                                    <small class="text-muted d-block mb-2">
+                                        <i class="fas fa-calendar me-1"></i>
+                                        @booking.StartDate.ToString("dd/MM/yyyy") - @booking.EndDate.ToString("dd/MM/yyyy")
+                                    </small>
+                                    <div class="d-flex gap-2 mb-2">
+                                        <span class="badge bg-info">
+                                            <i class="fas fa-calendar-check me-1"></i>
+                                            @booking.DaysCount @Localizer["Children.DaysReserved"]
+                                        </span>
+                                        @if (booking.DaysPresent > 0)
+                                        {
+                                            <span class="badge bg-success">
+                                                <i class="fas fa-user-check me-1"></i>
+                                                @booking.DaysPresent @Localizer["Children.DaysPresent"]
+                                            </span>
+                                        }
+                                    </div>
+                                    <a asp-controller="Bookings" asp-action="Details" asp-route-id="@booking.Id" class="btn btn-sm btn-outline-secondary text-nowrap">
+                                        <i class="fas fa-eye me-1"></i>@Localizer["Details"]
+                                    </a>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
         </div>
     </div>
 </div>

@@ -399,7 +399,9 @@ public class ChildrenController : Controller
         }
 
         var parent = await _context.Parents.FindAsync(child.ParentId);
+        var today = DateTime.Today;
         var bookings = await _context.Bookings
+            .Include(b => b.Days)
             .Where(b => b.ChildId == id)
             .Select(b => new BookingSummaryViewModel
             {
@@ -407,7 +409,10 @@ public class ChildrenController : Controller
                 ActivityName = b.Activity.Name,
                 StartDate = b.Activity.StartDate,
                 EndDate = b.Activity.EndDate,
-                IsConfirmed = b.IsConfirmed
+                IsConfirmed = b.IsConfirmed,
+                DaysCount = b.Days.Count(d => d.IsReserved),
+                DaysPresent = b.Days.Count(d => d.IsReserved && d.IsPresent),
+                IsPastActivity = b.Activity.EndDate < today
             })
             .ToListAsync();
 
