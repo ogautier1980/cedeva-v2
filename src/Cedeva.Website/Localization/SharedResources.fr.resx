@@ -2326,6 +2326,9 @@
   <data name="Field.Organisation" xml:space="preserve">
     <value>Organisation</value>
   </data>
+  <data name="SelectOrganisation" xml:space="preserve">
+    <value>-- Sélectionnez une organisation --</value>
+  </data>
   <data name="Field.Role" xml:space="preserve">
     <value>Rôle</value>
   </data>

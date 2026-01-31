@@ -224,7 +224,7 @@ public class TeamMembersController : Controller
     }
 
     // GET: TeamMembers/Create
-    public IActionResult Create()
+    public async Task<IActionResult> Create()
     {
         if (!ModelState.IsValid)
         {
@@ -238,6 +238,15 @@ public class TeamMembersController : Controller
             BirthDate = DateTime.Today.AddYears(-25) // Default age
         };
 
+        if (_currentUserService.IsAdmin)
+        {
+            var organisations = await _context.Organisations
+                .OrderBy(o => o.Name)
+                .Select(o => new { o.Id, o.Name })
+                .ToListAsync();
+            ViewBag.Organisations = new SelectList(organisations, "Id", "Name", viewModel.OrganisationId);
+        }
+
         return View(viewModel);
     }
 
@@ -248,6 +257,11 @@ public class TeamMembersController : Controller
     {
         if (ModelState.IsValid)
         {
+            // Determine OrganisationId based on user role
+            var organisationId = _currentUserService.IsAdmin
+                ? viewModel.OrganisationId
+                : _currentUserService.OrganisationId ?? 0;
+
             // Create Address first
             var address = new Address
             {
@@ -275,7 +289,7 @@ public class TeamMembersController : Controller
                 Status = viewModel.Status,
                 DailyCompensation = viewModel.DailyCompensation,
                 LicenseUrl = viewModel.LicenseUrl,
-                OrganisationId = _currentUserService.OrganisationId ?? 0
+                OrganisationId = organisationId
             };
 
             await _teamMemberRepository.AddAsync(teamMember);
@@ -283,6 +297,15 @@ public class TeamMembersController : Controller
 
             TempData[TempDataSuccessMessage] = _localizer["Message.TeamMemberCreated"].Value;
             return RedirectToAction(nameof(Details), new { id = teamMember.TeamMemberId });
+        }
+
+        if (_currentUserService.IsAdmin)
+        {
+            var organisations = await _context.Organisations
+                .OrderBy(o => o.Name)
+                .Select(o => new { o.Id, o.Name })
+                .ToListAsync();
+            ViewBag.Organisations = new SelectList(organisations, "Id", "Name", viewModel.OrganisationId);
         }
 
         return View(viewModel);
@@ -326,6 +349,15 @@ public class TeamMembersController : Controller
             AddressId = teamMember.AddressId,
             OrganisationId = teamMember.OrganisationId
         };
+
+        if (_currentUserService.IsAdmin)
+        {
+            var organisations = await _context.Organisations
+                .OrderBy(o => o.Name)
+                .Select(o => new { o.Id, o.Name })
+                .ToListAsync();
+            ViewBag.Organisations = new SelectList(organisations, "Id", "Name", viewModel.OrganisationId);
+        }
 
         return View(viewModel);
     }
@@ -373,11 +405,26 @@ public class TeamMembersController : Controller
             teamMember.DailyCompensation = viewModel.DailyCompensation;
             teamMember.LicenseUrl = viewModel.LicenseUrl;
 
+            // Update OrganisationId if admin
+            if (_currentUserService.IsAdmin)
+            {
+                teamMember.OrganisationId = viewModel.OrganisationId;
+            }
+
             await _teamMemberRepository.UpdateAsync(teamMember);
             await _unitOfWork.SaveChangesAsync();
 
             TempData[TempDataSuccessMessage] = _localizer["Message.TeamMemberUpdated"].Value;
             return RedirectToAction(nameof(Details), new { id = teamMember.TeamMemberId });
+        }
+
+        if (_currentUserService.IsAdmin)
+        {
+            var organisations = await _context.Organisations
+                .OrderBy(o => o.Name)
+                .Select(o => new { o.Id, o.Name })
+                .ToListAsync();
+            ViewBag.Organisations = new SelectList(organisations, "Id", "Name", viewModel.OrganisationId);
         }
 
         return View(viewModel);

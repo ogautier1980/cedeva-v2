@@ -1132,6 +1132,9 @@
   <data name="Field.Organisation" xml:space="preserve">
     <value>[NL] Organisation</value>
   </data>
+  <data name="SelectOrganisation" xml:space="preserve">
+    <value>[NL] Sélectionnez une organisation</value>
+  </data>
   <data name="Field.Parent" xml:space="preserve">
     <value>[NL] Parent</value>
   </data>

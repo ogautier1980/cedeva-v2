@@ -65,17 +65,16 @@
                             <span asp-validation-for="Street" class="text-danger"></span>
                         </div>
 
-                        <div class="row">
-                            <div class="col-md-4 mb-3">
-                                <label for="PostalCode" class="form-label">@Localizer["Field.PostalCode"]</label>
-                                <input asp-for="PostalCode" class="form-control" id="PostalCode" />
-                                <span asp-validation-for="PostalCode" class="text-danger"></span>
-                            </div>
-                            <div class="col-md-8 mb-3">
-                                <label for="City" class="form-label">@Localizer["Field.City"]</label>
-                                <input asp-for="City" class="form-control" id="City" />
-                                <span asp-validation-for="City" class="text-danger"></span>
-                            </div>
+                        <div class="mb-3">
+                            <label for="CombinedAddress" class="form-label">@Localizer["Field.PostalCodeCity"]</label>
+                            <input type="text" class="form-control" id="CombinedAddress"
+                                   placeholder="@Localizer["Parents.PostalCodeCityPlaceholder"]"
+                                   value="@(string.IsNullOrEmpty(Model.PostalCode) ? "" : Model.PostalCode + " " + Model.City)" />
+                            <small class="form-text text-muted">@Localizer["Parents.PostalCodeCityHelp"]</small>
+                            <input type="hidden" asp-for="PostalCode" id="PostalCode" />
+                            <input type="hidden" asp-for="City" id="City" />
+                            <span asp-validation-for="PostalCode" class="text-danger"></span>
+                            <span asp-validation-for="City" class="text-danger"></span>
                         </div>
 
                         <h6 class="mb-3 mt-4 text-primary"><i class="fas fa-briefcase me-2"></i>@Localizer["TeamMembers.ProfessionalInformation"]</h6>
@@ -123,7 +122,21 @@
                         </div>
 
                         <input type="hidden" asp-for="Country" />
-                        <input type="hidden" asp-for="OrganisationId" />
+
+                        @if (User.IsInRole("Admin") && ViewBag.Organisations != null)
+                        {
+                            <div class="mb-3">
+                                <label for="OrganisationId" class="form-label">@Localizer["Field.Organisation"]</label>
+                                <select asp-for="OrganisationId" class="form-select" asp-items="@ViewBag.Organisations">
+                                    <option value="">@Localizer["SelectOrganisation"]</option>
+                                </select>
+                                <span asp-validation-for="OrganisationId" class="text-danger"></span>
+                            </div>
+                        }
+                        else
+                        {
+                            <input type="hidden" asp-for="OrganisationId" />
+                        }
 
                         <hr />
 
@@ -145,11 +158,11 @@
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
     <script src="~/js/belgian-municipality-validator.js"></script>
-    <script src="~/js/address-autocomplete.js"></script>
+    <script src="~/js/unified-address-autocomplete.js"></script>
 
     <script>
         $(function () {
-            initializeAddressAutocomplete("#City", "#PostalCode");
+            initializeUnifiedAddressAutocomplete("#CombinedAddress", "#PostalCode", "#City");
         });
     </script>
 }

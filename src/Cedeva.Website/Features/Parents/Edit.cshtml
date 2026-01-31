@@ -78,7 +78,21 @@
                         </div>
 
                         <input type="hidden" asp-for="Country" />
-                        <input type="hidden" asp-for="OrganisationId" />
+
+                        @if (User.IsInRole("Admin") && ViewBag.Organisations != null)
+                        {
+                            <div class="mb-3">
+                                <label for="OrganisationId" class="form-label">@Localizer["Field.Organisation"]</label>
+                                <select asp-for="OrganisationId" class="form-select" asp-items="@ViewBag.Organisations">
+                                    <option value="">@Localizer["SelectOrganisation"]</option>
+                                </select>
+                                <span asp-validation-for="OrganisationId" class="text-danger"></span>
+                            </div>
+                        }
+                        else
+                        {
+                            <input type="hidden" asp-for="OrganisationId" />
+                        }
 
                         <hr />
 

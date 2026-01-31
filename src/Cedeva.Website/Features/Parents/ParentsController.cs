@@ -226,7 +226,7 @@ public class ParentsController : Controller
         return View(viewModel);
     }
 
-    public IActionResult Create()
+    public async Task<IActionResult> Create()
     {
         if (!ModelState.IsValid)
         {
@@ -239,6 +239,16 @@ public class ParentsController : Controller
             OrganisationId = _currentUserService.OrganisationId ?? 0
         };
 
+        // For admins, populate organisation dropdown
+        if (_currentUserService.IsAdmin)
+        {
+            var organisations = await _context.Organisations
+                .OrderBy(o => o.Name)
+                .Select(o => new { o.Id, o.Name })
+                .ToListAsync();
+            ViewBag.Organisations = new SelectList(organisations, "Id", "Name", viewModel.OrganisationId);
+        }
+
         return View(viewModel);
     }
 
@@ -248,6 +258,15 @@ public class ParentsController : Controller
     {
         if (!ModelState.IsValid)
         {
+            // Repopulate organisations for admins if validation fails
+            if (_currentUserService.IsAdmin)
+            {
+                var organisations = await _context.Organisations
+                    .OrderBy(o => o.Name)
+                    .Select(o => new { o.Id, o.Name })
+                    .ToListAsync();
+                ViewBag.Organisations = new SelectList(organisations, "Id", "Name", viewModel.OrganisationId);
+            }
             return View(viewModel);
         }
 
@@ -303,6 +322,16 @@ public class ParentsController : Controller
         }
 
         var viewModel = MapToViewModel(parent);
+
+        if (_currentUserService.IsAdmin)
+        {
+            var organisations = await _context.Organisations
+                .OrderBy(o => o.Name)
+                .Select(o => new { o.Id, o.Name })
+                .ToListAsync();
+            ViewBag.Organisations = new SelectList(organisations, "Id", "Name", viewModel.OrganisationId);
+        }
+
         return View(viewModel);
     }
 
@@ -317,6 +346,14 @@ public class ParentsController : Controller
 
         if (!ModelState.IsValid)
         {
+            if (_currentUserService.IsAdmin)
+            {
+                var organisations = await _context.Organisations
+                    .OrderBy(o => o.Name)
+                    .Select(o => new { o.Id, o.Name })
+                    .ToListAsync();
+                ViewBag.Organisations = new SelectList(organisations, "Id", "Name", viewModel.OrganisationId);
+            }
             return View(viewModel);
         }
 
@@ -335,6 +372,12 @@ public class ParentsController : Controller
         parent.PhoneNumber = viewModel.PhoneNumber;
         parent.MobilePhoneNumber = viewModel.MobilePhoneNumber;
         parent.NationalRegisterNumber = viewModel.NationalRegisterNumber;
+
+        // Update OrganisationId if admin
+        if (_currentUserService.IsAdmin)
+        {
+            parent.OrganisationId = viewModel.OrganisationId;
+        }
 
         parent.Address.Street = viewModel.Street;
         parent.Address.City = viewModel.City;
