@@ -853,6 +853,7 @@ public class ActivityManagementController : Controller
         {
             model.RecipientOptions = GetRecipientOptions(activity.Groups);
             model.DayOptions = GetDayOptions(activity.Days);
+            ViewBag.Templates = await _templateService.GetAllTemplatesAsync(activity.OrganisationId);
         }
     }
 

@@ -415,6 +415,9 @@
   <data name="ActivityManagement.Emails" xml:space="preserve">
     <value>E-mails</value>
   </data>
+  <data name="ActivityManagement.EmailTemplates" xml:space="preserve">
+    <value>Modèles d'email</value>
+  </data>
   <data name="ActivityManagement.Excursions" xml:space="preserve">
     <value>Excursions</value>
   </data>
