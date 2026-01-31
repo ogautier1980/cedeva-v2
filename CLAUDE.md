@@ -148,6 +148,27 @@ src/
 - [ ] Translation of NL resource values (currently showing FR values with [NL] prefix markers)
 - [ ] Translation of EN resource values (currently showing FR values with [EN] prefix markers)
 
+### ✅ Phase 6: Financial Management (COMPLETED - 2026-01-31)
+- [x] Unified transactions view (payments + expenses)
+- [x] Color-coded display (green for income, red for expenses)
+- [x] Team salary calculations (prestations + reimbursements - personal consumptions)
+- [x] Expense management (organization card/cash + team member attribution)
+- [x] Manual cash payment workflow (SelectBooking → Create)
+- [x] Comprehensive financial reporting with executive summary
+- [x] Print-friendly report layouts
+- [x] Excel export for team salaries
+- [x] Session-based navigation throughout Financial module
+- [x] Database migration: UpdateExpenseEntity (nullable TeamMemberId, OrganizationPaymentSource, ExpenseType)
+- [x] All views fully localized (FR/NL/EN)
+
+### 🔄 Phase 7: UX Improvements (IN PROGRESS - 2026-01-31)
+- [ ] Postal code/city unified autocomplete field
+- [ ] Organization selection for admin (Child/Parent/TeamMember creation)
+- [ ] Booking days logic (Mon-Fri default, weekend optional)
+- [ ] Booking details display (cards per week)
+- [ ] Presences with current day pre-selected
+- [ ] Child details with activities history
+
 ## Key Features
 
 ### Multi-Tenancy

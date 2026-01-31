@@ -2314,6 +2314,15 @@
   <data name="Field.PostalCode" xml:space="preserve">
     <value>Code postal</value>
   </data>
+  <data name="Field.PostalCodeCity" xml:space="preserve">
+    <value>Code postal et ville</value>
+  </data>
+  <data name="Parents.PostalCodeCityPlaceholder" xml:space="preserve">
+    <value>Ex: 5030 Gembloux</value>
+  </data>
+  <data name="Parents.PostalCodeCityHelp" xml:space="preserve">
+    <value>Tapez le code postal ou le nom de la ville</value>
+  </data>
   <data name="Field.Organisation" xml:space="preserve">
     <value>Organisation</value>
   </data>

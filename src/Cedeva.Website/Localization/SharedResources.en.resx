@@ -1147,6 +1147,15 @@
   <data name="Field.PostalCode" xml:space="preserve">
     <value>[EN] Code postal</value>
   </data>
+  <data name="Field.PostalCodeCity" xml:space="preserve">
+    <value>[EN] Code postal et ville</value>
+  </data>
+  <data name="Parents.PostalCodeCityPlaceholder" xml:space="preserve">
+    <value>[EN] Ex: 5030 Gembloux</value>
+  </data>
+  <data name="Parents.PostalCodeCityHelp" xml:space="preserve">
+    <value>[EN] Tapez le code postal ou le nom de la ville</value>
+  </data>
   <data name="Field.PricePerDay" xml:space="preserve">
     <value>[EN] Prix par jour</value>
   </data>
