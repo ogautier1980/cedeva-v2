@@ -204,6 +204,19 @@ public class BookingsController : Controller
     {
         if (ModelState.IsValid)
         {
+            // Get activity to calculate total amount
+            var activity = await _context.Activities.FindAsync(viewModel.ActivityId);
+            if (activity == null)
+            {
+                ModelState.AddModelError("", _localizer["Message.ActivityNotFound"].Value);
+                await PopulateDropdowns(viewModel.ChildId, viewModel.ActivityId, viewModel.GroupId);
+                return View(viewModel);
+            }
+
+            // Calculate total amount based on number of selected days
+            var numberOfDays = viewModel.SelectedActivityDayIds?.Count ?? 0;
+            var totalAmount = (activity.PricePerDay ?? 0) * numberOfDays;
+
             var booking = new Booking
             {
                 BookingDate = viewModel.BookingDate,
@@ -211,11 +224,31 @@ public class BookingsController : Controller
                 ActivityId = viewModel.ActivityId,
                 GroupId = viewModel.GroupId,
                 IsConfirmed = viewModel.IsConfirmed,
-                IsMedicalSheet = viewModel.IsMedicalSheet
+                IsMedicalSheet = viewModel.IsMedicalSheet,
+                TotalAmount = totalAmount,
+                PaidAmount = 0,
+                PaymentStatus = Core.Enums.PaymentStatus.NotPaid
             };
 
             await _bookingRepository.AddAsync(booking);
             await _unitOfWork.SaveChangesAsync();
+
+            // Create BookingDay entries for selected days
+            if (viewModel.SelectedActivityDayIds != null && viewModel.SelectedActivityDayIds.Any())
+            {
+                foreach (var activityDayId in viewModel.SelectedActivityDayIds)
+                {
+                    var bookingDay = new BookingDay
+                    {
+                        BookingId = booking.Id,
+                        ActivityDayId = activityDayId,
+                        IsReserved = true,
+                        IsPresent = false
+                    };
+                    _context.BookingDays.Add(bookingDay);
+                }
+                await _context.SaveChangesAsync();
+            }
 
             TempData[TempDataSuccessMessage] = _localizer["Message.BookingCreated"].Value;
             return RedirectToAction(nameof(Details), new { id = booking.Id });
@@ -460,6 +493,27 @@ public class BookingsController : Controller
             .ToListAsync();
 
         return Json(groups);
+    }
+
+    // GET: Bookings/GetActivityDays
+    [HttpGet]
+    public async Task<IActionResult> GetActivityDays(int activityId)
+    {
+        var activityDays = await _context.ActivityDays
+            .Where(d => d.ActivityId == activityId && d.IsActive)
+            .OrderBy(d => d.DayDate)
+            .Select(d => new
+            {
+                activityDayId = d.DayId,
+                date = d.DayDate,
+                label = d.Label,
+                dayOfWeek = d.DayDate.DayOfWeek,
+                isWeekend = d.DayDate.DayOfWeek == DayOfWeek.Saturday || d.DayDate.DayOfWeek == DayOfWeek.Sunday,
+                isSelected = d.DayDate.DayOfWeek != DayOfWeek.Saturday && d.DayDate.DayOfWeek != DayOfWeek.Sunday // Mon-Fri by default
+            })
+            .ToListAsync();
+
+        return Json(activityDays);
     }
 
     // GET: Bookings/Export

@@ -2047,6 +2047,9 @@
   <data name="Message.OrganisationDeleted" xml:space="preserve">
     <value>L'organisation a été supprimée avec succès.</value>
   </data>
+  <data name="Message.ActivityNotFound" xml:space="preserve">
+    <value>Activité introuvable.</value>
+  </data>
   <data name="Message.BookingCreated" xml:space="preserve">
     <value>L'inscription a été créée avec succès.</value>
   </data>
@@ -2190,6 +2193,33 @@
   </data>
   <data name="Bookings.ActivityGroupHelp" xml:space="preserve">
     <value>Groupe d'activité (si applicable)</value>
+  </data>
+  <data name="Bookings.SelectDays" xml:space="preserve">
+    <value>Sélection des jours</value>
+  </data>
+  <data name="Bookings.SelectDaysHelp" xml:space="preserve">
+    <value>Par défaut, les jours du lundi au vendredi sont sélectionnés. Vous pouvez également cocher le week-end si nécessaire.</value>
+  </data>
+  <data name="DayOfWeek.Sunday" xml:space="preserve">
+    <value>Dimanche</value>
+  </data>
+  <data name="DayOfWeek.Monday" xml:space="preserve">
+    <value>Lundi</value>
+  </data>
+  <data name="DayOfWeek.Tuesday" xml:space="preserve">
+    <value>Mardi</value>
+  </data>
+  <data name="DayOfWeek.Wednesday" xml:space="preserve">
+    <value>Mercredi</value>
+  </data>
+  <data name="DayOfWeek.Thursday" xml:space="preserve">
+    <value>Jeudi</value>
+  </data>
+  <data name="DayOfWeek.Friday" xml:space="preserve">
+    <value>Vendredi</value>
+  </data>
+  <data name="DayOfWeek.Saturday" xml:space="preserve">
+    <value>Samedi</value>
   </data>
   <data name="Bookings.ConfirmBooking" xml:space="preserve">
     <value>Confirmer l'inscription</value>

@@ -880,6 +880,33 @@
   <data name="Bookings.ActivityGroupHelp" xml:space="preserve">
     <value>[NL] Groupe d'activité (si applicable)</value>
   </data>
+  <data name="Bookings.SelectDays" xml:space="preserve">
+    <value>[NL] Sélection des jours</value>
+  </data>
+  <data name="Bookings.SelectDaysHelp" xml:space="preserve">
+    <value>[NL] Par défaut, les jours du lundi au vendredi sont sélectionnés. Vous pouvez également cocher le week-end si nécessaire.</value>
+  </data>
+  <data name="DayOfWeek.Sunday" xml:space="preserve">
+    <value>[NL] Dimanche</value>
+  </data>
+  <data name="DayOfWeek.Monday" xml:space="preserve">
+    <value>[NL] Lundi</value>
+  </data>
+  <data name="DayOfWeek.Tuesday" xml:space="preserve">
+    <value>[NL] Mardi</value>
+  </data>
+  <data name="DayOfWeek.Wednesday" xml:space="preserve">
+    <value>[NL] Mercredi</value>
+  </data>
+  <data name="DayOfWeek.Thursday" xml:space="preserve">
+    <value>[NL] Jeudi</value>
+  </data>
+  <data name="DayOfWeek.Friday" xml:space="preserve">
+    <value>[NL] Vendredi</value>
+  </data>
+  <data name="DayOfWeek.Saturday" xml:space="preserve">
+    <value>[NL] Samedi</value>
+  </data>
   <data name="Bookings.BasicInformation" xml:space="preserve">
     <value>[NL] Informations de base</value>
   </data>
@@ -1347,6 +1374,9 @@
   </data>
   <data name="Message.OrganisationUpdated" xml:space="preserve">
     <value>[NL] L'organisation a été modifiée avec succès.</value>
+  </data>
+  <data name="Message.ActivityNotFound" xml:space="preserve">
+    <value>[NL] Activité introuvable.</value>
   </data>
   <data name="Message.ParentCreated" xml:space="preserve">
     <value>[NL] Le parent a été créé avec succès.</value>

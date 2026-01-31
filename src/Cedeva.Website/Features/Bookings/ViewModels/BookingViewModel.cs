@@ -39,4 +39,8 @@ public class BookingViewModel
     // Summary counts
     public int DaysCount { get; set; }
     public int QuestionAnswersCount { get; set; }
+
+    // Day selection
+    public List<BookingDaySelectionViewModel> AvailableDays { get; set; } = new();
+    public List<int> SelectedActivityDayIds { get; set; } = new();
 }
