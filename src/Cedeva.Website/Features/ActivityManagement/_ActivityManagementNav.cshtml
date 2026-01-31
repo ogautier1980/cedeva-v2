@@ -1,0 +1,96 @@
+@{
+    int activityId = ViewData.ContainsKey("ActivityId") ? Convert.ToInt32(ViewData["ActivityId"]) : 0;
+    string navSection = ViewData.ContainsKey("NavSection") ? ViewData["NavSection"]?.ToString() ?? "" : "";
+    string navAction = ViewData.ContainsKey("NavAction") ? ViewData["NavAction"]?.ToString() ?? "" : "";
+    string activityName = ViewData.ContainsKey("ActivityName") ? ViewData["ActivityName"]?.ToString() ?? "" : "";
+}
+
+<div class="sticky-top bg-white shadow-sm" style="z-index: 1020;">
+    <div class="container-fluid px-3 py-2">
+        <!-- Back + activity name -->
+        <div class="d-flex align-items-center gap-2 mb-2">
+            <a asp-action="Index" asp-controller="ActivityManagement" asp-route-id="@activityId"
+               class="btn btn-sm btn-outline-secondary">
+                <i class="fas fa-arrow-left"></i> @Localizer["BackToDashboard"]
+            </a>
+            <span class="fw-semibold text-muted">@activityName</span>
+        </div>
+
+        <!-- Section navigation -->
+        <ul class="nav nav-pills nav-sm mb-0">
+            <!-- Inscriptions en attente -->
+            <li class="nav-item">
+                <a class="nav-link @(navSection == "PendingBookings" ? "active" : "")"
+                   asp-action="UnconfirmedBookings" asp-controller="ActivityManagement" asp-route-id="@activityId">
+                    <i class="fas fa-list-check"></i> @Localizer["ActivityManagement.PendingBookings"]
+                </a>
+            </li>
+
+            <!-- Présences -->
+            <li class="nav-item">
+                <a class="nav-link @(navSection == "Presences" ? "active" : "")"
+                   asp-action="Presences" asp-controller="ActivityManagement" asp-route-id="@activityId">
+                    <i class="fas fa-clipboard-check"></i> @Localizer["Presences"]
+                </a>
+            </li>
+
+            <!-- Comptes -->
+            <li class="nav-item">
+                <a class="nav-link @(navSection == "Financial" ? "active" : "")"
+                   asp-action="Index" asp-controller="Financial">
+                    <i class="far fa-money-bill-1"></i> @Localizer["ActivityManagement.Accounts"]
+                </a>
+            </li>
+
+            <!-- E-mails (dropdown avec sous-actions) -->
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle @(navSection == "Emails" ? "active" : "")"
+                   href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="fas fa-envelope"></i> @Localizer["ActivityManagement.Emails"]
+                </a>
+                <ul class="dropdown-menu">
+                    <li>
+                        <a class="dropdown-item @(navAction == "SendEmail" ? "active" : "")"
+                           asp-action="SendEmail" asp-controller="ActivityManagement" asp-route-id="@activityId">
+                            <i class="fas fa-paper-plane"></i> @Localizer["Email.SendTargeted"]
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item @(navAction == "SentEmails" ? "active" : "")"
+                           asp-action="SentEmails" asp-controller="ActivityManagement" asp-route-id="@activityId">
+                            <i class="fas fa-history"></i> @Localizer["Email.SentHistory"]
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item @(navAction == "EmailTemplates" ? "active" : "")"
+                           asp-action="Index" asp-controller="EmailTemplates">
+                            <i class="fas fa-file-alt"></i> @Localizer["ActivityManagement.EmailTemplates"]
+                        </a>
+                    </li>
+                </ul>
+            </li>
+
+            <!-- Excursions (placeholder) -->
+            <li class="nav-item">
+                <a class="nav-link disabled" aria-disabled="true">
+                    <i class="fas fa-train"></i> @Localizer["ActivityManagement.Excursions"]
+                </a>
+            </li>
+
+            <!-- Équipe -->
+            <li class="nav-item">
+                <a class="nav-link @(navSection == "Team" ? "active" : "")"
+                   asp-action="TeamMembers" asp-controller="ActivityManagement" asp-route-id="@activityId">
+                    <i class="fas fa-people-group"></i> @Localizer["ActivityManagement.Team"]
+                </a>
+            </li>
+
+            <!-- ONE (placeholder) -->
+            <li class="nav-item">
+                <a class="nav-link disabled" aria-disabled="true">
+                    ONE
+                </a>
+            </li>
+        </ul>
+    </div>
+</div>

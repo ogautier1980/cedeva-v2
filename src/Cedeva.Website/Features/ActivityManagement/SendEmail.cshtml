@@ -3,21 +3,17 @@
 
 @{
     ViewData["Title"] = Localizer["Email.SendTargeted"] + " - " + Model.ActivityName;
+    ViewData["ActivityId"] = Model.ActivityId;
+    ViewData["ActivityName"] = Model.ActivityName;
+    ViewData["NavSection"] = "Emails";
+    ViewData["NavAction"] = "SendEmail";
     var availableVariables = VariableService.GetAvailableVariables();
     bool hasTemplates = ViewBag.Templates != null && ((dynamic)ViewBag.Templates).Count > 0;
 }
 
-<div class="container-fluid py-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h2 class="mb-1">@Model.ActivityName</h2>
-            <p class="text-muted mb-0">@Localizer["Email.SendTargeted"]</p>
-        </div>
-        <a asp-action="Index" asp-route-id="@Model.ActivityId" class="btn btn-outline-secondary">
-            <i class="fas fa-arrow-left"></i> @Localizer["BackToDashboard"]
-        </a>
-    </div>
+<partial name="_ActivityManagementNav" />
 
+<div class="container-fluid py-4">
     @if (TempData["SuccessMessage"] != null)
     {
         <div class="alert alert-success alert-dismissible fade show" role="alert">

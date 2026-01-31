@@ -3,24 +3,15 @@
 
 @{
     ViewData["Title"] = Localizer["Email.History"] + " - " + Model.Activity.Name;
+    ViewData["ActivityId"] = Model.Activity.Id;
+    ViewData["ActivityName"] = Model.Activity.Name;
+    ViewData["NavSection"] = "Emails";
+    ViewData["NavAction"] = "SentEmails";
 }
 
-<div class="container-fluid py-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h2 class="mb-1">@Model.Activity.Name</h2>
-            <p class="text-muted mb-0">@Localizer["Email.SentHistory"]</p>
-        </div>
-        <div class="d-flex gap-2">
-            <a asp-action="SendEmail" asp-route-id="@Model.Activity.Id" class="btn btn-primary">
-                <i class="fas fa-paper-plane"></i> @Localizer["Email.NewSend"]
-            </a>
-            <a asp-action="Index" asp-route-id="@Model.Activity.Id" class="btn btn-outline-secondary">
-                <i class="fas fa-arrow-left"></i> @Localizer["BackToDashboard"]
-            </a>
-        </div>
-    </div>
+<partial name="_ActivityManagementNav" />
 
+<div class="container-fluid py-4">
     @if (!Model.SentEmails.Any())
     {
         <div class="alert alert-info">
