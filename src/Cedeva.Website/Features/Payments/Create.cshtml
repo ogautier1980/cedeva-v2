@@ -1,0 +1,114 @@
+@using Cedeva.Website.Features.Payments.ViewModels
+@model PaymentViewModel
+@inject IStringLocalizer<SharedResources> Localizer
+
+@{
+    ViewData["Title"] = Localizer["Payments.Create"];
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>@Localizer["Payments.Create"]</h2>
+        <a asp-controller="Bookings" asp-action="Details" asp-route-id="@Model.BookingId" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> @Localizer["Common.Back"]
+        </a>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-money-bill"></i> @Localizer["Payments.PaymentInformation"]</h5>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Create" method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" asp-for="BookingId" />
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label asp-for="Amount" class="form-label"></label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-euro-sign"></i></span>
+                                    <input asp-for="Amount" class="form-control" step="0.01" />
+                                </div>
+                                <span asp-validation-for="Amount" class="text-danger"></span>
+                                <small class="text-muted">@Localizer["Payments.RemainingAmount"]: <strong class="text-danger">@Model.BookingRemainingAmount.ToString("C")</strong></small>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label asp-for="PaymentDate" class="form-label"></label>
+                                <input asp-for="PaymentDate" class="form-control" type="date" />
+                                <span asp-validation-for="PaymentDate" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label asp-for="PaymentMethod" class="form-label"></label>
+                                <select asp-for="PaymentMethod" class="form-select">
+                                    <option value="@PaymentMethod.Cash">@Localizer["PaymentMethod.Cash"]</option>
+                                    <option value="@PaymentMethod.Other">@Localizer["PaymentMethod.Other"]</option>
+                                </select>
+                                <span asp-validation-for="PaymentMethod" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label asp-for="Reference" class="form-label"></label>
+                                <input asp-for="Reference" class="form-control" placeholder="@Localizer["Payments.ReferenceHelp"]" />
+                                <span asp-validation-for="Reference" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                            <a asp-controller="Bookings" asp-action="Details" asp-route-id="@Model.BookingId" class="btn btn-secondary">
+                                <i class="fas fa-times"></i> @Localizer["Common.Cancel"]
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> @Localizer["Payments.RecordPayment"]
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card border-info">
+                <div class="card-header bg-info text-white">
+                    <h5><i class="fas fa-info-circle"></i> @Localizer["Payments.BookingInformation"]</h5>
+                </div>
+                <div class="card-body">
+                    <dl class="row mb-0">
+                        <dt class="col-sm-5">@Localizer["Field.Child"]:</dt>
+                        <dd class="col-sm-7">@Model.ChildName</dd>
+
+                        <dt class="col-sm-5">@Localizer["Field.Parent"]:</dt>
+                        <dd class="col-sm-7">@Model.ParentName</dd>
+
+                        <dt class="col-sm-5">@Localizer["Field.Activity"]:</dt>
+                        <dd class="col-sm-7">@Model.ActivityName</dd>
+
+                        <dt class="col-sm-5">@Localizer["Payments.TotalAmount"]:</dt>
+                        <dd class="col-sm-7"><strong>@Model.BookingTotalAmount.ToString("C")</strong></dd>
+
+                        <dt class="col-sm-5">@Localizer["Payments.AlreadyPaid"]:</dt>
+                        <dd class="col-sm-7 text-success"><strong>@Model.BookingPaidAmount.ToString("C")</strong></dd>
+
+                        <dt class="col-sm-5">@Localizer["Payments.RemainingAmount"]:</dt>
+                        <dd class="col-sm-7 text-danger"><strong>@Model.BookingRemainingAmount.ToString("C")</strong></dd>
+                    </dl>
+                </div>
+            </div>
+
+            <div class="alert alert-warning mt-3">
+                <i class="fas fa-exclamation-triangle"></i>
+                @Localizer["Payments.ManualPaymentWarning"]
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

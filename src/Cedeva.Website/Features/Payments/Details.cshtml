@@ -1,0 +1,173 @@
+@model Payment
+@inject IStringLocalizer<SharedResources> Localizer
+
+@{
+    ViewData["Title"] = Localizer["Payments.Details"];
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>@Localizer["Payments.Details"]</h2>
+        <a asp-action="Index" asp-route-bookingId="@Model.BookingId" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> @Localizer["Common.Back"]
+        </a>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-receipt"></i> @Localizer["Payments.PaymentInformation"]</h5>
+                </div>
+                <div class="card-body">
+                    <dl class="row">
+                        <dt class="col-sm-4">@Localizer["Field.PaymentDate"]:</dt>
+                        <dd class="col-sm-8">@Model.PaymentDate.ToString("dd/MM/yyyy")</dd>
+
+                        <dt class="col-sm-4">@Localizer["Field.Amount"]:</dt>
+                        <dd class="col-sm-8"><strong class="text-success">@Model.Amount.ToString("C")</strong></dd>
+
+                        <dt class="col-sm-4">@Localizer["Field.PaymentMethod"]:</dt>
+                        <dd class="col-sm-8">
+                            @switch (Model.PaymentMethod)
+                            {
+                                case PaymentMethod.BankTransfer:
+                                    <span class="badge bg-info"><i class="fas fa-university"></i> @Localizer["PaymentMethod.BankTransfer"]</span>
+                                    break;
+                                case PaymentMethod.Cash:
+                                    <span class="badge bg-success"><i class="fas fa-money-bill"></i> @Localizer["PaymentMethod.Cash"]</span>
+                                    break;
+                                case PaymentMethod.Other:
+                                    <span class="badge bg-secondary"><i class="fas fa-question"></i> @Localizer["PaymentMethod.Other"]</span>
+                                    break;
+                            }
+                        </dd>
+
+                        <dt class="col-sm-4">@Localizer["Field.Status"]:</dt>
+                        <dd class="col-sm-8">
+                            @switch (Model.Status)
+                            {
+                                case PaymentStatus.Paid:
+                                    <span class="badge bg-success">@Localizer["PaymentStatus.Paid"]</span>
+                                    break;
+                                case PaymentStatus.Cancelled:
+                                    <span class="badge bg-danger">@Localizer["PaymentStatus.Cancelled"]</span>
+                                    break;
+                                default:
+                                    <span class="badge bg-secondary">@Model.Status</span>
+                                    break;
+                            }
+                        </dd>
+
+                        @if (!string.IsNullOrEmpty(Model.Reference))
+                        {
+                            <dt class="col-sm-4">@Localizer["Field.Reference"]:</dt>
+                            <dd class="col-sm-8">@Model.Reference</dd>
+                        }
+
+                        @if (!string.IsNullOrEmpty(Model.StructuredCommunication))
+                        {
+                            <dt class="col-sm-4">@Localizer["Financial.StructuredCommunication"]:</dt>
+                            <dd class="col-sm-8"><code>@Model.StructuredCommunication</code></dd>
+                        }
+
+                        @if (Model.BankTransactionId.HasValue)
+                        {
+                            <dt class="col-sm-4">@Localizer["Payments.BankTransaction"]:</dt>
+                            <dd class="col-sm-8">
+                                <span class="badge bg-info">@Localizer["Payments.LinkedToCoda"]</span>
+                            </dd>
+                        }
+                    </dl>
+                </div>
+            </div>
+
+            @if (Model.Status != PaymentStatus.Cancelled && !Model.BankTransactionId.HasValue)
+            {
+                <div class="card mt-3 border-danger">
+                    <div class="card-header bg-danger text-white">
+                        <h5><i class="fas fa-exclamation-triangle"></i> @Localizer["Payments.DangerZone"]</h5>
+                    </div>
+                    <div class="card-body">
+                        <p>@Localizer["Payments.CancelWarning"]</p>
+                        <form asp-action="Cancel" method="post" class="d-inline">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="id" value="@Model.Id" />
+                            <button type="submit" class="btn btn-danger"
+                                    onclick="return confirm('@Localizer["Payments.ConfirmCancel"]');">
+                                <i class="fas fa-ban"></i> @Localizer["Payments.CancelPayment"]
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <div class="col-md-4">
+            <div class="card border-info">
+                <div class="card-header bg-info text-white">
+                    <h5><i class="fas fa-file-alt"></i> @Localizer["Payments.RelatedBooking"]</h5>
+                </div>
+                <div class="card-body">
+                    <dl class="row mb-0">
+                        <dt class="col-sm-5">@Localizer["Field.Child"]:</dt>
+                        <dd class="col-sm-7">@Model.Booking.Child.FirstName @Model.Booking.Child.LastName</dd>
+
+                        <dt class="col-sm-5">@Localizer["Field.Parent"]:</dt>
+                        <dd class="col-sm-7">@Model.Booking.Child.Parent.FirstName @Model.Booking.Child.Parent.LastName</dd>
+
+                        <dt class="col-sm-5">@Localizer["Field.Activity"]:</dt>
+                        <dd class="col-sm-7">@Model.Booking.Activity.Name</dd>
+
+                        <dt class="col-sm-5">@Localizer["Payments.TotalAmount"]:</dt>
+                        <dd class="col-sm-7"><strong>@Model.Booking.TotalAmount.ToString("C")</strong></dd>
+
+                        <dt class="col-sm-5">@Localizer["Payments.PaidAmount"]:</dt>
+                        <dd class="col-sm-7 text-success"><strong>@Model.Booking.PaidAmount.ToString("C")</strong></dd>
+
+                        <dt class="col-sm-5">@Localizer["Payments.PaymentStatus"]:</dt>
+                        <dd class="col-sm-7">
+                            @switch (Model.Booking.PaymentStatus)
+                            {
+                                case PaymentStatus.NotPaid:
+                                    <span class="badge bg-danger">@Localizer["PaymentStatus.NotPaid"]</span>
+                                    break;
+                                case PaymentStatus.PartiallyPaid:
+                                    <span class="badge bg-warning">@Localizer["PaymentStatus.PartiallyPaid"]</span>
+                                    break;
+                                case PaymentStatus.Paid:
+                                    <span class="badge bg-success">@Localizer["PaymentStatus.Paid"]</span>
+                                    break;
+                                case PaymentStatus.Overpaid:
+                                    <span class="badge bg-info">@Localizer["PaymentStatus.Overpaid"]</span>
+                                    break;
+                            }
+                        </dd>
+                    </dl>
+
+                    <div class="d-grid gap-2 mt-3">
+                        <a asp-controller="Bookings" asp-action="Details" asp-route-id="@Model.BookingId" class="btn btn-primary">
+                            <i class="fas fa-eye"></i> @Localizer["Bookings.ViewBooking"]
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

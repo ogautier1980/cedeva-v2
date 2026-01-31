@@ -1300,6 +1300,123 @@
   <data name="Field.Booking" xml:space="preserve">
     <value>Réservation</value>
   </data>
+  <data name="Payments.Title" xml:space="preserve">
+    <value>Paiements</value>
+  </data>
+  <data name="Payments.ForActivity" xml:space="preserve">
+    <value>Pour l'activité</value>
+  </data>
+  <data name="Payments.NoPayments" xml:space="preserve">
+    <value>Aucun paiement enregistré</value>
+  </data>
+  <data name="Payments.Create" xml:space="preserve">
+    <value>Enregistrer un paiement</value>
+  </data>
+  <data name="Payments.PaymentInformation" xml:space="preserve">
+    <value>Informations de paiement</value>
+  </data>
+  <data name="Payments.BookingInformation" xml:space="preserve">
+    <value>Informations de réservation</value>
+  </data>
+  <data name="Payments.RemainingAmount" xml:space="preserve">
+    <value>Montant restant</value>
+  </data>
+  <data name="Payments.ReferenceHelp" xml:space="preserve">
+    <value>Numéro de reçu, note, etc.</value>
+  </data>
+  <data name="Payments.RecordPayment" xml:space="preserve">
+    <value>Enregistrer le paiement</value>
+  </data>
+  <data name="Payments.TotalAmount" xml:space="preserve">
+    <value>Montant total</value>
+  </data>
+  <data name="Payments.AlreadyPaid" xml:space="preserve">
+    <value>Déjà payé</value>
+  </data>
+  <data name="Payments.PaidAmount" xml:space="preserve">
+    <value>Montant payé</value>
+  </data>
+  <data name="Payments.ManualPaymentWarning" xml:space="preserve">
+    <value>Assurez-vous que le paiement a bien été reçu avant de l'enregistrer.</value>
+  </data>
+  <data name="Payments.Details" xml:space="preserve">
+    <value>Détails du paiement</value>
+  </data>
+  <data name="Payments.BankTransaction" xml:space="preserve">
+    <value>Transaction bancaire</value>
+  </data>
+  <data name="Payments.LinkedToCoda" xml:space="preserve">
+    <value>Lié à une transaction CODA</value>
+  </data>
+  <data name="Payments.DangerZone" xml:space="preserve">
+    <value>Zone dangereuse</value>
+  </data>
+  <data name="Payments.CancelWarning" xml:space="preserve">
+    <value>L'annulation d'un paiement recalculera automatiquement le statut de paiement de la réservation.</value>
+  </data>
+  <data name="Payments.CancelPayment" xml:space="preserve">
+    <value>Annuler le paiement</value>
+  </data>
+  <data name="Payments.ConfirmCancel" xml:space="preserve">
+    <value>Êtes-vous sûr de vouloir annuler ce paiement ?</value>
+  </data>
+  <data name="Payments.RelatedBooking" xml:space="preserve">
+    <value>Réservation associée</value>
+  </data>
+  <data name="Payments.PaymentStatus" xml:space="preserve">
+    <value>Statut de paiement</value>
+  </data>
+  <data name="PaymentMethod.BankTransfer" xml:space="preserve">
+    <value>Virement bancaire</value>
+  </data>
+  <data name="PaymentMethod.Cash" xml:space="preserve">
+    <value>Liquide</value>
+  </data>
+  <data name="PaymentMethod.Other" xml:space="preserve">
+    <value>Autre</value>
+  </data>
+  <data name="PaymentStatus.NotPaid" xml:space="preserve">
+    <value>Non payé</value>
+  </data>
+  <data name="PaymentStatus.PartiallyPaid" xml:space="preserve">
+    <value>Partiellement payé</value>
+  </data>
+  <data name="PaymentStatus.Paid" xml:space="preserve">
+    <value>Payé</value>
+  </data>
+  <data name="PaymentStatus.Overpaid" xml:space="preserve">
+    <value>Trop-perçu</value>
+  </data>
+  <data name="PaymentStatus.Cancelled" xml:space="preserve">
+    <value>Annulé</value>
+  </data>
+  <data name="Message.PaymentCreated" xml:space="preserve">
+    <value>Paiement enregistré avec succès</value>
+  </data>
+  <data name="Message.PaymentCancelled" xml:space="preserve">
+    <value>Paiement annulé avec succès</value>
+  </data>
+  <data name="Error.PaymentCreationFailed" xml:space="preserve">
+    <value>Erreur lors de l'enregistrement du paiement</value>
+  </data>
+  <data name="Error.PaymentCancellationFailed" xml:space="preserve">
+    <value>Erreur lors de l'annulation du paiement</value>
+  </data>
+  <data name="Error.PaymentNotFound" xml:space="preserve">
+    <value>Paiement introuvable</value>
+  </data>
+  <data name="Error.BookingNotFound" xml:space="preserve">
+    <value>Réservation introuvable</value>
+  </data>
+  <data name="Error.CannotCancelBankPayment" xml:space="preserve">
+    <value>Impossible d'annuler un paiement lié à une transaction bancaire</value>
+  </data>
+  <data name="Bookings.ViewBooking" xml:space="preserve">
+    <value>Voir la réservation</value>
+  </data>
+  <data name="Validation.AmountRange" xml:space="preserve">
+    <value>Le montant doit être supérieur à 0</value>
+  </data>
   <data name="Home.Error" xml:space="preserve">
     <value>Erreur</value>
   </data>
