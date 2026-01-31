@@ -11,6 +11,86 @@
                     <h5 class="mb-0"><i class="fas fa-edit me-2"></i>@Localizer["Activities.EditActivity"]</h5>
                 </div>
                 <div class="card-body">
+                    @if (TempData["Warning"] != null)
+                    {
+                        <div class="alert alert-warning">
+                            <i class="fas fa-exclamation-triangle me-2"></i>@TempData["Warning"]
+                            <div class="mt-3">
+                                <form asp-action="Edit" method="post">
+                                    <input type="hidden" asp-for="Id" />
+                                    <input type="hidden" asp-for="Name" />
+                                    <input type="hidden" asp-for="Description" />
+                                    <input type="hidden" asp-for="IsActive" />
+                                    <input type="hidden" asp-for="PricePerDay" />
+                                    <input type="hidden" asp-for="StartDate" />
+                                    <input type="hidden" asp-for="EndDate" />
+                                    <input type="hidden" asp-for="OrganisationId" />
+                                    @if (TempData["DeactivatedDays"] != null)
+                                    {
+                                        var deactivatedDayIds = TempData["DeactivatedDays"]!.ToString()!.Split(',');
+                                        foreach (var dayId in deactivatedDayIds)
+                                        {
+                                            <input type="hidden" name="ActiveDayIds" value="@dayId" />
+                                        }
+                                    }
+                                    <input type="hidden" name="removeDaysConfirmed" value="true" />
+                                    <button type="submit" class="btn btn-danger">
+                                        <i class="fas fa-check me-2"></i>@Localizer["Activities.ConfirmRemoveDays"]
+                                    </button>
+                                    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-secondary">
+                                        <i class="fas fa-times me-2"></i>@Localizer["Cancel"]
+                                    </a>
+                                </form>
+                            </div>
+                        </div>
+                    }
+
+                    @if (TempData["Info"] != null)
+                    {
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>@TempData["Info"]
+                            <p class="mt-2 mb-2">@Localizer["Activities.AddDaysToBookingsQuestion"]</p>
+                            <div class="mt-3">
+                                <form asp-action="Edit" method="post" class="d-inline">
+                                    <input type="hidden" asp-for="Id" />
+                                    <input type="hidden" asp-for="Name" />
+                                    <input type="hidden" asp-for="Description" />
+                                    <input type="hidden" asp-for="IsActive" />
+                                    <input type="hidden" asp-for="PricePerDay" />
+                                    <input type="hidden" asp-for="StartDate" />
+                                    <input type="hidden" asp-for="EndDate" />
+                                    <input type="hidden" asp-for="OrganisationId" />
+                                    @foreach (var day in Model.AllDays)
+                                    {
+                                        <input type="hidden" name="ActiveDayIds" value="@day.DayId" />
+                                    }
+                                    <input type="hidden" name="addDaysToBookings" value="true" />
+                                    <button type="submit" class="btn btn-success">
+                                        <i class="fas fa-check me-2"></i>@Localizer["Yes"]
+                                    </button>
+                                </form>
+                                <form asp-action="Edit" method="post" class="d-inline">
+                                    <input type="hidden" asp-for="Id" />
+                                    <input type="hidden" asp-for="Name" />
+                                    <input type="hidden" asp-for="Description" />
+                                    <input type="hidden" asp-for="IsActive" />
+                                    <input type="hidden" asp-for="PricePerDay" />
+                                    <input type="hidden" asp-for="StartDate" />
+                                    <input type="hidden" asp-for="EndDate" />
+                                    <input type="hidden" asp-for="OrganisationId" />
+                                    @foreach (var day in Model.AllDays)
+                                    {
+                                        <input type="hidden" name="ActiveDayIds" value="@day.DayId" />
+                                    }
+                                    <input type="hidden" name="addDaysToBookings" value="false" />
+                                    <button type="submit" class="btn btn-secondary">
+                                        <i class="fas fa-times me-2"></i>@Localizer["No"]
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    }
+
                     <form asp-action="Edit" method="post">
                         <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
 
@@ -59,6 +139,64 @@
                         </div>
 
                         <input type="hidden" asp-for="OrganisationId" />
+
+                        <hr />
+
+                        <h6 class="mb-3 text-primary"><i class="fas fa-calendar-week me-2"></i>@Localizer["Activities.ManageDays"]</h6>
+
+                        @if (Model.WeeklyDays.Any())
+                        {
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle me-2"></i>@Localizer["Activities.ManageDaysHelp"]
+                            </div>
+
+                            @foreach (var week in Model.WeeklyDays)
+                            {
+                                <div class="mb-4">
+                                    <h6 class="text-muted mb-3">
+                                        <i class="fas fa-calendar me-2"></i>@week.WeekLabel
+                                        <small class="ms-2">(@week.StartDate.ToString("dd/MM") - @week.EndDate.ToString("dd/MM/yyyy"))</small>
+                                    </h6>
+                                    <div class="row g-2">
+                                        @foreach (var day in week.Days)
+                                        {
+                                            var dayName = day.DayOfWeek switch
+                                            {
+                                                DayOfWeek.Monday => Localizer["DayOfWeek.Monday"],
+                                                DayOfWeek.Tuesday => Localizer["DayOfWeek.Tuesday"],
+                                                DayOfWeek.Wednesday => Localizer["DayOfWeek.Wednesday"],
+                                                DayOfWeek.Thursday => Localizer["DayOfWeek.Thursday"],
+                                                DayOfWeek.Friday => Localizer["DayOfWeek.Friday"],
+                                                DayOfWeek.Saturday => Localizer["DayOfWeek.Saturday"],
+                                                DayOfWeek.Sunday => Localizer["DayOfWeek.Sunday"],
+                                                _ => ""
+                                            };
+                                            var cardClass = day.IsWeekend ? "border-warning" : "";
+
+                                            <div class="col-md-6 col-lg-3">
+                                                <div class="card @cardClass">
+                                                    <div class="card-body py-2">
+                                                        <div class="form-check">
+                                                            <input class="form-check-input" type="checkbox"
+                                                                   name="ActiveDayIds" value="@day.DayId"
+                                                                   id="day_@day.DayId" @(day.IsActive ? "checked" : "") />
+                                                            <label class="form-check-label" for="day_@day.DayId">
+                                                                <strong>@dayName</strong><br />
+                                                                <small class="text-muted">@day.DayDate.ToString("dd/MM/yyyy")</small>
+                                                                @if (day.IsWeekend)
+                                                                {
+                                                                    <br /><span class="badge bg-warning text-dark">Week-end</span>
+                                                                }
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            }
+                        }
 
                         <hr />
 

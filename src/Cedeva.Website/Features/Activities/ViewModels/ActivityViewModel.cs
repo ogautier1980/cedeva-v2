@@ -48,6 +48,12 @@ public class ActivityViewModel
 
     [Display(Name = "Field.TeamMembersCount")]
     public int TeamMembersCount { get; set; }
+
+    // Activity days grouped by week (for Details view)
+    public List<WeeklyActivityDaysViewModel> WeeklyDays { get; set; } = new();
+
+    // For Edit: list of days with IsActive status
+    public List<ActivityDayViewModel> AllDays { get; set; } = new();
 }
 
 public class ActivityListViewModel

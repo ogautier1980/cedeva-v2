@@ -616,6 +616,30 @@
   <data name="Activities.Inactive" xml:space="preserve">
     <value>Inactief</value>
   </data>
+  <data name="Activities.ActiveDays" xml:space="preserve">
+    <value>actieve dagen</value>
+  </data>
+  <data name="Activities.DaysSchedule" xml:space="preserve">
+    <value>Dagenkalender</value>
+  </data>
+  <data name="Activities.ManageDays" xml:space="preserve">
+    <value>Beheer activiteitdagen</value>
+  </data>
+  <data name="Activities.ManageDaysHelp" xml:space="preserve">
+    <value>Vink de dagen aan die beschikbaar zijn voor reserveringen. Weekenddagen zijn geel gemarkeerd.</value>
+  </data>
+  <data name="Activities.DeactivateDaysWarning" xml:space="preserve">
+    <value>Let op! {0} bestaande reservering(en) bevatten de volgende dagen: {1}. Door deze dagen te deactiveren, worden ze van alle reserveringen verwijderd. Wilt u doorgaan?</value>
+  </data>
+  <data name="Activities.ConfirmRemoveDays" xml:space="preserve">
+    <value>Verwijdering bevestigen</value>
+  </data>
+  <data name="Activities.ActivateDaysInfo" xml:space="preserve">
+    <value>U heeft de volgende dagen geactiveerd: {0}.</value>
+  </data>
+  <data name="Activities.AddDaysToBookingsQuestion" xml:space="preserve">
+    <value>Wilt u deze dagen aan alle bestaande reserveringen toevoegen?</value>
+  </data>
   <data name="Activities.Manage" xml:space="preserve">
     <value>Beheren</value>
   </data>

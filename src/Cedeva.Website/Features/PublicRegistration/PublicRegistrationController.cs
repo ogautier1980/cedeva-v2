@@ -359,6 +359,11 @@ public class PublicRegistrationController : Controller
             return RedirectToAction(nameof(SelectActivity));
         }
 
+        // Get active days for the activity
+        var activeDays = await _context.ActivityDays
+            .Where(d => d.ActivityId == activityId && d.IsActive)
+            .ToListAsync();
+
         // Create booking
         var booking = new Booking
         {
@@ -370,6 +375,20 @@ public class PublicRegistrationController : Controller
         };
 
         _context.Bookings.Add(booking);
+        await _context.SaveChangesAsync();
+
+        // Add all active days to the booking
+        foreach (var activityDay in activeDays)
+        {
+            var bookingDay = new BookingDay
+            {
+                BookingId = booking.Id,
+                ActivityDayId = activityDay.DayId,
+                IsReserved = true,
+                IsPresent = false
+            };
+            _context.BookingDays.Add(bookingDay);
+        }
         await _context.SaveChangesAsync();
 
         // Save question answers if any

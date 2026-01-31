@@ -616,6 +616,30 @@
   <data name="Activities.Inactive" xml:space="preserve">
     <value>Inactive</value>
   </data>
+  <data name="Activities.ActiveDays" xml:space="preserve">
+    <value>active days</value>
+  </data>
+  <data name="Activities.DaysSchedule" xml:space="preserve">
+    <value>Days Schedule</value>
+  </data>
+  <data name="Activities.ManageDays" xml:space="preserve">
+    <value>Manage Activity Days</value>
+  </data>
+  <data name="Activities.ManageDaysHelp" xml:space="preserve">
+    <value>Check the days that will be available for bookings. Weekends are marked in yellow.</value>
+  </data>
+  <data name="Activities.DeactivateDaysWarning" xml:space="preserve">
+    <value>Warning! {0} existing booking(s) include the following days: {1}. By deactivating these days, they will be removed from all bookings. Do you want to continue?</value>
+  </data>
+  <data name="Activities.ConfirmRemoveDays" xml:space="preserve">
+    <value>Confirm Removal</value>
+  </data>
+  <data name="Activities.ActivateDaysInfo" xml:space="preserve">
+    <value>You have activated the following days: {0}.</value>
+  </data>
+  <data name="Activities.AddDaysToBookingsQuestion" xml:space="preserve">
+    <value>Do you want to add these days to all existing bookings?</value>
+  </data>
   <data name="Activities.Manage" xml:space="preserve">
     <value>Manage</value>
   </data>

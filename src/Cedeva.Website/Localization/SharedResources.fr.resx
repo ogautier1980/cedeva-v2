@@ -652,6 +652,30 @@
   <data name="Activities.Inactive" xml:space="preserve">
     <value>Inactive</value>
   </data>
+  <data name="Activities.ActiveDays" xml:space="preserve">
+    <value>jours actifs</value>
+  </data>
+  <data name="Activities.DaysSchedule" xml:space="preserve">
+    <value>Calendrier des jours</value>
+  </data>
+  <data name="Activities.ManageDays" xml:space="preserve">
+    <value>Gestion des jours d'activité</value>
+  </data>
+  <data name="Activities.ManageDaysHelp" xml:space="preserve">
+    <value>Cochez les jours qui seront disponibles pour les réservations. Les week-ends sont marqués en jaune.</value>
+  </data>
+  <data name="Activities.DeactivateDaysWarning" xml:space="preserve">
+    <value>Attention ! {0} réservation(s) existante(s) incluent les jours suivants : {1}. En désactivant ces jours, ils seront supprimés de toutes les réservations. Voulez-vous continuer ?</value>
+  </data>
+  <data name="Activities.ConfirmRemoveDays" xml:space="preserve">
+    <value>Confirmer la suppression</value>
+  </data>
+  <data name="Activities.ActivateDaysInfo" xml:space="preserve">
+    <value>Vous avez activé les jours suivants : {0}.</value>
+  </data>
+  <data name="Activities.AddDaysToBookingsQuestion" xml:space="preserve">
+    <value>Voulez-vous ajouter ces jours à toutes les réservations existantes ?</value>
+  </data>
   <data name="Activities.Manage" xml:space="preserve">
     <value>Gérer</value>
   </data>

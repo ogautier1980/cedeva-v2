@@ -111,4 +111,73 @@
             </div>
         </div>
     </div>
+
+    @* Activity Days Section *@
+    @if (Model.WeeklyDays.Any())
+    {
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card shadow">
+                    <div class="card-header">
+                        <h6 class="mb-0"><i class="fas fa-calendar-week me-2"></i>@Localizer["Activities.DaysSchedule"]</h6>
+                    </div>
+                    <div class="card-body">
+                        @foreach (var week in Model.WeeklyDays)
+                        {
+                            <div class="mb-4">
+                                <h6 class="text-primary mb-3">
+                                    <i class="fas fa-calendar me-2"></i>@week.WeekLabel
+                                    <small class="text-muted ms-2">(@week.StartDate.ToString("dd/MM") - @week.EndDate.ToString("dd/MM/yyyy"))</small>
+                                    <span class="badge bg-success ms-2">@week.ActiveDaysCount / @week.TotalDaysCount @Localizer["Activities.ActiveDays"]</span>
+                                </h6>
+                                <div class="row g-2">
+                                    @foreach (var day in week.Days)
+                                    {
+                                        var dayName = day.DayOfWeek switch
+                                        {
+                                            DayOfWeek.Monday => Localizer["DayOfWeek.Monday"],
+                                            DayOfWeek.Tuesday => Localizer["DayOfWeek.Tuesday"],
+                                            DayOfWeek.Wednesday => Localizer["DayOfWeek.Wednesday"],
+                                            DayOfWeek.Thursday => Localizer["DayOfWeek.Thursday"],
+                                            DayOfWeek.Friday => Localizer["DayOfWeek.Friday"],
+                                            DayOfWeek.Saturday => Localizer["DayOfWeek.Saturday"],
+                                            DayOfWeek.Sunday => Localizer["DayOfWeek.Sunday"],
+                                            _ => ""
+                                        };
+                                        var cardClass = day.IsWeekend ? "border-warning" : "";
+                                        var statusClass = day.IsActive ? "bg-success" : "bg-secondary";
+                                        var statusIcon = day.IsActive ? "fa-check" : "fa-times";
+                                        var statusText = day.IsActive ? Localizer["Active"] : Localizer["Inactive"];
+
+                                        <div class="col-md-6 col-lg-3">
+                                            <div class="card @cardClass h-100">
+                                                <div class="card-body py-2">
+                                                    <div class="d-flex justify-content-between align-items-start">
+                                                        <div>
+                                                            <strong>@dayName</strong><br />
+                                                            <small class="text-muted">@day.DayDate.ToString("dd/MM/yyyy")</small>
+                                                        </div>
+                                                        <div class="text-end">
+                                                            <span class="badge @statusClass">
+                                                                <i class="fas @statusIcon me-1"></i>@statusText
+                                                            </span>
+                                                            @if (day.IsWeekend)
+                                                            {
+                                                                <br />
+                                                                <span class="badge bg-warning text-dark mt-1">Week-end</span>
+                                                            }
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
 </div>
