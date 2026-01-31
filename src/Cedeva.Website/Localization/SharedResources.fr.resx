@@ -2221,6 +2221,18 @@
   <data name="DayOfWeek.Saturday" xml:space="preserve">
     <value>Samedi</value>
   </data>
+  <data name="Bookings.ReservedDays" xml:space="preserve">
+    <value>Jours réservés</value>
+  </data>
+  <data name="Bookings.NoDaysReserved" xml:space="preserve">
+    <value>Aucun jour n'a été réservé pour cette inscription.</value>
+  </data>
+  <data name="Present" xml:space="preserve">
+    <value>Présent</value>
+  </data>
+  <data name="NotMarked" xml:space="preserve">
+    <value>Non marqué</value>
+  </data>
   <data name="Bookings.ConfirmBooking" xml:space="preserve">
     <value>Confirmer l'inscription</value>
   </data>

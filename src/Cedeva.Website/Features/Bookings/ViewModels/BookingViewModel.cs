@@ -43,4 +43,7 @@ public class BookingViewModel
     // Day selection
     public List<BookingDaySelectionViewModel> AvailableDays { get; set; } = new();
     public List<int> SelectedActivityDayIds { get; set; } = new();
+
+    // Days grouped by week (for Details view)
+    public List<WeeklyBookingDaysViewModel> WeeklyDays { get; set; } = new();
 }

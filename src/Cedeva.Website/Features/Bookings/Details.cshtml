@@ -88,6 +88,87 @@
 
                     <hr />
 
+                    <h6 class="mb-3 text-primary"><i class="fas fa-calendar-week me-2"></i>@Localizer["Bookings.ReservedDays"]</h6>
+
+                    @if (Model.WeeklyDays.Any())
+                    {
+                        <div class="row g-3">
+                            @foreach (var week in Model.WeeklyDays)
+                            {
+                                <div class="col-12">
+                                    <div class="card border-primary">
+                                        <div class="card-header bg-primary text-white">
+                                            <h6 class="mb-0">
+                                                <i class="fas fa-calendar-week me-2"></i>@week.WeekLabel
+                                                <small class="ms-2">(@week.StartDate.ToString("dd/MM") - @week.EndDate.ToString("dd/MM/yyyy"))</small>
+                                            </h6>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="row g-2">
+                                                @foreach (var day in week.Days)
+                                                {
+                                                    var dayName = day.DayOfWeek switch
+                                                    {
+                                                        DayOfWeek.Monday => Localizer["DayOfWeek.Monday"],
+                                                        DayOfWeek.Tuesday => Localizer["DayOfWeek.Tuesday"],
+                                                        DayOfWeek.Wednesday => Localizer["DayOfWeek.Wednesday"],
+                                                        DayOfWeek.Thursday => Localizer["DayOfWeek.Thursday"],
+                                                        DayOfWeek.Friday => Localizer["DayOfWeek.Friday"],
+                                                        DayOfWeek.Saturday => Localizer["DayOfWeek.Saturday"],
+                                                        DayOfWeek.Sunday => Localizer["DayOfWeek.Sunday"],
+                                                        _ => ""
+                                                    };
+                                                    var isWeekend = day.DayOfWeek == DayOfWeek.Saturday || day.DayOfWeek == DayOfWeek.Sunday;
+                                                    var borderClass = isWeekend ? "border-warning" : "";
+
+                                                    <div class="col-md-6 col-lg-4">
+                                                        <div class="card @borderClass h-100">
+                                                            <div class="card-body py-2">
+                                                                <div class="d-flex justify-content-between align-items-center">
+                                                                    <div>
+                                                                        <strong>@dayName</strong><br />
+                                                                        <small class="text-muted">@day.Date.ToString("dd/MM/yyyy")</small>
+                                                                    </div>
+                                                                    <div>
+                                                                        @if (day.IsPresent)
+                                                                        {
+                                                                            <span class="badge bg-success">
+                                                                                <i class="fas fa-check me-1"></i>@Localizer["Present"]
+                                                                            </span>
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            <span class="badge bg-secondary">
+                                                                                <i class="fas fa-minus me-1"></i>@Localizer["NotMarked"]
+                                                                            </span>
+                                                                        }
+                                                                        @if (isWeekend)
+                                                                        {
+                                                                            <br />
+                                                                            <span class="badge bg-warning text-dark mt-1">Week-end</span>
+                                                                        }
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>@Localizer["Bookings.NoDaysReserved"]
+                        </div>
+                    }
+
+                    <hr />
+
                     <div class="mt-4">
                         <a asp-action="Index" class="btn btn-outline-secondary text-nowrap">
                             <i class="fas fa-arrow-left me-2"></i>@Localizer["BackToList"]

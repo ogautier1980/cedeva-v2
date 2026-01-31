@@ -375,7 +375,10 @@ public class BookingsController : Controller
     // Helper method to get booking view model with all related data
     private async Task<BookingViewModel?> GetBookingViewModelAsync(int id)
     {
-        var booking = await _bookingRepository.GetByIdAsync(id);
+        var booking = await _context.Bookings
+            .Include(b => b.Days)
+                .ThenInclude(d => d.ActivityDay)
+            .FirstOrDefaultAsync(b => b.Id == id);
 
         if (booking == null)
         {
@@ -386,6 +389,31 @@ public class BookingsController : Controller
         var parent = child != null ? await _context.Parents.FindAsync(child.ParentId) : null;
         var activity = await _context.Activities.FindAsync(booking.ActivityId);
         var group = booking.GroupId.HasValue ? await _context.ActivityGroups.FindAsync(booking.GroupId.Value) : null;
+
+        // Group booking days by week
+        var weeklyDays = booking.Days
+            .Where(d => d.IsReserved && d.ActivityDay != null)
+            .GroupBy(d => d.ActivityDay.Week ?? 0)
+            .OrderBy(g => g.Key)
+            .Select(g => new WeeklyBookingDaysViewModel
+            {
+                WeekNumber = g.Key,
+                WeekLabel = $"Semaine {g.Key}",
+                StartDate = g.Min(d => d.ActivityDay.DayDate),
+                EndDate = g.Max(d => d.ActivityDay.DayDate),
+                Days = g.OrderBy(d => d.ActivityDay.DayDate)
+                    .Select(d => new BookingDayDisplayViewModel
+                    {
+                        ActivityDayId = d.ActivityDayId,
+                        Date = d.ActivityDay.DayDate,
+                        Label = d.ActivityDay.Label,
+                        DayOfWeek = d.ActivityDay.DayDate.DayOfWeek,
+                        IsReserved = d.IsReserved,
+                        IsPresent = d.IsPresent
+                    })
+                    .ToList()
+            })
+            .ToList();
 
         return new BookingViewModel
         {
@@ -403,7 +431,8 @@ public class BookingsController : Controller
             ActivityEndDate = activity?.EndDate,
             GroupLabel = group?.Label,
             DaysCount = booking.Days.Count,
-            QuestionAnswersCount = booking.QuestionAnswers.Count
+            QuestionAnswersCount = booking.QuestionAnswers.Count,
+            WeeklyDays = weeklyDays
         };
     }
 
