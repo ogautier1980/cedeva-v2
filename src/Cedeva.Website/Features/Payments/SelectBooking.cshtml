@@ -1,0 +1,96 @@
+@inject IStringLocalizer<SharedResources> Localizer
+@using Cedeva.Website.Localization
+@using Cedeva.Core.Enums
+
+@{
+    ViewData["Title"] = Localizer["Payments.SelectBooking"];
+    var bookings = Model as IEnumerable<dynamic>;
+}
+
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="h3 mb-2">
+                        <i class="fas fa-hand-holding-usd me-2"></i>@Localizer["Payments.SelectBooking"]
+                    </h1>
+                    <p class="text-muted mb-0">
+                        @Localizer["Payments.SelectBookingHelp"]
+                    </p>
+                </div>
+                <div>
+                    <a asp-controller="Financial" asp-action="Transactions" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left me-1"></i>@Localizer["Button.Back"]
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @if (!bookings.Any())
+    {
+        <div class="alert alert-info">
+            <i class="fas fa-info-circle me-2"></i>@Localizer["Payments.AllBookingsPaid"]
+        </div>
+    }
+    else
+    {
+        <div class="card shadow">
+            <div class="card-header bg-primary">
+                <h6 class="mb-0 text-white">
+                    <i class="fas fa-list me-2"></i>@Localizer["Payments.BookingsWithOutstandingPayments"]
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>@Localizer["Field.Child"]</th>
+                                <th>@Localizer["Field.Parent"]</th>
+                                <th>@Localizer["Field.Activity"]</th>
+                                <th class="text-end">@Localizer["Field.TotalAmount"]</th>
+                                <th class="text-end">@Localizer["Payments.PaidAmount"]</th>
+                                <th class="text-end">@Localizer["Payments.RemainingAmount"]</th>
+                                <th>@Localizer["Field.Status"]</th>
+                                <th class="text-center">@Localizer["Field.Actions"]</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var booking in bookings)
+                            {
+                                <tr>
+                                    <td>@booking.ChildName</td>
+                                    <td>@booking.ParentName</td>
+                                    <td>@booking.ActivityName</td>
+                                    <td class="text-end">@booking.TotalAmount.ToString("N2") €</td>
+                                    <td class="text-end text-success">@booking.PaidAmount.ToString("N2") €</td>
+                                    <td class="text-end">
+                                        <strong class="text-danger">@booking.RemainingAmount.ToString("N2") €</strong>
+                                    </td>
+                                    <td>
+                                        @if (booking.PaymentStatus == PaymentStatus.NotPaid)
+                                        {
+                                            <span class="badge bg-danger">@Localizer["PaymentStatus.NotPaid"]</span>
+                                        }
+                                        else if (booking.PaymentStatus == PaymentStatus.PartiallyPaid)
+                                        {
+                                            <span class="badge bg-warning">@Localizer["PaymentStatus.PartiallyPaid"]</span>
+                                        }
+                                    </td>
+                                    <td class="text-center">
+                                        <a asp-action="Create" asp-route-bookingId="@booking.Id" class="btn btn-sm btn-primary">
+                                            <i class="fas fa-plus me-1"></i>@Localizer["Payments.CreatePayment"]
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    }
+</div>

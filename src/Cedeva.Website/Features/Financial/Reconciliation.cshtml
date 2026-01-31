@@ -9,10 +9,40 @@
 <div class="container-fluid mt-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2>@Localizer["Financial.Reconciliation"]</h2>
-        <a asp-action="ImportCoda" class="btn btn-secondary">
-            <i class="fas fa-arrow-left"></i> @Localizer["Common.Back"]
+        <a asp-action="Index" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> @Localizer["Button.Back"]
         </a>
     </div>
+
+    @if (ViewBag.Organisations != null)
+    {
+        <div class="card mb-4 border-info">
+            <div class="card-body">
+                <form asp-action="Reconciliation" method="get" class="row align-items-center">
+                    <div class="col-auto">
+                        <label class="form-label mb-0">
+                            <i class="fas fa-building"></i> @Localizer["Financial.SelectOrganisation"]:
+                        </label>
+                    </div>
+                    <div class="col-auto">
+                        <select name="organisationId" class="form-select" onchange="this.form.submit()">
+                            @foreach (var org in (List<Organisation>)ViewBag.Organisations)
+                            {
+                                <option value="@org.Id" selected="@(org.Id == ViewBag.CurrentOrganisationId)">
+                                    @org.Name
+                                </option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-auto">
+                        <small class="text-muted">
+                            <i class="fas fa-info-circle"></i> @Localizer["Financial.AdminOrganisationSelector"]
+                        </small>
+                    </div>
+                </form>
+            </div>
+        </div>
+    }
 
     @if (TempData["Success"] != null)
     {

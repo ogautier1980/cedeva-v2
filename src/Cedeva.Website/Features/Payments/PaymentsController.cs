@@ -81,6 +81,48 @@ public class PaymentsController : Controller
         return View(payments);
     }
 
+    // GET: Payments/SelectBooking
+    public async Task<IActionResult> SelectBooking()
+    {
+        var organisationId = _currentUserService.OrganisationId;
+
+        // Récupérer l'activité depuis la session (depuis Financial)
+        var activityId = HttpContext.Session.GetInt32("FinancialActivityId");
+
+        var query = _context.Bookings
+            .Include(b => b.Child)
+                .ThenInclude(c => c.Parent)
+            .Include(b => b.Activity)
+            .Where(b => b.Activity.OrganisationId == organisationId);
+
+        if (activityId.HasValue)
+        {
+            query = query.Where(b => b.ActivityId == activityId.Value);
+        }
+
+        // Filtrer les réservations avec paiement incomplet
+        var bookings = await query
+            .Where(b => b.PaymentStatus == PaymentStatus.NotPaid ||
+                       b.PaymentStatus == PaymentStatus.PartiallyPaid)
+            .OrderBy(b => b.Child.LastName)
+            .ThenBy(b => b.Child.FirstName)
+            .Select(b => new
+            {
+                b.Id,
+                ChildName = b.Child.FirstName + " " + b.Child.LastName,
+                ParentName = b.Child.Parent.FirstName + " " + b.Child.Parent.LastName,
+                ActivityName = b.Activity.Name,
+                TotalAmount = b.TotalAmount,
+                PaidAmount = b.PaidAmount,
+                RemainingAmount = b.TotalAmount - b.PaidAmount,
+                PaymentStatus = b.PaymentStatus
+            })
+            .ToListAsync();
+
+        ViewBag.ActivityId = activityId;
+        return View(bookings);
+    }
+
     // GET: Payments/Create?bookingId=5
     public async Task<IActionResult> Create(int bookingId)
     {

@@ -11,21 +11,38 @@ public class Expense
     [StringLength(100)]
     public string Label { get; set; } = string.Empty;
 
+    [StringLength(500)]
+    public string? Description { get; set; }
+
     [Required]
     public decimal Amount { get; set; }
 
+    [StringLength(50)]
+    public string? Category { get; set; }
+
     /// <summary>
-    /// Type de dépense:
+    /// Type de dépense (uniquement pour dépenses liées à un animateur):
     /// - Reimbursement: note de frais → montant AJOUTÉ au solde de l'animateur
     /// - PersonalConsumption: consommation perso → montant DÉDUIT du solde de l'animateur
     /// </summary>
-    [Required]
-    public ExpenseType ExpenseType { get; set; }
+    public ExpenseType? ExpenseType { get; set; }
+
+    /// <summary>
+    /// Animateur concerné (null si dépense d'organisation)
+    /// </summary>
+    public int? TeamMemberId { get; set; }
+    public TeamMember? TeamMember { get; set; }
+
+    /// <summary>
+    /// Source de paiement pour les dépenses d'organisation (si TeamMemberId est null)
+    /// Valeurs: "OrganizationCard" ou "OrganizationCash"
+    /// </summary>
+    [StringLength(50)]
+    public string? OrganizationPaymentSource { get; set; }
 
     [Required]
-    public int TeamMemberId { get; set; }
-    public TeamMember TeamMember { get; set; } = null!;
+    public int ActivityId { get; set; }
+    public Activity Activity { get; set; } = null!;
 
-    public int? ActivityId { get; set; }
-    public Activity? Activity { get; set; }
+    public DateTime ExpenseDate { get; set; }
 }

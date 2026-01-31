@@ -5,7 +5,7 @@
    Vert: #28a745 (hover: #218838)
    Rouge: #dc3545 (hover: #c82333)
    Gris foncé: #212529
-   Jaune (warning): #ffc107
+   Orange (warning): #ff9800
    ============================================ */
 
 /* === GLOBAL === */
@@ -37,6 +37,23 @@ a:hover {
 
 h1, h3, h4, h6 {
     color: #007faf;
+}
+
+/* Exception: h6 dans les card-headers colorés */
+.card-header.bg-danger h6,
+.card-header.bg-success h6,
+.card-header.bg-primary h6,
+.card-header.bg-info h6,
+.card-header.text-white h6 {
+    color: white !important;
+}
+
+.card-header.bg-warning h6 {
+    color: white !important;
+}
+
+.card-header.text-dark h6 {
+    color: #212529 !important;
 }
 
 h2 {
@@ -80,17 +97,17 @@ h2 {
     color: #212529 !important;
 }
 
-/* Jaune - Warning */
+/* Orange - Warning (meilleur contraste avec texte blanc) */
 .bg-warning {
-    background-color: #ffc107 !important;
+    background-color: #ff9800 !important;
 }
 
 .text-warning {
-    color: #ffc107 !important;
+    color: #ff9800 !important;
 }
 
 .badge.bg-warning {
-    background-color: #ffc107 !important;
+    background-color: #ff9800 !important;
 }
 
 /* Info - Cyan par défaut Bootstrap */
@@ -228,31 +245,31 @@ h2 {
     color: #fff;
 }
 
-/* Bouton Warning - Jaune */
+/* Bouton Warning - Orange */
 .btn-warning {
-    background-color: #ffc107;
-    border-color: #ffc107;
+    background-color: #ff9800;
+    border-color: #ff9800;
     color: #212529;
 }
 
 .btn-warning:hover {
-    background-color: #e0a800;
-    border-color: #d39e00;
+    background-color: #e68900;
+    border-color: #d87f00;
     color: #212529;
 }
 
 .btn-warning:focus {
-    box-shadow: 0 0 0 0.2rem rgba(255, 193, 7, 0.25);
+    box-shadow: 0 0 0 0.2rem rgba(255, 152, 0, 0.25);
 }
 
 .btn-outline-warning {
-    color: #ffc107;
-    border-color: #ffc107;
+    color: #ff9800;
+    border-color: #ff9800;
 }
 
 .btn-outline-warning:hover {
-    background-color: #ffc107;
-    border-color: #ffc107;
+    background-color: #ff9800;
+    border-color: #ff9800;
     color: #212529;
 }
 
@@ -401,7 +418,7 @@ h2 {
 }
 
 .border-left-warning {
-    border-left: 4px solid #ffc107 !important;
+    border-left: 4px solid #ff9800 !important;
 }
 
 .border-left-info {
@@ -491,7 +508,7 @@ h2 {
 .alert-warning {
     background-color: #fff3cd;
     border-color: #ffeaa7;
-    border-left-color: #ffc107;
+    border-left-color: #ff9800;
     color: #856404;
 }
 

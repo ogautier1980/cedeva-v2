@@ -1231,6 +1231,9 @@
   <data name="Error.CodaImportFailed" xml:space="preserve">
     <value>Erreur lors de l'import du fichier CODA : {0}</value>
   </data>
+  <data name="Error.ActivityNotSelected" xml:space="preserve">
+    <value>Aucune activité sélectionnée. Veuillez accéder à cette page depuis la gestion d'activité.</value>
+  </data>
   <data name="Financial.Reconciliation" xml:space="preserve">
     <value>Rapprochement bancaire</value>
   </data>
@@ -1293,6 +1296,315 @@
   </data>
   <data name="Financial.Validate" xml:space="preserve">
     <value>Valider</value>
+  </data>
+  <data name="Financial.SelectOrganisation" xml:space="preserve">
+    <value>Sélectionner l'organisation</value>
+  </data>
+  <data name="Financial.AdminOrganisationSelector" xml:space="preserve">
+    <value>En tant qu'administrateur, vous pouvez consulter les données financières de n'importe quelle organisation</value>
+  </data>
+  <data name="Financial.TeamSalaries" xml:space="preserve">
+    <value>Salaires de l'équipe</value>
+  </data>
+  <data name="Financial.Days" xml:space="preserve">
+    <value>Jours</value>
+  </data>
+  <data name="Financial.DailyCompensation" xml:space="preserve">
+    <value>Défraiement journalier</value>
+  </data>
+  <data name="Financial.Prestations" xml:space="preserve">
+    <value>Prestations</value>
+  </data>
+  <data name="Financial.Reimbursements" xml:space="preserve">
+    <value>Remboursements</value>
+  </data>
+  <data name="Financial.ReimbursementsCount" xml:space="preserve">
+    <value>Nbre remb.</value>
+  </data>
+  <data name="Financial.Consumptions" xml:space="preserve">
+    <value>Consommations</value>
+  </data>
+  <data name="Financial.ConsumptionsCount" xml:space="preserve">
+    <value>Nbre conso.</value>
+  </data>
+  <data name="Financial.TotalToPay" xml:space="preserve">
+    <value>Total à verser</value>
+  </data>
+  <data name="Financial.NoTeamMembers" xml:space="preserve">
+    <value>Aucun membre d'équipe n'est assigné à cette activité</value>
+  </data>
+  <data name="Financial.TotalPrestations" xml:space="preserve">
+    <value>Total prestations</value>
+  </data>
+  <data name="Financial.TotalReimbursements" xml:space="preserve">
+    <value>Total remboursements</value>
+  </data>
+  <data name="Financial.TotalConsumptions" xml:space="preserve">
+    <value>Total consommations</value>
+  </data>
+  <data name="Financial.GrandTotal" xml:space="preserve">
+    <value>Total général</value>
+  </data>
+  <data name="Financial.TeamMemberSalaries" xml:space="preserve">
+    <value>Salaires des membres d'équipe</value>
+  </data>
+  <data name="Financial.ImportantNote" xml:space="preserve">
+    <value>Note importante</value>
+  </data>
+  <data name="Financial.SalaryCalculationInfo" xml:space="preserve">
+    <value>Ces montants sont calculés automatiquement à titre informatif. Le paiement réel des salaires se fait en dehors de cette application. Utilisez le bouton d'export pour générer un fichier Excel à remettre au service comptable.</value>
+  </data>
+  <data name="Financial.ExpenseDetails" xml:space="preserve">
+    <value>Détails des dépenses</value>
+  </data>
+  <data name="Financial.PersonalConsumptions" xml:space="preserve">
+    <value>Consommations personnelles</value>
+  </data>
+  <data name="Financial.Reimbursement(s)" xml:space="preserve">
+    <value>remboursement(s)</value>
+  </data>
+  <data name="Financial.Consumption(s)" xml:space="preserve">
+    <value>consommation(s)</value>
+  </data>
+  <data name="Financial.Total" xml:space="preserve">
+    <value>Total</value>
+  </data>
+  <data name="Financial.Dashboard" xml:space="preserve">
+    <value>Tableau de bord financier</value>
+  </data>
+  <data name="Financial.TotalRevenue" xml:space="preserve">
+    <value>Revenus totaux</value>
+  </data>
+  <data name="Financial.TotalExpenses" xml:space="preserve">
+    <value>Dépenses totales</value>
+  </data>
+  <data name="Financial.Balance" xml:space="preserve">
+    <value>Bilan</value>
+  </data>
+  <data name="Financial.PendingPayments" xml:space="preserve">
+    <value>Paiements en attente</value>
+  </data>
+  <data name="Financial.Actions" xml:space="preserve">
+    <value>Actions</value>
+  </data>
+  <data name="Financial.TeamMember(s)" xml:space="preserve">
+    <value>membre(s) d'équipe</value>
+  </data>
+  <data name="Financial.Estimated" xml:space="preserve">
+    <value>Estimé</value>
+  </data>
+  <data name="Financial.ImportBankStatements" xml:space="preserve">
+    <value>Importer les relevés bancaires</value>
+  </data>
+  <data name="Financial.BankReconciliation" xml:space="preserve">
+    <value>Rapprochement bancaire</value>
+  </data>
+  <data name="Financial.MatchPayments" xml:space="preserve">
+    <value>Associer les paiements</value>
+  </data>
+  <data name="Financial.Booking(s)" xml:space="preserve">
+    <value>inscription(s)</value>
+  </data>
+  <data name="Financial.Confirmed" xml:space="preserve">
+    <value>confirmée(s)</value>
+  </data>
+  <data name="Financial.Info" xml:space="preserve">
+    <value>Information</value>
+  </data>
+  <data name="Financial.DashboardInfo" xml:space="preserve">
+    <value>Ce tableau de bord vous donne un aperçu rapide de la situation financière de l'activité. Les salaires sont estimés en fonction des jours d'activité et du défraiement journalier de chaque membre d'équipe.</value>
+  </data>
+  <data name="Expense.Management" xml:space="preserve">
+    <value>Gestion des dépenses</value>
+  </data>
+  <data name="Expense.ManageExpenses" xml:space="preserve">
+    <value>Gérer les entrées et sorties</value>
+  </data>
+  <data name="Expense.AddExpense" xml:space="preserve">
+    <value>Ajouter une dépense</value>
+  </data>
+  <data name="Expense.EditExpense" xml:space="preserve">
+    <value>Modifier la dépense</value>
+  </data>
+  <data name="Expense.List" xml:space="preserve">
+    <value>Liste des dépenses</value>
+  </data>
+  <data name="Expense.NoExpenses" xml:space="preserve">
+    <value>Aucune dépense enregistrée pour cette activité</value>
+  </data>
+  <data name="Expense.TotalExpenses" xml:space="preserve">
+    <value>Total des dépenses</value>
+  </data>
+  <data name="Expense.TeamMemberExpenses" xml:space="preserve">
+    <value>Dépenses animateurs</value>
+  </data>
+  <data name="Expense.OrganizationExpenses" xml:space="preserve">
+    <value>Dépenses organisation</value>
+  </data>
+  <data name="Expense.Date" xml:space="preserve">
+    <value>Date</value>
+  </data>
+  <data name="Expense.Category" xml:space="preserve">
+    <value>Catégorie</value>
+  </data>
+  <data name="Expense.AssignedTo" xml:space="preserve">
+    <value>Attribué à</value>
+  </data>
+  <data name="Expense.Type" xml:space="preserve">
+    <value>Type</value>
+  </data>
+  <data name="Expense.SelectAssignedTo" xml:space="preserve">
+    <value>Sélectionnez une attribution</value>
+  </data>
+  <data name="Expense.SelectType" xml:space="preserve">
+    <value>Sélectionnez un type</value>
+  </data>
+  <data name="Expense.OrganizationCard" xml:space="preserve">
+    <value>Carte organisation</value>
+  </data>
+  <data name="Expense.OrganizationCash" xml:space="preserve">
+    <value>Caisse organisation</value>
+  </data>
+  <data name="Expense.ExpenseType" xml:space="preserve">
+    <value>Type de dépense</value>
+  </data>
+  <data name="Expense.ExpenseTypeHelp" xml:space="preserve">
+    <value>Remboursement = ajouté au solde de l'animateur, Consommation = déduit du solde</value>
+  </data>
+  <data name="ExpenseType.Reimbursement" xml:space="preserve">
+    <value>Remboursement (note de frais)</value>
+  </data>
+  <data name="ExpenseType.PersonalConsumption" xml:space="preserve">
+    <value>Consommation personnelle</value>
+  </data>
+  <data name="Message.ExpenseCreated" xml:space="preserve">
+    <value>La dépense a été créée avec succès</value>
+  </data>
+  <data name="Message.ExpenseUpdated" xml:space="preserve">
+    <value>La dépense a été modifiée avec succès</value>
+  </data>
+  <data name="Message.ExpenseDeleted" xml:space="preserve">
+    <value>La dépense a été supprimée avec succès</value>
+  </data>
+  <data name="Confirm.DeleteExpense" xml:space="preserve">
+    <value>Êtes-vous sûr de vouloir supprimer cette dépense ?</value>
+  </data>
+  <data name="Financial.Report" xml:space="preserve">
+    <value>Rapport financier</value>
+  </data>
+  <data name="Financial.ComprehensiveReport" xml:space="preserve">
+    <value>Rapport financier complet</value>
+  </data>
+  <data name="Financial.GeneratedOn" xml:space="preserve">
+    <value>Généré le</value>
+  </data>
+  <data name="Financial.ExecutiveSummary" xml:space="preserve">
+    <value>Synthèse</value>
+  </data>
+  <data name="Financial.Margin" xml:space="preserve">
+    <value>Marge</value>
+  </data>
+  <data name="Financial.RevenueDetails" xml:space="preserve">
+    <value>Détail des revenus</value>
+  </data>
+  <data name="Financial.ConfirmedBookings" xml:space="preserve">
+    <value>Inscriptions confirmées</value>
+  </data>
+  <data name="Financial.PendingBookings" xml:space="preserve">
+    <value>Inscriptions en attente</value>
+  </data>
+  <data name="Financial.PendingAmount" xml:space="preserve">
+    <value>Montant en attente</value>
+  </data>
+  <data name="Financial.AveragePerBooking" xml:space="preserve">
+    <value>Moyenne par inscription</value>
+  </data>
+  <data name="Financial.DetailedExpenses" xml:space="preserve">
+    <value>Détail des dépenses</value>
+  </data>
+  <data name="Financial.TeamMembersCount" xml:space="preserve">
+    <value>Nombre d'animateurs</value>
+  </data>
+  <data name="Financial.TotalTeamSalaries" xml:space="preserve">
+    <value>Total salaires équipe</value>
+  </data>
+  <data name="Financial.BaseSalary" xml:space="preserve">
+    <value>Salaire de base</value>
+  </data>
+  <data name="Financial.NetSalary" xml:space="preserve">
+    <value>Salaire net</value>
+  </data>
+  <data name="Financial.FinalSummary" xml:space="preserve">
+    <value>Résumé final</value>
+  </data>
+  <data name="Button.Print" xml:space="preserve">
+    <value>Imprimer</value>
+  </data>
+  <data name="Financial.Transactions" xml:space="preserve">
+    <value>Transactions</value>
+  </data>
+  <data name="Financial.TotalIncome" xml:space="preserve">
+    <value>Total des entrées</value>
+  </data>
+  <data name="Financial.NetBalance" xml:space="preserve">
+    <value>Solde net</value>
+  </data>
+  <data name="Financial.AllTransactions" xml:space="preserve">
+    <value>Toutes les transactions</value>
+  </data>
+  <data name="Financial.IncomeOnly" xml:space="preserve">
+    <value>Entrées uniquement</value>
+  </data>
+  <data name="Financial.ExpensesOnly" xml:space="preserve">
+    <value>Dépenses uniquement</value>
+  </data>
+  <data name="Financial.TransactionsList" xml:space="preserve">
+    <value>Liste des transactions</value>
+  </data>
+  <data name="Financial.NoTransactions" xml:space="preserve">
+    <value>Aucune transaction trouvée</value>
+  </data>
+  <data name="Financial.Income" xml:space="preserve">
+    <value>Entrée</value>
+  </data>
+  <data name="Financial.Expense" xml:space="preserve">
+    <value>Dépense</value>
+  </data>
+  <data name="Financial.Details" xml:space="preserve">
+    <value>Détails</value>
+  </data>
+  <data name="Financial.AddTransaction" xml:space="preserve">
+    <value>Ajouter une dépense</value>
+  </data>
+  <data name="Payments.PaymentFrom" xml:space="preserve">
+    <value>Paiement de</value>
+  </data>
+  <data name="Payments.SelectBooking" xml:space="preserve">
+    <value>Sélectionner une réservation</value>
+  </data>
+  <data name="Payments.SelectBookingHelp" xml:space="preserve">
+    <value>Choisissez une réservation pour enregistrer un paiement en liquide</value>
+  </data>
+  <data name="Payments.AllBookingsPaid" xml:space="preserve">
+    <value>Toutes les réservations sont entièrement payées</value>
+  </data>
+  <data name="Payments.BookingsWithOutstandingPayments" xml:space="preserve">
+    <value>Réservations avec paiements en attente</value>
+  </data>
+  <data name="Payments.PaidAmount" xml:space="preserve">
+    <value>Montant payé</value>
+  </data>
+  <data name="Payments.RemainingAmount" xml:space="preserve">
+    <value>Montant restant</value>
+  </data>
+  <data name="Payments.CreatePayment" xml:space="preserve">
+    <value>Créer un paiement</value>
+  </data>
+  <data name="Payments.AddPayment" xml:space="preserve">
+    <value>Ajouter un paiement</value>
+  </data>
+  <data name="Field.Period" xml:space="preserve">
+    <value>Période</value>
   </data>
   <data name="Field.Transaction" xml:space="preserve">
     <value>Transaction</value>
@@ -2062,9 +2374,6 @@
   <data name="Field.License" xml:space="preserve">
     <value>Brevet</value>
   </data>
-  <data name="Field.Status" xml:space="preserve">
-    <value>Statut</value>
-  </data>
   <data name="Field.DailyCompensation" xml:space="preserve">
     <value>Indemnité journalière</value>
   </data>
@@ -2400,11 +2709,5 @@
   </data>
   <data name="Validation.OrganisationRequired" xml:space="preserve">
     <value>Veuillez sélectionner une organisation</value>
-  </data>
-  <data name="SelectOrganisation" xml:space="preserve">
-    <value>-- Sélectionnez une organisation --</value>
-  </data>
-  <data name="Field.Organisation" xml:space="preserve">
-    <value>Organisation</value>
   </data>
 </root>

@@ -1,0 +1,112 @@
+@model Cedeva.Website.Features.Financial.ViewModels.ExpenseViewModel
+@inject IStringLocalizer<SharedResources> Localizer
+@using Cedeva.Website.Localization
+
+@{
+    ViewData["Title"] = Localizer["Expense.EditExpense"];
+}
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary">
+                    <h5 class="mb-0 text-white">
+                        <i class="fas fa-edit me-2"></i>@Localizer["Expense.EditExpense"]
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form asp-action="EditExpense" asp-route-id="@Model.Id" method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" asp-for="Id" />
+                        <input type="hidden" asp-for="ActivityId" />
+
+                        <div class="mb-3">
+                            <label asp-for="Label" class="form-label"></label>
+                            <input asp-for="Label" class="form-control" />
+                            <span asp-validation-for="Label" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Description" class="form-label"></label>
+                            <textarea asp-for="Description" class="form-control" rows="3"></textarea>
+                            <span asp-validation-for="Description" class="text-danger"></span>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Amount" class="form-label"></label>
+                                <div class="input-group">
+                                    <input asp-for="Amount" class="form-control" step="0.01" />
+                                    <span class="input-group-text">€</span>
+                                </div>
+                                <span asp-validation-for="Amount" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="ExpenseDate" class="form-label"></label>
+                                <input asp-for="ExpenseDate" class="form-control" type="date" />
+                                <span asp-validation-for="ExpenseDate" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Category" class="form-label"></label>
+                            <input asp-for="Category" class="form-control" />
+                            <span asp-validation-for="Category" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="AssignedTo" class="form-label"></label>
+                            <select asp-for="AssignedTo" class="form-select" asp-items="ViewBag.AssignedToList" id="assignedToSelect">
+                                <option value="">@Localizer["Expense.SelectAssignedTo"]</option>
+                            </select>
+                            <span asp-validation-for="AssignedTo" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3" id="expenseTypeDiv">
+                            <label asp-for="ExpenseType" class="form-label"></label>
+                            <select asp-for="ExpenseType" class="form-select">
+                                <option value="">@Localizer["Expense.SelectType"]</option>
+                                <option value="@Cedeva.Core.Enums.ExpenseType.Reimbursement">@Localizer["ExpenseType.Reimbursement"]</option>
+                                <option value="@Cedeva.Core.Enums.ExpenseType.PersonalConsumption">@Localizer["ExpenseType.PersonalConsumption"]</option>
+                            </select>
+                            <small class="form-text text-muted">@Localizer["Expense.ExpenseTypeHelp"]</small>
+                        </div>
+
+                        <div class="d-flex justify-content-between mt-4">
+                            <a asp-action="Transactions" class="btn btn-secondary">
+                                <i class="fas fa-times me-1"></i>@Localizer["Button.Cancel"]
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-1"></i>@Localizer["Button.Save"]
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        function updateExpenseTypeVisibility() {
+            const value = document.getElementById('assignedToSelect').value;
+            const expenseTypeDiv = document.getElementById('expenseTypeDiv');
+
+            // Show ExpenseType only if a team member is selected (numeric value)
+            if (value && !isNaN(value)) {
+                expenseTypeDiv.style.display = 'block';
+            } else {
+                expenseTypeDiv.style.display = 'none';
+            }
+        }
+
+        document.getElementById('assignedToSelect').addEventListener('change', updateExpenseTypeVisibility);
+
+        // Run on page load
+        updateExpenseTypeVisibility();
+    </script>
+}

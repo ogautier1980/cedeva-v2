@@ -24,6 +24,7 @@ public class BookingsController : Controller
     private readonly IPdfExportService _pdfExportService;
     private readonly IEmailService _emailService;
     private readonly IStringLocalizer<SharedResources> _localizer;
+    private readonly ICurrentUserService _currentUserService;
 
     public BookingsController(
         IRepository<Booking> bookingRepository,
@@ -32,7 +33,8 @@ public class BookingsController : Controller
         IExcelExportService excelExportService,
         IPdfExportService pdfExportService,
         IEmailService emailService,
-        IStringLocalizer<SharedResources> localizer)
+        IStringLocalizer<SharedResources> localizer,
+        ICurrentUserService currentUserService)
     {
         _bookingRepository = bookingRepository;
         _context = context;
@@ -41,6 +43,7 @@ public class BookingsController : Controller
         _pdfExportService = pdfExportService;
         _emailService = emailService;
         _localizer = localizer;
+        _currentUserService = currentUserService;
     }
 
     // GET: Bookings
@@ -51,7 +54,7 @@ public class BookingsController : Controller
             return BadRequest(ModelState);
         }
 
-        var query = BuildBookingsQuery(_context, searchString, activityId, childId, isConfirmed);
+        var query = BuildBookingsQuery(searchString, activityId, childId, isConfirmed);
 
         // Apply sorting
         query = (sortBy?.ToLower(), sortOrder?.ToLower()) switch
@@ -107,21 +110,33 @@ public class BookingsController : Controller
         return View(bookings);
     }
 
-    private static IQueryable<Booking> BuildBookingsQuery(CedevaDbContext context, string? searchString, int? activityId, int? childId, bool? isConfirmed)
+    private IQueryable<Booking> BuildBookingsQuery(string? searchString, int? activityId, int? childId, bool? isConfirmed)
     {
-        var query = context.Bookings
+        // Use IgnoreQueryFilters to load all related entities (Child, Parent, Activity, Group)
+        // even if they would normally be filtered by multi-tenancy.
+        // We still filter the Bookings themselves by organisation.
+        var query = _context.Bookings
+            .IgnoreQueryFilters()
             .Include(b => b.Child)
                 .ThenInclude(c => c.Parent)
             .Include(b => b.Activity)
             .Include(b => b.Group)
             .AsQueryable();
 
+        // Manually apply organisation filter
+        if (!_currentUserService.IsAdmin)
+        {
+            var organisationId = _currentUserService.OrganisationId;
+            query = query.Where(b => b.Activity.OrganisationId == organisationId);
+        }
+
         if (!string.IsNullOrEmpty(searchString))
         {
+            var searchLower = searchString.ToLower();
             query = query.Where(b =>
-                b.Child.FirstName.Contains(searchString, StringComparison.OrdinalIgnoreCase) ||
-                b.Child.LastName.Contains(searchString, StringComparison.OrdinalIgnoreCase) ||
-                b.Activity.Name.Contains(searchString, StringComparison.OrdinalIgnoreCase));
+                b.Child.FirstName.ToLower().Contains(searchLower) ||
+                b.Child.LastName.ToLower().Contains(searchLower) ||
+                b.Activity.Name.ToLower().Contains(searchLower));
         }
 
         if (activityId.HasValue)
@@ -460,10 +475,11 @@ public class BookingsController : Controller
 
         if (!string.IsNullOrEmpty(searchString))
         {
+            var searchLower = searchString.ToLower();
             query = query.Where(b =>
-                b.Child.FirstName.Contains(searchString, StringComparison.OrdinalIgnoreCase) ||
-                b.Child.LastName.Contains(searchString, StringComparison.OrdinalIgnoreCase) ||
-                b.Activity.Name.Contains(searchString, StringComparison.OrdinalIgnoreCase));
+                b.Child.FirstName.ToLower().Contains(searchLower) ||
+                b.Child.LastName.ToLower().Contains(searchLower) ||
+                b.Activity.Name.ToLower().Contains(searchLower));
         }
 
         if (activityId.HasValue)
@@ -520,10 +536,11 @@ public class BookingsController : Controller
 
         if (!string.IsNullOrEmpty(searchString))
         {
+            var searchLower = searchString.ToLower();
             query = query.Where(b =>
-                b.Child.FirstName.Contains(searchString, StringComparison.OrdinalIgnoreCase) ||
-                b.Child.LastName.Contains(searchString, StringComparison.OrdinalIgnoreCase) ||
-                b.Activity.Name.Contains(searchString, StringComparison.OrdinalIgnoreCase));
+                b.Child.FirstName.ToLower().Contains(searchLower) ||
+                b.Child.LastName.ToLower().Contains(searchLower) ||
+                b.Activity.Name.ToLower().Contains(searchLower));
         }
 
         if (activityId.HasValue)

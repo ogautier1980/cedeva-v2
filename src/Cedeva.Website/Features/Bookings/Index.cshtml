@@ -63,6 +63,9 @@
                 </div>
                 <input type="hidden" name="activityId" value="@activityId" />
                 <input type="hidden" name="childId" value="@childId" />
+                <input type="hidden" name="sortBy" value="@(ViewData["SortBy"] as string)" />
+                <input type="hidden" name="sortOrder" value="@(ViewData["SortOrder"] as string)" />
+                <input type="hidden" name="pageSize" value="@pageSize" />
             </form>
         </div>
         <div class="card-body">

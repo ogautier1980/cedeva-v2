@@ -1,0 +1,228 @@
+@model Cedeva.Website.Features.Financial.ViewModels.TransactionsListViewModel
+@inject IStringLocalizer<SharedResources> Localizer
+@using Cedeva.Website.Localization
+
+@{
+    ViewData["Title"] = Localizer["Financial.Transactions"];
+    var currentFilter = ViewBag.CurrentFilter as string;
+}
+
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="h3 mb-2">
+                        <i class="fas fa-exchange-alt me-2"></i>@Localizer["Financial.Transactions"]
+                    </h1>
+                    <p class="text-muted mb-0">
+                        <strong>@Localizer["Field.Activity"]:</strong> @Model.ActivityName
+                    </p>
+                </div>
+                <div>
+                    <a asp-action="Index" class="btn btn-secondary me-2">
+                        <i class="fas fa-arrow-left me-1"></i>@Localizer["Button.Back"]
+                    </a>
+                    <div class="btn-group">
+                        <a asp-controller="Payments" asp-action="SelectBooking" class="btn btn-success">
+                            <i class="fas fa-plus me-1"></i>@Localizer["Payments.AddPayment"]
+                        </a>
+                        <a asp-action="CreateExpense" class="btn btn-danger">
+                            <i class="fas fa-plus me-1"></i>@Localizer["Expense.AddExpense"]
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show">
+            @TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <!-- Summary Cards -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card border-left-success shadow h-100">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                @Localizer["Financial.TotalIncome"]
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                @Model.TotalIncome.ToString("N2") €
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-arrow-down fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card border-left-danger shadow h-100">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col">
+                            <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">
+                                @Localizer["Financial.TotalExpenses"]
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                @Model.TotalExpenses.ToString("N2") €
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-arrow-up fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card border-left-@(Model.NetBalance >= 0 ? "primary" : "warning") shadow h-100">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col">
+                            <div class="text-xs font-weight-bold text-@(Model.NetBalance >= 0 ? "primary" : "warning") text-uppercase mb-1">
+                                @Localizer["Financial.NetBalance"]
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                @Model.NetBalance.ToString("N2") €
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-balance-scale fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filter -->
+    <div class="row mb-3">
+        <div class="col-12">
+            <div class="btn-group" role="group">
+                <a asp-action="Transactions" class="btn btn-@(string.IsNullOrEmpty(currentFilter) ? "primary" : "outline-primary")">
+                    <i class="fas fa-list me-1"></i>@Localizer["Financial.AllTransactions"]
+                </a>
+                <a asp-action="Transactions" asp-route-filter="income" class="btn btn-@(currentFilter == "income" ? "success" : "outline-success")">
+                    <i class="fas fa-arrow-down me-1"></i>@Localizer["Financial.IncomeOnly"]
+                </a>
+                <a asp-action="Transactions" asp-route-filter="expense" class="btn btn-@(currentFilter == "expense" ? "danger" : "outline-danger")">
+                    <i class="fas fa-arrow-up me-1"></i>@Localizer["Financial.ExpensesOnly"]
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Transactions Table -->
+    <div class="card shadow">
+        <div class="card-header bg-primary">
+            <h6 class="mb-0 text-white">
+                <i class="fas fa-list me-2"></i>@Localizer["Financial.TransactionsList"]
+            </h6>
+        </div>
+        <div class="card-body">
+            @if (!Model.Transactions.Any())
+            {
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>@Localizer["Financial.NoTransactions"]
+                </div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>@Localizer["Field.Date"]</th>
+                                <th>@Localizer["Field.Type"]</th>
+                                <th>@Localizer["Field.Label"]</th>
+                                <th>@Localizer["Financial.Details"]</th>
+                                <th class="text-end">@Localizer["Field.Amount"]</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var transaction in Model.Transactions)
+                            {
+                                <tr>
+                                    <td>@transaction.Date.ToString("dd/MM/yyyy")</td>
+                                    <td>
+                                        @if (transaction.IsIncome)
+                                        {
+                                            <span class="badge bg-success">
+                                                <i class="fas fa-arrow-down me-1"></i>@Localizer["Financial.Income"]
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-danger">
+                                                <i class="fas fa-arrow-up me-1"></i>@Localizer["Financial.Expense"]
+                                            </span>
+                                        }
+                                    </td>
+                                    <td>@transaction.Label</td>
+                                    <td>
+                                        @if (transaction.IsIncome)
+                                        {
+                                            <span class="text-muted small">
+                                                <i class="fas fa-credit-card me-1"></i>@transaction.PaymentMethod
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted small">
+                                                @if (!string.IsNullOrEmpty(transaction.Category))
+                                                {
+                                                    <span class="me-2">
+                                                        <i class="fas fa-tag me-1"></i>@transaction.Category
+                                                    </span>
+                                                }
+                                                @if (!string.IsNullOrEmpty(transaction.AssignedTo))
+                                                {
+                                                    <span>
+                                                        <i class="fas fa-user me-1"></i>@transaction.AssignedTo
+                                                    </span>
+                                                }
+                                            </span>
+                                        }
+                                    </td>
+                                    <td class="text-end">
+                                        @if (transaction.IsIncome)
+                                        {
+                                            <strong class="text-success">+@transaction.Amount.ToString("N2") €</strong>
+                                        }
+                                        else
+                                        {
+                                            <strong class="text-danger">-@transaction.Amount.ToString("N2") €</strong>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                        <tfoot>
+                            <tr class="table-secondary">
+                                <th colspan="4" class="text-end">@Localizer["Financial.NetBalance"]:</th>
+                                <th class="text-end">
+                                    <strong class="@(Model.NetBalance >= 0 ? "text-success" : "text-danger")">
+                                        @(Model.NetBalance >= 0 ? "+" : "")@Model.NetBalance.ToString("N2") €
+                                    </strong>
+                                </th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+</div>
