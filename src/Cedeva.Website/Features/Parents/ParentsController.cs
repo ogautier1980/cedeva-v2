@@ -306,7 +306,7 @@ public class ParentsController : Controller
         return RedirectToAction(nameof(Index));
     }
 
-    public async Task<IActionResult> Edit(int id)
+    public async Task<IActionResult> Edit(int id, string? returnUrl = null)
     {
         if (!ModelState.IsValid)
         {
@@ -333,13 +333,16 @@ public class ParentsController : Controller
             ViewBag.Organisations = new SelectList(organisations, "Id", "Name", viewModel.OrganisationId);
         }
 
+        ViewData["ReturnUrl"] = returnUrl;
         return View(viewModel);
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(int id, ParentViewModel viewModel)
+    public async Task<IActionResult> Edit(int id, ParentViewModel viewModel, string? returnUrl = null)
     {
+        ViewData["ReturnUrl"] = returnUrl;
+
         if (id != viewModel.Id)
         {
             return NotFound();
@@ -401,6 +404,11 @@ public class ParentsController : Controller
             throw new InvalidOperationException($"Failed to update parent {id} due to concurrency conflict", ex);
         }
 
+        // Redirect to return URL if provided, otherwise to Index
+        if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+        {
+            return Redirect(returnUrl);
+        }
         return RedirectToAction(nameof(Index));
     }
 

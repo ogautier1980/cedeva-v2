@@ -136,6 +136,9 @@ try
         // Seed test data
         var testDataSeeder = scope.ServiceProvider.GetRequiredService<TestDataSeeder>();
         await testDataSeeder.SeedTestDataAsync();
+
+        // Fix ActivityDay week numbers
+        await Cedeva.Infrastructure.Scripts.FixActivityDayWeekNumbers.ExecuteAsync(app.Services);
     }
 
     // Configure the HTTP request pipeline

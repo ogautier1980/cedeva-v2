@@ -205,7 +205,7 @@ public class OrganisationsController : Controller
     }
 
     // GET: Organisations/Edit/5
-    public async Task<IActionResult> Edit(int id)
+    public async Task<IActionResult> Edit(int id, string? returnUrl = null)
     {
         if (!ModelState.IsValid)
         {
@@ -234,14 +234,17 @@ public class OrganisationsController : Controller
             AddressId = organisation.AddressId
         };
 
+        ViewData["ReturnUrl"] = returnUrl;
         return View(viewModel);
     }
 
     // POST: Organisations/Edit/5
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(int id, OrganisationViewModel viewModel)
+    public async Task<IActionResult> Edit(int id, OrganisationViewModel viewModel, string? returnUrl = null)
     {
+        ViewData["ReturnUrl"] = returnUrl;
+
         if (id != viewModel.Id)
         {
             return NotFound();
@@ -276,6 +279,12 @@ public class OrganisationsController : Controller
             await _unitOfWork.SaveChangesAsync();
 
             TempData[TempDataSuccessMessage] = _localizer["Message.OrganisationUpdated"].Value;
+
+            // Redirect to return URL if provided, otherwise to Details
+            if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+            {
+                return Redirect(returnUrl);
+            }
             return RedirectToAction(nameof(Details), new { id = organisation.Id });
         }
 

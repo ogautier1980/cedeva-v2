@@ -52,6 +52,15 @@
                         }
                     </select>
                 </div>
+                @if (Model.SelectedActivityDayId.HasValue)
+                {
+                    <div class="col-md-6 text-end">
+                        <a asp-action="Print" asp-route-activityId="@Model.Activity.Id" asp-route-dayId="@Model.SelectedActivityDayId"
+                           class="btn btn-secondary" target="_blank">
+                            <i class="fas fa-print me-2"></i>@Localizer["Presence.PrintList"]
+                        </a>
+                    </div>
+                }
             </form>
         </div>
     </div>

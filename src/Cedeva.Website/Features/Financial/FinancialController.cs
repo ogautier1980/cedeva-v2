@@ -58,8 +58,7 @@ public class FinancialController : Controller
         var activityId = HttpContext.Session.GetInt32(SessionKeyActivityId);
         if (!activityId.HasValue)
         {
-            TempData[TempDataError] = _localizer["Error.ActivityNotSelected"].Value;
-            return RedirectToAction("Index", "Home");
+            return RedirectToAction("Index", "Activities");
         }
 
         var activity = await _context.Activities
@@ -300,8 +299,7 @@ public class FinancialController : Controller
         var activityId = HttpContext.Session.GetInt32(SessionKeyActivityId);
         if (!activityId.HasValue)
         {
-            TempData[TempDataError] = _localizer["Error.ActivityNotSelected"].Value;
-            return RedirectToAction("Index", "Home");
+            return RedirectToAction("Index", "Activities");
         }
 
         var activity = await _context.Activities
@@ -386,8 +384,7 @@ public class FinancialController : Controller
         var activityId = HttpContext.Session.GetInt32(SessionKeyActivityId);
         if (!activityId.HasValue)
         {
-            TempData[TempDataError] = _localizer["Error.ActivityNotSelected"].Value;
-            return RedirectToAction("Index", "Home");
+            return RedirectToAction("Index", "Activities");
         }
 
         var activity = await _context.Activities
@@ -467,8 +464,7 @@ public class FinancialController : Controller
         var activityId = HttpContext.Session.GetInt32(SessionKeyActivityId);
         if (!activityId.HasValue)
         {
-            TempData[TempDataError] = _localizer["Error.ActivityNotSelected"].Value;
-            return RedirectToAction("Index", "Home");
+            return RedirectToAction("Index", "Activities");
         }
 
         await PopulateAssignedToDropdown(activityId.Value);
@@ -488,8 +484,7 @@ public class FinancialController : Controller
         var activityId = HttpContext.Session.GetInt32(SessionKeyActivityId);
         if (!activityId.HasValue)
         {
-            TempData[TempDataError] = _localizer["Error.ActivityNotSelected"].Value;
-            return RedirectToAction("Index", "Home");
+            return RedirectToAction("Index", "Activities");
         }
 
         if (!ModelState.IsValid)
@@ -530,7 +525,7 @@ public class FinancialController : Controller
     }
 
     // GET: Financial/EditExpense/5
-    public async Task<IActionResult> EditExpense(int id)
+    public async Task<IActionResult> EditExpense(int id, string? returnUrl = null)
     {
         var expense = await _context.Expenses
             .FirstOrDefaultAsync(e => e.Id == id);
@@ -563,14 +558,17 @@ public class FinancialController : Controller
                 ?? "OrganizationCard"
         };
 
+        ViewData["ReturnUrl"] = returnUrl;
         return View(viewModel);
     }
 
     // POST: Financial/EditExpense/5
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> EditExpense(int id, ExpenseViewModel viewModel)
+    public async Task<IActionResult> EditExpense(int id, ExpenseViewModel viewModel, string? returnUrl = null)
     {
+        ViewData["ReturnUrl"] = returnUrl;
+
         if (id != viewModel.Id)
         {
             return BadRequest();
@@ -617,6 +615,12 @@ public class FinancialController : Controller
         await _context.SaveChangesAsync();
 
         TempData[TempDataSuccess] = _localizer["Message.ExpenseUpdated"].Value;
+
+        // Redirect to return URL if provided, otherwise to Transactions
+        if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+        {
+            return Redirect(returnUrl);
+        }
         return RedirectToAction(nameof(Transactions));
     }
 
@@ -650,8 +654,7 @@ public class FinancialController : Controller
         var activityId = HttpContext.Session.GetInt32(SessionKeyActivityId);
         if (!activityId.HasValue)
         {
-            TempData[TempDataError] = _localizer["Error.ActivityNotSelected"].Value;
-            return RedirectToAction("Index", "Home");
+            return RedirectToAction("Index", "Activities");
         }
 
         var activity = await _context.Activities
@@ -712,8 +715,7 @@ public class FinancialController : Controller
         var activityId = HttpContext.Session.GetInt32(SessionKeyActivityId);
         if (!activityId.HasValue)
         {
-            TempData[TempDataError] = _localizer["Error.ActivityNotSelected"].Value;
-            return RedirectToAction("Index", "Home");
+            return RedirectToAction("Index", "Activities");
         }
 
         var activity = await _context.Activities
@@ -799,8 +801,7 @@ public class FinancialController : Controller
         var activityId = HttpContext.Session.GetInt32(SessionKeyActivityId);
         if (!activityId.HasValue)
         {
-            TempData[TempDataError] = _localizer["Error.ActivityNotSelected"].Value;
-            return RedirectToAction("Index", "Home");
+            return RedirectToAction("Index", "Activities");
         }
 
         var activity = await _context.Activities

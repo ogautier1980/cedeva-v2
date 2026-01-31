@@ -20,6 +20,7 @@
                         @Html.AntiForgeryToken()
                         <input type="hidden" asp-for="Id" />
                         <input type="hidden" asp-for="ActivityId" />
+                        <input type="hidden" name="returnUrl" value="@ViewData["ReturnUrl"]" />
 
                         <div class="mb-3">
                             <label asp-for="Label" class="form-label"></label>
@@ -75,7 +76,11 @@
                         </div>
 
                         <div class="d-flex justify-content-between mt-4">
-                            <a asp-action="Transactions" class="btn btn-secondary">
+                            @{
+                                var returnUrl = ViewData["ReturnUrl"]?.ToString();
+                                var cancelUrl = !string.IsNullOrEmpty(returnUrl) ? returnUrl : Url.Action("Transactions");
+                            }
+                            <a href="@cancelUrl" class="btn btn-secondary">
                                 <i class="fas fa-times me-1"></i>@Localizer["Button.Cancel"]
                             </a>
                             <button type="submit" class="btn btn-primary">

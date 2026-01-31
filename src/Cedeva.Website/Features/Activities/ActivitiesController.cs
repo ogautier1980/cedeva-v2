@@ -232,15 +232,17 @@ public class ActivitiesController : Controller
             OrganisationId = _currentUserService.IsAdmin ? viewModel.OrganisationId : organisationId!.Value
         };
 
-        // Generate activity days
+        // Generate activity days (weekdays active by default, weekends inactive)
         for (var date = activity.StartDate; date <= activity.EndDate; date = date.AddDays(1))
         {
+            var isWeekend = date.DayOfWeek == DayOfWeek.Saturday || date.DayOfWeek == DayOfWeek.Sunday;
+
             activity.Days.Add(new ActivityDay
             {
                 Label = date.ToString("dddd d MMMM", new System.Globalization.CultureInfo("fr-BE")),
                 DayDate = date,
                 Week = GetWeekNumber(date, activity.StartDate),
-                IsActive = true
+                IsActive = !isWeekend  // Active by default only for weekdays
             });
         }
 
@@ -253,7 +255,7 @@ public class ActivitiesController : Controller
         return RedirectToAction(nameof(Index));
     }
 
-    public async Task<IActionResult> Edit(int id)
+    public async Task<IActionResult> Edit(int id, string? returnUrl = null)
     {
         if (!ModelState.IsValid)
         {
@@ -273,14 +275,17 @@ public class ActivitiesController : Controller
             return NotFound();
         }
 
+        ViewData["ReturnUrl"] = returnUrl;
         var viewModel = MapToViewModel(activity);
         return View(viewModel);
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(int id, ActivityViewModel viewModel, List<int>? ActiveDayIds, string? addDaysToBookings, string? removeDaysConfirmed)
+    public async Task<IActionResult> Edit(int id, ActivityViewModel viewModel, List<int>? ActiveDayIds, string? addDaysToBookings, string? removeDaysConfirmed, string? returnUrl = null)
     {
+        ViewData["ReturnUrl"] = returnUrl;
+
         if (id != viewModel.Id)
         {
             return NotFound();
@@ -452,6 +457,11 @@ public class ActivitiesController : Controller
             throw new InvalidOperationException($"Failed to update activity {id} due to concurrency conflict", ex);
         }
 
+        // Redirect to return URL if provided, otherwise to Index
+        if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+        {
+            return Redirect(returnUrl);
+        }
         return RedirectToAction(nameof(Index));
     }
 
@@ -582,7 +592,23 @@ public class ActivitiesController : Controller
 
     private static int GetWeekNumber(DateTime date, DateTime startDate)
     {
-        return ((date - startDate).Days / 7) + 1;
+        // Find the first Sunday on or after startDate
+        var firstSunday = startDate;
+        while (firstSunday.DayOfWeek != DayOfWeek.Sunday)
+        {
+            firstSunday = firstSunday.AddDays(1);
+        }
+
+        // If date is before or on first Sunday, it's week 1
+        if (date <= firstSunday)
+        {
+            return 1;
+        }
+
+        // Calculate weeks from first Monday (day after first Sunday)
+        var firstMonday = firstSunday.AddDays(1);
+        var daysSinceFirstMonday = (date - firstMonday).Days;
+        return (daysSinceFirstMonday / 7) + 2; // +2 because week 1 already happened
     }
 
     // GET: Activities/Export

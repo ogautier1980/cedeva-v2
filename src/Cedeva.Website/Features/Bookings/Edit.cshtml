@@ -13,6 +13,7 @@
                 <div class="card-body">
                     <form asp-action="Edit" method="post">
                         <input type="hidden" asp-for="Id" />
+                        <input type="hidden" name="returnUrl" value="@ViewData["ReturnUrl"]" />
                         <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
 
                         <h6 class="mb-3 text-primary"><i class="fas fa-info-circle me-2"></i>@Localizer["Bookings.BasicInformation"]</h6>
@@ -68,10 +69,75 @@
                             </div>
                         </div>
 
+                        <h6 class="mb-3 mt-4 text-primary"><i class="fas fa-calendar-week me-2"></i>@Localizer["Bookings.ReservedDays"]</h6>
+
+                        @if (Model.WeeklyDays.Any())
+                        {
+                            <div class="row g-3 mb-3">
+                                @foreach (var week in Model.WeeklyDays)
+                                {
+                                    <div class="col-md-6 col-lg-4">
+                                        <div class="card h-100">
+                                            <div class="card-header bg-light">
+                                                <i class="fas fa-calendar me-2"></i>@week.WeekLabel
+                                                <small class="text-muted ms-2">(@week.StartDate.ToString("dd/MM") - @week.EndDate.ToString("dd/MM/yyyy"))</small>
+                                            </div>
+                                            <div class="card-body p-0">
+                                                <div class="list-group list-group-flush">
+                                                    @foreach (var day in week.Days)
+                                                    {
+                                                        var dayName = day.DayOfWeek switch
+                                                        {
+                                                            DayOfWeek.Monday => Localizer["DayOfWeek.Monday"],
+                                                            DayOfWeek.Tuesday => Localizer["DayOfWeek.Tuesday"],
+                                                            DayOfWeek.Wednesday => Localizer["DayOfWeek.Wednesday"],
+                                                            DayOfWeek.Thursday => Localizer["DayOfWeek.Thursday"],
+                                                            DayOfWeek.Friday => Localizer["DayOfWeek.Friday"],
+                                                            DayOfWeek.Saturday => Localizer["DayOfWeek.Saturday"],
+                                                            DayOfWeek.Sunday => Localizer["DayOfWeek.Sunday"],
+                                                            _ => ""
+                                                        };
+                                                        var isWeekend = day.DayOfWeek == DayOfWeek.Saturday || day.DayOfWeek == DayOfWeek.Sunday;
+                                                        var bgClass = isWeekend ? "bg-light" : "";
+
+                                                        <div class="list-group-item @bgClass py-2">
+                                                            <div class="form-check">
+                                                                <input class="form-check-input" type="checkbox"
+                                                                       name="SelectedActivityDayIds" value="@day.ActivityDayId"
+                                                                       id="day_@day.ActivityDayId" @(day.IsReserved ? "checked" : "") />
+                                                                <label class="form-check-label" for="day_@day.ActivityDayId">
+                                                                    <strong>@dayName</strong>
+                                                                    <small class="text-muted ms-1">@day.Date.ToString("dd/MM")</small>
+                                                                    @if (isWeekend)
+                                                                    {
+                                                                        <span class="badge bg-warning text-dark ms-1" style="font-size: 0.65rem;">Week-end</span>
+                                                                    }
+                                                                </label>
+                                                            </div>
+                                                        </div>
+                                                    }
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle me-2"></i>@Localizer["Bookings.SelectActivityFirst"]
+                            </div>
+                        }
+
                         <hr />
 
                         <div class="d-flex justify-content-between">
-                            <a asp-action="Index" class="btn btn-outline-secondary text-nowrap">
+                            @{
+                                var returnUrl = ViewData["ReturnUrl"]?.ToString();
+                                var cancelUrl = !string.IsNullOrEmpty(returnUrl) ? returnUrl : Url.Action("Index");
+                            }
+                            <a href="@cancelUrl" class="btn btn-outline-secondary text-nowrap">
                                 <i class="fas fa-arrow-left me-2"></i>@Localizer["Cancel"]
                             </a>
                             <button type="submit" class="btn btn-primary text-nowrap">

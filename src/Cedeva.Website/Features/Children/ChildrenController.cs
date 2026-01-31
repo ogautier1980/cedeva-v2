@@ -280,7 +280,7 @@ public class ChildrenController : Controller
     }
 
     // GET: Children/Edit/5
-    public async Task<IActionResult> Edit(int id)
+    public async Task<IActionResult> Edit(int id, string? returnUrl = null)
     {
         if (!ModelState.IsValid)
         {
@@ -308,6 +308,7 @@ public class ChildrenController : Controller
             ActivityGroupId = child.ActivityGroupId
         };
 
+        ViewData["ReturnUrl"] = returnUrl;
         await PopulateParentDropdown(child.ParentId);
         return View(viewModel);
     }
@@ -315,8 +316,10 @@ public class ChildrenController : Controller
     // POST: Children/Edit/5
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(int id, ChildViewModel viewModel)
+    public async Task<IActionResult> Edit(int id, ChildViewModel viewModel, string? returnUrl = null)
     {
+        ViewData["ReturnUrl"] = returnUrl;
+
         if (id != viewModel.Id)
         {
             return NotFound();
@@ -345,6 +348,12 @@ public class ChildrenController : Controller
             await _unitOfWork.SaveChangesAsync();
 
             TempData[TempDataSuccessMessage] = _localizer["Message.ChildUpdated"].Value;
+
+            // Redirect to return URL if provided, otherwise to Details
+            if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+            {
+                return Redirect(returnUrl);
+            }
             return RedirectToAction(nameof(Details), new { id = child.Id });
         }
 

@@ -61,7 +61,7 @@ public class AccountController : Controller
 
         if (result.Succeeded)
         {
-            return RedirectToLocal(returnUrl);
+            return await RedirectToLocal(returnUrl);
         }
 
         if (result.IsLockedOut)
@@ -139,7 +139,7 @@ public class AccountController : Controller
             }
 
             await _signInManager.SignInAsync(user, isPersistent: false);
-            return RedirectToLocal(returnUrl);
+            return await RedirectToLocal(returnUrl);
         }
 
         foreach (var error in result.Errors)
@@ -209,12 +209,41 @@ public class AccountController : Controller
         return View();
     }
 
-    private IActionResult RedirectToLocal(string? returnUrl)
+    private async Task<IActionResult> RedirectToLocal(string? returnUrl)
     {
         if (Url.IsLocalUrl(returnUrl))
         {
             return Redirect(returnUrl);
         }
+
+        // Get current user
+        var user = await _userManager.GetUserAsync(User);
+
+        // For coordinators, check if there's a selected activity
+        if (user?.Role == Core.Enums.Role.Coordinator)
+        {
+            // First check session
+            var activityIdStr = HttpContext.Session.GetString("Activity_Id");
+
+            // If not in session, try to restore from persistent cookie
+            if (string.IsNullOrEmpty(activityIdStr))
+            {
+                activityIdStr = Request.Cookies["SelectedActivityId"];
+
+                // Restore session from cookie
+                if (!string.IsNullOrEmpty(activityIdStr) && int.TryParse(activityIdStr, out int cookieActivityId))
+                {
+                    HttpContext.Session.SetString("Activity_Id", cookieActivityId.ToString());
+                    return RedirectToAction("Index", "ActivityManagement", new { id = cookieActivityId });
+                }
+            }
+            else if (int.TryParse(activityIdStr, out int sessionActivityId))
+            {
+                return RedirectToAction("Index", "ActivityManagement", new { id = sessionActivityId });
+            }
+        }
+
+        // Default: redirect to Home (for Admin or Coordinator without activity)
         return RedirectToAction("Index", "Home");
     }
 

@@ -127,7 +127,7 @@
                                             <a asp-action="Details" asp-route-id="@activity.Id" class="btn btn-sm btn-primary" title="@Localizer["Details"]">
                                                 <i class="fas fa-eye"></i>
                                             </a>
-                                            <a asp-action="Edit" asp-route-id="@activity.Id" class="btn btn-sm btn-warning" title="@Localizer["Edit"]">
+                                            <a asp-action="Edit" asp-route-id="@activity.Id" asp-route-returnUrl="@(Context.Request.Path + Context.Request.QueryString)" class="btn btn-sm btn-warning" title="@Localizer["Edit"]">
                                                 <i class="fas fa-edit"></i>
                                             </a>
                                             <a asp-action="Delete" asp-route-id="@activity.Id" class="btn btn-sm btn-danger" title="@Localizer["Delete"]">

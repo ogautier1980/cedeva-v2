@@ -87,9 +87,8 @@ h2 {
     background-color: #dc3545 !important;
 }
 
-/* Gris foncé - Menu gauche et header */
-.bg-dark,
-#sidebar-wrapper {
+/* Gris foncé - Footer et éléments sombres */
+.bg-dark {
     background-color: #212529 !important;
 }
 
@@ -327,29 +326,29 @@ h2 {
 
 /* === SIDEBAR === */
 #sidebar-wrapper {
-    background-color: #212529;
+    background-color: #007faf !important;
     width: 250px;
     min-height: 100vh;
 }
 
 #sidebar-wrapper .sidebar-heading {
-    border-bottom-color: #343a40;
+    border-bottom-color: rgba(255, 255, 255, 0.25);
 }
 
 #sidebar-wrapper .list-group-item {
-    background-color: #212529;
+    background-color: #007faf !important;
     color: #fff;
     border: none;
     transition: background-color 0.2s;
 }
 
 #sidebar-wrapper .list-group-item:hover {
-    background-color: #343a40 !important;
+    background-color: #005778 !important;
 }
 
 #sidebar-wrapper .list-group-item.active {
-    background-color: #495057 !important;
-    border-color: #495057 !important;
+    background-color: #005778 !important;
+    border-color: #005778 !important;
 }
 
 #wrapper.toggled #sidebar-wrapper {

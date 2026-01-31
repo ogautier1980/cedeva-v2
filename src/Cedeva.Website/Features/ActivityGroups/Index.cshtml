@@ -97,7 +97,7 @@
                                     </td>
                                     <td class="text-end">
                                         <div class="btn-group btn-group-sm">
-                                            <a asp-action="Edit" asp-route-id="@group.Id" class="btn btn-outline-warning" title="@Localizer["Edit"]">
+                                            <a asp-action="Edit" asp-route-id="@group.Id" asp-route-returnUrl="@(Context.Request.Path + Context.Request.QueryString)" class="btn btn-outline-warning" title="@Localizer["Edit"]">
                                                 <i class="fas fa-edit"></i>
                                             </a>
                                             <a asp-action="Delete" asp-route-id="@group.Id" class="btn btn-outline-danger" title="@Localizer["Delete"]">

@@ -21,7 +21,7 @@
                     </p>
                 </div>
                 <div>
-                    <a asp-action="Index" asp-controller="ActivityManagement" class="btn btn-secondary">
+                    <a asp-action="Index" asp-controller="ActivityManagement" asp-route-id="@Model.ActivityId" class="btn btn-secondary">
                         <i class="fas fa-arrow-left me-1"></i>@Localizer["Button.Back"]
                     </a>
                 </div>

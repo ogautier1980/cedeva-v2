@@ -10,7 +10,7 @@
             <small class="text-muted">@Model.OrganisationName</small>
         </div>
         <div class="d-flex gap-2">
-            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning text-nowrap">
+            <a asp-action="Edit" asp-route-id="@Model.Id" asp-route-returnUrl="@Url.Action("Details", new { id = Model.Id })" class="btn btn-warning text-nowrap">
                 <i class="fas fa-edit me-2"></i>@Localizer["Edit"]
             </a>
             <a asp-action="Index" class="btn btn-outline-secondary text-nowrap">
@@ -117,65 +117,64 @@
     {
         <div class="row mt-4">
             <div class="col-12">
-                <div class="card shadow">
-                    <div class="card-header">
-                        <h6 class="mb-0"><i class="fas fa-calendar-week me-2"></i>@Localizer["Activities.DaysSchedule"]</h6>
-                    </div>
-                    <div class="card-body">
-                        @foreach (var week in Model.WeeklyDays)
-                        {
-                            <div class="mb-4">
-                                <h6 class="text-primary mb-3">
-                                    <i class="fas fa-calendar me-2"></i>@week.WeekLabel
-                                    <small class="text-muted ms-2">(@week.StartDate.ToString("dd/MM") - @week.EndDate.ToString("dd/MM/yyyy"))</small>
-                                    <span class="badge bg-success ms-2">@week.ActiveDaysCount / @week.TotalDaysCount @Localizer["Activities.ActiveDays"]</span>
-                                </h6>
-                                <div class="row g-2">
-                                    @foreach (var day in week.Days)
-                                    {
-                                        var dayName = day.DayOfWeek switch
-                                        {
-                                            DayOfWeek.Monday => Localizer["DayOfWeek.Monday"],
-                                            DayOfWeek.Tuesday => Localizer["DayOfWeek.Tuesday"],
-                                            DayOfWeek.Wednesday => Localizer["DayOfWeek.Wednesday"],
-                                            DayOfWeek.Thursday => Localizer["DayOfWeek.Thursday"],
-                                            DayOfWeek.Friday => Localizer["DayOfWeek.Friday"],
-                                            DayOfWeek.Saturday => Localizer["DayOfWeek.Saturday"],
-                                            DayOfWeek.Sunday => Localizer["DayOfWeek.Sunday"],
-                                            _ => ""
-                                        };
-                                        var cardClass = day.IsWeekend ? "border-warning" : "";
-                                        var statusClass = day.IsActive ? "bg-success" : "bg-secondary";
-                                        var statusIcon = day.IsActive ? "fa-check" : "fa-times";
-                                        var statusText = day.IsActive ? Localizer["Active"] : Localizer["Inactive"];
+                <h6 class="mb-3"><i class="fas fa-calendar-week me-2"></i>@Localizer["Activities.DaysSchedule"]</h6>
+                <div class="row g-3">
+                    @foreach (var week in Model.WeeklyDays)
+                    {
+                        var hasActiveWeekendDays = week.Days.Any(d => d.IsWeekend && d.IsActive);
+                        var displayDays = hasActiveWeekendDays
+                            ? week.Days
+                            : week.Days.Where(d => !d.IsWeekend).ToList();
 
-                                        <div class="col-md-6 col-lg-3">
-                                            <div class="card @cardClass h-100">
-                                                <div class="card-body py-2">
-                                                    <div class="d-flex justify-content-between align-items-start">
-                                                        <div>
-                                                            <strong>@dayName</strong><br />
-                                                            <small class="text-muted">@day.DayDate.ToString("dd/MM/yyyy")</small>
-                                                        </div>
-                                                        <div class="text-end">
-                                                            <span class="badge @statusClass">
-                                                                <i class="fas @statusIcon me-1"></i>@statusText
-                                                            </span>
-                                                            @if (day.IsWeekend)
-                                                            {
-                                                                <br />
-                                                                <span class="badge bg-warning text-dark mt-1">Week-end</span>
-                                                            }
-                                                        </div>
+                        <div class="col-md-6 col-lg-4">
+                            <div class="card shadow h-100">
+                                <div class="card-header bg-light">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <i class="fas fa-calendar me-2"></i>@week.WeekLabel
+                                            <small class="text-muted ms-2">(@week.StartDate.ToString("dd/MM") - @week.EndDate.ToString("dd/MM/yyyy"))</small>
+                                        </div>
+                                        <span class="badge bg-success">@week.ActiveDaysCount / @displayDays.Count()</span>
+                                    </div>
+                                </div>
+                                <div class="card-body p-0">
+                                    <div class="list-group list-group-flush">
+                                        @foreach (var day in displayDays)
+                                        {
+                                            var dayName = day.DayOfWeek switch
+                                            {
+                                                DayOfWeek.Monday => Localizer["DayOfWeek.Monday"],
+                                                DayOfWeek.Tuesday => Localizer["DayOfWeek.Tuesday"],
+                                                DayOfWeek.Wednesday => Localizer["DayOfWeek.Wednesday"],
+                                                DayOfWeek.Thursday => Localizer["DayOfWeek.Thursday"],
+                                                DayOfWeek.Friday => Localizer["DayOfWeek.Friday"],
+                                                DayOfWeek.Saturday => Localizer["DayOfWeek.Saturday"],
+                                                DayOfWeek.Sunday => Localizer["DayOfWeek.Sunday"],
+                                                _ => ""
+                                            };
+                                            var statusClass = day.IsActive ? "text-success" : "text-secondary";
+                                            var statusIcon = day.IsActive ? "fa-check-circle" : "fa-times-circle";
+                                            var bgClass = day.IsWeekend ? "bg-light" : "";
+
+                                            <div class="list-group-item @bgClass py-2">
+                                                <div class="d-flex align-items-center">
+                                                    <i class="fas @statusIcon @statusClass me-2"></i>
+                                                    <div>
+                                                        <strong>@dayName</strong>
+                                                        <small class="text-muted ms-1">@day.DayDate.ToString("dd/MM")</small>
+                                                        @if (day.IsWeekend)
+                                                        {
+                                                            <span class="badge bg-warning text-dark ms-1" style="font-size: 0.65rem;">Week-end</span>
+                                                        }
                                                     </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                    }
+                                        }
+                                    </div>
                                 </div>
                             </div>
-                        }
-                    </div>
+                        </div>
+                    }
                 </div>
             </div>
         </div>

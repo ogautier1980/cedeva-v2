@@ -13,6 +13,7 @@
                 <div class="card-body">
                     <form asp-action="Edit" method="post">
                         <input type="hidden" asp-for="Id" />
+                        <input type="hidden" name="returnUrl" value="@ViewData["ReturnUrl"]" />
                         <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
 
                         <div class="mb-3">
@@ -59,7 +60,11 @@
                         <hr />
 
                         <div class="d-flex justify-content-between">
-                            <a asp-action="Index" asp-route-activityId="@Model.ActivityId" class="btn btn-outline-secondary text-nowrap">
+                            @{
+                                var returnUrl = ViewData["ReturnUrl"]?.ToString();
+                                var cancelUrl = !string.IsNullOrEmpty(returnUrl) ? returnUrl : Url.Action("Index", new { activityId = Model.ActivityId });
+                            }
+                            <a href="@cancelUrl" class="btn btn-outline-secondary text-nowrap">
                                 <i class="fas fa-arrow-left me-2"></i>@Localizer["Cancel"]
                             </a>
                             <button type="submit" class="btn btn-primary text-nowrap">

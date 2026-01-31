@@ -132,7 +132,7 @@ public class ActivityQuestionsController : Controller
     }
 
     // GET: ActivityQuestions/Edit/5
-    public async Task<IActionResult> Edit(int id)
+    public async Task<IActionResult> Edit(int id, string? returnUrl = null)
     {
         var question = await _context.ActivityQuestions
             .Include(q => q.Activity)
@@ -155,6 +155,7 @@ public class ActivityQuestionsController : Controller
         };
 
         await PopulateDropdowns(model.ActivityId);
+        ViewData["ReturnUrl"] = returnUrl;
 
         return View(model);
     }
@@ -162,8 +163,10 @@ public class ActivityQuestionsController : Controller
     // POST: ActivityQuestions/Edit/5
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(int id, ActivityQuestionViewModel model)
+    public async Task<IActionResult> Edit(int id, ActivityQuestionViewModel model, string? returnUrl = null)
     {
+        ViewData["ReturnUrl"] = returnUrl;
+
         if (id != model.Id)
         {
             return NotFound();
@@ -201,7 +204,11 @@ public class ActivityQuestionsController : Controller
 
         TempData[TempDataSuccessMessage] = _localizer["ActivityQuestions.UpdateSuccess"].ToString();
 
-        // ActivityId is already in session
+        // Redirect to return URL if provided, otherwise to Index
+        if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+        {
+            return Redirect(returnUrl);
+        }
         return RedirectToAction(nameof(Index));
     }
 

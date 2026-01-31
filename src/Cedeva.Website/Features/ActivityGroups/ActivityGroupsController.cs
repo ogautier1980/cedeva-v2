@@ -118,7 +118,7 @@ public class ActivityGroupsController : Controller
     }
 
     // GET: ActivityGroups/Edit/5
-    public async Task<IActionResult> Edit(int id)
+    public async Task<IActionResult> Edit(int id, string? returnUrl = null)
     {
         var group = await _context.ActivityGroups
             .Include(g => g.Activity)
@@ -139,6 +139,7 @@ public class ActivityGroupsController : Controller
         };
 
         await PopulateActivitiesDropdown(model.ActivityId);
+        ViewData["ReturnUrl"] = returnUrl;
 
         return View(model);
     }
@@ -146,8 +147,10 @@ public class ActivityGroupsController : Controller
     // POST: ActivityGroups/Edit/5
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(int id, ActivityGroupViewModel model)
+    public async Task<IActionResult> Edit(int id, ActivityGroupViewModel model, string? returnUrl = null)
     {
+        ViewData["ReturnUrl"] = returnUrl;
+
         if (id != model.Id)
         {
             return NotFound();
@@ -174,7 +177,11 @@ public class ActivityGroupsController : Controller
 
         TempData[TempDataSuccessMessage] = _localizer["ActivityGroups.UpdateSuccess"].ToString();
 
-        // ActivityId is already in session
+        // Redirect to return URL if provided, otherwise to Index
+        if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+        {
+            return Redirect(returnUrl);
+        }
         return RedirectToAction(nameof(Index));
     }
 

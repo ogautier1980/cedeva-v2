@@ -28,6 +28,11 @@ public class BookingViewModel
     [Display(Name = "Field.IsMedicalSheet")]
     public bool IsMedicalSheet { get; set; }
 
+    // Financial information
+    public decimal TotalAmount { get; set; }
+    public decimal PaidAmount { get; set; }
+    public Core.Enums.PaymentStatus PaymentStatus { get; set; }
+
     // Navigation properties for display
     public string? ChildFullName { get; set; }
     public string? ParentFullName { get; set; }

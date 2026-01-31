@@ -259,19 +259,25 @@ public class BookingsController : Controller
     }
 
     // GET: Bookings/Edit/5
-    public async Task<IActionResult> Edit(int id)
+    public async Task<IActionResult> Edit(int id, string? returnUrl = null)
     {
         if (!ModelState.IsValid)
         {
             return BadRequest(ModelState);
         }
 
-        var booking = await _bookingRepository.GetByIdAsync(id);
+        var booking = await _context.Bookings
+            .Include(b => b.Activity)
+                .ThenInclude(a => a.Days)
+            .Include(b => b.Days)
+            .FirstOrDefaultAsync(b => b.Id == id);
 
         if (booking == null)
         {
             return NotFound();
         }
+
+        ViewData["ReturnUrl"] = returnUrl;
 
         var viewModel = new BookingViewModel
         {
@@ -284,6 +290,34 @@ public class BookingsController : Controller
             IsMedicalSheet = booking.IsMedicalSheet
         };
 
+        // Populate weekly days with booking day status
+        viewModel.WeeklyDays = booking.Activity.Days
+            .GroupBy(d => d.Week)
+            .OrderBy(g => g.Key)
+            .Select(g => new WeeklyBookingDaysViewModel
+            {
+                WeekNumber = g.Key ?? 1,
+                WeekLabel = $"Semaine {g.Key}",
+                StartDate = g.Min(d => d.DayDate),
+                EndDate = g.Max(d => d.DayDate),
+                Days = g.OrderBy(d => d.DayDate)
+                    .Select(d =>
+                    {
+                        var bookingDay = booking.Days.FirstOrDefault(bd => bd.ActivityDayId == d.DayId);
+                        return new BookingDayDisplayViewModel
+                        {
+                            ActivityDayId = d.DayId,
+                            Date = d.DayDate,
+                            Label = d.Label,
+                            DayOfWeek = d.DayDate.DayOfWeek,
+                            IsReserved = bookingDay?.IsReserved ?? false,
+                            IsPresent = bookingDay?.IsPresent ?? false
+                        };
+                    })
+                    .ToList()
+            })
+            .ToList();
+
         await PopulateDropdowns(booking.ChildId, booking.ActivityId, booking.GroupId);
         return View(viewModel);
     }
@@ -291,16 +325,20 @@ public class BookingsController : Controller
     // POST: Bookings/Edit/5
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(int id, BookingViewModel viewModel)
+    public async Task<IActionResult> Edit(int id, BookingViewModel viewModel, string? returnUrl = null)
     {
         if (id != viewModel.Id)
         {
             return NotFound();
         }
 
+        ViewData["ReturnUrl"] = returnUrl;
+
         if (ModelState.IsValid)
         {
-            var booking = await _bookingRepository.GetByIdAsync(id);
+            var booking = await _context.Bookings
+                .Include(b => b.Days)
+                .FirstOrDefaultAsync(b => b.Id == id);
 
             if (booking == null)
             {
@@ -316,6 +354,34 @@ public class BookingsController : Controller
             booking.IsConfirmed = viewModel.IsConfirmed;
             booking.IsMedicalSheet = viewModel.IsMedicalSheet;
 
+            // Update BookingDays based on selected activity day IDs
+            if (viewModel.SelectedActivityDayIds != null)
+            {
+                var selectedDayIds = viewModel.SelectedActivityDayIds;
+                var existingDayIds = booking.Days.Select(bd => bd.ActivityDayId).ToList();
+
+                // Remove deselected days
+                var daysToRemove = booking.Days.Where(bd => !selectedDayIds.Contains(bd.ActivityDayId)).ToList();
+                foreach (var dayToRemove in daysToRemove)
+                {
+                    _context.BookingDays.Remove(dayToRemove);
+                }
+
+                // Add newly selected days
+                var newDayIds = selectedDayIds.Except(existingDayIds).ToList();
+                foreach (var newDayId in newDayIds)
+                {
+                    var newBookingDay = new BookingDay
+                    {
+                        BookingId = booking.Id,
+                        ActivityDayId = newDayId,
+                        IsReserved = true,
+                        IsPresent = false
+                    };
+                    _context.BookingDays.Add(newBookingDay);
+                }
+            }
+
             await _bookingRepository.UpdateAsync(booking);
             await _unitOfWork.SaveChangesAsync();
 
@@ -329,6 +395,11 @@ public class BookingsController : Controller
                 TempData[TempDataSuccessMessage] = _localizer["Message.BookingUpdated"].Value;
             }
 
+            // Redirect to return URL if provided, otherwise to Details
+            if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+            {
+                return Redirect(returnUrl);
+            }
             return RedirectToAction(nameof(Details), new { id = booking.Id });
         }
 
@@ -424,6 +495,9 @@ public class BookingsController : Controller
             GroupId = booking.GroupId,
             IsConfirmed = booking.IsConfirmed,
             IsMedicalSheet = booking.IsMedicalSheet,
+            TotalAmount = booking.TotalAmount,
+            PaidAmount = booking.PaidAmount,
+            PaymentStatus = booking.PaymentStatus,
             ChildFullName = child != null ? $"{child.FirstName} {child.LastName}" : "",
             ParentFullName = parent != null ? $"{parent.FirstName} {parent.LastName}" : "",
             ActivityName = activity?.Name ?? "",

@@ -313,7 +313,7 @@ public class TeamMembersController : Controller
     }
 
     // GET: TeamMembers/Edit/5
-    public async Task<IActionResult> Edit(int id)
+    public async Task<IActionResult> Edit(int id, string? returnUrl = null)
     {
         if (!ModelState.IsValid)
         {
@@ -360,14 +360,17 @@ public class TeamMembersController : Controller
             ViewBag.Organisations = new SelectList(organisations, "Id", "Name", viewModel.OrganisationId);
         }
 
+        ViewData["ReturnUrl"] = returnUrl;
         return View(viewModel);
     }
 
     // POST: TeamMembers/Edit/5
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(int id, TeamMemberViewModel viewModel)
+    public async Task<IActionResult> Edit(int id, TeamMemberViewModel viewModel, string? returnUrl = null)
     {
+        ViewData["ReturnUrl"] = returnUrl;
+
         if (id != viewModel.TeamMemberId)
         {
             return NotFound();
@@ -416,6 +419,12 @@ public class TeamMembersController : Controller
             await _unitOfWork.SaveChangesAsync();
 
             TempData[TempDataSuccessMessage] = _localizer["Message.TeamMemberUpdated"].Value;
+
+            // Redirect to return URL if provided, otherwise to Details
+            if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+            {
+                return Redirect(returnUrl);
+            }
             return RedirectToAction(nameof(Details), new { id = teamMember.TeamMemberId });
         }
 
