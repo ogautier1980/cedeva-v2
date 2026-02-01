@@ -42,5 +42,5 @@ jobs:
           az webapp deploy \
             --resource-group cedeva-rg \
             --name cedeva-demo \
-            --src deploy.zip \
+            --src-path deploy.zip \
             --type zip
