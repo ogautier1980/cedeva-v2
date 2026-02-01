@@ -223,7 +223,7 @@ public class DbSeeder
     private static async Task<List<BelgianMunicipality>> GetBelgianMunicipalitiesFromCsvAsync()
     {
         var municipalities = new List<BelgianMunicipality>();
-        var csvPath = Path.Combine(Directory.GetCurrentDirectory(), "..", "..", "municipalities.csv");
+        var csvPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "municipalities.csv");
 
         if (!File.Exists(csvPath))
         {

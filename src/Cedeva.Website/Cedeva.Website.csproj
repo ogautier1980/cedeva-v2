@@ -5,6 +5,11 @@
     <ProjectReference Include="..\Cedeva.Infrastructure\Cedeva.Infrastructure.csproj" />
   </ItemGroup>
 
+  <Target Name="CopyMunicipaltiesCsv" AfterTargets="Publish">
+    <Copy SourceFiles="$(MSBuildProjectDirectory)\..\..\municipalities.csv"
+          DestinationFiles="$(PublishDir)municipalities.csv" />
+  </Target>
+
   <ItemGroup>
     <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="10.0.0" />
     <PackageReference Include="ClosedXML" Version="0.105.0" />
