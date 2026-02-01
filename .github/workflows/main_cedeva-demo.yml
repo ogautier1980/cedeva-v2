@@ -35,7 +35,11 @@ jobs:
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_93863144889F4BBEB663A80F5DEEBD6D }}
 
       - name: Deploy to Azure Web App
-        uses: azure/webapps-deploy@v3
-        with:
-          app-name: 'cedeva-demo'
-          package: ./publish
+        run: |
+          cd ./publish
+          zip -r ../deploy.zip .
+          cd ..
+          az webapp deployment zip upload \
+            --resource-group cedeva-rg \
+            --name cedeva-demo \
+            --src deploy.zip
