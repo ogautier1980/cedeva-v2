@@ -39,7 +39,8 @@ jobs:
           cd ./publish
           zip -r ../deploy.zip .
           cd ..
-          az webapp deployment zip upload \
+          az webapp deploy \
             --resource-group cedeva-rg \
             --name cedeva-demo \
-            --src deploy.zip
+            --src deploy.zip \
+            --type zip
