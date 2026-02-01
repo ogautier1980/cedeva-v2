@@ -1,6 +1,7 @@
 @model Cedeva.Website.Features.EmailTemplates.ViewModels.EmailTemplateViewModel
 @inject IStringLocalizer<SharedResources> Localizer
 @inject Cedeva.Core.Interfaces.IEmailVariableReplacementService VariableService
+@inject Microsoft.Extensions.Configuration.IConfiguration Configuration
 
 @{
     ViewData["Title"] = Localizer["EmailTemplate.Edit"];
@@ -105,7 +106,7 @@
     <partial name="_ValidationScriptsPartial" />
 
     <!-- TinyMCE CDN -->
-    <script src="https://cdn.tiny.cloud/1/1p5nhmljlb9dyqc59a2qowcr9ds9wucvon9mejzw9mjhumov/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
+    <script src="https://cdn.tiny.cloud/1/@Configuration["TinyMCE:ApiKey"]/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
 
     <script>
         // Initialize TinyMCE
