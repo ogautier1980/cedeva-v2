@@ -1,0 +1,48 @@
+name: Deploy to Azure App Service
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # ---------------------------------------------------------------
+      # 1. Checkout
+      # ---------------------------------------------------------------
+      - uses: actions/checkout@v4
+
+      # ---------------------------------------------------------------
+      # 2. .NET 9 SDK
+      # ---------------------------------------------------------------
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+
+      # ---------------------------------------------------------------
+      # 3. Restore + Build + Publish
+      # ---------------------------------------------------------------
+      - name: Restore
+        run: dotnet restore src/Cedeva.Website/Cedeva.Website.csproj
+
+      - name: Build
+        run: dotnet build src/Cedeva.Website -c Release --no-restore
+
+      - name: Publish
+        run: dotnet publish src/Cedeva.Website -c Release -o ./publish --no-restore
+
+      # ---------------------------------------------------------------
+      # 4. Deploy to Azure App Service
+      # Uses the publish profile downloaded from Azure Portal.
+      # Secrets required (GitHub → Settings → Secrets → Actions):
+      #   AZURE_APP_NAME      – e.g. cedeva-demo
+      #   AZURE_PUBLISH_PROFILE – XML content of the .publishsettings file
+      # ---------------------------------------------------------------
+      - name: Deploy
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: ${{ secrets.AZURE_APP_NAME }}
+          publish-profile: ${{ secrets.AZURE_PUBLISH_PROFILE }}
+          package: ./publish
