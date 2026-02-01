@@ -48,11 +48,6 @@ public class TeamMembersController : Controller
     // GET: TeamMembers
     public async Task<IActionResult> Index(string? searchString, string? sortBy = null, string? sortOrder = "asc", int pageNumber = 1, int pageSize = 10)
     {
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
-
         var query = _context.TeamMembers.AsQueryable();
 
         if (!string.IsNullOrEmpty(searchString))
@@ -112,11 +107,6 @@ public class TeamMembersController : Controller
     // GET: TeamMembers/Export
     public async Task<IActionResult> Export(string? searchString)
     {
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
-
         var query = _context.TeamMembers
             .Include(t => t.Address)
             .Include(t => t.Organisation)
@@ -164,11 +154,6 @@ public class TeamMembersController : Controller
     // GET: TeamMembers/ExportPdf
     public async Task<IActionResult> ExportPdf(string? searchString)
     {
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
-
         var query = _context.TeamMembers
             .Include(t => t.Address)
             .Include(t => t.Organisation)
@@ -209,11 +194,6 @@ public class TeamMembersController : Controller
     // GET: TeamMembers/Details/5
     public async Task<IActionResult> Details(int id)
     {
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
-
         var viewModel = await GetTeamMemberViewModelAsync(id);
 
         if (viewModel == null)
@@ -227,11 +207,6 @@ public class TeamMembersController : Controller
     // GET: TeamMembers/Create
     public async Task<IActionResult> Create()
     {
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
-
         var viewModel = new TeamMemberViewModel
         {
             Country = Core.Enums.Country.Belgium,
@@ -315,11 +290,6 @@ public class TeamMembersController : Controller
     // GET: TeamMembers/Edit/5
     public async Task<IActionResult> Edit(int id, string? returnUrl = null)
     {
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
-
         var teamMember = await _teamMemberRepository.GetByIdAsync(id);
 
         if (teamMember == null)
@@ -443,11 +413,6 @@ public class TeamMembersController : Controller
     // GET: TeamMembers/Delete/5
     public async Task<IActionResult> Delete(int id)
     {
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
-
         var viewModel = await GetTeamMemberViewModelAsync(id);
         return viewModel == null ? NotFound() : View(viewModel);
     }

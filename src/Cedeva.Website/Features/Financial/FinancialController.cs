@@ -21,8 +21,8 @@ public class FinancialController : Controller
     private readonly IStringLocalizer<SharedResources> _localizer;
     private readonly ILogger<FinancialController> _logger;
 
-    private const string TempDataSuccess = "Success";
-    private const string TempDataError = "Error";
+    private const string TempDataSuccessMessage = "SuccessMessage";
+    private const string TempDataErrorMessage = "ErrorMessage";
     private const string SessionKeyActivityId = "Financial_ActivityId";
 
     public FinancialController(
@@ -203,7 +203,7 @@ public class FinancialController : Controller
             // Lancer le rapprochement automatique
             var reconciledCount = await _reconciliationService.AutoReconcileTransactionsAsync(codaFileId);
 
-            TempData[TempDataSuccess] = reconciledCount > 0
+            TempData[TempDataSuccessMessage] = reconciledCount > 0
                 ? _localizer["Message.CodaFileImportedWithReconciliation", codaData.Transactions.Count, reconciledCount].Value
                 : _localizer["Message.CodaFileImported", codaData.Transactions.Count].Value;
 
@@ -245,7 +245,7 @@ public class FinancialController : Controller
             var firstOrg = await _context.Organisations.FirstOrDefaultAsync();
             if (firstOrg == null)
             {
-                TempData[TempDataError] = _localizer["Error.NoOrganisationAvailable"].Value;
+                TempData[TempDataErrorMessage] = _localizer["Error.NoOrganisationAvailable"].Value;
                 return RedirectToAction("Index", "Home");
             }
             orgId = firstOrg.Id;
@@ -275,7 +275,7 @@ public class FinancialController : Controller
     {
         if (!ModelState.IsValid)
         {
-            TempData[TempDataError] = _localizer["Error.InvalidData"].Value;
+            TempData[TempDataErrorMessage] = _localizer["Error.InvalidData"].Value;
             return RedirectToAction(nameof(Reconciliation));
         }
 
@@ -283,11 +283,11 @@ public class FinancialController : Controller
 
         if (success)
         {
-            TempData[TempDataSuccess] = _localizer["Message.TransactionReconciled"].Value;
+            TempData[TempDataSuccessMessage] = _localizer["Message.TransactionReconciled"].Value;
         }
         else
         {
-            TempData[TempDataError] = _localizer["Error.ReconciliationFailed"].Value;
+            TempData[TempDataErrorMessage] = _localizer["Error.ReconciliationFailed"].Value;
         }
 
         return RedirectToAction(nameof(Reconciliation));
@@ -520,7 +520,7 @@ public class FinancialController : Controller
         _context.Expenses.Add(expense);
         await _context.SaveChangesAsync();
 
-        TempData[TempDataSuccess] = _localizer["Message.ExpenseCreated"].Value;
+        TempData[TempDataSuccessMessage] = _localizer["Message.ExpenseCreated"].Value;
         return RedirectToAction(nameof(Transactions));
     }
 
@@ -614,7 +614,7 @@ public class FinancialController : Controller
 
         await _context.SaveChangesAsync();
 
-        TempData[TempDataSuccess] = _localizer["Message.ExpenseUpdated"].Value;
+        TempData[TempDataSuccessMessage] = _localizer["Message.ExpenseUpdated"].Value;
 
         // Redirect to return URL if provided, otherwise to Transactions
         if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
@@ -644,7 +644,7 @@ public class FinancialController : Controller
         _context.Expenses.Remove(expense);
         await _context.SaveChangesAsync();
 
-        TempData[TempDataSuccess] = _localizer["Message.ExpenseDeleted"].Value;
+        TempData[TempDataSuccessMessage] = _localizer["Message.ExpenseDeleted"].Value;
         return RedirectToAction(nameof(Transactions));
     }
 

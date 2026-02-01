@@ -37,14 +37,7 @@
         </div>
     </div>
 
-    @if (TempData["Success"] != null)
-    {
-        <div class="alert alert-success alert-dismissible fade show">
-            @TempData["Success"]
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-    }
-
+    @await Html.PartialAsync("Shared/_AlertMessages")
     <!-- Summary Cards -->
     <div class="row mb-4">
         <div class="col-md-4">

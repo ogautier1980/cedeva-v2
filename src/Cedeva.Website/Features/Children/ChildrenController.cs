@@ -45,11 +45,6 @@ public class ChildrenController : Controller
     // GET: Children
     public async Task<IActionResult> Index(string? searchString, int? parentId, string? sortBy = null, string? sortOrder = "asc", int pageNumber = 1, int pageSize = 10)
     {
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
-
         var query = _context.Children.AsQueryable();
 
         if (!string.IsNullOrEmpty(searchString))
@@ -115,11 +110,6 @@ public class ChildrenController : Controller
     // GET: Children/Export
     public async Task<IActionResult> Export(string? searchString, int? parentId)
     {
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
-
         var query = _context.Children
             .Include(c => c.Parent)
             .AsQueryable();
@@ -167,11 +157,6 @@ public class ChildrenController : Controller
     // GET: Children/ExportPdf
     public async Task<IActionResult> ExportPdf(string? searchString, int? parentId)
     {
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
-
         var query = _context.Children
             .Include(c => c.Parent)
             .AsQueryable();
@@ -214,11 +199,6 @@ public class ChildrenController : Controller
     // GET: Children/Details/5
     public async Task<IActionResult> Details(int id)
     {
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
-
         var viewModel = await GetChildViewModelAsync(id);
 
         if (viewModel == null)
@@ -232,11 +212,6 @@ public class ChildrenController : Controller
     // GET: Children/Create
     public async Task<IActionResult> Create(int? parentId)
     {
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
-
         await PopulateParentDropdown(parentId);
 
         var viewModel = new ChildViewModel
@@ -282,11 +257,6 @@ public class ChildrenController : Controller
     // GET: Children/Edit/5
     public async Task<IActionResult> Edit(int id, string? returnUrl = null)
     {
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
-
         var child = await _childRepository.GetByIdAsync(id);
 
         if (child == null)
@@ -364,11 +334,6 @@ public class ChildrenController : Controller
     // GET: Children/Delete/5
     public async Task<IActionResult> Delete(int id)
     {
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
-
         var viewModel = await GetChildViewModelAsync(id);
         return viewModel == null ? NotFound() : View(viewModel);
     }

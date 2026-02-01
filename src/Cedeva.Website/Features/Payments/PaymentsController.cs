@@ -19,8 +19,8 @@ public class PaymentsController : Controller
     private readonly IStringLocalizer<SharedResources> _localizer;
     private readonly ILogger<PaymentsController> _logger;
 
-    private const string TempDataSuccess = "Success";
-    private const string TempDataError = "Error";
+    private const string TempDataSuccessMessage = "SuccessMessage";
+    private const string TempDataErrorMessage = "ErrorMessage";
 
     public PaymentsController(
         CedevaDbContext context,
@@ -183,7 +183,7 @@ public class PaymentsController : Controller
             var booking = await _context.Bookings.FindAsync(viewModel.BookingId);
             if (booking == null)
             {
-                TempData[TempDataError] = _localizer["Error.BookingNotFound"].Value;
+                TempData[TempDataErrorMessage] = _localizer["Error.BookingNotFound"].Value;
                 return RedirectToAction(nameof(Index));
             }
 
@@ -217,14 +217,14 @@ public class PaymentsController : Controller
 
             _logger.LogInformation("Manual payment created: {Amount} for booking {BookingId}", viewModel.Amount, viewModel.BookingId);
 
-            TempData[TempDataSuccess] = _localizer["Message.PaymentCreated"].Value;
+            TempData[TempDataSuccessMessage] = _localizer["Message.PaymentCreated"].Value;
 
             return RedirectToAction("Details", "Bookings", new { id = viewModel.BookingId });
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error creating manual payment");
-            TempData[TempDataError] = _localizer["Error.PaymentCreationFailed"].Value;
+            TempData[TempDataErrorMessage] = _localizer["Error.PaymentCreationFailed"].Value;
             return RedirectToAction(nameof(Create), new { bookingId = viewModel.BookingId });
         }
     }
@@ -261,14 +261,14 @@ public class PaymentsController : Controller
 
             if (payment == null)
             {
-                TempData[TempDataError] = _localizer["Error.PaymentNotFound"].Value;
+                TempData[TempDataErrorMessage] = _localizer["Error.PaymentNotFound"].Value;
                 return RedirectToAction(nameof(Index));
             }
 
             // Ne pas permettre l'annulation des paiements liés à une transaction bancaire
             if (payment.BankTransactionId.HasValue)
             {
-                TempData[TempDataError] = _localizer["Error.CannotCancelBankPayment"].Value;
+                TempData[TempDataErrorMessage] = _localizer["Error.CannotCancelBankPayment"].Value;
                 return RedirectToAction(nameof(Details), new { id });
             }
 
@@ -292,14 +292,14 @@ public class PaymentsController : Controller
 
             _logger.LogInformation("Payment cancelled: {PaymentId}", id);
 
-            TempData[TempDataSuccess] = _localizer["Message.PaymentCancelled"].Value;
+            TempData[TempDataSuccessMessage] = _localizer["Message.PaymentCancelled"].Value;
 
             return RedirectToAction("Details", "Bookings", new { id = payment.BookingId });
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error cancelling payment");
-            TempData[TempDataError] = _localizer["Error.PaymentCancellationFailed"].Value;
+            TempData[TempDataErrorMessage] = _localizer["Error.PaymentCancellationFailed"].Value;
             return RedirectToAction(nameof(Details), new { id });
         }
     }

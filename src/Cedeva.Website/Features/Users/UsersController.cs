@@ -41,11 +41,6 @@ public class UsersController : Controller
     // GET: Users
     public async Task<IActionResult> Index(string? searchString, int? organisationId, string? sortBy = null, string? sortOrder = "asc", int pageNumber = 1, int pageSize = 10)
     {
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
-
         var query = _userManager.Users
             .Include(u => u.Organisation)
             .AsQueryable();
@@ -115,11 +110,6 @@ public class UsersController : Controller
     // GET: Users/Details/5
     public async Task<IActionResult> Details(string id)
     {
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
-
         if (string.IsNullOrEmpty(id))
         {
             return NotFound();
@@ -197,11 +187,6 @@ public class UsersController : Controller
     // GET: Users/Edit/5
     public async Task<IActionResult> Edit(string id)
     {
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
-
         if (string.IsNullOrEmpty(id))
         {
             return NotFound();
@@ -291,11 +276,6 @@ public class UsersController : Controller
     // GET: Users/Delete/5
     public async Task<IActionResult> Delete(string id)
     {
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
-
         if (string.IsNullOrEmpty(id))
         {
             return NotFound();

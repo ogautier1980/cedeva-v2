@@ -38,11 +38,6 @@ public class PublicRegistrationController : Controller
     [AllowAnonymous]
     public async Task<IActionResult> SelectActivity(int orgId)
     {
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
-
         var activities = await _context.Activities
             .Where(a => a.OrganisationId == orgId && a.StartDate > DateTime.Now)
             .OrderBy(a => a.StartDate)
@@ -430,11 +425,6 @@ public class PublicRegistrationController : Controller
     [AllowAnonymous]
     public async Task<IActionResult> Confirmation(int bookingId)
     {
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
-
         var booking = await _context.Bookings
             .Include(b => b.Activity)
             .Include(b => b.Child)
@@ -484,11 +474,6 @@ public class PublicRegistrationController : Controller
     [AllowAnonymous]
     public async Task<IActionResult> Register(int activityId, string? bg)
     {
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
-
         var activity = await _context.Activities
             .FirstOrDefaultAsync(a => a.Id == activityId && a.StartDate > DateTime.Now);
 
@@ -716,11 +701,6 @@ public class PublicRegistrationController : Controller
     [Authorize(Roles = "Admin,Coordinator")]
     public async Task<IActionResult> EmbedCode(int activityId)
     {
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
-
         var activity = await _context.Activities.FindAsync(activityId);
         if (activity == null)
         {

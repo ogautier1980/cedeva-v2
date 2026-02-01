@@ -13,8 +13,8 @@ namespace Cedeva.Website.Features.Activities;
 [Authorize]
 public class ActivitiesController : Controller
 {
-    private const string TempDataSuccess = "Success";
-    private const string TempDataError = "Error";
+    private const string TempDataSuccessMessage = "SuccessMessage";
+    private const string TempDataErrorMessage = "ErrorMessage";
 
     private readonly CedevaDbContext _context;
     private readonly ICurrentUserService _currentUserService;
@@ -41,11 +41,6 @@ public class ActivitiesController : Controller
 
     public async Task<IActionResult> Index(string? searchString, bool? showActiveOnly, string? sortBy = null, string? sortOrder = "asc", int pageNumber = 1, int pageSize = 10)
     {
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
-
         var query = _context.Activities
             .Include(a => a.Organisation)
             .Include(a => a.Bookings)
@@ -124,11 +119,6 @@ public class ActivitiesController : Controller
 
     public async Task<IActionResult> Details(int id)
     {
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
-
         var activity = await _context.Activities
             .Include(a => a.Organisation)
             .Include(a => a.Bookings)
@@ -148,11 +138,6 @@ public class ActivitiesController : Controller
 
     public async Task<IActionResult> Create()
     {
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
-
         var viewModel = new ActivityViewModel
         {
             StartDate = DateTime.Today,
@@ -251,17 +236,12 @@ public class ActivitiesController : Controller
 
         _logger.LogInformation("Activity {Name} created by user {UserId}", activity.Name, _currentUserService.UserId);
 
-        TempData[TempDataSuccess] = _localizer["Message.ActivityCreated"].Value;
+        TempData[TempDataSuccessMessage] = _localizer["Message.ActivityCreated"].Value;
         return RedirectToAction(nameof(Index));
     }
 
     public async Task<IActionResult> Edit(int id, string? returnUrl = null)
     {
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
-
         var activity = await _context.Activities
             .Include(a => a.Days)
             .Include(a => a.Organisation)
@@ -445,7 +425,7 @@ public class ActivitiesController : Controller
         {
             await _context.SaveChangesAsync();
             _logger.LogInformation("Activity {Name} updated by user {UserId}", activity.Name, _currentUserService.UserId);
-            TempData[TempDataSuccess] = _localizer["Message.ActivityUpdated"].Value;
+            TempData[TempDataSuccessMessage] = _localizer["Message.ActivityUpdated"].Value;
         }
         catch (DbUpdateConcurrencyException ex)
         {
@@ -467,11 +447,6 @@ public class ActivitiesController : Controller
 
     public async Task<IActionResult> Delete(int id)
     {
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
-
         var activity = await _context.Activities
             .Include(a => a.Organisation)
             .Include(a => a.Bookings)
@@ -506,7 +481,7 @@ public class ActivitiesController : Controller
 
         if (activity.Bookings.Any())
         {
-            TempData[TempDataError] = _localizer["Message.ActivityHasBookings"].Value;
+            TempData[TempDataErrorMessage] = _localizer["Message.ActivityHasBookings"].Value;
             return RedirectToAction(nameof(Index));
         }
 
@@ -514,7 +489,7 @@ public class ActivitiesController : Controller
         await _context.SaveChangesAsync();
 
         _logger.LogInformation("Activity {Name} deleted by user {UserId}", activity.Name, _currentUserService.UserId);
-        TempData[TempDataSuccess] = _localizer["Message.ActivityDeleted"].Value;
+        TempData[TempDataSuccessMessage] = _localizer["Message.ActivityDeleted"].Value;
 
         return RedirectToAction(nameof(Index));
     }
@@ -614,11 +589,6 @@ public class ActivitiesController : Controller
     // GET: Activities/Export
     public async Task<IActionResult> Export(string? searchTerm, bool? showActiveOnly)
     {
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
-
         var query = _context.Activities
             .Include(a => a.Organisation)
             .Include(a => a.Bookings)
@@ -664,11 +634,6 @@ public class ActivitiesController : Controller
     // GET: Activities/ExportPdf
     public async Task<IActionResult> ExportPdf(string? searchTerm, bool? showActiveOnly)
     {
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
-
         var query = _context.Activities
             .Include(a => a.Organisation)
             .Include(a => a.Bookings)

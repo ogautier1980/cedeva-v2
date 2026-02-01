@@ -49,11 +49,6 @@ public class BookingsController : Controller
     // GET: Bookings
     public async Task<IActionResult> Index(string? searchString, int? activityId, int? childId, bool? isConfirmed, string? sortBy = null, string? sortOrder = "asc", int pageNumber = 1, int pageSize = 10)
     {
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
-
         var query = BuildBookingsQuery(searchString, activityId, childId, isConfirmed);
 
         // Apply sorting
@@ -160,11 +155,6 @@ public class BookingsController : Controller
     // GET: Bookings/Details/5
     public async Task<IActionResult> Details(int id)
     {
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
-
         var viewModel = await GetBookingViewModelAsync(id);
 
         if (viewModel == null)
@@ -178,11 +168,6 @@ public class BookingsController : Controller
     // GET: Bookings/Create
     public async Task<IActionResult> Create(int? childId, int? activityId)
     {
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
-
         await PopulateDropdowns(childId, activityId, null);
 
         var viewModel = new BookingViewModel
@@ -261,11 +246,6 @@ public class BookingsController : Controller
     // GET: Bookings/Edit/5
     public async Task<IActionResult> Edit(int id, string? returnUrl = null)
     {
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
-
         var booking = await _context.Bookings
             .Include(b => b.Activity)
                 .ThenInclude(a => a.Days)
@@ -410,11 +390,6 @@ public class BookingsController : Controller
     // GET: Bookings/Delete/5
     public async Task<IActionResult> Delete(int id)
     {
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
-
         var viewModel = await GetBookingViewModelAsync(id);
         return viewModel == null ? NotFound() : View(viewModel);
     }
@@ -622,11 +597,6 @@ public class BookingsController : Controller
     // GET: Bookings/Export
     public async Task<IActionResult> Export(string? searchString, int? activityId, int? childId, bool? isConfirmed)
     {
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
-
         var allBookings = await _bookingRepository.GetAllAsync();
         var query = allBookings.AsQueryable();
 
@@ -683,11 +653,6 @@ public class BookingsController : Controller
     // GET: Bookings/ExportPdf
     public async Task<IActionResult> ExportPdf(string? searchString, int? activityId, int? childId, bool? isConfirmed)
     {
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
-
         var allBookings = await _bookingRepository.GetAllAsync();
         var query = allBookings.AsQueryable();
 

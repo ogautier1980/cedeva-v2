@@ -15,8 +15,8 @@ namespace Cedeva.Website.Features.Parents;
 [Authorize]
 public class ParentsController : Controller
 {
-    private const string TempDataSuccess = "Success";
-    private const string TempDataError = "Error";
+    private const string TempDataSuccessMessage = "SuccessMessage";
+    private const string TempDataErrorMessage = "ErrorMessage";
 
     private readonly CedevaDbContext _context;
     private readonly ICurrentUserService _currentUserService;
@@ -43,11 +43,6 @@ public class ParentsController : Controller
 
     public async Task<IActionResult> Index(string? searchString, string? sortBy = null, string? sortOrder = "asc", int pageNumber = 1, int pageSize = 10)
     {
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
-
         var query = _context.Parents
             .Include(p => p.Address)
             .Include(p => p.Children)
@@ -119,11 +114,6 @@ public class ParentsController : Controller
     // GET: Parents/Export
     public async Task<IActionResult> Export(string? searchTerm)
     {
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
-
         var query = _context.Parents
             .Include(p => p.Address)
             .Include(p => p.Children)
@@ -167,11 +157,6 @@ public class ParentsController : Controller
     // GET: Parents/ExportPdf
     public async Task<IActionResult> ExportPdf(string? searchTerm)
     {
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
-
         var query = _context.Parents
             .Include(p => p.Address)
             .Include(p => p.Children)
@@ -212,11 +197,6 @@ public class ParentsController : Controller
 
     public async Task<IActionResult> Details(int id)
     {
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
-
         var viewModel = await GetParentViewModelAsync(id);
 
         if (viewModel == null)
@@ -229,11 +209,6 @@ public class ParentsController : Controller
 
     public async Task<IActionResult> Create()
     {
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
-
         var viewModel = new ParentViewModel
         {
             Country = Country.Belgium,
@@ -302,17 +277,12 @@ public class ParentsController : Controller
 
         _logger.LogInformation("Parent {Name} created by user {UserId}", parent.FullName, _currentUserService.UserId);
 
-        TempData[TempDataSuccess] = _localizer["Message.ParentCreated"].Value;
+        TempData[TempDataSuccessMessage] = _localizer["Message.ParentCreated"].Value;
         return RedirectToAction(nameof(Index));
     }
 
     public async Task<IActionResult> Edit(int id, string? returnUrl = null)
     {
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
-
         var parent = await _context.Parents
             .Include(p => p.Address)
             .FirstOrDefaultAsync(p => p.Id == id);
@@ -392,7 +362,7 @@ public class ParentsController : Controller
         {
             await _context.SaveChangesAsync();
             _logger.LogInformation("Parent {Name} updated by user {UserId}", parent.FullName, _currentUserService.UserId);
-            TempData[TempDataSuccess] = _localizer["Message.ParentUpdated"].Value;
+            TempData[TempDataSuccessMessage] = _localizer["Message.ParentUpdated"].Value;
         }
         catch (DbUpdateConcurrencyException ex)
         {
@@ -414,11 +384,6 @@ public class ParentsController : Controller
 
     public async Task<IActionResult> Delete(int id)
     {
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
-
         var viewModel = await GetParentViewModelAsync(id);
         return viewModel == null ? NotFound() : View(viewModel);
     }
@@ -444,7 +409,7 @@ public class ParentsController : Controller
 
         if (parent.Children.Any())
         {
-            TempData[TempDataError] = _localizer["Message.ParentHasChildren"].Value;
+            TempData[TempDataErrorMessage] = _localizer["Message.ParentHasChildren"].Value;
             return RedirectToAction(nameof(Index));
         }
 
@@ -453,7 +418,7 @@ public class ParentsController : Controller
         await _context.SaveChangesAsync();
 
         _logger.LogInformation("Parent {Name} deleted by user {UserId}", parent.FullName, _currentUserService.UserId);
-        TempData[TempDataSuccess] = _localizer["Message.ParentDeleted"].Value;
+        TempData[TempDataSuccessMessage] = _localizer["Message.ParentDeleted"].Value;
 
         return RedirectToAction(nameof(Index));
     }

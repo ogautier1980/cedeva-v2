@@ -44,11 +44,6 @@ public class OrganisationsController : Controller
     // GET: Organisations
     public async Task<IActionResult> Index(string? searchString, string? sortBy = null, string? sortOrder = "asc", int pageNumber = 1, int pageSize = 10)
     {
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
-
         var query = _context.Organisations
             .Include(o => o.Address)
             .Include(o => o.Activities)
@@ -113,11 +108,6 @@ public class OrganisationsController : Controller
     // GET: Organisations/Details/5
     public async Task<IActionResult> Details(int id)
     {
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
-
         var organisation = await _organisationRepository.GetByIdAsync(id);
 
         if (organisation == null)
@@ -207,11 +197,6 @@ public class OrganisationsController : Controller
     // GET: Organisations/Edit/5
     public async Task<IActionResult> Edit(int id, string? returnUrl = null)
     {
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
-
         var organisation = await _organisationRepository.GetByIdAsync(id);
 
         if (organisation == null)
@@ -294,11 +279,6 @@ public class OrganisationsController : Controller
     // GET: Organisations/Delete/5
     public async Task<IActionResult> Delete(int id)
     {
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
-
         var viewModel = await GetOrganisationViewModelWithStatsAsync(id);
 
         if (viewModel == null)

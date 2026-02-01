@@ -10,22 +10,7 @@
 <partial name="_ActivityManagementNav" />
 
 <div class="container-fluid py-4">
-    @if (TempData["SuccessMessage"] != null)
-    {
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            @TempData["SuccessMessage"]
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    }
-
-    @if (TempData["ErrorMessage"] != null)
-    {
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            @TempData["ErrorMessage"]
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    }
-
+    @await Html.PartialAsync("Shared/_AlertMessages")
     <!-- Sélection du jour -->
     <div class="card mb-4">
         <div class="card-body">

@@ -51,11 +51,6 @@ public class ActivityManagementController : Controller
     [HttpGet]
     public async Task<IActionResult> Index(int? id)
     {
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
-
         if (id is null)
         {
             // Try to get from session first
@@ -120,11 +115,6 @@ public class ActivityManagementController : Controller
     [HttpGet]
     public async Task<IActionResult> UnconfirmedBookings(int? id)
     {
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
-
         if (id is null)
         {
             // Try to get from session first
@@ -229,11 +219,6 @@ public class ActivityManagementController : Controller
     [HttpGet]
     public async Task<IActionResult> Presences(int? id, int? dayId)
     {
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
-
         if (id is null)
         {
             // Try to get from session first
@@ -387,11 +372,6 @@ public class ActivityManagementController : Controller
     [HttpGet]
     public async Task<IActionResult> SendEmail(int? id)
     {
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
-
         if (id is null)
         {
             // Try to get from session first
@@ -611,11 +591,6 @@ public class ActivityManagementController : Controller
     [HttpGet]
     public async Task<IActionResult> SentEmails(int? id)
     {
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
-
         if (id is null)
         {
             // Try to get from session first
@@ -682,11 +657,6 @@ public class ActivityManagementController : Controller
     [HttpGet]
     public async Task<IActionResult> TeamMembers(int? id)
     {
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
-
         if (id is null)
         {
             // Try to get from session first
