@@ -423,14 +423,16 @@ Activity (*) ←──→ (*) TeamMember                    (many-to-many via Ac
 ## Fonctionnalités principales
 
 ### Inscription publique (formulaire intégrable)
-Formulaire multi-étapes à `/PublicRegistration/SelectActivity?orgId={id}` :
-1. Sélection de l'activité et des jours
-2. Informations parent (détection de doublons par email)
-3. Informations enfant (détection de doublons par numéro de registre national)
-4. Questions personnalisées (si configurées)
-5. Confirmation + email Brevo
+Formulaire sur une seule page, intégré par iframe au niveau de l'activité. Point d'entrée : `/PublicRegistration/Register?activityId={id}`.
 
-Intégrable via iframe : `/PublicRegistration/EmbedCode?orgId={id}`
+Le formulaire collecte sur une seule page :
+- Informations parent (détection de doublons par email — met à jour l'enregistrement existant)
+- Informations enfant (détection de doublons par numéro de registre national — met à jour l'enregistrement existant)
+- Questions personnalisées (si configurées pour l'activité)
+
+À la soumission : tous les jours actifs sont automatiquement réservés, une communication structurée est générée et un email de confirmation est envoyé via Brevo.
+
+Code d'intégration (pour coordinateurs/admin) : `/PublicRegistration/EmbedCode?activityId={id}`
 
 ### Hub de gestion d'activité
 Gestion centralisée d'une activité (sélection basée sur la session) :

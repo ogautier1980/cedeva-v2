@@ -422,15 +422,17 @@ Activity (*) ←──→ (*) TeamMember                    (many-to-many via Ac
 
 ## Key Features
 
-### Public Registration (Embeddable Wizard)
-Multi-step form at `/PublicRegistration/SelectActivity?orgId={id}`:
-1. Activity + day selection
-2. Parent info (duplicate detection by email)
-3. Child info (duplicate detection by national register number)
-4. Custom questions (if configured)
-5. Confirmation + Brevo email
+### Public Registration (Embeddable Form)
+Single-page form embedded per activity via iframe. Entry point: `/PublicRegistration/Register?activityId={id}`.
 
-Embeddable via iframe: `/PublicRegistration/EmbedCode?orgId={id}`
+The form collects on one page:
+- Parent info (duplicate detected by email — updates existing record)
+- Child info (duplicate detected by national register number — updates existing record)
+- Custom questions (if configured for the activity)
+
+On submit: all active days are automatically reserved, a structured communication is generated, and a confirmation email is sent via Brevo.
+
+Embed code (for coordinators/admin): `/PublicRegistration/EmbedCode?activityId={id}`
 
 ### ActivityManagement Hub
 Centralised management for a single activity (session-based selection):
