@@ -9,7 +9,7 @@
 
 <partial name="_ActivityManagementNav" />
 
-@await Html.PartialAsync("Shared/_AlertMessages")
+@await Html.PartialAsync("_AlertMessages")
 <div class="card shadow mt-3">
     <div class="card-body">
         @if (!Model.UnconfirmedBookings.Any())

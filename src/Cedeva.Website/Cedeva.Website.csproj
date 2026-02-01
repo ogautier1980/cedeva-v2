@@ -5,7 +5,12 @@
     <ProjectReference Include="..\Cedeva.Infrastructure\Cedeva.Infrastructure.csproj" />
   </ItemGroup>
 
-  <Target Name="CopyMunicipaltiesCsv" AfterTargets="Publish">
+  <Target Name="CopyMunicipaltiesCsvBuild" AfterTargets="Build">
+    <Copy SourceFiles="$(MSBuildProjectDirectory)\..\..\municipalities.csv"
+          DestinationFiles="$(OutputPath)municipalities.csv" />
+  </Target>
+
+  <Target Name="CopyMunicipaltiesCsvPublish" AfterTargets="Publish">
     <Copy SourceFiles="$(MSBuildProjectDirectory)\..\..\municipalities.csv"
           DestinationFiles="$(PublishDir)municipalities.csv" />
   </Target>
