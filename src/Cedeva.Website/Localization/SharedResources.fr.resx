@@ -3466,4 +3466,49 @@
   <data name="Excursion.MergeVariablesHelp" xml:space="preserve">
     <value>Variables disponibles pour personnaliser le message:</value>
   </data>
+  <data name="Excursion.FinancialSummary" xml:space="preserve">
+    <value>Résumé financier</value>
+  </data>
+  <data name="Excursion.ExpenseItems" xml:space="preserve">
+    <value>dépenses</value>
+  </data>
+  <data name="Excursion.ExpensesList" xml:space="preserve">
+    <value>Liste des dépenses</value>
+  </data>
+  <data name="Excursion.NoExpensesYet" xml:space="preserve">
+    <value>Aucune dépense enregistrée pour cette excursion</value>
+  </data>
+  <data name="Expense.LabelPlaceholder" xml:space="preserve">
+    <value>Ex: Location bus, Billets Walibi, Sandwiches...</value>
+  </data>
+  <data name="Expense.DescriptionPlaceholder" xml:space="preserve">
+    <value>Détails supplémentaires (optionnel)</value>
+  </data>
+  <data name="Expense.Category.Transport" xml:space="preserve">
+    <value>Transport</value>
+  </data>
+  <data name="Expense.Category.Tickets" xml:space="preserve">
+    <value>Billets</value>
+  </data>
+  <data name="Expense.Category.Meals" xml:space="preserve">
+    <value>Repas</value>
+  </data>
+  <data name="Expense.Category.Equipment" xml:space="preserve">
+    <value>Matériel</value>
+  </data>
+  <data name="Expense.Category.Other" xml:space="preserve">
+    <value>Autre</value>
+  </data>
+  <data name="Payment.OrganizationCard" xml:space="preserve">
+    <value>Carte organisation</value>
+  </data>
+  <data name="Payment.OrganizationCash" xml:space="preserve">
+    <value>Caisse organisation</value>
+  </data>
+  <data name="Field.PaymentSource" xml:space="preserve">
+    <value>Source de paiement</value>
+  </data>
+  <data name="Message.ExpenseAdded" xml:space="preserve">
+    <value>Dépense ajoutée avec succès</value>
+  </data>
 </root>

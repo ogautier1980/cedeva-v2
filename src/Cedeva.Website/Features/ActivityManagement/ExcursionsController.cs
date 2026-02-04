@@ -517,6 +517,87 @@ public class ExcursionsController : Controller
         return RedirectToAction(nameof(Index), new { id = model.Excursion?.ActivityId ?? model.ExcursionId });
     }
 
+    [HttpGet]
+    public async Task<IActionResult> Expenses(int id)
+    {
+        var excursion = await _context.Excursions
+            .Include(e => e.Activity)
+            .Include(e => e.Expenses)
+            .Include(e => e.Registrations)
+            .FirstOrDefaultAsync(e => e.Id == id);
+
+        if (excursion == null)
+            return NotFound();
+
+        var viewModel = new ExcursionExpensesViewModel
+        {
+            Excursion = excursion,
+            Activity = excursion.Activity,
+            Expenses = excursion.Expenses.OrderByDescending(e => e.ExpenseDate).ToList(),
+            ExpenseDate = DateTime.Today
+        };
+
+        ViewData["ActivityId"] = excursion.ActivityId;
+        ViewData["ActivityName"] = excursion.Activity.Name;
+        ViewData["NavSection"] = "Excursions";
+        ViewData["NavAction"] = "Expenses";
+
+        return View(viewModel);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> AddExpense(ExcursionExpensesViewModel model)
+    {
+        // Validate only the form fields
+        ModelState.Remove(nameof(model.Excursion));
+        ModelState.Remove(nameof(model.Activity));
+        ModelState.Remove(nameof(model.Expenses));
+
+        if (!ModelState.IsValid)
+        {
+            var excursion = await _context.Excursions
+                .Include(e => e.Activity)
+                .Include(e => e.Expenses)
+                .Include(e => e.Registrations)
+                .FirstOrDefaultAsync(e => e.Id == model.Excursion.Id);
+
+            if (excursion != null)
+            {
+                model.Excursion = excursion;
+                model.Activity = excursion.Activity;
+                model.Expenses = excursion.Expenses.OrderByDescending(e => e.ExpenseDate).ToList();
+            }
+
+            ViewData["ActivityId"] = excursion?.ActivityId;
+            ViewData["ActivityName"] = excursion?.Activity.Name;
+            ViewData["NavSection"] = "Excursions";
+            ViewData["NavAction"] = "Expenses";
+
+            return View("Expenses", model);
+        }
+
+        // Create the expense
+        var expense = new Expense
+        {
+            Label = model.Label,
+            Description = model.Description,
+            Amount = model.Amount,
+            Category = model.Category,
+            ExpenseDate = model.ExpenseDate,
+            OrganizationPaymentSource = model.OrganizationPaymentSource,
+            ActivityId = model.Excursion.ActivityId,
+            ExcursionId = model.Excursion.Id,
+            TeamMemberId = null // Organization expense, not team member expense
+        };
+
+        _context.Expenses.Add(expense);
+        await _context.SaveChangesAsync();
+
+        TempData["SuccessMessage"] = _localizer["Message.ExpenseAdded"].ToString();
+        return RedirectToAction(nameof(Expenses), new { id = model.Excursion.Id });
+    }
+
     private List<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem> GetExcursionRecipientOptions(List<ActivityGroup> groups)
     {
         var options = new List<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem>
