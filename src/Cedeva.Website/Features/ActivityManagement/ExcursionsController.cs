@@ -313,6 +313,97 @@ public class ExcursionsController : Controller
         }
     }
 
+    [HttpGet]
+    public async Task<IActionResult> Attendance(int id)
+    {
+        var excursion = await _context.Excursions
+            .Include(e => e.Activity)
+            .Include(e => e.ExcursionGroups)
+                .ThenInclude(eg => eg.ActivityGroup)
+            .FirstOrDefaultAsync(e => e.Id == id);
+
+        if (excursion == null)
+            return NotFound();
+
+        // Get all registrations with related booking and child data
+        var registrations = await _context.ExcursionRegistrations
+            .Include(er => er.Booking)
+                .ThenInclude(b => b.Child)
+            .Include(er => er.Booking)
+                .ThenInclude(b => b.Group)
+            .Where(er => er.ExcursionId == id && er.Booking.Group != null)
+            .ToListAsync();
+
+        // Group children by ActivityGroup
+        var childrenByGroup = new Dictionary<ActivityGroup, List<ExcursionAttendanceInfo>>();
+
+        foreach (var registration in registrations)
+        {
+            var group = registration.Booking.Group!;
+
+            if (!childrenByGroup.ContainsKey(group))
+            {
+                childrenByGroup[group] = new List<ExcursionAttendanceInfo>();
+            }
+
+            childrenByGroup[group].Add(new ExcursionAttendanceInfo
+            {
+                RegistrationId = registration.Id,
+                BookingId = registration.BookingId,
+                FirstName = registration.Booking.Child.FirstName,
+                LastName = registration.Booking.Child.LastName,
+                BirthDate = registration.Booking.Child.BirthDate,
+                IsPresent = registration.IsPresent
+            });
+        }
+
+        // Sort children within each group
+        foreach (var group in childrenByGroup.Keys.ToList())
+        {
+            childrenByGroup[group] = childrenByGroup[group]
+                .OrderBy(c => c.LastName)
+                .ThenBy(c => c.FirstName)
+                .ToList();
+        }
+
+        var viewModel = new ExcursionAttendanceViewModel
+        {
+            Excursion = excursion,
+            Activity = excursion.Activity,
+            ChildrenByGroup = childrenByGroup
+        };
+
+        ViewData["ActivityId"] = excursion.ActivityId;
+        ViewData["ActivityName"] = excursion.Activity.Name;
+        ViewData["NavSection"] = "Excursions";
+        ViewData["NavAction"] = "Attendance";
+
+        return View(viewModel);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> UpdateAttendance(int registrationId, bool isPresent)
+    {
+        try
+        {
+            var result = await _excursionService.UpdateAttendanceAsync(registrationId, isPresent);
+            if (result)
+            {
+                return Json(new { success = true, message = _localizer["Message.AttendanceUpdated"].ToString() });
+            }
+            else
+            {
+                return Json(new { success = false, message = _localizer["Error.RegistrationNotFound"].ToString() });
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error updating attendance for registration {RegistrationId}", registrationId);
+            return Json(new { success = false, message = _localizer["Error"].ToString() });
+        }
+    }
+
     [HttpPost]
     [ValidateAntiForgeryToken]
     public IActionResult BeginExcursions(int id)

@@ -3424,4 +3424,16 @@
   <data name="Error.UpdateFailed" xml:space="preserve">
     <value>Échec de la mise à jour</value>
   </data>
+  <data name="Excursion.PresentCount" xml:space="preserve">
+    <value>Présents</value>
+  </data>
+  <data name="Excursion.AbsentCount" xml:space="preserve">
+    <value>Absents</value>
+  </data>
+  <data name="Excursion.NoRegistrations" xml:space="preserve">
+    <value>Aucune inscription pour cette excursion</value>
+  </data>
+  <data name="Excursion.AttendanceHelp" xml:space="preserve">
+    <value>Cochez les cases pour marquer les enfants présents à l'excursion</value>
+  </data>
 </root>
