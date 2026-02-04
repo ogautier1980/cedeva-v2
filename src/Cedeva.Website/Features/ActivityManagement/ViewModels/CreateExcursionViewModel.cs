@@ -1,0 +1,39 @@
+using System.ComponentModel.DataAnnotations;
+using Cedeva.Core.Entities;
+using Cedeva.Core.Enums;
+
+namespace Cedeva.Website.Features.ActivityManagement.ViewModels;
+
+public class CreateExcursionViewModel
+{
+    public int ActivityId { get; set; }
+    public Activity? Activity { get; set; }
+
+    [Required]
+    [StringLength(100)]
+    [Display(Name = "Field.ExcursionName")]
+    public string Name { get; set; } = string.Empty;
+
+    [StringLength(500)]
+    [Display(Name = "Field.Description")]
+    public string? Description { get; set; }
+
+    [Required]
+    [Display(Name = "Field.ExcursionDate")]
+    public DateTime ExcursionDate { get; set; } = DateTime.Today;
+
+    [Required]
+    [Display(Name = "Field.ExcursionCost")]
+    [Range(0, 9999.99)]
+    public decimal Cost { get; set; }
+
+    [Required]
+    [Display(Name = "Field.ExcursionType")]
+    public ExcursionType Type { get; set; }
+
+    [Required]
+    [Display(Name = "Field.TargetGroups")]
+    public List<int> SelectedGroupIds { get; set; } = new();
+
+    public List<ActivityGroup> AvailableGroups { get; set; } = new();
+}

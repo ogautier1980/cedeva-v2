@@ -1,0 +1,113 @@
+@model Cedeva.Website.Features.ActivityManagement.ViewModels.ExcursionsIndexViewModel
+
+@{
+    ViewData["Title"] = Localizer["Excursion.ManageExcursions"] + " - " + Model.Activity.Name;
+    ViewData["ActivityId"] = Model.Activity.Id;
+    ViewData["ActivityName"] = Model.Activity.Name;
+    ViewData["NavSection"] = "Excursions";
+    ViewData["NavAction"] = "Index";
+}
+
+<partial name="_ActivityManagementNav" />
+
+<div class="container-fluid py-4">
+    @await Html.PartialAsync("_AlertMessages")
+
+    <div class="row mb-3">
+        <div class="col">
+            <h2><i class="fas fa-train"></i> @Localizer["Excursion.ManageExcursions"]</h2>
+        </div>
+        <div class="col text-end">
+            <a asp-action="Create" asp-route-id="@Model.Activity.Id" class="btn btn-primary">
+                <i class="fas fa-plus"></i> @Localizer["Excursion.CreateNew"]
+            </a>
+        </div>
+    </div>
+
+    @if (!Model.Excursions.Any())
+    {
+        <div class="alert alert-info">
+            <i class="fas fa-info-circle"></i> @Localizer["Excursion.NoExcursions"]
+        </div>
+    }
+    else
+    {
+        <div class="card">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>@Localizer["Field.ExcursionName"]</th>
+                                <th>@Localizer["Field.ExcursionDate"]</th>
+                                <th>@Localizer["Field.ExcursionType"]</th>
+                                <th>@Localizer["Field.TargetGroups"]</th>
+                                <th>@Localizer["Excursion.Registrations"]</th>
+                                <th>@Localizer["Field.ExcursionCost"]</th>
+                                <th>@Localizer["Excursion.TotalRevenue"]</th>
+                                <th>@Localizer["Excursion.TotalExpenses"]</th>
+                                <th>@Localizer["Excursion.NetBalance"]</th>
+                                <th class="text-end">@Localizer["Actions"]</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var excursion in Model.Excursions)
+                            {
+                                <tr>
+                                    <td><strong>@excursion.Name</strong></td>
+                                    <td>@excursion.ExcursionDate.ToString("dd/MM/yyyy")</td>
+                                    <td>
+                                        <span class="badge bg-info">@excursion.Type</span>
+                                    </td>
+                                    <td>
+                                        @foreach (var groupName in excursion.TargetGroupNames)
+                                        {
+                                            <span class="badge bg-secondary me-1">@groupName</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-primary">@excursion.RegistrationCount</span>
+                                    </td>
+                                    <td>@excursion.Cost.ToString("C")</td>
+                                    <td class="text-success">
+                                        <strong>@excursion.TotalRevenue.ToString("C")</strong>
+                                    </td>
+                                    <td class="text-danger">
+                                        @excursion.TotalExpenses.ToString("C")
+                                    </td>
+                                    <td class="@(excursion.NetBalance >= 0 ? "text-success" : "text-danger")">
+                                        <strong>@excursion.NetBalance.ToString("C")</strong>
+                                    </td>
+                                    <td class="text-end">
+                                        <div class="btn-group" role="group">
+                                            <a asp-action="Registrations" asp-route-id="@excursion.Id"
+                                               class="btn btn-sm btn-outline-primary"
+                                               title="@Localizer["Excursion.ManageRegistrations"]">
+                                                <i class="fas fa-user-check"></i>
+                                            </a>
+                                            <a asp-action="Attendance" asp-route-id="@excursion.Id"
+                                               class="btn btn-sm btn-outline-success"
+                                               title="@Localizer["Excursion.Attendance"]">
+                                                <i class="fas fa-clipboard-check"></i>
+                                            </a>
+                                            <a asp-action="Expenses" asp-route-id="@excursion.Id"
+                                               class="btn btn-sm btn-outline-warning"
+                                               title="@Localizer["Excursion.Expenses"]">
+                                                <i class="fas fa-euro-sign"></i>
+                                            </a>
+                                            <a asp-action="Edit" asp-route-id="@excursion.Id"
+                                               class="btn btn-sm btn-outline-secondary"
+                                               title="@Localizer["Edit"]">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    }
+</div>

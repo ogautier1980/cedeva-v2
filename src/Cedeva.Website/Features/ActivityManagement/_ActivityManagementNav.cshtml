@@ -70,11 +70,26 @@
                 </ul>
             </li>
 
-            <!-- Excursions (placeholder) -->
-            <li class="nav-item">
-                <a class="nav-link disabled" aria-disabled="true">
+            <!-- Excursions -->
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle @(navSection == "Excursions" ? "active" : "")"
+                   href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                     <i class="fas fa-train"></i> @Localizer["ActivityManagement.Excursions"]
                 </a>
+                <ul class="dropdown-menu">
+                    <li>
+                        <a class="dropdown-item @(navAction == "Index" ? "active" : "")"
+                           asp-action="Index" asp-controller="Excursions" asp-route-id="@activityId">
+                            <i class="fas fa-list"></i> @Localizer["Excursion.ManageExcursions"]
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item @(navAction == "Create" ? "active" : "")"
+                           asp-action="Create" asp-controller="Excursions" asp-route-id="@activityId">
+                            <i class="fas fa-plus"></i> @Localizer["Excursion.CreateNew"]
+                        </a>
+                    </li>
+                </ul>
             </li>
 
             <!-- Équipe -->

@@ -3270,9 +3270,6 @@
     <value>-- Sélectionner --</value>
   </data>
   <!-- Excursions -->
-  <data name="ActivityManagement.Excursions" xml:space="preserve">
-    <value>Excursions</value>
-  </data>
   <data name="Excursion.ManageExcursions" xml:space="preserve">
     <value>Gérer les excursions</value>
   </data>
@@ -3384,5 +3381,26 @@
   </data>
   <data name="Excursion.ExpenseCategory.Materials" xml:space="preserve">
     <value>Matériel</value>
+  </data>
+  <data name="Excursion.NoExcursions" xml:space="preserve">
+    <value>Aucune excursion créée pour cette activité</value>
+  </data>
+  <data name="Excursion.Registrations" xml:space="preserve">
+    <value>Inscriptions</value>
+  </data>
+  <data name="Excursion.ManageRegistrations" xml:space="preserve">
+    <value>Gérer les inscriptions</value>
+  </data>
+  <data name="Excursion.Expenses" xml:space="preserve">
+    <value>Dépenses</value>
+  </data>
+  <data name="Excursion.SelectTargetGroupsHelp" xml:space="preserve">
+    <value>Sélectionnez les groupes d'enfants pouvant s'inscrire à cette excursion</value>
+  </data>
+  <data name="Excursion.NoActiveGroups" xml:space="preserve">
+    <value>Aucun groupe actif disponible pour cette activité</value>
+  </data>
+  <data name="Validation.AtLeastOneGroupRequired" xml:space="preserve">
+    <value>Veuillez sélectionner au moins un groupe</value>
   </data>
 </root>
