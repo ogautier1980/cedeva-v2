@@ -22,4 +22,5 @@ public class TransactionViewModel
     public string? PaymentMethod { get; set; } // Pour les paiements
     public string? ChildName { get; set; } // Pour les paiements
     public int? RelatedId { get; set; } // PaymentId ou ExpenseId
+    public string? ExcursionName { get; set; } // Pour les dépenses liées à une excursion
 }

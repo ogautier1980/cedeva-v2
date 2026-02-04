@@ -755,6 +755,7 @@ public class FinancialController : Controller
         {
             var expenses = await _context.Expenses
                 .Include(e => e.TeamMember)
+                .Include(e => e.Excursion)
                 .Where(e => e.ActivityId == activityId.Value)
                 .ToListAsync();
 
@@ -771,7 +772,8 @@ public class FinancialController : Controller
                         : _localizer["Expense.OrganizationCash"].Value,
                 Amount = e.Amount,
                 IsIncome = false,
-                RelatedId = e.Id
+                RelatedId = e.Id,
+                ExcursionName = e.Excursion?.Name
             }));
         }
 
