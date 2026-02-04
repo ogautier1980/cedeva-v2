@@ -1,0 +1,150 @@
+@model Cedeva.Website.Features.ActivityManagement.ViewModels.EditExcursionViewModel
+
+@{
+    ViewData["Title"] = Localizer["Edit"] + " - " + Model.Name;
+    ViewData["ActivityId"] = Model.ActivityId;
+    ViewData["ActivityName"] = Model.Activity?.Name;
+    ViewData["NavSection"] = "Excursions";
+    ViewData["NavAction"] = "Edit";
+}
+
+<partial name="_ActivityManagementNav" />
+
+<div class="container-fluid py-4">
+    @await Html.PartialAsync("_AlertMessages")
+
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="card">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0"><i class="fas fa-edit"></i> @Localizer["Edit"] - @Model.Name</h5>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Edit" method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" asp-for="Id" />
+                        <input type="hidden" asp-for="ActivityId" />
+
+                        <div class="mb-3">
+                            <label asp-for="Name" class="form-label"></label>
+                            <input asp-for="Name" class="form-control" />
+                            <span asp-validation-for="Name" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Description" class="form-label"></label>
+                            <textarea asp-for="Description" class="form-control" rows="3"></textarea>
+                            <span asp-validation-for="Description" class="text-danger"></span>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label asp-for="ExcursionDate" class="form-label"></label>
+                                    <input asp-for="ExcursionDate" type="date" class="form-control" />
+                                    <span asp-validation-for="ExcursionDate" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label asp-for="StartTime" class="form-label"></label>
+                                    <input asp-for="StartTime" type="time" class="form-control" placeholder="HH:mm" />
+                                    <span asp-validation-for="StartTime" class="text-danger"></span>
+                                    <small class="form-text text-muted">@Localizer["Excursion.StartTimeHelp"]</small>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label asp-for="EndTime" class="form-label"></label>
+                                    <input asp-for="EndTime" type="time" class="form-control" placeholder="HH:mm" />
+                                    <span asp-validation-for="EndTime" class="text-danger"></span>
+                                    <small class="form-text text-muted">@Localizer["Excursion.EndTimeHelp"]</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="mb-3">
+                                    <label asp-for="Cost" class="form-label"></label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">€</span>
+                                        <input asp-for="Cost" type="number" step="0.01" min="0" class="form-control" />
+                                    </div>
+                                    <span asp-validation-for="Cost" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Type" class="form-label"></label>
+                            <select asp-for="Type" class="form-select">
+                                <option value="">-- @Localizer["Select"] --</option>
+                                @foreach (var type in Enum.GetValues<Cedeva.Core.Enums.ExcursionType>())
+                                {
+                                    <option value="@((int)type)">@Localizer[$"Enum.ExcursionType.{type}"]</option>
+                                }
+                            </select>
+                            <span asp-validation-for="Type" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="SelectedGroupIds" class="form-label"></label>
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle"></i> @Localizer["Excursion.SelectTargetGroupsHelp"]
+                            </div>
+                            @if (!Model.AvailableGroups.Any())
+                            {
+                                <div class="alert alert-warning">
+                                    <i class="fas fa-exclamation-triangle"></i> @Localizer["Excursion.NoActiveGroups"]
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="list-group">
+                                    @for (int i = 0; i < Model.AvailableGroups.Count; i++)
+                                    {
+                                        var group = Model.AvailableGroups[i];
+                                        var isChecked = Model.SelectedGroupIds != null && Model.SelectedGroupIds.Contains(group.Id);
+
+                                        <label class="list-group-item">
+                                            <div class="form-check">
+                                                <input type="checkbox"
+                                                       name="SelectedGroupIds"
+                                                       value="@group.Id"
+                                                       class="form-check-input"
+                                                       @(isChecked ? "checked" : "") />
+                                                <span class="form-check-label">
+                                                    <strong>@group.Label</strong>
+                                                    @if (group.Capacity.HasValue)
+                                                    {
+                                                        <br />
+                                                        <small class="text-muted">@Localizer["Capacity"]: @group.Capacity</small>
+                                                    }
+                                                </span>
+                                            </div>
+                                        </label>
+                                    }
+                                </div>
+                            }
+                            <span asp-validation-for="SelectedGroupIds" class="text-danger"></span>
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <a asp-action="Index" asp-route-id="@Model.ActivityId" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left"></i> @Localizer["Cancel"]
+                            </a>
+                            <button type="submit" class="btn btn-warning">
+                                <i class="fas fa-save"></i> @Localizer["Save"]
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

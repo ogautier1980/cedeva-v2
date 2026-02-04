@@ -54,7 +54,7 @@
                             @foreach (var excursion in Model.Excursions)
                             {
                                 <tr>
-                                    <td><strong>@excursion.Name</strong></td>
+                                    <td><a asp-action="Details" asp-route-id="@excursion.Id" class="fw-bold">@excursion.Name</a></td>
                                     <td>@excursion.ExcursionDate.ToString("dd/MM/yyyy")</td>
                                     <td>
                                         <span class="badge bg-info">@excursion.Type</span>

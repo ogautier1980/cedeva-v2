@@ -3511,4 +3511,28 @@
   <data name="Message.ExpenseAdded" xml:space="preserve">
     <value>Dépense ajoutée avec succès</value>
   </data>
+  <data name="Excursion.GeneralInfo" xml:space="preserve">
+    <value>Informations générales</value>
+  </data>
+  <data name="Excursion.Statistics" xml:space="preserve">
+    <value>Statistiques</value>
+  </data>
+  <data name="Excursion.Presence" xml:space="preserve">
+    <value>Présence</value>
+  </data>
+  <data name="Excursion.TeamMembers" xml:space="preserve">
+    <value>Membres de l'équipe</value>
+  </data>
+  <data name="Excursion.ConfirmDelete" xml:space="preserve">
+    <value>Confirmer la suppression</value>
+  </data>
+  <data name="Excursion.DeleteWarning" xml:space="preserve">
+    <value>Cette action est irréversible. L'excursion sera désactivée.</value>
+  </data>
+  <data name="Excursion.CannotDeleteRegistrations" xml:space="preserve">
+    <value>Impossible de supprimer cette excursion : des enfants sont inscrits</value>
+  </data>
+  <data name="Excursion.DeleteConfirm" xml:space="preserve">
+    <value>Supprimer définitivement</value>
+  </data>
 </root>

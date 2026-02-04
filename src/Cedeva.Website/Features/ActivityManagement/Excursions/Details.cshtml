@@ -1,0 +1,220 @@
+@model Cedeva.Core.Entities.Excursion
+
+@{
+    ViewData["Title"] = Model.Name;
+    ViewData["ActivityId"] = Model.ActivityId;
+    ViewData["ActivityName"] = Model.Activity?.Name;
+    ViewData["NavSection"] = "Excursions";
+    ViewData["NavAction"] = "Details";
+}
+
+<partial name="_ActivityManagementNav" />
+
+<div class="container-fluid py-4">
+    @await Html.PartialAsync("_AlertMessages")
+
+    <!-- Header with actions -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="h3 mb-0">@Model.Name</h2>
+            <small class="text-muted">@Localizer[$"Enum.ExcursionType.{Model.Type}"] · @Model.Activity?.Name</small>
+        </div>
+        <div class="d-flex gap-2">
+            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">
+                <i class="fas fa-edit"></i> @Localizer["Edit"]
+            </a>
+            <a asp-action="Registrations" asp-route-id="@Model.Id" class="btn btn-primary">
+                <i class="fas fa-user-check"></i> @Localizer["Excursion.Registrations"]
+            </a>
+            <a asp-action="Attendance" asp-route-id="@Model.Id" class="btn btn-success">
+                <i class="fas fa-clipboard-check"></i> @Localizer["Excursion.Attendance"]
+            </a>
+            <a asp-action="Expenses" asp-route-id="@Model.Id" class="btn btn-outline-warning">
+                <i class="fas fa-euro-sign"></i> @Localizer["Excursion.Expenses"]
+            </a>
+            <a asp-action="SendEmail" asp-route-id="@Model.Id" class="btn btn-outline-info">
+                <i class="fas fa-envelope"></i> @Localizer["Excursion.SendEmailToParents"]
+            </a>
+            @if (Model.Registrations.Count == 0)
+            {
+                <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-outline-danger">
+                    <i class="fas fa-trash"></i> @Localizer["Delete"]
+                </a>
+            }
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Main info card -->
+        <div class="col-lg-8">
+            <div class="card shadow mb-4">
+                <div class="card-header">
+                    <h6 class="mb-0"><i class="fas fa-info-circle"></i> @Localizer["Excursion.GeneralInfo"]</h6>
+                </div>
+                <div class="card-body">
+                    <dl class="row mb-0">
+                        <dt class="col-sm-3">@Localizer["Field.ExcursionDate"]</dt>
+                        <dd class="col-sm-9">@Model.ExcursionDate.ToString("dddd dd MMMM yyyy", new System.Globalization.CultureInfo("fr-BE"))</dd>
+
+                        @if (Model.StartTime.HasValue || Model.EndTime.HasValue)
+                        {
+                            <dt class="col-sm-3">@Localizer["Excursion.TimeSlot"]</dt>
+                            <dd class="col-sm-9">
+                                @if (Model.StartTime.HasValue)
+                                {
+                                    @Model.StartTime.Value.ToString(@"hh\:mm")
+                                }
+                                @if (Model.EndTime.HasValue)
+                                {
+                                    <text> – @Model.EndTime.Value.ToString(@"hh\:mm")</text>
+                                }
+                            </dd>
+                        }
+
+                        <dt class="col-sm-3">@Localizer["Field.ExcursionType"]</dt>
+                        <dd class="col-sm-9"><span class="badge bg-info">@Localizer[$"Enum.ExcursionType.{Model.Type}"]</span></dd>
+
+                        <dt class="col-sm-3">@Localizer["Field.ExcursionCost"]</dt>
+                        <dd class="col-sm-9">@Model.Cost.ToString("C2")</dd>
+
+                        <dt class="col-sm-3">@Localizer["Field.TargetGroups"]</dt>
+                        <dd class="col-sm-9">
+                            @foreach (var eg in Model.ExcursionGroups)
+                            {
+                                <span class="badge bg-secondary me-1">@eg.ActivityGroup.Label</span>
+                            }
+                        </dd>
+
+                        @if (!string.IsNullOrWhiteSpace(Model.Description))
+                        {
+                            <dt class="col-sm-3">@Localizer["Field.Description"]</dt>
+                            <dd class="col-sm-9">@Model.Description</dd>
+                        }
+                    </dl>
+                </div>
+            </div>
+
+            <!-- Registered children summary -->
+            <div class="card shadow">
+                <div class="card-header">
+                    <h6 class="mb-0"><i class="fas fa-users"></i> @Localizer["Excursion.Registrations"]</h6>
+                </div>
+                <div class="card-body">
+                    @if (Model.Registrations.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-hover table-sm mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>@Localizer["Field.FirstName"]</th>
+                                        <th>@Localizer["Field.LastName"]</th>
+                                        <th>@Localizer["Excursion.Presence"]</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var reg in Model.Registrations.OrderBy(r => r.Booking.Child.LastName).ThenBy(r => r.Booking.Child.FirstName))
+                                    {
+                                        <tr>
+                                            <td>@reg.Booking.Child.FirstName</td>
+                                            <td>@reg.Booking.Child.LastName</td>
+                                            <td>
+                                                @if (reg.IsPresent)
+                                                {
+                                                    <span class="badge bg-success">@Localizer["Present"]</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-secondary">@Localizer["Absent"]</span>
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-info mb-0">
+                            <i class="fas fa-info-circle"></i> @Localizer["Excursion.NoRegistrations"]
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Statistics sidebar -->
+        <div class="col-lg-4">
+            <div class="card shadow mb-4">
+                <div class="card-header">
+                    <h6 class="mb-0"><i class="fas fa-chart-bar"></i> @Localizer["Excursion.Statistics"]</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-4">
+                            <div class="h4 mb-0 text-primary">@Model.Registrations.Count</div>
+                            <small class="text-muted">@Localizer["Excursion.Registrations"]</small>
+                        </div>
+                        <div class="col-4">
+                            <div class="h4 mb-0 text-success">@Model.Registrations.Count(r => r.IsPresent)</div>
+                            <small class="text-muted">@Localizer["Excursion.PresentCount"]</small>
+                        </div>
+                        <div class="col-4">
+                            <div class="h4 mb-0 text-danger">@Model.Registrations.Count(r => !r.IsPresent)</div>
+                            <small class="text-muted">@Localizer["Excursion.AbsentCount"]</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Financial summary -->
+            <div class="card shadow mb-4">
+                <div class="card-header">
+                    <h6 class="mb-0"><i class="fas fa-chart-line"></i> @Localizer["Excursion.FinancialSummary"]</h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">@Localizer["Excursion.TotalRevenue"]</span>
+                        <strong class="text-success">@((Model.Registrations.Count * Model.Cost).ToString("C2"))</strong>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">@Localizer["Excursion.TotalExpenses"]</span>
+                        <strong class="text-danger">@(Model.Expenses.Sum(e => e.Amount).ToString("C2"))</strong>
+                    </div>
+                    <hr class="my-2" />
+                    <div class="d-flex justify-content-between">
+                        <span class="fw-bold">@Localizer["Excursion.NetBalance"]</span>
+                        @{ var netBalance = (Model.Registrations.Count * Model.Cost) - Model.Expenses.Sum(e => e.Amount); }
+                        <strong class="@(netBalance >= 0 ? "text-success" : "text-danger")">@netBalance.ToString("C2")</strong>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Team members -->
+            @if (Model.TeamMembers.Any())
+            {
+                <div class="card shadow">
+                    <div class="card-header">
+                        <h6 class="mb-0"><i class="fas fa-users-cog"></i> @Localizer["Excursion.TeamMembers"]</h6>
+                    </div>
+                    <div class="list-group list-group-flush">
+                        @foreach (var tm in Model.TeamMembers)
+                        {
+                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                <span>@tm.TeamMember.FirstName @tm.TeamMember.LastName</span>
+                                @if (tm.IsPresent)
+                                {
+                                    <span class="badge bg-success">@Localizer["Present"]</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary">@Localizer["Assigned"]</span>
+                                }
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>

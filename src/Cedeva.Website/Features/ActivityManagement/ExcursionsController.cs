@@ -205,6 +205,190 @@ public class ExcursionsController : Controller
     }
 
     [HttpGet]
+    public async Task<IActionResult> Details(int id)
+    {
+        var excursion = await _context.Excursions
+            .Include(e => e.Activity)
+            .Include(e => e.ExcursionGroups)
+                .ThenInclude(eg => eg.ActivityGroup)
+            .Include(e => e.Registrations)
+                .ThenInclude(r => r.Booking)
+                    .ThenInclude(b => b.Child)
+            .Include(e => e.Expenses)
+            .Include(e => e.TeamMembers)
+                .ThenInclude(tm => tm.TeamMember)
+            .FirstOrDefaultAsync(e => e.Id == id);
+
+        if (excursion == null)
+            return NotFound();
+
+        ViewData["ActivityId"] = excursion.ActivityId;
+        ViewData["ActivityName"] = excursion.Activity.Name;
+
+        return View(excursion);
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> Edit(int id)
+    {
+        var excursion = await _context.Excursions
+            .Include(e => e.Activity)
+                .ThenInclude(a => a.Groups)
+            .Include(e => e.ExcursionGroups)
+            .FirstOrDefaultAsync(e => e.Id == id);
+
+        if (excursion == null)
+            return NotFound();
+
+        var viewModel = new EditExcursionViewModel
+        {
+            Id = excursion.Id,
+            ActivityId = excursion.ActivityId,
+            Activity = excursion.Activity,
+            Name = excursion.Name,
+            Description = excursion.Description,
+            ExcursionDate = excursion.ExcursionDate,
+            StartTime = excursion.StartTime?.ToString(@"hh\:mm"),
+            EndTime = excursion.EndTime?.ToString(@"hh\:mm"),
+            Cost = excursion.Cost,
+            Type = excursion.Type,
+            SelectedGroupIds = excursion.ExcursionGroups.Select(eg => eg.ActivityGroupId).ToList(),
+            AvailableGroups = excursion.Activity.Groups.ToList()
+        };
+
+        ViewData["ActivityId"] = excursion.ActivityId;
+        ViewData["ActivityName"] = excursion.Activity.Name;
+
+        return View(viewModel);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Edit(EditExcursionViewModel model)
+    {
+        if (!ModelState.IsValid)
+        {
+            var activity = await _context.Activities
+                .Include(a => a.Groups)
+                .FirstOrDefaultAsync(a => a.Id == model.ActivityId);
+
+            if (activity != null)
+            {
+                model.Activity = activity;
+                model.AvailableGroups = activity.Groups.ToList();
+                ViewData["ActivityId"] = activity.Id;
+                ViewData["ActivityName"] = activity.Name;
+            }
+
+            return View(model);
+        }
+
+        if (model.SelectedGroupIds == null || model.SelectedGroupIds.Count == 0)
+        {
+            ModelState.AddModelError(nameof(model.SelectedGroupIds), _localizer["Validation.AtLeastOneGroupRequired"]);
+
+            var activity = await _context.Activities
+                .Include(a => a.Groups)
+                .FirstOrDefaultAsync(a => a.Id == model.ActivityId);
+
+            if (activity != null)
+            {
+                model.Activity = activity;
+                model.AvailableGroups = activity.Groups.ToList();
+                ViewData["ActivityId"] = activity.Id;
+                ViewData["ActivityName"] = activity.Name;
+            }
+
+            return View(model);
+        }
+
+        var excursion = await _context.Excursions
+            .Include(e => e.ExcursionGroups)
+            .FirstOrDefaultAsync(e => e.Id == model.Id);
+
+        if (excursion == null)
+            return NotFound();
+
+        // Parse time fields
+        TimeSpan? startTime = null;
+        TimeSpan? endTime = null;
+
+        if (!string.IsNullOrWhiteSpace(model.StartTime) && TimeSpan.TryParse(model.StartTime, out var parsedStart))
+            startTime = parsedStart;
+
+        if (!string.IsNullOrWhiteSpace(model.EndTime) && TimeSpan.TryParse(model.EndTime, out var parsedEnd))
+            endTime = parsedEnd;
+
+        // Update excursion fields
+        excursion.Name = model.Name;
+        excursion.Description = model.Description;
+        excursion.ExcursionDate = model.ExcursionDate;
+        excursion.StartTime = startTime;
+        excursion.EndTime = endTime;
+        excursion.Cost = model.Cost;
+        excursion.Type = model.Type;
+
+        // Update group links: remove old, add new
+        _context.ExcursionGroups.RemoveRange(excursion.ExcursionGroups);
+
+        foreach (var groupId in model.SelectedGroupIds)
+        {
+            _context.ExcursionGroups.Add(new ExcursionGroup
+            {
+                ExcursionId = excursion.Id,
+                ActivityGroupId = groupId
+            });
+        }
+
+        await _context.SaveChangesAsync();
+
+        TempData["SuccessMessage"] = _localizer["Message.ExcursionUpdated"].ToString();
+        return RedirectToAction(nameof(Index), new { id = model.ActivityId });
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> Delete(int id)
+    {
+        var excursion = await _context.Excursions
+            .Include(e => e.Activity)
+            .Include(e => e.Registrations)
+            .FirstOrDefaultAsync(e => e.Id == id);
+
+        if (excursion == null)
+            return NotFound();
+
+        ViewData["ActivityId"] = excursion.ActivityId;
+        ViewData["ActivityName"] = excursion.Activity.Name;
+
+        return View(excursion);
+    }
+
+    [HttpPost, ActionName("Delete")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> DeleteConfirmed(int id)
+    {
+        var excursion = await _context.Excursions
+            .Include(e => e.Registrations)
+            .FirstOrDefaultAsync(e => e.Id == id);
+
+        if (excursion == null)
+            return NotFound();
+
+        if (excursion.Registrations.Count > 0)
+        {
+            TempData["ErrorMessage"] = _localizer["Excursion.CannotDeleteRegistrations"].ToString();
+            return RedirectToAction(nameof(Index), new { id = excursion.ActivityId });
+        }
+
+        // Soft delete
+        excursion.IsActive = false;
+        await _context.SaveChangesAsync();
+
+        TempData["SuccessMessage"] = _localizer["Message.ExcursionDeleted"].ToString();
+        return RedirectToAction(nameof(Index), new { id = excursion.ActivityId });
+    }
+
+    [HttpGet]
     public async Task<IActionResult> Registrations(int id)
     {
         var excursion = await _context.Excursions
