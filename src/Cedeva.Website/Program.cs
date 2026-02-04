@@ -130,9 +130,12 @@ try
 
     var app = builder.Build();
 
-    // Seed database
+    // Apply pending migrations and seed database
     using (var scope = app.Services.CreateScope())
     {
+        var dbContext = scope.ServiceProvider.GetRequiredService<CedevaDbContext>();
+        await dbContext.Database.MigrateAsync();
+
         var seeder = scope.ServiceProvider.GetRequiredService<DbSeeder>();
         await seeder.SeedAsync();
 
