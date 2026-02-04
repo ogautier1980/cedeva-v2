@@ -156,12 +156,28 @@ public class ExcursionsController : Controller
             return View(model);
         }
 
+        // Parse time fields
+        TimeSpan? startTime = null;
+        TimeSpan? endTime = null;
+
+        if (!string.IsNullOrWhiteSpace(model.StartTime) && TimeSpan.TryParse(model.StartTime, out var parsedStartTime))
+        {
+            startTime = parsedStartTime;
+        }
+
+        if (!string.IsNullOrWhiteSpace(model.EndTime) && TimeSpan.TryParse(model.EndTime, out var parsedEndTime))
+        {
+            endTime = parsedEndTime;
+        }
+
         // Create excursion
         var excursion = new Excursion
         {
             Name = model.Name,
             Description = model.Description,
             ExcursionDate = model.ExcursionDate,
+            StartTime = startTime,
+            EndTime = endTime,
             Cost = model.Cost,
             Type = model.Type,
             ActivityId = model.ActivityId,

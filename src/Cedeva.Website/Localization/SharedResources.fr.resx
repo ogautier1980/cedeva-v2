@@ -3436,4 +3436,16 @@
   <data name="Excursion.AttendanceHelp" xml:space="preserve">
     <value>Cochez les cases pour marquer les enfants présents à l'excursion</value>
   </data>
+  <data name="Field.StartTime" xml:space="preserve">
+    <value>Heure de début</value>
+  </data>
+  <data name="Field.EndTime" xml:space="preserve">
+    <value>Heure de fin</value>
+  </data>
+  <data name="Excursion.StartTimeHelp" xml:space="preserve">
+    <value>Optionnel (ex: 09:00)</value>
+  </data>
+  <data name="Excursion.EndTimeHelp" xml:space="preserve">
+    <value>Optionnel (ex: 12:00)</value>
+  </data>
 </root>

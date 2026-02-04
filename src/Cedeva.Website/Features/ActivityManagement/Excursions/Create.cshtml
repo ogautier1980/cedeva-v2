@@ -37,14 +37,33 @@
                         </div>
 
                         <div class="row">
-                            <div class="col-md-6">
+                            <div class="col-md-4">
                                 <div class="mb-3">
                                     <label asp-for="ExcursionDate" class="form-label"></label>
                                     <input asp-for="ExcursionDate" type="date" class="form-control" />
                                     <span asp-validation-for="ExcursionDate" class="text-danger"></span>
                                 </div>
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label asp-for="StartTime" class="form-label"></label>
+                                    <input asp-for="StartTime" type="time" class="form-control" placeholder="HH:mm" />
+                                    <span asp-validation-for="StartTime" class="text-danger"></span>
+                                    <small class="form-text text-muted">@Localizer["Excursion.StartTimeHelp"]</small>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label asp-for="EndTime" class="form-label"></label>
+                                    <input asp-for="EndTime" type="time" class="form-control" placeholder="HH:mm" />
+                                    <span asp-validation-for="EndTime" class="text-danger"></span>
+                                    <small class="form-text text-muted">@Localizer["Excursion.EndTimeHelp"]</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-12">
                                 <div class="mb-3">
                                     <label asp-for="Cost" class="form-label"></label>
                                     <div class="input-group">

@@ -42,6 +42,7 @@ public class CedevaDbContext : IdentityDbContext<CedevaUser>, IUnitOfWork
     public DbSet<Excursion> Excursions => Set<Excursion>();
     public DbSet<ExcursionRegistration> ExcursionRegistrations => Set<ExcursionRegistration>();
     public DbSet<ExcursionGroup> ExcursionGroups => Set<ExcursionGroup>();
+    public DbSet<ExcursionTeamMember> ExcursionTeamMembers => Set<ExcursionTeamMember>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
