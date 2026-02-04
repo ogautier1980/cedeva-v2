@@ -3130,4 +3130,263 @@
   <data name="Yes" xml:space="preserve">
     <value>Ja</value>
   </data>
+  <!-- Excursions (Phase 7-12) -->
+  <data name="Enum.ExcursionType.Pool" xml:space="preserve">
+    <value>[NL] Piscine</value>
+  </data>
+  <data name="Enum.ExcursionType.AmusementPark" xml:space="preserve">
+    <value>[NL] Parc d'attractions</value>
+  </data>
+  <data name="Enum.ExcursionType.CulturalVisit" xml:space="preserve">
+    <value>[NL] Visite culturelle</value>
+  </data>
+  <data name="Enum.ExcursionType.Nature" xml:space="preserve">
+    <value>[NL] Nature</value>
+  </data>
+  <data name="Enum.ExcursionType.Sports" xml:space="preserve">
+    <value>[NL] Sports</value>
+  </data>
+  <data name="Enum.ExcursionType.Other" xml:space="preserve">
+    <value>[NL] Autre</value>
+  </data>
+  <data name="Field.ExcursionName" xml:space="preserve">
+    <value>[NL] Nom de l'excursion</value>
+  </data>
+  <data name="Field.ExcursionDate" xml:space="preserve">
+    <value>[NL] Date de l'excursion</value>
+  </data>
+  <data name="Field.ExcursionCost" xml:space="preserve">
+    <value>[NL] Coût par enfant</value>
+  </data>
+  <data name="Field.ExcursionType" xml:space="preserve">
+    <value>[NL] Type d'excursion</value>
+  </data>
+  <data name="Field.TargetGroups" xml:space="preserve">
+    <value>[NL] Groupes ciblés</value>
+  </data>
+  <data name="Field.RegistrationCount" xml:space="preserve">
+    <value>[NL] Nombre d'inscriptions</value>
+  </data>
+  <data name="Field.StartTime" xml:space="preserve">
+    <value>[NL] Heure de début</value>
+  </data>
+  <data name="Field.EndTime" xml:space="preserve">
+    <value>[NL] Heure de fin</value>
+  </data>
+  <data name="Field.PaymentSource" xml:space="preserve">
+    <value>[NL] Source de paiement</value>
+  </data>
+  <data name="Message.ExcursionCreated" xml:space="preserve">
+    <value>[NL] Excursion créée avec succès</value>
+  </data>
+  <data name="Message.ExcursionUpdated" xml:space="preserve">
+    <value>[NL] Excursion modifiée avec succès</value>
+  </data>
+  <data name="Message.ExcursionDeleted" xml:space="preserve">
+    <value>[NL] Excursion supprimée avec succès</value>
+  </data>
+  <data name="Message.ChildRegistered" xml:space="preserve">
+    <value>[NL] Enfant inscrit à l'excursion</value>
+  </data>
+  <data name="Message.ChildUnregistered" xml:space="preserve">
+    <value>[NL] Enfant désinscrit de l'excursion</value>
+  </data>
+  <data name="Message.AttendanceUpdated" xml:space="preserve">
+    <value>[NL] Présence mise à jour</value>
+  </data>
+  <data name="Message.ExcursionDateInvalid" xml:space="preserve">
+    <value>[NL] La date doit être dans la période de l'activité</value>
+  </data>
+  <data name="Message.CannotDeleteExcursionWithRegistrations" xml:space="preserve">
+    <value>[NL] Impossible de supprimer une excursion avec des inscriptions</value>
+  </data>
+  <data name="Message.ChildNotEligible" xml:space="preserve">
+    <value>[NL] L'enfant n'est pas dans un groupe ciblé</value>
+  </data>
+  <data name="Message.AlreadyRegistered" xml:space="preserve">
+    <value>[NL] L'enfant est déjà inscrit</value>
+  </data>
+  <data name="Message.ExpenseAdded" xml:space="preserve">
+    <value>[NL] Dépense ajoutée avec succès</value>
+  </data>
+  <data name="Excursion.ManageExcursions" xml:space="preserve">
+    <value>[NL] Gérer les excursions</value>
+  </data>
+  <data name="Excursion.CreateNew" xml:space="preserve">
+    <value>[NL] Créer une excursion</value>
+  </data>
+  <data name="Excursion.Edit" xml:space="preserve">
+    <value>[NL] Modifier l'excursion</value>
+  </data>
+  <data name="Excursion.Delete" xml:space="preserve">
+    <value>[NL] Supprimer l'excursion</value>
+  </data>
+  <data name="Excursion.Details" xml:space="preserve">
+    <value>[NL] Détails de l'excursion</value>
+  </data>
+  <data name="Excursion.NoExcursions" xml:space="preserve">
+    <value>[NL] Aucune excursion créée pour cette activité</value>
+  </data>
+  <data name="Excursion.Registrations" xml:space="preserve">
+    <value>[NL] Inscriptions</value>
+  </data>
+  <data name="Excursion.ManageRegistrations" xml:space="preserve">
+    <value>[NL] Gérer les inscriptions</value>
+  </data>
+  <data name="Excursion.Expenses" xml:space="preserve">
+    <value>[NL] Dépenses</value>
+  </data>
+  <data name="Excursion.Attendance" xml:space="preserve">
+    <value>[NL] Présences excursion</value>
+  </data>
+  <data name="Excursion.SelectTargetGroupsHelp" xml:space="preserve">
+    <value>[NL] Sélectionnez les groupes d'enfants pouvant s'inscrire à cette excursion</value>
+  </data>
+  <data name="Excursion.NoActiveGroups" xml:space="preserve">
+    <value>[NL] Aucun groupe actif disponible pour cette activité</value>
+  </data>
+  <data name="Excursion.NoEligibleChildren" xml:space="preserve">
+    <value>[NL] Aucun enfant éligible pour cette excursion</value>
+  </data>
+  <data name="Excursion.RegistrationsHelp" xml:space="preserve">
+    <value>[NL] Cochez les cases pour inscrire les enfants à l'excursion. Le coût sera ajouté au total de la réservation.</value>
+  </data>
+  <data name="Excursion.Registered" xml:space="preserve">
+    <value>[NL] inscrits</value>
+  </data>
+  <data name="Excursion.TotalRegistrations" xml:space="preserve">
+    <value>[NL] Total inscriptions</value>
+  </data>
+  <data name="Excursion.ExpectedRevenue" xml:space="preserve">
+    <value>[NL] Revenus prévus</value>
+  </data>
+  <data name="Excursion.PresentCount" xml:space="preserve">
+    <value>[NL] Présents</value>
+  </data>
+  <data name="Excursion.AbsentCount" xml:space="preserve">
+    <value>[NL] Absents</value>
+  </data>
+  <data name="Excursion.NoRegistrations" xml:space="preserve">
+    <value>[NL] Aucune inscription pour cette excursion</value>
+  </data>
+  <data name="Excursion.AttendanceHelp" xml:space="preserve">
+    <value>[NL] Cochez les cases pour marquer les enfants présents à l'excursion</value>
+  </data>
+  <data name="Excursion.StartTimeHelp" xml:space="preserve">
+    <value>[NL] Optionnel (ex: 09:00)</value>
+  </data>
+  <data name="Excursion.EndTimeHelp" xml:space="preserve">
+    <value>[NL] Optionnel (ex: 12:00)</value>
+  </data>
+  <data name="Excursion.TimeSlot" xml:space="preserve">
+    <value>[NL] Horaire</value>
+  </data>
+  <data name="Excursion.AllRegistered" xml:space="preserve">
+    <value>[NL] Tous les inscrits</value>
+  </data>
+  <data name="Excursion.RegisteredOnly" xml:space="preserve">
+    <value>[NL] Inscrits uniquement</value>
+  </data>
+  <data name="Excursion.SendEmailToParents" xml:space="preserve">
+    <value>[NL] Envoyer un email aux parents</value>
+  </data>
+  <data name="Excursion.RecipientHelp" xml:space="preserve">
+    <value>[NL] Choisissez qui recevra l'email (tous les inscrits ou un groupe spécifique)</value>
+  </data>
+  <data name="Excursion.MergeVariablesHelp" xml:space="preserve">
+    <value>[NL] Variables disponibles pour personnaliser le message:</value>
+  </data>
+  <data name="Excursion.TotalRevenue" xml:space="preserve">
+    <value>[NL] Revenus totaux</value>
+  </data>
+  <data name="Excursion.TotalExpenses" xml:space="preserve">
+    <value>[NL] Dépenses totales</value>
+  </data>
+  <data name="Excursion.NetBalance" xml:space="preserve">
+    <value>[NL] Solde net</value>
+  </data>
+  <data name="Excursion.AddExpense" xml:space="preserve">
+    <value>[NL] Ajouter une dépense</value>
+  </data>
+  <data name="Excursion.FinancialSummary" xml:space="preserve">
+    <value>[NL] Résumé financier</value>
+  </data>
+  <data name="Excursion.ExpenseItems" xml:space="preserve">
+    <value>[NL] dépenses</value>
+  </data>
+  <data name="Excursion.ExpensesList" xml:space="preserve">
+    <value>[NL] Liste des dépenses</value>
+  </data>
+  <data name="Excursion.NoExpensesYet" xml:space="preserve">
+    <value>[NL] Aucune dépense enregistrée pour cette excursion</value>
+  </data>
+  <data name="Excursion.GeneralInfo" xml:space="preserve">
+    <value>[NL] Informations générales</value>
+  </data>
+  <data name="Excursion.Statistics" xml:space="preserve">
+    <value>[NL] Statistiques</value>
+  </data>
+  <data name="Excursion.Presence" xml:space="preserve">
+    <value>[NL] Présence</value>
+  </data>
+  <data name="Excursion.TeamMembers" xml:space="preserve">
+    <value>[NL] Membres de l'équipe</value>
+  </data>
+  <data name="Excursion.ConfirmDelete" xml:space="preserve">
+    <value>[NL] Confirmer la suppression</value>
+  </data>
+  <data name="Excursion.DeleteWarning" xml:space="preserve">
+    <value>[NL] Cette action est irréversible. L'excursion sera désactivée.</value>
+  </data>
+  <data name="Excursion.CannotDeleteRegistrations" xml:space="preserve">
+    <value>[NL] Impossible de supprimer cette excursion : des enfants sont inscrits</value>
+  </data>
+  <data name="Excursion.DeleteConfirm" xml:space="preserve">
+    <value>[NL] Supprimer définitivement</value>
+  </data>
+  <data name="Excursion.ExpenseCategory.Transport" xml:space="preserve">
+    <value>[NL] Transport</value>
+  </data>
+  <data name="Excursion.ExpenseCategory.Tickets" xml:space="preserve">
+    <value>[NL] Billets d'entrée</value>
+  </data>
+  <data name="Excursion.ExpenseCategory.Food" xml:space="preserve">
+    <value>[NL] Nourriture</value>
+  </data>
+  <data name="Excursion.ExpenseCategory.Materials" xml:space="preserve">
+    <value>[NL] Matériel</value>
+  </data>
+  <data name="Expense.Category.Transport" xml:space="preserve">
+    <value>[NL] Transport</value>
+  </data>
+  <data name="Expense.Category.Tickets" xml:space="preserve">
+    <value>[NL] Billets</value>
+  </data>
+  <data name="Expense.Category.Meals" xml:space="preserve">
+    <value>[NL] Repas</value>
+  </data>
+  <data name="Expense.Category.Equipment" xml:space="preserve">
+    <value>[NL] Matériel</value>
+  </data>
+  <data name="Expense.Category.Other" xml:space="preserve">
+    <value>[NL] Autre</value>
+  </data>
+  <data name="Expense.LabelPlaceholder" xml:space="preserve">
+    <value>[NL] Ex: Location bus, Billets Walibi, Sandwiches...</value>
+  </data>
+  <data name="Expense.DescriptionPlaceholder" xml:space="preserve">
+    <value>[NL] Détails supplémentaires (optionnel)</value>
+  </data>
+  <data name="Payment.OrganizationCard" xml:space="preserve">
+    <value>[NL] Carte organisation</value>
+  </data>
+  <data name="Payment.OrganizationCash" xml:space="preserve">
+    <value>[NL] Caisse organisation</value>
+  </data>
+  <data name="Validation.AtLeastOneGroupRequired" xml:space="preserve">
+    <value>[NL] Veuillez sélectionner au moins un groupe</value>
+  </data>
+  <data name="Error.RegistrationNotFound" xml:space="preserve">
+    <value>[NL] Inscription introuvable</value>
+  </data>
 </root>
