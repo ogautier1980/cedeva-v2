@@ -3389,4 +3389,5 @@
   <data name="Error.RegistrationNotFound" xml:space="preserve">
     <value>[NL] Inscription introuvable</value>
   </data>
+<data name="Excursion.TeamManagementHelp" xml:space="preserve">    <value>[NL] Cochez les cases pour assigner des membres à cette excursion</value>  </data>  <data name="Excursion.NoTeamMembers" xml:space="preserve">    <value>[NL] Aucun membre assigné à cette activité</value>  </data>  <data name="Excursion.Assigned" xml:space="preserve">    <value>[NL] assignés</value>  </data>  <data name="Message.TeamMemberAssigned" xml:space="preserve">    <value>[NL] Membre assigné à l'excursion</value>  </data>  <data name="Message.TeamMemberUnassigned" xml:space="preserve">    <value>[NL] Membre retiré de l'excursion</value>  </data>
 </root>

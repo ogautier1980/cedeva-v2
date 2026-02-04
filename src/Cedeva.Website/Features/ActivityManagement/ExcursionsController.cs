@@ -782,6 +782,110 @@ public class ExcursionsController : Controller
         return RedirectToAction(nameof(Expenses), new { id = model.Excursion.Id });
     }
 
+    [HttpGet]
+    public async Task<IActionResult> TeamManagement(int id)
+    {
+        var excursion = await _context.Excursions
+            .Include(e => e.Activity)
+                .ThenInclude(a => a.TeamMembers)
+            .Include(e => e.TeamMembers)
+                .ThenInclude(tm => tm.TeamMember)
+            .FirstOrDefaultAsync(e => e.Id == id);
+
+        if (excursion == null)
+            return NotFound();
+
+        // Build a lookup of assigned members
+        var assignedMap = excursion.TeamMembers.ToDictionary(
+            tm => tm.TeamMemberId,
+            tm => tm);
+
+        // All team members assigned to the parent activity
+        var teamMembers = excursion.Activity.TeamMembers
+            .OrderBy(tm => tm.LastName)
+            .ThenBy(tm => tm.FirstName)
+            .Select(tm =>
+            {
+                var assigned = assignedMap.TryGetValue(tm.TeamMemberId, out var etm);
+                return new ExcursionTeamMemberInfo
+                {
+                    TeamMemberId = tm.TeamMemberId,
+                    FirstName = tm.FirstName,
+                    LastName = tm.LastName,
+                    IsAssigned = assigned,
+                    IsPresent = assigned && etm!.IsPresent,
+                    ExcursionTeamMemberId = assigned ? etm!.Id : null
+                };
+            })
+            .ToList();
+
+        var viewModel = new ExcursionTeamManagementViewModel
+        {
+            Excursion = excursion,
+            Activity = excursion.Activity,
+            TeamMembers = teamMembers
+        };
+
+        ViewData["ActivityId"] = excursion.ActivityId;
+        ViewData["ActivityName"] = excursion.Activity.Name;
+        ViewData["NavSection"] = "Excursions";
+        ViewData["NavAction"] = "TeamManagement";
+
+        return View(viewModel);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> AssignTeamMember(int excursionId, int teamMemberId)
+    {
+        var existing = await _context.ExcursionTeamMembers
+            .FirstOrDefaultAsync(tm => tm.ExcursionId == excursionId && tm.TeamMemberId == teamMemberId);
+
+        if (existing != null)
+            return Json(new { success = false, message = _localizer["Error"].ToString() });
+
+        _context.ExcursionTeamMembers.Add(new ExcursionTeamMember
+        {
+            ExcursionId = excursionId,
+            TeamMemberId = teamMemberId,
+            IsAssigned = true,
+            IsPresent = false
+        });
+
+        await _context.SaveChangesAsync();
+        return Json(new { success = true, message = _localizer["Message.TeamMemberAssigned"].ToString() });
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> UnassignTeamMember(int excursionId, int teamMemberId)
+    {
+        var existing = await _context.ExcursionTeamMembers
+            .FirstOrDefaultAsync(tm => tm.ExcursionId == excursionId && tm.TeamMemberId == teamMemberId);
+
+        if (existing == null)
+            return Json(new { success = false, message = _localizer["Error"].ToString() });
+
+        _context.ExcursionTeamMembers.Remove(existing);
+        await _context.SaveChangesAsync();
+        return Json(new { success = true, message = _localizer["Message.TeamMemberUnassigned"].ToString() });
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> UpdateTeamAttendance(int excursionTeamMemberId, bool isPresent)
+    {
+        var etm = await _context.ExcursionTeamMembers
+            .FirstOrDefaultAsync(tm => tm.Id == excursionTeamMemberId);
+
+        if (etm == null)
+            return Json(new { success = false, message = _localizer["Error.RegistrationNotFound"].ToString() });
+
+        etm.IsPresent = isPresent;
+        await _context.SaveChangesAsync();
+        return Json(new { success = true, message = _localizer["Message.AttendanceUpdated"].ToString() });
+    }
+
     private List<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem> GetExcursionRecipientOptions(List<ActivityGroup> groups)
     {
         var options = new List<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem>

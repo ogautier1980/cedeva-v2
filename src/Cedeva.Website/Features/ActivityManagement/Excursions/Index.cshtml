@@ -95,6 +95,11 @@
                                                title="@Localizer["Excursion.Expenses"]">
                                                 <i class="fas fa-euro-sign"></i>
                                             </a>
+                                            <a asp-action="TeamManagement" asp-route-id="@excursion.Id"
+                                               class="btn btn-sm btn-outline-info"
+                                               title="@Localizer["Excursion.TeamMembers"]">
+                                                <i class="fas fa-users-cog"></i>
+                                            </a>
                                             <a asp-action="Edit" asp-route-id="@excursion.Id"
                                                class="btn btn-sm btn-outline-secondary"
                                                title="@Localizer["Edit"]">

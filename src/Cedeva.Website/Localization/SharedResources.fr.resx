@@ -3535,4 +3535,19 @@
   <data name="Excursion.DeleteConfirm" xml:space="preserve">
     <value>Supprimer définitivement</value>
   </data>
+  <data name="Excursion.TeamManagementHelp" xml:space="preserve">
+    <value>Cochez les cases pour assigner des membres de l'équipe à cette excursion, puis marquez leur présence</value>
+  </data>
+  <data name="Excursion.NoTeamMembers" xml:space="preserve">
+    <value>Aucun membre de l'équipe n'est assigné à cette activité</value>
+  </data>
+  <data name="Excursion.Assigned" xml:space="preserve">
+    <value>assignés</value>
+  </data>
+  <data name="Message.TeamMemberAssigned" xml:space="preserve">
+    <value>Membre de l'équipe assigné à l'excursion</value>
+  </data>
+  <data name="Message.TeamMemberUnassigned" xml:space="preserve">
+    <value>Membre de l'équipe retiré de l'excursion</value>
+  </data>
 </root>
