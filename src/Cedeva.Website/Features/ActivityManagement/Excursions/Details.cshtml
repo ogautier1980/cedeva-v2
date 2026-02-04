@@ -32,6 +32,9 @@
             <a asp-action="Expenses" asp-route-id="@Model.Id" class="btn btn-outline-warning">
                 <i class="fas fa-euro-sign"></i> @Localizer["Excursion.Expenses"]
             </a>
+            <a asp-action="TeamManagement" asp-route-id="@Model.Id" class="btn btn-outline-info">
+                <i class="fas fa-users-cog"></i> @Localizer["Excursion.TeamMembers"]
+            </a>
             <a asp-action="SendEmail" asp-route-id="@Model.Id" class="btn btn-outline-info">
                 <i class="fas fa-envelope"></i> @Localizer["Excursion.SendEmailToParents"]
             </a>
