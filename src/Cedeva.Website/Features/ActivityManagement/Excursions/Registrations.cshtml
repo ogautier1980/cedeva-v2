@@ -1,0 +1,203 @@
+@model Cedeva.Website.Features.ActivityManagement.ViewModels.ExcursionRegistrationsViewModel
+
+@{
+    ViewData["Title"] = Localizer["Excursion.ManageRegistrations"] + " - " + Model.Excursion.Name;
+    ViewData["ActivityId"] = Model.Activity.Id;
+    ViewData["ActivityName"] = Model.Activity.Name;
+    ViewData["NavSection"] = "Excursions";
+    ViewData["NavAction"] = "Registrations";
+}
+
+<partial name="_ActivityManagementNav" />
+
+<div class="container-fluid py-4">
+    @await Html.PartialAsync("_AlertMessages")
+
+    <!-- Excursion Info -->
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">
+                <i class="fas fa-train"></i> @Model.Excursion.Name
+            </h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-4">
+                    <p class="mb-1"><strong>@Localizer["Field.ExcursionDate"]:</strong> @Model.Excursion.ExcursionDate.ToString("dd/MM/yyyy")</p>
+                    <p class="mb-1"><strong>@Localizer["Field.ExcursionType"]:</strong> @Localizer[$"Enum.ExcursionType.{Model.Excursion.Type}"]</p>
+                </div>
+                <div class="col-md-4">
+                    <p class="mb-1"><strong>@Localizer["Field.ExcursionCost"]:</strong> @Model.Excursion.Cost.ToString("C")</p>
+                    <p class="mb-1"><strong>@Localizer["Excursion.Registrations"]:</strong> @Model.Excursion.Registrations.Count</p>
+                </div>
+                <div class="col-md-4">
+                    <p class="mb-1"><strong>@Localizer["Field.TargetGroups"]:</strong></p>
+                    @foreach (var eg in Model.Excursion.ExcursionGroups)
+                    {
+                        <span class="badge bg-secondary me-1">@eg.ActivityGroup.Label</span>
+                    }
+                </div>
+            </div>
+            @if (!string.IsNullOrEmpty(Model.Excursion.Description))
+            {
+                <hr />
+                <p class="mb-0"><strong>@Localizer["Field.Description"]:</strong> @Model.Excursion.Description</p>
+            }
+        </div>
+    </div>
+
+    @if (!Model.ChildrenByGroup.Any())
+    {
+        <div class="alert alert-info">
+            <i class="fas fa-info-circle"></i> @Localizer["Excursion.NoEligibleChildren"]
+        </div>
+    }
+    else
+    {
+        <!-- Instructions -->
+        <div class="alert alert-info mb-4">
+            <i class="fas fa-info-circle"></i> @Localizer["Excursion.RegistrationsHelp"]
+        </div>
+
+        <!-- Affichage par groupe -->
+        @foreach (var groupEntry in Model.ChildrenByGroup.OrderBy(g => g.Key.Label))
+        {
+            var group = groupEntry.Key;
+            var children = groupEntry.Value;
+            var registeredCount = children.Count(c => c.IsRegistered);
+
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-users"></i> @group.Label
+                        <span class="badge bg-light text-dark ms-2">@registeredCount / @children.Count @Localizer["Excursion.Registered"]</span>
+                    </h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>@Localizer["LastName"]</th>
+                                    <th>@Localizer["FirstName"]</th>
+                                    <th>@Localizer["BirthDate"]</th>
+                                    <th>@Localizer["PaymentStatus"]</th>
+                                    <th class="text-center">@Localizer["Excursion.Registered"]</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var child in children)
+                                {
+                                    <tr class="@(child.IsRegistered ? "table-success" : "")">
+                                        <td>@child.LastName</td>
+                                        <td>@child.FirstName</td>
+                                        <td>@child.BirthDate.ToString("dd/MM/yyyy")</td>
+                                        <td>
+                                            <span class="badge @(child.PaymentStatus.Contains("Paid") || child.PaymentStatus.Contains("Payé") ? "bg-success" : child.PaymentStatus.Contains("Partial") || child.PaymentStatus.Contains("Partiel") ? "bg-warning" : "bg-danger")">
+                                                @child.PaymentStatus
+                                            </span>
+                                        </td>
+                                        <td class="text-center">
+                                            <div class="form-check d-inline-block">
+                                                <input type="checkbox"
+                                                       class="form-check-input registration-checkbox"
+                                                       data-excursion-id="@Model.Excursion.Id"
+                                                       data-booking-id="@child.BookingId"
+                                                       @(child.IsRegistered ? "checked" : "")
+                                                       style="cursor: pointer;" />
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        }
+
+        <!-- Summary -->
+        <div class="card">
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-md-4">
+                        <h6 class="text-muted">@Localizer["Excursion.TotalRegistrations"]</h6>
+                        <h3 class="text-primary">@Model.Excursion.Registrations.Count</h3>
+                    </div>
+                    <div class="col-md-4">
+                        <h6 class="text-muted">@Localizer["Excursion.ExpectedRevenue"]</h6>
+                        <h3 class="text-success">@((Model.Excursion.Registrations.Count * Model.Excursion.Cost).ToString("C"))</h3>
+                    </div>
+                    <div class="col-md-4">
+                        <h6 class="text-muted">@Localizer["Field.ExcursionCost"]</h6>
+                        <h3 class="text-info">@Model.Excursion.Cost.ToString("C")</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    <div class="mt-3">
+        <a asp-action="Index" asp-route-id="@Model.Activity.Id" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> @Localizer["BackToList"]
+        </a>
+    </div>
+</div>
+
+@section Scripts {
+    @Html.AntiForgeryToken()
+    <script>
+        $(document).ready(function () {
+            $('.registration-checkbox').on('change', function () {
+                var checkbox = $(this);
+                var excursionId = checkbox.data('excursion-id');
+                var bookingId = checkbox.data('booking-id');
+                var isRegistered = checkbox.is(':checked');
+                var row = checkbox.closest('tr');
+
+                // Récupérer le token anti-forgery
+                var token = $('input[name="__RequestVerificationToken"]').val();
+
+                var actionUrl = isRegistered
+                    ? '@Url.Action("RegisterChild", "Excursions")'
+                    : '@Url.Action("UnregisterChild", "Excursions")';
+
+                $.ajax({
+                    url: actionUrl,
+                    type: 'POST',
+                    headers: {
+                        'RequestVerificationToken': token
+                    },
+                    data: {
+                        excursionId: excursionId,
+                        bookingId: bookingId
+                    },
+                    success: function (response) {
+                        if (response.success) {
+                            // Ajouter/retirer la classe table-success
+                            if (isRegistered) {
+                                row.addClass('table-success');
+                            } else {
+                                row.removeClass('table-success');
+                            }
+
+                            // Recharger la page pour mettre à jour les compteurs
+                            setTimeout(function() {
+                                location.reload();
+                            }, 500);
+                        } else {
+                            alert('@Localizer["Error"]: ' + response.message);
+                            // Rétablir l'état précédent
+                            checkbox.prop('checked', !isRegistered);
+                        }
+                    },
+                    error: function () {
+                        alert('@Localizer["Error.UpdateFailed"]');
+                        // Rétablir l'état précédent
+                        checkbox.prop('checked', !isRegistered);
+                    }
+                });
+            });
+        });
+    </script>
+}

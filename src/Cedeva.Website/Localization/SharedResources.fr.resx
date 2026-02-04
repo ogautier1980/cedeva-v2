@@ -3403,4 +3403,25 @@
   <data name="Validation.AtLeastOneGroupRequired" xml:space="preserve">
     <value>Veuillez sélectionner au moins un groupe</value>
   </data>
+  <data name="Excursion.NoEligibleChildren" xml:space="preserve">
+    <value>Aucun enfant éligible pour cette excursion</value>
+  </data>
+  <data name="Excursion.RegistrationsHelp" xml:space="preserve">
+    <value>Cochez les cases pour inscrire les enfants à l'excursion. Le coût sera ajouté au total de la réservation.</value>
+  </data>
+  <data name="Excursion.Registered" xml:space="preserve">
+    <value>inscrits</value>
+  </data>
+  <data name="Excursion.TotalRegistrations" xml:space="preserve">
+    <value>Total inscriptions</value>
+  </data>
+  <data name="Excursion.ExpectedRevenue" xml:space="preserve">
+    <value>Revenus prévus</value>
+  </data>
+  <data name="Error.RegistrationNotFound" xml:space="preserve">
+    <value>Inscription introuvable</value>
+  </data>
+  <data name="Error.UpdateFailed" xml:space="preserve">
+    <value>Échec de la mise à jour</value>
+  </data>
 </root>

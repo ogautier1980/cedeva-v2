@@ -188,6 +188,131 @@ public class ExcursionsController : Controller
         return RedirectToAction(nameof(Index), new { id = model.ActivityId });
     }
 
+    [HttpGet]
+    public async Task<IActionResult> Registrations(int id)
+    {
+        var excursion = await _context.Excursions
+            .Include(e => e.Activity)
+            .Include(e => e.ExcursionGroups)
+                .ThenInclude(eg => eg.ActivityGroup)
+            .Include(e => e.Registrations)
+            .FirstOrDefaultAsync(e => e.Id == id);
+
+        if (excursion == null)
+            return NotFound();
+
+        // Get all confirmed bookings for eligible groups
+        var eligibleGroupIds = excursion.ExcursionGroups
+            .Select(eg => eg.ActivityGroupId)
+            .ToList();
+
+        var bookings = await _context.Bookings
+            .Include(b => b.Child)
+            .Include(b => b.Group)
+            .Where(b => b.ActivityId == excursion.ActivityId &&
+                       b.IsConfirmed &&
+                       b.GroupId.HasValue &&
+                       eligibleGroupIds.Contains(b.GroupId.Value))
+            .ToListAsync();
+
+        // Get existing registrations
+        var registrations = await _excursionService.GetRegistrationsAsync(id);
+        var registrationsByBookingId = registrations.ToDictionary(r => r.BookingId, r => r);
+
+        // Group children by ActivityGroup
+        var childrenByGroup = new Dictionary<ActivityGroup, List<ExcursionChildInfo>>();
+
+        foreach (var booking in bookings.Where(b => b.Group != null))
+        {
+            if (!childrenByGroup.ContainsKey(booking.Group!))
+            {
+                childrenByGroup[booking.Group!] = new List<ExcursionChildInfo>();
+            }
+
+            var isRegistered = registrationsByBookingId.ContainsKey(booking.Id);
+            var registration = isRegistered ? registrationsByBookingId[booking.Id] : null;
+
+            childrenByGroup[booking.Group!].Add(new ExcursionChildInfo
+            {
+                BookingId = booking.Id,
+                ChildId = booking.ChildId,
+                FirstName = booking.Child.FirstName,
+                LastName = booking.Child.LastName,
+                BirthDate = booking.Child.BirthDate,
+                IsRegistered = isRegistered,
+                RegistrationId = registration?.Id,
+                ExcursionCost = excursion.Cost,
+                PaymentStatus = _localizer[$"Enum.PaymentStatus.{booking.PaymentStatus}"]
+            });
+        }
+
+        // Sort children within each group
+        foreach (var group in childrenByGroup.Keys.ToList())
+        {
+            childrenByGroup[group] = childrenByGroup[group]
+                .OrderBy(c => c.LastName)
+                .ThenBy(c => c.FirstName)
+                .ToList();
+        }
+
+        var viewModel = new ExcursionRegistrationsViewModel
+        {
+            Excursion = excursion,
+            Activity = excursion.Activity,
+            ChildrenByGroup = childrenByGroup
+        };
+
+        ViewData["ActivityId"] = excursion.ActivityId;
+        ViewData["ActivityName"] = excursion.Activity.Name;
+        ViewData["NavSection"] = "Excursions";
+        ViewData["NavAction"] = "Registrations";
+
+        return View(viewModel);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> RegisterChild(int excursionId, int bookingId)
+    {
+        try
+        {
+            await _excursionService.RegisterChildAsync(excursionId, bookingId);
+            return Json(new { success = true, message = _localizer["Message.ChildRegistered"].ToString() });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Json(new { success = false, message = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error registering child for excursion {ExcursionId}, booking {BookingId}", excursionId, bookingId);
+            return Json(new { success = false, message = _localizer["Error"].ToString() });
+        }
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> UnregisterChild(int excursionId, int bookingId)
+    {
+        try
+        {
+            var result = await _excursionService.UnregisterChildAsync(excursionId, bookingId);
+            if (result)
+            {
+                return Json(new { success = true, message = _localizer["Message.ChildUnregistered"].ToString() });
+            }
+            else
+            {
+                return Json(new { success = false, message = _localizer["Error.RegistrationNotFound"].ToString() });
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error unregistering child from excursion {ExcursionId}, booking {BookingId}", excursionId, bookingId);
+            return Json(new { success = false, message = _localizer["Error"].ToString() });
+        }
+    }
+
     [HttpPost]
     [ValidateAntiForgeryToken]
     public IActionResult BeginExcursions(int id)
