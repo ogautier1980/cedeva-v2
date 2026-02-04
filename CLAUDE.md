@@ -99,12 +99,46 @@ src/
 - Design consistency pass (CSS variable overrides for Bootstrap table colours, alert partial standardisation)
 - Code clean-up: alert partial extraction (20 views), TempData key standardisation (4 controllers), ModelState dead-code removal (53 checks from GET actions)
 - Test data seeder rewrite (full financial + CODA data)
+- Excursions feature (Phases 1–12): CRUD, registrations, attendance, email, expenses, edit/delete/details, financial integration, seeder, NL/EN translations
 
 ### 🔄 In Progress
 - Phase 7: UX improvements (postal code autocomplete, booking day cards, admin org selection)
 - NL/EN translation completion
 
 ---
+
+## Excursions — Entity Summary (2026-02-05)
+
+| Entity | Key fields | Relations |
+|--------|-----------|-----------|
+| `Excursion` | Name, ExcursionDate, StartTime?, EndTime?, Cost, Type (enum), IsActive | → Activity, → ExcursionGroups, → Registrations, → TeamMembers, → Expenses |
+| `ExcursionGroup` | ExcursionId, ActivityGroupId | Junction: Excursion ↔ ActivityGroup |
+| `ExcursionRegistration` | ExcursionId, BookingId, RegistrationDate, IsPresent | Links Booking to Excursion; updates Booking.TotalAmount on register/unregister |
+| `ExcursionTeamMember` | ExcursionId, TeamMemberId, IsAssigned, IsPresent | Staff assignment + attendance |
+| `Expense` (extended) | ExcursionId? (nullable FK) | When set, expense belongs to an excursion |
+
+**Service:** `IExcursionService` / `ExcursionService` — register/unregister children (mutates `Booking.TotalAmount`, creates `ActivityFinancialTransaction` audit records), update attendance, financial summary.
+
+**Controller:** `ExcursionsController` — Index, Create, Edit, Delete, Details, Registrations (AJAX), Attendance (AJAX), Expenses (add form), SendEmail.
+
+**Views:** `/Features/ActivityManagement/Excursions/` — Index, Create, Edit, Details, Delete, Registrations, Attendance, Expenses, SendEmail.
+
+---
+
+## Recent Changes (2026-02-05)
+
+### Excursions Feature (2026-02-05)
+- Entities: Excursion, ExcursionGroup, ExcursionRegistration, ExcursionTeamMember
+- Migrations: `AddExcursions`, `AddExcursionTimingAndTeamMembers`
+- ExcursionService with register/unregister (financial audit trail), attendance updates
+- Full CRUD: create, edit (TimeSpan↔string), soft-delete (guards on registrations), details summary
+- Registration management: AJAX checkboxes per group, payment status badges
+- Attendance tracking: AJAX presence per group, summary cards
+- Expenses: per-excursion expense list with add form (categories, payment source)
+- Email: send to registered parents with group/all filter and merge variables
+- Financial integration: excursion expenses show in Transactions view with yellow badge
+- Seeder: 1-2 excursions per activity, 30-70% registration rate, expenses, team assignments
+- Localisation: ~86 FR keys + NL/EN placeholders
 
 ## Recent Changes (2026-01-31 / 2026-02-01)
 

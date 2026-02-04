@@ -330,9 +330,60 @@ Financial expense linked to an activity. Two categories: team-member expenses an
 | TeamMemberId | int? | FK → TeamMember (null = organisation expense) |
 | OrganizationPaymentSource | string? | "OrganizationCard" or "OrganizationCash" |
 | ActivityId | int | FK → Activity |
+| ExcursionId | int? | FK → Excursion (null = activity-level expense) |
 | ExpenseDate | DateTime | |
 
 **Salary calculation:** `TotalToPay = (Days × DailyCompensation) + Reimbursements − PersonalConsumptions`
+
+### Excursion
+Day-trip or half-day activity linked to an Activity. Created after the activity has started.
+
+| Field | Type | Notes |
+|-------|------|-------|
+| Id | int | PK |
+| Name | string (100) | |
+| Description | string? (500) | |
+| ExcursionDate | DateTime | Must fall within Activity date range |
+| StartTime / EndTime | TimeSpan? | Optional; supports half-day time slots |
+| Cost | decimal | Per-child surcharge added to Booking.TotalAmount |
+| Type | ExcursionType | Pool, AmusementPark, CulturalVisit, Nature, Sports, Other |
+| IsActive | bool | Soft-delete flag |
+| ActivityId | int | FK → Activity |
+
+### ExcursionGroup
+Junction table: many-to-many Excursion ↔ ActivityGroup (determines which children are eligible).
+
+| Field | Type | Notes |
+|-------|------|-------|
+| Id | int | PK |
+| ExcursionId | int | FK → Excursion |
+| ActivityGroupId | int | FK → ActivityGroup |
+
+### ExcursionRegistration
+Tracks which child (via Booking) is registered for an excursion.
+
+| Field | Type | Notes |
+|-------|------|-------|
+| Id | int | PK |
+| ExcursionId | int | FK → Excursion |
+| BookingId | int | FK → Booking (unique per excursion) |
+| RegistrationDate | DateTime | |
+| IsPresent | bool | Attendance flag |
+| Notes | string? (500) | Special needs |
+
+**Side-effect on register:** `Booking.TotalAmount += Excursion.Cost`; `PaymentStatus` recalculated; `ActivityFinancialTransaction` audit record created.
+
+### ExcursionTeamMember
+Staff assignment and attendance for an excursion.
+
+| Field | Type | Notes |
+|-------|------|-------|
+| Id | int | PK |
+| ExcursionId | int | FK → Excursion |
+| TeamMemberId | int | FK → TeamMember (note: PK is TeamMemberId, not Id) |
+| IsAssigned | bool | |
+| IsPresent | bool | |
+| Notes | string? (500) | |
 
 ### EmailSent
 Audit log of sent emails.
@@ -442,6 +493,19 @@ Centralised management for a single activity (session-based selection):
 - **SendEmail** — Targeted emails with day filter, merge variables, templates
 - **SentEmails** — Email audit log
 - **TeamMembers** — Assign/unassign staff
+
+### Excursions
+Linked to an Activity; a coordinator can create excursions after the activity has started (and payments already recorded).
+- **CRUD** — Create / Edit / Details / soft-delete (blocked when registrations exist)
+- **Groups** — Each excursion targets one or more ActivityGroups; only children in those groups can register
+- **Cost** — Per-child cost added to `Booking.TotalAmount`; `PaymentStatus` recalculated automatically
+- **Timing** — Optional start/end time (half-day or time-slot excursions supported)
+- **Registrations** — AJAX checkbox per child, grouped by ActivityGroup; payment-status badge shown
+- **Attendance** — AJAX presence tracking for registered children
+- **Team** — Staff assignment + presence per excursion (`ExcursionTeamMember`)
+- **Expenses** — Per-excursion expenses (transport, tickets, meals…) with category + payment source; shown in Financial Transactions with excursion badge
+- **Email** — Send targeted email to parents of registered children (all / per-group filter)
+- **Audit** — `ActivityFinancialTransaction` records created on register/unregister
 
 ### Financial Module
 - Unified transaction view (payments + expenses, colour-coded)
