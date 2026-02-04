@@ -48,6 +48,7 @@ try
         containerBuilder.RegisterType<StructuredCommunicationService>().As<IStructuredCommunicationService>().InstancePerLifetimeScope();
         containerBuilder.RegisterType<CodaParserService>().As<ICodaParserService>().InstancePerLifetimeScope();
         containerBuilder.RegisterType<BankReconciliationService>().As<IBankReconciliationService>().InstancePerLifetimeScope();
+        containerBuilder.RegisterType<ExcursionService>().As<IExcursionService>().InstancePerLifetimeScope();
         containerBuilder.RegisterType<UnitOfWork>().As<IUnitOfWork>().InstancePerLifetimeScope();
         containerBuilder.RegisterGeneric(typeof(Repository<>)).As(typeof(IRepository<>)).InstancePerLifetimeScope();
     });
