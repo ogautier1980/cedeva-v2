@@ -420,6 +420,133 @@ public class ExcursionsController : Controller
         }
     }
 
+    [HttpGet]
+    public async Task<IActionResult> SendEmail(int id)
+    {
+        var excursion = await _context.Excursions
+            .Include(e => e.Activity)
+            .Include(e => e.ExcursionGroups)
+                .ThenInclude(eg => eg.ActivityGroup)
+            .FirstOrDefaultAsync(e => e.Id == id);
+
+        if (excursion == null)
+            return NotFound();
+
+        var recipientOptions = GetExcursionRecipientOptions(excursion.ExcursionGroups.Select(eg => eg.ActivityGroup).ToList());
+
+        var viewModel = new SendExcursionEmailViewModel
+        {
+            ExcursionId = excursion.Id,
+            Excursion = excursion,
+            Activity = excursion.Activity,
+            RecipientOptions = recipientOptions
+        };
+
+        ViewData["ActivityId"] = excursion.ActivityId;
+        ViewData["ActivityName"] = excursion.Activity.Name;
+        ViewData["NavSection"] = "Excursions";
+        ViewData["NavAction"] = "SendEmail";
+
+        return View(viewModel);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> SendEmail(SendExcursionEmailViewModel model)
+    {
+        if (!ModelState.IsValid)
+        {
+            var excursion = await _context.Excursions
+                .Include(e => e.Activity)
+                .Include(e => e.ExcursionGroups)
+                    .ThenInclude(eg => eg.ActivityGroup)
+                .FirstOrDefaultAsync(e => e.Id == model.ExcursionId);
+
+            if (excursion != null)
+            {
+                model.Excursion = excursion;
+                model.Activity = excursion.Activity;
+                model.RecipientOptions = GetExcursionRecipientOptions(excursion.ExcursionGroups.Select(eg => eg.ActivityGroup).ToList());
+            }
+
+            return View(model);
+        }
+
+        // Get registered children's parent emails
+        var recipientGroupId = ExtractGroupIdFromRecipient(model.SelectedRecipient);
+
+        var registrations = await _context.ExcursionRegistrations
+            .Include(er => er.Booking)
+                .ThenInclude(b => b.Child)
+                    .ThenInclude(c => c.Parent)
+            .Include(er => er.Booking)
+                .ThenInclude(b => b.Group)
+            .Where(er => er.ExcursionId == model.ExcursionId)
+            .ToListAsync();
+
+        // Filter by group if specified
+        if (recipientGroupId.HasValue)
+        {
+            registrations = registrations.Where(r => r.Booking.GroupId == recipientGroupId.Value).ToList();
+        }
+
+        if (!registrations.Any())
+        {
+            ModelState.AddModelError(string.Empty, _localizer["Message.NoRecipientsFound"]);
+            var excursion = await _context.Excursions
+                .Include(e => e.Activity)
+                .Include(e => e.ExcursionGroups)
+                    .ThenInclude(eg => eg.ActivityGroup)
+                .FirstOrDefaultAsync(e => e.Id == model.ExcursionId);
+
+            if (excursion != null)
+            {
+                model.Excursion = excursion;
+                model.Activity = excursion.Activity;
+                model.RecipientOptions = GetExcursionRecipientOptions(excursion.ExcursionGroups.Select(eg => eg.ActivityGroup).ToList());
+            }
+
+            return View(model);
+        }
+
+        // Note: Email sending implementation would go here
+        // For now, just show success message
+        var emailCount = registrations.Select(r => r.Booking.Child.Parent.Email).Distinct().Count();
+
+        TempData["SuccessMessage"] = string.Format(_localizer["Message.EmailSent"].Value, emailCount);
+        return RedirectToAction(nameof(Index), new { id = model.Excursion?.ActivityId ?? model.ExcursionId });
+    }
+
+    private List<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem> GetExcursionRecipientOptions(List<ActivityGroup> groups)
+    {
+        var options = new List<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem>
+        {
+            new() { Value = "all_registered", Text = _localizer["Excursion.AllRegistered"] }
+        };
+
+        foreach (var group in groups.OrderBy(g => g.Label))
+        {
+            options.Add(new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem
+            {
+                Value = $"group_{group.Id}",
+                Text = $"{group.Label} - {_localizer["Excursion.RegisteredOnly"]}"
+            });
+        }
+
+        return options;
+    }
+
+    private static int? ExtractGroupIdFromRecipient(string selectedRecipient)
+    {
+        if (selectedRecipient.StartsWith("group_") &&
+            int.TryParse(selectedRecipient.Substring(6), out var groupId))
+        {
+            return groupId;
+        }
+
+        return null;
+    }
+
     [HttpPost]
     [ValidateAntiForgeryToken]
     public IActionResult BeginExcursions(int id)

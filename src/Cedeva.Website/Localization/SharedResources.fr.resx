@@ -3448,4 +3448,22 @@
   <data name="Excursion.EndTimeHelp" xml:space="preserve">
     <value>Optionnel (ex: 12:00)</value>
   </data>
+  <data name="Excursion.AllRegistered" xml:space="preserve">
+    <value>Tous les inscrits</value>
+  </data>
+  <data name="Excursion.RegisteredOnly" xml:space="preserve">
+    <value>Inscrits uniquement</value>
+  </data>
+  <data name="Excursion.SendEmailToParents" xml:space="preserve">
+    <value>Envoyer un email aux parents</value>
+  </data>
+  <data name="Excursion.TimeSlot" xml:space="preserve">
+    <value>Horaire</value>
+  </data>
+  <data name="Excursion.RecipientHelp" xml:space="preserve">
+    <value>Choisissez qui recevra l'email (tous les inscrits ou un groupe spécifique)</value>
+  </data>
+  <data name="Excursion.MergeVariablesHelp" xml:space="preserve">
+    <value>Variables disponibles pour personnaliser le message:</value>
+  </data>
 </root>

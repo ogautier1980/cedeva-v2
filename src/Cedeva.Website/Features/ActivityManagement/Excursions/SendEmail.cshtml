@@ -1,0 +1,117 @@
+@model Cedeva.Website.Features.ActivityManagement.ViewModels.SendExcursionEmailViewModel
+
+@{
+    ViewData["Title"] = Localizer["Excursion.SendEmailToParents"] + " - " + Model.Excursion?.Name;
+    ViewData["ActivityId"] = Model.Activity?.Id;
+    ViewData["ActivityName"] = Model.Activity?.Name;
+    ViewData["NavSection"] = "Excursions";
+    ViewData["NavAction"] = "SendEmail";
+}
+
+<partial name="_ActivityManagementNav" />
+
+<div class="container-fluid py-4">
+    @await Html.PartialAsync("_AlertMessages")
+
+    <!-- Excursion Info -->
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">
+                <i class="fas fa-envelope"></i> @Localizer["Excursion.SendEmailToParents"] - @Model.Excursion?.Name
+            </h5>
+        </div>
+        <div class="card-body">
+            <p class="mb-1"><strong>@Localizer["Field.ExcursionDate"]:</strong> @Model.Excursion?.ExcursionDate.ToString("dd/MM/yyyy")</p>
+            @if (Model.Excursion?.StartTime.HasValue == true || Model.Excursion?.EndTime.HasValue == true)
+            {
+                <p class="mb-1">
+                    <strong>@Localizer["Excursion.TimeSlot"]:</strong>
+                    @if (Model.Excursion.StartTime.HasValue)
+                    {
+                        @Model.Excursion.StartTime.Value.ToString(@"hh\:mm")
+                    }
+                    @if (Model.Excursion.EndTime.HasValue)
+                    {
+                        <text> - @Model.Excursion.EndTime.Value.ToString(@"hh\:mm")</text>
+                    }
+                </p>
+            }
+            <p class="mb-0"><strong>@Localizer["Excursion.TotalRegistrations"]:</strong> @Model.Excursion?.Registrations.Count</p>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="card">
+                <div class="card-body">
+                    <form asp-action="SendEmail" method="post" enctype="multipart/form-data">
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+                        <input type="hidden" asp-for="ExcursionId" />
+
+                        <!-- Recipient filter -->
+                        <div class="mb-3">
+                            <label asp-for="SelectedRecipient" class="form-label"></label>
+                            <select asp-for="SelectedRecipient" asp-items="Model.RecipientOptions" class="form-select">
+                                <option value="">-- @Localizer["Select"] --</option>
+                            </select>
+                            <span asp-validation-for="SelectedRecipient" class="text-danger"></span>
+                            <div class="form-text">@Localizer["Excursion.RecipientHelp"]</div>
+                        </div>
+
+                        <!-- Subject -->
+                        <div class="mb-3">
+                            <label asp-for="Subject" class="form-label"></label>
+                            <input asp-for="Subject" class="form-control" placeholder="@Localizer["Email.SubjectPlaceholder"]" />
+                            <span asp-validation-for="Subject" class="text-danger"></span>
+                        </div>
+
+                        <!-- Message -->
+                        <div class="mb-3">
+                            <label asp-for="Message" class="form-label"></label>
+                            <textarea asp-for="Message" class="form-control" rows="10"></textarea>
+                            <span asp-validation-for="Message" class="text-danger"></span>
+                            <div class="form-text">
+                                @Localizer["Excursion.MergeVariablesHelp"]<br />
+                                <code>%child_firstname%</code>, <code>%child_lastname%</code>, <code>%excursion_name%</code>, <code>%excursion_date%</code>
+                            </div>
+                        </div>
+
+                        <!-- Send per child checkbox -->
+                        <div class="mb-3 form-check">
+                            <input asp-for="SendSeparateEmailPerChild" class="form-check-input" />
+                            <label asp-for="SendSeparateEmailPerChild" class="form-check-label"></label>
+                            <div class="form-text">@Localizer["Email.PerChildInfo"]</div>
+                        </div>
+
+                        <!-- Attachment -->
+                        <div class="mb-3">
+                            <label asp-for="AttachmentFile" class="form-label"></label>
+                            <input asp-for="AttachmentFile" type="file" class="form-control" />
+                            <span asp-validation-for="AttachmentFile" class="text-danger"></span>
+                            <div class="form-text">@Localizer["Email.AttachmentFormats"]</div>
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <a asp-action="Index" asp-route-id="@Model.Activity?.Id" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left"></i> @Localizer["Cancel"]
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-paper-plane"></i> @Localizer["Email.Send"]
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-3">
+        <a asp-action="Index" asp-route-id="@Model.Activity?.Id" class="btn btn-link">
+            <i class="fas fa-arrow-left"></i> @Localizer["BackToList"]
+        </a>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
