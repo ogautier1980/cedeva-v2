@@ -22,5 +22,10 @@ public class ExpenseConfiguration : IEntityTypeConfiguration<Expense>
             .WithMany()
             .HasForeignKey(e => e.ActivityId)
             .OnDelete(DeleteBehavior.SetNull);
+
+        builder.HasOne(e => e.Excursion)
+            .WithMany(ex => ex.Expenses)
+            .HasForeignKey(e => e.ExcursionId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }

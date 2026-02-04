@@ -39,6 +39,9 @@ public class CedevaDbContext : IdentityDbContext<CedevaUser>, IUnitOfWork
     public DbSet<CodaFile> CodaFiles => Set<CodaFile>();
     public DbSet<BankTransaction> BankTransactions => Set<BankTransaction>();
     public DbSet<ActivityFinancialTransaction> ActivityFinancialTransactions => Set<ActivityFinancialTransaction>();
+    public DbSet<Excursion> Excursions => Set<Excursion>();
+    public DbSet<ExcursionRegistration> ExcursionRegistrations => Set<ExcursionRegistration>();
+    public DbSet<ExcursionGroup> ExcursionGroups => Set<ExcursionGroup>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

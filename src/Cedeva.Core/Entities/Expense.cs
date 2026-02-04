@@ -44,5 +44,11 @@ public class Expense
     public int ActivityId { get; set; }
     public Activity Activity { get; set; } = null!;
 
+    /// <summary>
+    /// Excursion concernée (null si dépense d'activité générale)
+    /// </summary>
+    public int? ExcursionId { get; set; }
+    public Excursion? Excursion { get; set; }
+
     public DateTime ExpenseDate { get; set; }
 }

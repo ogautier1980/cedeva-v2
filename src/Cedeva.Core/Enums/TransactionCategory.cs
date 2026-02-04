@@ -24,12 +24,15 @@ public enum TransactionCategory
     /// <summary>
     /// Autres dépenses/revenus
     /// </summary>
-    Other
+    Other,
 
-    // Futures valeurs pour excursions:
-    // ExcursionPayment,
-    // TransportCost,
-    // TicketCost,
-    // MaterialCost,
-    // etc.
+    /// <summary>
+    /// Paiement d'excursion (revenus supplémentaires)
+    /// </summary>
+    ExcursionPayment,
+
+    /// <summary>
+    /// Dépense liée à une excursion (transport, billets, etc.)
+    /// </summary>
+    ExcursionExpense
 }
