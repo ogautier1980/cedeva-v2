@@ -125,6 +125,9 @@ public class TestDataSeeder
                 // Expenses (per activity, skips if already present)
                 await SeedExpensesAsync(organisation.Id);
 
+                // Excursions (after bookings + payments so we can update TotalAmount)
+                await SeedExcursionsAsync(organisation.Id);
+
                 // Email templates
                 var templateCount = await _context.EmailTemplates.IgnoreQueryFilters()
                     .CountAsync(t => t.OrganisationId == organisation.Id);
@@ -873,6 +876,217 @@ public class TestDataSeeder
 
         await _context.SaveChangesAsync();
         _logger.LogInformation("Seeded expenses for org {OrgId}", organisationId);
+    }
+
+    // =========================================================================
+    // Excursions
+    // =========================================================================
+    private async Task SeedExcursionsAsync(int organisationId)
+    {
+        _logger.LogInformation("Seeding excursions for org {OrgId}...", organisationId);
+
+        // Get activities for this organisation
+        var activities = await _context.Activities.IgnoreQueryFilters()
+            .Include(a => a.Groups)
+            .Where(a => a.OrganisationId == organisationId)
+            .ToListAsync();
+
+        if (!activities.Any()) return;
+
+        // Check if already seeded
+        var activityIds = activities.Select(a => a.Id).ToList();
+        var existingCount = await _context.Excursions
+            .Where(e => activityIds.Contains(e.ActivityId))
+            .CountAsync();
+        if (existingCount > 0) return;
+
+        // Placeholder CreatedByUserId for financial transactions (int field, not FK to Identity)
+        const int createdByUserId = 1;
+
+        // Get confirmed bookings with group info
+        var bookings = await _context.Bookings.IgnoreQueryFilters()
+            .Include(b => b.Child)
+            .Where(b => activityIds.Contains(b.ActivityId) && b.IsConfirmed && b.GroupId.HasValue)
+            .ToListAsync();
+
+        // Get team members for this organisation
+        var teamMembers = await _context.TeamMembers.IgnoreQueryFilters()
+            .Where(t => t.OrganisationId == organisationId)
+            .ToListAsync();
+
+        var excursionTypes = new[] { ExcursionType.Pool, ExcursionType.AmusementPark, ExcursionType.CulturalVisit, ExcursionType.Nature, ExcursionType.Sports };
+
+        foreach (var activity in activities)
+        {
+            if (activity.Groups.Count == 0) continue;
+
+            // Create 1 or 2 excursions per activity
+            int excursionCount = _random.Next(1, 3);
+
+            for (int i = 0; i < excursionCount; i++)
+            {
+                // Pick 1-2 target groups
+                var shuffledGroups = activity.Groups.OrderBy(_ => _random.Next()).ToList();
+                int groupCount = Math.Min(_random.Next(1, 3), shuffledGroups.Count);
+                var targetGroups = shuffledGroups.Take(groupCount).ToList();
+
+                var excursionDate = activity.StartDate.AddDays(_random.Next(1, (activity.EndDate - activity.StartDate).Days));
+                var cost = Math.Round((decimal)_random.Next(1500, 4500) / 100, 2); // €15–45
+
+                var excursion = new Excursion
+                {
+                    Name = GetExcursionName(excursionTypes[_random.Next(excursionTypes.Length)], i),
+                    Description = GetExcursionDescription(i),
+                    ExcursionDate = excursionDate,
+                    StartTime = _random.Next(2) == 0 ? new TimeSpan(_random.Next(8, 10), 0, 0) : null,
+                    EndTime = _random.Next(2) == 0 ? new TimeSpan(_random.Next(14, 17), 0, 0) : null,
+                    Cost = cost,
+                    Type = excursionTypes[_random.Next(excursionTypes.Length)],
+                    IsActive = true,
+                    ActivityId = activity.Id
+                };
+
+                _context.Excursions.Add(excursion);
+                await _context.SaveChangesAsync();
+
+                // Link to target groups
+                foreach (var group in targetGroups)
+                {
+                    _context.ExcursionGroups.Add(new ExcursionGroup
+                    {
+                        ExcursionId = excursion.Id,
+                        ActivityGroupId = group.Id
+                    });
+                }
+
+                // Register 30-70% of eligible confirmed bookings
+                var eligibleGroupIds = targetGroups.Select(g => g.Id).ToList();
+                var eligibleBookings = bookings
+                    .Where(b => b.ActivityId == activity.Id && eligibleGroupIds.Contains(b.GroupId!.Value))
+                    .ToList();
+
+                var registrationRate = _random.Next(30, 71); // 30-70%
+                var toRegister = eligibleBookings.OrderBy(_ => _random.Next())
+                    .Take(eligibleBookings.Count * registrationRate / 100)
+                    .ToList();
+
+                foreach (var booking in toRegister)
+                {
+                    _context.ExcursionRegistrations.Add(new ExcursionRegistration
+                    {
+                        ExcursionId = excursion.Id,
+                        BookingId = booking.Id,
+                        RegistrationDate = excursionDate.AddDays(-_random.Next(1, 15)),
+                        IsPresent = _random.Next(10) > 2 // 70% present
+                    });
+
+                    // Update booking total
+                    booking.TotalAmount += cost;
+                    if (booking.PaidAmount == 0)
+                        booking.PaymentStatus = PaymentStatus.NotPaid;
+                    else if (booking.PaidAmount < booking.TotalAmount)
+                        booking.PaymentStatus = PaymentStatus.PartiallyPaid;
+                    else if (booking.PaidAmount == booking.TotalAmount)
+                        booking.PaymentStatus = PaymentStatus.Paid;
+                    else
+                        booking.PaymentStatus = PaymentStatus.Overpaid;
+
+                    // Audit trail
+                    _context.ActivityFinancialTransactions.Add(new ActivityFinancialTransaction
+                    {
+                        ActivityId = activity.Id,
+                        TransactionDate = excursionDate.AddDays(-_random.Next(1, 10)),
+                        Type = TransactionType.Income,
+                        Category = TransactionCategory.ExcursionPayment,
+                        Amount = cost,
+                        Description = $"Inscription excursion: {excursion.Name} - {booking.Child.FirstName} {booking.Child.LastName}",
+                        CreatedByUserId = createdByUserId
+                    });
+                }
+
+                // Assign 1-2 team members
+                if (teamMembers.Any())
+                {
+                    var assignedTeam = teamMembers.OrderBy(_ => _random.Next())
+                        .Take(_random.Next(1, 3))
+                        .ToList();
+
+                    foreach (var tm in assignedTeam)
+                    {
+                        _context.ExcursionTeamMembers.Add(new ExcursionTeamMember
+                        {
+                            ExcursionId = excursion.Id,
+                            TeamMemberId = tm.TeamMemberId,
+                            IsAssigned = true,
+                            IsPresent = _random.Next(10) > 2 // 70% present
+                        });
+                    }
+                }
+
+                // Add 1-3 expenses per excursion
+                var expenseTemplates = new[] {
+                    ("Location bus", "Transport", 120m, 200m),
+                    ("Billets entrée", "Billets", 180m, 350m),
+                    ("Sandwiches", "Repas", 40m, 80m),
+                    ("Matériel artisanat", "Matériel", 25m, 60m),
+                    ("Boissons", "Repas", 15m, 35m)
+                };
+
+                int expenseCount = _random.Next(1, 4);
+                var usedExpenses = new HashSet<int>();
+
+                for (int e = 0; e < expenseCount; e++)
+                {
+                    int idx;
+                    do { idx = _random.Next(expenseTemplates.Length); } while (usedExpenses.Contains(idx));
+                    usedExpenses.Add(idx);
+
+                    var (label, category, minAmount, maxAmount) = expenseTemplates[idx];
+                    var amount = Math.Round(minAmount + (decimal)_random.NextDouble() * (maxAmount - minAmount), 2);
+
+                    _context.Expenses.Add(new Expense
+                    {
+                        Label = label,
+                        Category = category,
+                        Amount = amount,
+                        ExpenseDate = excursionDate.AddDays(-_random.Next(0, 5)),
+                        OrganizationPaymentSource = _random.Next(2) == 0 ? "OrganizationCard" : "OrganizationCash",
+                        ActivityId = activity.Id,
+                        ExcursionId = excursion.Id
+                    });
+                }
+
+                await _context.SaveChangesAsync();
+            }
+        }
+
+        _logger.LogInformation("Seeded excursions for org {OrgId}", organisationId);
+    }
+
+    private string GetExcursionName(ExcursionType type, int index)
+    {
+        var names = type switch
+        {
+            ExcursionType.Pool => new[] { "Journée piscine", "Après-midi piscine" },
+            ExcursionType.AmusementPark => new[] { "Visite parc d'attractions", "Journée Walibi" },
+            ExcursionType.CulturalVisit => new[] { "Visite musée", "Tournée historique" },
+            ExcursionType.Nature => new[] { "Randonnée nature", "Journée forêt" },
+            ExcursionType.Sports => new[] { "Tournoi sportif", "Journée sport" },
+            _ => new[] { "Excursion" }
+        };
+        return names[index % names.Length];
+    }
+
+    private string GetExcursionDescription(int index)
+    {
+        var descriptions = new[]
+        {
+            "Excursion organisée pour les enfants du groupe. Prévoir un repas de midi.",
+            "Activité en plein air. Les parents sont invités à accompagner si souhaitent.",
+            "Journée culturelle pour découvrir de nouveaux horizons.",
+            null
+        };
+        return descriptions[index % descriptions.Length]!;
     }
 
     // =========================================================================
