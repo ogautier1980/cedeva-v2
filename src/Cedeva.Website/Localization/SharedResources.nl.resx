@@ -3390,4 +3390,43 @@
     <value>[NL] Inscription introuvable</value>
   </data>
 <data name="Excursion.TeamManagementHelp" xml:space="preserve">    <value>[NL] Cochez les cases pour assigner des membres à cette excursion</value>  </data>  <data name="Excursion.NoTeamMembers" xml:space="preserve">    <value>[NL] Aucun membre assigné à cette activité</value>  </data>  <data name="Excursion.Assigned" xml:space="preserve">    <value>[NL] assignés</value>  </data>  <data name="Message.TeamMemberAssigned" xml:space="preserve">    <value>[NL] Membre assigné à l'excursion</value>  </data>  <data name="Message.TeamMemberUnassigned" xml:space="preserve">    <value>[NL] Membre retiré de l'excursion</value>  </data>
+
+  <!-- DataAnnotations validation message templates -->
+  <data name="The {0} field is required." xml:space="preserve">
+    <value>Het veld {0} is verplicht.</value>
+  </data>
+  <data name="The field {0} must have between {2} and {1} characters." xml:space="preserve">
+    <value>Het veld {0} moet tussen {2} en {1} tekens bevatten.</value>
+  </data>
+  <data name="The field {0} must have at least {1} characters." xml:space="preserve">
+    <value>Het veld {0} moet minstens {1} tekens bevatten.</value>
+  </data>
+  <data name="The field {0} must have at most {1} characters." xml:space="preserve">
+    <value>Het veld {0} mag hoogstens {1} tekens bevatten.</value>
+  </data>
+  <data name="The field {0} must be between {1} and {2}." xml:space="preserve">
+    <value>Het veld {0} moet tussen {1} en {2} liggen.</value>
+  </data>
+  <data name="The field {0} must be a valid e-mail address." xml:space="preserve">
+    <value>Het veld {0} moet een geldig e-mailadres zijn.</value>
+  </data>
+  <data name="The {0} and {1} passwords do not match." xml:space="preserve">
+    <value>De wachtwoorden {0} en {1} komen niet overeen.</value>
+  </data>
+  <data name="The field {0} must be a valid phone number." xml:space="preserve">
+    <value>Het veld {0} moet een geldig telefoonnummer zijn.</value>
+  </data>
+  <data name="The field {0} must be a valid URL." xml:space="preserve">
+    <value>Het veld {0} moet een geldige URL zijn.</value>
+  </data>
+  <data name="The field {0} did not match the pattern '{1}'." xml:space="preserve">
+    <value>Het veld {0} komt niet overeen met het patroon '{1}'.</value>
+  </data>
+  <!-- MVC binding validation messages -->
+  <data name="The value '{0}' is not valid for {1}." xml:space="preserve">
+    <value>De waarde '{0}' is niet geldig voor {1}.</value>
+  </data>
+  <data name="A value for '{0}' property is required." xml:space="preserve">
+    <value>Een waarde voor de eigenschap '{0}' is verplicht.</value>
+  </data>
 </root>
