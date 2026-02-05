@@ -53,8 +53,11 @@ public class FinancialController : Controller
     }
 
     // GET: Financial/Index
-    public async Task<IActionResult> Index()
+    public async Task<IActionResult> Index(int? id = null)
     {
+        if (id.HasValue)
+            HttpContext.Session.SetInt32(SessionKeyActivityId, id.Value);
+
         var activityId = HttpContext.Session.GetInt32(SessionKeyActivityId);
         if (!activityId.HasValue)
         {
