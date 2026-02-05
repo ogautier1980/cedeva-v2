@@ -34,6 +34,16 @@ jobs:
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_ED3D3FB0BE4B462C91A50A77FB7983D8 }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_93863144889F4BBEB663A80F5DEEBD6D }}
 
+      - name: Install EF Core tools
+        run: dotnet tool install --global dotnet-ef
+
+      - name: Apply database migrations
+        run: |
+          dotnet ef database update \
+            --project src/Cedeva.Infrastructure \
+            --startup-project src/Cedeva.Website \
+            --connection "${{ secrets.AZURE_SQL_CONNECTION_STRING }}"
+
       - name: Deploy to Azure Web App
         run: |
           cd ./publish
