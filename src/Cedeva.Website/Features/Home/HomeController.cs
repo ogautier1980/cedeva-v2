@@ -12,18 +12,15 @@ namespace Cedeva.Website.Features.Home;
 [Authorize]
 public class HomeController : Controller
 {
-    private readonly IRepository<Child> _childRepository;
     private readonly IRepository<Parent> _parentRepository;
     private readonly IRepository<TeamMember> _teamMemberRepository;
     private readonly CedevaDbContext _context;
 
     public HomeController(
-        IRepository<Child> childRepository,
         IRepository<Parent> parentRepository,
         IRepository<TeamMember> teamMemberRepository,
         CedevaDbContext context)
     {
-        _childRepository = childRepository;
         _parentRepository = parentRepository;
         _teamMemberRepository = teamMemberRepository;
         _context = context;
@@ -31,17 +28,24 @@ public class HomeController : Controller
 
     public async Task<IActionResult> Index()
     {
-        var children = (await _childRepository.GetAllAsync()).ToList();
         var parents = (await _parentRepository.GetAllAsync()).ToList();
         var teamMembers = (await _teamMemberRepository.GetAllAsync()).ToList();
 
-        // Load activities with bookings count using DbContext for proper Include
+        // Activities filtered by HasQueryFilter on OrganisationId
         var activities = await _context.Activities
             .Include(a => a.Bookings)
             .ToListAsync();
 
-        // Load bookings with related entities (Child and Activity)
+        // Children via ParentIds (Parent has HasQueryFilter on OrganisationId)
+        var parentIds = parents.Select(p => p.Id).ToList();
+        var children = await _context.Children
+            .Where(c => parentIds.Contains(c.ParentId))
+            .ToListAsync();
+
+        // Bookings via ActivityIds (Activity has HasQueryFilter on OrganisationId)
+        var activityIds = activities.Select(a => a.Id).ToList();
         var bookings = await _context.Bookings
+            .Where(b => activityIds.Contains(b.ActivityId))
             .Include(b => b.Child)
             .Include(b => b.Activity)
             .ToListAsync();
