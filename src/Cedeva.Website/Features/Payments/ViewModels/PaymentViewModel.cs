@@ -7,24 +7,24 @@ public class PaymentViewModel
 {
     public int Id { get; set; }
 
-    [Required]
+    [Required(ErrorMessage = "The {0} field is required.")]
     public int BookingId { get; set; }
 
-    [Required]
+    [Required(ErrorMessage = "The {0} field is required.")]
     [Display(Name = "Field.Amount")]
     [Range(0.01, 9999999, ErrorMessage = "Validation.AmountRange")]
     public decimal Amount { get; set; }
 
-    [Required]
+    [Required(ErrorMessage = "The {0} field is required.")]
     [Display(Name = "Field.PaymentDate")]
     public DateTime PaymentDate { get; set; } = DateTime.Today;
 
-    [Required]
+    [Required(ErrorMessage = "The {0} field is required.")]
     [Display(Name = "Field.PaymentMethod")]
     public PaymentMethod PaymentMethod { get; set; } = PaymentMethod.Cash;
 
     [Display(Name = "Field.Reference")]
-    [StringLength(200)]
+    [StringLength(200, ErrorMessage = "The field {0} must have between {2} and {1} characters.")]
     public string? Reference { get; set; }
 
     // Display only

@@ -6,13 +6,13 @@ public class ActivityViewModel
 {
     public int Id { get; set; }
 
-    [Required]
-    [StringLength(100)]
+    [Required(ErrorMessage = "The {0} field is required.")]
+    [StringLength(100, ErrorMessage = "The field {0} must have between {2} and {1} characters.")]
     [Display(Name = "Field.Name")]
     public string Name { get; set; } = string.Empty;
 
-    [Required]
-    [StringLength(500)]
+    [Required(ErrorMessage = "The {0} field is required.")]
+    [StringLength(500, ErrorMessage = "The field {0} must have between {2} and {1} characters.")]
     [Display(Name = "Field.Description")]
     public string Description { get; set; } = string.Empty;
 
@@ -24,12 +24,12 @@ public class ActivityViewModel
     [DataType(DataType.Currency)]
     public decimal? PricePerDay { get; set; }
 
-    [Required]
+    [Required(ErrorMessage = "The {0} field is required.")]
     [Display(Name = "Field.StartDate")]
     [DataType(DataType.Date)]
     public DateTime StartDate { get; set; } = DateTime.Today;
 
-    [Required]
+    [Required(ErrorMessage = "The {0} field is required.")]
     [Display(Name = "Field.EndDate")]
     [DataType(DataType.Date)]
     public DateTime EndDate { get; set; } = DateTime.Today.AddDays(7);

@@ -10,7 +10,7 @@ public class EmailSent
     public int? ActivityId { get; set; }
     public Activity? Activity { get; set; }
 
-    [Required]
+    [Required(ErrorMessage = "The {0} field is required.")]
     public EmailRecipient RecipientType { get; set; }
 
     public int? RecipientGroupId { get; set; }
@@ -21,19 +21,19 @@ public class EmailSent
     public int? ScheduledDayId { get; set; }
     public ActivityDay? ScheduledDay { get; set; }
 
-    [Required]
+    [Required(ErrorMessage = "The {0} field is required.")]
     public string RecipientEmails { get; set; } = string.Empty;
 
-    [Required]
-    [StringLength(255)]
+    [Required(ErrorMessage = "The {0} field is required.")]
+    [StringLength(255, ErrorMessage = "The field {0} must have between {2} and {1} characters.")]
     public string Subject { get; set; } = string.Empty;
 
     /// <summary>
     /// Email template content (may contain variables like %prenom_enfant%)
     /// Increased from 1024 to 5000 to accommodate HTML content
     /// </summary>
-    [Required]
-    [StringLength(5000)]
+    [Required(ErrorMessage = "The {0} field is required.")]
+    [StringLength(5000, ErrorMessage = "The field {0} must have between {2} and {1} characters.")]
     public string Message { get; set; } = string.Empty;
 
     /// <summary>
@@ -41,12 +41,12 @@ public class EmailSent
     /// </summary>
     public bool SendSeparateEmailPerChild { get; set; } = true;
 
-    [StringLength(255)]
+    [StringLength(255, ErrorMessage = "The field {0} must have between {2} and {1} characters.")]
     public string? AttachmentFileName { get; set; }
 
-    [StringLength(500)]
+    [StringLength(500, ErrorMessage = "The field {0} must have between {2} and {1} characters.")]
     public string? AttachmentFilePath { get; set; }
 
-    [Required]
+    [Required(ErrorMessage = "The {0} field is required.")]
     public DateTime SentDate { get; set; }
 }

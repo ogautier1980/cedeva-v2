@@ -7,47 +7,47 @@ public class TeamMember
 {
     public int TeamMemberId { get; set; }
 
-    [Required]
-    [StringLength(100)]
+    [Required(ErrorMessage = "The {0} field is required.")]
+    [StringLength(100, ErrorMessage = "The field {0} must have between {2} and {1} characters.")]
     public string FirstName { get; set; } = string.Empty;
 
-    [Required]
-    [StringLength(100)]
+    [Required(ErrorMessage = "The {0} field is required.")]
+    [StringLength(100, ErrorMessage = "The field {0} must have between {2} and {1} characters.")]
     public string LastName { get; set; } = string.Empty;
 
-    [Required]
-    [StringLength(100)]
+    [Required(ErrorMessage = "The {0} field is required.")]
+    [StringLength(100, ErrorMessage = "The field {0} must have between {2} and {1} characters.")]
     [EmailAddress]
     public string Email { get; set; } = string.Empty;
 
-    [Required]
+    [Required(ErrorMessage = "The {0} field is required.")]
     [DataType(DataType.Date)]
     public DateTime BirthDate { get; set; }
 
     public int AddressId { get; set; }
     public Address Address { get; set; } = null!;
 
-    [Required]
-    [StringLength(100)]
+    [Required(ErrorMessage = "The {0} field is required.")]
+    [StringLength(100, ErrorMessage = "The field {0} must have between {2} and {1} characters.")]
     public string MobilePhoneNumber { get; set; } = string.Empty;
 
-    [Required]
-    [StringLength(15, MinimumLength = 11)]
+    [Required(ErrorMessage = "The {0} field is required.")]
+    [StringLength(15, MinimumLength = 11, ErrorMessage = "The field {0} must have between {2} and {1} characters.")]
     public string NationalRegisterNumber { get; set; } = string.Empty;
 
-    [Required]
+    [Required(ErrorMessage = "The {0} field is required.")]
     public TeamRole TeamRole { get; set; }
 
-    [Required]
+    [Required(ErrorMessage = "The {0} field is required.")]
     public License License { get; set; }
 
-    [Required]
+    [Required(ErrorMessage = "The {0} field is required.")]
     public Status Status { get; set; }
 
     public decimal? DailyCompensation { get; set; }
 
-    [Required]
-    [StringLength(100)]
+    [Required(ErrorMessage = "The {0} field is required.")]
+    [StringLength(100, ErrorMessage = "The field {0} must have between {2} and {1} characters.")]
     public string LicenseUrl { get; set; } = string.Empty;
 
     public int OrganisationId { get; set; }

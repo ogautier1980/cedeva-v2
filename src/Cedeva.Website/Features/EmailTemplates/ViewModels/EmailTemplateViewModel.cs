@@ -8,22 +8,22 @@ public class EmailTemplateViewModel
 {
     public int Id { get; set; }
 
-    [Required]
-    [StringLength(200)]
+    [Required(ErrorMessage = "The {0} field is required.")]
+    [StringLength(200, ErrorMessage = "The field {0} must have between {2} and {1} characters.")]
     [Display(Name = "Field.Name")]
     public string Name { get; set; } = string.Empty;
 
-    [Required]
+    [Required(ErrorMessage = "The {0} field is required.")]
     [Display(Name = "EmailTemplate.TemplateType")]
     public EmailTemplateType TemplateType { get; set; }
 
-    [Required]
-    [StringLength(500)]
+    [Required(ErrorMessage = "The {0} field is required.")]
+    [StringLength(500, ErrorMessage = "The field {0} must have between {2} and {1} characters.")]
     [Display(Name = "Field.Subject")]
     public string Subject { get; set; } = string.Empty;
 
-    [Required]
-    [StringLength(10000)]
+    [Required(ErrorMessage = "The {0} field is required.")]
+    [StringLength(10000, ErrorMessage = "The field {0} must have between {2} and {1} characters.")]
     [Display(Name = "EmailTemplate.HtmlContent")]
     public string HtmlContent { get; set; } = string.Empty;
 

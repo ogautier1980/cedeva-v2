@@ -6,17 +6,17 @@ public class ActivityDay
 {
     public int DayId { get; set; }
 
-    [Required]
-    [StringLength(100)]
+    [Required(ErrorMessage = "The {0} field is required.")]
+    [StringLength(100, ErrorMessage = "The field {0} must have between {2} and {1} characters.")]
     public string Label { get; set; } = string.Empty;
 
-    [Required]
+    [Required(ErrorMessage = "The {0} field is required.")]
     [DataType(DataType.Date)]
     public DateTime DayDate { get; set; }
 
     public int? Week { get; set; }
 
-    [Required]
+    [Required(ErrorMessage = "The {0} field is required.")]
     public bool IsActive { get; set; }
 
     public int ActivityId { get; set; }

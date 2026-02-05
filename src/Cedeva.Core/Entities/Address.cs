@@ -7,18 +7,18 @@ public class Address
 {
     public int Id { get; set; }
 
-    [Required]
-    [StringLength(100, MinimumLength = 2)]
+    [Required(ErrorMessage = "The {0} field is required.")]
+    [StringLength(100, MinimumLength = 2, ErrorMessage = "The field {0} must have between {2} and {1} characters.")]
     public string Street { get; set; } = string.Empty;
 
-    [Required]
-    [StringLength(100, MinimumLength = 2)]
+    [Required(ErrorMessage = "The {0} field is required.")]
+    [StringLength(100, MinimumLength = 2, ErrorMessage = "The field {0} must have between {2} and {1} characters.")]
     public string City { get; set; } = string.Empty;
 
-    [Required]
-    [StringLength(10)]
+    [Required(ErrorMessage = "The {0} field is required.")]
+    [StringLength(10, ErrorMessage = "The field {0} must have between {2} and {1} characters.")]
     public string PostalCode { get; set; } = string.Empty;
 
-    [Required]
+    [Required(ErrorMessage = "The {0} field is required.")]
     public Country Country { get; set; } = Country.Belgium;
 }

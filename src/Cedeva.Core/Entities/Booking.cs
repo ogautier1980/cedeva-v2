@@ -10,21 +10,21 @@ public class Booking
     [DataType(DataType.Date)]
     public DateTime BookingDate { get; set; }
 
-    [Required]
+    [Required(ErrorMessage = "The {0} field is required.")]
     public int ChildId { get; set; }
     public Child Child { get; set; } = null!;
 
-    [Required]
+    [Required(ErrorMessage = "The {0} field is required.")]
     public int ActivityId { get; set; }
     public Activity Activity { get; set; } = null!;
 
     public int? GroupId { get; set; }
     public ActivityGroup? Group { get; set; }
 
-    [Required]
+    [Required(ErrorMessage = "The {0} field is required.")]
     public bool IsConfirmed { get; set; }
 
-    [Required]
+    [Required(ErrorMessage = "The {0} field is required.")]
     public bool IsMedicalSheet { get; set; }
 
     /// <summary>

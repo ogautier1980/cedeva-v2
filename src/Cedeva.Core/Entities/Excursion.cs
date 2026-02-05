@@ -10,14 +10,14 @@ public class Excursion
 {
     public int Id { get; set; }
 
-    [Required]
-    [StringLength(100)]
+    [Required(ErrorMessage = "The {0} field is required.")]
+    [StringLength(100, ErrorMessage = "The field {0} must have between {2} and {1} characters.")]
     public string Name { get; set; } = string.Empty;
 
-    [StringLength(500)]
+    [StringLength(500, ErrorMessage = "The field {0} must have between {2} and {1} characters.")]
     public string? Description { get; set; }
 
-    [Required]
+    [Required(ErrorMessage = "The {0} field is required.")]
     public DateTime ExcursionDate { get; set; }
 
     /// <summary>
@@ -33,17 +33,17 @@ public class Excursion
     /// <summary>
     /// Coût par enfant
     /// </summary>
-    [Required]
+    [Required(ErrorMessage = "The {0} field is required.")]
     public decimal Cost { get; set; }
 
-    [Required]
+    [Required(ErrorMessage = "The {0} field is required.")]
     public ExcursionType Type { get; set; }
 
-    [Required]
+    [Required(ErrorMessage = "The {0} field is required.")]
     public bool IsActive { get; set; } = true;
 
     // Relationships
-    [Required]
+    [Required(ErrorMessage = "The {0} field is required.")]
     public int ActivityId { get; set; }
     public Activity Activity { get; set; } = null!;
 

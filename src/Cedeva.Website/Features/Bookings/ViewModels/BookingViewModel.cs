@@ -6,16 +6,16 @@ public class BookingViewModel
 {
     public int Id { get; set; }
 
-    [Required]
+    [Required(ErrorMessage = "The {0} field is required.")]
     [DataType(DataType.Date)]
     [Display(Name = "Field.BookingDate")]
     public DateTime BookingDate { get; set; }
 
-    [Required]
+    [Required(ErrorMessage = "The {0} field is required.")]
     [Display(Name = "Field.Child")]
     public int ChildId { get; set; }
 
-    [Required]
+    [Required(ErrorMessage = "The {0} field is required.")]
     [Display(Name = "Field.Activity")]
     public int ActivityId { get; set; }
 

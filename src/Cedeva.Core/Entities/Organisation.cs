@@ -6,12 +6,12 @@ public class Organisation
 {
     public int Id { get; set; }
 
-    [Required]
-    [StringLength(100)]
+    [Required(ErrorMessage = "The {0} field is required.")]
+    [StringLength(100, ErrorMessage = "The field {0} must have between {2} and {1} characters.")]
     public string Name { get; set; } = string.Empty;
 
-    [Required]
-    [StringLength(500)]
+    [Required(ErrorMessage = "The {0} field is required.")]
+    [StringLength(500, ErrorMessage = "The field {0} must have between {2} and {1} characters.")]
     public string Description { get; set; } = string.Empty;
 
     public int AddressId { get; set; }

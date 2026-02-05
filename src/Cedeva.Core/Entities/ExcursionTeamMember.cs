@@ -9,29 +9,29 @@ public class ExcursionTeamMember
 {
     public int Id { get; set; }
 
-    [Required]
+    [Required(ErrorMessage = "The {0} field is required.")]
     public int ExcursionId { get; set; }
     public Excursion Excursion { get; set; } = null!;
 
-    [Required]
+    [Required(ErrorMessage = "The {0} field is required.")]
     public int TeamMemberId { get; set; }
     public TeamMember TeamMember { get; set; } = null!;
 
     /// <summary>
     /// Prévu pour accompagner l'excursion
     /// </summary>
-    [Required]
+    [Required(ErrorMessage = "The {0} field is required.")]
     public bool IsAssigned { get; set; } = true;
 
     /// <summary>
     /// Présent effectivement à l'excursion
     /// </summary>
-    [Required]
+    [Required(ErrorMessage = "The {0} field is required.")]
     public bool IsPresent { get; set; } = false;
 
     /// <summary>
     /// Notes spécifiques (rôle, responsabilités, etc.)
     /// </summary>
-    [StringLength(500)]
+    [StringLength(500, ErrorMessage = "The field {0} must have between {2} and {1} characters.")]
     public string? Notes { get; set; }
 }

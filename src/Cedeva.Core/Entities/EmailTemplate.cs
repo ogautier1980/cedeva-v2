@@ -13,18 +13,18 @@ public class EmailTemplate
     public int OrganisationId { get; set; }
     public Organisation Organisation { get; set; } = null!;
 
-    [Required]
-    [StringLength(200)]
+    [Required(ErrorMessage = "The {0} field is required.")]
+    [StringLength(200, ErrorMessage = "The field {0} must have between {2} and {1} characters.")]
     public string Name { get; set; } = string.Empty;
 
     public EmailTemplateType TemplateType { get; set; }
 
-    [Required]
-    [StringLength(500)]
+    [Required(ErrorMessage = "The {0} field is required.")]
+    [StringLength(500, ErrorMessage = "The field {0} must have between {2} and {1} characters.")]
     public string Subject { get; set; } = string.Empty;
 
-    [Required]
-    [StringLength(10000)]
+    [Required(ErrorMessage = "The {0} field is required.")]
+    [StringLength(10000, ErrorMessage = "The field {0} must have between {2} and {1} characters.")]
     public string HtmlContent { get; set; } = string.Empty;
 
     /// <summary>
@@ -37,7 +37,7 @@ public class EmailTemplate
     /// </summary>
     public bool IsShared { get; set; }
 
-    [Required]
+    [Required(ErrorMessage = "The {0} field is required.")]
     public string CreatedByUserId { get; set; } = string.Empty;
     public CedevaUser CreatedByUser { get; set; } = null!;
 
