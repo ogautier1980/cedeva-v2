@@ -53,7 +53,7 @@ public class HomeController : Controller
         var viewModel = new DashboardViewModel
         {
             TotalActivities = activities.Count,
-            ActiveActivities = activities.Count(a => a.StartDate <= DateTime.Now && a.EndDate >= DateTime.Now),
+            ActiveActivities = activities.Count(a => a.IsActive),
             TotalBookings = bookings.Count,
             ConfirmedBookings = bookings.Count(b => b.IsConfirmed),
             TotalChildren = children.Count,
