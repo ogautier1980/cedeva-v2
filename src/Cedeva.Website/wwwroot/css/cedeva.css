@@ -61,6 +61,11 @@ h2 {
     font-weight: 400;
 }
 
+/* H2 avec couleur Cedeva (pour éditeur d'emails) */
+h2.cedeva-title {
+    color: #007faf;
+}
+
 /* Vert - Valider, Export, Success */
 .bg-success {
     background-color: #28a745 !important;
