@@ -18,6 +18,7 @@ public class FinancialController : Controller
     private readonly ICodaParserService _codaParserService;
     private readonly IBankReconciliationService _reconciliationService;
     private readonly IExcelExportService _excelExportService;
+    private readonly IFinancialCalculationService _financialCalculationService;
     private readonly IStringLocalizer<SharedResources> _localizer;
     private readonly ILogger<FinancialController> _logger;
 
@@ -31,6 +32,7 @@ public class FinancialController : Controller
         ICodaParserService codaParserService,
         IBankReconciliationService reconciliationService,
         IExcelExportService excelExportService,
+        IFinancialCalculationService financialCalculationService,
         IStringLocalizer<SharedResources> localizer,
         ILogger<FinancialController> logger)
     {
@@ -39,6 +41,7 @@ public class FinancialController : Controller
         _codaParserService = codaParserService;
         _reconciliationService = reconciliationService;
         _excelExportService = excelExportService;
+        _financialCalculationService = financialCalculationService;
         _localizer = localizer;
         _logger = logger;
     }
@@ -76,41 +79,23 @@ public class FinancialController : Controller
             return NotFound();
         }
 
-        // Calculer les revenus (paiements confirmés)
-        var totalRevenue = activity.Bookings
-            .SelectMany(b => b.Payments)
-            .Where(p => p.Status == Core.Enums.PaymentStatus.Paid)
-            .Sum(p => p.Amount);
-
-        // Calculer les dépenses organisation (carte/caisse uniquement)
+        // Load expenses for calculations
         var expenses = await _context.Expenses
             .Where(e => e.ActivityId == activityId.Value)
             .ToListAsync();
 
-        var organizationExpenses = expenses
-            .Where(e => !e.TeamMemberId.HasValue)
-            .Sum(e => e.Amount);
+        // Calculate financial metrics using service
+        var totalRevenue = _financialCalculationService.CalculateTotalRevenue(activity);
+        var organizationExpenses = _financialCalculationService.CalculateOrganizationExpenses(expenses);
+        var teamMemberExpenses = _financialCalculationService.CalculateTeamMemberSalaries(activity, expenses);
+        var totalExpenses = _financialCalculationService.CalculateTotalExpenses(activity, expenses);
+        var pendingAmount = _financialCalculationService.CalculatePendingPayments(activity);
 
-        // Calculer les salaires estimés (jours × défraiement + remboursements - consommations)
-        var daysCount = activity.Days.Count;
-        var teamMemberExpenses = activity.TeamMembers.Sum(tm =>
-        {
-            var baseSalary = daysCount * (tm.DailyCompensation ?? 0);
-            var tmExpenses = expenses.Where(e => e.TeamMemberId == tm.TeamMemberId).ToList();
-            var reimbursements = tmExpenses.Where(e => e.ExpenseType == Core.Enums.ExpenseType.Reimbursement).Sum(e => e.Amount);
-            var consumptions = tmExpenses.Where(e => e.ExpenseType == Core.Enums.ExpenseType.PersonalConsumption).Sum(e => e.Amount);
-            return baseSalary + reimbursements - consumptions;
-        });
-
-        var totalExpenses = organizationExpenses + teamMemberExpenses;
-
-        // Paiements en attente
+        // Count pending bookings for display
         var pendingBookings = activity.Bookings
             .Where(b => b.PaymentStatus == Core.Enums.PaymentStatus.NotPaid ||
                        b.PaymentStatus == Core.Enums.PaymentStatus.PartiallyPaid)
             .ToList();
-
-        var pendingAmount = pendingBookings.Sum(b => b.TotalAmount - b.PaidAmount);
 
         var viewModel = new ActivityFinancialDashboardViewModel
         {
@@ -325,13 +310,15 @@ public class FinancialController : Controller
                 .Where(e => e.TeamMemberId == teamMember.TeamMemberId && e.ActivityId == activityId.Value)
                 .ToListAsync();
 
+            // Calculate salary using service
+            var totalToPay = _financialCalculationService.CalculateTeamMemberSalary(teamMember, daysCount, expenses);
+
+            // Separate expense types for display details
             var reimbursements = expenses.Where(e => e.ExpenseType == Core.Enums.ExpenseType.Reimbursement).ToList();
             var personalConsumptions = expenses.Where(e => e.ExpenseType == Core.Enums.ExpenseType.PersonalConsumption).ToList();
-
             var reimbursementsTotal = reimbursements.Sum(e => e.Amount);
             var personalConsumptionsTotal = personalConsumptions.Sum(e => e.Amount);
             var prestations = daysCount * (teamMember.DailyCompensation ?? 0);
-            var totalToPay = prestations + reimbursementsTotal - personalConsumptionsTotal;
 
             var salary = new TeamSalaryViewModel
             {

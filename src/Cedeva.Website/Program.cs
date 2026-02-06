@@ -7,6 +7,7 @@ using Cedeva.Infrastructure.Identity;
 using Cedeva.Infrastructure.Services;
 using Cedeva.Infrastructure.Services.Email;
 using Cedeva.Infrastructure.Services.Excel;
+using Cedeva.Infrastructure.Services.Financial;
 using Cedeva.Infrastructure.Services.Pdf;
 using Cedeva.Infrastructure.Services.Storage;
 using Cedeva.Website.Localization;
@@ -71,6 +72,7 @@ try
         containerBuilder.RegisterType<CodaParserService>().As<ICodaParserService>().InstancePerLifetimeScope();
         containerBuilder.RegisterType<BankReconciliationService>().As<IBankReconciliationService>().InstancePerLifetimeScope();
         containerBuilder.RegisterType<ExcursionService>().As<IExcursionService>().InstancePerLifetimeScope();
+        containerBuilder.RegisterType<FinancialCalculationService>().As<IFinancialCalculationService>().InstancePerLifetimeScope();
         containerBuilder.RegisterType<UnitOfWork>().As<IUnitOfWork>().InstancePerLifetimeScope();
         containerBuilder.RegisterGeneric(typeof(Repository<>)).As(typeof(IRepository<>)).InstancePerLifetimeScope();
     });
