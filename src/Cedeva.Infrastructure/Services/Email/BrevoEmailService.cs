@@ -57,6 +57,11 @@ public class BrevoEmailService : IEmailService
             _logger.LogInformation("Sending email FROM {SenderEmail} TO {Recipients} with subject '{Subject}'",
                 _senderEmail, string.Join(", ", to), subject);
             _logger.LogDebug("Request payload: {Payload}", json);
+            _logger.LogDebug("HttpClient BaseAddress: {BaseAddress}", _httpClient.BaseAddress);
+            _logger.LogDebug("Full request URL will be: {FullUrl}",
+                _httpClient.BaseAddress != null
+                    ? new Uri(_httpClient.BaseAddress, "smtp/email").ToString()
+                    : "smtp/email (NO BASE ADDRESS SET!)");
 
             var response = await _httpClient.PostAsync("smtp/email", content);
 
