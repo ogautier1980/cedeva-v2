@@ -245,18 +245,8 @@ public class UsersController : Controller
 
             if (result.Succeeded)
             {
-                // Update password if provided
-                if (!string.IsNullOrEmpty(viewModel.Password))
-                {
-                    var token = await _userManager.GeneratePasswordResetTokenAsync(user);
-                    await _userManager.ResetPasswordAsync(user, token, viewModel.Password);
-                }
-
-                // Update role
-                var currentRoles = await _userManager.GetRolesAsync(user);
-                await _userManager.RemoveFromRolesAsync(user, currentRoles);
-                var roleName = viewModel.Role == Role.Admin ? "Admin" : "Coordinator";
-                await _userManager.AddToRoleAsync(user, roleName);
+                await UpdateUserPasswordIfProvided(user, viewModel.Password);
+                await UpdateUserRole(user, viewModel.Role);
 
                 TempData[TempDataSuccessMessage] = _localizer["Message.UserUpdated"].Value;
                 return RedirectToAction(nameof(Details), new { id = user.Id });
@@ -315,6 +305,23 @@ public class UsersController : Controller
         }
 
         return RedirectToAction(nameof(Delete), new { id });
+    }
+
+    private async Task UpdateUserPasswordIfProvided(CedevaUser user, string? password)
+    {
+        if (!string.IsNullOrEmpty(password))
+        {
+            var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+            await _userManager.ResetPasswordAsync(user, token, password);
+        }
+    }
+
+    private async Task UpdateUserRole(CedevaUser user, Role role)
+    {
+        var currentRoles = await _userManager.GetRolesAsync(user);
+        await _userManager.RemoveFromRolesAsync(user, currentRoles);
+        var roleName = role == Role.Admin ? "Admin" : "Coordinator";
+        await _userManager.AddToRoleAsync(user, roleName);
     }
 
     private async Task PopulateOrganisationDropdown(int? selectedOrganisationId = null)
