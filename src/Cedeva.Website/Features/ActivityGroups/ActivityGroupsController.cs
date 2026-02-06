@@ -2,6 +2,7 @@ using Cedeva.Core.Entities;
 using Cedeva.Core.Interfaces;
 using Cedeva.Infrastructure.Data;
 using Cedeva.Website.Features.ActivityGroups.ViewModels;
+using Cedeva.Website.Infrastructure;
 using Cedeva.Website.Localization;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -177,12 +178,7 @@ public class ActivityGroupsController : Controller
 
         TempData[TempDataSuccessMessage] = _localizer["ActivityGroups.UpdateSuccess"].ToString();
 
-        // Redirect to return URL if provided, otherwise to Index
-        if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
-        {
-            return Redirect(returnUrl);
-        }
-        return RedirectToAction(nameof(Index));
+        return this.RedirectToReturnUrlOrAction(returnUrl, nameof(Index));
     }
 
     // GET: ActivityGroups/Delete/5
