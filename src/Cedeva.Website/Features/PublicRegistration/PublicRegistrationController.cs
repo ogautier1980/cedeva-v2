@@ -456,34 +456,16 @@ public class PublicRegistrationController : Controller
     [AllowAnonymous]
     public async Task<IActionResult> Register(SimpleRegistrationViewModel model, string? bg)
     {
-        // Load questions for validation
+        // Load and validate questions
         var questions = await _context.ActivityQuestions
             .Where(q => q.ActivityId == model.ActivityId)
             .ToListAsync();
 
-        // Validate required questions
-        var requiredQuestions = questions.Where(q => q.IsRequired).ToList();
-        foreach (var question in requiredQuestions)
-        {
-            if (!model.QuestionAnswers.ContainsKey(question.Id) ||
-                string.IsNullOrWhiteSpace(model.QuestionAnswers[question.Id]))
-            {
-                ModelState.AddModelError("", $"{_localizer["PublicRegistration.QuestionRequired"]}: {question.QuestionText}");
-            }
-        }
+        ValidateRequiredQuestions(questions, model);
 
         if (!ModelState.IsValid)
         {
-            // Reload activity info
-            var activity = await _context.Activities.FindAsync(model.ActivityId);
-            if (activity != null)
-            {
-                model.ActivityName = activity.Name;
-                model.ActivityDescription = activity.Description;
-                model.ActivityStartDate = activity.StartDate;
-                model.ActivityEndDate = activity.EndDate;
-                model.PricePerDay = activity.PricePerDay;
-            }
+            await ReloadModelWithActivityInfoAsync(model);
             ViewBag.Questions = questions;
             ViewBag.BackgroundColor = bg ?? "ffffff";
             return View(model);
@@ -495,12 +477,71 @@ public class PublicRegistrationController : Controller
             return NotFound();
         }
 
-        // Check/create parent
+        // Create or update parent and child
+        var parentId = await CreateOrUpdateParentAsync(model, activityEntity.OrganisationId);
+        var childId = await CreateOrUpdateChildAsync(model, parentId);
+
+        // Check if booking already exists
+        var existingBooking = await _context.Bookings
+            .AnyAsync(b => b.ActivityId == model.ActivityId && b.ChildId == childId);
+
+        if (existingBooking)
+        {
+            ModelState.AddModelError("", _localizer["Message.BookingAlreadyExists"]);
+            await ReloadModelWithActivityInfoAsync(model);
+            ViewBag.Questions = questions;
+            ViewBag.BackgroundColor = bg ?? "ffffff";
+            return View(model);
+        }
+
+        // Create booking with answers
+        var bookingId = await CreateBookingWithAnswersAsync(model, childId, questions);
+
+        // Send confirmation email
+        var parent = await _context.Parents.FindAsync(parentId);
+        var child = await _context.Children.FindAsync(childId);
+        var booking = await _context.Bookings.FindAsync(bookingId);
+
+        if (parent != null && child != null && booking != null)
+        {
+            await SendConfirmationEmail(parent, child, activityEntity, booking);
+        }
+
+        return RedirectToAction(nameof(Confirmation), new { bookingId });
+    }
+
+    private void ValidateRequiredQuestions(List<ActivityQuestion> questions, SimpleRegistrationViewModel model)
+    {
+        var requiredQuestions = questions.Where(q => q.IsRequired).ToList();
+        foreach (var question in requiredQuestions)
+        {
+            if (!model.QuestionAnswers.ContainsKey(question.Id) ||
+                string.IsNullOrWhiteSpace(model.QuestionAnswers[question.Id]))
+            {
+                ModelState.AddModelError("", $"{_localizer["PublicRegistration.QuestionRequired"]}: {question.QuestionText}");
+            }
+        }
+    }
+
+    private async Task ReloadModelWithActivityInfoAsync(SimpleRegistrationViewModel model)
+    {
+        var activity = await _context.Activities.FindAsync(model.ActivityId);
+        if (activity != null)
+        {
+            model.ActivityName = activity.Name;
+            model.ActivityDescription = activity.Description;
+            model.ActivityStartDate = activity.StartDate;
+            model.ActivityEndDate = activity.EndDate;
+            model.PricePerDay = activity.PricePerDay;
+        }
+    }
+
+    private async Task<int> CreateOrUpdateParentAsync(SimpleRegistrationViewModel model, int organisationId)
+    {
         var existingParent = await _context.Parents
             .Include(p => p.Address)
-            .FirstOrDefaultAsync(p => p.Email == model.ParentEmail && p.OrganisationId == activityEntity.OrganisationId);
+            .FirstOrDefaultAsync(p => p.Email == model.ParentEmail && p.OrganisationId == organisationId);
 
-        int parentId;
         if (existingParent != null)
         {
             existingParent.FirstName = model.ParentFirstName;
@@ -526,7 +567,7 @@ public class PublicRegistrationController : Controller
                 };
             }
             await _context.SaveChangesAsync();
-            parentId = existingParent.Id;
+            return existingParent.Id;
         }
         else
         {
@@ -547,19 +588,20 @@ public class PublicRegistrationController : Controller
                 MobilePhoneNumber = model.ParentMobilePhoneNumber ?? string.Empty,
                 NationalRegisterNumber = model.ParentNationalRegisterNumber ?? string.Empty,
                 Address = address,
-                OrganisationId = activityEntity.OrganisationId
+                OrganisationId = organisationId
             };
 
             _context.Parents.Add(newParent);
             await _context.SaveChangesAsync();
-            parentId = newParent.Id;
+            return newParent.Id;
         }
+    }
 
-        // Check/create child
+    private async Task<int> CreateOrUpdateChildAsync(SimpleRegistrationViewModel model, int parentId)
+    {
         var existingChild = await _context.Children
             .FirstOrDefaultAsync(c => c.NationalRegisterNumber == model.ChildNationalRegisterNumber && c.ParentId == parentId);
 
-        int childId;
         if (existingChild != null)
         {
             existingChild.FirstName = model.ChildFirstName;
@@ -569,7 +611,7 @@ public class PublicRegistrationController : Controller
             existingChild.IsMildDisability = model.IsMildDisability;
             existingChild.IsSevereDisability = model.IsSevereDisability;
             await _context.SaveChangesAsync();
-            childId = existingChild.Id;
+            return existingChild.Id;
         }
         else
         {
@@ -586,27 +628,12 @@ public class PublicRegistrationController : Controller
             };
             _context.Children.Add(newChild);
             await _context.SaveChangesAsync();
-            childId = newChild.Id;
+            return newChild.Id;
         }
+    }
 
-        // Check if booking already exists
-        var existingBooking = await _context.Bookings
-            .AnyAsync(b => b.ActivityId == model.ActivityId && b.ChildId == childId);
-
-        if (existingBooking)
-        {
-            ModelState.AddModelError("", _localizer["Message.BookingAlreadyExists"]);
-            model.ActivityName = activityEntity.Name;
-            model.ActivityDescription = activityEntity.Description;
-            model.ActivityStartDate = activityEntity.StartDate;
-            model.ActivityEndDate = activityEntity.EndDate;
-            model.PricePerDay = activityEntity.PricePerDay;
-            ViewBag.Questions = questions;
-            ViewBag.BackgroundColor = bg ?? "ffffff";
-            return View(model);
-        }
-
-        // Create booking
+    private async Task<int> CreateBookingWithAnswersAsync(SimpleRegistrationViewModel model, int childId, List<ActivityQuestion> questions)
+    {
         var booking = new Booking
         {
             ActivityId = model.ActivityId,
@@ -632,16 +659,7 @@ public class PublicRegistrationController : Controller
         }
         await _context.SaveChangesAsync();
 
-        // Send confirmation email
-        var parent = await _context.Parents.FindAsync(parentId);
-        var child = await _context.Children.FindAsync(childId);
-
-        if (parent != null && child != null)
-        {
-            await SendConfirmationEmail(parent, child, activityEntity, booking);
-        }
-
-        return RedirectToAction(nameof(Confirmation), new { bookingId = booking.Id });
+        return booking.Id;
     }
 
     // GET: PublicRegistration/EmbedCode?activityId=1
