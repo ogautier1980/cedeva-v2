@@ -69,6 +69,12 @@ public class CedevaDbContext : IdentityDbContext<CedevaUser>, IUnitOfWork
                                  _currentUserService.IsAdmin ||
                                  p.OrganisationId == _currentUserService.OrganisationId);
 
+        // Filter children by organisation (via parent relationship)
+        builder.Entity<Child>()
+            .HasQueryFilter(c => _currentUserService == null ||
+                                 _currentUserService.IsAdmin ||
+                                 c.Parent.OrganisationId == _currentUserService.OrganisationId);
+
         // Filter team members by organisation
         builder.Entity<TeamMember>()
             .HasQueryFilter(t => _currentUserService == null ||
