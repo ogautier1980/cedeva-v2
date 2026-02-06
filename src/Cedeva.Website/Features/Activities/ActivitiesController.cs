@@ -160,28 +160,14 @@ public class ActivitiesController : Controller
     {
         if (!ModelState.IsValid)
         {
-            // Reload organisations for admins
-            if (_currentUserService.IsAdmin)
-            {
-                ViewBag.Organisations = await _context.Organisations
-                    .IgnoreQueryFilters()
-                    .Select(o => new { o.Id, o.Name })
-                    .ToListAsync();
-            }
+            await ReloadOrganisationsForAdmin();
             return View(viewModel);
         }
 
         if (viewModel.EndDate < viewModel.StartDate)
         {
             ModelState.AddModelError("EndDate", _localizer["Validation.EndDateAfterStartDate"]);
-            // Reload organisations for admins
-            if (_currentUserService.IsAdmin)
-            {
-                ViewBag.Organisations = await _context.Organisations
-                    .IgnoreQueryFilters()
-                    .Select(o => new { o.Id, o.Name })
-                    .ToListAsync();
-            }
+            await ReloadOrganisationsForAdmin();
             return View(viewModel);
         }
 
@@ -191,14 +177,10 @@ public class ActivitiesController : Controller
             return Forbid();
         }
 
-        // For admins, validate that an organisation is selected
         if (_currentUserService.IsAdmin && viewModel.OrganisationId == 0)
         {
             ModelState.AddModelError("OrganisationId", _localizer["Validation.OrganisationRequired"]);
-            ViewBag.Organisations = await _context.Organisations
-                .IgnoreQueryFilters()
-                .Select(o => new { o.Id, o.Name })
-                .ToListAsync();
+            await ReloadOrganisationsForAdmin();
             return View(viewModel);
         }
 
@@ -215,7 +197,30 @@ public class ActivitiesController : Controller
             OrganisationId = _currentUserService.IsAdmin ? viewModel.OrganisationId : organisationId!.Value
         };
 
-        // Generate activity days (weekdays active by default, weekends inactive)
+        GenerateActivityDays(activity);
+
+        _context.Activities.Add(activity);
+        await _context.SaveChangesAsync();
+
+        _logger.LogInformation("Activity {Name} created by user {UserId}", activity.Name, _currentUserService.UserId);
+
+        TempData[TempDataSuccessMessage] = _localizer["Message.ActivityCreated"].Value;
+        return RedirectToAction(nameof(Index));
+    }
+
+    private async Task ReloadOrganisationsForAdmin()
+    {
+        if (_currentUserService.IsAdmin)
+        {
+            ViewBag.Organisations = await _context.Organisations
+                .IgnoreQueryFilters()
+                .Select(o => new { o.Id, o.Name })
+                .ToListAsync();
+        }
+    }
+
+    private void GenerateActivityDays(Activity activity)
+    {
         for (var date = activity.StartDate; date <= activity.EndDate; date = date.AddDays(1))
         {
             var isWeekend = date.DayOfWeek == DayOfWeek.Saturday || date.DayOfWeek == DayOfWeek.Sunday;
@@ -225,17 +230,9 @@ public class ActivitiesController : Controller
                 Label = date.ToString("dddd d MMMM", new System.Globalization.CultureInfo("fr-BE")),
                 DayDate = date,
                 Week = GetWeekNumber(date, activity.StartDate),
-                IsActive = !isWeekend  // Active by default only for weekdays
+                IsActive = !isWeekend
             });
         }
-
-        _context.Activities.Add(activity);
-        await _context.SaveChangesAsync();
-
-        _logger.LogInformation("Activity {Name} created by user {UserId}", activity.Name, _currentUserService.UserId);
-
-        TempData[TempDataSuccessMessage] = _localizer["Message.ActivityCreated"].Value;
-        return RedirectToAction(nameof(Index));
     }
 
     public async Task<IActionResult> Edit(int id, string? returnUrl = null)
