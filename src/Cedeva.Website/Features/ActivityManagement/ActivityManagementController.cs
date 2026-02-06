@@ -147,6 +147,20 @@ public class ActivityManagementController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [ActionName("BeginGroupAssignment")]
+    public IActionResult GroupAssignmentPost(int id)
+    {
+        if (!ModelState.IsValid)
+        {
+            return RedirectToAction(nameof(Index));
+        }
+
+        _activitySelectionService.SetSelectedActivityId(id);
+        return RedirectToAction(nameof(GroupAssignment));
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> ConfirmBooking(int bookingId, int? groupId)
     {
         if (!ModelState.IsValid)
@@ -880,4 +894,94 @@ public class ActivityManagementController : Controller
     /// <summary>
     /// Sets the selected activity ID in both session and persistent cookie
     /// </summary>
+
+    // GET: ActivityManagement/GroupAssignment
+    public async Task<IActionResult> GroupAssignment()
+    {
+        var selectedActivityId = _activitySelectionService.GetSelectedActivityId();
+        if (selectedActivityId == null)
+        {
+            TempData[TempDataErrorMessage] = _localizer["ActivityManagement.SelectActivity"].Value;
+            return RedirectToAction(nameof(Index));
+        }
+
+        var activity = await _context.Activities
+            .Include(a => a.Groups)
+            .FirstOrDefaultAsync(a => a.Id == selectedActivityId.Value);
+
+        if (activity == null)
+        {
+            return NotFound();
+        }
+
+        // Get all confirmed bookings without a group
+        var unassignedBookings = await _context.Bookings
+            .Include(b => b.Child)
+            .Where(b => b.ActivityId == selectedActivityId.Value
+                     && b.IsConfirmed
+                     && b.GroupId == null)
+            .OrderBy(b => b.Child.LastName)
+            .ThenBy(b => b.Child.FirstName)
+            .ToListAsync();
+
+        var viewModel = new GroupAssignmentViewModel
+        {
+            ActivityId = activity.Id,
+            ActivityName = activity.Name,
+            UnassignedChildren = unassignedBookings.Select(b => new UnassignedChildViewModel
+            {
+                BookingId = b.Id,
+                ChildId = b.ChildId,
+                FirstName = b.Child.FirstName,
+                LastName = b.Child.LastName,
+                BirthDate = b.Child.BirthDate
+            }).ToList(),
+            GroupOptions = activity.Groups
+                .OrderBy(g => g.Label)
+                .Select(g => new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem
+                {
+                    Value = g.Id.ToString(),
+                    Text = g.Label
+                })
+                .ToList()
+        };
+
+        return View(viewModel);
+    }
+
+    // POST: ActivityManagement/AssignToGroup
+    [HttpPost]
+    public async Task<IActionResult> AssignToGroup([FromBody] AssignToGroupRequest request)
+    {
+        try
+        {
+            var booking = await _context.Bookings.FindAsync(request.BookingId);
+            if (booking == null)
+            {
+                return NotFound(new { success = false, message = _localizer["Message.BookingNotFound"].Value });
+            }
+
+            var group = await _context.ActivityGroups.FindAsync(request.GroupId);
+            if (group == null)
+            {
+                return NotFound(new { success = false, message = _localizer["Message.GroupNotFound"].Value });
+            }
+
+            booking.GroupId = request.GroupId;
+            await _context.SaveChangesAsync();
+
+            return Ok(new { success = true, message = _localizer["Message.GroupAssigned"].Value });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error assigning booking {BookingId} to group {GroupId}", request.BookingId, request.GroupId);
+            return StatusCode(500, new { success = false, message = _localizer["Message.ErrorOccurred"].Value });
+        }
+    }
+
+    public class AssignToGroupRequest
+    {
+        public int BookingId { get; set; }
+        public int GroupId { get; set; }
+    }
 }

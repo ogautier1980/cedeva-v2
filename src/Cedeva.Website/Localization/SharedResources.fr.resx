@@ -397,6 +397,9 @@
   <data name="ActivityManagement.Accounts" xml:space="preserve">
     <value>Comptes</value>
   </data>
+  <data name="ActivityManagement.AllChildrenAssigned" xml:space="preserve">
+    <value>Tous les enfants sont déjà assignés à un groupe.</value>
+  </data>
   <data name="ActivityManagement.AllMembersAssigned" xml:space="preserve">
     <value>Tous les membres de l'équipe sont déjà assignés à cette activité.</value>
   </data>
@@ -423,6 +426,9 @@
   </data>
   <data name="ActivityManagement.Exit" xml:space="preserve">
     <value>Quitter la gestion d'activité</value>
+  </data>
+  <data name="ActivityManagement.GroupAssignment" xml:space="preserve">
+    <value>Sélection de groupe</value>
   </data>
   <data name="ActivityManagement.ManageActivity" xml:space="preserve">
     <value>Gérer l'activité</value>
@@ -474,6 +480,9 @@
   </data>
   <data name="ActivityManagement.TeamManagement" xml:space="preserve">
     <value>Gestion de l'équipe</value>
+  </data>
+  <data name="ActivityManagement.UnassignedChildren" xml:space="preserve">
+    <value>Enfants non assignés</value>
   </data>
   <data name="ActivityManagement.UpdateError" xml:space="preserve">
     <value>Erreur lors de la mise à jour de la présence.</value>
@@ -2134,6 +2143,9 @@
   <data name="Message.BookingDayNotFound" xml:space="preserve">
     <value>Jour de réservation introuvable</value>
   </data>
+  <data name="Message.BookingNotFound" xml:space="preserve">
+    <value>Inscription introuvable</value>
+  </data>
   <data name="Message.BookingDeleted" xml:space="preserve">
     <value>L'inscription a été supprimée avec succès.</value>
   </data>
@@ -2169,6 +2181,12 @@
   </data>
   <data name="Message.ExpenseUpdated" xml:space="preserve">
     <value>Dépense mise à jour avec succès</value>
+  </data>
+  <data name="Message.GroupAssigned" xml:space="preserve">
+    <value>Enfant assigné au groupe avec succès</value>
+  </data>
+  <data name="Message.GroupNotFound" xml:space="preserve">
+    <value>Groupe introuvable</value>
   </data>
   <data name="Message.NoRecipientsFound" xml:space="preserve">
     <value>Aucun destinataire trouvé</value>

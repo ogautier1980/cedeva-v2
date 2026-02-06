@@ -397,6 +397,9 @@
   <data name="ActivityManagement.Accounts" xml:space="preserve">
     <value>Accounts</value>
   </data>
+  <data name="ActivityManagement.AllChildrenAssigned" xml:space="preserve">
+    <value>All children are already assigned to a group.</value>
+  </data>
   <data name="ActivityManagement.AllMembersAssigned" xml:space="preserve">
     <value>All team members are already assigned to this activity.</value>
   </data>
@@ -420,6 +423,9 @@
   </data>
   <data name="ActivityManagement.Exit" xml:space="preserve">
     <value>Exit Activity Management</value>
+  </data>
+  <data name="ActivityManagement.GroupAssignment" xml:space="preserve">
+    <value>Group Assignment</value>
   </data>
   <data name="ActivityManagement.ManageActivity" xml:space="preserve">
     <value>Manage Activity</value>
@@ -471,6 +477,9 @@
   </data>
   <data name="ActivityManagement.TeamManagement" xml:space="preserve">
     <value>Team Management</value>
+  </data>
+  <data name="ActivityManagement.UnassignedChildren" xml:space="preserve">
+    <value>Unassigned Children</value>
   </data>
   <data name="ActivityManagement.UpdateError" xml:space="preserve">
     <value>Error updating attendance.</value>
@@ -2131,6 +2140,9 @@
   <data name="Message.BookingDayNotFound" xml:space="preserve">
     <value>[EN] Jour de réservation introuvable</value>
   </data>
+  <data name="Message.BookingNotFound" xml:space="preserve">
+    <value>Booking not found</value>
+  </data>
   <data name="Message.BookingDeleted" xml:space="preserve">
     <value>[EN] L'inscription a été supprimée avec succès.</value>
   </data>
@@ -2166,6 +2178,12 @@
   </data>
   <data name="Message.ExpenseUpdated" xml:space="preserve">
     <value>[EN] Dépense mise à jour avec succès</value>
+  </data>
+  <data name="Message.GroupAssigned" xml:space="preserve">
+    <value>Child successfully assigned to group</value>
+  </data>
+  <data name="Message.GroupNotFound" xml:space="preserve">
+    <value>Group not found</value>
   </data>
   <data name="Message.NoRecipientsFound" xml:space="preserve">
     <value>[EN] Aucun destinataire trouvé</value>
