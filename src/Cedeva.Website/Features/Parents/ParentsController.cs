@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Localization;
+using Cedeva.Website.Infrastructure;
 
 namespace Cedeva.Website.Features.Parents;
 
@@ -41,23 +42,23 @@ public class ParentsController : Controller
         _localizer = localizer;
     }
 
-    public async Task<IActionResult> Index(string? searchString, string? sortBy = null, string? sortOrder = "asc", int pageNumber = 1, int pageSize = 10)
+    public async Task<IActionResult> Index([FromQuery] ParentQueryParameters queryParams)
     {
         var query = _context.Parents
             .Include(p => p.Address)
             .Include(p => p.Children)
             .AsQueryable();
 
-        if (!string.IsNullOrWhiteSpace(searchString))
+        if (!string.IsNullOrWhiteSpace(queryParams.SearchString))
         {
             query = query.Where(p =>
-                p.FirstName.Contains(searchString) ||
-                p.LastName.Contains(searchString) ||
-                p.Email.Contains(searchString));
+                p.FirstName.Contains(queryParams.SearchString) ||
+                p.LastName.Contains(queryParams.SearchString) ||
+                p.Email.Contains(queryParams.SearchString));
         }
 
         // Apply sorting
-        query = (sortBy?.ToLower(), sortOrder?.ToLower()) switch
+        query = (queryParams.SortBy?.ToLower(), queryParams.SortOrder?.ToLower()) switch
         {
             ("firstname", "asc") => query.OrderBy(p => p.FirstName),
             ("firstname", "desc") => query.OrderByDescending(p => p.FirstName),
@@ -69,12 +70,7 @@ public class ParentsController : Controller
             _ => query.OrderBy(p => p.LastName).ThenBy(p => p.FirstName)
         };
 
-        var totalItems = await query.CountAsync();
-        var totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
-
-        var parents = await query
-            .Skip((pageNumber - 1) * pageSize)
-            .Take(pageSize)
+        var pagedResult = await query
             .Select(p => new ParentViewModel
             {
                 Id = p.Id,
@@ -90,22 +86,22 @@ public class ParentsController : Controller
                 Country = p.Address.Country,
                 ChildrenCount = p.Children.Count
             })
-            .ToListAsync();
+            .ToPaginatedListAsync(queryParams.PageNumber, queryParams.PageSize);
 
-        ViewData["SortBy"] = sortBy;
-        ViewData["SortOrder"] = sortOrder;
-        ViewData["PageNumber"] = pageNumber;
-        ViewData["PageSize"] = pageSize;
-        ViewData["TotalPages"] = totalPages;
-        ViewData["TotalItems"] = totalItems;
+        ViewData["SortBy"] = queryParams.SortBy;
+        ViewData["SortOrder"] = queryParams.SortOrder;
+        ViewData["PageNumber"] = pagedResult.PageNumber;
+        ViewData["PageSize"] = pagedResult.PageSize;
+        ViewData["TotalPages"] = pagedResult.TotalPages;
+        ViewData["TotalItems"] = pagedResult.TotalItems;
 
         var viewModel = new ParentListViewModel
         {
-            Parents = parents,
-            SearchTerm = searchString,
-            CurrentPage = pageNumber,
-            TotalPages = totalPages,
-            PageSize = pageSize
+            Parents = pagedResult.Items,
+            SearchTerm = queryParams.SearchString,
+            CurrentPage = pagedResult.PageNumber,
+            TotalPages = pagedResult.TotalPages,
+            PageSize = pagedResult.PageSize
         };
 
         return View(viewModel);

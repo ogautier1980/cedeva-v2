@@ -2,6 +2,7 @@ using Cedeva.Core.Entities;
 using Cedeva.Core.Interfaces;
 using Cedeva.Infrastructure.Data;
 using Cedeva.Website.Features.Activities.ViewModels;
+using Cedeva.Website.Infrastructure;
 using Cedeva.Website.Localization;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -39,7 +40,7 @@ public class ActivitiesController : Controller
         _localizer = localizer;
     }
 
-    public async Task<IActionResult> Index(string? searchString, bool? showActiveOnly, string? sortBy = null, string? sortOrder = "asc", int pageNumber = 1, int pageSize = 10)
+    public async Task<IActionResult> Index([FromQuery] ActivityQueryParameters queryParams)
     {
         var query = _context.Activities
             .Include(a => a.Organisation)
@@ -48,18 +49,18 @@ public class ActivitiesController : Controller
             .Include(a => a.TeamMembers)
             .AsQueryable();
 
-        if (!string.IsNullOrWhiteSpace(searchString))
+        if (!string.IsNullOrWhiteSpace(queryParams.SearchString))
         {
-            query = query.Where(a => a.Name.Contains(searchString) || a.Description.Contains(searchString));
+            query = query.Where(a => a.Name.Contains(queryParams.SearchString) || a.Description.Contains(queryParams.SearchString));
         }
 
-        if (showActiveOnly == true)
+        if (queryParams.ShowActiveOnly == true)
         {
             query = query.Where(a => a.IsActive);
         }
 
         // Apply sorting
-        query = (sortBy?.ToLower(), sortOrder?.ToLower()) switch
+        query = (queryParams.SortBy?.ToLower(), queryParams.SortOrder?.ToLower()) switch
         {
             ("name", "asc") => query.OrderBy(a => a.Name),
             ("name", "desc") => query.OrderByDescending(a => a.Name),
@@ -72,12 +73,7 @@ public class ActivitiesController : Controller
             _ => query.OrderByDescending(a => a.StartDate)
         };
 
-        var totalItems = await query.CountAsync();
-        var totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
-
-        var activities = await query
-            .Skip((pageNumber - 1) * pageSize)
-            .Take(pageSize)
+        var pagedResult = await query
             .Select(a => new ActivityViewModel
             {
                 Id = a.Id,
@@ -93,25 +89,25 @@ public class ActivitiesController : Controller
                 GroupsCount = a.Groups.Count,
                 TeamMembersCount = a.TeamMembers.Count
             })
-            .ToListAsync();
+            .ToPaginatedListAsync(queryParams.PageNumber, queryParams.PageSize);
 
-        ViewData["SearchString"] = searchString;
-        ViewData["ShowActiveOnly"] = showActiveOnly;
-        ViewData["SortBy"] = sortBy;
-        ViewData["SortOrder"] = sortOrder;
-        ViewData["PageNumber"] = pageNumber;
-        ViewData["PageSize"] = pageSize;
-        ViewData["TotalPages"] = totalPages;
-        ViewData["TotalItems"] = totalItems;
+        ViewData["SearchString"] = queryParams.SearchString;
+        ViewData["ShowActiveOnly"] = queryParams.ShowActiveOnly;
+        ViewData["SortBy"] = queryParams.SortBy;
+        ViewData["SortOrder"] = queryParams.SortOrder;
+        ViewData["PageNumber"] = pagedResult.PageNumber;
+        ViewData["PageSize"] = pagedResult.PageSize;
+        ViewData["TotalPages"] = pagedResult.TotalPages;
+        ViewData["TotalItems"] = pagedResult.TotalItems;
 
         var viewModel = new ActivityListViewModel
         {
-            Activities = activities,
-            SearchTerm = searchString,
-            ShowActiveOnly = showActiveOnly,
-            CurrentPage = pageNumber,
-            TotalPages = totalPages,
-            PageSize = pageSize
+            Activities = pagedResult.Items,
+            SearchTerm = queryParams.SearchString,
+            ShowActiveOnly = queryParams.ShowActiveOnly,
+            CurrentPage = pagedResult.PageNumber,
+            TotalPages = pagedResult.TotalPages,
+            PageSize = pagedResult.PageSize
         };
 
         return View(viewModel);

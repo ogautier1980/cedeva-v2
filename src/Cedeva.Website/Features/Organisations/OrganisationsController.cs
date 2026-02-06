@@ -7,6 +7,7 @@ using Cedeva.Core.Interfaces;
 using Cedeva.Website.Features.Organisations.ViewModels;
 using Cedeva.Website.Localization;
 using Cedeva.Infrastructure.Data;
+using Cedeva.Website.Infrastructure;
 
 namespace Cedeva.Website.Features.Organisations;
 
@@ -45,7 +46,7 @@ public class OrganisationsController : Controller
     }
 
     // GET: Organisations
-    public async Task<IActionResult> Index(string? searchString, string? sortBy = null, string? sortOrder = "asc", int pageNumber = 1, int pageSize = 10)
+    public async Task<IActionResult> Index([FromQuery] OrganisationQueryParameters queryParams)
     {
         var query = _context.Organisations
             .Include(o => o.Address)
@@ -55,15 +56,15 @@ public class OrganisationsController : Controller
             .Include(o => o.Users)
             .AsQueryable();
 
-        if (!string.IsNullOrEmpty(searchString))
+        if (!string.IsNullOrEmpty(queryParams.SearchString))
         {
             query = query.Where(o =>
-                o.Name.Contains(searchString, StringComparison.OrdinalIgnoreCase) ||
-                o.Description.Contains(searchString, StringComparison.OrdinalIgnoreCase));
+                o.Name.Contains(queryParams.SearchString, StringComparison.OrdinalIgnoreCase) ||
+                o.Description.Contains(queryParams.SearchString, StringComparison.OrdinalIgnoreCase));
         }
 
         // Apply sorting
-        query = (sortBy?.ToLower(), sortOrder?.ToLower()) switch
+        query = (queryParams.SortBy?.ToLower(), queryParams.SortOrder?.ToLower()) switch
         {
             ("name", "desc") => query.OrderByDescending(o => o.Name),
             ("city", "asc") => query.OrderBy(o => o.Address.City),
@@ -73,12 +74,7 @@ public class OrganisationsController : Controller
             _ => query.OrderBy(o => o.Name) // default
         };
 
-        var totalItems = await query.CountAsync();
-        var totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
-
-        var organisations = await query
-            .Skip((pageNumber - 1) * pageSize)
-            .Take(pageSize)
+        var pagedResult = await query
             .Select(o => new OrganisationViewModel
             {
                 Id = o.Id,
@@ -95,17 +91,17 @@ public class OrganisationsController : Controller
                 TeamMembersCount = o.TeamMembers.Count,
                 UsersCount = o.Users.Count
             })
-            .ToListAsync();
+            .ToPaginatedListAsync(queryParams.PageNumber, queryParams.PageSize);
 
-        ViewData["SearchString"] = searchString;
-        ViewData["SortBy"] = sortBy;
-        ViewData["SortOrder"] = sortOrder;
-        ViewData["PageNumber"] = pageNumber;
-        ViewData["PageSize"] = pageSize;
-        ViewData["TotalPages"] = totalPages;
-        ViewData["TotalItems"] = totalItems;
+        ViewData["SearchString"] = queryParams.SearchString;
+        ViewData["SortBy"] = queryParams.SortBy;
+        ViewData["SortOrder"] = queryParams.SortOrder;
+        ViewData["PageNumber"] = pagedResult.PageNumber;
+        ViewData["PageSize"] = pagedResult.PageSize;
+        ViewData["TotalPages"] = pagedResult.TotalPages;
+        ViewData["TotalItems"] = pagedResult.TotalItems;
 
-        return View(organisations);
+        return View(pagedResult.Items);
     }
 
     // GET: Organisations/Details/5

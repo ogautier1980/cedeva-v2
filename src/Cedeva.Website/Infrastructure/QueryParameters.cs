@@ -56,7 +56,7 @@ public class ActivityQueryParameters : QueryParametersBase
 /// </summary>
 public class ChildQueryParameters : QueryParametersBase
 {
-    public int? OrganisationId { get; set; }
+    public int? ParentId { get; set; }
 }
 
 /// <summary>

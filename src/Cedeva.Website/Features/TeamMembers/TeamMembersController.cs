@@ -8,6 +8,7 @@ using Cedeva.Website.Localization;
 using Cedeva.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Localization;
+using Cedeva.Website.Infrastructure;
 
 namespace Cedeva.Website.Features.TeamMembers;
 
@@ -52,20 +53,20 @@ public class TeamMembersController : Controller
     }
 
     // GET: TeamMembers
-    public async Task<IActionResult> Index(string? searchString, string? sortBy = null, string? sortOrder = "asc", int pageNumber = 1, int pageSize = 10)
+    public async Task<IActionResult> Index([FromQuery] TeamMemberQueryParameters queryParams)
     {
         var query = _context.TeamMembers.AsQueryable();
 
-        if (!string.IsNullOrEmpty(searchString))
+        if (!string.IsNullOrEmpty(queryParams.SearchString))
         {
             query = query.Where(t =>
-                t.FirstName.Contains(searchString) ||
-                t.LastName.Contains(searchString) ||
-                t.Email.Contains(searchString));
+                t.FirstName.Contains(queryParams.SearchString) ||
+                t.LastName.Contains(queryParams.SearchString) ||
+                t.Email.Contains(queryParams.SearchString));
         }
 
         // Apply sorting
-        query = (sortBy?.ToLower(), sortOrder?.ToLower()) switch
+        query = (queryParams.SortBy?.ToLower(), queryParams.SortOrder?.ToLower()) switch
         {
             ("firstname", "asc") => query.OrderBy(t => t.FirstName).ThenBy(t => t.LastName),
             ("firstname", "desc") => query.OrderByDescending(t => t.FirstName).ThenByDescending(t => t.LastName),
@@ -79,12 +80,7 @@ public class TeamMembersController : Controller
             _ => query.OrderBy(t => t.LastName).ThenBy(t => t.FirstName) // default
         };
 
-        var totalItems = await query.CountAsync();
-        var totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
-
-        var teamMembers = await query
-            .Skip((pageNumber - 1) * pageSize)
-            .Take(pageSize)
+        var pagedResult = await query
             .Select(t => new TeamMemberViewModel
             {
                 TeamMemberId = t.TeamMemberId,
@@ -97,17 +93,17 @@ public class TeamMembersController : Controller
                 Status = t.Status,
                 OrganisationId = t.OrganisationId
             })
-            .ToListAsync();
+            .ToPaginatedListAsync(queryParams.PageNumber, queryParams.PageSize);
 
-        ViewData["SearchString"] = searchString;
-        ViewData["SortBy"] = sortBy;
-        ViewData["SortOrder"] = sortOrder;
-        ViewData["PageNumber"] = pageNumber;
-        ViewData["PageSize"] = pageSize;
-        ViewData["TotalPages"] = totalPages;
-        ViewData["TotalItems"] = totalItems;
+        ViewData["SearchString"] = queryParams.SearchString;
+        ViewData["SortBy"] = queryParams.SortBy;
+        ViewData["SortOrder"] = queryParams.SortOrder;
+        ViewData["PageNumber"] = pagedResult.PageNumber;
+        ViewData["PageSize"] = pagedResult.PageSize;
+        ViewData["TotalPages"] = pagedResult.TotalPages;
+        ViewData["TotalItems"] = pagedResult.TotalItems;
 
-        return View(teamMembers);
+        return View(pagedResult.Items);
     }
 
     // GET: TeamMembers/Export
