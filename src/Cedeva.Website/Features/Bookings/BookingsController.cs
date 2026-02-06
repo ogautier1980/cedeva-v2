@@ -337,38 +337,11 @@ public class BookingsController : Controller
             booking.IsConfirmed = viewModel.IsConfirmed;
             booking.IsMedicalSheet = viewModel.IsMedicalSheet;
 
-            // Update BookingDays based on selected activity day IDs
-            if (viewModel.SelectedActivityDayIds != null)
-            {
-                var selectedDayIds = viewModel.SelectedActivityDayIds;
-                var existingDayIds = booking.Days.Select(bd => bd.ActivityDayId).ToList();
-
-                // Remove deselected days
-                var daysToRemove = booking.Days.Where(bd => !selectedDayIds.Contains(bd.ActivityDayId)).ToList();
-                foreach (var dayToRemove in daysToRemove)
-                {
-                    _context.BookingDays.Remove(dayToRemove);
-                }
-
-                // Add newly selected days
-                var newDayIds = selectedDayIds.Except(existingDayIds).ToList();
-                foreach (var newDayId in newDayIds)
-                {
-                    var newBookingDay = new BookingDay
-                    {
-                        BookingId = booking.Id,
-                        ActivityDayId = newDayId,
-                        IsReserved = true,
-                        IsPresent = false
-                    };
-                    _context.BookingDays.Add(newBookingDay);
-                }
-            }
+            UpdateBookingDays(booking, viewModel.SelectedActivityDayIds);
 
             await _bookingRepository.UpdateAsync(booking);
             await _unitOfWork.SaveChangesAsync();
 
-            // Send confirmation email if booking was just confirmed
             if (wasNotConfirmed && booking.IsConfirmed)
             {
                 await SendBookingConfirmationEmailAsync(booking);
@@ -419,6 +392,33 @@ public class BookingsController : Controller
 
         TempData[TempDataSuccessMessage] = _localizer["Message.BookingDeleted"].Value;
         return RedirectToAction(nameof(Index));
+    }
+
+    private void UpdateBookingDays(Booking booking, List<int>? selectedActivityDayIds)
+    {
+        if (selectedActivityDayIds == null)
+            return;
+
+        var existingDayIds = booking.Days.Select(bd => bd.ActivityDayId).ToList();
+
+        var daysToRemove = booking.Days.Where(bd => !selectedActivityDayIds.Contains(bd.ActivityDayId)).ToList();
+        foreach (var dayToRemove in daysToRemove)
+        {
+            _context.BookingDays.Remove(dayToRemove);
+        }
+
+        var newDayIds = selectedActivityDayIds.Except(existingDayIds).ToList();
+        foreach (var newDayId in newDayIds)
+        {
+            var newBookingDay = new BookingDay
+            {
+                BookingId = booking.Id,
+                ActivityDayId = newDayId,
+                IsReserved = true,
+                IsPresent = false
+            };
+            _context.BookingDays.Add(newBookingDay);
+        }
     }
 
     // Helper method to get booking view model with all related data
