@@ -25,6 +25,7 @@ public class EmailTemplatesController : Controller
     private const string SessionKeyActivityId = "EmailTemplates_ActivityId";
     private const string TempDataSuccessMessage = "SuccessMessage";
     private const string TempDataErrorMessage = "ErrorMessage";
+    private const string ErrorGeneric = "Error.Generic";
 
     public EmailTemplatesController(
         IEmailTemplateService templateService,
@@ -119,7 +120,7 @@ public class EmailTemplatesController : Controller
         }
         catch (Exception)
         {
-            TempData[TempDataErrorMessage] = _localizer["Error.Generic"].ToString();
+            TempData[TempDataErrorMessage] = _localizer[ErrorGeneric].ToString();
             viewModel.TemplateTypeOptions = GetTemplateTypeOptions();
             return View(viewModel);
         }
@@ -182,7 +183,7 @@ public class EmailTemplatesController : Controller
         }
         catch (Exception)
         {
-            TempData[TempDataErrorMessage] = _localizer["Error.Generic"].ToString();
+            TempData[TempDataErrorMessage] = _localizer[ErrorGeneric].ToString();
             viewModel.TemplateTypeOptions = GetTemplateTypeOptions();
             return View(viewModel);
         }
@@ -199,7 +200,7 @@ public class EmailTemplatesController : Controller
         }
         catch (Exception)
         {
-            TempData[TempDataErrorMessage] = _localizer["Error.Generic"].ToString();
+            TempData[TempDataErrorMessage] = _localizer[ErrorGeneric].ToString();
         }
 
         return RedirectToAction(nameof(Index));
@@ -216,7 +217,7 @@ public class EmailTemplatesController : Controller
         }
         catch (Exception)
         {
-            TempData[TempDataErrorMessage] = _localizer["Error.Generic"].ToString();
+            TempData[TempDataErrorMessage] = _localizer[ErrorGeneric].ToString();
         }
 
         return RedirectToAction(nameof(Index));
