@@ -1,10 +1,11 @@
 using System.ComponentModel.DataAnnotations;
 using Cedeva.Core.Enums;
 using Cedeva.Website.Validation;
+using Cedeva.Website.ViewModels;
 
 namespace Cedeva.Website.Features.Organisations.ViewModels;
 
-public class OrganisationViewModel
+public class OrganisationViewModel : AuditableViewModel
 {
     public int Id { get; set; }
 
@@ -65,16 +66,6 @@ public class OrganisationViewModel
 
     [Display(Name = "Field.ChildrenCount")]
     public int ChildrenCount { get; set; }
-
-    // Audit fields
-    public DateTime CreatedAt { get; set; }
-    public string CreatedBy { get; set; } = string.Empty;
-    public DateTime? ModifiedAt { get; set; }
-    public string? ModifiedBy { get; set; }
-
-    // Audit display names (for UI)
-    public string CreatedByDisplayName { get; set; } = string.Empty;
-    public string? ModifiedByDisplayName { get; set; }
 }
 
 public class OrganisationListViewModel

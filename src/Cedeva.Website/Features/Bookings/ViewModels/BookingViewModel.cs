@@ -1,8 +1,9 @@
 using System.ComponentModel.DataAnnotations;
+using Cedeva.Website.ViewModels;
 
 namespace Cedeva.Website.Features.Bookings.ViewModels;
 
-public class BookingViewModel
+public class BookingViewModel : AuditableViewModel
 {
     public int Id { get; set; }
 
@@ -51,14 +52,4 @@ public class BookingViewModel
 
     // Days grouped by week (for Details view)
     public List<WeeklyBookingDaysViewModel> WeeklyDays { get; set; } = new();
-
-    // Audit fields
-    public DateTime CreatedAt { get; set; }
-    public string CreatedBy { get; set; } = string.Empty;
-    public DateTime? ModifiedAt { get; set; }
-    public string? ModifiedBy { get; set; }
-
-    // Audit display names (for UI)
-    public string CreatedByDisplayName { get; set; } = string.Empty;
-    public string? ModifiedByDisplayName { get; set; }
 }

@@ -1,10 +1,11 @@
 using System.ComponentModel.DataAnnotations;
 using Cedeva.Core.Enums;
 using Cedeva.Website.Validation;
+using Cedeva.Website.ViewModels;
 
 namespace Cedeva.Website.Features.TeamMembers.ViewModels;
 
-public class TeamMemberViewModel
+public class TeamMemberViewModel : AuditableViewModel
 {
     public int TeamMemberId { get; set; }
 
@@ -102,14 +103,4 @@ public class TeamMemberViewModel
 
     [Display(Name = "Field.ExpensesCount")]
     public int ExpensesCount { get; set; }
-
-    // Audit fields
-    public DateTime CreatedAt { get; set; }
-    public string CreatedBy { get; set; } = string.Empty;
-    public DateTime? ModifiedAt { get; set; }
-    public string? ModifiedBy { get; set; }
-
-    // Audit display names (for UI)
-    public string CreatedByDisplayName { get; set; } = string.Empty;
-    public string? ModifiedByDisplayName { get; set; }
 }

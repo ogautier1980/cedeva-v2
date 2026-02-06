@@ -1,9 +1,10 @@
 using System.ComponentModel.DataAnnotations;
 using Cedeva.Core.Enums;
+using Cedeva.Website.ViewModels;
 
 namespace Cedeva.Website.Features.Users.ViewModels;
 
-public class UserViewModel
+public class UserViewModel : AuditableViewModel
 {
     public string Id { get; set; } = string.Empty;
 
@@ -44,14 +45,4 @@ public class UserViewModel
     [Display(Name = "Field.ConfirmPassword")]
     [Compare("Password")]
     public string? ConfirmPassword { get; set; }
-
-    // Audit fields
-    public DateTime CreatedAt { get; set; }
-    public string CreatedBy { get; set; } = string.Empty;
-    public DateTime? ModifiedAt { get; set; }
-    public string? ModifiedBy { get; set; }
-
-    // Audit display names (for UI)
-    public string CreatedByDisplayName { get; set; } = string.Empty;
-    public string? ModifiedByDisplayName { get; set; }
 }

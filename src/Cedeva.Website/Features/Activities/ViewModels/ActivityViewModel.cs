@@ -1,8 +1,9 @@
 using System.ComponentModel.DataAnnotations;
+using Cedeva.Website.ViewModels;
 
 namespace Cedeva.Website.Features.Activities.ViewModels;
 
-public class ActivityViewModel
+public class ActivityViewModel : AuditableViewModel
 {
     public int Id { get; set; }
 
@@ -62,16 +63,6 @@ public class ActivityViewModel
 
     // For Edit: list of days with IsActive status
     public List<ActivityDayViewModel> AllDays { get; set; } = new();
-
-    // Audit fields
-    public DateTime CreatedAt { get; set; }
-    public string CreatedBy { get; set; } = string.Empty;
-    public DateTime? ModifiedAt { get; set; }
-    public string? ModifiedBy { get; set; }
-
-    // Audit display names (for UI)
-    public string CreatedByDisplayName { get; set; } = string.Empty;
-    public string? ModifiedByDisplayName { get; set; }
 }
 
 public class ActivityListViewModel
