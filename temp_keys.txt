@@ -1,0 +1,11 @@
+# NL keys to add
+ActivityManagement.ManageBookings=Inschrijvingenbeheer
+ActivityManagement.BookingsToManage=Te behandelen inschrijvingen
+ActivityManagement.AllBookingsComplete=Alle inschrijvingen zijn compleet (bevestigd, met groep en medisch dossier).
+Field.MedicalSheet=Medisch dossier
+
+# EN keys to add  
+ActivityManagement.ManageBookings=Manage Bookings
+ActivityManagement.BookingsToManage=Bookings to Manage
+ActivityManagement.AllBookingsComplete=All bookings are complete (confirmed, with group and medical sheet).
+Field.MedicalSheet=Medical Sheet

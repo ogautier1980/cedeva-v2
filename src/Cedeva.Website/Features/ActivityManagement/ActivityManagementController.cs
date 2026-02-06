@@ -6,6 +6,7 @@ using Cedeva.Website.Features.ActivityManagement.ViewModels;
 using Cedeva.Website.Localization;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Localization;
 
@@ -992,6 +993,211 @@ public class ActivityManagementController : Controller
             _logger.LogError(ex, "Error assigning booking {BookingId} to group {GroupId}", request.BookingId, request.GroupId);
             return StatusCode(500, new { success = false, message = _localizer["Message.ErrorOccurred"].Value });
         }
+    }
+
+    // POST: ActivityManagement/BeginManageBookings
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [ActionName("BeginManageBookings")]
+    public IActionResult ManageBookingsPost(int id)
+    {
+        if (!ModelState.IsValid)
+        {
+            return RedirectToAction(nameof(Index));
+        }
+
+        _activitySelectionService.SetSelectedActivityId(id);
+        return RedirectToAction(nameof(ManageBookings));
+    }
+
+    // GET: ActivityManagement/ManageBookings
+    public async Task<IActionResult> ManageBookings()
+    {
+        var selectedActivityId = _activitySelectionService.GetSelectedActivityId();
+        if (selectedActivityId == null)
+        {
+            TempData[TempDataErrorMessage] = _localizer["ActivityManagement.SelectActivity"].Value;
+            return RedirectToAction(nameof(Index));
+        }
+
+        var activity = await _context.Activities
+            .Include(a => a.Groups)
+            .FirstOrDefaultAsync(a => a.Id == selectedActivityId.Value);
+
+        if (activity == null)
+        {
+            return NotFound();
+        }
+
+        // Get all bookings that need attention (not confirmed OR no real group OR no medical sheet)
+        var bookings = await _context.Bookings
+            .Include(b => b.Child)
+                .ThenInclude(c => c.Parent)
+            .Include(b => b.Group)
+            .Where(b => b.ActivityId == selectedActivityId.Value
+                     && (!b.IsConfirmed
+                         || b.GroupId == null
+                         || (b.Group != null && b.Group.Label == "Sans groupe")
+                         || !b.IsMedicalSheet))
+            .OrderBy(b => b.Child.LastName)
+            .ThenBy(b => b.Child.FirstName)
+            .ToListAsync();
+
+        var viewModel = new ManageBookingsViewModel
+        {
+            ActivityId = activity.Id,
+            ActivityName = activity.Name,
+            Bookings = bookings.Select(b => new BookingManagementItem
+            {
+                BookingId = b.Id,
+                ChildId = b.ChildId,
+                FirstName = b.Child.FirstName,
+                LastName = b.Child.LastName,
+                BirthDate = b.Child.BirthDate,
+                IsConfirmed = b.IsConfirmed,
+                GroupId = b.GroupId,
+                GroupLabel = b.Group?.Label,
+                IsMedicalSheet = b.IsMedicalSheet
+            }).ToList(),
+            GroupOptions = activity.Groups
+                .Where(g => g.Label != "Sans groupe")
+                .OrderBy(g => g.Label)
+                .Select(g => new SelectListItem
+                {
+                    Value = g.Id.ToString(),
+                    Text = g.Label
+                })
+                .ToList()
+        };
+
+        // Calculate summary counts
+        viewModel.PendingConfirmationCount = viewModel.Bookings.Count(b => b.NeedsConfirmation);
+        viewModel.WithoutGroupCount = viewModel.Bookings.Count(b => b.NeedsGroup);
+        viewModel.WithoutMedicalSheetCount = viewModel.Bookings.Count(b => b.NeedsMedicalSheet);
+
+        return View(viewModel);
+    }
+
+    // POST: ActivityManagement/UpdateBooking
+    [HttpPost]
+    public async Task<IActionResult> UpdateBooking([FromBody] UpdateBookingRequest request)
+    {
+        try
+        {
+            var booking = await _context.Bookings
+                .Include(b => b.Group)
+                .FirstOrDefaultAsync(b => b.Id == request.BookingId);
+
+            if (booking == null)
+            {
+                return NotFound(new { success = false, message = _localizer["Message.BookingNotFound"].Value });
+            }
+
+            // Update the requested field(s)
+            bool updated = false;
+
+            if (request.GroupId.HasValue)
+            {
+                var group = await _context.ActivityGroups.FindAsync(request.GroupId.Value);
+                if (group == null)
+                {
+                    return NotFound(new { success = false, message = _localizer["Message.GroupNotFound"].Value });
+                }
+                booking.GroupId = request.GroupId.Value;
+                updated = true;
+            }
+
+            if (request.IsConfirmed.HasValue)
+            {
+                booking.IsConfirmed = request.IsConfirmed.Value;
+
+                // If confirming and no group assigned, create/assign "Sans groupe"
+                if (request.IsConfirmed.Value && booking.GroupId == null)
+                {
+                    var activity = await _context.Activities
+                        .Include(a => a.Groups)
+                        .FirstOrDefaultAsync(a => a.Id == booking.ActivityId);
+
+                    if (activity != null)
+                    {
+                        var noGroup = activity.Groups.FirstOrDefault(g => g.Label == "Sans groupe");
+                        if (noGroup == null)
+                        {
+                            noGroup = new ActivityGroup
+                            {
+                                ActivityId = activity.Id,
+                                Label = "Sans groupe",
+                                Capacity = null
+                            };
+                            _context.ActivityGroups.Add(noGroup);
+                            await _context.SaveChangesAsync();
+                        }
+                        booking.GroupId = noGroup.Id;
+                    }
+                }
+                updated = true;
+            }
+
+            if (request.IsMedicalSheet.HasValue)
+            {
+                booking.IsMedicalSheet = request.IsMedicalSheet.Value;
+                updated = true;
+            }
+
+            if (updated)
+            {
+                await _context.SaveChangesAsync();
+            }
+
+            // Check if booking is now complete (confirmed, has real group, has medical sheet)
+            var isComplete = booking.IsConfirmed
+                          && booking.GroupId.HasValue
+                          && (booking.Group == null || booking.Group.Label != "Sans groupe")
+                          && booking.IsMedicalSheet;
+
+            return Ok(new
+            {
+                success = true,
+                message = _localizer["Message.BookingUpdated"].Value,
+                isComplete = isComplete
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error updating booking {BookingId}", request.BookingId);
+            return StatusCode(500, new { success = false, message = _localizer["Message.ErrorOccurred"].Value });
+        }
+    }
+
+    // GET: ActivityManagement/GetManageBookingsStats
+    [HttpGet]
+    public async Task<IActionResult> GetManageBookingsStats(int activityId)
+    {
+        var bookings = await _context.Bookings
+            .Include(b => b.Group)
+            .Where(b => b.ActivityId == activityId
+                     && (!b.IsConfirmed
+                         || b.GroupId == null
+                         || (b.Group != null && b.Group.Label == "Sans groupe")
+                         || !b.IsMedicalSheet))
+            .ToListAsync();
+
+        var stats = new
+        {
+            pendingConfirmation = bookings.Count(b => !b.IsConfirmed),
+            withoutGroup = bookings.Count(b => b.GroupId == null || (b.Group != null && b.Group.Label == "Sans groupe")),
+            withoutMedicalSheet = bookings.Count(b => !b.IsMedicalSheet)
+        };
+
+        return Ok(stats);
+    }
+
+    public class UpdateBookingRequest
+    {
+        public int BookingId { get; set; }
+        public int? GroupId { get; set; }
+        public bool? IsConfirmed { get; set; }
+        public bool? IsMedicalSheet { get; set; }
     }
 
     public class AssignToGroupRequest

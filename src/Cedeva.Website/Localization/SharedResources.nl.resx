@@ -400,6 +400,9 @@
   <data name="ActivityManagement.AllChildrenAssigned" xml:space="preserve">
     <value>Alle kinderen zijn al aan een groep toegewezen.</value>
   </data>
+  <data name="ActivityManagement.AllBookingsComplete" xml:space="preserve">
+    <value>Alle inschrijvingen zijn compleet (bevestigd, met groep en medisch dossier).</value>
+  </data>
   <data name="ActivityManagement.AllMembersAssigned" xml:space="preserve">
     <value>Alle teamleden zijn al toegewezen aan deze activiteit.</value>
   </data>
@@ -411,6 +414,9 @@
   </data>
   <data name="ActivityManagement.BornOn" xml:space="preserve">
     <value>Geboren op</value>
+  </data>
+  <data name="ActivityManagement.BookingsToManage" xml:space="preserve">
+    <value>Te behandelen inschrijvingen</value>
   </data>
   <data name="ActivityManagement.ChildrenCount" xml:space="preserve">
     <value>kind(eren)</value>
@@ -429,6 +435,9 @@
   </data>
   <data name="ActivityManagement.ManageActivity" xml:space="preserve">
     <value>Activiteit beheren</value>
+  </data>
+  <data name="ActivityManagement.ManageBookings" xml:space="preserve">
+    <value>Inschrijvingenbeheer</value>
   </data>
   <data name="ActivityManagement.ManagePresences" xml:space="preserve">
     <value>Aanwezigheden beheren</value>
@@ -1527,6 +1536,9 @@
   </data>
   <data name="Field.Message" xml:space="preserve">
     <value>[NL] Message</value>
+  </data>
+  <data name="Field.MedicalSheet" xml:space="preserve">
+    <value>Medisch dossier</value>
   </data>
   <data name="Field.MobilePhoneNumber" xml:space="preserve">
     <value>[NL] GSM</value>

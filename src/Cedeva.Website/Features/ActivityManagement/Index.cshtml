@@ -9,6 +9,11 @@
     int pendingBookings = totalBookings - confirmedBookings;
     int totalGroups = Model.Activity.Groups?.Count ?? 0;
     int totalDays = Model.Activity.Days?.Count ?? 0;
+
+    // ManageBookings statistics
+    int pendingConfirmation = Model.Activity.Bookings?.Count(b => !b.IsConfirmed) ?? 0;
+    int withoutGroup = Model.Activity.Bookings?.Count(b => b.GroupId == null || (b.Group != null && b.Group.Label == "Sans groupe")) ?? 0;
+    int withoutMedicalSheet = Model.Activity.Bookings?.Count(b => !b.IsMedicalSheet) ?? 0;
 }
 
 @await Html.PartialAsync("_AlertMessages")
@@ -44,9 +49,9 @@
 
     <!-- Main Navigation Cards -->
     <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4 mb-5">
-        <!-- Inscriptions en attente -->
+        <!-- Gestion des inscriptions -->
         <div class="col">
-            <form asp-action="BeginUnconfirmedBookings" asp-controller="ActivityManagement" method="post" class="h-100">
+            <form asp-action="BeginManageBookings" asp-controller="ActivityManagement" method="post" class="h-100">
                 @Html.AntiForgeryToken()
                 <input type="hidden" name="id" value="@Model.Activity.Id" />
                 <button type="submit" class="btn-as-link w-100 h-100">
@@ -55,29 +60,27 @@
                             <div class="nav-icon-wrapper mb-3">
                                 <i class="fa-solid fa-list-check"></i>
                             </div>
-                            <h5 class="card-title mb-0">@Localizer["ActivityManagement.PendingBookings"]</h5>
-                            @if (pendingBookings > 0)
-                            {
-                                <span class="badge bg-danger position-absolute top-0 end-0 m-3 fs-6">@pendingBookings</span>
-                            }
-                        </div>
-                    </div>
-                </button>
-            </form>
-        </div>
-
-        <!-- Sélection de groupe -->
-        <div class="col">
-            <form asp-action="BeginGroupAssignment" asp-controller="ActivityManagement" method="post" class="h-100">
-                @Html.AntiForgeryToken()
-                <input type="hidden" name="id" value="@Model.Activity.Id" />
-                <button type="submit" class="btn-as-link w-100 h-100">
-                    <div class="card nav-card-v2 h-100">
-                        <div class="card-body d-flex flex-column align-items-center justify-content-center text-center p-4">
-                            <div class="nav-icon-wrapper mb-3">
-                                <i class="fa-solid fa-users"></i>
+                            <h5 class="card-title mb-0">@Localizer["ActivityManagement.ManageBookings"]</h5>
+                            <div class="d-flex gap-2 mt-3 flex-wrap justify-content-center">
+                                @if (pendingConfirmation > 0)
+                                {
+                                    <span class="badge bg-danger fs-6">
+                                        <i class="fas fa-clock me-1"></i>@pendingConfirmation
+                                    </span>
+                                }
+                                @if (withoutGroup > 0)
+                                {
+                                    <span class="badge bg-warning text-dark fs-6">
+                                        <i class="fas fa-users me-1"></i>@withoutGroup
+                                    </span>
+                                }
+                                @if (withoutMedicalSheet > 0)
+                                {
+                                    <span class="badge bg-info fs-6">
+                                        <i class="fas fa-file-medical me-1"></i>@withoutMedicalSheet
+                                    </span>
+                                }
                             </div>
-                            <h5 class="card-title mb-0">@Localizer["ActivityManagement.GroupAssignment"]</h5>
                         </div>
                     </div>
                 </button>

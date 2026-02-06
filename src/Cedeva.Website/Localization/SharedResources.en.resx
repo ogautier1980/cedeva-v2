@@ -400,6 +400,9 @@
   <data name="ActivityManagement.AllChildrenAssigned" xml:space="preserve">
     <value>All children are already assigned to a group.</value>
   </data>
+  <data name="ActivityManagement.AllBookingsComplete" xml:space="preserve">
+    <value>All bookings are complete (confirmed, with group and medical sheet).</value>
+  </data>
   <data name="ActivityManagement.AllMembersAssigned" xml:space="preserve">
     <value>All team members are already assigned to this activity.</value>
   </data>
@@ -411,6 +414,9 @@
   </data>
   <data name="ActivityManagement.BornOn" xml:space="preserve">
     <value>Born on</value>
+  </data>
+  <data name="ActivityManagement.BookingsToManage" xml:space="preserve">
+    <value>Bookings to Manage</value>
   </data>
   <data name="ActivityManagement.ChildrenCount" xml:space="preserve">
     <value>child(ren)</value>
@@ -429,6 +435,9 @@
   </data>
   <data name="ActivityManagement.ManageActivity" xml:space="preserve">
     <value>Manage Activity</value>
+  </data>
+  <data name="ActivityManagement.ManageBookings" xml:space="preserve">
+    <value>Manage Bookings</value>
   </data>
   <data name="ActivityManagement.ManagePresences" xml:space="preserve">
     <value>Manage Attendance</value>
@@ -1527,6 +1536,9 @@
   </data>
   <data name="Field.Message" xml:space="preserve">
     <value>[EN] Message</value>
+  </data>
+  <data name="Field.MedicalSheet" xml:space="preserve">
+    <value>Medical Sheet</value>
   </data>
   <data name="Field.MobilePhoneNumber" xml:space="preserve">
     <value>[EN] GSM</value>

@@ -1,0 +1,333 @@
+@model Cedeva.Website.Features.ActivityManagement.ViewModels.ManageBookingsViewModel
+@inject Microsoft.Extensions.Localization.IStringLocalizer<Cedeva.Website.Localization.SharedResources> Localizer
+
+@{
+    ViewData["Title"] = Localizer["ActivityManagement.ManageBookings"];
+}
+
+@await Html.PartialAsync("_AlertMessages")
+
+@Html.AntiForgeryToken()
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="fas fa-list-check me-2"></i>@Localizer["ActivityManagement.ManageBookings"]</h2>
+    <a asp-action="Index" class="btn btn-outline-secondary">
+        <i class="fas fa-arrow-left me-2"></i>@Localizer["Back"]
+    </a>
+</div>
+
+<div class="card mb-3">
+    <div class="card-header bg-light">
+        <h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>@Model.ActivityName</h6>
+    </div>
+</div>
+
+@if (!Model.Bookings.Any())
+{
+    <div class="text-center py-5">
+        <i class="fas fa-check-circle fa-3x text-muted mb-3"></i>
+        <p class="text-muted">@Localizer["ActivityManagement.AllBookingsComplete"]</p>
+        <a asp-action="Index" class="btn btn-primary">
+            <i class="fas fa-arrow-left me-2"></i>@Localizer["BackToDashboard"]
+        </a>
+    </div>
+}
+else
+{
+    <div class="card">
+        <div class="card-header bg-primary text-white">
+            <h6 class="mb-0 text-white d-flex align-items-center flex-wrap gap-2">
+                <i class="fas fa-tasks me-2"></i>@Localizer["ActivityManagement.BookingsToManage"]
+                <span class="badge bg-danger" id="pending-count" style="@(Model.PendingConfirmationCount == 0 ? "display:none;" : "")">
+                    <i class="fas fa-clock me-1"></i>@Model.PendingConfirmationCount
+                </span>
+                <span class="badge bg-warning text-dark" id="group-count" style="@(Model.WithoutGroupCount == 0 ? "display:none;" : "")">
+                    <i class="fas fa-users me-1"></i>@Model.WithoutGroupCount
+                </span>
+                <span class="badge bg-info" id="medical-count" style="@(Model.WithoutMedicalSheetCount == 0 ? "display:none;" : "")">
+                    <i class="fas fa-file-medical me-1"></i>@Model.WithoutMedicalSheetCount
+                </span>
+            </h6>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0" id="bookings-table">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="sortable" data-column="firstName">
+                                @Localizer["Field.FirstName"] <i class="fas fa-sort text-muted"></i>
+                            </th>
+                            <th class="sortable" data-column="lastName">
+                                @Localizer["Field.LastName"] <i class="fas fa-sort text-muted"></i>
+                            </th>
+                            <th class="sortable" data-column="age">
+                                @Localizer["Field.Age"] <i class="fas fa-sort text-muted"></i>
+                            </th>
+                            <th>@Localizer["Field.Group"]</th>
+                            <th class="text-center">@Localizer["Field.MedicalSheet"]</th>
+                            <th class="text-center">@Localizer["Field.Status"]</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.Bookings)
+                        {
+                            <tr id="booking-row-@item.BookingId"
+                                data-firstname="@item.FirstName.ToLower()"
+                                data-lastname="@item.LastName.ToLower()"
+                                data-age="@item.Age">
+                                <td>@item.FirstName</td>
+                                <td>@item.LastName</td>
+                                <td>@item.Age</td>
+                                <td>
+                                    <select class="form-select form-select-sm"
+                                            data-booking-id="@item.BookingId"
+                                            onchange="updateGroup(this)"
+                                            style="max-width: 200px;">
+                                        <option value="">@Localizer["ActivityManagement.SelectGroup"]</option>
+                                        @foreach (var option in Model.GroupOptions)
+                                        {
+                                            <option value="@option.Value" @(item.GroupId?.ToString() == option.Value ? "selected" : "")>
+                                                @option.Text
+                                            </option>
+                                        }
+                                    </select>
+                                </td>
+                                <td class="text-center">
+                                    <button type="button"
+                                            class="btn btn-sm btn-link p-0"
+                                            data-booking-id="@item.BookingId"
+                                            data-medical="@item.IsMedicalSheet.ToString().ToLower()"
+                                            onclick="toggleMedicalSheet(this)">
+                                        @if (item.IsMedicalSheet)
+                                        {
+                                            <i class="fas fa-check-circle text-success fa-lg"></i>
+                                        }
+                                        else
+                                        {
+                                            <i class="fas fa-times-circle text-danger fa-lg"></i>
+                                        }
+                                    </button>
+                                </td>
+                                <td class="text-center">
+                                    @if (item.IsConfirmed)
+                                    {
+                                        <span class="badge bg-success">
+                                            <i class="fas fa-check me-1"></i>@Localizer["Confirmed"]
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <button type="button"
+                                                class="btn btn-success btn-sm"
+                                                data-booking-id="@item.BookingId"
+                                                onclick="confirmBooking(this)">
+                                            <i class="fas fa-check me-1"></i>@Localizer["Confirm"]
+                                        </button>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    <script>
+        // Sorting state
+        let currentSort = { column: null, direction: 'asc' };
+
+        // Table sorting
+        document.querySelectorAll('.sortable').forEach(header => {
+            header.style.cursor = 'pointer';
+            header.addEventListener('click', function() {
+                const column = this.dataset.column;
+
+                // Toggle direction if same column, otherwise reset to asc
+                if (currentSort.column === column) {
+                    currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
+                } else {
+                    currentSort.column = column;
+                    currentSort.direction = 'asc';
+                }
+
+                sortTable(column, currentSort.direction);
+                updateSortIcons();
+            });
+        });
+
+        function sortTable(column, direction) {
+            const tbody = document.querySelector('#bookings-table tbody');
+            const rows = Array.from(tbody.querySelectorAll('tr'));
+
+            rows.sort((a, b) => {
+                let aVal, bVal;
+
+                if (column === 'age') {
+                    aVal = parseInt(a.dataset.age);
+                    bVal = parseInt(b.dataset.age);
+                } else if (column === 'firstName') {
+                    aVal = a.dataset.firstname;
+                    bVal = b.dataset.firstname;
+                } else if (column === 'lastName') {
+                    aVal = a.dataset.lastname;
+                    bVal = b.dataset.lastname;
+                }
+
+                if (direction === 'asc') {
+                    return aVal > bVal ? 1 : aVal < bVal ? -1 : 0;
+                } else {
+                    return aVal < bVal ? 1 : aVal > bVal ? -1 : 0;
+                }
+            });
+
+            rows.forEach(row => tbody.appendChild(row));
+        }
+
+        function updateSortIcons() {
+            document.querySelectorAll('.sortable i').forEach(icon => {
+                icon.className = 'fas fa-sort text-muted';
+            });
+
+            const activeHeader = document.querySelector(`.sortable[data-column="${currentSort.column}"]`);
+            if (activeHeader) {
+                const icon = activeHeader.querySelector('i');
+                icon.className = currentSort.direction === 'asc'
+                    ? 'fas fa-sort-up text-primary'
+                    : 'fas fa-sort-down text-primary';
+            }
+        }
+
+        // Update group
+        async function updateGroup(selectElement) {
+            const bookingId = selectElement.dataset.bookingId;
+            const groupId = selectElement.value;
+
+            if (!groupId) return;
+
+            selectElement.disabled = true;
+
+            try {
+                await updateBooking(bookingId, { groupId: parseInt(groupId) });
+                selectElement.disabled = false;
+            } catch (error) {
+                selectElement.disabled = false;
+                selectElement.value = '';
+            }
+        }
+
+        // Toggle medical sheet
+        async function toggleMedicalSheet(button) {
+            const bookingId = button.dataset.bookingId;
+            const currentValue = button.dataset.medical === 'true';
+            const newValue = !currentValue;
+
+            button.disabled = true;
+
+            try {
+                await updateBooking(bookingId, { isMedicalSheet: newValue });
+
+                // Update button
+                button.dataset.medical = newValue.toString();
+                const icon = button.querySelector('i');
+                if (newValue) {
+                    icon.className = 'fas fa-check-circle text-success fa-lg';
+                } else {
+                    icon.className = 'fas fa-times-circle text-danger fa-lg';
+                }
+                button.disabled = false;
+            } catch (error) {
+                button.disabled = false;
+            }
+        }
+
+        // Confirm booking
+        async function confirmBooking(button) {
+            const bookingId = button.dataset.bookingId;
+            button.disabled = true;
+
+            try {
+                await updateBooking(bookingId, { isConfirmed: true });
+
+                // Replace button with confirmed badge
+                const cell = button.parentElement;
+                cell.innerHTML = '<span class="badge bg-success"><i class="fas fa-check me-1"></i>@Localizer["Confirmed"]</span>';
+            } catch (error) {
+                button.disabled = false;
+            }
+        }
+
+        // Generic update booking function
+        async function updateBooking(bookingId, updates) {
+            try {
+                const response = await fetch('@Url.Action("UpdateBooking", "ActivityManagement")', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                    },
+                    body: JSON.stringify({
+                        bookingId: parseInt(bookingId),
+                        ...updates
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    // Update badge counts
+                    await updateBadgeCounts();
+
+                    // If booking is complete, remove row
+                    if (result.isComplete) {
+                        const row = document.getElementById('booking-row-' + bookingId);
+                        row.style.transition = 'opacity 0.3s';
+                        row.style.opacity = '0';
+                        setTimeout(() => {
+                            row.remove();
+
+                            // Check if all bookings are complete
+                            const remainingRows = document.querySelectorAll('tbody tr');
+                            if (remainingRows.length === 0) {
+                                location.reload();
+                            }
+                        }, 300);
+                    }
+                } else {
+                    alert(result.message || '@Localizer["Message.ErrorOccurred"]');
+                    throw new Error(result.message);
+                }
+            } catch (error) {
+                console.error('Error updating booking:', error);
+                alert('@Localizer["Message.ErrorOccurred"]');
+                throw error;
+            }
+        }
+
+        // Update badge counts
+        async function updateBadgeCounts() {
+            try {
+                const response = await fetch('@Url.Action("GetManageBookingsStats", "ActivityManagement")?activityId=@Model.ActivityId');
+                const stats = await response.json();
+
+                updateBadge('pending-count', stats.pendingConfirmation, 'fas fa-clock me-1');
+                updateBadge('group-count', stats.withoutGroup, 'fas fa-users me-1');
+                updateBadge('medical-count', stats.withoutMedicalSheet, 'fas fa-file-medical me-1');
+            } catch (error) {
+                console.error('Error updating badge counts:', error);
+            }
+        }
+
+        function updateBadge(badgeId, count, iconClass) {
+            const badge = document.getElementById(badgeId);
+            if (count === 0) {
+                badge.style.display = 'none';
+            } else {
+                badge.style.display = 'inline-block';
+                badge.innerHTML = `<i class="${iconClass}"></i>${count}`;
+            }
+        }
+    </script>
+}
