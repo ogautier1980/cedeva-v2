@@ -16,6 +16,7 @@ public class ExcursionsController : Controller
 {
     private readonly CedevaDbContext _context;
     private readonly IExcursionService _excursionService;
+    private readonly IExcursionViewModelBuilderService _viewModelBuilder;
     private readonly IActivitySelectionService _activitySelectionService;
     private readonly ILogger<ExcursionsController> _logger;
     private readonly IStringLocalizer<SharedResources> _localizer;
@@ -23,12 +24,14 @@ public class ExcursionsController : Controller
     public ExcursionsController(
         CedevaDbContext context,
         IExcursionService excursionService,
+        IExcursionViewModelBuilderService viewModelBuilder,
         IActivitySelectionService activitySelectionService,
         ILogger<ExcursionsController> logger,
         IStringLocalizer<SharedResources> localizer)
     {
         _context = context;
         _excursionService = excursionService;
+        _viewModelBuilder = viewModelBuilder;
         _activitySelectionService = activitySelectionService;
         _logger = logger;
         _localizer = localizer;
@@ -417,67 +420,15 @@ public class ExcursionsController : Controller
     {
         var excursion = await _context.Excursions
             .Include(e => e.Activity)
-            .Include(e => e.ExcursionGroups)
-                .ThenInclude(eg => eg.ActivityGroup)
-            .Include(e => e.Registrations)
             .FirstOrDefaultAsync(e => e.Id == id);
 
         if (excursion == null)
             return NotFound();
 
-        // Get all confirmed bookings for eligible groups
-        var eligibleGroupIds = excursion.ExcursionGroups
-            .Select(eg => eg.ActivityGroupId)
-            .ToList();
-
-        var bookings = await _context.Bookings
-            .Include(b => b.Child)
-            .Include(b => b.Group)
-            .Where(b => b.ActivityId == excursion.ActivityId &&
-                       b.IsConfirmed &&
-                       b.GroupId.HasValue &&
-                       eligibleGroupIds.Contains(b.GroupId.Value))
-            .ToListAsync();
-
-        // Get existing registrations
-        var registrations = await _excursionService.GetRegistrationsAsync(id);
-        var registrationsByBookingId = registrations.ToDictionary(r => r.BookingId, r => r);
-
-        // Group children by ActivityGroup
-        var childrenByGroup = new Dictionary<ActivityGroup, List<ExcursionChildInfo>>();
-
-        foreach (var booking in bookings.Where(b => b.Group != null))
-        {
-            if (!childrenByGroup.ContainsKey(booking.Group!))
-            {
-                childrenByGroup[booking.Group!] = new List<ExcursionChildInfo>();
-            }
-
-            var isRegistered = registrationsByBookingId.ContainsKey(booking.Id);
-            var registration = isRegistered ? registrationsByBookingId[booking.Id] : null;
-
-            childrenByGroup[booking.Group!].Add(new ExcursionChildInfo
-            {
-                BookingId = booking.Id,
-                ChildId = booking.ChildId,
-                FirstName = booking.Child.FirstName,
-                LastName = booking.Child.LastName,
-                BirthDate = booking.Child.BirthDate,
-                IsRegistered = isRegistered,
-                RegistrationId = registration?.Id,
-                ExcursionCost = excursion.Cost,
-                PaymentStatus = _localizer[$"Enum.PaymentStatus.{booking.PaymentStatus}"]
-            });
-        }
-
-        // Sort children within each group
-        foreach (var group in childrenByGroup.Keys.ToList())
-        {
-            childrenByGroup[group] = childrenByGroup[group]
-                .OrderBy(c => c.LastName)
-                .ThenBy(c => c.FirstName)
-                .ToList();
-        }
+        // Use service to build the grouped and sorted children data
+        var childrenByGroup = await _viewModelBuilder.BuildRegistrationsByGroupAsync(
+            id,
+            status => _localizer[$"Enum.PaymentStatus.{status}"].ToString());
 
         var viewModel = new ExcursionRegistrationsViewModel
         {
@@ -542,53 +493,13 @@ public class ExcursionsController : Controller
     {
         var excursion = await _context.Excursions
             .Include(e => e.Activity)
-            .Include(e => e.ExcursionGroups)
-                .ThenInclude(eg => eg.ActivityGroup)
             .FirstOrDefaultAsync(e => e.Id == id);
 
         if (excursion == null)
             return NotFound();
 
-        // Get all registrations with related booking and child data
-        var registrations = await _context.ExcursionRegistrations
-            .Include(er => er.Booking)
-                .ThenInclude(b => b.Child)
-            .Include(er => er.Booking)
-                .ThenInclude(b => b.Group)
-            .Where(er => er.ExcursionId == id && er.Booking.Group != null)
-            .ToListAsync();
-
-        // Group children by ActivityGroup
-        var childrenByGroup = new Dictionary<ActivityGroup, List<ExcursionAttendanceInfo>>();
-
-        foreach (var registration in registrations)
-        {
-            var group = registration.Booking.Group!;
-
-            if (!childrenByGroup.ContainsKey(group))
-            {
-                childrenByGroup[group] = new List<ExcursionAttendanceInfo>();
-            }
-
-            childrenByGroup[group].Add(new ExcursionAttendanceInfo
-            {
-                RegistrationId = registration.Id,
-                BookingId = registration.BookingId,
-                FirstName = registration.Booking.Child.FirstName,
-                LastName = registration.Booking.Child.LastName,
-                BirthDate = registration.Booking.Child.BirthDate,
-                IsPresent = registration.IsPresent
-            });
-        }
-
-        // Sort children within each group
-        foreach (var group in childrenByGroup.Keys.ToList())
-        {
-            childrenByGroup[group] = childrenByGroup[group]
-                .OrderBy(c => c.LastName)
-                .ThenBy(c => c.FirstName)
-                .ToList();
-        }
+        // Use service to build the grouped and sorted children data
+        var childrenByGroup = await _viewModelBuilder.BuildAttendanceByGroupAsync(id);
 
         var viewModel = new ExcursionAttendanceViewModel
         {
