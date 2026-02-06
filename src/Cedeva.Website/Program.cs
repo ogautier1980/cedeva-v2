@@ -31,6 +31,16 @@ try
         .Enrich.FromLogContext()
         .WriteTo.Console());
 
+    // Register storage service based on environment
+    if (builder.Environment.IsDevelopment())
+    {
+        builder.Services.AddScoped<IStorageService, LocalFileStorageService>();
+    }
+    else
+    {
+        builder.Services.AddScoped<IStorageService, AzureBlobStorageService>();
+    }
+
     // Configure Autofac
     builder.Host.UseServiceProviderFactory(new AutofacServiceProviderFactory());
     builder.Host.ConfigureContainer<ContainerBuilder>(containerBuilder =>
@@ -41,7 +51,6 @@ try
         containerBuilder.RegisterType<EmailRecipientService>().As<IEmailRecipientService>().InstancePerLifetimeScope();
         containerBuilder.RegisterType<EmailVariableReplacementService>().As<IEmailVariableReplacementService>().InstancePerLifetimeScope();
         containerBuilder.RegisterType<EmailTemplateService>().As<IEmailTemplateService>().InstancePerLifetimeScope();
-        containerBuilder.RegisterType<AzureBlobStorageService>().As<IStorageService>().InstancePerLifetimeScope();
         containerBuilder.RegisterType<ClosedXmlExportService>().As<IExcelExportService>().InstancePerLifetimeScope();
         containerBuilder.RegisterType<QuestPdfExportService>().As<IPdfExportService>().InstancePerLifetimeScope();
         containerBuilder.RegisterType<BelgianMunicipalityService>().As<IBelgianMunicipalityService>().InstancePerLifetimeScope();

@@ -19,7 +19,7 @@ public class AzureBlobStorageService : IStorageService
         _blobServiceClient = new BlobServiceClient(connectionString);
     }
 
-    public async Task<string> UploadFileAsync(Stream fileStream, string fileName, string containerPath)
+    public async Task<string> UploadFileAsync(Stream fileStream, string fileName, string contentType, string containerPath)
     {
         var containerClient = _blobServiceClient.GetBlobContainerClient(_containerName);
         await containerClient.CreateIfNotExistsAsync(PublicAccessType.None);
@@ -29,7 +29,9 @@ public class AzureBlobStorageService : IStorageService
             : $"{containerPath.TrimEnd('/')}/{fileName}";
 
         var blobClient = containerClient.GetBlobClient(blobPath);
-        await blobClient.UploadAsync(fileStream, overwrite: true);
+
+        var blobHttpHeaders = new BlobHttpHeaders { ContentType = contentType };
+        await blobClient.UploadAsync(fileStream, new BlobUploadOptions { HttpHeaders = blobHttpHeaders });
 
         return blobPath;
     }

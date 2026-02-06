@@ -24,6 +24,8 @@ public class TeamMembersController : Controller
     private readonly IExcelExportService _excelExportService;
     private readonly IPdfExportService _pdfExportService;
     private readonly IStringLocalizer<SharedResources> _localizer;
+    private readonly IStorageService _storageService;
+    private readonly IWebHostEnvironment _webHostEnvironment;
 
     public TeamMembersController(
         IRepository<TeamMember> teamMemberRepository,
@@ -33,7 +35,9 @@ public class TeamMembersController : Controller
         IUnitOfWork unitOfWork,
         IExcelExportService excelExportService,
         IPdfExportService pdfExportService,
-        IStringLocalizer<SharedResources> localizer)
+        IStringLocalizer<SharedResources> localizer,
+        IStorageService storageService,
+        IWebHostEnvironment webHostEnvironment)
     {
         _teamMemberRepository = teamMemberRepository;
         _addressRepository = addressRepository;
@@ -43,6 +47,8 @@ public class TeamMembersController : Controller
         _excelExportService = excelExportService;
         _pdfExportService = pdfExportService;
         _localizer = localizer;
+        _storageService = storageService;
+        _webHostEnvironment = webHostEnvironment;
     }
 
     // GET: TeamMembers
@@ -264,12 +270,25 @@ public class TeamMembersController : Controller
                 License = viewModel.License,
                 Status = viewModel.Status,
                 DailyCompensation = viewModel.DailyCompensation,
-                LicenseUrl = viewModel.LicenseUrl,
                 OrganisationId = organisationId
             };
 
             await _teamMemberRepository.AddAsync(teamMember);
             await _unitOfWork.SaveChangesAsync();
+
+            // Upload license file if provided
+            if (viewModel.LicenseFile != null)
+            {
+                var fileName = $"{Guid.NewGuid()}_{Path.GetFileName(viewModel.LicenseFile.FileName)}";
+                var filePath = await _storageService.UploadFileAsync(
+                    viewModel.LicenseFile.OpenReadStream(),
+                    fileName,
+                    viewModel.LicenseFile.ContentType,
+                    $"{organisationId}/team-member-licenses"
+                );
+                teamMember.LicenseUrl = filePath;
+                await _unitOfWork.SaveChangesAsync();
+            }
 
             TempData[TempDataSuccessMessage] = _localizer["Message.TeamMemberCreated"].Value;
             return RedirectToAction(nameof(Details), new { id = teamMember.TeamMemberId });
@@ -377,12 +396,52 @@ public class TeamMembersController : Controller
             teamMember.License = viewModel.License;
             teamMember.Status = viewModel.Status;
             teamMember.DailyCompensation = viewModel.DailyCompensation;
-            teamMember.LicenseUrl = viewModel.LicenseUrl;
 
             // Update OrganisationId if admin
             if (_currentUserService.IsAdmin)
             {
                 teamMember.OrganisationId = viewModel.OrganisationId;
+            }
+
+            // Handle license file removal
+            if (viewModel.RemoveLicense && !string.IsNullOrEmpty(teamMember.LicenseUrl))
+            {
+                try
+                {
+                    await _storageService.DeleteFileAsync(teamMember.LicenseUrl);
+                }
+                catch
+                {
+                    // Ignore errors if file doesn't exist
+                }
+                teamMember.LicenseUrl = null;
+            }
+
+            // Handle license file upload
+            if (viewModel.LicenseFile != null)
+            {
+                // Delete old license if exists (and not already deleted)
+                if (!string.IsNullOrEmpty(teamMember.LicenseUrl))
+                {
+                    try
+                    {
+                        await _storageService.DeleteFileAsync(teamMember.LicenseUrl);
+                    }
+                    catch
+                    {
+                        // Ignore errors if file doesn't exist
+                    }
+                }
+
+                // Upload new license
+                var fileName = $"{Guid.NewGuid()}_{Path.GetFileName(viewModel.LicenseFile.FileName)}";
+                var filePath = await _storageService.UploadFileAsync(
+                    viewModel.LicenseFile.OpenReadStream(),
+                    fileName,
+                    viewModel.LicenseFile.ContentType,
+                    $"{teamMember.OrganisationId}/team-member-licenses"
+                );
+                teamMember.LicenseUrl = filePath;
             }
 
             await _teamMemberRepository.UpdateAsync(teamMember);
@@ -410,6 +469,107 @@ public class TeamMembersController : Controller
         return View(viewModel);
     }
 
+    // GET: TeamMembers/ViewLicense/5
+    [HttpGet]
+    public async Task<IActionResult> ViewLicense(int id)
+    {
+        // Bypass query filters to check multi-tenancy explicitly
+        var teamMember = await _context.TeamMembers
+            .IgnoreQueryFilters()
+            .FirstOrDefaultAsync(tm => tm.TeamMemberId == id);
+
+        if (teamMember == null)
+        {
+            return NotFound();
+        }
+
+        // Multi-tenancy check
+        if (!_currentUserService.IsAdmin)
+        {
+            var userOrgId = _currentUserService.OrganisationId;
+            if (teamMember.OrganisationId != userOrgId)
+            {
+                return Forbid();
+            }
+        }
+
+        if (string.IsNullOrEmpty(teamMember.LicenseUrl))
+        {
+            return NotFound();
+        }
+
+        // If local storage, return PhysicalFile
+        if (teamMember.LicenseUrl.StartsWith("/uploads/"))
+        {
+            var filePath = Path.Combine(_webHostEnvironment.WebRootPath, teamMember.LicenseUrl.TrimStart('/'));
+
+            if (!System.IO.File.Exists(filePath))
+            {
+                return NotFound();
+            }
+
+            var contentType = Path.GetExtension(filePath).ToLower() switch
+            {
+                ".pdf" => "application/pdf",
+                ".jpg" or ".jpeg" => "image/jpeg",
+                ".png" => "image/png",
+                ".gif" => "image/gif",
+                _ => "application/octet-stream"
+            };
+
+            return PhysicalFile(filePath, contentType);
+        }
+        else
+        {
+            // Azure Blob URL - redirect
+            return Redirect(teamMember.LicenseUrl);
+        }
+    }
+
+    // POST: TeamMembers/DeleteLicense/5
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> DeleteLicense(int id)
+    {
+        // Bypass query filters to check multi-tenancy explicitly
+        var teamMember = await _context.TeamMembers
+            .IgnoreQueryFilters()
+            .FirstOrDefaultAsync(tm => tm.TeamMemberId == id);
+
+        if (teamMember == null)
+        {
+            return NotFound();
+        }
+
+        // Multi-tenancy check
+        if (!_currentUserService.IsAdmin)
+        {
+            var userOrgId = _currentUserService.OrganisationId;
+            if (teamMember.OrganisationId != userOrgId)
+            {
+                return Forbid();
+            }
+        }
+
+        // Delete license file if exists
+        if (!string.IsNullOrEmpty(teamMember.LicenseUrl))
+        {
+            try
+            {
+                await _storageService.DeleteFileAsync(teamMember.LicenseUrl);
+            }
+            catch
+            {
+                // Ignore errors if file doesn't exist
+            }
+
+            teamMember.LicenseUrl = null;
+            await _unitOfWork.SaveChangesAsync();
+        }
+
+        return Ok();
+    }
+
     // GET: TeamMembers/Delete/5
     public async Task<IActionResult> Delete(int id)
     {
@@ -435,6 +595,19 @@ public class TeamMembersController : Controller
         }
 
         var addressId = teamMember.AddressId;
+
+        // Delete license file if exists
+        if (!string.IsNullOrEmpty(teamMember.LicenseUrl))
+        {
+            try
+            {
+                await _storageService.DeleteFileAsync(teamMember.LicenseUrl);
+            }
+            catch
+            {
+                // Ignore errors if file doesn't exist
+            }
+        }
 
         // Delete TeamMember
         await _teamMemberRepository.DeleteAsync(teamMember);
@@ -464,7 +637,7 @@ public class TeamMembersController : Controller
 
         var address = await _context.Addresses.FindAsync(teamMember.AddressId);
 
-        return new TeamMemberViewModel
+        var viewModel = new TeamMemberViewModel
         {
             TeamMemberId = teamMember.TeamMemberId,
             FirstName = teamMember.FirstName,
@@ -485,7 +658,39 @@ public class TeamMembersController : Controller
             AddressId = teamMember.AddressId,
             OrganisationId = teamMember.OrganisationId,
             ActivitiesCount = teamMember.Activities.Count,
-            ExpensesCount = teamMember.Expenses.Count
+            ExpensesCount = teamMember.Expenses.Count,
+
+            // Audit fields
+            CreatedAt = teamMember.CreatedAt,
+            CreatedBy = teamMember.CreatedBy,
+            ModifiedAt = teamMember.ModifiedAt,
+            ModifiedBy = teamMember.ModifiedBy
         };
+
+        // Fetch user display names for audit fields
+        viewModel.CreatedByDisplayName = await GetUserDisplayNameAsync(teamMember.CreatedBy);
+        if (!string.IsNullOrEmpty(teamMember.ModifiedBy))
+        {
+            viewModel.ModifiedByDisplayName = await GetUserDisplayNameAsync(teamMember.ModifiedBy);
+        }
+
+        return viewModel;
+    }
+
+    private async Task<string> GetUserDisplayNameAsync(string userId)
+    {
+        if (userId == "System")
+        {
+            return "System";
+        }
+
+        var user = await _context.Users
+            .Where(u => u.Id == userId)
+            .Select(u => new { u.FirstName, u.LastName })
+            .FirstOrDefaultAsync();
+
+        return user != null
+            ? $"{user.FirstName} {user.LastName}".Trim()
+            : userId; // Fallback to ID if user not found
     }
 }

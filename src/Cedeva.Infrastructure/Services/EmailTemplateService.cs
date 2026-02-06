@@ -57,7 +57,7 @@ public class EmailTemplateService : IEmailTemplateService
 
     public async Task<EmailTemplate> CreateTemplateAsync(EmailTemplate template)
     {
-        template.CreatedDate = DateTime.UtcNow;
+        template.CreatedAt = DateTime.UtcNow;
 
         // If this template is marked as default, unset other defaults
         if (template.IsDefault)
@@ -73,7 +73,7 @@ public class EmailTemplateService : IEmailTemplateService
 
     public async Task UpdateTemplateAsync(EmailTemplate template)
     {
-        template.LastModifiedDate = DateTime.UtcNow;
+        template.ModifiedAt = DateTime.UtcNow;
 
         // If this template is marked as default, unset other defaults
         if (template.IsDefault)
@@ -106,7 +106,7 @@ public class EmailTemplateService : IEmailTemplateService
 
         // Set this template as default
         template.IsDefault = true;
-        template.LastModifiedDate = DateTime.UtcNow;
+        template.ModifiedAt = DateTime.UtcNow;
 
         await _context.SaveChangesAsync();
     }
@@ -131,7 +131,7 @@ public class EmailTemplateService : IEmailTemplateService
         foreach (var existingDefault in existingDefaults)
         {
             existingDefault.IsDefault = false;
-            existingDefault.LastModifiedDate = DateTime.UtcNow;
+            existingDefault.ModifiedAt = DateTime.UtcNow;
         }
     }
 }

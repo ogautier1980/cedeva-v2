@@ -1120,8 +1120,8 @@ public class TestDataSeeder
                     "<p>Cordialement,<br><strong>%nom_organisation%</strong></p>",
                 IsDefault = true,
                 IsShared = true,
-                CreatedByUserId = userId,
-                CreatedDate = now.AddDays(-10)
+                CreatedBy = userId,
+                CreatedAt = now.AddDays(-10)
             },
             new EmailTemplate
             {
@@ -1140,8 +1140,8 @@ public class TestDataSeeder
                     "<p>Cordialement,<br><strong>%nom_organisation%</strong></p>",
                 IsDefault = true,
                 IsShared = true,
-                CreatedByUserId = userId,
-                CreatedDate = now.AddDays(-8)
+                CreatedBy = userId,
+                CreatedAt = now.AddDays(-8)
             },
             new EmailTemplate
             {
@@ -1159,8 +1159,8 @@ public class TestDataSeeder
                     "<p>Cordialement,<br><strong>%nom_organisation%</strong></p>",
                 IsDefault = true,
                 IsShared = true,
-                CreatedByUserId = userId,
-                CreatedDate = now.AddDays(-5)
+                CreatedBy = userId,
+                CreatedAt = now.AddDays(-5)
             },
             new EmailTemplate
             {
@@ -1178,8 +1178,8 @@ public class TestDataSeeder
                     "<p>À bientôt !<br><strong>L'équipe de %nom_organisation%</strong></p>",
                 IsDefault = false,
                 IsShared = true,
-                CreatedByUserId = userId,
-                CreatedDate = now.AddDays(-3)
+                CreatedBy = userId,
+                CreatedAt = now.AddDays(-3)
             }
         );
 

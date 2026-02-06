@@ -74,10 +74,59 @@
                             <span asp-validation-for="Subject" class="text-danger"></span>
                         </div>
 
-                        <!-- Message (TinyMCE) -->
+                        <!-- Message -->
                         <div class="mb-3">
                             <label for="Message" class="form-label">@Localizer["Email.Message"]</label>
-                            <textarea asp-for="Message" class="form-control tinymce-editor" rows="10" id="Message"></textarea>
+
+                            <!-- Tabs Code/Aperçu -->
+                            <ul class="nav nav-tabs mb-2" role="tablist">
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link active" id="msg-code-tab" data-bs-toggle="tab" data-bs-target="#msg-code-pane" type="button" role="tab">
+                                        <i class="fas fa-code"></i> Code HTML
+                                    </button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="msg-preview-tab" data-bs-toggle="tab" data-bs-target="#msg-preview-pane" type="button" role="tab">
+                                        <i class="fas fa-eye"></i> Aperçu
+                                    </button>
+                                </li>
+                            </ul>
+
+                            <div class="tab-content border border-top-0 p-3">
+                                <!-- Code Tab -->
+                                <div class="tab-pane fade show active" id="msg-code-pane" role="tabpanel">
+                                    <!-- Toolbar -->
+                                    <div class="btn-toolbar mb-2" role="toolbar">
+                                        <div class="btn-group btn-group-sm me-2" role="group">
+                                            <button type="button" class="btn btn-outline-secondary" data-tag="<h2 style='color:#007faf;'>|</h2>" title="Titre">
+                                                <i class="fas fa-heading"></i> H2
+                                            </button>
+                                            <button type="button" class="btn btn-outline-secondary" data-tag="<strong>|</strong>" title="Gras">
+                                                <i class="fas fa-bold"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-outline-secondary" data-tag="<em>|</em>" title="Italique">
+                                                <i class="fas fa-italic"></i>
+                                            </button>
+                                        </div>
+                                        <div class="btn-group btn-group-sm me-2" role="group">
+                                            <button type="button" class="btn btn-outline-secondary" data-tag="<p>|</p>" title="Paragraphe">
+                                                <i class="fas fa-paragraph"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-outline-secondary" data-tag="<br>" title="Saut de ligne">
+                                                <i class="fas fa-arrow-turn-down"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <textarea asp-for="Message" class="form-control" rows="10" id="Message" style="font-family: 'Courier New', monospace; font-size: 13px;"></textarea>
+                                </div>
+
+                                <!-- Preview Tab -->
+                                <div class="tab-pane fade" id="msg-preview-pane" role="tabpanel">
+                                    <div id="msgPreview" class="p-3 bg-light" style="min-height: 300px; border: 1px solid #dee2e6;"></div>
+                                </div>
+                            </div>
+
                             <span asp-validation-for="Message" class="text-danger"></span>
                         </div>
 
@@ -175,49 +224,57 @@
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
 
-    <!-- TinyMCE CDN -->
-    <script src="https://cdn.tiny.cloud/1/@Configuration["TinyMCE:ApiKey"]/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
-
     <script>
-        // Initialize TinyMCE
-        tinymce.init({
-            selector: '#Message',
-            height: 350,
-            menubar: false,
-            plugins: [
-                'advlist', 'autolink', 'lists', 'link', 'charmap',
-                'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
-                'table', 'help', 'wordcount'
-            ],
-            toolbar: 'undo redo | blocks | bold italic underline forecolor | alignleft aligncenter alignright | bullist numlist | link | code | removeformat',
-            protect: [
-                /%\w+%/g  // Protect variables from being modified by formatting
-            ],
-            branding: false,
-            content_style: 'body { font-family: Arial, sans-serif; font-size: 14px; }'
+        const messageEditor = document.getElementById('Message');
+        const messagePreview = document.getElementById('msgPreview');
+        const subjectInput = document.getElementById('Subject');
+
+        // Function to insert text at cursor position
+        function insertAtCursor(targetElement, text) {
+            const start = targetElement.selectionStart;
+            const end = targetElement.selectionEnd;
+            const before = targetElement.value.substring(0, start);
+            const after = targetElement.value.substring(end);
+
+            // If tag contains |, insert selected text inside
+            if (text.includes('|')) {
+                const selected = targetElement.value.substring(start, end);
+                text = text.replace('|', selected || '');
+            }
+
+            targetElement.value = before + text + after;
+
+            // Move cursor
+            const newPos = start + text.length;
+            targetElement.setSelectionRange(newPos, newPos);
+            targetElement.focus();
+        }
+
+        // Formatting buttons
+        document.querySelectorAll('[data-tag]').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                insertAtCursor(messageEditor, this.dataset.tag);
+            });
         });
 
-        // Click on variable row => insert into TinyMCE or Subject field
+        // Variable insertion (into Subject or Message)
         document.querySelectorAll('.variable-row').forEach(row => {
             row.addEventListener('click', function () {
                 const variable = this.dataset.variable;
 
-                // Insert into active element (Subject field or TinyMCE)
-                const subjectInput = document.getElementById('Subject');
+                // Insert into active element (Subject or Message)
                 if (document.activeElement === subjectInput) {
-                    // Insert at cursor position in Subject
-                    const start = subjectInput.selectionStart;
-                    const end = subjectInput.selectionEnd;
-                    subjectInput.value = subjectInput.value.substring(0, start) + variable + subjectInput.value.substring(end);
-                    subjectInput.setSelectionRange(start + variable.length, start + variable.length);
-                    subjectInput.focus();
+                    insertAtCursor(subjectInput, variable + ' ');
                 } else {
-                    // Default: insert into TinyMCE editor
-                    if (tinymce.activeEditor) {
-                        tinymce.activeEditor.insertContent(variable);
-                    }
+                    insertAtCursor(messageEditor, variable + ' ');
                 }
             });
+        });
+
+        // Update preview when switching to preview tab
+        document.getElementById('msg-preview-tab').addEventListener('shown.bs.tab', function() {
+            messagePreview.innerHTML = messageEditor.value;
         });
 
         // Load template via AJAX
@@ -237,12 +294,10 @@
                 })
                 .then(data => {
                     // Fill Subject
-                    document.getElementById('Subject').value = data.subject;
+                    subjectInput.value = data.subject;
 
-                    // Fill TinyMCE editor
-                    if (tinymce.activeEditor) {
-                        tinymce.activeEditor.setContent(data.htmlContent);
-                    }
+                    // Fill Message textarea
+                    messageEditor.value = data.htmlContent;
                 })
                 .catch(err => {
                     alert('@Localizer["Email.TemplateLoadError"]');
@@ -253,11 +308,6 @@
         document.getElementById('SendSeparateEmailPerChild').addEventListener('change', function () {
             document.getElementById('perChildInfo').classList.toggle('d-none', !this.checked);
             document.getElementById('perParentInfo').classList.toggle('d-none', this.checked);
-        });
-
-        // Ensure TinyMCE saves content before form submit
-        document.getElementById('sendEmailForm').addEventListener('submit', function () {
-            tinymce.triggerSave();
         });
     </script>
 }

@@ -91,4 +91,21 @@
             </div>
         </div>
     </div>
+
+    @* Audit Information *@
+    <div class="mt-4 pt-3 border-top">
+        <small class="text-muted" style="font-weight: 300;">
+            @Localizer["Audit.CreatedBy"] <strong>@Model.CreatedByDisplayName</strong>
+            @Localizer["Audit.On"] @Model.CreatedAt.ToString("dd/MM/yyyy")
+            @Localizer["Audit.At"] @Model.CreatedAt.ToString("HH:mm")
+
+            @if (Model.ModifiedAt.HasValue)
+            {
+                <br />
+                @Localizer["Audit.ModifiedBy"] <strong>@(Model.ModifiedByDisplayName ?? "System")</strong>
+                @Localizer["Audit.On"] @Model.ModifiedAt.Value.ToString("dd/MM/yyyy")
+                @Localizer["Audit.At"] @Model.ModifiedAt.Value.ToString("HH:mm")
+            }
+        </small>
+    </div>
 </div>

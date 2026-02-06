@@ -11,7 +11,7 @@
                     <h5 class="mb-0"><i class="fas fa-edit me-2"></i>@Localizer["Organisations.EditOrganisation"]</h5>
                 </div>
                 <div class="card-body">
-                    <form asp-action="Edit" method="post">
+                    <form asp-action="Edit" method="post" enctype="multipart/form-data">
                         <input type="hidden" asp-for="Id" />
                         <input type="hidden" asp-for="AddressId" />
                         <input type="hidden" name="returnUrl" value="@ViewData["ReturnUrl"]" />
@@ -32,11 +32,25 @@
                         </div>
 
                         <div class="mb-3">
-                            <label for="LogoUrl" class="form-label">@Localizer["Field.LogoUrl"]</label>
-                            <input asp-for="LogoUrl" class="form-control" placeholder="https://..." id="LogoUrl" />
-                            <span asp-validation-for="LogoUrl" class="text-danger"></span>
-                            <div class="form-text">@Localizer["Organisations.LogoUrlOptional"]</div>
+                            <label for="LogoFile" class="form-label">@Localizer["Field.Logo"]</label>
+
+                            @if (!string.IsNullOrEmpty(Model.LogoUrl))
+                            {
+                                <div class="mb-2 position-relative d-inline-block" id="logoPreview">
+                                    <img src="@Model.LogoUrl" alt="Logo" class="img-thumbnail" style="max-width: 200px;" />
+                                    <button type="button" class="btn btn-danger btn-sm position-absolute top-0 end-0 m-1"
+                                            id="removeLogoBtn" title="@Localizer["Field.RemoveLogo"]">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            }
+                            <input asp-for="RemoveLogo" type="hidden" id="RemoveLogo" />
+
+                            <input asp-for="LogoFile" type="file" class="form-control" id="LogoFile" accept="image/*" />
+                            <span asp-validation-for="LogoFile" class="text-danger"></span>
+                            <small class="form-text text-muted">@Localizer["Validation.LogoFileHelp"]</small>
                         </div>
+                        <input type="hidden" asp-for="LogoUrl" />
 
                         <h6 class="mb-3 mt-4 text-primary"><i class="fas fa-map-marker-alt me-2"></i>@Localizer["Address"]</h6>
 
@@ -89,6 +103,64 @@
     <script>
         $(function () {
             initializeUnifiedAddressAutocomplete("#CombinedAddress", "#PostalCode", "#City");
+
+            // Handle logo removal with AJAX
+            $('#removeLogoBtn').on('click', function() {
+                if (confirm('@Html.Raw(Localizer["Organisations.ConfirmDeleteLogo"].Value.Replace("'", "\\'"))')) {
+                    var token = $('input[name="__RequestVerificationToken"]').val();
+                    $.post('@Url.Action("DeleteLogo", "Organisations")',
+                        {
+                            id: @Model.Id,
+                            __RequestVerificationToken: token
+                        },
+                        function() {
+                            $('#logoPreview').fadeOut(300, function() {
+                                $(this).remove();
+                            });
+                            // Show success message
+                            if ($('.alert').length === 0) {
+                                $('form').before('<div class="alert alert-success alert-dismissible fade show" role="alert">' +
+                                    '@Html.Raw(Localizer["Organisations.LogoDeletedSuccess"].Value.Replace("'", "\\'"))' +
+                                    '<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>');
+                            }
+                        }).fail(function() {
+                            alert('@Html.Raw(Localizer["Organisations.LogoDeletedError"].Value.Replace("'", "\\'"))');
+                        });
+                }
+            });
+
+            // Handle file selection preview
+            $('#LogoFile').on('change', function(e) {
+                var file = e.target.files[0];
+                if (file && file.type.startsWith('image/')) {
+                    var reader = new FileReader();
+                    reader.onload = function(e) {
+                        // Remove existing previews
+                        $('#logoPreview').remove();
+                        $('#logoPreviewNew').remove();
+
+                        // Create new preview
+                        var preview = $('<div class="mb-2 position-relative d-inline-block" id="logoPreviewNew">' +
+                            '<img src="' + e.target.result + '" alt="Logo Preview" class="img-thumbnail" style="max-width: 200px;" />' +
+                            '<button type="button" class="btn btn-danger btn-sm position-absolute top-0 end-0 m-1" id="clearLogoFileBtn" title="@Localizer["Field.RemoveLogo"]">' +
+                            '<i class="fas fa-times"></i>' +
+                            '</button>' +
+                            '</div>');
+
+                        // Insert preview before the file input
+                        $('#LogoFile').before(preview);
+
+                        // Handle clear button click
+                        $('#clearLogoFileBtn').on('click', function() {
+                            $('#logoPreviewNew').fadeOut(300, function() {
+                                $(this).remove();
+                            });
+                            $('#LogoFile').val('');
+                        });
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
         });
     </script>
 }

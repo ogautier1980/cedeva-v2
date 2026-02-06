@@ -58,7 +58,8 @@
                             <div class="col-md-6 mb-3">
                                 <label for="PricePerDay" class="form-label">@Localizer["Field.PricePerDay"]</label>
                                 <div class="input-group">
-                                    <input asp-for="PricePerDay" type="number" step="0.01" class="form-control" placeholder="0.00" id="PricePerDay" />
+                                    <input asp-for="PricePerDay" type="text" class="form-control" id="PricePerDay"
+                                           data-val-number="@Localizer["Validation.Number"]" />
                                     <span class="input-group-text">€</span>
                                 </div>
                                 <span asp-validation-for="PricePerDay" class="text-danger"></span>
@@ -68,6 +69,23 @@
                                     <input asp-for="IsActive" class="form-check-input" id="IsActive" />
                                     <label for="IsActive" class="form-check-label">@Localizer["Field.IsActive"]</label>
                                 </div>
+                            </div>
+                        </div>
+
+                        <h6 class="mb-3 text-primary"><i class="fas fa-map-marker-alt me-2"></i>@Localizer["Activities.PostalCodeRestrictions"]</h6>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="IncludedPostalCodes" class="form-label">@Localizer["Activities.IncludedPostalCodes"]</label>
+                                <input asp-for="IncludedPostalCodes" class="form-control" id="IncludedPostalCodes" />
+                                <span asp-validation-for="IncludedPostalCodes" class="text-danger"></span>
+                                <small class="form-text text-muted">@Localizer["Activities.IncludedPostalCodesHelp"]</small>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="ExcludedPostalCodes" class="form-label">@Localizer["Activities.ExcludedPostalCodes"]</label>
+                                <input asp-for="ExcludedPostalCodes" class="form-control" id="ExcludedPostalCodes" />
+                                <span asp-validation-for="ExcludedPostalCodes" class="text-danger"></span>
+                                <small class="form-text text-muted">@Localizer["Activities.ExcludedPostalCodesHelp"]</small>
                             </div>
                         </div>
 
@@ -110,4 +128,42 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        $(document).ready(function() {
+            // Override jQuery Validation to accept comma as decimal separator (French format)
+            if ($.validator) {
+                // Override number validation to accept comma
+                $.validator.methods.number = function(value, element) {
+                    return this.optional(element) || /^-?(?:\d+|\d{1,3}(?:[\s\.,]\d{3})+)?(?:[,\.]\d+)?$/.test(value);
+                };
+
+                // Override range validation to convert comma to point
+                $.validator.methods.range = function(value, element, param) {
+                    var globalizedValue = value.replace(",", ".");
+                    return this.optional(element) || (globalizedValue >= param[0] && globalizedValue <= param[1]);
+                };
+
+                // Set default French messages
+                $.validator.messages.number = "Veuillez entrer un nombre valide.";
+                $.validator.messages.range = "Veuillez entrer une valeur entre {0} et {1}.";
+
+                // After unobtrusive validation parses, override element-specific messages
+                setTimeout(function() {
+                    var $priceField = $("#PricePerDay");
+                    if ($priceField.length && $priceField.data("validator")) {
+                        var validator = $priceField.closest("form").validate();
+                        if (validator.settings.messages && validator.settings.messages.PricePerDay) {
+                            if (validator.settings.messages.PricePerDay.number) {
+                                validator.settings.messages.PricePerDay.number = "Veuillez entrer un nombre valide.";
+                            }
+                            if (validator.settings.messages.PricePerDay.range) {
+                                validator.settings.messages.PricePerDay.range = $.validator.format("Veuillez entrer une valeur entre {0} et {1}.");
+                            }
+                        }
+                    }
+                }, 100);
+            }
+        });
+    </script>
 }

@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Cedeva.Core.Entities;
 
-public class Organisation
+public class Organisation : AuditableEntity
 {
     public int Id { get; set; }
 

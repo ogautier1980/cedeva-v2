@@ -47,6 +47,16 @@ public class ChildViewModel
     public string? ParentFullName { get; set; }
     public string? ActivityGroupName { get; set; }
     public List<BookingSummaryViewModel> Bookings { get; set; } = new();
+
+    // Audit fields
+    public DateTime CreatedAt { get; set; }
+    public string CreatedBy { get; set; } = string.Empty;
+    public DateTime? ModifiedAt { get; set; }
+    public string? ModifiedBy { get; set; }
+
+    // Audit display names (for UI)
+    public string CreatedByDisplayName { get; set; } = string.Empty;
+    public string? ModifiedByDisplayName { get; set; }
 }
 
 public class BookingSummaryViewModel

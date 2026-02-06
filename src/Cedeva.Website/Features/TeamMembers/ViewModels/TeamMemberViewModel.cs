@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using Cedeva.Core.Enums;
+using Cedeva.Website.Validation;
 
 namespace Cedeva.Website.Features.TeamMembers.ViewModels;
 
@@ -73,14 +74,21 @@ public class TeamMemberViewModel
     public Status Status { get; set; }
 
     [Display(Name = "Field.DailyCompensation")]
-    [Range(0, 10000)]
+    [Range(0, 10000, ErrorMessage = "Validation.Range")]
     [DataType(DataType.Currency)]
     public decimal? DailyCompensation { get; set; }
 
-    [Required(ErrorMessage = "The {0} field is required.")]
-    [StringLength(100, ErrorMessage = "The field {0} must have between {2} and {1} characters.")]
+    [Display(Name = "Field.LicenseFile")]
+    [AllowedExtensions(".jpg", ".jpeg", ".png", ".gif", ".pdf")]
+    [MaxFileSize(10 * 1024 * 1024)]
+    public IFormFile? LicenseFile { get; set; }
+
+    [Display(Name = "Field.RemoveLicense")]
+    public bool RemoveLicense { get; set; }
+
+    [StringLength(255)]
     [Display(Name = "Field.LicenseUrl")]
-    public string LicenseUrl { get; set; } = string.Empty;
+    public string? LicenseUrl { get; set; }
 
     public int? AddressId { get; set; }
     public int OrganisationId { get; set; }
@@ -94,4 +102,14 @@ public class TeamMemberViewModel
 
     [Display(Name = "Field.ExpensesCount")]
     public int ExpensesCount { get; set; }
+
+    // Audit fields
+    public DateTime CreatedAt { get; set; }
+    public string CreatedBy { get; set; } = string.Empty;
+    public DateTime? ModifiedAt { get; set; }
+    public string? ModifiedBy { get; set; }
+
+    // Audit display names (for UI)
+    public string CreatedByDisplayName { get; set; } = string.Empty;
+    public string? ModifiedByDisplayName { get; set; }
 }

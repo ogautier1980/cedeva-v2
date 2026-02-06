@@ -69,6 +69,16 @@ public class ParentViewModel
     public int ChildrenCount { get; set; }
 
     public IEnumerable<ChildSummaryViewModel> Children { get; set; } = new List<ChildSummaryViewModel>();
+
+    // Audit fields
+    public DateTime CreatedAt { get; set; }
+    public string CreatedBy { get; set; } = string.Empty;
+    public DateTime? ModifiedAt { get; set; }
+    public string? ModifiedBy { get; set; }
+
+    // Audit display names (for UI)
+    public string CreatedByDisplayName { get; set; } = string.Empty;
+    public string? ModifiedByDisplayName { get; set; }
 }
 
 public class ChildSummaryViewModel

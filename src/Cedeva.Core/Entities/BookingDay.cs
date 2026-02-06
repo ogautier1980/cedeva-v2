@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Cedeva.Core.Entities;
 
-public class BookingDay
+public class BookingDay : AuditableEntity
 {
     public int Id { get; set; }
 

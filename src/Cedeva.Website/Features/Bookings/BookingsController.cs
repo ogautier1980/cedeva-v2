@@ -461,7 +461,7 @@ public class BookingsController : Controller
             })
             .ToList();
 
-        return new BookingViewModel
+        var viewModel = new BookingViewModel
         {
             Id = booking.Id,
             BookingDate = booking.BookingDate,
@@ -481,8 +481,40 @@ public class BookingsController : Controller
             GroupLabel = group?.Label,
             DaysCount = booking.Days.Count,
             QuestionAnswersCount = booking.QuestionAnswers.Count,
-            WeeklyDays = weeklyDays
+            WeeklyDays = weeklyDays,
+
+            // Audit fields
+            CreatedAt = booking.CreatedAt,
+            CreatedBy = booking.CreatedBy,
+            ModifiedAt = booking.ModifiedAt,
+            ModifiedBy = booking.ModifiedBy
         };
+
+        // Fetch user display names for audit fields
+        viewModel.CreatedByDisplayName = await GetUserDisplayNameAsync(booking.CreatedBy);
+        if (!string.IsNullOrEmpty(booking.ModifiedBy))
+        {
+            viewModel.ModifiedByDisplayName = await GetUserDisplayNameAsync(booking.ModifiedBy);
+        }
+
+        return viewModel;
+    }
+
+    private async Task<string> GetUserDisplayNameAsync(string userId)
+    {
+        if (userId == "System")
+        {
+            return "System";
+        }
+
+        var user = await _context.Users
+            .Where(u => u.Id == userId)
+            .Select(u => new { u.FirstName, u.LastName })
+            .FirstOrDefaultAsync();
+
+        return user != null
+            ? $"{user.FirstName} {user.LastName}".Trim()
+            : userId; // Fallback to ID if user not found
     }
 
     private async Task SendBookingConfirmationEmailAsync(Booking booking)

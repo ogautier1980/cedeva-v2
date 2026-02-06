@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using Cedeva.Core.Enums;
+using Cedeva.Website.Validation;
 
 namespace Cedeva.Website.Features.Organisations.ViewModels;
 
@@ -16,6 +17,14 @@ public class OrganisationViewModel
     [StringLength(500, MinimumLength = 10, ErrorMessage = "The field {0} must have between {2} and {1} characters.")]
     [Display(Name = "Field.Description")]
     public string Description { get; set; } = string.Empty;
+
+    [Display(Name = "Field.Logo")]
+    [AllowedExtensions(".jpg", ".jpeg", ".png", ".gif", ".svg")]
+    [MaxFileSize(5 * 1024 * 1024)]
+    public IFormFile? LogoFile { get; set; }
+
+    [Display(Name = "Field.RemoveLogo")]
+    public bool RemoveLogo { get; set; }
 
     [Display(Name = "Field.LogoUrl")]
     public string? LogoUrl { get; set; }
@@ -56,6 +65,16 @@ public class OrganisationViewModel
 
     [Display(Name = "Field.ChildrenCount")]
     public int ChildrenCount { get; set; }
+
+    // Audit fields
+    public DateTime CreatedAt { get; set; }
+    public string CreatedBy { get; set; } = string.Empty;
+    public DateTime? ModifiedAt { get; set; }
+    public string? ModifiedBy { get; set; }
+
+    // Audit display names (for UI)
+    public string CreatedByDisplayName { get; set; } = string.Empty;
+    public string? ModifiedByDisplayName { get; set; }
 }
 
 public class OrganisationListViewModel

@@ -4,7 +4,12 @@
 
 @{
     ViewData["Title"] = Localizer["Financial.Dashboard"];
+    ViewData["ActivityId"] = Model.ActivityId;
+    ViewData["ActivityName"] = Model.ActivityName;
+    ViewData["NavSection"] = "Financial";
 }
+
+<partial name="_ActivityManagementNav" />
 
 <div class="container-fluid">
     <!-- Header -->

@@ -3,7 +3,7 @@ using Cedeva.Core.Enums;
 
 namespace Cedeva.Core.Entities;
 
-public class TeamMember
+public class TeamMember : AuditableEntity
 {
     public int TeamMemberId { get; set; }
 
@@ -46,9 +46,8 @@ public class TeamMember
 
     public decimal? DailyCompensation { get; set; }
 
-    [Required(ErrorMessage = "The {0} field is required.")]
-    [StringLength(100, ErrorMessage = "The field {0} must have between {2} and {1} characters.")]
-    public string LicenseUrl { get; set; } = string.Empty;
+    [StringLength(255)]
+    public string? LicenseUrl { get; set; }
 
     public int OrganisationId { get; set; }
     public Organisation Organisation { get; set; } = null!;

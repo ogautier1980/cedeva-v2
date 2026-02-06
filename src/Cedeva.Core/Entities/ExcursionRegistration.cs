@@ -5,7 +5,7 @@ namespace Cedeva.Core.Entities;
 /// <summary>
 /// Inscription d'un enfant (via son booking) à une excursion
 /// </summary>
-public class ExcursionRegistration
+public class ExcursionRegistration : AuditableEntity
 {
     public int Id { get; set; }
 

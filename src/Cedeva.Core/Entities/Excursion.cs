@@ -6,7 +6,7 @@ namespace Cedeva.Core.Entities;
 /// <summary>
 /// Excursion liée à une activité
 /// </summary>
-public class Excursion
+public class Excursion : AuditableEntity
 {
     public int Id { get; set; }
 

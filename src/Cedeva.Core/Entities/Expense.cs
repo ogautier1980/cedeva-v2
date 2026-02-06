@@ -3,7 +3,7 @@ using Cedeva.Core.Enums;
 
 namespace Cedeva.Core.Entities;
 
-public class Expense
+public class Expense : AuditableEntity
 {
     public int Id { get; set; }
 

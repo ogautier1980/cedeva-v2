@@ -7,7 +7,7 @@ namespace Cedeva.Core.Entities;
 /// Utilisée pour enregistrer tous les mouvements financiers sauf les salaires équipe
 /// (qui sont calculés dynamiquement).
 /// </summary>
-public class ActivityFinancialTransaction
+public class ActivityFinancialTransaction : AuditableEntity
 {
     public int Id { get; set; }
 

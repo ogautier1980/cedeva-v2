@@ -245,7 +245,31 @@ public class PaymentsController : Controller
             return NotFound();
         }
 
+        // Fetch user display names for audit fields
+        ViewBag.CreatedByDisplayName = await GetUserDisplayNameAsync(payment.CreatedBy);
+        if (!string.IsNullOrEmpty(payment.ModifiedBy))
+        {
+            ViewBag.ModifiedByDisplayName = await GetUserDisplayNameAsync(payment.ModifiedBy);
+        }
+
         return View(payment);
+    }
+
+    private async Task<string> GetUserDisplayNameAsync(string userId)
+    {
+        if (userId == "System")
+        {
+            return "System";
+        }
+
+        var user = await _context.Users
+            .Where(u => u.Id == userId)
+            .Select(u => new { u.FirstName, u.LastName })
+            .FirstOrDefaultAsync();
+
+        return user != null
+            ? $"{user.FirstName} {user.LastName}".Trim()
+            : userId; // Fallback to ID if user not found
     }
 
     // POST: Payments/Cancel/5

@@ -441,7 +441,16 @@ public class ParentsController : Controller
             return null;
         }
 
-        return MapToViewModel(parent);
+        var viewModel = MapToViewModel(parent);
+
+        // Fetch user display names for audit fields
+        viewModel.CreatedByDisplayName = await GetUserDisplayNameAsync(parent.CreatedBy);
+        if (!string.IsNullOrEmpty(parent.ModifiedBy))
+        {
+            viewModel.ModifiedByDisplayName = await GetUserDisplayNameAsync(parent.ModifiedBy);
+        }
+
+        return viewModel;
     }
 
     private static ParentViewModel MapToViewModel(Parent parent)
@@ -467,7 +476,30 @@ public class ParentsController : Controller
                 Id = c.Id,
                 FullName = c.FullName,
                 BirthDate = c.BirthDate
-            }).ToList() ?? new List<ChildSummaryViewModel>()
+            }).ToList() ?? new List<ChildSummaryViewModel>(),
+
+            // Audit fields
+            CreatedAt = parent.CreatedAt,
+            CreatedBy = parent.CreatedBy,
+            ModifiedAt = parent.ModifiedAt,
+            ModifiedBy = parent.ModifiedBy
         };
+    }
+
+    private async Task<string> GetUserDisplayNameAsync(string userId)
+    {
+        if (userId == "System")
+        {
+            return "System";
+        }
+
+        var user = await _context.Users
+            .Where(u => u.Id == userId)
+            .Select(u => new { u.FirstName, u.LastName })
+            .FirstOrDefaultAsync();
+
+        return user != null
+            ? $"{user.FirstName} {user.LastName}".Trim()
+            : userId; // Fallback to ID if user not found
     }
 }

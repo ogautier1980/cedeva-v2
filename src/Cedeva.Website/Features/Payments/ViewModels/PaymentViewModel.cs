@@ -34,6 +34,16 @@ public class PaymentViewModel
     public decimal BookingTotalAmount { get; set; }
     public decimal BookingPaidAmount { get; set; }
     public decimal BookingRemainingAmount => BookingTotalAmount - BookingPaidAmount;
+
+    // Audit fields
+    public DateTime CreatedAt { get; set; }
+    public string CreatedBy { get; set; } = string.Empty;
+    public DateTime? ModifiedAt { get; set; }
+    public string? ModifiedBy { get; set; }
+
+    // Audit display names (for UI)
+    public string CreatedByDisplayName { get; set; } = string.Empty;
+    public string? ModifiedByDisplayName { get; set; }
 }
 
 public class PaymentListViewModel

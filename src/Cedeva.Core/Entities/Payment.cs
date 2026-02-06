@@ -5,7 +5,7 @@ namespace Cedeva.Core.Entities;
 /// <summary>
 /// Paiement effectué pour une réservation (virement bancaire ou cash).
 /// </summary>
-public class Payment
+public class Payment : AuditableEntity
 {
     public int Id { get; set; }
 
@@ -35,9 +35,4 @@ public class Payment
     /// </summary>
     public int? BankTransactionId { get; set; }
     public BankTransaction? BankTransaction { get; set; }
-
-    /// <summary>
-    /// Utilisateur qui a enregistré le paiement (pour paiements cash manuels)
-    /// </summary>
-    public int? CreatedByUserId { get; set; }
 }

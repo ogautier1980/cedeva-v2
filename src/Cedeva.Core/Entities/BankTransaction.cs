@@ -3,7 +3,7 @@ namespace Cedeva.Core.Entities;
 /// <summary>
 /// Transaction bancaire importée depuis un fichier CODA.
 /// </summary>
-public class BankTransaction
+public class BankTransaction : AuditableEntity
 {
     public int Id { get; set; }
 

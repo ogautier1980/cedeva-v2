@@ -3,7 +3,7 @@ using Cedeva.Core.Enums;
 
 namespace Cedeva.Core.Entities;
 
-public class Booking
+public class Booking : AuditableEntity
 {
     public int Id { get; set; }
 

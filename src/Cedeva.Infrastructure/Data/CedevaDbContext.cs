@@ -96,6 +96,53 @@ public class CedevaDbContext : IdentityDbContext<CedevaUser>, IUnitOfWork
 
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
+        var currentUser = _currentUserService?.UserId ?? "System";
+        var timestamp = DateTime.UtcNow;
+
+        foreach (var entry in ChangeTracker.Entries())
+        {
+            // Gérer AuditableEntity
+            if (entry.Entity is AuditableEntity auditableEntity)
+            {
+                if (entry.State == EntityState.Added)
+                {
+                    auditableEntity.CreatedAt = timestamp;
+                    auditableEntity.CreatedBy = currentUser;
+                    auditableEntity.ModifiedAt = null;
+                    auditableEntity.ModifiedBy = null;
+                }
+                else if (entry.State == EntityState.Modified)
+                {
+                    auditableEntity.ModifiedAt = timestamp;
+                    auditableEntity.ModifiedBy = currentUser;
+
+                    // Empêcher écrasement des champs de création
+                    entry.Property(nameof(AuditableEntity.CreatedAt)).IsModified = false;
+                    entry.Property(nameof(AuditableEntity.CreatedBy)).IsModified = false;
+                }
+            }
+            // Gérer CedevaUser séparément (n'hérite pas de AuditableEntity)
+            else if (entry.Entity is CedevaUser cedevaUser)
+            {
+                if (entry.State == EntityState.Added)
+                {
+                    cedevaUser.CreatedAt = timestamp;
+                    cedevaUser.CreatedBy = currentUser;
+                    cedevaUser.ModifiedAt = null;
+                    cedevaUser.ModifiedBy = null;
+                }
+                else if (entry.State == EntityState.Modified)
+                {
+                    cedevaUser.ModifiedAt = timestamp;
+                    cedevaUser.ModifiedBy = currentUser;
+
+                    // Empêcher écrasement des champs de création
+                    entry.Property(nameof(cedevaUser.CreatedAt)).IsModified = false;
+                    entry.Property(nameof(cedevaUser.CreatedBy)).IsModified = false;
+                }
+            }
+        }
+
         return await base.SaveChangesAsync(cancellationToken);
     }
 

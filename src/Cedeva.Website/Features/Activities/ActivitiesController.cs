@@ -133,6 +133,10 @@ public class ActivitiesController : Controller
         }
 
         var viewModel = MapToViewModel(activity);
+
+        // Fetch user display names for audit fields
+        await PopulateAuditDisplayNamesAsync(viewModel, activity.CreatedBy, activity.ModifiedBy);
+
         return View(viewModel);
     }
 
@@ -214,6 +218,8 @@ public class ActivitiesController : Controller
             PricePerDay = viewModel.PricePerDay,
             StartDate = viewModel.StartDate,
             EndDate = viewModel.EndDate,
+            IncludedPostalCodes = viewModel.IncludedPostalCodes,
+            ExcludedPostalCodes = viewModel.ExcludedPostalCodes,
             OrganisationId = _currentUserService.IsAdmin ? viewModel.OrganisationId : organisationId!.Value
         };
 
@@ -309,8 +315,72 @@ public class ActivitiesController : Controller
         activity.Description = viewModel.Description;
         activity.IsActive = viewModel.IsActive;
         activity.PricePerDay = viewModel.PricePerDay;
+
+        // Handle date changes and generate/remove days if needed
+        var oldStartDate = activity.StartDate;
+        var oldEndDate = activity.EndDate;
+        var datesChanged = viewModel.StartDate != oldStartDate || viewModel.EndDate != oldEndDate;
+
         activity.StartDate = viewModel.StartDate;
         activity.EndDate = viewModel.EndDate;
+        activity.IncludedPostalCodes = viewModel.IncludedPostalCodes;
+        activity.ExcludedPostalCodes = viewModel.ExcludedPostalCodes;
+
+        // Generate new days if dates expanded
+        if (datesChanged)
+        {
+            var existingDates = activity.Days.Select(d => d.DayDate.Date).ToHashSet();
+
+            // Add missing days before old start date
+            if (viewModel.StartDate < oldStartDate)
+            {
+                for (var date = viewModel.StartDate; date < oldStartDate; date = date.AddDays(1))
+                {
+                    if (!existingDates.Contains(date.Date))
+                    {
+                        var isWeekend = date.DayOfWeek == DayOfWeek.Saturday || date.DayOfWeek == DayOfWeek.Sunday;
+                        activity.Days.Add(new ActivityDay
+                        {
+                            Label = date.ToString("dddd d MMMM", new System.Globalization.CultureInfo("fr-BE")),
+                            DayDate = date,
+                            Week = GetWeekNumber(date, viewModel.StartDate),
+                            IsActive = !isWeekend  // Weekdays active by default
+                        });
+                    }
+                }
+            }
+
+            // Add missing days after old end date
+            if (viewModel.EndDate > oldEndDate)
+            {
+                for (var date = oldEndDate.AddDays(1); date <= viewModel.EndDate; date = date.AddDays(1))
+                {
+                    if (!existingDates.Contains(date.Date))
+                    {
+                        var isWeekend = date.DayOfWeek == DayOfWeek.Saturday || date.DayOfWeek == DayOfWeek.Sunday;
+                        activity.Days.Add(new ActivityDay
+                        {
+                            Label = date.ToString("dddd d MMMM", new System.Globalization.CultureInfo("fr-BE")),
+                            DayDate = date,
+                            Week = GetWeekNumber(date, viewModel.StartDate),
+                            IsActive = !isWeekend  // Weekdays active by default
+                        });
+                    }
+                }
+            }
+
+            // Deactivate days that are now outside the new date range
+            foreach (var day in activity.Days.Where(d => d.DayDate < viewModel.StartDate || d.DayDate > viewModel.EndDate))
+            {
+                day.IsActive = false;
+            }
+
+            // Recalculate week numbers for all days
+            foreach (var day in activity.Days)
+            {
+                day.Week = GetWeekNumber(day.DayDate, viewModel.StartDate);
+            }
+        }
 
         // Handle day changes
         if (ActiveDayIds != null)
@@ -342,7 +412,7 @@ public class ActivitiesController : Controller
                         _localizer["Activities.DeactivateDaysWarning"].Value,
                         bookingsWithDeactivatedDays,
                         string.Join(", ", deactivatedDaysLabels));
-                    TempData["DeactivatedDays"] = string.Join(",", daysBeingDeactivated);
+                    TempData["ActiveDaysAfterDeactivation"] = string.Join(",", ActiveDayIds);
 
                     // Reload view with warning
                     viewModel = MapToViewModel(activity);
@@ -394,12 +464,6 @@ public class ActivitiesController : Controller
                         }
                     }
                 }
-            }
-
-            // Deactivate days that are not in ActiveDayIds
-            foreach (var day in activity.Days.Where(d => !ActiveDayIds.Contains(d.DayId)))
-            {
-                day.IsActive = false;
             }
 
             // Show info message if days were activated
@@ -510,11 +574,19 @@ public class ActivitiesController : Controller
             PricePerDay = activity.PricePerDay,
             StartDate = activity.StartDate,
             EndDate = activity.EndDate,
+            IncludedPostalCodes = activity.IncludedPostalCodes,
+            ExcludedPostalCodes = activity.ExcludedPostalCodes,
             OrganisationId = activity.OrganisationId,
             OrganisationName = activity.Organisation?.Name,
             BookingsCount = activity.Bookings?.Count ?? 0,
             GroupsCount = activity.Groups?.Count ?? 0,
-            TeamMembersCount = activity.TeamMembers?.Count ?? 0
+            TeamMembersCount = activity.TeamMembers?.Count ?? 0,
+
+            // Audit fields
+            CreatedAt = activity.CreatedAt,
+            CreatedBy = activity.CreatedBy,
+            ModifiedAt = activity.ModifiedAt,
+            ModifiedBy = activity.ModifiedBy
         };
 
         // Group days by week for Details view
@@ -563,6 +635,35 @@ public class ActivitiesController : Controller
         }
 
         return viewModel;
+    }
+
+    private async Task PopulateAuditDisplayNamesAsync(ActivityViewModel viewModel, string createdBy, string? modifiedBy)
+    {
+        // Fetch created by user info
+        viewModel.CreatedByDisplayName = await GetUserDisplayNameAsync(createdBy);
+
+        // Fetch modified by user info (if exists)
+        if (!string.IsNullOrEmpty(modifiedBy))
+        {
+            viewModel.ModifiedByDisplayName = await GetUserDisplayNameAsync(modifiedBy);
+        }
+    }
+
+    private async Task<string> GetUserDisplayNameAsync(string userId)
+    {
+        if (userId == "System")
+        {
+            return "System";
+        }
+
+        var user = await _context.Users
+            .Where(u => u.Id == userId)
+            .Select(u => new { u.FirstName, u.LastName })
+            .FirstOrDefaultAsync();
+
+        return user != null
+            ? $"{user.FirstName} {user.LastName}".Trim()
+            : userId; // Fallback to ID if user not found
     }
 
     private static int GetWeekNumber(DateTime date, DateTime startDate)

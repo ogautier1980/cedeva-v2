@@ -2305,6 +2305,15 @@
   <data name="Organisations.LogoUrlOptional" xml:space="preserve">
     <value>[EN] URL du logo de l'organisation (optionnel)</value>
   </data>
+  <data name="Organisations.ConfirmDeleteLogo" xml:space="preserve">
+    <value>Are you sure you want to delete this logo?</value>
+  </data>
+  <data name="Organisations.LogoDeletedSuccess" xml:space="preserve">
+    <value>Logo deleted successfully.</value>
+  </data>
+  <data name="Organisations.LogoDeletedError" xml:space="preserve">
+    <value>Error deleting logo.</value>
+  </data>
   <data name="Organisations.NewOrganisation" xml:space="preserve">
     <value>[EN] Nouvelle organisation</value>
   </data>
@@ -3103,6 +3112,9 @@
   <data name="Validation.PhoneFormat" xml:space="preserve">
     <value>[EN] Format de téléphone invalide</value>
   </data>
+  <data name="Validation.Number" xml:space="preserve">
+    <value>[EN] Please enter a valid number</value>
+  </data>
   <data name="Validation.Range" xml:space="preserve">
     <value>[EN] La valeur doit être comprise entre {1} et {2}</value>
   </data>
@@ -3428,5 +3440,74 @@
   </data>
   <data name="A value for '{0}' property is required." xml:space="preserve">
     <value>A value for '{0}' property is required.</value>
+  </data>
+  <data name="EmailTemplate.HtmlHelp" xml:space="preserve">
+    <value>You can use HTML and click on variables on the right to insert them.</value>
+  </data>
+  <data name="Activities.PostalCodeRestrictions" xml:space="preserve">
+    <value>Geographic restrictions (postal codes)</value>
+  </data>
+  <data name="Activities.IncludedPostalCodes" xml:space="preserve">
+    <value>Allowed postal codes</value>
+  </data>
+  <data name="Activities.IncludedPostalCodesHelp" xml:space="preserve">
+    <value>List of allowed postal codes (comma-separated). If empty, all codes are allowed except excluded ones.</value>
+  </data>
+  <data name="Activities.ExcludedPostalCodes" xml:space="preserve">
+    <value>Excluded postal codes</value>
+  </data>
+  <data name="Activities.ExcludedPostalCodesHelp" xml:space="preserve">
+    <value>List of forbidden postal codes (comma-separated).</value>
+  </data>
+  <data name="Registration.PostalCodeNotAllowed" xml:space="preserve">
+    <value>Sorry, registrations for this activity are not open to residents of your postal code.</value>
+  </data>
+  <data name="Registration.PostalCodeExcluded" xml:space="preserve">
+    <value>Sorry, your postal code is not allowed for this activity.</value>
+  </data>
+  <data name="Field.Logo" xml:space="preserve">
+    <value>Logo</value>
+  </data>
+  <data name="Field.LicenseFile" xml:space="preserve">
+    <value>License/Certificate</value>
+  </data>
+  <data name="Validation.LogoFileHelp" xml:space="preserve">
+    <value>Accepted formats: JPG, PNG, GIF, SVG. Max size: 5 MB.</value>
+  </data>
+  <data name="Validation.LicenseFileHelp" xml:space="preserve">
+    <value>Accepted formats: JPG, PNG, GIF, PDF. Max size: 10 MB.</value>
+  </data>
+  <data name="TeamMembers.ViewLicense" xml:space="preserve">
+    <value>View license</value>
+  </data>
+  <data name="TeamMembers.NoLicense" xml:space="preserve">
+    <value>No license uploaded</value>
+  </data>
+  <data name="TeamMembers.ConfirmDeleteLicense" xml:space="preserve">
+    <value>Are you sure you want to delete this license?</value>
+  </data>
+  <data name="TeamMembers.LicenseDeletedSuccess" xml:space="preserve">
+    <value>License deleted successfully.</value>
+  </data>
+  <data name="TeamMembers.LicenseDeletedError" xml:space="preserve">
+    <value>Error deleting license.</value>
+  </data>
+  <data name="Field.RemoveLogo" xml:space="preserve">
+    <value>Remove logo</value>
+  </data>
+  <data name="Field.RemoveLicense" xml:space="preserve">
+    <value>Remove license</value>
+  </data>
+  <data name="Audit.CreatedBy" xml:space="preserve">
+    <value>Created by</value>
+  </data>
+  <data name="Audit.ModifiedBy" xml:space="preserve">
+    <value>Modified by</value>
+  </data>
+  <data name="Audit.On" xml:space="preserve">
+    <value> on</value>
+  </data>
+  <data name="Audit.At" xml:space="preserve">
+    <value> at</value>
   </data>
 </root>

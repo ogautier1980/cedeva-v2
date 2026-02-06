@@ -390,7 +390,7 @@ public class ChildrenController : Controller
             })
             .ToListAsync();
 
-        return new ChildViewModel
+        var viewModel = new ChildViewModel
         {
             Id = child.Id,
             FirstName = child.FirstName,
@@ -403,8 +403,40 @@ public class ChildrenController : Controller
             ParentId = child.ParentId,
             ParentFullName = parent != null ? $"{parent.FirstName} {parent.LastName}" : "",
             ActivityGroupId = child.ActivityGroupId,
-            Bookings = bookings
+            Bookings = bookings,
+
+            // Audit fields
+            CreatedAt = child.CreatedAt,
+            CreatedBy = child.CreatedBy,
+            ModifiedAt = child.ModifiedAt,
+            ModifiedBy = child.ModifiedBy
         };
+
+        // Fetch user display names for audit fields
+        viewModel.CreatedByDisplayName = await GetUserDisplayNameAsync(child.CreatedBy);
+        if (!string.IsNullOrEmpty(child.ModifiedBy))
+        {
+            viewModel.ModifiedByDisplayName = await GetUserDisplayNameAsync(child.ModifiedBy);
+        }
+
+        return viewModel;
+    }
+
+    private async Task<string> GetUserDisplayNameAsync(string userId)
+    {
+        if (userId == "System")
+        {
+            return "System";
+        }
+
+        var user = await _context.Users
+            .Where(u => u.Id == userId)
+            .Select(u => new { u.FirstName, u.LastName })
+            .FirstOrDefaultAsync();
+
+        return user != null
+            ? $"{user.FirstName} {user.LastName}".Trim()
+            : userId; // Fallback to ID if user not found
     }
 
     private async Task PopulateParentDropdown(int? selectedParentId = null)

@@ -344,7 +344,7 @@ public class UsersController : Controller
             return null;
         }
 
-        return new UserViewModel
+        var viewModel = new UserViewModel
         {
             Id = user.Id,
             FirstName = user.FirstName,
@@ -354,8 +354,40 @@ public class UsersController : Controller
             OrganisationName = user.Organisation != null ? user.Organisation.Name : "",
             Role = user.Role,
             EmailConfirmed = user.EmailConfirmed,
-            IsLockedOut = user.LockoutEnd.HasValue && user.LockoutEnd.Value > DateTimeOffset.UtcNow
+            IsLockedOut = user.LockoutEnd.HasValue && user.LockoutEnd.Value > DateTimeOffset.UtcNow,
+
+            // Audit fields
+            CreatedAt = user.CreatedAt,
+            CreatedBy = user.CreatedBy,
+            ModifiedAt = user.ModifiedAt,
+            ModifiedBy = user.ModifiedBy
         };
+
+        // Fetch user display names for audit fields
+        viewModel.CreatedByDisplayName = await GetUserDisplayNameAsync(user.CreatedBy);
+        if (!string.IsNullOrEmpty(user.ModifiedBy))
+        {
+            viewModel.ModifiedByDisplayName = await GetUserDisplayNameAsync(user.ModifiedBy);
+        }
+
+        return viewModel;
+    }
+
+    private async Task<string> GetUserDisplayNameAsync(string userId)
+    {
+        if (userId == "System")
+        {
+            return "System";
+        }
+
+        var user = await _userManager.Users
+            .Where(u => u.Id == userId)
+            .Select(u => new { u.FirstName, u.LastName })
+            .FirstOrDefaultAsync();
+
+        return user != null
+            ? $"{user.FirstName} {user.LastName}".Trim()
+            : userId; // Fallback to ID if user not found
     }
 
     // GET: Users/Export

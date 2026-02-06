@@ -1,12 +1,14 @@
 using Cedeva.Core.Entities;
 using Cedeva.Core.Enums;
 using Cedeva.Core.Interfaces;
+using Cedeva.Infrastructure.Data;
 using Cedeva.Website.Features.EmailTemplates.ViewModels;
 using Cedeva.Website.Localization;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Localization;
 
 namespace Cedeva.Website.Features.EmailTemplates;
@@ -18,21 +20,42 @@ public class EmailTemplatesController : Controller
     private readonly ICurrentUserService _currentUserService;
     private readonly IStringLocalizer<SharedResources> _localizer;
     private readonly UserManager<CedevaUser> _userManager;
+    private readonly CedevaDbContext _context;
+
+    private const string SessionKeyActivityId = "EmailTemplates_ActivityId";
 
     public EmailTemplatesController(
         IEmailTemplateService templateService,
         ICurrentUserService currentUserService,
         IStringLocalizer<SharedResources> localizer,
-        UserManager<CedevaUser> userManager)
+        UserManager<CedevaUser> userManager,
+        CedevaDbContext context)
     {
         _templateService = templateService;
         _currentUserService = currentUserService;
         _localizer = localizer;
         _userManager = userManager;
+        _context = context;
     }
 
-    public async Task<IActionResult> Index(EmailTemplateType? type = null)
+    public async Task<IActionResult> Index(EmailTemplateType? type = null, int? id = null)
     {
+        if (id.HasValue)
+            HttpContext.Session.SetInt32(SessionKeyActivityId, id.Value);
+
+        var activityId = HttpContext.Session.GetInt32(SessionKeyActivityId);
+        if (activityId.HasValue)
+        {
+            var activity = await _context.Activities.FirstOrDefaultAsync(a => a.Id == activityId.Value);
+            if (activity != null)
+            {
+                ViewData["ActivityId"] = activity.Id;
+                ViewData["ActivityName"] = activity.Name;
+            }
+        }
+        ViewData["NavSection"] = "Emails";
+        ViewData["NavAction"] = "EmailTemplates";
+
         var organisationId = _currentUserService.OrganisationId ?? 0;
 
         var templates = type.HasValue
@@ -83,8 +106,8 @@ public class EmailTemplatesController : Controller
                 HtmlContent = viewModel.HtmlContent,
                 IsDefault = viewModel.IsDefault,
                 IsShared = viewModel.IsShared,
-                CreatedByUserId = user.Id,
-                CreatedDate = DateTime.UtcNow
+                CreatedBy = user.Id,
+                CreatedAt = DateTime.UtcNow
             };
 
             await _templateService.CreateTemplateAsync(template);

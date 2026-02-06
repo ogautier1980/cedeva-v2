@@ -102,6 +102,49 @@ public class PublicRegistrationController : Controller
         }
 
         var organisationId = (int)TempData[TempDataOrganisationId]!;
+        var activityId = (int)TempData[TempDataActivityId]!;
+
+        // Validate postal code against activity restrictions
+        var activity = await _context.Activities
+            .AsNoTracking()
+            .FirstOrDefaultAsync(a => a.Id == activityId);
+
+        if (activity != null)
+        {
+            var postalCode = model.PostalCode?.Trim();
+
+            // Check inclusion list (if defined, postal code MUST be in it)
+            if (!string.IsNullOrWhiteSpace(activity.IncludedPostalCodes))
+            {
+                var includedCodes = activity.IncludedPostalCodes
+                    .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                    .Select(c => c.Trim())
+                    .ToList();
+
+                if (!includedCodes.Contains(postalCode, StringComparer.OrdinalIgnoreCase))
+                {
+                    ModelState.AddModelError(nameof(model.PostalCode),
+                        _localizer["Registration.PostalCodeNotAllowed"].ToString());
+                    return View(model);
+                }
+            }
+
+            // Check exclusion list (postal code must NOT be in it)
+            if (!string.IsNullOrWhiteSpace(activity.ExcludedPostalCodes))
+            {
+                var excludedCodes = activity.ExcludedPostalCodes
+                    .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                    .Select(c => c.Trim())
+                    .ToList();
+
+                if (excludedCodes.Contains(postalCode, StringComparer.OrdinalIgnoreCase))
+                {
+                    ModelState.AddModelError(nameof(model.PostalCode),
+                        _localizer["Registration.PostalCodeExcluded"].ToString());
+                    return View(model);
+                }
+            }
+        }
 
         // Check if parent already exists by email
         var existingParent = await _context.Parents
@@ -121,18 +164,18 @@ public class PublicRegistrationController : Controller
 
             if (existingParent.Address != null)
             {
-                existingParent.Address.Street = model.Street;
-                existingParent.Address.PostalCode = model.PostalCode;
-                existingParent.Address.City = model.City;
+                existingParent.Address.Street = model.Street ?? string.Empty;
+                existingParent.Address.PostalCode = model.PostalCode ?? string.Empty;
+                existingParent.Address.City = model.City ?? string.Empty;
                 existingParent.Address.Country = Country.Belgium;
             }
             else
             {
                 existingParent.Address = new Address
                 {
-                    Street = model.Street,
-                    PostalCode = model.PostalCode,
-                    City = model.City,
+                    Street = model.Street ?? string.Empty,
+                    PostalCode = model.PostalCode ?? string.Empty,
+                    City = model.City ?? string.Empty,
                     Country = Country.Belgium
                 };
             }
@@ -145,9 +188,9 @@ public class PublicRegistrationController : Controller
             // Create new parent
             var address = new Address
             {
-                Street = model.Street,
-                PostalCode = model.PostalCode,
-                City = model.City,
+                Street = model.Street ?? string.Empty,
+                PostalCode = model.PostalCode ?? string.Empty,
+                City = model.City ?? string.Empty,
                 Country = Country.Belgium
             };
 

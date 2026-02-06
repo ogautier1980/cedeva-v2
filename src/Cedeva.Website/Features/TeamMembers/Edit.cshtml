@@ -11,7 +11,7 @@
                     <h5 class="mb-0"><i class="fas fa-edit me-2"></i>@Localizer["TeamMembers.EditMember"]</h5>
                 </div>
                 <div class="card-body">
-                    <form asp-action="Edit" method="post">
+                    <form asp-action="Edit" method="post" enctype="multipart/form-data">
                         <input type="hidden" asp-for="TeamMemberId" />
                         <input type="hidden" asp-for="AddressId" />
                         <input type="hidden" name="returnUrl" value="@ViewData["ReturnUrl"]" />
@@ -108,15 +108,31 @@
 
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label for="LicenseUrl" class="form-label">@Localizer["Field.LicenseUrl"]</label>
-                                <input asp-for="LicenseUrl" class="form-control" placeholder="https://..." id="LicenseUrl" />
-                                <span asp-validation-for="LicenseUrl" class="text-danger"></span>
-                                <div class="form-text">@Localizer["TeamMembers.LicenseUrlHelp"]</div>
+                                <label for="LicenseFile" class="form-label">@Localizer["Field.LicenseFile"]</label>
+
+                                @if (!string.IsNullOrEmpty(Model.LicenseUrl))
+                                {
+                                    <div class="mb-2" id="licensePreview">
+                                        <a asp-action="ViewLicense" asp-route-id="@Model.TeamMemberId" target="_blank" class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-file-alt me-1"></i>@Localizer["TeamMembers.ViewLicense"]
+                                        </a>
+                                        <button type="button" class="btn btn-danger btn-sm" id="removeLicenseBtn" title="@Localizer["Field.RemoveLicense"]">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </div>
+                                }
+                                <input asp-for="RemoveLicense" type="hidden" id="RemoveLicense" />
+
+                                <input asp-for="LicenseFile" type="file" class="form-control" id="LicenseFile" accept="image/*,.pdf" />
+                                <span asp-validation-for="LicenseFile" class="text-danger"></span>
+                                <small class="form-text text-muted">@Localizer["Validation.LicenseFileHelp"]</small>
                             </div>
+                            <input type="hidden" asp-for="LicenseUrl" />
                             <div class="col-md-6 mb-3">
                                 <label for="DailyCompensation" class="form-label">@Localizer["Field.DailyCompensation"]</label>
                                 <div class="input-group">
-                                    <input asp-for="DailyCompensation" type="number" step="0.01" class="form-control" id="DailyCompensation" />
+                                    <input asp-for="DailyCompensation" type="text" class="form-control" id="DailyCompensation"
+                                           data-val-number="@Localizer["Validation.Number"]" />
                                     <span class="input-group-text">€</span>
                                 </div>
                                 <span asp-validation-for="DailyCompensation" class="text-danger"></span>
@@ -170,6 +186,80 @@
     <script>
         $(function () {
             initializeUnifiedAddressAutocomplete("#CombinedAddress", "#PostalCode", "#City");
+
+            // Handle license removal with AJAX
+            $('#removeLicenseBtn').on('click', function() {
+                if (confirm('@Html.Raw(Localizer["TeamMembers.ConfirmDeleteLicense"].Value.Replace("'", "\\'"))')) {
+                    var token = $('input[name="__RequestVerificationToken"]').val();
+                    $.post('@Url.Action("DeleteLicense", "TeamMembers")',
+                        {
+                            id: @Model.TeamMemberId,
+                            __RequestVerificationToken: token
+                        },
+                        function() {
+                            $('#licensePreview').fadeOut(300, function() {
+                                $(this).remove();
+                            });
+                            // Show success message
+                            if ($('.alert').length === 0) {
+                                $('form').before('<div class="alert alert-success alert-dismissible fade show" role="alert">' +
+                                    '@Html.Raw(Localizer["TeamMembers.LicenseDeletedSuccess"].Value.Replace("'", "\\'"))' +
+                                    '<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>');
+                            }
+                        }).fail(function() {
+                            alert('@Html.Raw(Localizer["TeamMembers.LicenseDeletedError"].Value.Replace("'", "\\'"))');
+                        });
+                }
+            });
+
+            // Handle file selection preview
+            $('#LicenseFile').on('change', function(e) {
+                var file = e.target.files[0];
+                if (file) {
+                    // Remove existing previews
+                    $('#licensePreview').remove();
+                    $('#licensePreviewNew').remove();
+
+                    var preview;
+                    if (file.type.startsWith('image/')) {
+                        // Image preview
+                        var reader = new FileReader();
+                        reader.onload = function(e) {
+                            preview = $('<div class="mb-2 position-relative d-inline-block" id="licensePreviewNew">' +
+                                '<img src="' + e.target.result + '" alt="License Preview" class="img-thumbnail" style="max-width: 200px;" />' +
+                                '<button type="button" class="btn btn-danger btn-sm position-absolute top-0 end-0 m-1" id="clearLicenseFileBtn" title="@Localizer["Field.RemoveLicense"]">' +
+                                '<i class="fas fa-times"></i>' +
+                                '</button>' +
+                                '</div>');
+
+                            $('#LicenseFile').before(preview);
+                            attachClearHandler();
+                        };
+                        reader.readAsDataURL(file);
+                    } else if (file.type === 'application/pdf') {
+                        // PDF preview (show icon)
+                        preview = $('<div class="mb-2" id="licensePreviewNew">' +
+                            '<span class="badge bg-danger me-2"><i class="fas fa-file-pdf me-1"></i>PDF</span>' +
+                            '<span>' + file.name + '</span>' +
+                            '<button type="button" class="btn btn-danger btn-sm ms-2" id="clearLicenseFileBtn" title="@Localizer["Field.RemoveLicense"]">' +
+                            '<i class="fas fa-times"></i>' +
+                            '</button>' +
+                            '</div>');
+
+                        $('#LicenseFile').before(preview);
+                        attachClearHandler();
+                    }
+
+                    function attachClearHandler() {
+                        $('#clearLicenseFileBtn').on('click', function() {
+                            $('#licensePreviewNew').fadeOut(300, function() {
+                                $(this).remove();
+                            });
+                            $('#LicenseFile').val('');
+                        });
+                    }
+                }
+            });
         });
     </script>
 }

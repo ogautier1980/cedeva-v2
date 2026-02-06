@@ -5,7 +5,7 @@ namespace Cedeva.Core.Entities;
 /// <summary>
 /// Assignation d'un membre d'équipe à une excursion (accompagnateur)
 /// </summary>
-public class ExcursionTeamMember
+public class ExcursionTeamMember : AuditableEntity
 {
     public int Id { get; set; }
 

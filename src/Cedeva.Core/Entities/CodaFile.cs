@@ -3,7 +3,7 @@ namespace Cedeva.Core.Entities;
 /// <summary>
 /// Fichier CODA importé (relevé bancaire belge).
 /// </summary>
-public class CodaFile
+public class CodaFile : AuditableEntity
 {
     public int Id { get; set; }
 

@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Cedeva.Core.Entities;
 
-public class ActivityDay
+public class ActivityDay : AuditableEntity
 {
     public int DayId { get; set; }
 

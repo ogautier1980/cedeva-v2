@@ -20,7 +20,7 @@ public class ActivityViewModel
     public bool IsActive { get; set; } = true;
 
     [Display(Name = "Field.PricePerDay")]
-    [Range(0, 1000)]
+    [Range(0, 1000, ErrorMessage = "Validation.Range")]
     [DataType(DataType.Currency)]
     public decimal? PricePerDay { get; set; }
 
@@ -39,6 +39,14 @@ public class ActivityViewModel
     [Display(Name = "Field.Organisation")]
     public string? OrganisationName { get; set; }
 
+    [StringLength(500, ErrorMessage = "The field {0} must have between {2} and {1} characters.")]
+    [Display(Name = "Activities.IncludedPostalCodes")]
+    public string? IncludedPostalCodes { get; set; }
+
+    [StringLength(500, ErrorMessage = "The field {0} must have between {2} and {1} characters.")]
+    [Display(Name = "Activities.ExcludedPostalCodes")]
+    public string? ExcludedPostalCodes { get; set; }
+
     // Stats for display
     [Display(Name = "Field.BookingsCount")]
     public int BookingsCount { get; set; }
@@ -54,6 +62,16 @@ public class ActivityViewModel
 
     // For Edit: list of days with IsActive status
     public List<ActivityDayViewModel> AllDays { get; set; } = new();
+
+    // Audit fields
+    public DateTime CreatedAt { get; set; }
+    public string CreatedBy { get; set; } = string.Empty;
+    public DateTime? ModifiedAt { get; set; }
+    public string? ModifiedBy { get; set; }
+
+    // Audit display names (for UI)
+    public string CreatedByDisplayName { get; set; } = string.Empty;
+    public string? ModifiedByDisplayName { get; set; }
 }
 
 public class ActivityListViewModel

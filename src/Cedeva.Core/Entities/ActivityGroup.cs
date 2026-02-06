@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Cedeva.Core.Entities;
 
-public class ActivityGroup
+public class ActivityGroup : AuditableEntity
 {
     public int Id { get; set; }
 

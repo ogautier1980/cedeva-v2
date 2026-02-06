@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Cedeva.Core.Entities;
 
-public class Parent
+public class Parent : AuditableEntity
 {
     public int Id { get; set; }
 

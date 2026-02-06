@@ -6,7 +6,7 @@ namespace Cedeva.Core.Entities;
 /// <summary>
 /// Reusable email template with variable support
 /// </summary>
-public class EmailTemplate
+public class EmailTemplate : AuditableEntity
 {
     public int Id { get; set; }
 
@@ -37,10 +37,5 @@ public class EmailTemplate
     /// </summary>
     public bool IsShared { get; set; }
 
-    [Required(ErrorMessage = "The {0} field is required.")]
-    public string CreatedByUserId { get; set; } = string.Empty;
-    public CedevaUser CreatedByUser { get; set; } = null!;
-
-    public DateTime CreatedDate { get; set; }
-    public DateTime? LastModifiedDate { get; set; }
+    public CedevaUser? CreatedByUser { get; set; }
 }

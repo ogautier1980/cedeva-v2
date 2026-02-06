@@ -582,6 +582,23 @@ h2 {
     outline: none;
 }
 
+/* === NAV TABS === */
+.nav-tabs .nav-link {
+    color: #5a5c69;
+    border-color: transparent;
+}
+
+.nav-tabs .nav-link:hover {
+    border-color: #e3e6f0 #e3e6f0 #dee2e6;
+    color: #007faf;
+}
+
+.nav-tabs .nav-link.active {
+    color: #007faf;
+    background-color: #fff;
+    border-color: #dee2e6 #dee2e6 #fff;
+}
+
 /* Barre de navigation contextuelle (sous-pages du module) */
 .nav-pills .nav-link {
     color: #5a5c69;

@@ -63,7 +63,7 @@
                     </li>
                     <li>
                         <a class="dropdown-item @(navAction == "EmailTemplates" ? "active" : "")"
-                           asp-action="Index" asp-controller="EmailTemplates">
+                           asp-action="Index" asp-controller="EmailTemplates" asp-route-id="@activityId">
                             <i class="fas fa-file-alt"></i> @Localizer["ActivityManagement.EmailTemplates"]
                         </a>
                     </li>

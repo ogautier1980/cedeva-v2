@@ -11,7 +11,7 @@
                     <h5 class="mb-0"><i class="fas fa-building me-2"></i>@Localizer["Organisations.NewOrganisation"]</h5>
                 </div>
                 <div class="card-body">
-                    <form asp-action="Create" method="post">
+                    <form asp-action="Create" method="post" enctype="multipart/form-data">
                         <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
 
                         <h6 class="mb-3 text-primary"><i class="fas fa-info-circle me-2"></i>@Localizer["GeneralInformation"]</h6>
@@ -29,10 +29,10 @@
                         </div>
 
                         <div class="mb-3">
-                            <label for="LogoUrl" class="form-label">@Localizer["Field.LogoUrl"]</label>
-                            <input asp-for="LogoUrl" class="form-control" placeholder="https://..." id="LogoUrl" />
-                            <span asp-validation-for="LogoUrl" class="text-danger"></span>
-                            <div class="form-text">@Localizer["Organisations.LogoUrlOptional"]</div>
+                            <label for="LogoFile" class="form-label">@Localizer["Field.Logo"]</label>
+                            <input asp-for="LogoFile" type="file" class="form-control" id="LogoFile" accept="image/*" />
+                            <span asp-validation-for="LogoFile" class="text-danger"></span>
+                            <small class="form-text text-muted">@Localizer["Validation.LogoFileHelp"]</small>
                         </div>
 
                         <h6 class="mb-3 mt-4 text-primary"><i class="fas fa-map-marker-alt me-2"></i>@Localizer["Address"]</h6>
@@ -82,6 +82,38 @@
     <script>
         $(function () {
             initializeUnifiedAddressAutocomplete("#CombinedAddress", "#PostalCode", "#City");
+
+            // Handle file selection preview
+            $('#LogoFile').on('change', function(e) {
+                var file = e.target.files[0];
+                if (file && file.type.startsWith('image/')) {
+                    var reader = new FileReader();
+                    reader.onload = function(e) {
+                        // Remove existing preview
+                        $('#logoPreviewNew').remove();
+
+                        // Create new preview
+                        var preview = $('<div class="mb-2 position-relative d-inline-block" id="logoPreviewNew">' +
+                            '<img src="' + e.target.result + '" alt="Logo Preview" class="img-thumbnail" style="max-width: 200px;" />' +
+                            '<button type="button" class="btn btn-danger btn-sm position-absolute top-0 end-0 m-1" id="clearLogoFileBtn" title="@Localizer["Field.RemoveLogo"]">' +
+                            '<i class="fas fa-times"></i>' +
+                            '</button>' +
+                            '</div>');
+
+                        // Insert preview before the file input
+                        $('#LogoFile').before(preview);
+
+                        // Handle clear button click
+                        $('#clearLogoFileBtn').on('click', function() {
+                            $('#logoPreviewNew').fadeOut(300, function() {
+                                $(this).remove();
+                            });
+                            $('#LogoFile').val('');
+                        });
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
         });
     </script>
 }

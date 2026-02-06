@@ -225,7 +225,31 @@ public class ExcursionsController : Controller
         ViewData["ActivityId"] = excursion.ActivityId;
         ViewData["ActivityName"] = excursion.Activity.Name;
 
+        // Fetch user display names for audit fields
+        ViewBag.CreatedByDisplayName = await GetUserDisplayNameAsync(excursion.CreatedBy);
+        if (!string.IsNullOrEmpty(excursion.ModifiedBy))
+        {
+            ViewBag.ModifiedByDisplayName = await GetUserDisplayNameAsync(excursion.ModifiedBy);
+        }
+
         return View(excursion);
+    }
+
+    private async Task<string> GetUserDisplayNameAsync(string userId)
+    {
+        if (userId == "System")
+        {
+            return "System";
+        }
+
+        var user = await _context.Users
+            .Where(u => u.Id == userId)
+            .Select(u => new { u.FirstName, u.LastName })
+            .FirstOrDefaultAsync();
+
+        return user != null
+            ? $"{user.FirstName} {user.LastName}".Trim()
+            : userId; // Fallback to ID if user not found
     }
 
     [HttpGet]

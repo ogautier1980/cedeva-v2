@@ -22,6 +22,7 @@ public class OrganisationsController : Controller
     private readonly IStringLocalizer<SharedResources> _localizer;
     private readonly IExcelExportService _excelExportService;
     private readonly IPdfExportService _pdfExportService;
+    private readonly IStorageService _storageService;
 
     public OrganisationsController(
         IRepository<Organisation> organisationRepository,
@@ -30,7 +31,8 @@ public class OrganisationsController : Controller
         IUnitOfWork unitOfWork,
         IStringLocalizer<SharedResources> localizer,
         IExcelExportService excelExportService,
-        IPdfExportService pdfExportService)
+        IPdfExportService pdfExportService,
+        IStorageService storageService)
     {
         _organisationRepository = organisationRepository;
         _addressRepository = addressRepository;
@@ -39,6 +41,7 @@ public class OrganisationsController : Controller
         _localizer = localizer;
         _excelExportService = excelExportService;
         _pdfExportService = pdfExportService;
+        _storageService = storageService;
     }
 
     // GET: Organisations
@@ -139,8 +142,21 @@ public class OrganisationsController : Controller
             ParentsCount = parentsCount,
             ChildrenCount = childrenCount,
             TeamMembersCount = teamMembersCount,
-            UsersCount = usersCount
+            UsersCount = usersCount,
+
+            // Audit fields
+            CreatedAt = organisation.CreatedAt,
+            CreatedBy = organisation.CreatedBy,
+            ModifiedAt = organisation.ModifiedAt,
+            ModifiedBy = organisation.ModifiedBy
         };
+
+        // Fetch user display names for audit fields
+        viewModel.CreatedByDisplayName = await GetUserDisplayNameAsync(organisation.CreatedBy);
+        if (!string.IsNullOrEmpty(organisation.ModifiedBy))
+        {
+            viewModel.ModifiedByDisplayName = await GetUserDisplayNameAsync(organisation.ModifiedBy);
+        }
 
         return View(viewModel);
     }
@@ -180,12 +196,25 @@ public class OrganisationsController : Controller
             {
                 Name = viewModel.Name,
                 Description = viewModel.Description,
-                LogoUrl = viewModel.LogoUrl,
                 AddressId = address.Id
             };
 
             await _organisationRepository.AddAsync(organisation);
             await _unitOfWork.SaveChangesAsync();
+
+            // Upload logo file if provided
+            if (viewModel.LogoFile != null)
+            {
+                var fileName = $"{Guid.NewGuid()}_{Path.GetFileName(viewModel.LogoFile.FileName)}";
+                var filePath = await _storageService.UploadFileAsync(
+                    viewModel.LogoFile.OpenReadStream(),
+                    fileName,
+                    viewModel.LogoFile.ContentType,
+                    $"{organisation.Id}/logos"
+                );
+                organisation.LogoUrl = filePath;
+                await _unitOfWork.SaveChangesAsync();
+            }
 
             TempData[TempDataSuccessMessage] = _localizer["Message.OrganisationCreated"].Value;
             return RedirectToAction(nameof(Details), new { id = organisation.Id });
@@ -258,7 +287,47 @@ public class OrganisationsController : Controller
             // Update Organisation
             organisation.Name = viewModel.Name;
             organisation.Description = viewModel.Description;
-            organisation.LogoUrl = viewModel.LogoUrl;
+
+            // Handle logo file removal
+            if (viewModel.RemoveLogo && !string.IsNullOrEmpty(organisation.LogoUrl))
+            {
+                try
+                {
+                    await _storageService.DeleteFileAsync(organisation.LogoUrl);
+                }
+                catch
+                {
+                    // Ignore errors if file doesn't exist
+                }
+                organisation.LogoUrl = null;
+            }
+
+            // Handle logo file upload
+            if (viewModel.LogoFile != null)
+            {
+                // Delete old logo if exists (and not already deleted)
+                if (!string.IsNullOrEmpty(organisation.LogoUrl))
+                {
+                    try
+                    {
+                        await _storageService.DeleteFileAsync(organisation.LogoUrl);
+                    }
+                    catch
+                    {
+                        // Ignore errors if file doesn't exist
+                    }
+                }
+
+                // Upload new logo
+                var fileName = $"{Guid.NewGuid()}_{Path.GetFileName(viewModel.LogoFile.FileName)}";
+                var filePath = await _storageService.UploadFileAsync(
+                    viewModel.LogoFile.OpenReadStream(),
+                    fileName,
+                    viewModel.LogoFile.ContentType,
+                    $"{organisation.Id}/logos"
+                );
+                organisation.LogoUrl = filePath;
+            }
 
             await _organisationRepository.UpdateAsync(organisation);
             await _unitOfWork.SaveChangesAsync();
@@ -274,6 +343,38 @@ public class OrganisationsController : Controller
         }
 
         return View(viewModel);
+    }
+
+    // POST: Organisations/DeleteLogo/5
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> DeleteLogo(int id)
+    {
+        // Admin-only controller, no need for multi-tenancy check
+        var organisation = await _organisationRepository.GetByIdAsync(id);
+
+        if (organisation == null)
+        {
+            return NotFound();
+        }
+
+        // Delete logo file if exists
+        if (!string.IsNullOrEmpty(organisation.LogoUrl))
+        {
+            try
+            {
+                await _storageService.DeleteFileAsync(organisation.LogoUrl);
+            }
+            catch
+            {
+                // Ignore errors if file doesn't exist
+            }
+
+            organisation.LogoUrl = null;
+            await _unitOfWork.SaveChangesAsync();
+        }
+
+        return Ok();
     }
 
     // GET: Organisations/Delete/5
@@ -307,6 +408,19 @@ public class OrganisationsController : Controller
         }
 
         var addressId = organisation.AddressId;
+
+        // Delete logo file if exists
+        if (!string.IsNullOrEmpty(organisation.LogoUrl))
+        {
+            try
+            {
+                await _storageService.DeleteFileAsync(organisation.LogoUrl);
+            }
+            catch
+            {
+                // Ignore errors if file doesn't exist
+            }
+        }
 
         // Delete Organisation (cascade will handle related entities)
         await _organisationRepository.DeleteAsync(organisation);
@@ -358,6 +472,23 @@ public class OrganisationsController : Controller
             TeamMembersCount = teamMembersCount,
             UsersCount = usersCount
         };
+    }
+
+    private async Task<string> GetUserDisplayNameAsync(string userId)
+    {
+        if (userId == "System")
+        {
+            return "System";
+        }
+
+        var user = await _context.Users
+            .Where(u => u.Id == userId)
+            .Select(u => new { u.FirstName, u.LastName })
+            .FirstOrDefaultAsync();
+
+        return user != null
+            ? $"{user.FirstName} {user.LastName}".Trim()
+            : userId; // Fallback to ID if user not found
     }
 
     // GET: Organisations/Export

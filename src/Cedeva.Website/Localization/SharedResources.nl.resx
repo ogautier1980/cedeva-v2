@@ -2305,6 +2305,15 @@
   <data name="Organisations.LogoUrlOptional" xml:space="preserve">
     <value>[NL] URL du logo de l'organisation (optionnel)</value>
   </data>
+  <data name="Organisations.ConfirmDeleteLogo" xml:space="preserve">
+    <value>[NL] Êtes-vous sûr de vouloir supprimer ce logo ?</value>
+  </data>
+  <data name="Organisations.LogoDeletedSuccess" xml:space="preserve">
+    <value>[NL] Logo supprimé avec succès.</value>
+  </data>
+  <data name="Organisations.LogoDeletedError" xml:space="preserve">
+    <value>[NL] Erreur lors de la suppression du logo.</value>
+  </data>
   <data name="Organisations.NewOrganisation" xml:space="preserve">
     <value>[NL] Nouvelle organisation</value>
   </data>
@@ -3103,6 +3112,9 @@
   <data name="Validation.PhoneFormat" xml:space="preserve">
     <value>[NL] Format de téléphone invalide</value>
   </data>
+  <data name="Validation.Number" xml:space="preserve">
+    <value>[NL] Veuillez entrer un nombre valide</value>
+  </data>
   <data name="Validation.Range" xml:space="preserve">
     <value>[NL] La valeur doit être comprise entre {1} et {2}</value>
   </data>
@@ -3428,5 +3440,74 @@
   </data>
   <data name="A value for '{0}' property is required." xml:space="preserve">
     <value>Een waarde voor de eigenschap '{0}' is verplicht.</value>
+  </data>
+  <data name="EmailTemplate.HtmlHelp" xml:space="preserve">
+    <value>[NL] Vous pouvez utiliser du HTML et cliquer sur les variables à droite pour les insérer.</value>
+  </data>
+  <data name="Activities.PostalCodeRestrictions" xml:space="preserve">
+    <value>[NL] Restrictions géographiques (codes postaux)</value>
+  </data>
+  <data name="Activities.IncludedPostalCodes" xml:space="preserve">
+    <value>[NL] Codes postaux autorisés</value>
+  </data>
+  <data name="Activities.IncludedPostalCodesHelp" xml:space="preserve">
+    <value>[NL] Liste des codes postaux autorisés (séparés par des virgules). Si vide, tous les codes sont autorisés sauf les exclus.</value>
+  </data>
+  <data name="Activities.ExcludedPostalCodes" xml:space="preserve">
+    <value>[NL] Codes postaux exclus</value>
+  </data>
+  <data name="Activities.ExcludedPostalCodesHelp" xml:space="preserve">
+    <value>[NL] Liste des codes postaux interdits (séparés par des virgules).</value>
+  </data>
+  <data name="Registration.PostalCodeNotAllowed" xml:space="preserve">
+    <value>[NL] Désolé, les inscriptions pour cette activité ne sont pas ouvertes aux habitants de votre code postal.</value>
+  </data>
+  <data name="Registration.PostalCodeExcluded" xml:space="preserve">
+    <value>[NL] Désolé, votre code postal n'est pas autorisé pour cette activité.</value>
+  </data>
+  <data name="Field.Logo" xml:space="preserve">
+    <value>[NL] Logo</value>
+  </data>
+  <data name="Field.LicenseFile" xml:space="preserve">
+    <value>[NL] Brevet/Certificat</value>
+  </data>
+  <data name="Validation.LogoFileHelp" xml:space="preserve">
+    <value>[NL] Formats acceptés : JPG, PNG, GIF, SVG. Taille max : 5 MB.</value>
+  </data>
+  <data name="Validation.LicenseFileHelp" xml:space="preserve">
+    <value>[NL] Formats acceptés : JPG, PNG, GIF, PDF. Taille max : 10 MB.</value>
+  </data>
+  <data name="TeamMembers.ViewLicense" xml:space="preserve">
+    <value>[NL] Voir le brevet</value>
+  </data>
+  <data name="TeamMembers.NoLicense" xml:space="preserve">
+    <value>[NL] Aucun brevet téléversé</value>
+  </data>
+  <data name="TeamMembers.ConfirmDeleteLicense" xml:space="preserve">
+    <value>[NL] Êtes-vous sûr de vouloir supprimer ce brevet ?</value>
+  </data>
+  <data name="TeamMembers.LicenseDeletedSuccess" xml:space="preserve">
+    <value>[NL] Brevet supprimé avec succès.</value>
+  </data>
+  <data name="TeamMembers.LicenseDeletedError" xml:space="preserve">
+    <value>[NL] Erreur lors de la suppression du brevet.</value>
+  </data>
+  <data name="Field.RemoveLogo" xml:space="preserve">
+    <value>[NL] Supprimer le logo</value>
+  </data>
+  <data name="Field.RemoveLicense" xml:space="preserve">
+    <value>[NL] Supprimer le brevet</value>
+  </data>
+  <data name="Audit.CreatedBy" xml:space="preserve">
+    <value>Aangemaakt door</value>
+  </data>
+  <data name="Audit.ModifiedBy" xml:space="preserve">
+    <value>Gewijzigd door</value>
+  </data>
+  <data name="Audit.On" xml:space="preserve">
+    <value> op</value>
+  </data>
+  <data name="Audit.At" xml:space="preserve">
+    <value> om</value>
   </data>
 </root>

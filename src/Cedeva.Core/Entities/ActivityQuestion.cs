@@ -3,7 +3,7 @@ using Cedeva.Core.Enums;
 
 namespace Cedeva.Core.Entities;
 
-public class ActivityQuestion
+public class ActivityQuestion : AuditableEntity
 {
     public int Id { get; set; }
 
