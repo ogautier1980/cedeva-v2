@@ -417,7 +417,7 @@ public class ExcursionsController : Controller
         // Use service to build the grouped and sorted children data
         var childrenByGroup = await _viewModelBuilder.BuildRegistrationsByGroupAsync(
             id,
-            status => _localizer[$"Enum.PaymentStatus.{status}"].ToString());
+            status => _localizer[$"PaymentStatus.{status}"].ToString());
 
         var viewModel = new ExcursionRegistrationsViewModel
         {
