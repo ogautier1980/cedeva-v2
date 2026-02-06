@@ -86,9 +86,14 @@ else
                                         <option value="">@Localizer["ActivityManagement.SelectGroup"]</option>
                                         @foreach (var option in Model.GroupOptions)
                                         {
-                                            <option value="@option.Value" @(item.GroupId?.ToString() == option.Value ? "selected" : "")>
-                                                @option.Text
-                                            </option>
+                                            @if (item.GroupId?.ToString() == option.Value)
+                                            {
+                                                <option value="@option.Value" selected>@option.Text</option>
+                                            }
+                                            else
+                                            {
+                                                <option value="@option.Value">@option.Text</option>
+                                            }
                                         }
                                     </select>
                                 </td>
