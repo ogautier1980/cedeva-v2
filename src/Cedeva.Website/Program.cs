@@ -45,7 +45,7 @@ try
     }
 
     // Configure HttpClient for Brevo email service
-    builder.Services.AddHttpClient<BrevoEmailService>(client =>
+    builder.Services.AddHttpClient<IEmailService, BrevoEmailService>(client =>
     {
         var apiBaseUrl = builder.Configuration["Brevo:ApiBaseUrl"];
         if (string.IsNullOrWhiteSpace(apiBaseUrl))
@@ -66,7 +66,7 @@ try
     {
         // Register services
         containerBuilder.RegisterType<CurrentUserService>().As<ICurrentUserService>().InstancePerLifetimeScope();
-        containerBuilder.RegisterType<BrevoEmailService>().As<IEmailService>().InstancePerLifetimeScope();
+        // Note: IEmailService is registered via AddHttpClient above, not here
         containerBuilder.RegisterType<EmailRecipientService>().As<IEmailRecipientService>().InstancePerLifetimeScope();
         containerBuilder.RegisterType<EmailVariableReplacementService>().As<IEmailVariableReplacementService>().InstancePerLifetimeScope();
         containerBuilder.RegisterType<EmailTemplateService>().As<IEmailTemplateService>().InstancePerLifetimeScope();
