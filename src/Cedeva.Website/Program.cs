@@ -176,8 +176,8 @@ try
     app.UseSerilogRequestLogging();
     app.UseHttpsRedirection();
     app.UseStaticFiles();
+    app.UseRequestLocalization(); // Must be before UseRouting for culture detection
     app.UseRouting();
-    app.UseRequestLocalization();
     app.UseSession();
     app.UseAuthentication();
     app.UseAuthorization();
