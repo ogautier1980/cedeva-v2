@@ -72,11 +72,11 @@ try
             PooledConnectionLifetime = TimeSpan.FromMinutes(5),
             PooledConnectionIdleTimeout = TimeSpan.FromMinutes(2),
 
-            // Reduce connection delays
-            ConnectTimeout = TimeSpan.FromSeconds(10),
+            // Increase connection timeout (proxy/network delays)
+            ConnectTimeout = TimeSpan.FromMinutes(2),
 
-            // Disable proxy to avoid proxy detection delays
-            UseProxy = false,
+            // Use system proxy settings (required if behind corporate proxy)
+            UseProxy = true,
 
             // Enable automatic decompression
             AutomaticDecompression = System.Net.DecompressionMethods.All
