@@ -31,6 +31,9 @@ public class EmailRecipientService : IEmailRecipientService
         {
             // Base query: confirmed bookings for this activity
             var query = _context.Bookings
+                .Include(b => b.Child)
+                    .ThenInclude(c => c.Parent)
+                .Include(b => b.Days)
                 .Where(b => b.ActivityId == activityId && b.IsConfirmed);
 
             // Apply day filter if specified
@@ -51,6 +54,7 @@ public class EmailRecipientService : IEmailRecipientService
             }
 
             emails = await query
+                .Where(b => b.Child != null && b.Child.Parent != null && !string.IsNullOrEmpty(b.Child.Parent.Email))
                 .Select(b => b.Child.Parent.Email)
                 .Distinct()
                 .ToListAsync(cancellationToken);

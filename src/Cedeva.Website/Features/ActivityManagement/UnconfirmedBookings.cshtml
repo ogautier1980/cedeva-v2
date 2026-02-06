@@ -52,24 +52,25 @@
                                 <td>
                                     @booking.BookingDate.ToString("dd/MM/yyyy")
                                 </td>
-                                <form asp-action="ConfirmBooking" method="post" class="d-inline">
-                                    @Html.AntiForgeryToken()
-                                    <input type="hidden" name="bookingId" value="@booking.Id" />
-                                    <td>
-                                        <select name="groupId" class="form-select form-select-sm" required>
-                                            <option value="0">@Localizer["ActivityManagement.SelectGroup"]</option>
-                                            @foreach (var option in Model.GroupOptions)
-                                            {
-                                                <option value="@option.Value">@option.Text</option>
-                                            }
-                                        </select>
-                                    </td>
-                                    <td class="text-end">
-                                        <button type="submit" class="btn btn-success btn-sm">
+                                <td>
+                                    <select name="groupId-@booking.Id" id="groupId-@booking.Id" class="form-select form-select-sm">
+                                        <option value="">@Localizer["ActivityManagement.SelectGroup"]</option>
+                                        @foreach (var option in Model.GroupOptions)
+                                        {
+                                            <option value="@option.Value">@option.Text</option>
+                                        }
+                                    </select>
+                                </td>
+                                <td class="text-end">
+                                    <form asp-action="ConfirmBooking" method="post" class="d-inline">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="bookingId" value="@booking.Id" />
+                                        <input type="hidden" name="groupId" id="groupIdHidden-@booking.Id" />
+                                        <button type="submit" class="btn btn-success btn-sm" onclick="document.getElementById('groupIdHidden-@booking.Id').value = document.getElementById('groupId-@booking.Id').value;">
                                             <i class="fas fa-check"></i> @Localizer["Confirm"]
                                         </button>
-                                    </td>
-                                </form>
+                                    </form>
+                                </td>
                             </tr>
                         }
                     </tbody>

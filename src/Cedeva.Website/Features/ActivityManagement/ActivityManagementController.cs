@@ -147,7 +147,7 @@ public class ActivityManagementController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> ConfirmBooking(int bookingId, int groupId)
+    public async Task<IActionResult> ConfirmBooking(int bookingId, int? groupId)
     {
         if (!ModelState.IsValid)
         {
@@ -156,18 +156,38 @@ public class ActivityManagementController : Controller
 
         var booking = await _context.Bookings
             .Include(b => b.Activity)
+                .ThenInclude(a => a.Groups)
             .FirstOrDefaultAsync(b => b.Id == bookingId);
 
         if (booking == null)
             return NotFound();
 
-        if (groupId <= 0)
+        // If a group was selected, use it; otherwise assign to "Sans groupe"
+        if (groupId.HasValue && groupId.Value > 0)
         {
-            ModelState.AddModelError(string.Empty, _localizer["Message.SelectGroup"]);
-            return RedirectToAction(nameof(UnconfirmedBookings));
+            booking.GroupId = groupId.Value;
+        }
+        else
+        {
+            // Find or create "Sans groupe" group for this activity
+            var noGroupLabel = "Sans groupe";
+            var noGroup = booking.Activity.Groups.FirstOrDefault(g => g.Label == noGroupLabel);
+
+            if (noGroup == null)
+            {
+                noGroup = new ActivityGroup
+                {
+                    ActivityId = booking.Activity.Id,
+                    Label = noGroupLabel,
+                    Capacity = null
+                };
+                _context.ActivityGroups.Add(noGroup);
+                await _context.SaveChangesAsync(); // Save to get the Id
+            }
+
+            booking.GroupId = noGroup.Id;
         }
 
-        booking.GroupId = groupId;
         booking.IsConfirmed = true;
 
         await _context.SaveChangesAsync();
