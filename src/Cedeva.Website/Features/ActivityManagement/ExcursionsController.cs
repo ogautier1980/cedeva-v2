@@ -142,6 +142,19 @@ public class ExcursionsController : Controller
             return View(model);
         }
 
+        // Validate that the excursion date is on an active day of the activity
+        var activityDayExists = await _context.ActivityDays
+            .AnyAsync(d => d.ActivityId == model.ActivityId
+                        && d.DayDate.Date == model.ExcursionDate.Date
+                        && d.IsActive);
+
+        if (!activityDayExists)
+        {
+            ModelState.AddModelError(nameof(model.ExcursionDate), _localizer["Validation.ExcursionDateMustBeActiveDay"]);
+            await ReloadActivityForViewModel(model);
+            return View(model);
+        }
+
         var (startTime, endTime) = ParseTimeFields(model.StartTime, model.EndTime);
 
         var excursion = new Excursion
@@ -299,6 +312,19 @@ public class ExcursionsController : Controller
         if (model.SelectedGroupIds == null || model.SelectedGroupIds.Count == 0)
         {
             ModelState.AddModelError(nameof(model.SelectedGroupIds), _localizer["Validation.AtLeastOneGroupRequired"]);
+            await ReloadActivityForViewModel(model);
+            return View(model);
+        }
+
+        // Validate that the excursion date is on an active day of the activity
+        var activityDayExists = await _context.ActivityDays
+            .AnyAsync(d => d.ActivityId == model.ActivityId
+                        && d.DayDate.Date == model.ExcursionDate.Date
+                        && d.IsActive);
+
+        if (!activityDayExists)
+        {
+            ModelState.AddModelError(nameof(model.ExcursionDate), _localizer["Validation.ExcursionDateMustBeActiveDay"]);
             await ReloadActivityForViewModel(model);
             return View(model);
         }

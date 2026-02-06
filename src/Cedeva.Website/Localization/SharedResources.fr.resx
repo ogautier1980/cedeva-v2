@@ -3466,6 +3466,9 @@
   <data name="Validation.AtLeastOneGroupRequired" xml:space="preserve">
     <value>Veuillez sélectionner au moins un groupe</value>
   </data>
+  <data name="Validation.ExcursionDateMustBeActiveDay" xml:space="preserve">
+    <value>La date de l'excursion doit correspondre à un jour actif de l'activité</value>
+  </data>
   <data name="Excursion.NoEligibleChildren" xml:space="preserve">
     <value>Aucun enfant éligible pour cette excursion</value>
   </data>

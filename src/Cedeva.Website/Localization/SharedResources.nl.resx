@@ -3449,6 +3449,9 @@
   <data name="Validation.AtLeastOneGroupRequired" xml:space="preserve">
     <value>[NL] Veuillez sélectionner au moins un groupe</value>
   </data>
+  <data name="Validation.ExcursionDateMustBeActiveDay" xml:space="preserve">
+    <value>[NL] La date de l'excursion doit correspondre à un jour actif de l'activité</value>
+  </data>
   <data name="Error.RegistrationNotFound" xml:space="preserve">
     <value>[NL] Inscription introuvable</value>
   </data>
