@@ -24,19 +24,22 @@ public class UsersController : Controller
     private readonly IStringLocalizer<SharedResources> _localizer;
     private readonly IExcelExportService _excelExportService;
     private readonly IPdfExportService _pdfExportService;
+    private readonly IUserDisplayService _userDisplayService;
 
     public UsersController(
         UserManager<CedevaUser> userManager,
         CedevaDbContext context,
         IStringLocalizer<SharedResources> localizer,
         IExcelExportService excelExportService,
-        IPdfExportService pdfExportService)
+        IPdfExportService pdfExportService,
+        IUserDisplayService userDisplayService)
     {
         _userManager = userManager;
         _context = context;
         _localizer = localizer;
         _excelExportService = excelExportService;
         _pdfExportService = pdfExportService;
+        _userDisplayService = userDisplayService;
     }
 
     // GET: Users
@@ -360,31 +363,15 @@ public class UsersController : Controller
         };
 
         // Fetch user display names for audit fields
-        viewModel.CreatedByDisplayName = await GetUserDisplayNameAsync(user.CreatedBy);
+        viewModel.CreatedByDisplayName = await _userDisplayService.GetUserDisplayNameAsync(user.CreatedBy);
         if (!string.IsNullOrEmpty(user.ModifiedBy))
         {
-            viewModel.ModifiedByDisplayName = await GetUserDisplayNameAsync(user.ModifiedBy);
+            viewModel.ModifiedByDisplayName = await _userDisplayService.GetUserDisplayNameAsync(user.ModifiedBy);
         }
 
         return viewModel;
     }
 
-    private async Task<string> GetUserDisplayNameAsync(string userId)
-    {
-        if (userId == "System")
-        {
-            return "System";
-        }
-
-        var user = await _userManager.Users
-            .Where(u => u.Id == userId)
-            .Select(u => new { u.FirstName, u.LastName })
-            .FirstOrDefaultAsync();
-
-        return user != null
-            ? $"{user.FirstName} {user.LastName}".Trim()
-            : userId; // Fallback to ID if user not found
-    }
 
     // GET: Users/Export
     public async Task<IActionResult> Export(string? searchString, int? organisationId)

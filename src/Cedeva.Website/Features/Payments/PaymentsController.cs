@@ -18,6 +18,7 @@ public class PaymentsController : Controller
     private readonly ICurrentUserService _currentUserService;
     private readonly IStringLocalizer<SharedResources> _localizer;
     private readonly ILogger<PaymentsController> _logger;
+    private readonly IUserDisplayService _userDisplayService;
 
     private const string TempDataSuccessMessage = "SuccessMessage";
     private const string TempDataErrorMessage = "ErrorMessage";
@@ -26,12 +27,14 @@ public class PaymentsController : Controller
         CedevaDbContext context,
         ICurrentUserService currentUserService,
         IStringLocalizer<SharedResources> localizer,
-        ILogger<PaymentsController> logger)
+        ILogger<PaymentsController> logger,
+        IUserDisplayService userDisplayService)
     {
         _context = context;
         _currentUserService = currentUserService;
         _localizer = localizer;
         _logger = logger;
+        _userDisplayService = userDisplayService;
     }
 
     // GET: Payments
@@ -246,31 +249,15 @@ public class PaymentsController : Controller
         }
 
         // Fetch user display names for audit fields
-        ViewBag.CreatedByDisplayName = await GetUserDisplayNameAsync(payment.CreatedBy);
+        ViewBag.CreatedByDisplayName = await _userDisplayService.GetUserDisplayNameAsync(payment.CreatedBy);
         if (!string.IsNullOrEmpty(payment.ModifiedBy))
         {
-            ViewBag.ModifiedByDisplayName = await GetUserDisplayNameAsync(payment.ModifiedBy);
+            ViewBag.ModifiedByDisplayName = await _userDisplayService.GetUserDisplayNameAsync(payment.ModifiedBy);
         }
 
         return View(payment);
     }
 
-    private async Task<string> GetUserDisplayNameAsync(string userId)
-    {
-        if (userId == "System")
-        {
-            return "System";
-        }
-
-        var user = await _context.Users
-            .Where(u => u.Id == userId)
-            .Select(u => new { u.FirstName, u.LastName })
-            .FirstOrDefaultAsync();
-
-        return user != null
-            ? $"{user.FirstName} {user.LastName}".Trim()
-            : userId; // Fallback to ID if user not found
-    }
 
     // POST: Payments/Cancel/5
     [HttpPost]

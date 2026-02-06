@@ -27,6 +27,7 @@ public class TeamMembersController : Controller
     private readonly IStringLocalizer<SharedResources> _localizer;
     private readonly IStorageService _storageService;
     private readonly IWebHostEnvironment _webHostEnvironment;
+    private readonly IUserDisplayService _userDisplayService;
 
     public TeamMembersController(
         IRepository<TeamMember> teamMemberRepository,
@@ -38,7 +39,8 @@ public class TeamMembersController : Controller
         IPdfExportService pdfExportService,
         IStringLocalizer<SharedResources> localizer,
         IStorageService storageService,
-        IWebHostEnvironment webHostEnvironment)
+        IWebHostEnvironment webHostEnvironment,
+        IUserDisplayService userDisplayService)
     {
         _teamMemberRepository = teamMemberRepository;
         _addressRepository = addressRepository;
@@ -50,6 +52,7 @@ public class TeamMembersController : Controller
         _localizer = localizer;
         _storageService = storageService;
         _webHostEnvironment = webHostEnvironment;
+        _userDisplayService = userDisplayService;
     }
 
     // GET: TeamMembers
@@ -598,31 +601,15 @@ public class TeamMembersController : Controller
         };
 
         // Fetch user display names for audit fields
-        viewModel.CreatedByDisplayName = await GetUserDisplayNameAsync(teamMember.CreatedBy);
+        viewModel.CreatedByDisplayName = await _userDisplayService.GetUserDisplayNameAsync(teamMember.CreatedBy);
         if (!string.IsNullOrEmpty(teamMember.ModifiedBy))
         {
-            viewModel.ModifiedByDisplayName = await GetUserDisplayNameAsync(teamMember.ModifiedBy);
+            viewModel.ModifiedByDisplayName = await _userDisplayService.GetUserDisplayNameAsync(teamMember.ModifiedBy);
         }
 
         return viewModel;
     }
 
-    private async Task<string> GetUserDisplayNameAsync(string userId)
-    {
-        if (userId == "System")
-        {
-            return "System";
-        }
-
-        var user = await _context.Users
-            .Where(u => u.Id == userId)
-            .Select(u => new { u.FirstName, u.LastName })
-            .FirstOrDefaultAsync();
-
-        return user != null
-            ? $"{user.FirstName} {user.LastName}".Trim()
-            : userId; // Fallback to ID if user not found
-    }
 
     /// <summary>
     /// Updates the team member's address with values from the view model.

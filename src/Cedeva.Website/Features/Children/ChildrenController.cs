@@ -24,6 +24,7 @@ public class ChildrenController : Controller
     private readonly IExcelExportService _excelExportService;
     private readonly IPdfExportService _pdfExportService;
     private readonly IStringLocalizer<SharedResources> _localizer;
+    private readonly IUserDisplayService _userDisplayService;
 
     public ChildrenController(
         IRepository<Child> childRepository,
@@ -32,7 +33,8 @@ public class ChildrenController : Controller
         IUnitOfWork unitOfWork,
         IExcelExportService excelExportService,
         IPdfExportService pdfExportService,
-        IStringLocalizer<SharedResources> localizer)
+        IStringLocalizer<SharedResources> localizer,
+        IUserDisplayService userDisplayService)
     {
         _childRepository = childRepository;
         _parentRepository = parentRepository;
@@ -41,6 +43,7 @@ public class ChildrenController : Controller
         _excelExportService = excelExportService;
         _pdfExportService = pdfExportService;
         _localizer = localizer;
+        _userDisplayService = userDisplayService;
     }
 
     // GET: Children
@@ -409,31 +412,15 @@ public class ChildrenController : Controller
         };
 
         // Fetch user display names for audit fields
-        viewModel.CreatedByDisplayName = await GetUserDisplayNameAsync(child.CreatedBy);
+        viewModel.CreatedByDisplayName = await _userDisplayService.GetUserDisplayNameAsync(child.CreatedBy);
         if (!string.IsNullOrEmpty(child.ModifiedBy))
         {
-            viewModel.ModifiedByDisplayName = await GetUserDisplayNameAsync(child.ModifiedBy);
+            viewModel.ModifiedByDisplayName = await _userDisplayService.GetUserDisplayNameAsync(child.ModifiedBy);
         }
 
         return viewModel;
     }
 
-    private async Task<string> GetUserDisplayNameAsync(string userId)
-    {
-        if (userId == "System")
-        {
-            return "System";
-        }
-
-        var user = await _context.Users
-            .Where(u => u.Id == userId)
-            .Select(u => new { u.FirstName, u.LastName })
-            .FirstOrDefaultAsync();
-
-        return user != null
-            ? $"{user.FirstName} {user.LastName}".Trim()
-            : userId; // Fallback to ID if user not found
-    }
 
     private async Task PopulateParentDropdown(int? selectedParentId = null)
     {

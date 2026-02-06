@@ -24,6 +24,7 @@ public class OrganisationsController : Controller
     private readonly IExcelExportService _excelExportService;
     private readonly IPdfExportService _pdfExportService;
     private readonly IStorageService _storageService;
+    private readonly IUserDisplayService _userDisplayService;
 
     public OrganisationsController(
         IRepository<Organisation> organisationRepository,
@@ -33,7 +34,8 @@ public class OrganisationsController : Controller
         IStringLocalizer<SharedResources> localizer,
         IExcelExportService excelExportService,
         IPdfExportService pdfExportService,
-        IStorageService storageService)
+        IStorageService storageService,
+        IUserDisplayService userDisplayService)
     {
         _organisationRepository = organisationRepository;
         _addressRepository = addressRepository;
@@ -43,6 +45,7 @@ public class OrganisationsController : Controller
         _excelExportService = excelExportService;
         _pdfExportService = pdfExportService;
         _storageService = storageService;
+        _userDisplayService = userDisplayService;
     }
 
     // GET: Organisations
@@ -148,10 +151,10 @@ public class OrganisationsController : Controller
         };
 
         // Fetch user display names for audit fields
-        viewModel.CreatedByDisplayName = await GetUserDisplayNameAsync(organisation.CreatedBy);
+        viewModel.CreatedByDisplayName = await _userDisplayService.GetUserDisplayNameAsync(organisation.CreatedBy);
         if (!string.IsNullOrEmpty(organisation.ModifiedBy))
         {
-            viewModel.ModifiedByDisplayName = await GetUserDisplayNameAsync(organisation.ModifiedBy);
+            viewModel.ModifiedByDisplayName = await _userDisplayService.GetUserDisplayNameAsync(organisation.ModifiedBy);
         }
 
         return View(viewModel);
@@ -470,22 +473,6 @@ public class OrganisationsController : Controller
         };
     }
 
-    private async Task<string> GetUserDisplayNameAsync(string userId)
-    {
-        if (userId == "System")
-        {
-            return "System";
-        }
-
-        var user = await _context.Users
-            .Where(u => u.Id == userId)
-            .Select(u => new { u.FirstName, u.LastName })
-            .FirstOrDefaultAsync();
-
-        return user != null
-            ? $"{user.FirstName} {user.LastName}".Trim()
-            : userId; // Fallback to ID if user not found
-    }
 
     // GET: Organisations/Export
     public async Task<IActionResult> Export(string? searchString)

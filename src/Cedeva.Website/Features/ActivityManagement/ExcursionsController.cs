@@ -20,6 +20,7 @@ public class ExcursionsController : Controller
     private readonly IActivitySelectionService _activitySelectionService;
     private readonly ILogger<ExcursionsController> _logger;
     private readonly IStringLocalizer<SharedResources> _localizer;
+    private readonly IUserDisplayService _userDisplayService;
 
     public ExcursionsController(
         CedevaDbContext context,
@@ -27,7 +28,8 @@ public class ExcursionsController : Controller
         IExcursionViewModelBuilderService viewModelBuilder,
         IActivitySelectionService activitySelectionService,
         ILogger<ExcursionsController> logger,
-        IStringLocalizer<SharedResources> localizer)
+        IStringLocalizer<SharedResources> localizer,
+        IUserDisplayService userDisplayService)
     {
         _context = context;
         _excursionService = excursionService;
@@ -35,6 +37,7 @@ public class ExcursionsController : Controller
         _activitySelectionService = activitySelectionService;
         _logger = logger;
         _localizer = localizer;
+        _userDisplayService = userDisplayService;
     }
 
     [HttpGet]
@@ -229,31 +232,15 @@ public class ExcursionsController : Controller
         ViewData["ActivityName"] = excursion.Activity.Name;
 
         // Fetch user display names for audit fields
-        ViewBag.CreatedByDisplayName = await GetUserDisplayNameAsync(excursion.CreatedBy);
+        ViewBag.CreatedByDisplayName = await _userDisplayService.GetUserDisplayNameAsync(excursion.CreatedBy);
         if (!string.IsNullOrEmpty(excursion.ModifiedBy))
         {
-            ViewBag.ModifiedByDisplayName = await GetUserDisplayNameAsync(excursion.ModifiedBy);
+            ViewBag.ModifiedByDisplayName = await _userDisplayService.GetUserDisplayNameAsync(excursion.ModifiedBy);
         }
 
         return View(excursion);
     }
 
-    private async Task<string> GetUserDisplayNameAsync(string userId)
-    {
-        if (userId == "System")
-        {
-            return "System";
-        }
-
-        var user = await _context.Users
-            .Where(u => u.Id == userId)
-            .Select(u => new { u.FirstName, u.LastName })
-            .FirstOrDefaultAsync();
-
-        return user != null
-            ? $"{user.FirstName} {user.LastName}".Trim()
-            : userId; // Fallback to ID if user not found
-    }
 
     [HttpGet]
     public async Task<IActionResult> Edit(int id)

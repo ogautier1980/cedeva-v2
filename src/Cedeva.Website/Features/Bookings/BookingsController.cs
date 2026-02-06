@@ -26,6 +26,7 @@ public class BookingsController : Controller
     private readonly IEmailService _emailService;
     private readonly IStringLocalizer<SharedResources> _localizer;
     private readonly ICurrentUserService _currentUserService;
+    private readonly IUserDisplayService _userDisplayService;
 
     public BookingsController(
         IRepository<Booking> bookingRepository,
@@ -35,7 +36,8 @@ public class BookingsController : Controller
         IPdfExportService pdfExportService,
         IEmailService emailService,
         IStringLocalizer<SharedResources> localizer,
-        ICurrentUserService currentUserService)
+        ICurrentUserService currentUserService,
+        IUserDisplayService userDisplayService)
     {
         _bookingRepository = bookingRepository;
         _context = context;
@@ -45,6 +47,7 @@ public class BookingsController : Controller
         _emailService = emailService;
         _localizer = localizer;
         _currentUserService = currentUserService;
+        _userDisplayService = userDisplayService;
     }
 
     // GET: Bookings
@@ -491,31 +494,15 @@ public class BookingsController : Controller
         };
 
         // Fetch user display names for audit fields
-        viewModel.CreatedByDisplayName = await GetUserDisplayNameAsync(booking.CreatedBy);
+        viewModel.CreatedByDisplayName = await _userDisplayService.GetUserDisplayNameAsync(booking.CreatedBy);
         if (!string.IsNullOrEmpty(booking.ModifiedBy))
         {
-            viewModel.ModifiedByDisplayName = await GetUserDisplayNameAsync(booking.ModifiedBy);
+            viewModel.ModifiedByDisplayName = await _userDisplayService.GetUserDisplayNameAsync(booking.ModifiedBy);
         }
 
         return viewModel;
     }
 
-    private async Task<string> GetUserDisplayNameAsync(string userId)
-    {
-        if (userId == "System")
-        {
-            return "System";
-        }
-
-        var user = await _context.Users
-            .Where(u => u.Id == userId)
-            .Select(u => new { u.FirstName, u.LastName })
-            .FirstOrDefaultAsync();
-
-        return user != null
-            ? $"{user.FirstName} {user.LastName}".Trim()
-            : userId; // Fallback to ID if user not found
-    }
 
     private async Task SendBookingConfirmationEmailAsync(Booking booking)
     {
