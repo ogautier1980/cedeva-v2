@@ -418,7 +418,7 @@ public class ActivityManagementController : Controller
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error sending email for activity {ActivityId}", model.ActivityId);
-            ModelState.AddModelError(string.Empty, _localizer["Message.EmailSendError"]);
+            ModelState.AddModelError(string.Empty, $"{_localizer["Message.EmailSendError"]}: {ex.Message}");
             await RepopulateViewModelAsync(model, ct);
             return View(model);
         }
