@@ -542,23 +542,10 @@ public class ExcursionsController : Controller
     {
         if (!ModelState.IsValid)
         {
-            var excursion = await _context.Excursions
-                .Include(e => e.Activity)
-                .Include(e => e.ExcursionGroups)
-                    .ThenInclude(eg => eg.ActivityGroup)
-                .FirstOrDefaultAsync(e => e.Id == model.ExcursionId);
-
-            if (excursion != null)
-            {
-                model.Excursion = excursion;
-                model.Activity = excursion.Activity;
-                model.RecipientOptions = GetExcursionRecipientOptions(excursion.ExcursionGroups.Select(eg => eg.ActivityGroup).ToList());
-            }
-
+            await ReloadExcursionForViewModel(model);
             return View(model);
         }
 
-        // Get registered children's parent emails
         var recipientGroupId = ExtractGroupIdFromRecipient(model.SelectedRecipient);
 
         var registrations = await _context.ExcursionRegistrations
@@ -570,7 +557,6 @@ public class ExcursionsController : Controller
             .Where(er => er.ExcursionId == model.ExcursionId)
             .ToListAsync();
 
-        // Filter by group if specified
         if (recipientGroupId.HasValue)
         {
             registrations = registrations.Where(r => r.Booking.GroupId == recipientGroupId.Value).ToList();
@@ -579,28 +565,30 @@ public class ExcursionsController : Controller
         if (!registrations.Any())
         {
             ModelState.AddModelError(string.Empty, _localizer["Message.NoRecipientsFound"]);
-            var excursion = await _context.Excursions
-                .Include(e => e.Activity)
-                .Include(e => e.ExcursionGroups)
-                    .ThenInclude(eg => eg.ActivityGroup)
-                .FirstOrDefaultAsync(e => e.Id == model.ExcursionId);
-
-            if (excursion != null)
-            {
-                model.Excursion = excursion;
-                model.Activity = excursion.Activity;
-                model.RecipientOptions = GetExcursionRecipientOptions(excursion.ExcursionGroups.Select(eg => eg.ActivityGroup).ToList());
-            }
-
+            await ReloadExcursionForViewModel(model);
             return View(model);
         }
 
-        // Note: Email sending implementation would go here
-        // For now, just show success message
         var emailCount = registrations.Select(r => r.Booking.Child.Parent.Email).Distinct().Count();
 
         TempData[TempDataSuccessMessage] = string.Format(_localizer["Message.EmailSent"].Value, emailCount);
         return RedirectToAction(nameof(Index), new { id = model.Excursion?.ActivityId ?? model.ExcursionId });
+    }
+
+    private async Task ReloadExcursionForViewModel(SendExcursionEmailViewModel model)
+    {
+        var excursion = await _context.Excursions
+            .Include(e => e.Activity)
+            .Include(e => e.ExcursionGroups)
+                .ThenInclude(eg => eg.ActivityGroup)
+            .FirstOrDefaultAsync(e => e.Id == model.ExcursionId);
+
+        if (excursion != null)
+        {
+            model.Excursion = excursion;
+            model.Activity = excursion.Activity;
+            model.RecipientOptions = GetExcursionRecipientOptions(excursion.ExcursionGroups.Select(eg => eg.ActivityGroup).ToList());
+        }
     }
 
     [HttpGet]
