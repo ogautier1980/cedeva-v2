@@ -3,17 +3,17 @@
 
 @{
     ViewData["Title"] = Localizer["ActivityManagement.ManageBookings"];
+    ViewData["ActivityId"] = Model.ActivityId;
+    ViewData["ActivityName"] = Model.ActivityName;
+    ViewData["NavSection"] = "ManageBookings";
 }
 
 @await Html.PartialAsync("_AlertMessages")
 
 @Html.AntiForgeryToken()
 
-<div class="d-flex justify-content-between align-items-center mb-4">
+<div class="mb-4">
     <h2><i class="fas fa-list-check me-2"></i>@Localizer["ActivityManagement.ManageBookings"]</h2>
-    <a asp-action="Index" class="btn btn-outline-secondary">
-        <i class="fas fa-arrow-left me-2"></i>@Localizer["Back"]
-    </a>
 </div>
 
 <div class="card mb-3">

@@ -127,11 +127,11 @@
                         </div>
 
                         <ul class="navbar-nav me-auto activity-nav-compact">
-                            <!-- Inscriptions en attente -->
+                            <!-- Gestion des inscriptions -->
                             <li class="nav-item">
-                                <a class="nav-link @(navSection == "PendingBookings" ? "active" : "")"
-                                   asp-action="UnconfirmedBookings" asp-controller="ActivityManagement" asp-route-id="@activityId">
-                                    <i class="fas fa-list-check"></i> @Localizer["ActivityManagement.PendingBookings"]
+                                <a class="nav-link @(navSection == "ManageBookings" ? "active" : "")"
+                                   asp-action="ManageBookings" asp-controller="ActivityManagement" asp-route-id="@activityId">
+                                    <i class="fas fa-list-check"></i> @Localizer["ActivityManagement.ManageBookings"]
                                 </a>
                             </li>
 
