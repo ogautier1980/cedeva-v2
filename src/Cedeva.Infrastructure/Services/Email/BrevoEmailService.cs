@@ -29,7 +29,7 @@ public class BrevoEmailService : IEmailService
             ?? throw new InvalidOperationException("Brevo sender name not configured");
 
         // Configure Brevo SDK
-        var brevoConfig = new Configuration();
+        var brevoConfig = new brevo_csharp.Client.Configuration();
         brevoConfig.AddApiKey("api-key", apiKey);
         _emailsApi = new TransactionalEmailsApi(brevoConfig);
 
