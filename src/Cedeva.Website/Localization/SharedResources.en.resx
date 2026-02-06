@@ -727,6 +727,12 @@
   <data name="Button.Continue" xml:space="preserve">
     <value>Continue</value>
   </data>
+  <data name="Button.Delete" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="Button.Edit" xml:space="preserve">
+    <value>Edit</value>
+  </data>
   <data name="Button.ExportExcel" xml:space="preserve">
     <value>Export Excel</value>
   </data>
