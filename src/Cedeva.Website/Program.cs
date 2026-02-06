@@ -56,6 +56,7 @@ try
             throw new InvalidOperationException("Brevo API key not configured in appsettings.json");
 
         client.BaseAddress = new Uri(apiBaseUrl);
+        client.Timeout = TimeSpan.FromSeconds(30);
         client.DefaultRequestHeaders.Add("api-key", apiKey);
         client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
     });

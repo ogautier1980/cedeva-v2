@@ -51,6 +51,9 @@ public class BrevoEmailService : IEmailService
 
         try
         {
+            _logger.LogInformation("Sending email to {Recipients} with subject '{Subject}'", string.Join(", ", to), subject);
+            _logger.LogDebug("Request payload: {Payload}", json);
+
             var response = await _httpClient.PostAsync("smtp/email", content);
 
             if (!response.IsSuccessStatusCode)
