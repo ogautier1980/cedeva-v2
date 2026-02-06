@@ -808,69 +808,26 @@ public class FinancialController : Controller
             return NotFound();
         }
 
-        // Revenus
-        var totalRevenue = activity.Bookings
-            .SelectMany(b => b.Payments)
-            .Where(p => p.Status == Core.Enums.PaymentStatus.Paid)
-            .Sum(p => p.Amount);
-
-        var confirmedBookings = activity.Bookings.Count(b => b.IsConfirmed);
-        var pendingBookings = activity.Bookings
-            .Where(b => b.PaymentStatus == Core.Enums.PaymentStatus.NotPaid ||
-                       b.PaymentStatus == Core.Enums.PaymentStatus.PartiallyPaid)
-            .ToList();
-
-        var pendingAmount = pendingBookings.Sum(b => b.TotalAmount - b.PaidAmount);
-        var avgRevenue = activity.Bookings.Any() ? totalRevenue / activity.Bookings.Count : 0;
-
-        // Dépenses
         var expenses = await _context.Expenses
             .Include(e => e.TeamMember)
             .Where(e => e.ActivityId == activityId.Value)
             .OrderByDescending(e => e.ExpenseDate)
             .ToListAsync();
 
-        var orgExpenses = expenses.Where(e => !e.TeamMemberId.HasValue).ToList();
-        var orgCardExpenses = orgExpenses.Where(e => e.OrganizationPaymentSource == "OrganizationCard").Sum(e => e.Amount);
-        var orgCashExpenses = orgExpenses.Where(e => e.OrganizationPaymentSource == "OrganizationCash").Sum(e => e.Amount);
+        var totalRevenue = _financialCalculationService.CalculateTotalRevenue(activity);
+        var pendingAmount = _financialCalculationService.CalculatePendingPayments(activity);
+        var confirmedBookings = activity.Bookings.Count(b => b.IsConfirmed);
+        var pendingBookings = activity.Bookings
+            .Where(b => b.PaymentStatus == Core.Enums.PaymentStatus.NotPaid ||
+                       b.PaymentStatus == Core.Enums.PaymentStatus.PartiallyPaid)
+            .Count();
+        var avgRevenue = activity.Bookings.Any() ? totalRevenue / activity.Bookings.Count : 0;
 
-        var orgExpenseDetails = orgExpenses.Select(e => new ViewModels.ExpenseDetailViewModel
-        {
-            Id = e.Id,
-            Date = e.ExpenseDate,
-            Label = e.Label,
-            Category = e.Category ?? "",
-            Amount = e.Amount
-        }).ToList();
-
-        // Salaires équipe
-        var daysCount = activity.Days.Count;
-        var teamSalaryDetails = new List<TeamMemberSalaryDetailViewModel>();
-
-        foreach (var tm in activity.TeamMembers)
-        {
-            var tmExpenses = expenses.Where(e => e.TeamMemberId == tm.TeamMemberId).ToList();
-            var reimbursements = tmExpenses.Where(e => e.ExpenseType == Core.Enums.ExpenseType.Reimbursement).Sum(e => e.Amount);
-            var consumptions = tmExpenses.Where(e => e.ExpenseType == Core.Enums.ExpenseType.PersonalConsumption).Sum(e => e.Amount);
-            var baseSalary = daysCount * (tm.DailyCompensation ?? 0);
-            var netSalary = baseSalary + reimbursements - consumptions;
-
-            teamSalaryDetails.Add(new TeamMemberSalaryDetailViewModel
-            {
-                Name = tm.FullName,
-                Role = _localizer[$"TeamRole.{tm.TeamRole}"].Value,
-                DaysWorked = daysCount,
-                DailyCompensation = tm.DailyCompensation ?? 0,
-                BaseSalary = baseSalary,
-                Reimbursements = reimbursements,
-                PersonalConsumptions = consumptions,
-                NetSalary = netSalary
-            });
-        }
-
-        var totalTeamSalaries = teamSalaryDetails.Sum(t => t.NetSalary);
-        var totalExpenses = orgCardExpenses + orgCashExpenses + totalTeamSalaries;
-        var balance = totalRevenue - totalExpenses;
+        var (orgCardExpenses, orgCashExpenses, orgExpenseDetails) = BuildOrganizationExpenseBreakdown(expenses);
+        var teamSalaryDetails = BuildTeamMemberSalaryDetails(activity, expenses);
+        var totalTeamSalaries = _financialCalculationService.CalculateTeamMemberSalaries(activity, expenses);
+        var totalExpenses = _financialCalculationService.CalculateTotalExpenses(activity, expenses);
+        var balance = _financialCalculationService.CalculateNetProfit(activity, expenses);
         var balancePercentage = totalRevenue > 0 ? (balance / totalRevenue) * 100 : 0;
 
         var viewModel = new FinancialReportViewModel
@@ -879,11 +836,11 @@ public class FinancialController : Controller
             ActivityName = activity.Name,
             StartDate = activity.StartDate,
             EndDate = activity.EndDate,
-            TotalDays = daysCount,
+            TotalDays = activity.Days.Count,
             TotalRevenue = totalRevenue,
             TotalBookings = activity.Bookings.Count,
             ConfirmedBookings = confirmedBookings,
-            PendingBookings = pendingBookings.Count,
+            PendingBookings = pendingBookings,
             PendingAmount = pendingAmount,
             AverageRevenuePerBooking = avgRevenue,
             OrganizationCardExpenses = orgCardExpenses,
@@ -899,6 +856,53 @@ public class FinancialController : Controller
         };
 
         return View(viewModel);
+    }
+
+    private (decimal cardExpenses, decimal cashExpenses, List<ExpenseDetailViewModel> details) BuildOrganizationExpenseBreakdown(List<Expense> expenses)
+    {
+        var orgExpenses = expenses.Where(e => !e.TeamMemberId.HasValue).ToList();
+        var cardExpenses = orgExpenses.Where(e => e.OrganizationPaymentSource == "OrganizationCard").Sum(e => e.Amount);
+        var cashExpenses = orgExpenses.Where(e => e.OrganizationPaymentSource == "OrganizationCash").Sum(e => e.Amount);
+
+        var details = orgExpenses.Select(e => new ExpenseDetailViewModel
+        {
+            Id = e.Id,
+            Date = e.ExpenseDate,
+            Label = e.Label,
+            Category = e.Category ?? "",
+            Amount = e.Amount
+        }).ToList();
+
+        return (cardExpenses, cashExpenses, details);
+    }
+
+    private List<TeamMemberSalaryDetailViewModel> BuildTeamMemberSalaryDetails(Activity activity, List<Expense> expenses)
+    {
+        var daysCount = activity.Days.Count;
+        var teamSalaryDetails = new List<TeamMemberSalaryDetailViewModel>();
+
+        foreach (var tm in activity.TeamMembers)
+        {
+            var tmExpenses = expenses.Where(e => e.TeamMemberId == tm.TeamMemberId);
+            var netSalary = _financialCalculationService.CalculateTeamMemberSalary(tm, daysCount, tmExpenses);
+            var baseSalary = daysCount * (tm.DailyCompensation ?? 0);
+            var reimbursements = tmExpenses.Where(e => e.ExpenseType == Core.Enums.ExpenseType.Reimbursement).Sum(e => e.Amount);
+            var consumptions = tmExpenses.Where(e => e.ExpenseType == Core.Enums.ExpenseType.PersonalConsumption).Sum(e => e.Amount);
+
+            teamSalaryDetails.Add(new TeamMemberSalaryDetailViewModel
+            {
+                Name = tm.FullName,
+                Role = _localizer[$"TeamRole.{tm.TeamRole}"].Value,
+                DaysWorked = daysCount,
+                DailyCompensation = tm.DailyCompensation ?? 0,
+                BaseSalary = baseSalary,
+                Reimbursements = reimbursements,
+                PersonalConsumptions = consumptions,
+                NetSalary = netSalary
+            });
+        }
+
+        return teamSalaryDetails;
     }
 
     private async Task PopulateAssignedToDropdown(int activityId)
