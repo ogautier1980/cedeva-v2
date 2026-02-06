@@ -190,6 +190,21 @@ public class ExcursionsController : Controller
         }
     }
 
+    private async Task ReloadActivityForViewModel(EditExcursionViewModel model)
+    {
+        var activity = await _context.Activities
+            .Include(a => a.Groups)
+            .FirstOrDefaultAsync(a => a.Id == model.ActivityId);
+
+        if (activity != null)
+        {
+            model.Activity = activity;
+            model.AvailableGroups = activity.Groups.ToList();
+            ViewData["ActivityId"] = activity.Id;
+            ViewData["ActivityName"] = activity.Name;
+        }
+    }
+
     private (TimeSpan? startTime, TimeSpan? endTime) ParseTimeFields(string? startTimeStr, string? endTimeStr)
     {
         TimeSpan? startTime = null;
@@ -280,37 +295,14 @@ public class ExcursionsController : Controller
     {
         if (!ModelState.IsValid)
         {
-            var activity = await _context.Activities
-                .Include(a => a.Groups)
-                .FirstOrDefaultAsync(a => a.Id == model.ActivityId);
-
-            if (activity != null)
-            {
-                model.Activity = activity;
-                model.AvailableGroups = activity.Groups.ToList();
-                ViewData["ActivityId"] = activity.Id;
-                ViewData["ActivityName"] = activity.Name;
-            }
-
+            await ReloadActivityForViewModel(model);
             return View(model);
         }
 
         if (model.SelectedGroupIds == null || model.SelectedGroupIds.Count == 0)
         {
             ModelState.AddModelError(nameof(model.SelectedGroupIds), _localizer["Validation.AtLeastOneGroupRequired"]);
-
-            var activity = await _context.Activities
-                .Include(a => a.Groups)
-                .FirstOrDefaultAsync(a => a.Id == model.ActivityId);
-
-            if (activity != null)
-            {
-                model.Activity = activity;
-                model.AvailableGroups = activity.Groups.ToList();
-                ViewData["ActivityId"] = activity.Id;
-                ViewData["ActivityName"] = activity.Name;
-            }
-
+            await ReloadActivityForViewModel(model);
             return View(model);
         }
 
@@ -321,17 +313,8 @@ public class ExcursionsController : Controller
         if (excursion == null)
             return NotFound();
 
-        // Parse time fields
-        TimeSpan? startTime = null;
-        TimeSpan? endTime = null;
+        var (startTime, endTime) = ParseTimeFields(model.StartTime, model.EndTime);
 
-        if (!string.IsNullOrWhiteSpace(model.StartTime) && TimeSpan.TryParse(model.StartTime, out var parsedStart))
-            startTime = parsedStart;
-
-        if (!string.IsNullOrWhiteSpace(model.EndTime) && TimeSpan.TryParse(model.EndTime, out var parsedEnd))
-            endTime = parsedEnd;
-
-        // Update excursion fields
         excursion.Name = model.Name;
         excursion.Description = model.Description;
         excursion.ExcursionDate = model.ExcursionDate;
@@ -340,7 +323,6 @@ public class ExcursionsController : Controller
         excursion.Cost = model.Cost;
         excursion.Type = model.Type;
 
-        // Update group links: remove old, add new
         _context.ExcursionGroups.RemoveRange(excursion.ExcursionGroups);
 
         foreach (var groupId in model.SelectedGroupIds)
