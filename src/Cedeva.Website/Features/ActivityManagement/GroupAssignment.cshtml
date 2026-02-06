@@ -38,7 +38,7 @@ else
         <div class="card-header bg-primary text-white">
             <h6 class="mb-0 text-white">
                 <i class="fas fa-user-friends me-2"></i>@Localizer["ActivityManagement.UnassignedChildren"]
-                <span class="badge bg-danger ms-2">@Model.UnassignedChildren.Count</span>
+                <span class="badge bg-danger ms-2" id="unassigned-count">@Model.UnassignedChildren.Count</span>
             </h6>
         </div>
         <div class="card-body p-0">
@@ -116,6 +116,17 @@ else
                 if (result.success) {
                     // Show success checkmark briefly
                     statusSpan.innerHTML = '<i class="fas fa-check text-success"></i>';
+
+                    // Update badge count
+                    const badge = document.getElementById('unassigned-count');
+                    const currentCount = parseInt(badge.textContent);
+                    const newCount = currentCount - 1;
+                    badge.textContent = newCount;
+
+                    // Hide badge if count reaches 0
+                    if (newCount === 0) {
+                        badge.style.display = 'none';
+                    }
 
                     // Remove row after 1 second
                     setTimeout(() => {

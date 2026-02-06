@@ -1384,6 +1384,9 @@
   <data name="Field.Actions" xml:space="preserve">
     <value>Actions</value>
   </data>
+  <data name="Field.Age" xml:space="preserve">
+    <value>Age</value>
+  </data>
   <data name="Field.ActivitiesCount" xml:space="preserve">
     <value>[EN] Nombre d'activités</value>
   </data>
