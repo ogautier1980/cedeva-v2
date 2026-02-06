@@ -219,14 +219,7 @@ public class TeamMembersController : Controller
             BirthDate = DateTime.Today.AddYears(-25) // Default age
         };
 
-        if (_currentUserService.IsAdmin)
-        {
-            var organisations = await _context.Organisations
-                .OrderBy(o => o.Name)
-                .Select(o => new { o.Id, o.Name })
-                .ToListAsync();
-            ViewBag.Organisations = new SelectList(organisations, "Id", "Name", viewModel.OrganisationId);
-        }
+        await PopulateOrganisationsDropdown(viewModel.OrganisationId);
 
         return View(viewModel);
     }
@@ -354,14 +347,7 @@ public class TeamMembersController : Controller
             OrganisationId = teamMember.OrganisationId
         };
 
-        if (_currentUserService.IsAdmin)
-        {
-            var organisations = await _context.Organisations
-                .OrderBy(o => o.Name)
-                .Select(o => new { o.Id, o.Name })
-                .ToListAsync();
-            ViewBag.Organisations = new SelectList(organisations, "Id", "Name", viewModel.OrganisationId);
-        }
+        await PopulateOrganisationsDropdown(viewModel.OrganisationId);
 
         ViewData["ReturnUrl"] = returnUrl;
         return View(viewModel);
@@ -397,7 +383,6 @@ public class TeamMembersController : Controller
 
             TempData[TempDataSuccessMessage] = _localizer["Message.TeamMemberUpdated"].Value;
 
-            // Redirect to return URL if provided, otherwise to Details
             if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
             {
                 return Redirect(returnUrl);
@@ -405,14 +390,7 @@ public class TeamMembersController : Controller
             return RedirectToAction(nameof(Details), new { id = teamMember.TeamMemberId });
         }
 
-        if (_currentUserService.IsAdmin)
-        {
-            var organisations = await _context.Organisations
-                .OrderBy(o => o.Name)
-                .Select(o => new { o.Id, o.Name })
-                .ToListAsync();
-            ViewBag.Organisations = new SelectList(organisations, "Id", "Name", viewModel.OrganisationId);
-        }
+        await PopulateOrganisationsDropdown(viewModel.OrganisationId);
 
         return View(viewModel);
     }
