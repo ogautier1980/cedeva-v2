@@ -8,6 +8,7 @@ using Cedeva.Core.Entities;
 using Cedeva.Core.Enums;
 using Cedeva.Core.Interfaces;
 using Cedeva.Website.Features.Users.ViewModels;
+using Cedeva.Website.Infrastructure;
 using Cedeva.Website.Localization;
 using Cedeva.Infrastructure.Data;
 
@@ -39,27 +40,27 @@ public class UsersController : Controller
     }
 
     // GET: Users
-    public async Task<IActionResult> Index(string? searchString, int? organisationId, string? sortBy = null, string? sortOrder = "asc", int pageNumber = 1, int pageSize = 10)
+    public async Task<IActionResult> Index([FromQuery] UserQueryParameters queryParams)
     {
         var query = _userManager.Users
             .Include(u => u.Organisation)
             .AsQueryable();
 
-        if (!string.IsNullOrEmpty(searchString))
+        if (!string.IsNullOrEmpty(queryParams.SearchString))
         {
             query = query.Where(u =>
-                u.FirstName.Contains(searchString, StringComparison.OrdinalIgnoreCase) ||
-                u.LastName.Contains(searchString, StringComparison.OrdinalIgnoreCase) ||
-                u.Email!.Contains(searchString, StringComparison.OrdinalIgnoreCase));
+                u.FirstName.Contains(queryParams.SearchString, StringComparison.OrdinalIgnoreCase) ||
+                u.LastName.Contains(queryParams.SearchString, StringComparison.OrdinalIgnoreCase) ||
+                u.Email!.Contains(queryParams.SearchString, StringComparison.OrdinalIgnoreCase));
         }
 
-        if (organisationId.HasValue)
+        if (queryParams.OrganisationId.HasValue)
         {
-            query = query.Where(u => u.OrganisationId == organisationId.Value);
+            query = query.Where(u => u.OrganisationId == queryParams.OrganisationId.Value);
         }
 
         // Apply sorting
-        query = (sortBy?.ToLower(), sortOrder?.ToLower()) switch
+        query = (queryParams.SortBy?.ToLower(), queryParams.SortOrder?.ToLower()) switch
         {
             ("firstname", "asc") => query.OrderBy(u => u.FirstName).ThenBy(u => u.LastName),
             ("firstname", "desc") => query.OrderByDescending(u => u.FirstName).ThenByDescending(u => u.LastName),
@@ -73,12 +74,7 @@ public class UsersController : Controller
             _ => query.OrderBy(u => u.LastName).ThenBy(u => u.FirstName) // default
         };
 
-        var totalItems = await query.CountAsync();
-        var totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
-
-        var users = await query
-            .Skip((pageNumber - 1) * pageSize)
-            .Take(pageSize)
+        var pagedResult = await query
             .Select(u => new UserViewModel
             {
                 Id = u.Id,
@@ -91,20 +87,20 @@ public class UsersController : Controller
                 EmailConfirmed = u.EmailConfirmed,
                 IsLockedOut = u.LockoutEnd.HasValue && u.LockoutEnd.Value > DateTimeOffset.UtcNow
             })
-            .ToListAsync();
+            .ToPaginatedListAsync(queryParams.PageNumber, queryParams.PageSize);
 
-        ViewData["SearchString"] = searchString;
-        ViewData["OrganisationId"] = organisationId;
-        ViewData["SortBy"] = sortBy;
-        ViewData["SortOrder"] = sortOrder;
-        ViewData["PageNumber"] = pageNumber;
-        ViewData["PageSize"] = pageSize;
-        ViewData["TotalPages"] = totalPages;
-        ViewData["TotalItems"] = totalItems;
+        ViewData["SearchString"] = queryParams.SearchString;
+        ViewData["OrganisationId"] = queryParams.OrganisationId;
+        ViewData["SortBy"] = queryParams.SortBy;
+        ViewData["SortOrder"] = queryParams.SortOrder;
+        ViewData["PageNumber"] = pagedResult.PageNumber;
+        ViewData["PageSize"] = pagedResult.PageSize;
+        ViewData["TotalPages"] = pagedResult.TotalPages;
+        ViewData["TotalItems"] = pagedResult.TotalItems;
 
-        await PopulateOrganisationDropdown(organisationId);
+        await PopulateOrganisationDropdown(queryParams.OrganisationId);
 
-        return View(users);
+        return View(pagedResult.Items);
     }
 
     // GET: Users/Details/5

@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Cedeva.Core.Entities;
 using Cedeva.Core.Interfaces;
 using Cedeva.Website.Features.Bookings.ViewModels;
+using Cedeva.Website.Infrastructure;
 using Cedeva.Website.Localization;
 using Cedeva.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
@@ -47,12 +48,16 @@ public class BookingsController : Controller
     }
 
     // GET: Bookings
-    public async Task<IActionResult> Index(string? searchString, int? activityId, int? childId, bool? isConfirmed, string? sortBy = null, string? sortOrder = "asc", int pageNumber = 1, int pageSize = 10)
+    public async Task<IActionResult> Index([FromQuery] BookingQueryParameters queryParams)
     {
-        var query = BuildBookingsQuery(searchString, activityId, childId, isConfirmed);
+        var query = BuildBookingsQuery(
+            queryParams.SearchString,
+            queryParams.ActivityId,
+            queryParams.ChildId,
+            queryParams.IsConfirmed);
 
         // Apply sorting
-        query = (sortBy?.ToLower(), sortOrder?.ToLower()) switch
+        query = (queryParams.SortBy?.ToLower(), queryParams.SortOrder?.ToLower()) switch
         {
             ("bookingdate", "asc") => query.OrderBy(b => b.BookingDate),
             ("bookingdate", "desc") => query.OrderByDescending(b => b.BookingDate),
@@ -67,12 +72,7 @@ public class BookingsController : Controller
             _ => query.OrderByDescending(b => b.BookingDate) // default
         };
 
-        var totalItems = await query.CountAsync();
-        var totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
-
-        var bookings = await query
-            .Skip((pageNumber - 1) * pageSize)
-            .Take(pageSize)
+        var pagedResult = await query
             .Select(b => new BookingViewModel
             {
                 Id = b.Id,
@@ -89,20 +89,20 @@ public class BookingsController : Controller
                 ActivityEndDate = b.Activity != null ? b.Activity.EndDate : DateTime.MinValue,
                 GroupLabel = b.Group != null ? b.Group.Label : null
             })
-            .ToListAsync();
+            .ToPaginatedListAsync(queryParams.PageNumber, queryParams.PageSize);
 
-        ViewData["SearchString"] = searchString;
-        ViewData["ActivityId"] = activityId;
-        ViewData["ChildId"] = childId;
-        ViewData["IsConfirmed"] = isConfirmed;
-        ViewData["SortBy"] = sortBy;
-        ViewData["SortOrder"] = sortOrder;
-        ViewData["PageNumber"] = pageNumber;
-        ViewData["PageSize"] = pageSize;
-        ViewData["TotalPages"] = totalPages;
-        ViewData["TotalItems"] = totalItems;
+        ViewData["SearchString"] = queryParams.SearchString;
+        ViewData["ActivityId"] = queryParams.ActivityId;
+        ViewData["ChildId"] = queryParams.ChildId;
+        ViewData["IsConfirmed"] = queryParams.IsConfirmed;
+        ViewData["SortBy"] = queryParams.SortBy;
+        ViewData["SortOrder"] = queryParams.SortOrder;
+        ViewData["PageNumber"] = pagedResult.PageNumber;
+        ViewData["PageSize"] = pagedResult.PageSize;
+        ViewData["TotalPages"] = pagedResult.TotalPages;
+        ViewData["TotalItems"] = pagedResult.TotalItems;
 
-        return View(bookings);
+        return View(pagedResult.Items);
     }
 
     private IQueryable<Booking> BuildBookingsQuery(string? searchString, int? activityId, int? childId, bool? isConfirmed)
