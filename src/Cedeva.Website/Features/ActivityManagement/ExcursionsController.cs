@@ -130,56 +130,19 @@ public class ExcursionsController : Controller
     {
         if (!ModelState.IsValid)
         {
-            var activity = await _context.Activities
-                .Include(a => a.Groups)
-                .FirstOrDefaultAsync(a => a.Id == model.ActivityId);
-
-            if (activity != null)
-            {
-                model.Activity = activity;
-                model.AvailableGroups = activity.Groups.ToList();
-                ViewData["ActivityId"] = activity.Id;
-                ViewData["ActivityName"] = activity.Name;
-            }
-
+            await ReloadActivityForViewModel(model);
             return View(model);
         }
 
-        // Validate that at least one group is selected
         if (model.SelectedGroupIds == null || model.SelectedGroupIds.Count == 0)
         {
             ModelState.AddModelError(nameof(model.SelectedGroupIds), _localizer["Validation.AtLeastOneGroupRequired"]);
-
-            var activity = await _context.Activities
-                .Include(a => a.Groups)
-                .FirstOrDefaultAsync(a => a.Id == model.ActivityId);
-
-            if (activity != null)
-            {
-                model.Activity = activity;
-                model.AvailableGroups = activity.Groups.ToList();
-                ViewData["ActivityId"] = activity.Id;
-                ViewData["ActivityName"] = activity.Name;
-            }
-
+            await ReloadActivityForViewModel(model);
             return View(model);
         }
 
-        // Parse time fields
-        TimeSpan? startTime = null;
-        TimeSpan? endTime = null;
+        var (startTime, endTime) = ParseTimeFields(model.StartTime, model.EndTime);
 
-        if (!string.IsNullOrWhiteSpace(model.StartTime) && TimeSpan.TryParse(model.StartTime, out var parsedStartTime))
-        {
-            startTime = parsedStartTime;
-        }
-
-        if (!string.IsNullOrWhiteSpace(model.EndTime) && TimeSpan.TryParse(model.EndTime, out var parsedEndTime))
-        {
-            endTime = parsedEndTime;
-        }
-
-        // Create excursion
         var excursion = new Excursion
         {
             Name = model.Name,
@@ -196,7 +159,6 @@ public class ExcursionsController : Controller
         _context.Excursions.Add(excursion);
         await _context.SaveChangesAsync();
 
-        // Create ExcursionGroup links
         foreach (var groupId in model.SelectedGroupIds)
         {
             var excursionGroup = new ExcursionGroup
@@ -211,6 +173,39 @@ public class ExcursionsController : Controller
 
         TempData[TempDataSuccessMessage] = _localizer["Message.ExcursionCreated"].ToString();
         return RedirectToAction(nameof(Index), new { id = model.ActivityId });
+    }
+
+    private async Task ReloadActivityForViewModel(CreateExcursionViewModel model)
+    {
+        var activity = await _context.Activities
+            .Include(a => a.Groups)
+            .FirstOrDefaultAsync(a => a.Id == model.ActivityId);
+
+        if (activity != null)
+        {
+            model.Activity = activity;
+            model.AvailableGroups = activity.Groups.ToList();
+            ViewData["ActivityId"] = activity.Id;
+            ViewData["ActivityName"] = activity.Name;
+        }
+    }
+
+    private (TimeSpan? startTime, TimeSpan? endTime) ParseTimeFields(string? startTimeStr, string? endTimeStr)
+    {
+        TimeSpan? startTime = null;
+        TimeSpan? endTime = null;
+
+        if (!string.IsNullOrWhiteSpace(startTimeStr) && TimeSpan.TryParse(startTimeStr, out var parsedStartTime))
+        {
+            startTime = parsedStartTime;
+        }
+
+        if (!string.IsNullOrWhiteSpace(endTimeStr) && TimeSpan.TryParse(endTimeStr, out var parsedEndTime))
+        {
+            endTime = parsedEndTime;
+        }
+
+        return (startTime, endTime);
     }
 
     [HttpGet]
