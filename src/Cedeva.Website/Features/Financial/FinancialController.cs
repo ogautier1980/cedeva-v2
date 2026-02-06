@@ -25,6 +25,8 @@ public class FinancialController : Controller
     private const string TempDataSuccessMessage = "SuccessMessage";
     private const string TempDataErrorMessage = "ErrorMessage";
     private const string SessionKeyActivityId = "Financial_ActivityId";
+    private const string ActionIndex = "Index";
+    private const string ControllerActivities = "Activities";
 
     public FinancialController(
         CedevaDbContext context,
@@ -64,7 +66,7 @@ public class FinancialController : Controller
         var activityId = HttpContext.Session.GetInt32(SessionKeyActivityId);
         if (!activityId.HasValue)
         {
-            return RedirectToAction("Index", "Activities");
+            return RedirectToAction(ActionIndex, ControllerActivities);
         }
 
         var activity = await _context.Activities
@@ -287,7 +289,7 @@ public class FinancialController : Controller
         var activityId = HttpContext.Session.GetInt32(SessionKeyActivityId);
         if (!activityId.HasValue)
         {
-            return RedirectToAction("Index", "Activities");
+            return RedirectToAction(ActionIndex, ControllerActivities);
         }
 
         var activity = await _context.Activities
@@ -374,7 +376,7 @@ public class FinancialController : Controller
         var activityId = HttpContext.Session.GetInt32(SessionKeyActivityId);
         if (!activityId.HasValue)
         {
-            return RedirectToAction("Index", "Activities");
+            return RedirectToAction(ActionIndex, ControllerActivities);
         }
 
         var activity = await _context.Activities
@@ -454,7 +456,7 @@ public class FinancialController : Controller
         var activityId = HttpContext.Session.GetInt32(SessionKeyActivityId);
         if (!activityId.HasValue)
         {
-            return RedirectToAction("Index", "Activities");
+            return RedirectToAction(ActionIndex, ControllerActivities);
         }
 
         await PopulateAssignedToDropdown(activityId.Value);
@@ -474,7 +476,7 @@ public class FinancialController : Controller
         var activityId = HttpContext.Session.GetInt32(SessionKeyActivityId);
         if (!activityId.HasValue)
         {
-            return RedirectToAction("Index", "Activities");
+            return RedirectToAction(ActionIndex, ControllerActivities);
         }
 
         if (!ModelState.IsValid)
@@ -644,7 +646,7 @@ public class FinancialController : Controller
         var activityId = HttpContext.Session.GetInt32(SessionKeyActivityId);
         if (!activityId.HasValue)
         {
-            return RedirectToAction("Index", "Activities");
+            return RedirectToAction(ActionIndex, ControllerActivities);
         }
 
         var activity = await _context.Activities
@@ -705,7 +707,7 @@ public class FinancialController : Controller
         var activityId = HttpContext.Session.GetInt32(SessionKeyActivityId);
         if (!activityId.HasValue)
         {
-            return RedirectToAction("Index", "Activities");
+            return RedirectToAction(ActionIndex, ControllerActivities);
         }
 
         var activity = await _context.Activities
@@ -793,7 +795,7 @@ public class FinancialController : Controller
         var activityId = HttpContext.Session.GetInt32(SessionKeyActivityId);
         if (!activityId.HasValue)
         {
-            return RedirectToAction("Index", "Activities");
+            return RedirectToAction(ActionIndex, ControllerActivities);
         }
 
         var activity = await _context.Activities
