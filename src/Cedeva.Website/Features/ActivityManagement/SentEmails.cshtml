@@ -104,7 +104,11 @@
                             <div class="mb-3">
                                 <strong>@Localizer["Email.Message"] :</strong>
                                 <div class="border rounded p-3 bg-light mt-2">
-                                    @Html.Raw(email.Message.Replace("\n", "<br/>"))
+                                    @{
+                                        // HTML encode the message content, then replace newlines with <br/>
+                                        var encodedMessage = System.Net.WebUtility.HtmlEncode(email.Message).Replace("\n", "<br/>");
+                                    }
+                                    @Html.Raw(encodedMessage)
                                 </div>
                             </div>
                             @if (!string.IsNullOrEmpty(email.AttachmentFileName))

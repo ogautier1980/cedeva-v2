@@ -98,5 +98,8 @@ docker-compose.override.yml
 *.tmp
 *.temp
 
+# User-uploaded files
+src/Cedeva.Website/wwwroot/uploads/
+
 # Claude Code
 .claude/

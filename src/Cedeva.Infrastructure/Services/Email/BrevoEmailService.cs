@@ -18,24 +18,15 @@ public class BrevoEmailService : IEmailService
     public BrevoEmailService(
         IConfiguration configuration,
         ILogger<BrevoEmailService> logger,
-        HttpClient? httpClient = null)
+        HttpClient httpClient)
     {
         _logger = logger;
+        _httpClient = httpClient;
 
-        var apiKey = configuration["Brevo:ApiKey"]
-            ?? throw new InvalidOperationException("Brevo API key not configured");
-
-        var apiBaseUrl = configuration["Brevo:ApiBaseUrl"]
-            ?? throw new InvalidOperationException("Brevo API base URL not configured");
         _senderEmail = configuration["Brevo:SenderEmail"]
             ?? throw new InvalidOperationException("Brevo sender email not configured");
         _senderName = configuration["Brevo:SenderName"]
             ?? throw new InvalidOperationException("Brevo sender name not configured");
-
-        _httpClient = httpClient ?? new HttpClient();
-        _httpClient.BaseAddress = new Uri(apiBaseUrl);
-        _httpClient.DefaultRequestHeaders.Add("api-key", apiKey);
-        _httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
     }
 
     public async Task SendEmailAsync(string to, string subject, string htmlContent, string? attachmentPath = null)

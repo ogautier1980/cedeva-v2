@@ -3091,6 +3091,12 @@
   <data name="Validation.FileRequired" xml:space="preserve">
     <value>Le fichier est requis</value>
   </data>
+  <data name="Validation.FileExtensionNotAllowed" xml:space="preserve">
+    <value>Extension de fichier non autorisée. Extensions autorisées : {0}</value>
+  </data>
+  <data name="Validation.FileSizeExceeded" xml:space="preserve">
+    <value>La taille du fichier dépasse la limite de {0} MB</value>
+  </data>
   <data name="Validation.InvalidCodaFileExtension" xml:space="preserve">
     <value>Extension de fichier CODA invalide</value>
   </data>

@@ -106,7 +106,7 @@
 
             // Handle logo removal with AJAX
             $('#removeLogoBtn').on('click', function() {
-                if (confirm('@Html.Raw(Localizer["Organisations.ConfirmDeleteLogo"].Value.Replace("'", "\\'"))')) {
+                if (confirm(@Json.Serialize(Localizer["Organisations.ConfirmDeleteLogo"].Value))) {
                     var token = $('input[name="__RequestVerificationToken"]').val();
                     $.post('@Url.Action("DeleteLogo", "Organisations")',
                         {
@@ -119,12 +119,13 @@
                             });
                             // Show success message
                             if ($('.alert').length === 0) {
+                                var successMsg = @Json.Serialize(Localizer["Organisations.LogoDeletedSuccess"].Value);
                                 $('form').before('<div class="alert alert-success alert-dismissible fade show" role="alert">' +
-                                    '@Html.Raw(Localizer["Organisations.LogoDeletedSuccess"].Value.Replace("'", "\\'"))' +
+                                    $('<div>').text(successMsg).html() +
                                     '<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>');
                             }
                         }).fail(function() {
-                            alert('@Html.Raw(Localizer["Organisations.LogoDeletedError"].Value.Replace("'", "\\'"))');
+                            alert(@Json.Serialize(Localizer["Organisations.LogoDeletedError"].Value));
                         });
                 }
             });

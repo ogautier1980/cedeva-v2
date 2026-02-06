@@ -15,12 +15,36 @@ public class LocalFileStorageService : IStorageService
 
     public async Task<string> UploadFileAsync(Stream fileStream, string fileName, string contentType, string containerPath)
     {
+        // Security: Strip any directory components from fileName to prevent path traversal
+        var safeFileName = Path.GetFileName(fileName);
+        if (string.IsNullOrEmpty(safeFileName))
+        {
+            throw new ArgumentException("Invalid file name", nameof(fileName));
+        }
+
+        // Security: Validate containerPath doesn't contain path traversal sequences
+        if (!string.IsNullOrEmpty(containerPath) &&
+            (containerPath.Contains("..", StringComparison.Ordinal) ||
+             containerPath.Contains('/', StringComparison.Ordinal) ||
+             containerPath.Contains('\\', StringComparison.Ordinal)))
+        {
+            throw new ArgumentException("Container path contains invalid characters", nameof(containerPath));
+        }
+
         // Organisation-scoped path: uploads/{organisationId}/{folder}/{guid}_{filename}
         var relativePath = string.IsNullOrEmpty(containerPath)
-            ? Path.Combine(UploadFolder, fileName)
-            : Path.Combine(UploadFolder, containerPath, fileName);
+            ? Path.Combine(UploadFolder, safeFileName)
+            : Path.Combine(UploadFolder, containerPath, safeFileName);
 
         var fullPath = Path.Combine(_environment.WebRootPath, relativePath);
+
+        // Security: Verify the resolved path is within the WebRootPath
+        var normalizedFullPath = Path.GetFullPath(fullPath);
+        var normalizedWebRoot = Path.GetFullPath(_environment.WebRootPath);
+        if (!normalizedFullPath.StartsWith(normalizedWebRoot, StringComparison.OrdinalIgnoreCase))
+        {
+            throw new InvalidOperationException("Path traversal attempt detected");
+        }
 
         // Créer répertoire si inexistant
         var directory = Path.GetDirectoryName(fullPath);
@@ -42,6 +66,15 @@ public class LocalFileStorageService : IStorageService
     public Task<Stream?> DownloadFileAsync(string filePath)
     {
         var fullPath = Path.Combine(_environment.WebRootPath, filePath.TrimStart('/'));
+
+        // Security: Verify the resolved path is within the WebRootPath
+        var normalizedFullPath = Path.GetFullPath(fullPath);
+        var normalizedWebRoot = Path.GetFullPath(_environment.WebRootPath);
+        if (!normalizedFullPath.StartsWith(normalizedWebRoot, StringComparison.OrdinalIgnoreCase))
+        {
+            return Task.FromResult<Stream?>(null);
+        }
+
         if (!File.Exists(fullPath))
             return Task.FromResult<Stream?>(null);
 
@@ -51,6 +84,15 @@ public class LocalFileStorageService : IStorageService
     public Task DeleteFileAsync(string filePath)
     {
         var fullPath = Path.Combine(_environment.WebRootPath, filePath.TrimStart('/'));
+
+        // Security: Verify the resolved path is within the WebRootPath
+        var normalizedFullPath = Path.GetFullPath(fullPath);
+        var normalizedWebRoot = Path.GetFullPath(_environment.WebRootPath);
+        if (!normalizedFullPath.StartsWith(normalizedWebRoot, StringComparison.OrdinalIgnoreCase))
+        {
+            return Task.CompletedTask;
+        }
+
         if (File.Exists(fullPath))
         {
             File.Delete(fullPath);

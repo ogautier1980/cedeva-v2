@@ -100,6 +100,9 @@ src/
 - Code clean-up: alert partial extraction (20 views), TempData key standardisation (4 controllers), ModelState dead-code removal (53 checks from GET actions)
 - Test data seeder rewrite (full financial + CODA data)
 - Excursions feature (Phases 1–12): CRUD, registrations, attendance, email, expenses, edit/delete/details, financial integration, seeder, NL/EN translations
+- **Audit trail system:** CreatedAt/CreatedBy/ModifiedAt/ModifiedBy on all 24 entities (2026-02-06)
+- **Postal code filtering:** Activities can include/exclude postal codes for public registration eligibility (2026-02-05)
+- **Security hardening:** XSS fixes, HttpClient DI pattern, path traversal protection (2026-02-06)
 
 ### 🔄 In Progress
 - Phase 7: UX improvements (postal code autocomplete, booking day cards, admin org selection)
@@ -122,6 +125,39 @@ src/
 **Controller:** `ExcursionsController` — Index, Create, Edit, Delete, Details, Registrations (AJAX), Attendance (AJAX), Expenses (add form), SendEmail.
 
 **Views:** `/Features/ActivityManagement/Excursions/` — Index, Create, Edit, Details, Delete, Registrations, Attendance, Expenses, SendEmail.
+
+---
+
+## Recent Changes (2026-02-06)
+
+### Audit Trail System (2026-02-06)
+- **AuditableEntity base class:** CreatedAt, CreatedBy, ModifiedAt, ModifiedBy properties for all domain entities
+- **24 entities inherit** from AuditableEntity (Activity, Booking, Child, Parent, Organisation, TeamMember, Payment, Excursion, etc.)
+- **CedevaUser exception:** Audit properties added directly (already inherits from IdentityUser)
+- **SaveChangesAsync override:** Automatic population of audit fields on create/modify (CedevaDbContext.cs:97-149)
+- **Migration:** AddAuditFieldsToAllEntities with SQL to initialize existing records (CreatedBy='System', CreatedAt=current timestamp)
+- **ViewModels + Controllers:** 8 entities display user-friendly audit info (FirstName + LastName instead of UserId GUID)
+- **Details views:** 9 views show audit information at bottom: "Créé par Admin Cedeva le 06/02/2026 à 00:25"
+- **Localization:** Audit.CreatedBy, Audit.ModifiedBy, Audit.On, Audit.At keys (FR/NL/EN)
+- **"System" user:** Used for iframe registrations and automated operations when no user context
+
+### Postal Code Filtering (2026-02-05)
+- **Activity entity:** IncludedPostalCodes and ExcludedPostalCodes properties (comma-separated lists)
+- **Public registration:** Validates parent postal code against inclusion/exclusion lists
+- **Migration:** AddPostalCodeInclusionExclusionToActivity
+- **UI:** Activity Create/Edit forms include postal code fields with help text
+
+### Security & Code Quality Fixes (2026-02-06)
+- **XSS fixes:** Replaced `@Html.Raw()` with `@Json.Serialize()` for localized strings in JavaScript contexts (Organisations/Edit.cshtml, TeamMembers/Edit.cshtml)
+- **XSS fix:** HTML-encode email messages before rendering with `<br/>` replacement (SentEmails.cshtml)
+- **HttpClient pattern:** BrevoEmailService now uses IHttpClientFactory DI instead of creating new instances (fixes socket exhaustion risk)
+- **Path traversal protection:** LocalFileStorageService validates paths don't contain `../` or escape WebRootPath
+- **File validation:** Localized error messages (FileValidationAttributes.cs) with proper float division for file size display
+- **.gitignore:** Added `src/Cedeva.Website/wwwroot/uploads/` to exclude user-uploaded files
+
+### Local File Storage (2026-02-06)
+- **LocalFileStorageService:** IStorageService implementation for local development (saves to wwwroot/uploads/)
+- **Configuration:** Program.cs registers LocalFileStorageService in Development, AzureBlobStorageService in Production
 
 ---
 

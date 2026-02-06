@@ -26,9 +26,9 @@ dotnet run --project src/Cedeva.Website                       # Run (auto-seeds 
 | Backend | ASP.NET Core MVC (.NET 9) |
 | Database | SQL Server 2022 (Docker) |
 | ORM | Entity Framework Core 9 |
-| Email | Brevo SDK (C#) |
+| Email | Brevo SDK (C#) + HttpClientFactory |
 | Excel | ClosedXML |
-| File Storage | Azure Blob Storage |
+| File Storage | Azure Blob Storage (Production) / Local (Development) |
 | DI Container | Autofac |
 | Logging | Serilog |
 | Auth | ASP.NET Core Identity |
@@ -481,6 +481,8 @@ The form collects on one page:
 - Child info (duplicate detected by national register number — updates existing record)
 - Custom questions (if configured for the activity)
 
+**Postal Code Filtering:** Activities can specify included/excluded postal codes. Public registration validates parent postal code against these lists to control eligibility.
+
 On submit: all active days are automatically reserved, a structured communication is generated, and a confirmation email is sent via Brevo.
 
 Embed code (for coordinators/admin): `/PublicRegistration/EmbedCode?activityId={id}`
@@ -532,6 +534,20 @@ Three languages (FR / NL / EN). Cookie-based preference.
 - Validation: DataAnnotationsLocalization bound to SharedResources
 
 > **Critical:** Do NOT set `ResourcesPath` in `Program.cs`. Known ASP.NET bug breaks shared resource localisation when ResourcesPath is set.
+
+### Audit Trail
+Comprehensive audit tracking for all entities:
+- **Automatic tracking:** CreatedAt, CreatedBy, ModifiedAt, ModifiedBy populated automatically via `SaveChangesAsync` override
+- **AuditableEntity base class:** 24 entities inherit (Activity, Booking, Child, Parent, Organisation, TeamMember, Payment, Excursion, etc.)
+- **User-friendly display:** Details views show "Créé par Admin Cedeva le 06/02/2026 à 00:25" instead of raw GUIDs
+- **System user:** Operations from iframe registrations or automated processes marked as "System"
+- **Localized:** Audit labels in FR/NL/EN
+
+### File Storage
+Dual storage strategy based on environment:
+- **Development:** LocalFileStorageService saves to `wwwroot/uploads/` with path traversal protection
+- **Production:** AzureBlobStorageService with container-based organization
+- **Security:** Path validation prevents directory traversal attacks, file extension and size validation with localized error messages
 
 ---
 

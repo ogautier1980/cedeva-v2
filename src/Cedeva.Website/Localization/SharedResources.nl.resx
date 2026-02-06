@@ -3088,6 +3088,12 @@
   <data name="Validation.FileRequired" xml:space="preserve">
     <value>[NL] Le fichier est requis</value>
   </data>
+  <data name="Validation.FileExtensionNotAllowed" xml:space="preserve">
+    <value>Bestandsextensie niet toegestaan. Toegestane extensies: {0}</value>
+  </data>
+  <data name="Validation.FileSizeExceeded" xml:space="preserve">
+    <value>Bestandsgrootte overschrijdt de limiet van {0} MB</value>
+  </data>
   <data name="Validation.InvalidCodaFileExtension" xml:space="preserve">
     <value>[NL] Extension de fichier CODA invalide</value>
   </data>

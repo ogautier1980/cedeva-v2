@@ -41,6 +41,19 @@ try
         builder.Services.AddScoped<IStorageService, AzureBlobStorageService>();
     }
 
+    // Configure HttpClient for Brevo email service
+    builder.Services.AddHttpClient<BrevoEmailService>(client =>
+    {
+        var apiBaseUrl = builder.Configuration["Brevo:ApiBaseUrl"]
+            ?? throw new InvalidOperationException("Brevo API base URL not configured");
+        var apiKey = builder.Configuration["Brevo:ApiKey"]
+            ?? throw new InvalidOperationException("Brevo API key not configured");
+
+        client.BaseAddress = new Uri(apiBaseUrl);
+        client.DefaultRequestHeaders.Add("api-key", apiKey);
+        client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
+    });
+
     // Configure Autofac
     builder.Host.UseServiceProviderFactory(new AutofacServiceProviderFactory());
     builder.Host.ConfigureContainer<ContainerBuilder>(containerBuilder =>

@@ -189,7 +189,7 @@
 
             // Handle license removal with AJAX
             $('#removeLicenseBtn').on('click', function() {
-                if (confirm('@Html.Raw(Localizer["TeamMembers.ConfirmDeleteLicense"].Value.Replace("'", "\\'"))')) {
+                if (confirm(@Json.Serialize(Localizer["TeamMembers.ConfirmDeleteLicense"].Value))) {
                     var token = $('input[name="__RequestVerificationToken"]').val();
                     $.post('@Url.Action("DeleteLicense", "TeamMembers")',
                         {
@@ -202,12 +202,13 @@
                             });
                             // Show success message
                             if ($('.alert').length === 0) {
+                                var successMsg = @Json.Serialize(Localizer["TeamMembers.LicenseDeletedSuccess"].Value);
                                 $('form').before('<div class="alert alert-success alert-dismissible fade show" role="alert">' +
-                                    '@Html.Raw(Localizer["TeamMembers.LicenseDeletedSuccess"].Value.Replace("'", "\\'"))' +
+                                    $('<div>').text(successMsg).html() +
                                     '<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>');
                             }
                         }).fail(function() {
-                            alert('@Html.Raw(Localizer["TeamMembers.LicenseDeletedError"].Value.Replace("'", "\\'"))');
+                            alert(@Json.Serialize(Localizer["TeamMembers.LicenseDeletedError"].Value));
                         });
                 }
             });
