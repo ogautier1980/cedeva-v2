@@ -81,16 +81,7 @@ public class CodaParserService : ICodaParserService
                         break;
 
                     case "2": // Transaction (mouvement)
-                        if (currentTransaction.TransactionCode != null)
-                        {
-                            // Save previous transaction
-                            if (additionalInfo.Length > 0)
-                            {
-                                currentTransaction.FreeCommunication = additionalInfo.ToString().Trim();
-                                additionalInfo.Clear();
-                            }
-                            codaFile.Transactions.Add(currentTransaction);
-                        }
+                        SaveCurrentTransaction(currentTransaction, additionalInfo, codaFile);
                         currentTransaction = ParseTransaction(line);
                         break;
 
@@ -103,15 +94,7 @@ public class CodaParserService : ICodaParserService
                         break;
 
                     case "9": // Footer
-                        // Save last transaction
-                        if (currentTransaction.TransactionCode != null)
-                        {
-                            if (additionalInfo.Length > 0)
-                            {
-                                currentTransaction.FreeCommunication = additionalInfo.ToString().Trim();
-                            }
-                            codaFile.Transactions.Add(currentTransaction);
-                        }
+                        SaveCurrentTransaction(currentTransaction, additionalInfo, codaFile);
                         break;
 
                     default:
@@ -128,6 +111,26 @@ public class CodaParserService : ICodaParserService
 
         _logger.LogInformation("Parsed CODA file: {TransactionCount} transactions", codaFile.Transactions.Count);
         return codaFile;
+    }
+
+    /// <summary>
+    /// Saves the current transaction to the CODA file if it has data.
+    /// Appends any accumulated additional information before saving.
+    /// </summary>
+    private static void SaveCurrentTransaction(
+        CodaTransactionDto currentTransaction,
+        StringBuilder additionalInfo,
+        CodaFileDto codaFile)
+    {
+        if (currentTransaction.TransactionCode != null)
+        {
+            if (additionalInfo.Length > 0)
+            {
+                currentTransaction.FreeCommunication = additionalInfo.ToString().Trim();
+                additionalInfo.Clear();
+            }
+            codaFile.Transactions.Add(currentTransaction);
+        }
     }
 
     private void ParseHeader(string line, CodaFileDto codaFile)
