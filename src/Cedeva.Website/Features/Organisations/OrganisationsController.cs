@@ -178,19 +178,8 @@ public class OrganisationsController : Controller
     {
         if (ModelState.IsValid)
         {
-            // Create Address first
-            var address = new Address
-            {
-                Street = viewModel.Street,
-                City = viewModel.City,
-                PostalCode = viewModel.PostalCode,
-                Country = viewModel.Country
-            };
+            var address = await CreateAddressFromViewModel(viewModel);
 
-            await _addressRepository.AddAsync(address);
-            await _unitOfWork.SaveChangesAsync();
-
-            // Create Organisation
             var organisation = new Organisation
             {
                 Name = viewModel.Name,
@@ -201,19 +190,7 @@ public class OrganisationsController : Controller
             await _organisationRepository.AddAsync(organisation);
             await _unitOfWork.SaveChangesAsync();
 
-            // Upload logo file if provided
-            if (viewModel.LogoFile != null)
-            {
-                var fileName = $"{Guid.NewGuid()}_{Path.GetFileName(viewModel.LogoFile.FileName)}";
-                var filePath = await _storageService.UploadFileAsync(
-                    viewModel.LogoFile.OpenReadStream(),
-                    fileName,
-                    viewModel.LogoFile.ContentType,
-                    $"{organisation.Id}/logos"
-                );
-                organisation.LogoUrl = filePath;
-                await _unitOfWork.SaveChangesAsync();
-            }
+            await UploadLogoFileForNewOrganisation(organisation, viewModel.LogoFile);
 
             TempData[TempDataSuccessMessage] = _localizer["Message.OrganisationCreated"].Value;
             return RedirectToAction(nameof(Details), new { id = organisation.Id });
@@ -436,6 +413,37 @@ public class OrganisationsController : Controller
                 $"{organisation.Id}/logos"
             );
             organisation.LogoUrl = filePath;
+        }
+    }
+
+    private async Task<Address> CreateAddressFromViewModel(OrganisationViewModel viewModel)
+    {
+        var address = new Address
+        {
+            Street = viewModel.Street,
+            City = viewModel.City,
+            PostalCode = viewModel.PostalCode,
+            Country = viewModel.Country
+        };
+
+        await _addressRepository.AddAsync(address);
+        await _unitOfWork.SaveChangesAsync();
+        return address;
+    }
+
+    private async Task UploadLogoFileForNewOrganisation(Organisation organisation, IFormFile? logoFile)
+    {
+        if (logoFile != null)
+        {
+            var fileName = $"{Guid.NewGuid()}_{Path.GetFileName(logoFile.FileName)}";
+            var filePath = await _storageService.UploadFileAsync(
+                logoFile.OpenReadStream(),
+                fileName,
+                logoFile.ContentType,
+                $"{organisation.Id}/logos"
+            );
+            organisation.LogoUrl = filePath;
+            await _unitOfWork.SaveChangesAsync();
         }
     }
 
