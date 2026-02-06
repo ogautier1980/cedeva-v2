@@ -49,22 +49,26 @@ public class EmailTemplatesController : Controller
             HttpContext.Session.SetInt32(SessionKeyActivityId, id.Value);
 
         var activityId = HttpContext.Session.GetInt32(SessionKeyActivityId);
+        int? organisationId = _currentUserService.OrganisationId;
+
         if (activityId.HasValue)
         {
             var activity = await _context.Activities.FirstOrDefaultAsync(a => a.Id == activityId.Value);
             if (activity != null)
             {
                 this.SetActivityViewData(activity.Id, activity.Name);
+                // Use the activity's organisation for template filtering
+                organisationId = activity.OrganisationId;
             }
         }
         ViewData["NavSection"] = "Emails";
         ViewData["NavAction"] = "EmailTemplates";
 
-        var organisationId = _currentUserService.OrganisationId ?? 0;
+        var orgId = organisationId ?? 0;
 
         var templates = type.HasValue
-            ? await _templateService.GetTemplatesByTypeAsync(type.Value, organisationId)
-            : await _templateService.GetAllTemplatesAsync(organisationId);
+            ? await _templateService.GetTemplatesByTypeAsync(type.Value, orgId)
+            : await _templateService.GetAllTemplatesAsync(orgId);
 
         ViewBag.SelectedType = type;
         ViewBag.TypeOptions = GetTemplateTypeOptions();

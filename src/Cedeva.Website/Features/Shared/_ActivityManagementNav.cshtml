@@ -5,7 +5,7 @@
     string activityName = ViewData.ContainsKey("ActivityName") ? ViewData["ActivityName"]?.ToString() ?? "" : "";
 }
 
-<div class="sticky-top bg-white shadow-sm" style="z-index: 1020;">
+<div class="sticky-top bg-white shadow-sm" style="z-index: 1010;">
     <div class="container-fluid px-3 py-2">
         <!-- Back + activity name -->
         <div class="d-flex align-items-center gap-2 mb-2">
@@ -34,12 +34,38 @@
                 </a>
             </li>
 
-            <!-- Comptes -->
-            <li class="nav-item">
-                <a class="nav-link @(navSection == "Financial" ? "active" : "")"
-                   asp-action="Index" asp-controller="Financial" asp-route-id="@activityId">
+            <!-- Comptes (dropdown avec sous-actions) -->
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle @(navSection == "Financial" ? "active" : "")"
+                   href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                     <i class="far fa-money-bill-1"></i> @Localizer["ActivityManagement.Accounts"]
                 </a>
+                <ul class="dropdown-menu">
+                    <li>
+                        <a class="dropdown-item @(navAction == "Index" ? "active" : "")"
+                           asp-action="Index" asp-controller="Financial" asp-route-id="@activityId">
+                            <i class="fas fa-chart-line"></i> @Localizer["Financial.Dashboard"]
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item @(navAction == "Transactions" ? "active" : "")"
+                           asp-action="Transactions" asp-controller="Financial" asp-route-id="@activityId">
+                            <i class="fas fa-exchange-alt"></i> @Localizer["Financial.Transactions"]
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item @(navAction == "TeamSalaries" ? "active" : "")"
+                           asp-action="TeamSalaries" asp-controller="Financial" asp-route-id="@activityId">
+                            <i class="fas fa-money-bill-wave"></i> @Localizer["Financial.TeamSalaries"]
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item @(navAction == "ImportCoda" ? "active" : "")"
+                           asp-action="ImportCoda" asp-controller="Financial" asp-route-id="@activityId">
+                            <i class="fas fa-file-import"></i> @Localizer["Financial.ImportCoda"]
+                        </a>
+                    </li>
+                </ul>
             </li>
 
             <!-- E-mails (dropdown avec sous-actions) -->
@@ -71,25 +97,11 @@
             </li>
 
             <!-- Excursions -->
-            <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle @(navSection == "Excursions" ? "active" : "")"
-                   href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <li class="nav-item">
+                <a class="nav-link @(navSection == "Excursions" ? "active" : "")"
+                   asp-action="Index" asp-controller="Excursions" asp-route-id="@activityId">
                     <i class="fas fa-train"></i> @Localizer["ActivityManagement.Excursions"]
                 </a>
-                <ul class="dropdown-menu">
-                    <li>
-                        <a class="dropdown-item @(navAction == "Index" ? "active" : "")"
-                           asp-action="Index" asp-controller="Excursions" asp-route-id="@activityId">
-                            <i class="fas fa-list"></i> @Localizer["Excursion.ManageExcursions"]
-                        </a>
-                    </li>
-                    <li>
-                        <a class="dropdown-item @(navAction == "Create" ? "active" : "")"
-                           asp-action="Create" asp-controller="Excursions" asp-route-id="@activityId">
-                            <i class="fas fa-plus"></i> @Localizer["Excursion.CreateNew"]
-                        </a>
-                    </li>
-                </ul>
             </li>
 
             <!-- Équipe -->

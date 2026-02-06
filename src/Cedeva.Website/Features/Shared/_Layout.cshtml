@@ -1,3 +1,6 @@
+@inject Cedeva.Core.Interfaces.ICurrentUserService CurrentUserService
+@inject Cedeva.Infrastructure.Data.CedevaDbContext DbContext
+
 <!DOCTYPE html>
 <html lang="fr" class="h-100">
 <head>
@@ -17,11 +20,25 @@
     @await RenderSectionAsync("Styles", required: false)
 </head>
 <body class="d-flex flex-column h-100 bg-img">
+    @{
+        var brandName = "Cedeva";
+        if (User.IsInRole("Coordinator") && CurrentUserService.OrganisationId.HasValue)
+        {
+            var organisation = await DbContext.Organisations
+                .Where(o => o.Id == CurrentUserService.OrganisationId.Value)
+                .Select(o => o.Name)
+                .FirstOrDefaultAsync();
+            if (!string.IsNullOrEmpty(organisation))
+            {
+                brandName = organisation;
+            }
+        }
+    }
     <div class="d-flex" id="wrapper">
         <!-- Sidebar -->
         <div class="bg-primary text-white" id="sidebar-wrapper" style="width: 250px; min-height: 100vh;">
             <div class="sidebar-heading py-4 px-3 fs-4 fw-bold border-bottom border-white border-opacity-25">
-                <i class="fas fa-campground me-2"></i>Cedeva
+                <i class="fas fa-campground me-2"></i>@brandName
             </div>
             <div class="list-group list-group-flush">
                 <a href="/" class="list-group-item list-group-item-action bg-primary text-white border-0">

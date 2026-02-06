@@ -105,6 +105,11 @@
                                                title="@Localizer["Edit"]">
                                                 <i class="fas fa-edit"></i>
                                             </a>
+                                            <a asp-action="Delete" asp-route-id="@excursion.Id"
+                                               class="btn btn-sm btn-outline-danger"
+                                               title="@Localizer["Delete"]">
+                                                <i class="fas fa-trash"></i>
+                                            </a>
                                         </div>
                                     </td>
                                 </tr>

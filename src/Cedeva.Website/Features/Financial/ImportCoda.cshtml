@@ -6,7 +6,9 @@
     var codaFiles = ViewBag.CodaFiles as List<Cedeva.Website.Features.Financial.ViewModels.CodaFileListItemViewModel>;
 }
 
-<div class="container-fluid">
+<partial name="_ActivityManagementNav" />
+
+<div class="container-fluid py-4">
     <div class="row mb-4">
         <div class="col">
             <h2><i class="fas fa-file-import me-2"></i>@Localizer["Financial.ImportCoda"]</h2>
