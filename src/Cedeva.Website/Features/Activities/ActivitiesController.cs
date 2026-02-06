@@ -46,10 +46,7 @@ public class ActivitiesController : Controller
     public async Task<IActionResult> Index([FromQuery] ActivityQueryParameters queryParams)
     {
         var query = _context.Activities
-            .Include(a => a.Organisation)
-            .Include(a => a.Bookings)
-            .Include(a => a.Groups)
-            .Include(a => a.TeamMembers)
+            .IncludeAll()
             .AsQueryable();
 
         if (!string.IsNullOrWhiteSpace(queryParams.SearchString))
@@ -119,11 +116,7 @@ public class ActivitiesController : Controller
     public async Task<IActionResult> Details(int id)
     {
         var activity = await _context.Activities
-            .Include(a => a.Organisation)
-            .Include(a => a.Bookings)
-            .Include(a => a.Groups)
-            .Include(a => a.TeamMembers)
-            .Include(a => a.Days)
+            .IncludeAllWithDays()
             .FirstOrDefaultAsync(a => a.Id == id);
 
         if (activity == null)
@@ -248,11 +241,7 @@ public class ActivitiesController : Controller
     public async Task<IActionResult> Edit(int id, string? returnUrl = null)
     {
         var activity = await _context.Activities
-            .Include(a => a.Days)
-            .Include(a => a.Organisation)
-            .Include(a => a.Bookings)
-            .Include(a => a.Groups)
-            .Include(a => a.TeamMembers)
+            .IncludeAllWithDays()
             .FirstOrDefaultAsync(a => a.Id == id);
 
         if (activity == null)
@@ -279,11 +268,7 @@ public class ActivitiesController : Controller
         if (!ModelState.IsValid)
         {
             var activityForReload = await _context.Activities
-                .Include(a => a.Days)
-                .Include(a => a.Organisation)
-                .Include(a => a.Bookings)
-                .Include(a => a.Groups)
-                .Include(a => a.TeamMembers)
+                .IncludeAllWithDays()
                 .FirstOrDefaultAsync(a => a.Id == id);
             if (activityForReload != null)
             {
@@ -369,8 +354,7 @@ public class ActivitiesController : Controller
     public async Task<IActionResult> Delete(int id)
     {
         var activity = await _context.Activities
-            .Include(a => a.Organisation)
-            .Include(a => a.Bookings)
+            .IncludeBasic()
             .FirstOrDefaultAsync(a => a.Id == id);
 
         if (activity == null)
@@ -752,10 +736,7 @@ public class ActivitiesController : Controller
     public async Task<IActionResult> Export(string? searchTerm, bool? showActiveOnly)
     {
         var query = _context.Activities
-            .Include(a => a.Organisation)
-            .Include(a => a.Bookings)
-            .Include(a => a.Groups)
-            .Include(a => a.TeamMembers)
+            .IncludeAll()
             .AsQueryable();
 
         if (!string.IsNullOrWhiteSpace(searchTerm))
@@ -797,10 +778,7 @@ public class ActivitiesController : Controller
     public async Task<IActionResult> ExportPdf(string? searchTerm, bool? showActiveOnly)
     {
         var query = _context.Activities
-            .Include(a => a.Organisation)
-            .Include(a => a.Bookings)
-            .Include(a => a.Groups)
-            .Include(a => a.TeamMembers)
+            .IncludeAll()
             .AsQueryable();
 
         if (!string.IsNullOrWhiteSpace(searchTerm))
