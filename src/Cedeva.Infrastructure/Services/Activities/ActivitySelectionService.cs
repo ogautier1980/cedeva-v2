@@ -1,7 +1,7 @@
 using Cedeva.Core.Interfaces;
 using Microsoft.AspNetCore.Http;
 
-namespace Cedeva.Infrastructure.Services;
+namespace Cedeva.Infrastructure.Services.Activities;
 
 /// <summary>
 /// Service for managing activity selection across user sessions.

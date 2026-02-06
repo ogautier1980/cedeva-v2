@@ -5,7 +5,7 @@ using Microsoft.Extensions.Logging;
 using System.Globalization;
 using System.Text;
 
-namespace Cedeva.Infrastructure.Services;
+namespace Cedeva.Infrastructure.Services.Financial;
 
 /// <summary>
 /// Service de parsing des fichiers CODA (format bancaire belge).

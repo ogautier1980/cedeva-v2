@@ -5,7 +5,7 @@ using Cedeva.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
-namespace Cedeva.Infrastructure.Services;
+namespace Cedeva.Infrastructure.Services.Financial;
 
 public class BankReconciliationService : IBankReconciliationService
 {

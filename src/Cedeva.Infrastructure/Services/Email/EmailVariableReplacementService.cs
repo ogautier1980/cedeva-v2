@@ -2,7 +2,7 @@ using System.Text.RegularExpressions;
 using Cedeva.Core.Entities;
 using Cedeva.Core.Interfaces;
 
-namespace Cedeva.Infrastructure.Services;
+namespace Cedeva.Infrastructure.Services.Email;
 
 /// <summary>
 /// Service for replacing variables in email templates with actual data

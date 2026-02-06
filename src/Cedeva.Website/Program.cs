@@ -5,6 +5,7 @@ using Cedeva.Core.Interfaces;
 using Cedeva.Infrastructure.Data;
 using Cedeva.Infrastructure.Identity;
 using Cedeva.Infrastructure.Services;
+using Cedeva.Infrastructure.Services.Activities;
 using Cedeva.Infrastructure.Services.Email;
 using Cedeva.Infrastructure.Services.Excel;
 using Cedeva.Infrastructure.Services.Financial;
@@ -167,9 +168,6 @@ try
         // Seed test data
         var testDataSeeder = scope.ServiceProvider.GetRequiredService<TestDataSeeder>();
         await testDataSeeder.SeedTestDataAsync();
-
-        // Fix ActivityDay week numbers
-        await Cedeva.Infrastructure.Scripts.FixActivityDayWeekNumbers.ExecuteAsync(app.Services);
     }
 
     // Configure the HTTP request pipeline

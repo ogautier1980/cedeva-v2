@@ -4,7 +4,7 @@ using Cedeva.Core.Interfaces;
 using Cedeva.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 
-namespace Cedeva.Infrastructure.Services;
+namespace Cedeva.Infrastructure.Services.Activities;
 
 public class ExcursionService : IExcursionService
 {

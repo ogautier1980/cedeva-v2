@@ -1,7 +1,7 @@
 using Cedeva.Core.Interfaces;
 using System.Text.RegularExpressions;
 
-namespace Cedeva.Infrastructure.Services;
+namespace Cedeva.Infrastructure.Services.Financial;
 
 /// <summary>
 /// Implémentation du service de communications structurées belges.
