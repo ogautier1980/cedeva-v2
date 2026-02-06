@@ -272,68 +272,19 @@ public class OrganisationsController : Controller
                 return NotFound();
             }
 
-            // Update Address
-            var address = await _context.Addresses.FindAsync(organisation.AddressId);
-            if (address != null)
-            {
-                address.Street = viewModel.Street;
-                address.City = viewModel.City;
-                address.PostalCode = viewModel.PostalCode;
-                address.Country = viewModel.Country;
-                _context.Addresses.Update(address);
-            }
+            await UpdateAddressFromViewModel(organisation.AddressId, viewModel);
 
-            // Update Organisation
             organisation.Name = viewModel.Name;
             organisation.Description = viewModel.Description;
 
-            // Handle logo file removal
-            if (viewModel.RemoveLogo && !string.IsNullOrEmpty(organisation.LogoUrl))
-            {
-                try
-                {
-                    await _storageService.DeleteFileAsync(organisation.LogoUrl);
-                }
-                catch
-                {
-                    // Ignore errors if file doesn't exist
-                }
-                organisation.LogoUrl = null;
-            }
-
-            // Handle logo file upload
-            if (viewModel.LogoFile != null)
-            {
-                // Delete old logo if exists (and not already deleted)
-                if (!string.IsNullOrEmpty(organisation.LogoUrl))
-                {
-                    try
-                    {
-                        await _storageService.DeleteFileAsync(organisation.LogoUrl);
-                    }
-                    catch
-                    {
-                        // Ignore errors if file doesn't exist
-                    }
-                }
-
-                // Upload new logo
-                var fileName = $"{Guid.NewGuid()}_{Path.GetFileName(viewModel.LogoFile.FileName)}";
-                var filePath = await _storageService.UploadFileAsync(
-                    viewModel.LogoFile.OpenReadStream(),
-                    fileName,
-                    viewModel.LogoFile.ContentType,
-                    $"{organisation.Id}/logos"
-                );
-                organisation.LogoUrl = filePath;
-            }
+            await HandleLogoRemoval(organisation, viewModel.RemoveLogo);
+            await HandleLogoUpload(organisation, viewModel.LogoFile);
 
             await _organisationRepository.UpdateAsync(organisation);
             await _unitOfWork.SaveChangesAsync();
 
             TempData[TempDataSuccessMessage] = _localizer["Message.OrganisationUpdated"].Value;
 
-            // Redirect to return URL if provided, otherwise to Details
             if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
             {
                 return Redirect(returnUrl);
@@ -435,6 +386,62 @@ public class OrganisationsController : Controller
 
         TempData[TempDataSuccessMessage] = _localizer["Message.OrganisationDeleted"].Value;
         return RedirectToAction(nameof(Index));
+    }
+
+    private async Task UpdateAddressFromViewModel(int addressId, OrganisationViewModel viewModel)
+    {
+        var address = await _context.Addresses.FindAsync(addressId);
+        if (address != null)
+        {
+            address.Street = viewModel.Street;
+            address.City = viewModel.City;
+            address.PostalCode = viewModel.PostalCode;
+            address.Country = viewModel.Country;
+            _context.Addresses.Update(address);
+        }
+    }
+
+    private async Task HandleLogoRemoval(Organisation organisation, bool removeLogo)
+    {
+        if (removeLogo && !string.IsNullOrEmpty(organisation.LogoUrl))
+        {
+            try
+            {
+                await _storageService.DeleteFileAsync(organisation.LogoUrl);
+            }
+            catch
+            {
+                // Ignore errors if file doesn't exist
+            }
+            organisation.LogoUrl = null;
+        }
+    }
+
+    private async Task HandleLogoUpload(Organisation organisation, IFormFile? logoFile)
+    {
+        if (logoFile != null)
+        {
+            if (!string.IsNullOrEmpty(organisation.LogoUrl))
+            {
+                try
+                {
+                    await _storageService.DeleteFileAsync(organisation.LogoUrl);
+                }
+                catch
+                {
+                    // Ignore errors if file doesn't exist
+                }
+            }
+
+            var fileName = $"{Guid.NewGuid()}_{Path.GetFileName(logoFile.FileName)}";
+            var filePath = await _storageService.UploadFileAsync(
+                logoFile.OpenReadStream(),
+                fileName,
+                logoFile.ContentType,
+                $"{organisation.Id}/logos"
+            );
+            organisation.LogoUrl = filePath;
+        }
     }
 
     // Helper method to get organisation view model with statistics
