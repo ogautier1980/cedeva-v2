@@ -140,8 +140,8 @@ try
     builder.Services.AddLocalization();
     builder.Services.Configure<RequestLocalizationOptions>(options =>
     {
-        var supportedCultures = new[] { "fr-BE", "nl-BE", "en-BE" };
-        options.SetDefaultCulture("fr-BE")
+        var supportedCultures = new[] { "fr", "nl", "en" };
+        options.SetDefaultCulture("fr")
             .AddSupportedCultures(supportedCultures)
             .AddSupportedUICultures(supportedCultures);
 
