@@ -2,6 +2,14 @@
 @inject Cedeva.Infrastructure.Data.CedevaDbContext DbContext
 @using Microsoft.EntityFrameworkCore
 
+@{
+    // ActivityManagement navigation variables
+    int activityId = ViewData.ContainsKey("ActivityId") ? Convert.ToInt32(ViewData["ActivityId"]) : 0;
+    string navSection = ViewData.ContainsKey("NavSection") ? ViewData["NavSection"]?.ToString() ?? "" : "";
+    string navAction = ViewData.ContainsKey("NavAction") ? ViewData["NavAction"]?.ToString() ?? "" : "";
+    string activityName = ViewData.ContainsKey("ActivityName") ? ViewData["ActivityName"]?.ToString() ?? "" : "";
+}
+
 <!DOCTYPE html>
 <html lang="fr" class="h-100">
 <head>
@@ -81,23 +89,142 @@
         <!-- Page Content -->
         <div id="page-content-wrapper" class="w-100">
             <!-- Top Navigation -->
-            <nav class="navbar navbar-expand-lg navbar-dark bg-primary border-bottom">
+            <nav class="navbar navbar-expand-lg navbar-dark bg-primary border-bottom" style="position: relative; z-index: 1030;">
                 <div class="container-fluid">
                     <button class="btn btn-link text-white" id="menu-toggle">
                         <i class="fas fa-bars fa-white"></i>
                     </button>
+
+                    @if (activityId > 0)
+                    {
+                        <!-- Activity Management Navigation -->
+                        <div class="d-flex align-items-center text-white me-3">
+                            <a asp-action="Index" asp-controller="ActivityManagement" asp-route-id="@activityId"
+                               class="btn btn-sm btn-outline-light me-2">
+                                <i class="fas fa-arrow-left"></i> @Localizer["BackToDashboard"]
+                            </a>
+                            <span class="text-white-50 me-3">@activityName</span>
+                        </div>
+
+                        <ul class="navbar-nav me-auto">
+                            <!-- Inscriptions en attente -->
+                            <li class="nav-item">
+                                <a class="nav-link @(navSection == "PendingBookings" ? "active" : "")"
+                                   asp-action="UnconfirmedBookings" asp-controller="ActivityManagement" asp-route-id="@activityId">
+                                    <i class="fas fa-list-check"></i> @Localizer["ActivityManagement.PendingBookings"]
+                                </a>
+                            </li>
+
+                            <!-- Présences -->
+                            <li class="nav-item">
+                                <a class="nav-link @(navSection == "Presences" ? "active" : "")"
+                                   asp-action="Presences" asp-controller="ActivityManagement" asp-route-id="@activityId">
+                                    <i class="fas fa-clipboard-check"></i> @Localizer["Presences"]
+                                </a>
+                            </li>
+
+                            <!-- Comptes (dropdown avec sous-actions) -->
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle @(navSection == "Financial" ? "active" : "")"
+                                   href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="far fa-money-bill-1"></i> @Localizer["ActivityManagement.Accounts"]
+                                </a>
+                                <ul class="dropdown-menu">
+                                    <li>
+                                        <a class="dropdown-item @(navAction == "Index" ? "active" : "")"
+                                           asp-action="Index" asp-controller="Financial" asp-route-id="@activityId">
+                                            <i class="fas fa-chart-line"></i> @Localizer["Financial.Dashboard"]
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item @(navAction == "Transactions" ? "active" : "")"
+                                           asp-action="Transactions" asp-controller="Financial" asp-route-id="@activityId">
+                                            <i class="fas fa-exchange-alt"></i> @Localizer["Financial.Transactions"]
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item @(navAction == "TeamSalaries" ? "active" : "")"
+                                           asp-action="TeamSalaries" asp-controller="Financial" asp-route-id="@activityId">
+                                            <i class="fas fa-money-bill-wave"></i> @Localizer["Financial.TeamSalaries"]
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item @(navAction == "ImportCoda" ? "active" : "")"
+                                           asp-action="ImportCoda" asp-controller="Financial" asp-route-id="@activityId">
+                                            <i class="fas fa-file-import"></i> @Localizer["Financial.ImportCoda"]
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+
+                            <!-- E-mails (dropdown avec sous-actions) -->
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle @(navSection == "Emails" ? "active" : "")"
+                                   href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="fas fa-envelope"></i> @Localizer["ActivityManagement.Emails"]
+                                </a>
+                                <ul class="dropdown-menu">
+                                    <li>
+                                        <a class="dropdown-item @(navAction == "SendEmail" ? "active" : "")"
+                                           asp-action="SendEmail" asp-controller="ActivityManagement" asp-route-id="@activityId">
+                                            <i class="fas fa-paper-plane"></i> @Localizer["Email.SendTargeted"]
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item @(navAction == "SentEmails" ? "active" : "")"
+                                           asp-action="SentEmails" asp-controller="ActivityManagement" asp-route-id="@activityId">
+                                            <i class="fas fa-history"></i> @Localizer["Email.SentHistory"]
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item @(navAction == "EmailTemplates" ? "active" : "")"
+                                           asp-action="Index" asp-controller="EmailTemplates" asp-route-id="@activityId">
+                                            <i class="fas fa-file-alt"></i> @Localizer["ActivityManagement.EmailTemplates"]
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+
+                            <!-- Excursions -->
+                            <li class="nav-item">
+                                <a class="nav-link @(navSection == "Excursions" ? "active" : "")"
+                                   asp-action="Index" asp-controller="Excursions" asp-route-id="@activityId">
+                                    <i class="fas fa-train"></i> @Localizer["ActivityManagement.Excursions"]
+                                </a>
+                            </li>
+
+                            <!-- Équipe -->
+                            <li class="nav-item">
+                                <a class="nav-link @(navSection == "Team" ? "active" : "")"
+                                   asp-action="TeamMembers" asp-controller="ActivityManagement" asp-route-id="@activityId">
+                                    <i class="fas fa-people-group"></i> @Localizer["ActivityManagement.Team"]
+                                </a>
+                            </li>
+
+                            <!-- ONE (placeholder) -->
+                            <li class="nav-item">
+                                <a class="nav-link disabled" aria-disabled="true">
+                                    ONE
+                                </a>
+                            </li>
+                        </ul>
+                    }
+
                     <div class="collapse navbar-collapse">
                         <ul class="navbar-nav ms-auto">
                             @{
                                 var currentCulture = System.Globalization.CultureInfo.CurrentCulture.Name;
-                                var languageIcon = currentCulture switch
+                                var languageCode = currentCulture.StartsWith("fr") ? "fr" :
+                                                   currentCulture.StartsWith("nl") ? "nl" :
+                                                   currentCulture.StartsWith("en") ? "en" : "";
+                                var languageIcon = languageCode switch
                                 {
                                     "fr" => "🇫🇷",
                                     "nl" => "🇳🇱",
                                     "en" => "🇬🇧",
                                     _ => "🌐"
                                 };
-                                var languageName = currentCulture switch
+                                var languageName = languageCode switch
                                 {
                                     "fr" => "Français",
                                     "nl" => "Nederlands",
