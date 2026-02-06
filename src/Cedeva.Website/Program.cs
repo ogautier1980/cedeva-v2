@@ -10,6 +10,7 @@ using Cedeva.Infrastructure.Services.Excel;
 using Cedeva.Infrastructure.Services.Financial;
 using Cedeva.Infrastructure.Services.Pdf;
 using Cedeva.Infrastructure.Services.Storage;
+using Cedeva.Website.Infrastructure;
 using Cedeva.Website.Localization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -127,6 +128,7 @@ try
 
     // Add HttpContextAccessor
     builder.Services.AddHttpContextAccessor();
+    builder.Services.AddScoped<SessionState>();
 
     // Add Session
     builder.Services.AddDistributedMemoryCache();
