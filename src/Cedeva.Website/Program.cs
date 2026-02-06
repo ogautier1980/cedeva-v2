@@ -47,10 +47,13 @@ try
     // Configure HttpClient for Brevo email service
     builder.Services.AddHttpClient<BrevoEmailService>(client =>
     {
-        var apiBaseUrl = builder.Configuration["Brevo:ApiBaseUrl"]
-            ?? throw new InvalidOperationException("Brevo API base URL not configured");
-        var apiKey = builder.Configuration["Brevo:ApiKey"]
-            ?? throw new InvalidOperationException("Brevo API key not configured");
+        var apiBaseUrl = builder.Configuration["Brevo:ApiBaseUrl"];
+        if (string.IsNullOrWhiteSpace(apiBaseUrl))
+            throw new InvalidOperationException("Brevo API base URL not configured");
+
+        var apiKey = builder.Configuration["Brevo:ApiKey"];
+        if (string.IsNullOrWhiteSpace(apiKey))
+            throw new InvalidOperationException("Brevo API key not configured in appsettings.json");
 
         client.BaseAddress = new Uri(apiBaseUrl);
         client.DefaultRequestHeaders.Add("api-key", apiKey);
