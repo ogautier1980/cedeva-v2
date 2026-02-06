@@ -238,71 +238,86 @@ public class TeamMembersController : Controller
     {
         if (ModelState.IsValid)
         {
-            // Determine OrganisationId based on user role
             var organisationId = _currentUserService.IsAdmin
                 ? viewModel.OrganisationId
                 : _currentUserService.OrganisationId ?? 0;
 
-            // Create Address first
-            var address = new Address
-            {
-                Street = viewModel.Street,
-                City = viewModel.City,
-                PostalCode = viewModel.PostalCode,
-                Country = viewModel.Country
-            };
-
-            await _addressRepository.AddAsync(address);
-            await _unitOfWork.SaveChangesAsync();
-
-            // Create TeamMember
-            var teamMember = new TeamMember
-            {
-                FirstName = viewModel.FirstName,
-                LastName = viewModel.LastName,
-                Email = viewModel.Email,
-                MobilePhoneNumber = viewModel.MobilePhoneNumber,
-                NationalRegisterNumber = viewModel.NationalRegisterNumber,
-                BirthDate = viewModel.BirthDate,
-                AddressId = address.Id,
-                TeamRole = viewModel.TeamRole,
-                License = viewModel.License,
-                Status = viewModel.Status,
-                DailyCompensation = viewModel.DailyCompensation,
-                OrganisationId = organisationId
-            };
-
-            await _teamMemberRepository.AddAsync(teamMember);
-            await _unitOfWork.SaveChangesAsync();
-
-            // Upload license file if provided
-            if (viewModel.LicenseFile != null)
-            {
-                var fileName = $"{Guid.NewGuid()}_{Path.GetFileName(viewModel.LicenseFile.FileName)}";
-                var filePath = await _storageService.UploadFileAsync(
-                    viewModel.LicenseFile.OpenReadStream(),
-                    fileName,
-                    viewModel.LicenseFile.ContentType,
-                    $"{organisationId}/team-member-licenses"
-                );
-                teamMember.LicenseUrl = filePath;
-                await _unitOfWork.SaveChangesAsync();
-            }
+            var address = await CreateAddressFromViewModel(viewModel);
+            var teamMember = await CreateTeamMemberFromViewModel(viewModel, address.Id, organisationId);
+            await UploadLicenseFileIfProvided(viewModel, teamMember, organisationId);
 
             TempData[TempDataSuccessMessage] = _localizer["Message.TeamMemberCreated"].Value;
             return RedirectToAction(nameof(Details), new { id = teamMember.TeamMemberId });
         }
 
+        await PopulateOrganisationsDropdown(viewModel.OrganisationId);
+        return View(viewModel);
+    }
+
+    private async Task<Address> CreateAddressFromViewModel(TeamMemberViewModel viewModel)
+    {
+        var address = new Address
+        {
+            Street = viewModel.Street,
+            City = viewModel.City,
+            PostalCode = viewModel.PostalCode,
+            Country = viewModel.Country
+        };
+
+        await _addressRepository.AddAsync(address);
+        await _unitOfWork.SaveChangesAsync();
+        return address;
+    }
+
+    private async Task<TeamMember> CreateTeamMemberFromViewModel(TeamMemberViewModel viewModel, int addressId, int organisationId)
+    {
+        var teamMember = new TeamMember
+        {
+            FirstName = viewModel.FirstName,
+            LastName = viewModel.LastName,
+            Email = viewModel.Email,
+            MobilePhoneNumber = viewModel.MobilePhoneNumber,
+            NationalRegisterNumber = viewModel.NationalRegisterNumber,
+            BirthDate = viewModel.BirthDate,
+            AddressId = addressId,
+            TeamRole = viewModel.TeamRole,
+            License = viewModel.License,
+            Status = viewModel.Status,
+            DailyCompensation = viewModel.DailyCompensation,
+            OrganisationId = organisationId
+        };
+
+        await _teamMemberRepository.AddAsync(teamMember);
+        await _unitOfWork.SaveChangesAsync();
+        return teamMember;
+    }
+
+    private async Task UploadLicenseFileIfProvided(TeamMemberViewModel viewModel, TeamMember teamMember, int organisationId)
+    {
+        if (viewModel.LicenseFile != null)
+        {
+            var fileName = $"{Guid.NewGuid()}_{Path.GetFileName(viewModel.LicenseFile.FileName)}";
+            var filePath = await _storageService.UploadFileAsync(
+                viewModel.LicenseFile.OpenReadStream(),
+                fileName,
+                viewModel.LicenseFile.ContentType,
+                $"{organisationId}/team-member-licenses"
+            );
+            teamMember.LicenseUrl = filePath;
+            await _unitOfWork.SaveChangesAsync();
+        }
+    }
+
+    private async Task PopulateOrganisationsDropdown(int? selectedOrganisationId = null)
+    {
         if (_currentUserService.IsAdmin)
         {
             var organisations = await _context.Organisations
                 .OrderBy(o => o.Name)
                 .Select(o => new { o.Id, o.Name })
                 .ToListAsync();
-            ViewBag.Organisations = new SelectList(organisations, "Id", "Name", viewModel.OrganisationId);
+            ViewBag.Organisations = new SelectList(organisations, "Id", "Name", selectedOrganisationId);
         }
-
-        return View(viewModel);
     }
 
     // GET: TeamMembers/Edit/5
