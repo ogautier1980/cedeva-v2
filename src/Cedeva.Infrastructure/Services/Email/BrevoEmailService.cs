@@ -1,7 +1,6 @@
-using System.Net;
-using System.Net.Http.Headers;
-using System.Text;
-using System.Text.Json;
+using brevo_csharp.Api;
+using brevo_csharp.Client;
+using brevo_csharp.Model;
 using Cedeva.Core.Interfaces;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -10,25 +9,30 @@ namespace Cedeva.Infrastructure.Services.Email;
 
 public class BrevoEmailService : IEmailService
 {
-    private readonly HttpClient _httpClient;
+    private readonly TransactionalEmailsApi _emailsApi;
     private readonly ILogger<BrevoEmailService> _logger;
     private readonly string _senderEmail;
     private readonly string _senderName;
 
     public BrevoEmailService(
         IConfiguration configuration,
-        ILogger<BrevoEmailService> logger,
-        HttpClient httpClient)
+        ILogger<BrevoEmailService> logger)
     {
         _logger = logger;
-        _httpClient = httpClient;
 
+        var apiKey = configuration["Brevo:ApiKey"]
+            ?? throw new InvalidOperationException("Brevo API key not configured");
         _senderEmail = configuration["Brevo:SenderEmail"]
             ?? throw new InvalidOperationException("Brevo sender email not configured");
         _senderName = configuration["Brevo:SenderName"]
             ?? throw new InvalidOperationException("Brevo sender name not configured");
 
-        _logger.LogInformation("BrevoEmailService initialized with sender: {SenderEmail} ({SenderName})",
+        // Configure Brevo SDK
+        var brevoConfig = new Configuration();
+        brevoConfig.AddApiKey("api-key", apiKey);
+        _emailsApi = new TransactionalEmailsApi(brevoConfig);
+
+        _logger.LogInformation("BrevoEmailService initialized with SDK. Sender: {SenderEmail} ({SenderName})",
             _senderEmail, _senderName);
     }
 
@@ -39,46 +43,35 @@ public class BrevoEmailService : IEmailService
 
     public async Task SendEmailAsync(IEnumerable<string> to, string subject, string htmlContent, string? attachmentPath = null)
     {
-        var recipients = to.Select(email => new { email }).ToArray();
+        var sender = new SendSmtpEmailSender(name: _senderName, email: _senderEmail);
+        var recipients = to.Select(email => new SendSmtpEmailTo(email: email)).ToList();
 
-        var payload = new
-        {
-            sender = new { email = _senderEmail, name = _senderName },
-            to = recipients,
-            subject,
-            htmlContent
-        };
-
-        var json = JsonSerializer.Serialize(payload);
-        var content = new StringContent(json, Encoding.UTF8, "application/json");
+        var email = new SendSmtpEmail(
+            sender: sender,
+            to: recipients,
+            subject: subject,
+            htmlContent: htmlContent
+        );
 
         try
         {
             _logger.LogInformation("Sending email FROM {SenderEmail} TO {Recipients} with subject '{Subject}'",
                 _senderEmail, string.Join(", ", to), subject);
-            _logger.LogDebug("Request payload: {Payload}", json);
-            _logger.LogDebug("HttpClient BaseAddress: {BaseAddress}", _httpClient.BaseAddress);
-            _logger.LogDebug("Full request URL will be: {FullUrl}",
-                _httpClient.BaseAddress != null
-                    ? new Uri(_httpClient.BaseAddress, "smtp/email").ToString()
-                    : "smtp/email (NO BASE ADDRESS SET!)");
 
             var stopwatch = System.Diagnostics.Stopwatch.StartNew();
-            var response = await _httpClient.PostAsync("smtp/email", content);
+            await _emailsApi.SendTransacEmailAsync(email);
             stopwatch.Stop();
+
             _logger.LogInformation("Brevo API call completed in {ElapsedMs}ms", stopwatch.ElapsedMilliseconds);
-
-            if (!response.IsSuccessStatusCode)
-            {
-                var errorContent = await response.Content.ReadAsStringAsync();
-                _logger.LogError("Failed to send email via Brevo. Status: {Status}, Error: {Error}",
-                    response.StatusCode, errorContent);
-                throw new InvalidOperationException($"Failed to send email: {errorContent}");
-            }
-
             _logger.LogInformation("Email sent successfully to {Recipients}", string.Join(", ", to));
         }
-        catch (Exception ex) when (ex is not InvalidOperationException)
+        catch (ApiException ex)
+        {
+            _logger.LogError(ex, "Brevo API error sending email. Code: {ErrorCode}, Message: {Message}",
+                ex.ErrorCode, ex.Message);
+            throw new InvalidOperationException($"Failed to send email via Brevo: {ex.ErrorCode} - {ex.Message}", ex);
+        }
+        catch (Exception ex)
         {
             _logger.LogError(ex, "Error sending email via Brevo to {Recipients}", string.Join(", ", to));
             throw new InvalidOperationException($"Error sending email to {string.Join(", ", to)}", ex);

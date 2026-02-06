@@ -44,26 +44,8 @@ try
         builder.Services.AddScoped<IStorageService, AzureBlobStorageService>();
     }
 
-    // Configure HttpClient for Brevo email service - use default settings
-    builder.Services.AddHttpClient<IEmailService, BrevoEmailService>(client =>
-    {
-        var apiBaseUrl = builder.Configuration["Brevo:ApiBaseUrl"];
-        if (string.IsNullOrWhiteSpace(apiBaseUrl))
-            throw new InvalidOperationException("Brevo API base URL not configured");
-
-        var apiKey = builder.Configuration["Brevo:ApiKey"];
-        if (string.IsNullOrWhiteSpace(apiKey))
-            throw new InvalidOperationException("Brevo API key not configured");
-
-        client.BaseAddress = new Uri(apiBaseUrl);
-        client.Timeout = TimeSpan.FromMinutes(2); // Generous timeout for slow connections
-        client.DefaultRequestHeaders.Add("api-key", apiKey);
-        client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
-
-        Console.WriteLine($"[BREVO CONFIG] BaseAddress: {client.BaseAddress}");
-        Console.WriteLine($"[BREVO CONFIG] Timeout: {client.Timeout}");
-        Console.WriteLine($"[BREVO CONFIG] API Key Length: {apiKey?.Length ?? 0}");
-    });
+    // Note: IEmailService is NOT registered here - it's registered in Autofac below
+    // Brevo SDK configuration is handled internally by BrevoEmailService constructor
 
     // Configure Autofac
     builder.Host.UseServiceProviderFactory(new AutofacServiceProviderFactory());
@@ -71,7 +53,7 @@ try
     {
         // Register services
         containerBuilder.RegisterType<CurrentUserService>().As<ICurrentUserService>().InstancePerLifetimeScope();
-        // Note: IEmailService is registered via AddHttpClient above, not here
+        containerBuilder.RegisterType<BrevoEmailService>().As<IEmailService>().InstancePerLifetimeScope();
         containerBuilder.RegisterType<EmailRecipientService>().As<IEmailRecipientService>().InstancePerLifetimeScope();
         containerBuilder.RegisterType<EmailVariableReplacementService>().As<IEmailVariableReplacementService>().InstancePerLifetimeScope();
         containerBuilder.RegisterType<EmailTemplateService>().As<IEmailTemplateService>().InstancePerLifetimeScope();
