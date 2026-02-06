@@ -198,41 +198,56 @@ public class ActivityManagementController : Controller
         if (activity == null)
             return NotFound();
 
-        // Store the activity ID for future visits
         _activitySelectionService.SetSelectedActivityId(id.Value);
 
-        // If no day is selected, take today's active day, or fallback to first active day
-        if (dayId == null)
-        {
-            var today = DateTime.Today;
-            var todayDay = activity.Days.FirstOrDefault(d => d.IsActive && d.DayDate.Date == today);
-
-            if (todayDay != null)
-            {
-                dayId = todayDay.DayId;
-            }
-            else
-            {
-                var firstDay = activity.Days.Where(d => d.IsActive).OrderBy(d => d.DayDate).FirstOrDefault();
-                dayId = firstDay?.DayId;
-            }
-        }
-
+        dayId = SelectDefaultActivityDay(activity, dayId);
         var selectedDay = activity.Days.FirstOrDefault(d => d.DayId == dayId);
+        var dayOptions = BuildDayDropdownOptions(activity, dayId);
+        var childrenByGroup = BuildChildrenByGroup(activity, dayId);
 
-        // Create options for the day dropdown
-        var dayOptions = activity.Days
+        var viewModel = new PresencesViewModel
+        {
+            Activity = activity,
+            SelectedActivityDayId = dayId,
+            SelectedActivityDay = selectedDay,
+            ActivityDayOptions = dayOptions,
+            ChildrenByGroup = childrenByGroup
+        };
+
+        return View(viewModel);
+    }
+
+    private int? SelectDefaultActivityDay(Activity activity, int? dayId)
+    {
+        if (dayId != null)
+            return dayId;
+
+        var today = DateTime.Today;
+        var todayDay = activity.Days.FirstOrDefault(d => d.IsActive && d.DayDate.Date == today);
+
+        if (todayDay != null)
+            return todayDay.DayId;
+
+        var firstDay = activity.Days.Where(d => d.IsActive).OrderBy(d => d.DayDate).FirstOrDefault();
+        return firstDay?.DayId;
+    }
+
+    private List<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem> BuildDayDropdownOptions(Activity activity, int? selectedDayId)
+    {
+        return activity.Days
             .Where(d => d.IsActive)
             .OrderBy(d => d.DayDate)
             .Select(d => new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem
             {
                 Value = d.DayId.ToString(),
                 Text = $"{d.Label} - {d.DayDate:dd/MM/yyyy}",
-                Selected = d.DayId == dayId
+                Selected = d.DayId == selectedDayId
             })
             .ToList();
+    }
 
-        // Group children by activity group
+    private Dictionary<Core.Entities.ActivityGroup, List<PresenceChildInfo>> BuildChildrenByGroup(Activity activity, int? dayId)
+    {
         var childrenByGroup = new Dictionary<Core.Entities.ActivityGroup, List<PresenceChildInfo>>();
 
         foreach (var group in activity.Groups.OrderBy(g => g.Label))
@@ -263,16 +278,7 @@ public class ActivityManagementController : Controller
             }
         }
 
-        var viewModel = new PresencesViewModel
-        {
-            Activity = activity,
-            SelectedActivityDayId = dayId,
-            SelectedActivityDay = selectedDay,
-            ActivityDayOptions = dayOptions,
-            ChildrenByGroup = childrenByGroup
-        };
-
-        return View(viewModel);
+        return childrenByGroup;
     }
 
     [HttpPost]
