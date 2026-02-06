@@ -387,15 +387,20 @@ public class ActivityManagementController : Controller
                 .FirstOrDefaultAsync(ct);
             var organisation = await _context.Organisations.FirstOrDefaultAsync(o => o.Id == organisationId, ct);
 
+            _logger.LogInformation("Starting email sending process for activity {ActivityId}, recipient: {Recipient}",
+                model.ActivityId, model.SelectedRecipient);
+
             int emailsSentCount;
 
             if (model.SendSeparateEmailPerChild)
             {
+                _logger.LogInformation("Sending separate email per child");
                 // 1 email per child: replace variables per booking
                 emailsSentCount = await SendPerChildAsync(model, recipientGroupId, organisation!, attachmentFilePath, ct);
             }
             else
             {
+                _logger.LogInformation("Sending email per parent");
                 // 1 email per parent: send same message to unique parent emails
                 emailsSentCount = await SendPerParentAsync(model, recipientGroupId, attachmentFilePath, ct);
             }
