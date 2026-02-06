@@ -382,12 +382,7 @@ public class TeamMembersController : Controller
             await _unitOfWork.SaveChangesAsync();
 
             TempData[TempDataSuccessMessage] = _localizer["Message.TeamMemberUpdated"].Value;
-
-            if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
-            {
-                return Redirect(returnUrl);
-            }
-            return RedirectToAction(nameof(Details), new { id = teamMember.TeamMemberId });
+            return this.RedirectToReturnUrlOrAction(returnUrl, nameof(Details), new { id = teamMember.TeamMemberId });
         }
 
         await PopulateOrganisationsDropdown(viewModel.OrganisationId);

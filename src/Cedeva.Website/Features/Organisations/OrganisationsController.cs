@@ -284,12 +284,7 @@ public class OrganisationsController : Controller
             await _unitOfWork.SaveChangesAsync();
 
             TempData[TempDataSuccessMessage] = _localizer["Message.OrganisationUpdated"].Value;
-
-            if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
-            {
-                return Redirect(returnUrl);
-            }
-            return RedirectToAction(nameof(Details), new { id = organisation.Id });
+            return this.RedirectToReturnUrlOrAction(returnUrl, nameof(Details), new { id = organisation.Id });
         }
 
         return View(viewModel);

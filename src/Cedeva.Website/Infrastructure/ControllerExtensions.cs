@@ -105,4 +105,16 @@ public static class ControllerExtensions
         controller.SetErrorMessage(message);
         return controller.NotFound();
     }
+
+    /// <summary>
+    /// Redirects to the returnUrl if it's local and not empty, otherwise redirects to the specified action.
+    /// </summary>
+    public static IActionResult RedirectToReturnUrlOrAction(this Controller controller, string? returnUrl, string actionName, object? routeValues = null)
+    {
+        if (!string.IsNullOrEmpty(returnUrl) && controller.Url.IsLocalUrl(returnUrl))
+        {
+            return controller.Redirect(returnUrl);
+        }
+        return controller.RedirectToAction(actionName, routeValues);
+    }
 }

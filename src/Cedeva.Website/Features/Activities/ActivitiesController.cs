@@ -340,12 +340,7 @@ public class ActivitiesController : Controller
             throw new InvalidOperationException($"Failed to update activity {id} due to concurrency conflict", ex);
         }
 
-        // Redirect to return URL if provided, otherwise to Index
-        if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
-        {
-            return Redirect(returnUrl);
-        }
-        return RedirectToAction(nameof(Index));
+        return this.RedirectToReturnUrlOrAction(returnUrl, nameof(Index));
     }
 
     public async Task<IActionResult> Delete(int id)

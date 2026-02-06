@@ -351,12 +351,7 @@ public class BookingsController : Controller
                 TempData[TempDataSuccessMessage] = _localizer["Message.BookingUpdated"].Value;
             }
 
-            // Redirect to return URL if provided, otherwise to Details
-            if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
-            {
-                return Redirect(returnUrl);
-            }
-            return RedirectToAction(nameof(Details), new { id = booking.Id });
+            return this.RedirectToReturnUrlOrAction(returnUrl, nameof(Details), new { id = booking.Id });
         }
 
         await PopulateDropdowns(viewModel.ChildId, viewModel.ActivityId, viewModel.GroupId);

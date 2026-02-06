@@ -317,13 +317,7 @@ public class ChildrenController : Controller
             await _unitOfWork.SaveChangesAsync();
 
             TempData[TempDataSuccessMessage] = _localizer["Message.ChildUpdated"].Value;
-
-            // Redirect to return URL if provided, otherwise to Details
-            if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
-            {
-                return Redirect(returnUrl);
-            }
-            return RedirectToAction(nameof(Details), new { id = child.Id });
+            return this.RedirectToReturnUrlOrAction(returnUrl, nameof(Details), new { id = child.Id });
         }
 
         await PopulateParentDropdown(viewModel.ParentId);
