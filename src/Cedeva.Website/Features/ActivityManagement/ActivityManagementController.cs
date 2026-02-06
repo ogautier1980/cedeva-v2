@@ -914,16 +914,30 @@ public class ActivityManagementController : Controller
             return NotFound();
         }
 
-        // Get all confirmed bookings without a group
+        // Debug: log all bookings first
+        var allBookings = await _context.Bookings
+            .Include(b => b.Child)
+            .Where(b => b.ActivityId == selectedActivityId.Value)
+            .ToListAsync();
+        _logger.LogInformation("GroupAssignment DEBUG - Activity {ActivityId}: Total {Count} bookings. Details: {Details}",
+            selectedActivityId.Value,
+            allBookings.Count,
+            string.Join(" | ", allBookings.Select(b => $"ID={b.Id}, Child={b.Child?.FirstName ?? "NULL"}, GroupId={b.GroupId?.ToString() ?? "NULL"}, IsConfirmed={b.IsConfirmed}")));
+
+        // Get all confirmed bookings without a real group (either null or "Sans groupe")
         var unassignedBookings = await _context.Bookings
             .Include(b => b.Child)
                 .ThenInclude(c => c.Parent)
+            .Include(b => b.Group)
             .Where(b => b.ActivityId == selectedActivityId.Value
                      && b.IsConfirmed
-                     && b.GroupId == null)
+                     && (b.GroupId == null || (b.Group != null && b.Group.Label == "Sans groupe")))
             .OrderBy(b => b.Child.LastName)
             .ThenBy(b => b.Child.FirstName)
             .ToListAsync();
+
+        _logger.LogInformation("GroupAssignment: Found {Count} unassigned bookings (IsConfirmed=true, GroupId=null OR Group='Sans groupe')",
+            unassignedBookings.Count);
 
         var viewModel = new GroupAssignmentViewModel
         {
