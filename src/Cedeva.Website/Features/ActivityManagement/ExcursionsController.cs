@@ -14,22 +14,22 @@ namespace Cedeva.Website.Features.ActivityManagement;
 [Authorize]
 public class ExcursionsController : Controller
 {
-    private const string SessionActivityId = "Activity_Id";
-    private const string CookieActivityId = "SelectedActivityId";
-
     private readonly CedevaDbContext _context;
     private readonly IExcursionService _excursionService;
+    private readonly IActivitySelectionService _activitySelectionService;
     private readonly ILogger<ExcursionsController> _logger;
     private readonly IStringLocalizer<SharedResources> _localizer;
 
     public ExcursionsController(
         CedevaDbContext context,
         IExcursionService excursionService,
+        IActivitySelectionService activitySelectionService,
         ILogger<ExcursionsController> logger,
         IStringLocalizer<SharedResources> localizer)
     {
         _context = context;
         _excursionService = excursionService;
+        _activitySelectionService = activitySelectionService;
         _logger = logger;
         _localizer = localizer;
     }
@@ -37,7 +37,7 @@ public class ExcursionsController : Controller
     [HttpGet]
     public async Task<IActionResult> Index(int? id)
     {
-        var activityId = id ?? GetActivityIdFromSession();
+        var activityId = id ?? _activitySelectionService.GetSelectedActivityId();
         if (activityId == null)
             return NotFound();
 
@@ -48,7 +48,7 @@ public class ExcursionsController : Controller
         if (activity == null)
             return NotFound();
 
-        SetSelectedActivityId(activityId.Value);
+        _activitySelectionService.SetSelectedActivityId(activityId.Value);
 
         // Load excursions with related data
         var excursions = await _context.Excursions
@@ -90,7 +90,7 @@ public class ExcursionsController : Controller
     [HttpGet]
     public async Task<IActionResult> Create(int? id)
     {
-        var activityId = id ?? GetActivityIdFromSession();
+        var activityId = id ?? _activitySelectionService.GetSelectedActivityId();
         if (activityId == null)
             return NotFound();
 
@@ -944,47 +944,8 @@ public class ExcursionsController : Controller
     [ValidateAntiForgeryToken]
     public IActionResult BeginExcursions(int id)
     {
-        SetSelectedActivityId(id);
+        _activitySelectionService.SetSelectedActivityId(id);
         return RedirectToAction(nameof(Index), new { id });
     }
 
-    private int? GetActivityIdFromSession()
-    {
-        // Try session first
-        var idStr = HttpContext.Session.GetString(SessionActivityId);
-
-        // If not in session, try persistent cookie
-        if (string.IsNullOrEmpty(idStr))
-        {
-            idStr = Request.Cookies[CookieActivityId];
-
-            // Restore session from cookie
-            if (!string.IsNullOrEmpty(idStr) && int.TryParse(idStr, out var cookieParsed))
-            {
-                HttpContext.Session.SetString(SessionActivityId, cookieParsed.ToString());
-                return cookieParsed;
-            }
-        }
-        else if (int.TryParse(idStr, out var sessionParsed))
-        {
-            return sessionParsed;
-        }
-
-        return null;
-    }
-
-    private void SetSelectedActivityId(int activityId)
-    {
-        // Store in session for current session
-        HttpContext.Session.SetString(SessionActivityId, activityId.ToString());
-
-        // Store in persistent cookie (30 days)
-        Response.Cookies.Append(CookieActivityId, activityId.ToString(), new CookieOptions
-        {
-            Expires = DateTimeOffset.Now.AddDays(30),
-            HttpOnly = true,
-            Secure = Request.IsHttps,
-            SameSite = SameSiteMode.Lax
-        });
-    }
 }

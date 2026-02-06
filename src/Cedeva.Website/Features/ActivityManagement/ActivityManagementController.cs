@@ -14,8 +14,6 @@ namespace Cedeva.Website.Features.ActivityManagement;
 [Authorize]
 public class ActivityManagementController : Controller
 {
-    private const string SessionActivityId = "Activity_Id";
-    private const string CookieActivityId = "SelectedActivityId";
     private const string RecipientAllParents = "allparents";
     private const string RecipientMedicalSheetReminder = "medicalsheetreminder";
     private const string RecipientGroupPrefix = "group_";
@@ -28,6 +26,7 @@ public class ActivityManagementController : Controller
     private readonly IEmailRecipientService _emailRecipientService;
     private readonly IEmailVariableReplacementService _variableReplacementService;
     private readonly IEmailTemplateService _templateService;
+    private readonly IActivitySelectionService _activitySelectionService;
     private readonly IStringLocalizer<SharedResources> _localizer;
 
     public ActivityManagementController(
@@ -37,6 +36,7 @@ public class ActivityManagementController : Controller
         IEmailRecipientService emailRecipientService,
         IEmailVariableReplacementService variableReplacementService,
         IEmailTemplateService templateService,
+        IActivitySelectionService activitySelectionService,
         IStringLocalizer<SharedResources> localizer)
     {
         _context = context;
@@ -45,34 +45,15 @@ public class ActivityManagementController : Controller
         _emailRecipientService = emailRecipientService;
         _variableReplacementService = variableReplacementService;
         _templateService = templateService;
+        _activitySelectionService = activitySelectionService;
         _localizer = localizer;
     }
 
     [HttpGet]
     public async Task<IActionResult> Index(int? id)
     {
-        if (id is null)
-        {
-            // Try to get from session first
-            var idStr = HttpContext.Session.GetString(SessionActivityId);
-
-            // If not in session, try to restore from persistent cookie
-            if (string.IsNullOrEmpty(idStr))
-            {
-                idStr = Request.Cookies[CookieActivityId];
-
-                // Restore session from cookie
-                if (!string.IsNullOrEmpty(idStr) && int.TryParse(idStr, out var cookieParsed))
-                {
-                    HttpContext.Session.SetString(SessionActivityId, cookieParsed.ToString());
-                    id = cookieParsed;
-                }
-            }
-            else if (int.TryParse(idStr, out var sessionParsed))
-            {
-                id = sessionParsed;
-            }
-        }
+        // Use service to get or set activity ID
+        id ??= _activitySelectionService.GetSelectedActivityId();
 
         if (id is null)
             return NotFound();
@@ -86,8 +67,8 @@ public class ActivityManagementController : Controller
         if (activity == null)
             return NotFound();
 
-        // Store the activity ID in session and cookie for future visits
-        SetSelectedActivityId(id.Value);
+        // Store the activity ID for future visits
+        _activitySelectionService.SetSelectedActivityId(id.Value);
 
         var viewModel = new IndexViewModel
         {
@@ -107,7 +88,7 @@ public class ActivityManagementController : Controller
             return RedirectToAction(nameof(Index));
         }
 
-        SetSelectedActivityId(id);
+        _activitySelectionService.SetSelectedActivityId(id);
 
         return RedirectToAction(nameof(Index));
     }
@@ -115,28 +96,7 @@ public class ActivityManagementController : Controller
     [HttpGet]
     public async Task<IActionResult> UnconfirmedBookings(int? id)
     {
-        if (id is null)
-        {
-            // Try to get from session first
-            var idStr = HttpContext.Session.GetString(SessionActivityId);
-
-            // If not in session, try to restore from persistent cookie
-            if (string.IsNullOrEmpty(idStr))
-            {
-                idStr = Request.Cookies[CookieActivityId];
-
-                // Restore session from cookie
-                if (!string.IsNullOrEmpty(idStr) && int.TryParse(idStr, out var cookieParsed))
-                {
-                    HttpContext.Session.SetString(SessionActivityId, cookieParsed.ToString());
-                    id = cookieParsed;
-                }
-            }
-            else if (int.TryParse(idStr, out var sessionParsed))
-            {
-                id = sessionParsed;
-            }
-        }
+        id ??= _activitySelectionService.GetSelectedActivityId();
 
         if (id is null)
             return NotFound();
@@ -150,8 +110,8 @@ public class ActivityManagementController : Controller
         if (activity == null)
             return NotFound();
 
-        // Store the activity ID in session and cookie for future visits
-        SetSelectedActivityId(id.Value);
+        // Store the activity ID for future visits
+        _activitySelectionService.SetSelectedActivityId(id.Value);
 
         var unconfirmedBookings = activity.Bookings
             .Where(b => !b.IsConfirmed)
@@ -181,7 +141,7 @@ public class ActivityManagementController : Controller
             return RedirectToAction(nameof(Index));
         }
 
-        SetSelectedActivityId(id);
+        _activitySelectionService.SetSelectedActivityId(id);
         return RedirectToAction(nameof(UnconfirmedBookings));
     }
 
@@ -219,28 +179,7 @@ public class ActivityManagementController : Controller
     [HttpGet]
     public async Task<IActionResult> Presences(int? id, int? dayId)
     {
-        if (id is null)
-        {
-            // Try to get from session first
-            var idStr = HttpContext.Session.GetString(SessionActivityId);
-
-            // If not in session, try to restore from persistent cookie
-            if (string.IsNullOrEmpty(idStr))
-            {
-                idStr = Request.Cookies[CookieActivityId];
-
-                // Restore session from cookie
-                if (!string.IsNullOrEmpty(idStr) && int.TryParse(idStr, out var cookieParsed))
-                {
-                    HttpContext.Session.SetString(SessionActivityId, cookieParsed.ToString());
-                    id = cookieParsed;
-                }
-            }
-            else if (int.TryParse(idStr, out var sessionParsed))
-            {
-                id = sessionParsed;
-            }
-        }
+        id ??= _activitySelectionService.GetSelectedActivityId();
 
         if (id is null)
             return NotFound();
@@ -259,8 +198,8 @@ public class ActivityManagementController : Controller
         if (activity == null)
             return NotFound();
 
-        // Store the activity ID in session and cookie for future visits
-        SetSelectedActivityId(id.Value);
+        // Store the activity ID for future visits
+        _activitySelectionService.SetSelectedActivityId(id.Value);
 
         // If no day is selected, take today's active day, or fallback to first active day
         if (dayId == null)
@@ -346,7 +285,7 @@ public class ActivityManagementController : Controller
             return RedirectToAction(nameof(Index));
         }
 
-        SetSelectedActivityId(id);
+        _activitySelectionService.SetSelectedActivityId(id);
         return RedirectToAction(nameof(Presences));
     }
 
@@ -372,28 +311,7 @@ public class ActivityManagementController : Controller
     [HttpGet]
     public async Task<IActionResult> SendEmail(int? id)
     {
-        if (id is null)
-        {
-            // Try to get from session first
-            var idStr = HttpContext.Session.GetString(SessionActivityId);
-
-            // If not in session, try to restore from persistent cookie
-            if (string.IsNullOrEmpty(idStr))
-            {
-                idStr = Request.Cookies[CookieActivityId];
-
-                // Restore session from cookie
-                if (!string.IsNullOrEmpty(idStr) && int.TryParse(idStr, out var cookieParsed))
-                {
-                    HttpContext.Session.SetString(SessionActivityId, cookieParsed.ToString());
-                    id = cookieParsed;
-                }
-            }
-            else if (int.TryParse(idStr, out var sessionParsed))
-            {
-                id = sessionParsed;
-            }
-        }
+        id ??= _activitySelectionService.GetSelectedActivityId();
 
         if (id is null)
             return NotFound();
@@ -406,8 +324,8 @@ public class ActivityManagementController : Controller
         if (activity == null)
             return NotFound();
 
-        // Store the activity ID in session and cookie for future visits
-        SetSelectedActivityId(id.Value);
+        // Store the activity ID for future visits
+        _activitySelectionService.SetSelectedActivityId(id.Value);
 
         ViewBag.Templates = await _templateService.GetAllTemplatesAsync(activity.OrganisationId);
 
@@ -584,35 +502,14 @@ public class ActivityManagementController : Controller
             return RedirectToAction(nameof(Index));
         }
 
-        SetSelectedActivityId(id);
+        _activitySelectionService.SetSelectedActivityId(id);
         return RedirectToAction(nameof(SendEmail));
     }
 
     [HttpGet]
     public async Task<IActionResult> SentEmails(int? id)
     {
-        if (id is null)
-        {
-            // Try to get from session first
-            var idStr = HttpContext.Session.GetString(SessionActivityId);
-
-            // If not in session, try to restore from persistent cookie
-            if (string.IsNullOrEmpty(idStr))
-            {
-                idStr = Request.Cookies[CookieActivityId];
-
-                // Restore session from cookie
-                if (!string.IsNullOrEmpty(idStr) && int.TryParse(idStr, out var cookieParsed))
-                {
-                    HttpContext.Session.SetString(SessionActivityId, cookieParsed.ToString());
-                    id = cookieParsed;
-                }
-            }
-            else if (int.TryParse(idStr, out var sessionParsed))
-            {
-                id = sessionParsed;
-            }
-        }
+        id ??= _activitySelectionService.GetSelectedActivityId();
 
         if (id is null)
             return NotFound();
@@ -623,8 +520,8 @@ public class ActivityManagementController : Controller
         if (activity == null)
             return NotFound();
 
-        // Store the activity ID in session and cookie for future visits
-        SetSelectedActivityId(id.Value);
+        // Store the activity ID for future visits
+        _activitySelectionService.SetSelectedActivityId(id.Value);
 
         var sentEmails = await _context.EmailsSent
             .Where(e => e.ActivityId == id)
@@ -650,35 +547,14 @@ public class ActivityManagementController : Controller
             return RedirectToAction(nameof(Index));
         }
 
-        SetSelectedActivityId(id);
+        _activitySelectionService.SetSelectedActivityId(id);
         return RedirectToAction(nameof(SentEmails));
     }
 
     [HttpGet]
     public async Task<IActionResult> TeamMembers(int? id)
     {
-        if (id is null)
-        {
-            // Try to get from session first
-            var idStr = HttpContext.Session.GetString(SessionActivityId);
-
-            // If not in session, try to restore from persistent cookie
-            if (string.IsNullOrEmpty(idStr))
-            {
-                idStr = Request.Cookies[CookieActivityId];
-
-                // Restore session from cookie
-                if (!string.IsNullOrEmpty(idStr) && int.TryParse(idStr, out var cookieParsed))
-                {
-                    HttpContext.Session.SetString(SessionActivityId, cookieParsed.ToString());
-                    id = cookieParsed;
-                }
-            }
-            else if (int.TryParse(idStr, out var sessionParsed))
-            {
-                id = sessionParsed;
-            }
-        }
+        id ??= _activitySelectionService.GetSelectedActivityId();
 
         if (id is null)
             return NotFound();
@@ -690,8 +566,8 @@ public class ActivityManagementController : Controller
         if (activity == null)
             return NotFound();
 
-        // Store the activity ID in session and cookie for future visits
-        SetSelectedActivityId(id.Value);
+        // Store the activity ID for future visits
+        _activitySelectionService.SetSelectedActivityId(id.Value);
 
         // Get all team members for this organisation
         var allTeamMembers = await _context.TeamMembers
@@ -724,7 +600,7 @@ public class ActivityManagementController : Controller
             return RedirectToAction(nameof(Index));
         }
 
-        SetSelectedActivityId(id);
+        _activitySelectionService.SetSelectedActivityId(id);
         return RedirectToAction(nameof(TeamMembers));
     }
 
@@ -973,18 +849,4 @@ public class ActivityManagementController : Controller
     /// <summary>
     /// Sets the selected activity ID in both session and persistent cookie
     /// </summary>
-    private void SetSelectedActivityId(int activityId)
-    {
-        // Store in session for current session
-        HttpContext.Session.SetString(SessionActivityId, activityId.ToString());
-
-        // Store in persistent cookie (30 days)
-        Response.Cookies.Append(CookieActivityId, activityId.ToString(), new CookieOptions
-        {
-            Expires = DateTimeOffset.Now.AddDays(30),
-            HttpOnly = true,
-            Secure = Request.IsHttps,
-            SameSite = SameSiteMode.Lax
-        });
-    }
 }
