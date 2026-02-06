@@ -27,6 +27,9 @@ public class BrevoEmailService : IEmailService
             ?? throw new InvalidOperationException("Brevo sender email not configured");
         _senderName = configuration["Brevo:SenderName"]
             ?? throw new InvalidOperationException("Brevo sender name not configured");
+
+        _logger.LogInformation("BrevoEmailService initialized with sender: {SenderEmail} ({SenderName})",
+            _senderEmail, _senderName);
     }
 
     public async Task SendEmailAsync(string to, string subject, string htmlContent, string? attachmentPath = null)
