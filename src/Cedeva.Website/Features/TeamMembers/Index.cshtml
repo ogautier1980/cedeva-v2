@@ -96,13 +96,13 @@
                                     </td>
                                     <td class="text-end">
                                         <div class="btn-group">
-                                            <a asp-action="Details" asp-route-id="@member.TeamMemberId" class="btn btn-sm btn-primary" title="@Localizer["Details"]">
+                                            <a asp-action="Details" asp-route-id="@member.TeamMemberId" class="btn btn-sm btn-outline-primary" title="@Localizer["Details"]">
                                                 <i class="fas fa-eye"></i>
                                             </a>
-                                            <a asp-action="Edit" asp-route-id="@member.TeamMemberId" asp-route-returnUrl="@(Context.Request.Path + Context.Request.QueryString)" class="btn btn-sm btn-warning" title="@Localizer["Edit"]">
+                                            <a asp-action="Edit" asp-route-id="@member.TeamMemberId" asp-route-returnUrl="@(Context.Request.Path + Context.Request.QueryString)" class="btn btn-sm btn-outline-secondary" title="@Localizer["Edit"]">
                                                 <i class="fas fa-edit"></i>
                                             </a>
-                                            <a asp-action="Delete" asp-route-id="@member.TeamMemberId" class="btn btn-sm btn-danger" title="@Localizer["Delete"]">
+                                            <a asp-action="Delete" asp-route-id="@member.TeamMemberId" class="btn btn-sm btn-outline-danger" title="@Localizer["Delete"]">
                                                 <i class="fas fa-trash"></i>
                                             </a>
                                         </div>
