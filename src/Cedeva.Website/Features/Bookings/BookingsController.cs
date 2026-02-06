@@ -600,6 +600,7 @@ public class BookingsController : Controller
                 activityDayId = d.DayId,
                 date = d.DayDate,
                 label = d.Label,
+                week = d.Week ?? 0,
                 dayOfWeek = d.DayDate.DayOfWeek,
                 isWeekend = d.DayDate.DayOfWeek == DayOfWeek.Saturday || d.DayDate.DayOfWeek == DayOfWeek.Sunday,
                 isSelected = d.DayDate.DayOfWeek != DayOfWeek.Saturday && d.DayDate.DayOfWeek != DayOfWeek.Sunday // Mon-Fri by default

@@ -59,7 +59,7 @@
                             <div class="alert alert-info">
                                 <i class="fas fa-info-circle me-2"></i>@Localizer["Bookings.SelectDaysHelp"]
                             </div>
-                            <div id="daysCheckboxes" class="row g-2">
+                            <div id="daysCheckboxes" class="row g-3">
                                 <!-- Checkboxes will be populated via JavaScript -->
                             </div>
                         </div>
@@ -134,31 +134,65 @@
                         if (days && days.length > 0) {
                             $daysSelection.show();
 
+                            // Group days by week
+                            var weekGroups = {};
                             $.each(days, function (index, day) {
-                                var dayDate = new Date(day.date);
-                                var formattedDate = dayDate.toLocaleDateString('fr-BE');
-                                var dayName = daysOfWeek[day.dayOfWeek];
-                                var weekendClass = day.isWeekend ? 'border-warning' : '';
+                                if (!weekGroups[day.week]) {
+                                    weekGroups[day.week] = [];
+                                }
+                                weekGroups[day.week].push(day);
+                            });
 
-                                var checkboxHtml = `
-                                    <div class="col-md-6">
-                                        <div class="card ${weekendClass}">
-                                            <div class="card-body py-2">
-                                                <div class="form-check">
-                                                    <input class="form-check-input day-checkbox" type="checkbox"
-                                                           name="SelectedActivityDayIds" value="${day.activityDayId}"
-                                                           id="day_${day.activityDayId}" ${day.isSelected ? 'checked' : ''}>
-                                                    <label class="form-check-label" for="day_${day.activityDayId}">
-                                                        <strong>${dayName}</strong> ${formattedDate}
-                                                        ${day.isWeekend ? '<span class="badge bg-warning text-dark ms-2">Week-end</span>' : ''}
-                                                    </label>
+                            // Sort weeks
+                            var sortedWeeks = Object.keys(weekGroups).sort((a, b) => a - b);
+
+                            // Build week cards
+                            $.each(sortedWeeks, function (index, weekNum) {
+                                var weekDays = weekGroups[weekNum];
+                                var firstDay = new Date(weekDays[0].date);
+                                var lastDay = new Date(weekDays[weekDays.length - 1].date);
+                                var weekLabel = 'Semaine ' + weekNum;
+                                var dateRange = firstDay.toLocaleDateString('fr-BE', { day: '2-digit', month: '2-digit' }) + ' - ' +
+                                                lastDay.toLocaleDateString('fr-BE', { day: '2-digit', month: '2-digit', year: 'numeric' });
+
+                                var weekCard = `
+                                    <div class="col-md-6 col-lg-4">
+                                        <div class="card h-100">
+                                            <div class="card-header bg-light">
+                                                <i class="fas fa-calendar me-2"></i>${weekLabel}
+                                                <small class="text-muted ms-2">(${dateRange})</small>
+                                            </div>
+                                            <div class="card-body p-0">
+                                                <div class="list-group list-group-flush">`;
+
+                                $.each(weekDays, function (dayIndex, day) {
+                                    var dayDate = new Date(day.date);
+                                    var formattedDate = dayDate.toLocaleDateString('fr-BE', { day: '2-digit', month: '2-digit' });
+                                    var dayName = daysOfWeek[day.dayOfWeek];
+                                    var bgClass = day.isWeekend ? 'bg-light' : '';
+
+                                    weekCard += `
+                                        <div class="list-group-item ${bgClass} py-2">
+                                            <div class="form-check">
+                                                <input class="form-check-input day-checkbox" type="checkbox"
+                                                       name="SelectedActivityDayIds" value="${day.activityDayId}"
+                                                       id="day_${day.activityDayId}" ${day.isSelected ? 'checked' : ''}>
+                                                <label class="form-check-label" for="day_${day.activityDayId}">
+                                                    <strong>${dayName}</strong>
+                                                    <small class="text-muted ms-1">${formattedDate}</small>
+                                                    ${day.isWeekend ? '<span class="badge bg-warning text-dark ms-1" style="font-size: 0.65rem;">Week-end</span>' : ''}
+                                                </label>
+                                            </div>
+                                        </div>`;
+                                });
+
+                                weekCard += `
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
-                                `;
+                                    </div>`;
 
-                                $daysCheckboxes.append(checkboxHtml);
+                                $daysCheckboxes.append(weekCard);
                             });
                         }
                     });
