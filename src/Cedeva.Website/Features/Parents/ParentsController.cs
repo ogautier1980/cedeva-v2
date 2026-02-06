@@ -233,15 +233,7 @@ public class ParentsController : Controller
     {
         if (!ModelState.IsValid)
         {
-            // Repopulate organisations for admins if validation fails
-            if (_currentUserService.IsAdmin)
-            {
-                var organisations = await _context.Organisations
-                    .OrderBy(o => o.Name)
-                    .Select(o => new { o.Id, o.Name })
-                    .ToListAsync();
-                ViewBag.Organisations = new SelectList(organisations, "Id", "Name", viewModel.OrganisationId);
-            }
+            await PopulateOrganisationsDropdown(viewModel.OrganisationId);
             return View(viewModel);
         }
 
@@ -319,14 +311,7 @@ public class ParentsController : Controller
 
         if (!ModelState.IsValid)
         {
-            if (_currentUserService.IsAdmin)
-            {
-                var organisations = await _context.Organisations
-                    .OrderBy(o => o.Name)
-                    .Select(o => new { o.Id, o.Name })
-                    .ToListAsync();
-                ViewBag.Organisations = new SelectList(organisations, "Id", "Name", viewModel.OrganisationId);
-            }
+            await PopulateOrganisationsDropdown(viewModel.OrganisationId);
             return View(viewModel);
         }
 
@@ -420,6 +405,18 @@ public class ParentsController : Controller
         TempData[TempDataSuccessMessage] = _localizer["Message.ParentDeleted"].Value;
 
         return RedirectToAction(nameof(Index));
+    }
+
+    private async Task PopulateOrganisationsDropdown(int? selectedOrganisationId = null)
+    {
+        if (_currentUserService.IsAdmin)
+        {
+            var organisations = await _context.Organisations
+                .OrderBy(o => o.Name)
+                .Select(o => new { o.Id, o.Name })
+                .ToListAsync();
+            ViewBag.Organisations = new SelectList(organisations, "Id", "Name", selectedOrganisationId);
+        }
     }
 
     private async Task<bool> ParentExists(int id)
