@@ -105,111 +105,15 @@ public class PublicRegistrationController : Controller
         var activityId = (int)TempData[TempDataActivityId]!;
 
         // Validate postal code against activity restrictions
-        var activity = await _context.Activities
-            .AsNoTracking()
-            .FirstOrDefaultAsync(a => a.Id == activityId);
-
-        if (activity != null)
+        var postalCodeValidation = await ValidatePostalCodeAsync(activityId, model.PostalCode);
+        if (!postalCodeValidation.IsValid)
         {
-            var postalCode = model.PostalCode?.Trim();
-
-            // Check inclusion list (if defined, postal code MUST be in it)
-            if (!string.IsNullOrWhiteSpace(activity.IncludedPostalCodes))
-            {
-                var includedCodes = activity.IncludedPostalCodes
-                    .Split(',', StringSplitOptions.RemoveEmptyEntries)
-                    .Select(c => c.Trim())
-                    .ToList();
-
-                if (!includedCodes.Contains(postalCode, StringComparer.OrdinalIgnoreCase))
-                {
-                    ModelState.AddModelError(nameof(model.PostalCode),
-                        _localizer["Registration.PostalCodeNotAllowed"].ToString());
-                    return View(model);
-                }
-            }
-
-            // Check exclusion list (postal code must NOT be in it)
-            if (!string.IsNullOrWhiteSpace(activity.ExcludedPostalCodes))
-            {
-                var excludedCodes = activity.ExcludedPostalCodes
-                    .Split(',', StringSplitOptions.RemoveEmptyEntries)
-                    .Select(c => c.Trim())
-                    .ToList();
-
-                if (excludedCodes.Contains(postalCode, StringComparer.OrdinalIgnoreCase))
-                {
-                    ModelState.AddModelError(nameof(model.PostalCode),
-                        _localizer["Registration.PostalCodeExcluded"].ToString());
-                    return View(model);
-                }
-            }
+            ModelState.AddModelError(nameof(model.PostalCode), postalCodeValidation.ErrorMessage!);
+            return View(model);
         }
 
-        // Check if parent already exists by email
-        var existingParent = await _context.Parents
-            .Include(p => p.Address)
-            .FirstOrDefaultAsync(p => p.Email == model.Email && p.OrganisationId == organisationId);
-
-        int parentId;
-
-        if (existingParent != null)
-        {
-            // Update existing parent
-            existingParent.FirstName = model.FirstName;
-            existingParent.LastName = model.LastName;
-            existingParent.PhoneNumber = model.PhoneNumber;
-            existingParent.MobilePhoneNumber = model.MobilePhoneNumber;
-            existingParent.NationalRegisterNumber = model.NationalRegisterNumber;
-
-            if (existingParent.Address != null)
-            {
-                existingParent.Address.Street = model.Street ?? string.Empty;
-                existingParent.Address.PostalCode = model.PostalCode ?? string.Empty;
-                existingParent.Address.City = model.City ?? string.Empty;
-                existingParent.Address.Country = Country.Belgium;
-            }
-            else
-            {
-                existingParent.Address = new Address
-                {
-                    Street = model.Street ?? string.Empty,
-                    PostalCode = model.PostalCode ?? string.Empty,
-                    City = model.City ?? string.Empty,
-                    Country = Country.Belgium
-                };
-            }
-
-            await _context.SaveChangesAsync();
-            parentId = existingParent.Id;
-        }
-        else
-        {
-            // Create new parent
-            var address = new Address
-            {
-                Street = model.Street ?? string.Empty,
-                PostalCode = model.PostalCode ?? string.Empty,
-                City = model.City ?? string.Empty,
-                Country = Country.Belgium
-            };
-
-            var parent = new Parent
-            {
-                FirstName = model.FirstName,
-                LastName = model.LastName,
-                Email = model.Email,
-                PhoneNumber = model.PhoneNumber,
-                MobilePhoneNumber = model.MobilePhoneNumber,
-                NationalRegisterNumber = model.NationalRegisterNumber,
-                Address = address,
-                OrganisationId = organisationId
-            };
-
-            _context.Parents.Add(parent);
-            await _context.SaveChangesAsync();
-            parentId = parent.Id;
-        }
+        // Create or update parent
+        var parentId = await CreateOrUpdateParentAsync(model, organisationId);
 
         TempData[TempDataParentId] = parentId;
         TempData.Keep(TempDataActivityId);
@@ -754,5 +658,132 @@ public class PublicRegistrationController : Controller
         ViewBag.ActivityName = activity.Name;
 
         return View();
+    }
+
+    /// <summary>
+    /// Validates postal code against activity inclusion/exclusion rules.
+    /// </summary>
+    private async Task<(bool IsValid, string? ErrorMessage)> ValidatePostalCodeAsync(int activityId, string? postalCode)
+    {
+        var activity = await _context.Activities
+            .AsNoTracking()
+            .FirstOrDefaultAsync(a => a.Id == activityId);
+
+        if (activity == null)
+        {
+            return (true, null);
+        }
+
+        var trimmedPostalCode = postalCode?.Trim();
+
+        // Check inclusion list (if defined, postal code MUST be in it)
+        if (!string.IsNullOrWhiteSpace(activity.IncludedPostalCodes))
+        {
+            var includedCodes = activity.IncludedPostalCodes
+                .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                .Select(c => c.Trim())
+                .ToList();
+
+            if (!includedCodes.Contains(trimmedPostalCode, StringComparer.OrdinalIgnoreCase))
+            {
+                return (false, _localizer["Registration.PostalCodeNotAllowed"].ToString());
+            }
+        }
+
+        // Check exclusion list (postal code must NOT be in it)
+        if (!string.IsNullOrWhiteSpace(activity.ExcludedPostalCodes))
+        {
+            var excludedCodes = activity.ExcludedPostalCodes
+                .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                .Select(c => c.Trim())
+                .ToList();
+
+            if (excludedCodes.Contains(trimmedPostalCode, StringComparer.OrdinalIgnoreCase))
+            {
+                return (false, _localizer["Registration.PostalCodeExcluded"].ToString());
+            }
+        }
+
+        return (true, null);
+    }
+
+    /// <summary>
+    /// Creates a new parent or updates existing parent by email.
+    /// </summary>
+    private async Task<int> CreateOrUpdateParentAsync(ParentInformationViewModel model, int organisationId)
+    {
+        var existingParent = await _context.Parents
+            .Include(p => p.Address)
+            .FirstOrDefaultAsync(p => p.Email == model.Email && p.OrganisationId == organisationId);
+
+        if (existingParent != null)
+        {
+            return await UpdateExistingParentAsync(existingParent, model);
+        }
+
+        return await CreateNewParentAsync(model, organisationId);
+    }
+
+    /// <summary>
+    /// Updates an existing parent with new information.
+    /// </summary>
+    private async Task<int> UpdateExistingParentAsync(Parent existingParent, ParentInformationViewModel model)
+    {
+        existingParent.FirstName = model.FirstName;
+        existingParent.LastName = model.LastName;
+        existingParent.PhoneNumber = model.PhoneNumber;
+        existingParent.MobilePhoneNumber = model.MobilePhoneNumber;
+        existingParent.NationalRegisterNumber = model.NationalRegisterNumber;
+
+        if (existingParent.Address != null)
+        {
+            existingParent.Address.Street = model.Street ?? string.Empty;
+            existingParent.Address.PostalCode = model.PostalCode ?? string.Empty;
+            existingParent.Address.City = model.City ?? string.Empty;
+            existingParent.Address.Country = Country.Belgium;
+        }
+        else
+        {
+            existingParent.Address = CreateAddressFromModel(model);
+        }
+
+        await _context.SaveChangesAsync();
+        return existingParent.Id;
+    }
+
+    /// <summary>
+    /// Creates a new parent with address.
+    /// </summary>
+    private async Task<int> CreateNewParentAsync(ParentInformationViewModel model, int organisationId)
+    {
+        var parent = new Parent
+        {
+            FirstName = model.FirstName,
+            LastName = model.LastName,
+            Email = model.Email,
+            PhoneNumber = model.PhoneNumber,
+            MobilePhoneNumber = model.MobilePhoneNumber,
+            NationalRegisterNumber = model.NationalRegisterNumber,
+            Address = CreateAddressFromModel(model),
+            OrganisationId = organisationId
+        };
+
+        _context.Parents.Add(parent);
+        await _context.SaveChangesAsync();
+        return parent.Id;
+    }
+
+    /// <summary>
+    /// Creates an Address entity from parent information viewmodel.
+    /// </summary>
+    private static Address CreateAddressFromModel(ParentInformationViewModel model)
+    {
+        return new Address
+        {
+            Street = model.Street ?? string.Empty,
+            PostalCode = model.PostalCode ?? string.Empty,
+            City = model.City ?? string.Empty,
+            Country = Country.Belgium
+        };
     }
 }
