@@ -57,8 +57,10 @@ public class ActivityQuestionsController : Controller
         {
             query = query.Where(q => q.ActivityId == activityId.Value);
             var activity = await _context.Activities.FindAsync(activityId.Value);
-            ViewData["ActivityName"] = activity?.Name;
-            ViewData["ActivityId"] = activityId.Value;
+            if (activity != null)
+            {
+                this.SetActivityViewData(activityId.Value, activity.Name);
+            }
         }
 
         var questions = await query

@@ -3,6 +3,7 @@ using Cedeva.Core.Enums;
 using Cedeva.Core.Interfaces;
 using Cedeva.Infrastructure.Data;
 using Cedeva.Website.Features.EmailTemplates.ViewModels;
+using Cedeva.Website.Infrastructure;
 using Cedeva.Website.Localization;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -52,8 +53,7 @@ public class EmailTemplatesController : Controller
             var activity = await _context.Activities.FirstOrDefaultAsync(a => a.Id == activityId.Value);
             if (activity != null)
             {
-                ViewData["ActivityId"] = activity.Id;
-                ViewData["ActivityName"] = activity.Name;
+                this.SetActivityViewData(activity.Id, activity.Name);
             }
         }
         ViewData["NavSection"] = "Emails";

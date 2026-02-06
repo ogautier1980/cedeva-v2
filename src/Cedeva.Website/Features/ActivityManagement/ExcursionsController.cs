@@ -3,6 +3,7 @@ using Cedeva.Core.Enums;
 using Cedeva.Core.Interfaces;
 using Cedeva.Infrastructure.Data;
 using Cedeva.Website.Features.ActivityManagement.ViewModels;
+using Cedeva.Website.Infrastructure;
 using Cedeva.Website.Localization;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -92,8 +93,7 @@ public class ExcursionsController : Controller
             Excursions = excursionItems
         };
 
-        ViewData["ActivityId"] = activity.Id;
-        ViewData["ActivityName"] = activity.Name;
+        this.SetActivityViewData(activity.Id, activity.Name);
 
         return View(viewModel);
     }
@@ -120,8 +120,7 @@ public class ExcursionsController : Controller
             ExcursionDate = DateTime.Today
         };
 
-        ViewData["ActivityId"] = activity.Id;
-        ViewData["ActivityName"] = activity.Name;
+        this.SetActivityViewData(activity.Id, activity.Name);
 
         return View(viewModel);
     }
@@ -187,8 +186,7 @@ public class ExcursionsController : Controller
         {
             model.Activity = activity;
             model.AvailableGroups = activity.Groups.ToList();
-            ViewData["ActivityId"] = activity.Id;
-            ViewData["ActivityName"] = activity.Name;
+            this.SetActivityViewData(activity.Id, activity.Name);
         }
     }
 
@@ -202,8 +200,7 @@ public class ExcursionsController : Controller
         {
             model.Activity = activity;
             model.AvailableGroups = activity.Groups.ToList();
-            ViewData["ActivityId"] = activity.Id;
-            ViewData["ActivityName"] = activity.Name;
+            this.SetActivityViewData(activity.Id, activity.Name);
         }
     }
 
@@ -243,8 +240,7 @@ public class ExcursionsController : Controller
         if (excursion == null)
             return NotFound();
 
-        ViewData["ActivityId"] = excursion.ActivityId;
-        ViewData["ActivityName"] = excursion.Activity.Name;
+        this.SetActivityViewData(excursion.ActivityId, excursion.Activity.Name);
 
         // Fetch user display names for audit fields
         ViewBag.CreatedByDisplayName = await _userDisplayService.GetUserDisplayNameAsync(excursion.CreatedBy);
@@ -285,8 +281,7 @@ public class ExcursionsController : Controller
             AvailableGroups = excursion.Activity.Groups.ToList()
         };
 
-        ViewData["ActivityId"] = excursion.ActivityId;
-        ViewData["ActivityName"] = excursion.Activity.Name;
+        this.SetActivityViewData(excursion.ActivityId, excursion.Activity.Name);
 
         return View(viewModel);
     }
@@ -353,8 +348,7 @@ public class ExcursionsController : Controller
         if (excursion == null)
             return NotFound();
 
-        ViewData["ActivityId"] = excursion.ActivityId;
-        ViewData["ActivityName"] = excursion.Activity.Name;
+        this.SetActivityViewData(excursion.ActivityId, excursion.Activity.Name);
 
         return View(excursion);
     }
@@ -406,8 +400,7 @@ public class ExcursionsController : Controller
             ChildrenByGroup = childrenByGroup
         };
 
-        ViewData["ActivityId"] = excursion.ActivityId;
-        ViewData["ActivityName"] = excursion.Activity.Name;
+        this.SetActivityViewData(excursion.ActivityId, excursion.Activity.Name);
         ViewData["NavSection"] = "Excursions";
         ViewData["NavAction"] = "Registrations";
 
@@ -477,8 +470,7 @@ public class ExcursionsController : Controller
             ChildrenByGroup = childrenByGroup
         };
 
-        ViewData["ActivityId"] = excursion.ActivityId;
-        ViewData["ActivityName"] = excursion.Activity.Name;
+        this.SetActivityViewData(excursion.ActivityId, excursion.Activity.Name);
         ViewData["NavSection"] = "Excursions";
         ViewData["NavAction"] = "Attendance";
 
@@ -530,8 +522,7 @@ public class ExcursionsController : Controller
             RecipientOptions = recipientOptions
         };
 
-        ViewData["ActivityId"] = excursion.ActivityId;
-        ViewData["ActivityName"] = excursion.Activity.Name;
+        this.SetActivityViewData(excursion.ActivityId, excursion.Activity.Name);
         ViewData["NavSection"] = "Excursions";
         ViewData["NavAction"] = "SendEmail";
 
@@ -613,8 +604,7 @@ public class ExcursionsController : Controller
             ExpenseDate = DateTime.Today
         };
 
-        ViewData["ActivityId"] = excursion.ActivityId;
-        ViewData["ActivityName"] = excursion.Activity.Name;
+        this.SetActivityViewData(excursion.ActivityId, excursion.Activity.Name);
         ViewData["NavSection"] = "Excursions";
         ViewData["NavAction"] = "Expenses";
 
@@ -643,10 +633,9 @@ public class ExcursionsController : Controller
                 model.Excursion = excursion;
                 model.Activity = excursion.Activity;
                 model.Expenses = excursion.Expenses.OrderByDescending(e => e.ExpenseDate).ToList();
+                this.SetActivityViewData(excursion.ActivityId, excursion.Activity.Name);
             }
 
-            ViewData["ActivityId"] = excursion?.ActivityId;
-            ViewData["ActivityName"] = excursion?.Activity.Name;
             ViewData["NavSection"] = "Excursions";
             ViewData["NavAction"] = "Expenses";
 
@@ -718,8 +707,7 @@ public class ExcursionsController : Controller
             TeamMembers = teamMembers
         };
 
-        ViewData["ActivityId"] = excursion.ActivityId;
-        ViewData["ActivityName"] = excursion.Activity.Name;
+        this.SetActivityViewData(excursion.ActivityId, excursion.Activity.Name);
         ViewData["NavSection"] = "Excursions";
         ViewData["NavAction"] = "TeamManagement";
 

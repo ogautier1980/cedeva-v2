@@ -56,8 +56,10 @@ public class ActivityGroupsController : Controller
         {
             query = query.Where(g => g.ActivityId == activityId.Value);
             var activity = await _context.Activities.FindAsync(activityId.Value);
-            ViewData["ActivityName"] = activity?.Name;
-            ViewData["ActivityId"] = activityId.Value;
+            if (activity != null)
+            {
+                this.SetActivityViewData(activityId.Value, activity.Name);
+            }
         }
 
         var groups = await query

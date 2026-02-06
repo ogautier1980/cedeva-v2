@@ -107,6 +107,15 @@ public static class ControllerExtensions
     }
 
     /// <summary>
+    /// Sets activity information in ViewData for breadcrumbs and navigation.
+    /// </summary>
+    public static void SetActivityViewData(this Controller controller, int activityId, string activityName)
+    {
+        controller.ViewData["ActivityId"] = activityId;
+        controller.ViewData["ActivityName"] = activityName;
+    }
+
+    /// <summary>
     /// Redirects to the returnUrl if it's local and not empty, otherwise redirects to the specified action.
     /// </summary>
     public static IActionResult RedirectToReturnUrlOrAction(this Controller controller, string? returnUrl, string actionName, object? routeValues = null)
