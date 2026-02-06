@@ -6,13 +6,13 @@ public class ActivityViewModel
 {
     public int Id { get; set; }
 
-    [Required(ErrorMessage = "The {0} field is required.")]
-    [StringLength(100, ErrorMessage = "The field {0} must have between {2} and {1} characters.")]
+    [Required(ErrorMessage = "Validation.Required")]
+    [StringLength(100, ErrorMessage = "Validation.StringLength")]
     [Display(Name = "Field.Name")]
     public string Name { get; set; } = string.Empty;
 
-    [Required(ErrorMessage = "The {0} field is required.")]
-    [StringLength(500, ErrorMessage = "The field {0} must have between {2} and {1} characters.")]
+    [Required(ErrorMessage = "Validation.Required")]
+    [StringLength(500, ErrorMessage = "Validation.StringLength")]
     [Display(Name = "Field.Description")]
     public string Description { get; set; } = string.Empty;
 
@@ -24,12 +24,12 @@ public class ActivityViewModel
     [DataType(DataType.Currency)]
     public decimal? PricePerDay { get; set; }
 
-    [Required(ErrorMessage = "The {0} field is required.")]
+    [Required(ErrorMessage = "Validation.Required")]
     [Display(Name = "Field.StartDate")]
     [DataType(DataType.Date)]
     public DateTime StartDate { get; set; } = DateTime.Today;
 
-    [Required(ErrorMessage = "The {0} field is required.")]
+    [Required(ErrorMessage = "Validation.Required")]
     [Display(Name = "Field.EndDate")]
     [DataType(DataType.Date)]
     public DateTime EndDate { get; set; } = DateTime.Today.AddDays(7);
@@ -39,11 +39,11 @@ public class ActivityViewModel
     [Display(Name = "Field.Organisation")]
     public string? OrganisationName { get; set; }
 
-    [StringLength(500, ErrorMessage = "The field {0} must have between {2} and {1} characters.")]
+    [StringLength(500, ErrorMessage = "Validation.StringLength")]
     [Display(Name = "Activities.IncludedPostalCodes")]
     public string? IncludedPostalCodes { get; set; }
 
-    [StringLength(500, ErrorMessage = "The field {0} must have between {2} and {1} characters.")]
+    [StringLength(500, ErrorMessage = "Validation.StringLength")]
     [Display(Name = "Activities.ExcludedPostalCodes")]
     public string? ExcludedPostalCodes { get; set; }
 

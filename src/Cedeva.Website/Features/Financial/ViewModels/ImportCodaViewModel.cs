@@ -6,7 +6,7 @@ namespace Cedeva.Website.Features.Financial.ViewModels;
 public class ImportCodaViewModel
 {
     [Display(Name = "Field.CodaFile")]
-    [Required(ErrorMessage = "The {0} field is required.")]
+    [Required(ErrorMessage = "Validation.Required")]
     public IFormFile? CodaFile { get; set; }
 }
 

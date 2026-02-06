@@ -6,15 +6,15 @@ public class ActivityGroupViewModel
 {
     public int Id { get; set; }
 
-    [Required(ErrorMessage = "The {0} field is required.")]
+    [Required(ErrorMessage = "Validation.Required")]
     [Display(Name = "Field.Label")]
-    [StringLength(100, ErrorMessage = "The field {0} must have between {2} and {1} characters.")]
+    [StringLength(100, ErrorMessage = "Validation.StringLength")]
     public string Label { get; set; } = string.Empty;
 
     [Display(Name = "Field.Capacity")]
     public int? Capacity { get; set; }
 
-    [Required(ErrorMessage = "The {0} field is required.")]
+    [Required(ErrorMessage = "Validation.Required")]
     [Display(Name = "Field.Activity")]
     public int ActivityId { get; set; }
 

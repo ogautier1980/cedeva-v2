@@ -4,13 +4,13 @@ namespace Cedeva.Website.Features.Account.ViewModels;
 
 public class ProfileViewModel
 {
-    [Required(ErrorMessage = "The {0} field is required.")]
-    [StringLength(100, ErrorMessage = "The field {0} must have between {2} and {1} characters.")]
+    [Required(ErrorMessage = "Validation.Required")]
+    [StringLength(100, ErrorMessage = "Validation.StringLength")]
     [Display(Name = "Field.FirstName")]
     public string FirstName { get; set; } = string.Empty;
 
-    [Required(ErrorMessage = "The {0} field is required.")]
-    [StringLength(100, ErrorMessage = "The field {0} must have between {2} and {1} characters.")]
+    [Required(ErrorMessage = "Validation.Required")]
+    [StringLength(100, ErrorMessage = "Validation.StringLength")]
     [Display(Name = "Field.LastName")]
     public string LastName { get; set; } = string.Empty;
 

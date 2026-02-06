@@ -8,13 +8,13 @@ public class OrganisationViewModel
 {
     public int Id { get; set; }
 
-    [Required(ErrorMessage = "The {0} field is required.")]
-    [StringLength(100, MinimumLength = 2, ErrorMessage = "The field {0} must have between {2} and {1} characters.")]
+    [Required(ErrorMessage = "Validation.Required")]
+    [StringLength(100, MinimumLength = 2, ErrorMessage = "Validation.StringLength")]
     [Display(Name = "Field.Name")]
     public string Name { get; set; } = string.Empty;
 
-    [Required(ErrorMessage = "The {0} field is required.")]
-    [StringLength(500, MinimumLength = 10, ErrorMessage = "The field {0} must have between {2} and {1} characters.")]
+    [Required(ErrorMessage = "Validation.Required")]
+    [StringLength(500, MinimumLength = 10, ErrorMessage = "Validation.StringLength")]
     [Display(Name = "Field.Description")]
     public string Description { get; set; } = string.Empty;
 
@@ -30,18 +30,18 @@ public class OrganisationViewModel
     public string? LogoUrl { get; set; }
 
     // Address
-    [Required(ErrorMessage = "The {0} field is required.")]
-    [StringLength(100, MinimumLength = 2, ErrorMessage = "The field {0} must have between {2} and {1} characters.")]
+    [Required(ErrorMessage = "Validation.Required")]
+    [StringLength(100, MinimumLength = 2, ErrorMessage = "Validation.StringLength")]
     [Display(Name = "Field.Street")]
     public string Street { get; set; } = string.Empty;
 
-    [Required(ErrorMessage = "The {0} field is required.")]
-    [StringLength(100, MinimumLength = 2, ErrorMessage = "The field {0} must have between {2} and {1} characters.")]
+    [Required(ErrorMessage = "Validation.Required")]
+    [StringLength(100, MinimumLength = 2, ErrorMessage = "Validation.StringLength")]
     [Display(Name = "Field.City")]
     public string City { get; set; } = string.Empty;
 
-    [Required(ErrorMessage = "The {0} field is required.")]
-    [StringLength(10, ErrorMessage = "The field {0} must have between {2} and {1} characters.")]
+    [Required(ErrorMessage = "Validation.Required")]
+    [StringLength(10, ErrorMessage = "Validation.StringLength")]
     [Display(Name = "Field.PostalCode")]
     public string PostalCode { get; set; } = string.Empty;
 

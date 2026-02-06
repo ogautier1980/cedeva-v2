@@ -7,15 +7,15 @@ public class UserViewModel
 {
     public string Id { get; set; } = string.Empty;
 
-    [Required(ErrorMessage = "The {0} field is required.")]
+    [Required(ErrorMessage = "Validation.Required")]
     [Display(Name = "Field.FirstName")]
     public string FirstName { get; set; } = string.Empty;
 
-    [Required(ErrorMessage = "The {0} field is required.")]
+    [Required(ErrorMessage = "Validation.Required")]
     [Display(Name = "Field.LastName")]
     public string LastName { get; set; } = string.Empty;
 
-    [Required(ErrorMessage = "The {0} field is required.")]
+    [Required(ErrorMessage = "Validation.Required")]
     [EmailAddress]
     [Display(Name = "Field.Email")]
     public string Email { get; set; } = string.Empty;

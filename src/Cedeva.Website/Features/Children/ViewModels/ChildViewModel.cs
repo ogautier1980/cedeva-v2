@@ -6,23 +6,23 @@ public class ChildViewModel
 {
     public int Id { get; set; }
 
-    [Required(ErrorMessage = "The {0} field is required.")]
-    [StringLength(100, MinimumLength = 2, ErrorMessage = "The field {0} must have between {2} and {1} characters.")]
+    [Required(ErrorMessage = "Validation.Required")]
+    [StringLength(100, MinimumLength = 2, ErrorMessage = "Validation.StringLength")]
     [Display(Name = "Field.FirstName")]
     public string FirstName { get; set; } = string.Empty;
 
-    [Required(ErrorMessage = "The {0} field is required.")]
-    [StringLength(100, MinimumLength = 2, ErrorMessage = "The field {0} must have between {2} and {1} characters.")]
+    [Required(ErrorMessage = "Validation.Required")]
+    [StringLength(100, MinimumLength = 2, ErrorMessage = "Validation.StringLength")]
     [Display(Name = "Field.LastName")]
     public string LastName { get; set; } = string.Empty;
 
-    [Required(ErrorMessage = "The {0} field is required.")]
-    [StringLength(15, MinimumLength = 11, ErrorMessage = "The field {0} must have between {2} and {1} characters.")]
+    [Required(ErrorMessage = "Validation.Required")]
+    [StringLength(15, MinimumLength = 11, ErrorMessage = "Validation.StringLength")]
     [RegularExpression(@"^(\d{2})[.\- ]?(0[1-9]|1[0-2])[.\- ]?(0[1-9]|[12]\d|3[01])[.\- ]?(\d{3})[.\- ]?(\d{2})$")]
     [Display(Name = "Field.NationalRegisterNumber")]
     public string NationalRegisterNumber { get; set; } = string.Empty;
 
-    [Required(ErrorMessage = "The {0} field is required.")]
+    [Required(ErrorMessage = "Validation.Required")]
     [DataType(DataType.Date)]
     [Display(Name = "Field.BirthDate")]
     public DateTime BirthDate { get; set; }
@@ -36,7 +36,7 @@ public class ChildViewModel
     [Display(Name = "Field.IsSevereDisability")]
     public bool IsSevereDisability { get; set; }
 
-    [Required(ErrorMessage = "The {0} field is required.")]
+    [Required(ErrorMessage = "Validation.Required")]
     [Display(Name = "Field.Parent")]
     public int ParentId { get; set; }
 

@@ -10,29 +10,29 @@ public class ExcursionExpensesViewModel
     public List<Expense> Expenses { get; set; } = new();
 
     // Form fields for adding new expense
-    [Required(ErrorMessage = "The {0} field is required.")]
-    [StringLength(100, ErrorMessage = "The field {0} must have between {2} and {1} characters.")]
+    [Required(ErrorMessage = "Validation.Required")]
+    [StringLength(100, ErrorMessage = "Validation.StringLength")]
     [Display(Name = "Field.Label")]
     public string Label { get; set; } = string.Empty;
 
-    [StringLength(500, ErrorMessage = "The field {0} must have between {2} and {1} characters.")]
+    [StringLength(500, ErrorMessage = "Validation.StringLength")]
     [Display(Name = "Field.Description")]
     public string? Description { get; set; }
 
-    [Required(ErrorMessage = "The {0} field is required.")]
+    [Required(ErrorMessage = "Validation.Required")]
     [Display(Name = "Field.Amount")]
     [Range(0.01, 9999.99)]
     public decimal Amount { get; set; }
 
-    [StringLength(50, ErrorMessage = "The field {0} must have between {2} and {1} characters.")]
+    [StringLength(50, ErrorMessage = "Validation.StringLength")]
     [Display(Name = "Field.Category")]
     public string? Category { get; set; }
 
-    [Required(ErrorMessage = "The {0} field is required.")]
+    [Required(ErrorMessage = "Validation.Required")]
     [Display(Name = "Field.ExpenseDate")]
     public DateTime ExpenseDate { get; set; } = DateTime.Today;
 
-    [Required(ErrorMessage = "The {0} field is required.")]
+    [Required(ErrorMessage = "Validation.Required")]
     [Display(Name = "Field.OrganizationPaymentSource")]
     public string OrganizationPaymentSource { get; set; } = "OrganizationCard";
 

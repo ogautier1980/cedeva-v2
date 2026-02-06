@@ -8,20 +8,20 @@ public class SendEmailViewModel
     public int ActivityId { get; set; }
     public string ActivityName { get; set; } = string.Empty;
 
-    [Required(ErrorMessage = "The {0} field is required.")]
+    [Required(ErrorMessage = "Validation.Required")]
     [Display(Name = "Field.Recipient")]
     public string SelectedRecipient { get; set; } = string.Empty;
 
     [Display(Name = "Email.ScheduledForDay")]
     public int? SelectedDayId { get; set; }
 
-    [Required(ErrorMessage = "The {0} field is required.")]
-    [StringLength(255, ErrorMessage = "The field {0} must have between {2} and {1} characters.")]
+    [Required(ErrorMessage = "Validation.Required")]
+    [StringLength(255, ErrorMessage = "Validation.StringLength")]
     [Display(Name = "Field.Subject")]
     public string Subject { get; set; } = string.Empty;
 
-    [Required(ErrorMessage = "The {0} field is required.")]
-    [StringLength(5000, ErrorMessage = "The field {0} must have between {2} and {1} characters.")]
+    [Required(ErrorMessage = "Validation.Required")]
+    [StringLength(5000, ErrorMessage = "Validation.StringLength")]
     [Display(Name = "Field.Message")]
     public string Message { get; set; } = string.Empty;
 

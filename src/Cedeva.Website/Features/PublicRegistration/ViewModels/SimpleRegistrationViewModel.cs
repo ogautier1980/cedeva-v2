@@ -12,69 +12,69 @@ public class SimpleRegistrationViewModel
     public decimal? PricePerDay { get; set; }
 
     // Parent Information
-    [Required(ErrorMessage = "The {0} field is required.")]
+    [Required(ErrorMessage = "Validation.Required")]
     [Display(Name = "Field.FirstName")]
-    [StringLength(100, ErrorMessage = "The field {0} must have between {2} and {1} characters.")]
+    [StringLength(100, ErrorMessage = "Validation.StringLength")]
     public string ParentFirstName { get; set; } = string.Empty;
 
-    [Required(ErrorMessage = "The {0} field is required.")]
+    [Required(ErrorMessage = "Validation.Required")]
     [Display(Name = "Field.LastName")]
-    [StringLength(100, ErrorMessage = "The field {0} must have between {2} and {1} characters.")]
+    [StringLength(100, ErrorMessage = "Validation.StringLength")]
     public string ParentLastName { get; set; } = string.Empty;
 
-    [Required(ErrorMessage = "The {0} field is required.")]
+    [Required(ErrorMessage = "Validation.Required")]
     [EmailAddress]
     [Display(Name = "Field.Email")]
-    [StringLength(255, ErrorMessage = "The field {0} must have between {2} and {1} characters.")]
+    [StringLength(255, ErrorMessage = "Validation.StringLength")]
     public string ParentEmail { get; set; } = string.Empty;
 
-    [Required(ErrorMessage = "The {0} field is required.")]
+    [Required(ErrorMessage = "Validation.Required")]
     [Phone]
     [Display(Name = "Field.PhoneNumber")]
-    [StringLength(20, ErrorMessage = "The field {0} must have between {2} and {1} characters.")]
+    [StringLength(20, ErrorMessage = "Validation.StringLength")]
     public string ParentPhoneNumber { get; set; } = string.Empty;
 
     [Display(Name = "Field.MobilePhoneNumber")]
-    [StringLength(20, ErrorMessage = "The field {0} must have between {2} and {1} characters.")]
+    [StringLength(20, ErrorMessage = "Validation.StringLength")]
     public string? ParentMobilePhoneNumber { get; set; }
 
-    [Required(ErrorMessage = "The {0} field is required.")]
+    [Required(ErrorMessage = "Validation.Required")]
     [Display(Name = "Field.Street")]
-    [StringLength(200, ErrorMessage = "The field {0} must have between {2} and {1} characters.")]
+    [StringLength(200, ErrorMessage = "Validation.StringLength")]
     public string ParentStreet { get; set; } = string.Empty;
 
-    [Required(ErrorMessage = "The {0} field is required.")]
+    [Required(ErrorMessage = "Validation.Required")]
     [Display(Name = "Field.PostalCode")]
-    [StringLength(10, ErrorMessage = "The field {0} must have between {2} and {1} characters.")]
+    [StringLength(10, ErrorMessage = "Validation.StringLength")]
     public string ParentPostalCode { get; set; } = string.Empty;
 
-    [Required(ErrorMessage = "The {0} field is required.")]
+    [Required(ErrorMessage = "Validation.Required")]
     [Display(Name = "Field.City")]
-    [StringLength(100, ErrorMessage = "The field {0} must have between {2} and {1} characters.")]
+    [StringLength(100, ErrorMessage = "Validation.StringLength")]
     public string ParentCity { get; set; } = string.Empty;
 
     [Display(Name = "Field.NationalRegisterNumber")]
-    [StringLength(15, ErrorMessage = "The field {0} must have between {2} and {1} characters.")]
+    [StringLength(15, ErrorMessage = "Validation.StringLength")]
     public string? ParentNationalRegisterNumber { get; set; }
 
     // Child Information
-    [Required(ErrorMessage = "The {0} field is required.")]
+    [Required(ErrorMessage = "Validation.Required")]
     [Display(Name = "Field.FirstName")]
-    [StringLength(100, ErrorMessage = "The field {0} must have between {2} and {1} characters.")]
+    [StringLength(100, ErrorMessage = "Validation.StringLength")]
     public string ChildFirstName { get; set; } = string.Empty;
 
-    [Required(ErrorMessage = "The {0} field is required.")]
+    [Required(ErrorMessage = "Validation.Required")]
     [Display(Name = "Field.LastName")]
-    [StringLength(100, ErrorMessage = "The field {0} must have between {2} and {1} characters.")]
+    [StringLength(100, ErrorMessage = "Validation.StringLength")]
     public string ChildLastName { get; set; } = string.Empty;
 
-    [Required(ErrorMessage = "The {0} field is required.")]
+    [Required(ErrorMessage = "Validation.Required")]
     [Display(Name = "Field.BirthDate")]
     public DateTime ChildBirthDate { get; set; }
 
-    [Required(ErrorMessage = "The {0} field is required.")]
+    [Required(ErrorMessage = "Validation.Required")]
     [Display(Name = "Field.NationalRegisterNumber")]
-    [StringLength(15, ErrorMessage = "The field {0} must have between {2} and {1} characters.")]
+    [StringLength(15, ErrorMessage = "Validation.StringLength")]
     public string ChildNationalRegisterNumber { get; set; } = string.Empty;
 
     [Display(Name = "Field.IsDisadvantagedEnvironment")]
