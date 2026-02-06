@@ -4,6 +4,7 @@ using brevo_csharp.Model;
 using Cedeva.Core.Interfaces;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Task = System.Threading.Tasks.Task; // Resolve conflict with brevo_csharp.Model.Task
 
 namespace Cedeva.Infrastructure.Services.Email;
 
