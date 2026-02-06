@@ -160,7 +160,7 @@ src/
 - **File validation:** Localized error messages (FileValidationAttributes.cs) with proper float division for file size display
 - **.gitignore:** Added `src/Cedeva.Website/wwwroot/uploads/` to exclude user-uploaded files
 
-**Service Extraction (Code Quality):**
+**Service Extraction & Code Quality:**
 - **FinancialCalculationService:** Extracted 7 calculation methods from FinancialController (Index: 25→14 lines, -44%; TeamSalaries: 7→1 lines, -86%)
   - Methods: CalculateTotalRevenue, CalculateOrganizationExpenses, CalculateTeamMemberSalaries, CalculateTeamMemberSalary, CalculateTotalExpenses, CalculatePendingPayments, CalculateNetProfit
   - Benefits: Reusable business logic, unit testable without controllers, centralized financial calculations
@@ -174,6 +174,13 @@ src/
   - Refactored: Registrations method (80→25 lines, -69%), Attendance method (66→25 lines, -62%)
   - Moved ExcursionChildInfo and ExcursionAttendanceInfo to Core interfaces (eliminates duplication in ViewModels)
   - Benefits: Reusable grouping/sorting logic, testable without controllers, separation of concerns (controller → service → data)
+- **ControllerExtensions:** Standardized controller patterns via extension methods
+  - Methods: SetSuccessMessage, SetErrorMessage, SetWarningMessage, RedirectToIndexWithSuccess/Error, RedirectToActionWithSuccess/Error, NotFoundWithError
+  - Benefits: Consistent TempData key usage, reduces code duplication in redirect+message patterns, non-invasive (no base class required)
+- **SessionState & SessionExtensions:** Strongly-typed session wrapper replacing magic strings
+  - Properties: SelectedActivityId, SelectedOrganisationId (type-safe int?)
+  - Extensions: SetObject<T>, GetObject<T> for JSON serialization
+  - Benefits: Type safety, better IDE support, centralized session management, eliminates magic strings
 
 ### Local File Storage (2026-02-06)
 - **LocalFileStorageService:** IStorageService implementation for local development (saves to wwwroot/uploads/)
