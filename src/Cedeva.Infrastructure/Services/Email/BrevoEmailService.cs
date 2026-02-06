@@ -63,7 +63,10 @@ public class BrevoEmailService : IEmailService
                     ? new Uri(_httpClient.BaseAddress, "smtp/email").ToString()
                     : "smtp/email (NO BASE ADDRESS SET!)");
 
+            var stopwatch = System.Diagnostics.Stopwatch.StartNew();
             var response = await _httpClient.PostAsync("smtp/email", content);
+            stopwatch.Stop();
+            _logger.LogInformation("Brevo API call completed in {ElapsedMs}ms", stopwatch.ElapsedMilliseconds);
 
             if (!response.IsSuccessStatusCode)
             {

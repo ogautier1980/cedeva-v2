@@ -56,13 +56,31 @@ try
             throw new InvalidOperationException("Brevo API key not configured");
 
         client.BaseAddress = new Uri(apiBaseUrl);
-        client.Timeout = TimeSpan.FromMinutes(2); // Increased timeout for slow Brevo API
+        client.Timeout = TimeSpan.FromSeconds(30); // Restore normal timeout
         client.DefaultRequestHeaders.Add("api-key", apiKey);
         client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
 
         Console.WriteLine($"[BREVO CONFIG] BaseAddress: {client.BaseAddress}");
         Console.WriteLine($"[BREVO CONFIG] Timeout: {client.Timeout}");
         Console.WriteLine($"[BREVO CONFIG] API Key Length: {apiKey?.Length ?? 0}");
+    })
+    .ConfigurePrimaryHttpMessageHandler(() =>
+    {
+        return new SocketsHttpHandler
+        {
+            // Optimize DNS resolution and connection reuse
+            PooledConnectionLifetime = TimeSpan.FromMinutes(5),
+            PooledConnectionIdleTimeout = TimeSpan.FromMinutes(2),
+
+            // Reduce connection delays
+            ConnectTimeout = TimeSpan.FromSeconds(10),
+
+            // Disable proxy to avoid proxy detection delays
+            UseProxy = false,
+
+            // Enable automatic decompression
+            AutomaticDecompression = System.Net.DecompressionMethods.All
+        };
     });
 
     // Configure Autofac
