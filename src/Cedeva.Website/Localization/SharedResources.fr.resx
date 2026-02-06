@@ -3337,6 +3337,9 @@
   <data name="Email.MergeFieldsHelp" xml:space="preserve">
     <value>Cliquez sur une variable pour l'insérer dans le message. Les variables seront remplacées par les données réelles lors de l'envoi.</value>
   </data>
+  <data name="Email.InsertVariable" xml:space="preserve">
+    <value>Insérer une variable</value>
+  </data>
   <data name="Email.SendSeparateEmailPerChild" xml:space="preserve">
     <value>Envoyer un email séparé par enfant</value>
   </data>

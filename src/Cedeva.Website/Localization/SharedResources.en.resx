@@ -1024,6 +1024,9 @@
   <data name="Email.History" xml:space="preserve">
     <value>Send History</value>
   </data>
+  <data name="Email.InsertVariable" xml:space="preserve">
+    <value>[EN] Insérer une variable</value>
+  </data>
   <data name="Email.MedicalSheetDesc" xml:space="preserve">
     <value>Send only to parents whose child has not yet provided their medical form</value>
   </data>

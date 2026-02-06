@@ -67,11 +67,10 @@
                         <!-- Message -->
                         <div class="mb-3">
                             <label asp-for="Message" class="form-label"></label>
-                            <textarea asp-for="Message" class="form-control" rows="10"></textarea>
+                            <textarea asp-for="Message" class="form-control" rows="10" id="Message"></textarea>
                             <span asp-validation-for="Message" class="text-danger"></span>
                             <div class="form-text">
-                                @Localizer["Excursion.MergeVariablesHelp"]<br />
-                                <code>%child_firstname%</code>, <code>%child_lastname%</code>, <code>%excursion_name%</code>, <code>%excursion_date%</code>
+                                @Localizer["Excursion.MergeVariablesHelp"]
                             </div>
                         </div>
 
@@ -113,4 +112,87 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+
+    <!-- Summernote CSS & JS -->
+    <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-bs4.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-bs4.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            // Available excursion variables
+            const excursionVariables = [
+                '%child_firstname%',
+                '%child_lastname%',
+                '%excursion_name%',
+                '%excursion_date%'
+            ];
+
+            // Custom button for inserting variables
+            var VariablesButton = function (context) {
+                var ui = $.summernote.ui;
+
+                // Create dropdown items for all variables
+                var dropdown = [];
+                excursionVariables.forEach(function(variable) {
+                    dropdown.push('<li><a class="dropdown-item variable-item" href="#" data-variable="' + variable + '">' + variable + '</a></li>');
+                });
+
+                // Create button with dropdown
+                var button = ui.buttonGroup([
+                    ui.button({
+                        className: 'dropdown-toggle',
+                        contents: '<i class="fas fa-code"></i> Variables <span class="caret"></span>',
+                        tooltip: '@Localizer["Email.InsertVariable"]',
+                        data: {
+                            toggle: 'dropdown'
+                        }
+                    }),
+                    ui.dropdown({
+                        className: 'dropdown-menu',
+                        contents: dropdown.join(''),
+                        callback: function ($dropdown) {
+                            $dropdown.find('.variable-item').each(function () {
+                                $(this).click(function (e) {
+                                    e.preventDefault();
+                                    var variable = $(this).data('variable');
+                                    context.invoke('editor.insertText', variable + ' ');
+                                });
+                            });
+                        }
+                    })
+                ]);
+
+                return button.render();
+            };
+
+            // Initialize Summernote
+            $('#Message').summernote({
+                height: 300,
+                toolbar: [
+                    ['style', ['style']],
+                    ['font', ['bold', 'italic', 'underline', 'clear']],
+                    ['color', ['color']],
+                    ['para', ['ul', 'ol', 'paragraph']],
+                    ['table', ['table']],
+                    ['insert', ['link']],
+                    ['view', ['codeview', 'help']],
+                    ['mybutton', ['variables']]
+                ],
+                buttons: {
+                    variables: VariablesButton
+                },
+                styleTags: [
+                    'p',
+                    { title: 'Titre (Cedeva)', tag: 'h2', style: 'color: #007faf;', value: 'h2' },
+                    'h3', 'h4', 'h5', 'h6'
+                ],
+                callbacks: {
+                    // Update hidden textarea on change (for form submission)
+                    onChange: function(contents, $editable) {
+                        $('#Message').val(contents);
+                    }
+                }
+            });
+        });
+    </script>
 }
