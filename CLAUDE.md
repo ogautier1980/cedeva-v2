@@ -102,7 +102,10 @@ src/
 - Excursions feature (Phases 1–12): CRUD, registrations, attendance, email, expenses, edit/delete/details, financial integration, seeder, NL/EN translations
 - **Audit trail system:** CreatedAt/CreatedBy/ModifiedAt/ModifiedBy on all 24 entities (2026-02-06)
 - **Postal code filtering:** Activities can include/exclude postal codes for public registration eligibility (2026-02-05)
-- **Security hardening:** XSS fixes, HttpClient DI pattern, path traversal protection (2026-02-06)
+- **Code quality improvements (2026-02-06):**
+  - Security hardening: XSS fixes (JSON serialization), HttpClient DI pattern, path traversal protection
+  - Financial calculation service: Extracted 7 calculation methods from controllers (-44% complexity)
+  - Activity selection service: Centralized session/cookie management (-18% controller code)
 
 ### 🔄 In Progress
 - Phase 7: UX improvements (postal code autocomplete, booking day cards, admin org selection)
@@ -147,13 +150,25 @@ src/
 - **Migration:** AddPostalCodeInclusionExclusionToActivity
 - **UI:** Activity Create/Edit forms include postal code fields with help text
 
-### Security & Code Quality Fixes (2026-02-06)
+### Security & Code Quality Improvements (2026-02-06)
+
+**Security Hardening:**
 - **XSS fixes:** Replaced `@Html.Raw()` with `@Json.Serialize()` for localized strings in JavaScript contexts (Organisations/Edit.cshtml, TeamMembers/Edit.cshtml)
 - **XSS fix:** HTML-encode email messages before rendering with `<br/>` replacement (SentEmails.cshtml)
 - **HttpClient pattern:** BrevoEmailService now uses IHttpClientFactory DI instead of creating new instances (fixes socket exhaustion risk)
 - **Path traversal protection:** LocalFileStorageService validates paths don't contain `../` or escape WebRootPath
 - **File validation:** Localized error messages (FileValidationAttributes.cs) with proper float division for file size display
 - **.gitignore:** Added `src/Cedeva.Website/wwwroot/uploads/` to exclude user-uploaded files
+
+**Service Extraction (Code Quality):**
+- **FinancialCalculationService:** Extracted 7 calculation methods from FinancialController (Index: 25→14 lines, -44%; TeamSalaries: 7→1 lines, -86%)
+  - Methods: CalculateTotalRevenue, CalculateOrganizationExpenses, CalculateTeamMemberSalaries, CalculateTeamMemberSalary, CalculateTotalExpenses, CalculatePendingPayments, CalculateNetProfit
+  - Benefits: Reusable business logic, unit testable without controllers, centralized financial calculations
+- **ActivitySelectionService:** Centralized session + cookie management for activity selection (ActivityManagementController: 990→814 lines, -18%)
+  - Methods: GetSelectedActivityId, SetSelectedActivityId, ClearSelectedActivityId
+  - Features: Session storage (temporary), cookie persistence (30 days), secure options (HttpOnly, Secure, SameSite=Lax)
+  - Refactored: ActivityManagementController, ExcursionsController (~100+ lines of duplicate code removed)
+  - Benefits: DRY principle, testable without HttpContext, consistent behavior across controllers
 
 ### Local File Storage (2026-02-06)
 - **LocalFileStorageService:** IStorageService implementation for local development (saves to wwwroot/uploads/)
