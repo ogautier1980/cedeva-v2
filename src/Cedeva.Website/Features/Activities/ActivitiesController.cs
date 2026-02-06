@@ -16,6 +16,7 @@ public class ActivitiesController : Controller
 {
     private const string TempDataSuccessMessage = "SuccessMessage";
     private const string TempDataErrorMessage = "ErrorMessage";
+    private const string SortOrderDescending = "desc";
 
     private readonly CedevaDbContext _context;
     private readonly ICurrentUserService _currentUserService;
@@ -63,13 +64,13 @@ public class ActivitiesController : Controller
         query = (queryParams.SortBy?.ToLower(), queryParams.SortOrder?.ToLower()) switch
         {
             ("name", "asc") => query.OrderBy(a => a.Name),
-            ("name", "desc") => query.OrderByDescending(a => a.Name),
+            ("name", SortOrderDescending) => query.OrderByDescending(a => a.Name),
             ("startdate", "asc") => query.OrderBy(a => a.StartDate),
-            ("startdate", "desc") => query.OrderByDescending(a => a.StartDate),
+            ("startdate", SortOrderDescending) => query.OrderByDescending(a => a.StartDate),
             ("enddate", "asc") => query.OrderBy(a => a.EndDate),
-            ("enddate", "desc") => query.OrderByDescending(a => a.EndDate),
+            ("enddate", SortOrderDescending) => query.OrderByDescending(a => a.EndDate),
             ("isactive", "asc") => query.OrderBy(a => a.IsActive),
-            ("isactive", "desc") => query.OrderByDescending(a => a.IsActive),
+            ("isactive", SortOrderDescending) => query.OrderByDescending(a => a.IsActive),
             _ => query.OrderByDescending(a => a.StartDate)
         };
 

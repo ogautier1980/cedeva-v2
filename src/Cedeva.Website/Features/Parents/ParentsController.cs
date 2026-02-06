@@ -18,6 +18,7 @@ public class ParentsController : Controller
 {
     private const string TempDataSuccessMessage = "SuccessMessage";
     private const string TempDataErrorMessage = "ErrorMessage";
+    private const string SortOrderDescending = "desc";
 
     private readonly CedevaDbContext _context;
     private readonly ICurrentUserService _currentUserService;
@@ -64,12 +65,12 @@ public class ParentsController : Controller
         query = (queryParams.SortBy?.ToLower(), queryParams.SortOrder?.ToLower()) switch
         {
             ("firstname", "asc") => query.OrderBy(p => p.FirstName),
-            ("firstname", "desc") => query.OrderByDescending(p => p.FirstName),
-            ("lastname", "desc") => query.OrderByDescending(p => p.LastName),
+            ("firstname", SortOrderDescending) => query.OrderByDescending(p => p.FirstName),
+            ("lastname", SortOrderDescending) => query.OrderByDescending(p => p.LastName),
             ("email", "asc") => query.OrderBy(p => p.Email),
-            ("email", "desc") => query.OrderByDescending(p => p.Email),
+            ("email", SortOrderDescending) => query.OrderByDescending(p => p.Email),
             ("city", "asc") => query.OrderBy(p => p.Address.City),
-            ("city", "desc") => query.OrderByDescending(p => p.Address.City),
+            ("city", SortOrderDescending) => query.OrderByDescending(p => p.Address.City),
             _ => query.OrderBy(p => p.LastName).ThenBy(p => p.FirstName)
         };
 

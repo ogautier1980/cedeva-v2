@@ -16,6 +16,7 @@ namespace Cedeva.Website.Features.Children;
 public class ChildrenController : Controller
 {
     private const string TempDataSuccessMessage = "SuccessMessage";
+    private const string SortOrderDescending = "desc";
 
     private readonly IRepository<Child> _childRepository;
     private readonly IRepository<Parent> _parentRepository;
@@ -68,12 +69,12 @@ public class ChildrenController : Controller
         query = (queryParams.SortBy?.ToLower(), queryParams.SortOrder?.ToLower()) switch
         {
             ("firstname", "asc") => query.OrderBy(c => c.FirstName).ThenBy(c => c.LastName),
-            ("firstname", "desc") => query.OrderByDescending(c => c.FirstName).ThenByDescending(c => c.LastName),
-            ("lastname", "desc") => query.OrderByDescending(c => c.LastName).ThenByDescending(c => c.FirstName),
+            ("firstname", SortOrderDescending) => query.OrderByDescending(c => c.FirstName).ThenByDescending(c => c.LastName),
+            ("lastname", SortOrderDescending) => query.OrderByDescending(c => c.LastName).ThenByDescending(c => c.FirstName),
             ("birthdate", "asc") => query.OrderBy(c => c.BirthDate),
-            ("birthdate", "desc") => query.OrderByDescending(c => c.BirthDate),
+            ("birthdate", SortOrderDescending) => query.OrderByDescending(c => c.BirthDate),
             ("nationalregisternumber", "asc") => query.OrderBy(c => c.NationalRegisterNumber),
-            ("nationalregisternumber", "desc") => query.OrderByDescending(c => c.NationalRegisterNumber),
+            ("nationalregisternumber", SortOrderDescending) => query.OrderByDescending(c => c.NationalRegisterNumber),
             _ => query.OrderBy(c => c.LastName).ThenBy(c => c.FirstName) // default
         };
 

@@ -15,6 +15,7 @@ namespace Cedeva.Website.Features.Organisations;
 public class OrganisationsController : Controller
 {
     private const string TempDataSuccessMessage = "SuccessMessage";
+    private const string SortOrderDescending = "desc";
 
     private readonly IRepository<Organisation> _organisationRepository;
     private readonly IRepository<Address> _addressRepository;
@@ -69,11 +70,11 @@ public class OrganisationsController : Controller
         // Apply sorting
         query = (queryParams.SortBy?.ToLower(), queryParams.SortOrder?.ToLower()) switch
         {
-            ("name", "desc") => query.OrderByDescending(o => o.Name),
+            ("name", SortOrderDescending) => query.OrderByDescending(o => o.Name),
             ("city", "asc") => query.OrderBy(o => o.Address.City),
-            ("city", "desc") => query.OrderByDescending(o => o.Address.City),
+            ("city", SortOrderDescending) => query.OrderByDescending(o => o.Address.City),
             ("postalcode", "asc") => query.OrderBy(o => o.Address.PostalCode),
-            ("postalcode", "desc") => query.OrderByDescending(o => o.Address.PostalCode),
+            ("postalcode", SortOrderDescending) => query.OrderByDescending(o => o.Address.PostalCode),
             _ => query.OrderBy(o => o.Name) // default
         };
 

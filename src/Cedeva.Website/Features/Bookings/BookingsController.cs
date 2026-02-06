@@ -17,6 +17,7 @@ public class BookingsController : Controller
 {
     private const string TempDataSuccessMessage = "SuccessMessage";
     private const string TempDataWarningMessage = "WarningMessage";
+    private const string SortOrderDescending = "desc";
 
     private readonly IRepository<Booking> _bookingRepository;
     private readonly CedevaDbContext _context;
@@ -63,15 +64,15 @@ public class BookingsController : Controller
         query = (queryParams.SortBy?.ToLower(), queryParams.SortOrder?.ToLower()) switch
         {
             ("bookingdate", "asc") => query.OrderBy(b => b.BookingDate),
-            ("bookingdate", "desc") => query.OrderByDescending(b => b.BookingDate),
+            ("bookingdate", SortOrderDescending) => query.OrderByDescending(b => b.BookingDate),
             ("childname", "asc") => query.OrderBy(b => b.Child.LastName).ThenBy(b => b.Child.FirstName),
-            ("childname", "desc") => query.OrderByDescending(b => b.Child.LastName).ThenByDescending(b => b.Child.FirstName),
+            ("childname", SortOrderDescending) => query.OrderByDescending(b => b.Child.LastName).ThenByDescending(b => b.Child.FirstName),
             ("activityname", "asc") => query.OrderBy(b => b.Activity.Name),
-            ("activityname", "desc") => query.OrderByDescending(b => b.Activity.Name),
+            ("activityname", SortOrderDescending) => query.OrderByDescending(b => b.Activity.Name),
             ("activitystartdate", "asc") => query.OrderBy(b => b.Activity.StartDate),
-            ("activitystartdate", "desc") => query.OrderByDescending(b => b.Activity.StartDate),
+            ("activitystartdate", SortOrderDescending) => query.OrderByDescending(b => b.Activity.StartDate),
             ("isconfirmed", "asc") => query.OrderBy(b => b.IsConfirmed),
-            ("isconfirmed", "desc") => query.OrderByDescending(b => b.IsConfirmed),
+            ("isconfirmed", SortOrderDescending) => query.OrderByDescending(b => b.IsConfirmed),
             _ => query.OrderByDescending(b => b.BookingDate) // default
         };
 
