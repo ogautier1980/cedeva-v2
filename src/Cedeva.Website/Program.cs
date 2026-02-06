@@ -44,7 +44,7 @@ try
         builder.Services.AddScoped<IStorageService, AzureBlobStorageService>();
     }
 
-    // Configure HttpClient for Brevo email service
+    // Configure HttpClient for Brevo email service - use default settings
     builder.Services.AddHttpClient<IEmailService, BrevoEmailService>(client =>
     {
         var apiBaseUrl = builder.Configuration["Brevo:ApiBaseUrl"];
@@ -56,31 +56,13 @@ try
             throw new InvalidOperationException("Brevo API key not configured");
 
         client.BaseAddress = new Uri(apiBaseUrl);
-        client.Timeout = TimeSpan.FromSeconds(30); // Restore normal timeout
+        client.Timeout = TimeSpan.FromMinutes(2); // Generous timeout for slow connections
         client.DefaultRequestHeaders.Add("api-key", apiKey);
         client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
 
         Console.WriteLine($"[BREVO CONFIG] BaseAddress: {client.BaseAddress}");
         Console.WriteLine($"[BREVO CONFIG] Timeout: {client.Timeout}");
         Console.WriteLine($"[BREVO CONFIG] API Key Length: {apiKey?.Length ?? 0}");
-    })
-    .ConfigurePrimaryHttpMessageHandler(() =>
-    {
-        return new SocketsHttpHandler
-        {
-            // Optimize DNS resolution and connection reuse
-            PooledConnectionLifetime = TimeSpan.FromMinutes(5),
-            PooledConnectionIdleTimeout = TimeSpan.FromMinutes(2),
-
-            // Increase connection timeout (proxy/network delays)
-            ConnectTimeout = TimeSpan.FromMinutes(2),
-
-            // Use system proxy settings (required if behind corporate proxy)
-            UseProxy = true,
-
-            // Enable automatic decompression
-            AutomaticDecompression = System.Net.DecompressionMethods.All
-        };
     });
 
     // Configure Autofac
