@@ -9,6 +9,9 @@ namespace Cedeva.Infrastructure.Services;
 
 public class BankReconciliationService : IBankReconciliationService
 {
+    // Reconciliation confidence threshold (minimum score to suggest a match)
+    private const int MinimumConfidenceScore = 50;
+
     private readonly CedevaDbContext _context;
     private readonly IStructuredCommunicationService _structuredCommunicationService;
     private readonly ILogger<BankReconciliationService> _logger;
@@ -196,8 +199,8 @@ public class BankReconciliationService : IBankReconciliationService
             {
                 var suggestion = CalculateReconciliationMatch(transaction, booking);
 
-                // Ajouter seulement si le score est suffisant (>= 50)
-                if (suggestion != null && suggestion.ConfidenceScore >= 50)
+                // Ajouter seulement si le score est suffisant
+                if (suggestion != null && suggestion.ConfidenceScore >= MinimumConfidenceScore)
                 {
                     suggestions.Add(suggestion);
                 }

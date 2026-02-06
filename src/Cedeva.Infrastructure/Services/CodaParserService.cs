@@ -13,6 +13,30 @@ namespace Cedeva.Infrastructure.Services;
 /// </summary>
 public class CodaParserService : ICodaParserService
 {
+    // CODA Format Constants
+    private const int CodaLineLength = 128;
+
+    // Header positions (Record Type 0)
+    private const int HeaderAccountNumberStart = 5;
+    private const int HeaderAccountNumberLength = 12;
+    private const int HeaderStatementDateStart = 97;
+    private const int HeaderStatementDateLength = 6;
+
+    // Old Balance positions (Record Type 1)
+    private const int OldBalanceAmountStart = 42;
+    private const int OldBalanceAmountLength = 15;
+    private const int OldBalanceSignPosition = 41;
+    private const int DecimalPlaces = 3;
+    private const decimal DecimalDivisor = 1000m;
+
+    // Date parsing
+    private const int DateDayLength = 2;
+    private const int DateMonthStart = 2;
+    private const int DateMonthLength = 2;
+    private const int DateYearStart = 4;
+    private const int DateYearLength = 2;
+    private const int DateYearBase = 2000;
+
     private readonly CedevaDbContext _context;
     private readonly ILogger<CodaParserService> _logger;
 
@@ -36,7 +60,7 @@ public class CodaParserService : ICodaParserService
         {
             lineNumber++;
 
-            if (line.Length < 128)
+            if (line.Length < CodaLineLength)
             {
                 _logger.LogWarning("Line {LineNumber} is too short ({Length} chars), skipping", lineNumber, line.Length);
                 continue;
@@ -109,15 +133,15 @@ public class CodaParserService : ICodaParserService
     private void ParseHeader(string line, CodaFileDto codaFile)
     {
         // Position 6-17: Account number (12 chars)
-        codaFile.AccountNumber = line.Substring(5, 12).Trim();
+        codaFile.AccountNumber = line.Substring(HeaderAccountNumberStart, HeaderAccountNumberLength).Trim();
 
         // Position 98-103: Statement date (DDMMYY)
-        var datePart = line.Substring(97, 6);
+        var datePart = line.Substring(HeaderStatementDateStart, HeaderStatementDateLength);
         if (int.TryParse(datePart, out _))
         {
-            var day = int.Parse(datePart.Substring(0, 2));
-            var month = int.Parse(datePart.Substring(2, 2));
-            var year = 2000 + int.Parse(datePart.Substring(4, 2));
+            var day = int.Parse(datePart.Substring(0, DateDayLength));
+            var month = int.Parse(datePart.Substring(DateMonthStart, DateMonthLength));
+            var year = DateYearBase + int.Parse(datePart.Substring(DateYearStart, DateYearLength));
             codaFile.StatementDate = new DateTime(year, month, day);
         }
     }
@@ -125,14 +149,14 @@ public class CodaParserService : ICodaParserService
     private void ParseOldBalance(string line, CodaFileDto codaFile)
     {
         // Position 43-57: Old balance (15 chars: 12 digits + 3 decimals)
-        var balanceStr = line.Substring(42, 15);
+        var balanceStr = line.Substring(OldBalanceAmountStart, OldBalanceAmountLength);
         if (decimal.TryParse(balanceStr, out var balance))
         {
-            codaFile.OldBalance = balance / 1000m; // 3 decimals implied
+            codaFile.OldBalance = balance / DecimalDivisor; // 3 decimals implied
         }
 
         // Position 42: Debit/Credit (0=Credit, 1=Debit)
-        if (line.Length > 41 && line[41] == '1')
+        if (line.Length > OldBalanceSignPosition && line[OldBalanceSignPosition] == '1')
         {
             codaFile.OldBalance = -codaFile.OldBalance;
         }
