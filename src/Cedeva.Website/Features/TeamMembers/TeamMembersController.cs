@@ -370,75 +370,9 @@ public class TeamMembersController : Controller
                 return NotFound();
             }
 
-            // Update Address
-            var address = await _context.Addresses.FindAsync(teamMember.AddressId);
-            if (address != null)
-            {
-                address.Street = viewModel.Street;
-                address.City = viewModel.City;
-                address.PostalCode = viewModel.PostalCode;
-                address.Country = viewModel.Country;
-                _context.Addresses.Update(address);
-            }
-
-            // Update TeamMember
-            teamMember.FirstName = viewModel.FirstName;
-            teamMember.LastName = viewModel.LastName;
-            teamMember.Email = viewModel.Email;
-            teamMember.MobilePhoneNumber = viewModel.MobilePhoneNumber;
-            teamMember.NationalRegisterNumber = viewModel.NationalRegisterNumber;
-            teamMember.BirthDate = viewModel.BirthDate;
-            teamMember.TeamRole = viewModel.TeamRole;
-            teamMember.License = viewModel.License;
-            teamMember.Status = viewModel.Status;
-            teamMember.DailyCompensation = viewModel.DailyCompensation;
-
-            // Update OrganisationId if admin
-            if (_currentUserService.IsAdmin)
-            {
-                teamMember.OrganisationId = viewModel.OrganisationId;
-            }
-
-            // Handle license file removal
-            if (viewModel.RemoveLicense && !string.IsNullOrEmpty(teamMember.LicenseUrl))
-            {
-                try
-                {
-                    await _storageService.DeleteFileAsync(teamMember.LicenseUrl);
-                }
-                catch
-                {
-                    // Ignore errors if file doesn't exist
-                }
-                teamMember.LicenseUrl = null;
-            }
-
-            // Handle license file upload
-            if (viewModel.LicenseFile != null)
-            {
-                // Delete old license if exists (and not already deleted)
-                if (!string.IsNullOrEmpty(teamMember.LicenseUrl))
-                {
-                    try
-                    {
-                        await _storageService.DeleteFileAsync(teamMember.LicenseUrl);
-                    }
-                    catch
-                    {
-                        // Ignore errors if file doesn't exist
-                    }
-                }
-
-                // Upload new license
-                var fileName = $"{Guid.NewGuid()}_{Path.GetFileName(viewModel.LicenseFile.FileName)}";
-                var filePath = await _storageService.UploadFileAsync(
-                    viewModel.LicenseFile.OpenReadStream(),
-                    fileName,
-                    viewModel.LicenseFile.ContentType,
-                    $"{teamMember.OrganisationId}/team-member-licenses"
-                );
-                teamMember.LicenseUrl = filePath;
-            }
+            await UpdateTeamMemberAddressAsync(teamMember.AddressId, viewModel);
+            UpdateTeamMemberProperties(teamMember, viewModel);
+            await HandleLicenseFileChangesAsync(teamMember, viewModel);
 
             await _teamMemberRepository.UpdateAsync(teamMember);
             await _unitOfWork.SaveChangesAsync();
@@ -688,5 +622,91 @@ public class TeamMembersController : Controller
         return user != null
             ? $"{user.FirstName} {user.LastName}".Trim()
             : userId; // Fallback to ID if user not found
+    }
+
+    /// <summary>
+    /// Updates the team member's address with values from the view model.
+    /// </summary>
+    private async Task UpdateTeamMemberAddressAsync(int addressId, TeamMemberViewModel viewModel)
+    {
+        var address = await _context.Addresses.FindAsync(addressId);
+        if (address != null)
+        {
+            address.Street = viewModel.Street;
+            address.City = viewModel.City;
+            address.PostalCode = viewModel.PostalCode;
+            address.Country = viewModel.Country;
+            _context.Addresses.Update(address);
+        }
+    }
+
+    /// <summary>
+    /// Updates team member properties with values from the view model.
+    /// </summary>
+    private void UpdateTeamMemberProperties(TeamMember teamMember, TeamMemberViewModel viewModel)
+    {
+        teamMember.FirstName = viewModel.FirstName;
+        teamMember.LastName = viewModel.LastName;
+        teamMember.Email = viewModel.Email;
+        teamMember.MobilePhoneNumber = viewModel.MobilePhoneNumber;
+        teamMember.NationalRegisterNumber = viewModel.NationalRegisterNumber;
+        teamMember.BirthDate = viewModel.BirthDate;
+        teamMember.TeamRole = viewModel.TeamRole;
+        teamMember.License = viewModel.License;
+        teamMember.Status = viewModel.Status;
+        teamMember.DailyCompensation = viewModel.DailyCompensation;
+
+        if (_currentUserService.IsAdmin)
+        {
+            teamMember.OrganisationId = viewModel.OrganisationId;
+        }
+    }
+
+    /// <summary>
+    /// Handles license file removal and upload operations.
+    /// </summary>
+    private async Task HandleLicenseFileChangesAsync(TeamMember teamMember, TeamMemberViewModel viewModel)
+    {
+        // Handle license file removal
+        if (viewModel.RemoveLicense && !string.IsNullOrEmpty(teamMember.LicenseUrl))
+        {
+            await DeleteLicenseFileAsync(teamMember.LicenseUrl);
+            teamMember.LicenseUrl = null;
+        }
+
+        // Handle license file upload
+        if (viewModel.LicenseFile != null)
+        {
+            // Delete old license if exists (and not already deleted)
+            if (!string.IsNullOrEmpty(teamMember.LicenseUrl))
+            {
+                await DeleteLicenseFileAsync(teamMember.LicenseUrl);
+            }
+
+            // Upload new license
+            var fileName = $"{Guid.NewGuid()}_{Path.GetFileName(viewModel.LicenseFile.FileName)}";
+            var filePath = await _storageService.UploadFileAsync(
+                viewModel.LicenseFile.OpenReadStream(),
+                fileName,
+                viewModel.LicenseFile.ContentType,
+                $"{teamMember.OrganisationId}/team-member-licenses"
+            );
+            teamMember.LicenseUrl = filePath;
+        }
+    }
+
+    /// <summary>
+    /// Safely deletes a license file, ignoring errors if file doesn't exist.
+    /// </summary>
+    private async Task DeleteLicenseFileAsync(string fileUrl)
+    {
+        try
+        {
+            await _storageService.DeleteFileAsync(fileUrl);
+        }
+        catch
+        {
+            // Ignore errors if file doesn't exist
+        }
     }
 }
