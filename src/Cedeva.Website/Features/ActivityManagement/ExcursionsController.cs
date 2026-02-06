@@ -16,6 +16,8 @@ public class ExcursionsController : Controller
 {
     private const string TempDataSuccessMessage = "SuccessMessage";
     private const string TempDataErrorMessage = "ErrorMessage";
+    private const string ErrorGeneric = "Error";
+    private const string ErrorRegistrationNotFound = "Error.RegistrationNotFound";
 
     private readonly CedevaDbContext _context;
     private readonly IExcursionService _excursionService;
@@ -428,7 +430,7 @@ public class ExcursionsController : Controller
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error registering child for excursion {ExcursionId}, booking {BookingId}", excursionId, bookingId);
-            return Json(new { success = false, message = _localizer["Error"].ToString() });
+            return Json(new { success = false, message = _localizer[ErrorGeneric].ToString() });
         }
     }
 
@@ -445,13 +447,13 @@ public class ExcursionsController : Controller
             }
             else
             {
-                return Json(new { success = false, message = _localizer["Error.RegistrationNotFound"].ToString() });
+                return Json(new { success = false, message = _localizer[ErrorRegistrationNotFound].ToString() });
             }
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error unregistering child from excursion {ExcursionId}, booking {BookingId}", excursionId, bookingId);
-            return Json(new { success = false, message = _localizer["Error"].ToString() });
+            return Json(new { success = false, message = _localizer[ErrorGeneric].ToString() });
         }
     }
 
@@ -496,13 +498,13 @@ public class ExcursionsController : Controller
             }
             else
             {
-                return Json(new { success = false, message = _localizer["Error.RegistrationNotFound"].ToString() });
+                return Json(new { success = false, message = _localizer[ErrorRegistrationNotFound].ToString() });
             }
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error updating attendance for registration {RegistrationId}", registrationId);
-            return Json(new { success = false, message = _localizer["Error"].ToString() });
+            return Json(new { success = false, message = _localizer[ErrorGeneric].ToString() });
         }
     }
 
@@ -732,7 +734,7 @@ public class ExcursionsController : Controller
             .FirstOrDefaultAsync(tm => tm.ExcursionId == excursionId && tm.TeamMemberId == teamMemberId);
 
         if (existing != null)
-            return Json(new { success = false, message = _localizer["Error"].ToString() });
+            return Json(new { success = false, message = _localizer[ErrorGeneric].ToString() });
 
         _context.ExcursionTeamMembers.Add(new ExcursionTeamMember
         {
@@ -754,7 +756,7 @@ public class ExcursionsController : Controller
             .FirstOrDefaultAsync(tm => tm.ExcursionId == excursionId && tm.TeamMemberId == teamMemberId);
 
         if (existing == null)
-            return Json(new { success = false, message = _localizer["Error"].ToString() });
+            return Json(new { success = false, message = _localizer[ErrorGeneric].ToString() });
 
         _context.ExcursionTeamMembers.Remove(existing);
         await _context.SaveChangesAsync();
