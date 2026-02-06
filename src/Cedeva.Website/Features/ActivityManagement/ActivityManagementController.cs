@@ -917,6 +917,7 @@ public class ActivityManagementController : Controller
         // Get all confirmed bookings without a group
         var unassignedBookings = await _context.Bookings
             .Include(b => b.Child)
+                .ThenInclude(c => c.Parent)
             .Where(b => b.ActivityId == selectedActivityId.Value
                      && b.IsConfirmed
                      && b.GroupId == null)
