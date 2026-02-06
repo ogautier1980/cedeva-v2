@@ -163,21 +163,7 @@ public class PaymentsController : Controller
     {
         if (!ModelState.IsValid)
         {
-            // Recharger les informations pour l'affichage
-            var booking = await _context.Bookings
-                .Include(b => b.Child).ThenInclude(c => c.Parent)
-                .Include(b => b.Activity)
-                .FirstOrDefaultAsync(b => b.Id == viewModel.BookingId);
-
-            if (booking != null)
-            {
-                viewModel.ChildName = $"{booking.Child.FirstName} {booking.Child.LastName}";
-                viewModel.ParentName = $"{booking.Child.Parent.FirstName} {booking.Child.Parent.LastName}";
-                viewModel.ActivityName = booking.Activity.Name;
-                viewModel.BookingTotalAmount = booking.TotalAmount;
-                viewModel.BookingPaidAmount = booking.PaidAmount;
-            }
-
+            await ReloadBookingInfoForViewModel(viewModel);
             return View(viewModel);
         }
 
@@ -202,19 +188,7 @@ public class PaymentsController : Controller
 
             _context.Payments.Add(payment);
 
-            // Mettre à jour le montant payé et le statut de la réservation
-            booking.PaidAmount += viewModel.Amount;
-
-            if (booking.PaidAmount >= booking.TotalAmount)
-            {
-                booking.PaymentStatus = booking.PaidAmount > booking.TotalAmount
-                    ? PaymentStatus.Overpaid
-                    : PaymentStatus.Paid;
-            }
-            else if (booking.PaidAmount > 0)
-            {
-                booking.PaymentStatus = PaymentStatus.PartiallyPaid;
-            }
+            UpdateBookingPaymentStatus(booking, viewModel.Amount);
 
             await _context.SaveChangesAsync();
 
@@ -312,6 +286,39 @@ public class PaymentsController : Controller
             _logger.LogError(ex, "Error cancelling payment");
             TempData[TempDataErrorMessage] = _localizer["Error.PaymentCancellationFailed"].Value;
             return RedirectToAction(nameof(Details), new { id });
+        }
+    }
+
+    private async Task ReloadBookingInfoForViewModel(PaymentViewModel viewModel)
+    {
+        var booking = await _context.Bookings
+            .Include(b => b.Child).ThenInclude(c => c.Parent)
+            .Include(b => b.Activity)
+            .FirstOrDefaultAsync(b => b.Id == viewModel.BookingId);
+
+        if (booking != null)
+        {
+            viewModel.ChildName = $"{booking.Child.FirstName} {booking.Child.LastName}";
+            viewModel.ParentName = $"{booking.Child.Parent.FirstName} {booking.Child.Parent.LastName}";
+            viewModel.ActivityName = booking.Activity.Name;
+            viewModel.BookingTotalAmount = booking.TotalAmount;
+            viewModel.BookingPaidAmount = booking.PaidAmount;
+        }
+    }
+
+    private static void UpdateBookingPaymentStatus(Booking booking, decimal paymentAmount)
+    {
+        booking.PaidAmount += paymentAmount;
+
+        if (booking.PaidAmount >= booking.TotalAmount)
+        {
+            booking.PaymentStatus = booking.PaidAmount > booking.TotalAmount
+                ? PaymentStatus.Overpaid
+                : PaymentStatus.Paid;
+        }
+        else if (booking.PaidAmount > 0)
+        {
+            booking.PaymentStatus = PaymentStatus.PartiallyPaid;
         }
     }
 }
