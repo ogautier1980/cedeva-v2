@@ -14,6 +14,9 @@ namespace Cedeva.Website.Features.ActivityManagement;
 [Authorize]
 public class ExcursionsController : Controller
 {
+    private const string TempDataSuccessMessage = "SuccessMessage";
+    private const string TempDataErrorMessage = "ErrorMessage";
+
     private readonly CedevaDbContext _context;
     private readonly IExcursionService _excursionService;
     private readonly IExcursionViewModelBuilderService _viewModelBuilder;
@@ -206,7 +209,7 @@ public class ExcursionsController : Controller
 
         await _context.SaveChangesAsync();
 
-        TempData["SuccessMessage"] = _localizer["Message.ExcursionCreated"].ToString();
+        TempData[TempDataSuccessMessage] = _localizer["Message.ExcursionCreated"].ToString();
         return RedirectToAction(nameof(Index), new { id = model.ActivityId });
     }
 
@@ -356,7 +359,7 @@ public class ExcursionsController : Controller
 
         await _context.SaveChangesAsync();
 
-        TempData["SuccessMessage"] = _localizer["Message.ExcursionUpdated"].ToString();
+        TempData[TempDataSuccessMessage] = _localizer["Message.ExcursionUpdated"].ToString();
         return RedirectToAction(nameof(Index), new { id = model.ActivityId });
     }
 
@@ -390,7 +393,7 @@ public class ExcursionsController : Controller
 
         if (excursion.Registrations.Count > 0)
         {
-            TempData["ErrorMessage"] = _localizer["Excursion.CannotDeleteRegistrations"].ToString();
+            TempData[TempDataErrorMessage] = _localizer["Excursion.CannotDeleteRegistrations"].ToString();
             return RedirectToAction(nameof(Index), new { id = excursion.ActivityId });
         }
 
@@ -398,7 +401,7 @@ public class ExcursionsController : Controller
         excursion.IsActive = false;
         await _context.SaveChangesAsync();
 
-        TempData["SuccessMessage"] = _localizer["Message.ExcursionDeleted"].ToString();
+        TempData[TempDataSuccessMessage] = _localizer["Message.ExcursionDeleted"].ToString();
         return RedirectToAction(nameof(Index), new { id = excursion.ActivityId });
     }
 
@@ -619,7 +622,7 @@ public class ExcursionsController : Controller
         // For now, just show success message
         var emailCount = registrations.Select(r => r.Booking.Child.Parent.Email).Distinct().Count();
 
-        TempData["SuccessMessage"] = string.Format(_localizer["Message.EmailSent"].Value, emailCount);
+        TempData[TempDataSuccessMessage] = string.Format(_localizer["Message.EmailSent"].Value, emailCount);
         return RedirectToAction(nameof(Index), new { id = model.Excursion?.ActivityId ?? model.ExcursionId });
     }
 
@@ -700,7 +703,7 @@ public class ExcursionsController : Controller
         _context.Expenses.Add(expense);
         await _context.SaveChangesAsync();
 
-        TempData["SuccessMessage"] = _localizer["Message.ExpenseAdded"].ToString();
+        TempData[TempDataSuccessMessage] = _localizer["Message.ExpenseAdded"].ToString();
         return RedirectToAction(nameof(Expenses), new { id = model.Excursion.Id });
     }
 

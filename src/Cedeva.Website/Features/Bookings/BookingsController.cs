@@ -417,7 +417,7 @@ public class BookingsController : Controller
         await _bookingRepository.DeleteAsync(booking);
         await _unitOfWork.SaveChangesAsync();
 
-        TempData["SuccessMessage"] = _localizer["Message.BookingDeleted"].Value;
+        TempData[TempDataSuccessMessage] = _localizer["Message.BookingDeleted"].Value;
         return RedirectToAction(nameof(Index));
     }
 

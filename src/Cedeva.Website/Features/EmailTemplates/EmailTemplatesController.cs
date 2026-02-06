@@ -23,6 +23,8 @@ public class EmailTemplatesController : Controller
     private readonly CedevaDbContext _context;
 
     private const string SessionKeyActivityId = "EmailTemplates_ActivityId";
+    private const string TempDataSuccessMessage = "SuccessMessage";
+    private const string TempDataErrorMessage = "ErrorMessage";
 
     public EmailTemplatesController(
         IEmailTemplateService templateService,
@@ -93,7 +95,7 @@ public class EmailTemplatesController : Controller
             var user = await _userManager.GetUserAsync(User);
             if (user == null)
             {
-                TempData["ErrorMessage"] = _localizer["Error.Unauthorized"].ToString();
+                TempData[TempDataErrorMessage] = _localizer["Error.Unauthorized"].ToString();
                 return RedirectToAction(nameof(Index));
             }
 
@@ -112,12 +114,12 @@ public class EmailTemplatesController : Controller
 
             await _templateService.CreateTemplateAsync(template);
 
-            TempData["SuccessMessage"] = _localizer["EmailTemplate.CreateSuccess"].ToString();
+            TempData[TempDataSuccessMessage] = _localizer["EmailTemplate.CreateSuccess"].ToString();
             return RedirectToAction(nameof(Index));
         }
         catch (Exception)
         {
-            TempData["ErrorMessage"] = _localizer["Error.Generic"].ToString();
+            TempData[TempDataErrorMessage] = _localizer["Error.Generic"].ToString();
             viewModel.TemplateTypeOptions = GetTemplateTypeOptions();
             return View(viewModel);
         }
@@ -128,7 +130,7 @@ public class EmailTemplatesController : Controller
         var template = await _templateService.GetTemplateByIdAsync(id);
         if (template == null)
         {
-            TempData["ErrorMessage"] = _localizer["Error.NotFound"].ToString();
+            TempData[TempDataErrorMessage] = _localizer["Error.NotFound"].ToString();
             return RedirectToAction(nameof(Index));
         }
 
@@ -162,7 +164,7 @@ public class EmailTemplatesController : Controller
             var template = await _templateService.GetTemplateByIdAsync(viewModel.Id);
             if (template == null)
             {
-                TempData["ErrorMessage"] = _localizer["Error.NotFound"].ToString();
+                TempData[TempDataErrorMessage] = _localizer["Error.NotFound"].ToString();
                 return RedirectToAction(nameof(Index));
             }
 
@@ -175,12 +177,12 @@ public class EmailTemplatesController : Controller
 
             await _templateService.UpdateTemplateAsync(template);
 
-            TempData["SuccessMessage"] = _localizer["EmailTemplate.UpdateSuccess"].ToString();
+            TempData[TempDataSuccessMessage] = _localizer["EmailTemplate.UpdateSuccess"].ToString();
             return RedirectToAction(nameof(Index));
         }
         catch (Exception)
         {
-            TempData["ErrorMessage"] = _localizer["Error.Generic"].ToString();
+            TempData[TempDataErrorMessage] = _localizer["Error.Generic"].ToString();
             viewModel.TemplateTypeOptions = GetTemplateTypeOptions();
             return View(viewModel);
         }
@@ -193,11 +195,11 @@ public class EmailTemplatesController : Controller
         try
         {
             await _templateService.DeleteTemplateAsync(id);
-            TempData["SuccessMessage"] = _localizer["EmailTemplate.DeleteSuccess"].ToString();
+            TempData[TempDataSuccessMessage] = _localizer["EmailTemplate.DeleteSuccess"].ToString();
         }
         catch (Exception)
         {
-            TempData["ErrorMessage"] = _localizer["Error.Generic"].ToString();
+            TempData[TempDataErrorMessage] = _localizer["Error.Generic"].ToString();
         }
 
         return RedirectToAction(nameof(Index));
@@ -210,11 +212,11 @@ public class EmailTemplatesController : Controller
         try
         {
             await _templateService.SetDefaultTemplateAsync(id, type);
-            TempData["SuccessMessage"] = _localizer["EmailTemplate.SetDefaultSuccess"].ToString();
+            TempData[TempDataSuccessMessage] = _localizer["EmailTemplate.SetDefaultSuccess"].ToString();
         }
         catch (Exception)
         {
-            TempData["ErrorMessage"] = _localizer["Error.Generic"].ToString();
+            TempData[TempDataErrorMessage] = _localizer["Error.Generic"].ToString();
         }
 
         return RedirectToAction(nameof(Index));
@@ -225,7 +227,7 @@ public class EmailTemplatesController : Controller
         var template = await _templateService.GetTemplateByIdAsync(id);
         if (template == null)
         {
-            TempData["ErrorMessage"] = _localizer["Error.NotFound"].ToString();
+            TempData[TempDataErrorMessage] = _localizer["Error.NotFound"].ToString();
             return RedirectToAction(nameof(Index));
         }
 
