@@ -169,6 +169,11 @@ src/
   - Features: Session storage (temporary), cookie persistence (30 days), secure options (HttpOnly, Secure, SameSite=Lax)
   - Refactored: ActivityManagementController, ExcursionsController (~100+ lines of duplicate code removed)
   - Benefits: DRY principle, testable without HttpContext, consistent behavior across controllers
+- **ExcursionViewModelBuilderService:** Extracted ViewModel building logic from ExcursionsController (951→862 lines, -9.4%)
+  - Methods: BuildRegistrationsByGroupAsync (groups/sorts children for registration), BuildAttendanceByGroupAsync (groups/sorts children for attendance)
+  - Refactored: Registrations method (80→25 lines, -69%), Attendance method (66→25 lines, -62%)
+  - Moved ExcursionChildInfo and ExcursionAttendanceInfo to Core interfaces (eliminates duplication in ViewModels)
+  - Benefits: Reusable grouping/sorting logic, testable without controllers, separation of concerns (controller → service → data)
 
 ### Local File Storage (2026-02-06)
 - **LocalFileStorageService:** IStorageService implementation for local development (saves to wwwroot/uploads/)
