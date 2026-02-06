@@ -34,7 +34,7 @@ public class QuestPdfExportService : IPdfExportService
                             .Bold()
                             .FontColor(Colors.Blue.Darken2);
 
-                        column.Item().Text($"Généré le {DateTime.Now:dd/MM/yyyy HH:mm}")
+                        column.Item().Text($"Généré le {DateTime.UtcNow:dd/MM/yyyy HH:mm}")
                             .FontSize(10)
                             .FontColor(Colors.Grey.Darken1);
                     });

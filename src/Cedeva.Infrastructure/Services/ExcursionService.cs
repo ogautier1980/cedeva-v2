@@ -73,7 +73,7 @@ public class ExcursionService : IExcursionService
         {
             ExcursionId = excursionId,
             BookingId = bookingId,
-            RegistrationDate = DateTime.Now,
+            RegistrationDate = DateTime.UtcNow,
             IsPresent = false
         };
         _context.ExcursionRegistrations.Add(registration);
@@ -86,7 +86,7 @@ public class ExcursionService : IExcursionService
         var transaction = new ActivityFinancialTransaction
         {
             ActivityId = excursion.ActivityId,
-            TransactionDate = DateTime.Now,
+            TransactionDate = DateTime.UtcNow,
             Type = TransactionType.Income,
             Category = TransactionCategory.ExcursionPayment,
             Amount = excursion.Cost,
@@ -123,7 +123,7 @@ public class ExcursionService : IExcursionService
         var transaction = new ActivityFinancialTransaction
         {
             ActivityId = excursion.ActivityId,
-            TransactionDate = DateTime.Now,
+            TransactionDate = DateTime.UtcNow,
             Type = TransactionType.Income,
             Category = TransactionCategory.ExcursionPayment,
             Amount = -excursion.Cost, // Negative amount for reversal

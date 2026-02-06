@@ -743,7 +743,7 @@ public class ActivityManagementController : Controller
         var uniqueFileName = Guid.NewGuid().ToString() + "_" + fileName;
         var filePath = Path.Combine(uploadsFolder, uniqueFileName);
 
-        using (var fileStream = new FileStream(filePath, FileMode.Create))
+        await using (var fileStream = new FileStream(filePath, FileMode.Create))
         {
             await attachmentFile.CopyToAsync(fileStream, ct);
         }

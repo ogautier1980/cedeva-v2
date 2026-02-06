@@ -270,7 +270,7 @@ public class CodaParserService : ICodaParserService
         {
             OrganisationId = organisationId,
             FileName = codaData.FileName,
-            ImportDate = DateTime.Now,
+            ImportDate = DateTime.UtcNow,
             StatementDate = codaData.StatementDate,
             AccountNumber = codaData.AccountNumber,
             OldBalance = codaData.OldBalance,

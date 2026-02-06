@@ -54,7 +54,7 @@ public class LocalFileStorageService : IStorageService
         }
 
         // Sauvegarder fichier
-        using (var fileStreamOut = new FileStream(fullPath, FileMode.Create))
+        await using (var fileStreamOut = new FileStream(fullPath, FileMode.Create))
         {
             await fileStream.CopyToAsync(fileStreamOut);
         }
