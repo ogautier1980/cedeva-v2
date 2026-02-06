@@ -25,8 +25,9 @@
 
     @if (!Model.Excursions.Any())
     {
-        <div class="alert alert-info">
-            <i class="fas fa-info-circle"></i> @Localizer["Excursion.NoExcursions"]
+        <div class="text-center py-5">
+            <i class="fas fa-train fa-3x text-muted mb-3"></i>
+            <p class="text-muted">@Localizer["Excursion.NoExcursions"]</p>
         </div>
     }
     else

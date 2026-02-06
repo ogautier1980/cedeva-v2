@@ -19,7 +19,7 @@
             <small class="text-muted">@Localizer[$"Enum.ExcursionType.{Model.Type}"] · @Model.Activity?.Name</small>
         </div>
         <div class="d-flex gap-2">
-            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">
+            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-outline-secondary">
                 <i class="fas fa-edit"></i> @Localizer["Edit"]
             </a>
             <a asp-action="Registrations" asp-route-id="@Model.Id" class="btn btn-primary">
@@ -106,7 +106,7 @@
                     {
                         <div class="table-responsive">
                             <table class="table table-hover table-sm mb-0">
-                                <thead>
+                                <thead class="table-light">
                                     <tr>
                                         <th>@Localizer["Field.FirstName"]</th>
                                         <th>@Localizer["Field.LastName"]</th>

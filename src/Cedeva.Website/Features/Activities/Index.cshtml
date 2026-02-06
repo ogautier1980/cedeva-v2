@@ -58,7 +58,7 @@
             {
                 <div class="table-responsive">
                     <table class="table table-hover">
-                        <thead>
+                        <thead class="table-light">
                             <tr>
                                 <th>@await Html.PartialAsync("_SortableColumnHeader", ("Name", Localizer["Name"].Value, ViewData["SortBy"] as string, ViewData["SortOrder"] as string))</th>
                                 <th>@await Html.PartialAsync("_SortableColumnHeader", ("StartDate", Localizer["Activities.Dates"].Value, ViewData["SortBy"] as string, ViewData["SortOrder"] as string))</th>

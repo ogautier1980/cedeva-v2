@@ -81,7 +81,7 @@
                                 var returnUrl = ViewData["ReturnUrl"]?.ToString();
                                 var cancelUrl = !string.IsNullOrEmpty(returnUrl) ? returnUrl : Url.Action("Transactions");
                             }
-                            <a href="@cancelUrl" class="btn btn-secondary">
+                            <a href="@cancelUrl" class="btn btn-outline-secondary">
                                 <i class="fas fa-times me-1"></i>@Localizer["Button.Cancel"]
                             </a>
                             <button type="submit" class="btn btn-primary">

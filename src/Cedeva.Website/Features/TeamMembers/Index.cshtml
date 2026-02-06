@@ -51,7 +51,7 @@
             {
                 <div class="table-responsive">
                     <table class="table table-hover">
-                        <thead>
+                        <thead class="table-light">
                             <tr>
                                 <th>@await Html.PartialAsync("_SortableColumnHeader", ("LastName", Localizer["Name"].Value, ViewData["SortBy"] as string, ViewData["SortOrder"] as string))</th>
                                 <th>@await Html.PartialAsync("_SortableColumnHeader", ("Email", Localizer["Email"].Value, ViewData["SortBy"] as string, ViewData["SortOrder"] as string))</th>
@@ -117,15 +117,18 @@
             }
             else
             {
-                <div class="alert alert-info mb-0" role="alert">
-                    <i class="fas fa-info-circle me-2"></i>
+                <div class="text-center py-5">
+                    <i class="fas fa-users fa-3x text-muted mb-3"></i>
                     @if (!string.IsNullOrEmpty(searchString))
                     {
-                        <span>@Localizer["TeamMembers.NoMembersFound"]</span>
+                        <p class="text-muted">@Localizer["TeamMembers.NoMembersFound"]</p>
                     }
                     else
                     {
-                        <span>@Localizer["TeamMembers.NoMembersYet"]</span>
+                        <p class="text-muted">@Localizer["TeamMembers.NoMembersYet"]</p>
+                        <a asp-action="Create" class="btn btn-primary">
+                            <i class="fas fa-plus me-2"></i>@Localizer["TeamMembers.CreateMember"]
+                        </a>
                     }
                 </div>
             }
