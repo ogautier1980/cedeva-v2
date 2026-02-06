@@ -27,6 +27,7 @@ public class EmailTemplatesController : Controller
     private const string TempDataSuccessMessage = "SuccessMessage";
     private const string TempDataErrorMessage = "ErrorMessage";
     private const string ErrorGeneric = "Error.Generic";
+    private const string ErrorNotFound = "Error.NotFound";
 
     public EmailTemplatesController(
         IEmailTemplateService templateService,
@@ -131,7 +132,7 @@ public class EmailTemplatesController : Controller
         var template = await _templateService.GetTemplateByIdAsync(id);
         if (template == null)
         {
-            TempData[TempDataErrorMessage] = _localizer["Error.NotFound"].ToString();
+            TempData[TempDataErrorMessage] = _localizer[ErrorNotFound].ToString();
             return RedirectToAction(nameof(Index));
         }
 
@@ -165,7 +166,7 @@ public class EmailTemplatesController : Controller
             var template = await _templateService.GetTemplateByIdAsync(viewModel.Id);
             if (template == null)
             {
-                TempData[TempDataErrorMessage] = _localizer["Error.NotFound"].ToString();
+                TempData[TempDataErrorMessage] = _localizer[ErrorNotFound].ToString();
                 return RedirectToAction(nameof(Index));
             }
 
@@ -228,7 +229,7 @@ public class EmailTemplatesController : Controller
         var template = await _templateService.GetTemplateByIdAsync(id);
         if (template == null)
         {
-            TempData[TempDataErrorMessage] = _localizer["Error.NotFound"].ToString();
+            TempData[TempDataErrorMessage] = _localizer[ErrorNotFound].ToString();
             return RedirectToAction(nameof(Index));
         }
 
