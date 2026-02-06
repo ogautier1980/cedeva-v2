@@ -331,6 +331,42 @@
   <data name="Activities.ViewBookings" xml:space="preserve">
     <value>[EN] Voir les inscriptions</value>
   </data>
+  <data name="Activities.AddGroup" xml:space="preserve">
+    <value>[EN] Ajouter un groupe</value>
+  </data>
+  <data name="Activities.AddQuestion" xml:space="preserve">
+    <value>[EN] Ajouter une question</value>
+  </data>
+  <data name="Activities.CapacityPlaceholder" xml:space="preserve">
+    <value>[EN] Capacité (optionnel)</value>
+  </data>
+  <data name="Activities.GroupLabelPlaceholder" xml:space="preserve">
+    <value>[EN] Nom du groupe (ex: Les Pingouins)</value>
+  </data>
+  <data name="Activities.GroupsAndQuestionsOptional" xml:space="preserve">
+    <value>[EN] Les groupes et questions personnalisées sont optionnels et peuvent également être ajoutés plus tard.</value>
+  </data>
+  <data name="Activities.GroupsHelp" xml:space="preserve">
+    <value>[EN] Les groupes permettent de diviser les enfants en sections (ex: par âge). Vous pouvez les ajouter maintenant ou plus tard.</value>
+  </data>
+  <data name="Activities.OptionsHelp" xml:space="preserve">
+    <value>[EN] Séparez les options par des virgules (ex: Option1,Option2,Option3)</value>
+  </data>
+  <data name="Activities.OptionsPlaceholder" xml:space="preserve">
+    <value>[EN] Option1,Option2,Option3</value>
+  </data>
+  <data name="Activities.QuestionTextPlaceholder" xml:space="preserve">
+    <value>[EN] Texte de la question...</value>
+  </data>
+  <data name="Activities.QuestionsHelp" xml:space="preserve">
+    <value>[EN] Les questions personnalisées seront posées lors de l'inscription. Vous pouvez les ajouter maintenant ou plus tard.</value>
+  </data>
+  <data name="Activities.Required" xml:space="preserve">
+    <value>[EN] Requis</value>
+  </data>
+  <data name="Activities.SelectQuestionType" xml:space="preserve">
+    <value>[EN] Type de question...</value>
+  </data>
   <data name="Activity" xml:space="preserve">
     <value>Activity</value>
   </data>

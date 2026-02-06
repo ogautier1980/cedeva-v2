@@ -93,6 +93,38 @@
 
                         <hr />
 
+                        <h6 class="mb-3 mt-4 text-primary"><i class="fas fa-users me-2"></i>@Localizer["Activities.Groups"]</h6>
+
+                        <div id="groupsSection" class="mb-3">
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle me-2"></i>@Localizer["Activities.GroupsHelp"]
+                            </div>
+                            <div id="groupsList">
+                                <!-- Groups will be added dynamically -->
+                            </div>
+                            <button type="button" class="btn btn-sm btn-outline-primary" id="addGroupBtn">
+                                <i class="fas fa-plus me-2"></i>@Localizer["Activities.AddGroup"]
+                            </button>
+                        </div>
+
+                        <hr />
+
+                        <h6 class="mb-3 mt-4 text-primary"><i class="fas fa-question-circle me-2"></i>@Localizer["Activities.CustomQuestions"]</h6>
+
+                        <div id="questionsSection" class="mb-3">
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle me-2"></i>@Localizer["Activities.QuestionsHelp"]
+                            </div>
+                            <div id="questionsList">
+                                <!-- Questions will be added dynamically -->
+                            </div>
+                            <button type="button" class="btn btn-sm btn-outline-primary" id="addQuestionBtn">
+                                <i class="fas fa-plus me-2"></i>@Localizer["Activities.AddQuestion"]
+                            </button>
+                        </div>
+
+                        <hr />
+
                         <div class="d-flex justify-content-between">
                             <a asp-action="Index" class="btn btn-outline-secondary text-nowrap">
                                 <i class="fas fa-arrow-left me-2"></i>@Localizer["Cancel"]
@@ -112,13 +144,13 @@
                     <h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>@Localizer["Activities.Information"]</h6>
                 </div>
                 <div class="card-body">
-                    <p class="small text-muted">
+                    <p class="small text-muted mb-2">
                         <i class="fas fa-lightbulb text-warning me-2"></i>
                         @Localizer["Activities.DaysWillBeGenerated"]
                     </p>
-                    <p class="small text-muted">
+                    <p class="small text-muted mb-0">
                         <i class="fas fa-lightbulb text-warning me-2"></i>
-                        @Localizer["Activities.CanAddGroupsLater"]
+                        @Localizer["Activities.GroupsAndQuestionsOptional"]
                     </p>
                 </div>
             </div>
@@ -164,6 +196,108 @@
                     }
                 }, 100);
             }
+
+            // Groups management
+            let groupIndex = 0;
+
+            $('#addGroupBtn').on('click', function() {
+                const groupHtml = `
+                    <div class="card mb-2" data-group-index="${groupIndex}">
+                        <div class="card-body py-2">
+                            <div class="row g-2 align-items-center">
+                                <div class="col-md-6">
+                                    <input type="text" name="NewGroups[${groupIndex}].Label" class="form-control form-control-sm"
+                                           placeholder="@Localizer["Activities.GroupLabelPlaceholder"]" required maxlength="100" />
+                                </div>
+                                <div class="col-md-4">
+                                    <input type="number" name="NewGroups[${groupIndex}].Capacity" class="form-control form-control-sm"
+                                           placeholder="@Localizer["Activities.CapacityPlaceholder"]" min="0" max="9999" />
+                                </div>
+                                <div class="col-md-2 text-end">
+                                    <button type="button" class="btn btn-sm btn-outline-danger remove-group-btn">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>`;
+
+                $('#groupsList').append(groupHtml);
+                groupIndex++;
+            });
+
+            $(document).on('click', '.remove-group-btn', function() {
+                $(this).closest('.card').remove();
+            });
+
+            // Questions management
+            let questionIndex = 0;
+
+            $('#addQuestionBtn').on('click', function() {
+                const questionHtml = `
+                    <div class="card mb-2" data-question-index="${questionIndex}">
+                        <div class="card-body py-2">
+                            <div class="row g-2">
+                                <div class="col-md-6">
+                                    <input type="text" name="NewQuestions[${questionIndex}].QuestionText" class="form-control form-control-sm"
+                                           placeholder="@Localizer["Activities.QuestionTextPlaceholder"]" required maxlength="500" />
+                                </div>
+                                <div class="col-md-3">
+                                    <select name="NewQuestions[${questionIndex}].QuestionType" class="form-select form-select-sm question-type-select"
+                                            data-question-index="${questionIndex}" required>
+                                        <option value="">@Localizer["Activities.SelectQuestionType"]</option>
+                                        <option value="0">@Localizer["Enum.QuestionType.Text"]</option>
+                                        <option value="1">@Localizer["Enum.QuestionType.Checkbox"]</option>
+                                        <option value="2">@Localizer["Enum.QuestionType.Radio"]</option>
+                                        <option value="3">@Localizer["Enum.QuestionType.Dropdown"]</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-2">
+                                    <div class="form-check">
+                                        <input type="checkbox" name="NewQuestions[${questionIndex}].IsRequired"
+                                               class="form-check-input" id="question_required_${questionIndex}" value="true" />
+                                        <input type="hidden" name="NewQuestions[${questionIndex}].IsRequired" value="false" />
+                                        <label class="form-check-label small" for="question_required_${questionIndex}">
+                                            @Localizer["Activities.Required"]
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-1 text-end">
+                                    <button type="button" class="btn btn-sm btn-outline-danger remove-question-btn">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                                <div class="col-12 question-options-container" id="options_${questionIndex}" style="display: none;">
+                                    <input type="text" name="NewQuestions[${questionIndex}].Options" class="form-control form-control-sm"
+                                           placeholder="@Localizer["Activities.OptionsPlaceholder"]" maxlength="1000" />
+                                    <small class="form-text text-muted">@Localizer["Activities.OptionsHelp"]</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>`;
+
+                $('#questionsList').append(questionHtml);
+                questionIndex++;
+            });
+
+            $(document).on('click', '.remove-question-btn', function() {
+                $(this).closest('.card').remove();
+            });
+
+            // Show/hide options field based on question type
+            $(document).on('change', '.question-type-select', function() {
+                const questionIdx = $(this).data('question-index');
+                const selectedType = $(this).val();
+                const optionsContainer = $('#options_' + questionIdx);
+
+                // Show options field for Radio (2) and Dropdown (3)
+                if (selectedType === '2' || selectedType === '3') {
+                    optionsContainer.show();
+                } else {
+                    optionsContainer.hide();
+                    optionsContainer.find('input').val(''); // Clear options value
+                }
+            });
         });
     </script>
 }

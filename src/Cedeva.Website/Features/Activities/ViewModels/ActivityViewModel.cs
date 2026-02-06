@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using Cedeva.Core.Enums;
 using Cedeva.Website.ViewModels;
 
 namespace Cedeva.Website.Features.Activities.ViewModels;
@@ -63,6 +64,35 @@ public class ActivityViewModel : AuditableViewModel
 
     // For Edit: list of days with IsActive status
     public List<ActivityDayViewModel> AllDays { get; set; } = new();
+
+    // For Create: new groups and questions to be created with the activity
+    public List<NewActivityGroupViewModel> NewGroups { get; set; } = new();
+    public List<NewActivityQuestionViewModel> NewQuestions { get; set; } = new();
+}
+
+public class NewActivityGroupViewModel
+{
+    [Required(ErrorMessage = "Validation.Required")]
+    [StringLength(100, ErrorMessage = "Validation.StringLength")]
+    public string Label { get; set; } = string.Empty;
+
+    [Range(0, 9999, ErrorMessage = "Validation.Range")]
+    public int? Capacity { get; set; }
+}
+
+public class NewActivityQuestionViewModel
+{
+    [Required(ErrorMessage = "Validation.Required")]
+    [StringLength(500, ErrorMessage = "Validation.StringLength")]
+    public string QuestionText { get; set; } = string.Empty;
+
+    [Required(ErrorMessage = "Validation.Required")]
+    public QuestionType QuestionType { get; set; }
+
+    public bool IsRequired { get; set; }
+
+    [StringLength(1000, ErrorMessage = "Validation.StringLength")]
+    public string? Options { get; set; }
 }
 
 public class ActivityListViewModel

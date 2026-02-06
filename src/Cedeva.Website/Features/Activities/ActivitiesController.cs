@@ -203,7 +203,48 @@ public class ActivitiesController : Controller
         _context.Activities.Add(activity);
         await _context.SaveChangesAsync();
 
-        _logger.LogInformation("Activity {Name} created by user {UserId}", activity.Name, _currentUserService.UserId);
+        // Create groups if provided
+        if (viewModel.NewGroups != null && viewModel.NewGroups.Any())
+        {
+            foreach (var groupVm in viewModel.NewGroups)
+            {
+                if (!string.IsNullOrWhiteSpace(groupVm.Label))
+                {
+                    var group = new ActivityGroup
+                    {
+                        Label = groupVm.Label.Trim(),
+                        Capacity = groupVm.Capacity,
+                        ActivityId = activity.Id
+                    };
+                    _context.ActivityGroups.Add(group);
+                }
+            }
+            await _context.SaveChangesAsync();
+        }
+
+        // Create questions if provided
+        if (viewModel.NewQuestions != null && viewModel.NewQuestions.Any())
+        {
+            foreach (var questionVm in viewModel.NewQuestions)
+            {
+                if (!string.IsNullOrWhiteSpace(questionVm.QuestionText))
+                {
+                    var question = new ActivityQuestion
+                    {
+                        ActivityId = activity.Id,
+                        QuestionText = questionVm.QuestionText.Trim(),
+                        QuestionType = questionVm.QuestionType,
+                        IsRequired = questionVm.IsRequired,
+                        Options = questionVm.Options?.Trim()
+                    };
+                    _context.ActivityQuestions.Add(question);
+                }
+            }
+            await _context.SaveChangesAsync();
+        }
+
+        _logger.LogInformation("Activity {Name} created by user {UserId} with {GroupCount} groups and {QuestionCount} questions",
+            activity.Name, _currentUserService.UserId, viewModel.NewGroups?.Count ?? 0, viewModel.NewQuestions?.Count ?? 0);
 
         TempData[TempDataSuccessMessage] = _localizer["Message.ActivityCreated"].Value;
         return RedirectToAction(nameof(Index));
