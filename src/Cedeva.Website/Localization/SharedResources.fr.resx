@@ -928,6 +928,9 @@
   <data name="DayOfWeek.Wednesday" xml:space="preserve">
     <value>Mercredi</value>
   </data>
+  <data name="Days" xml:space="preserve">
+    <value>Jours</value>
+  </data>
   <data name="Delete" xml:space="preserve">
     <value>Supprimer</value>
   </data>
@@ -1944,6 +1947,9 @@
   </data>
   <data name="Group" xml:space="preserve">
     <value>Groupe</value>
+  </data>
+  <data name="Groups" xml:space="preserve">
+    <value>Groupes</value>
   </data>
   <data name="Home" xml:space="preserve">
     <value>Accueil</value>

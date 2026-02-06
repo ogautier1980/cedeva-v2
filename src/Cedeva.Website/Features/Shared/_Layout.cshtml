@@ -27,6 +27,26 @@
     <link rel="stylesheet" href="~/css/cedeva.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     @await RenderSectionAsync("Styles", required: false)
+
+    <style>
+        /* Activity Management Compact Navigation */
+        .activity-nav-compact .nav-link {
+            font-size: 0.875rem;
+            padding: 0.5rem 0.75rem;
+            white-space: nowrap;
+        }
+
+        .activity-nav-compact .nav-link i {
+            font-size: 0.875rem;
+        }
+
+        /* Hide text on smaller screens, keep only icons */
+        @@media (max-width: 1400px) {
+            .activity-nav-compact .nav-link {
+                padding: 0.5rem;
+            }
+        }
+    </style>
 </head>
 <body class="d-flex flex-column h-100 bg-img">
     @{
@@ -98,15 +118,15 @@
                     @if (activityId > 0)
                     {
                         <!-- Activity Management Navigation -->
-                        <div class="d-flex align-items-center text-white me-3">
+                        <div class="d-flex align-items-center text-white me-2">
                             <a asp-action="Index" asp-controller="ActivityManagement" asp-route-id="@activityId"
-                               class="btn btn-sm btn-outline-light me-2">
-                                <i class="fas fa-arrow-left"></i> @Localizer["BackToDashboard"]
+                               class="btn btn-sm btn-outline-light me-2" title="@Localizer["BackToDashboard"]">
+                                <i class="fas fa-arrow-left"></i>
                             </a>
-                            <span class="text-white-50 me-3">@activityName</span>
+                            <span class="text-white-50 me-2 d-none d-xl-inline small">@activityName</span>
                         </div>
 
-                        <ul class="navbar-nav me-auto">
+                        <ul class="navbar-nav me-auto activity-nav-compact">
                             <!-- Inscriptions en attente -->
                             <li class="nav-item">
                                 <a class="nav-link @(navSection == "PendingBookings" ? "active" : "")"
