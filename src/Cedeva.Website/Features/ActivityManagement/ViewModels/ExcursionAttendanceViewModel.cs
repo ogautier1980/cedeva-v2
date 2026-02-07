@@ -1,3 +1,4 @@
+using Cedeva.Core.DTOs.Excursions;
 using Cedeva.Core.Entities;
 using Cedeva.Core.Interfaces;
 

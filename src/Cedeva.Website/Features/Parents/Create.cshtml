@@ -117,6 +117,9 @@
 
     <script>
         $(function () {
+            // Initialize Choices.js on organisation select
+            CedevaChoices.init('#OrganisationId');
+
             initializeUnifiedAddressAutocomplete("#CombinedAddress", "#PostalCode", "#City");
         });
     </script>

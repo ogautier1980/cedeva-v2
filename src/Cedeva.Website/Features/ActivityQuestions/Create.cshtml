@@ -75,6 +75,11 @@
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
     <script>
+        $(document).ready(function() {
+            CedevaChoices.initAll('.form-select');
+        });
+    </script>
+    <script>
         $(document).ready(function () {
             var $questionTypeSelect = $('#QuestionType');
             var $optionsDiv = $('#optionsDiv');

@@ -146,4 +146,9 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script>
+        $(document).ready(function () {
+            CedevaChoices.initAll('.form-select');
+        });
+    </script>
 }

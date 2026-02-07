@@ -10,6 +10,10 @@
 
 /* === BOOTSTRAP CSS VARIABLES OVERRIDE === */
 :root {
+    /* Override Bootstrap's default blue with Cedeva blue */
+    --bs-blue: #007faf;
+    --bs-blue-rgb: 0, 127, 175;
+
     /* Primary - Cedeva Blue */
     --bs-primary: #007faf;
     --bs-primary-rgb: 0, 127, 175;
@@ -71,9 +75,11 @@
 }
 
 .btn-primary:hover,
-.btn-primary:focus {
-    background-color: #005778;
-    border-color: #005778;
+.btn-primary:focus,
+.btn-primary:active,
+.btn-primary:active:focus {
+    background-color: #005778 !important;
+    border-color: #005778 !important;
 }
 
 .btn-outline-primary {
@@ -81,9 +87,11 @@
     border-color: #007faf;
 }
 
-.btn-outline-primary:hover {
-    background-color: #007faf;
-    border-color: #007faf;
+.btn-outline-primary:hover,
+.btn-outline-primary:active,
+.btn-outline-primary:active:focus {
+    background-color: #007faf !important;
+    border-color: #007faf !important;
 }
 
 /* Buttons - Success */
@@ -93,9 +101,11 @@
 }
 
 .btn-success:hover,
-.btn-success:focus {
-    background-color: #218838;
-    border-color: #218838;
+.btn-success:focus,
+.btn-success:active,
+.btn-success:active:focus {
+    background-color: #218838 !important;
+    border-color: #218838 !important;
 }
 
 .btn-outline-success {
@@ -103,9 +113,11 @@
     border-color: #28a745;
 }
 
-.btn-outline-success:hover {
-    background-color: #28a745;
-    border-color: #28a745;
+.btn-outline-success:hover,
+.btn-outline-success:active,
+.btn-outline-success:active:focus {
+    background-color: #28a745 !important;
+    border-color: #28a745 !important;
 }
 
 /* Buttons - Danger */
@@ -115,9 +127,11 @@
 }
 
 .btn-danger:hover,
-.btn-danger:focus {
-    background-color: #c82333;
-    border-color: #c82333;
+.btn-danger:focus,
+.btn-danger:active,
+.btn-danger:active:focus {
+    background-color: #c82333 !important;
+    border-color: #c82333 !important;
 }
 
 .btn-outline-danger {
@@ -125,9 +139,11 @@
     border-color: #dc3545;
 }
 
-.btn-outline-danger:hover {
-    background-color: #dc3545;
-    border-color: #dc3545;
+.btn-outline-danger:hover,
+.btn-outline-danger:active,
+.btn-outline-danger:active:focus {
+    background-color: #dc3545 !important;
+    border-color: #dc3545 !important;
 }
 
 /* Buttons - Warning */
@@ -138,9 +154,11 @@
 }
 
 .btn-warning:hover,
-.btn-warning:focus {
-    background-color: #e68900;
-    border-color: #d87f00;
+.btn-warning:focus,
+.btn-warning:active,
+.btn-warning:active:focus {
+    background-color: #e68900 !important;
+    border-color: #d87f00 !important;
 }
 
 /* Buttons - Info */
@@ -150,9 +168,31 @@
 }
 
 .btn-info:hover,
-.btn-info:focus {
-    background-color: #005778;
-    border-color: #005778;
+.btn-info:focus,
+.btn-info:active,
+.btn-info:active:focus {
+    background-color: #005778 !important;
+    border-color: #005778 !important;
+}
+
+.btn-outline-info {
+    color: #007faf;
+    border-color: #007faf;
+}
+
+.btn-outline-info:hover,
+.btn-outline-info:focus {
+    background-color: #007faf;
+    border-color: #007faf;
+    color: #fff;
+}
+
+.btn-outline-info:active,
+.btn-outline-info:active:focus,
+.btn-outline-info.active {
+    background-color: #005778 !important;
+    border-color: #005778 !important;
+    color: #fff !important;
 }
 
 /* Colors - Primary */
@@ -256,6 +296,15 @@ a:hover {
     box-shadow: 0 0 0 0.25rem rgba(0, 127, 175, 0.25);
 }
 
+.form-select {
+    accent-color: #007faf;
+}
+
+.form-check-input {
+    border: 2px solid #6c757d;
+    background-color: #fff;
+}
+
 .form-check-input:checked {
     background-color: #007faf;
     border-color: #007faf;
@@ -270,6 +319,12 @@ a:hover {
 .dropdown-item.active,
 .dropdown-item:active {
     background-color: #007faf;
+    color: #fff;
+}
+
+.dropdown-item.active:hover {
+    background-color: #007faf !important;
+    color: #fff !important;
 }
 
 /* Pagination */
@@ -598,6 +653,11 @@ h2.cedeva-title {
     color: #fff !important;
 }
 
+.nav-pills .dropdown-menu .dropdown-item.active:hover {
+    background-color: #007faf !important;
+    color: #fff !important;
+}
+
 /* === ICONS === */
 .fa-white-head {
     color: white;
@@ -682,4 +742,105 @@ main.flex-shrink-0 {
 
 .hover-shadow:hover {
     box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+}
+
+/* === CHOICES.JS CUSTOMIZATION === */
+.choices {
+    margin-bottom: 0;
+}
+
+.choices__inner {
+    background-color: #fff;
+    border: 1px solid #dee2e6;
+    border-radius: 0.375rem;
+    min-height: 38px;
+    padding: 0.375rem 0.75rem;
+    font-size: 1rem;
+}
+
+.choices__inner:focus,
+.choices.is-focused .choices__inner {
+    border-color: #007faf;
+    box-shadow: 0 0 0 0.25rem rgba(0, 127, 175, 0.25);
+}
+
+.choices.is-open {
+    z-index: 1060;
+}
+
+.choices__list--dropdown {
+    border: 1px solid #dee2e6;
+    border-radius: 0.375rem;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    z-index: 1070;
+    min-width: 100% !important;
+    width: max-content !important;
+    max-width: 500px !important;
+}
+
+.choices__list--dropdown .choices__item {
+    padding: 0.5rem 0.75rem;
+    font-size: 1rem;
+    color: #212529;
+}
+
+.choices__list--dropdown .choices__item--selectable.is-highlighted {
+    background-color: #005778 !important;
+    color: #fff !important;
+}
+
+.choices__list--dropdown .choices__item--selectable {
+    padding-right: 0.75rem;
+}
+
+.choices__list--dropdown .choices__item--selectable:hover {
+    background-color: #007faf !important;
+    color: #fff !important;
+}
+
+.choices__list--dropdown .choices__item--selectable.is-highlighted:hover {
+    background-color: #005778 !important;
+    color: #fff !important;
+}
+
+.choices[data-type*="select-one"] .choices__inner {
+    padding-bottom: 0.375rem;
+}
+
+.choices[data-type*="select-one"]::after {
+    border-color: #6c757d transparent transparent transparent;
+    margin-top: -2.5px;
+    right: 11.5px;
+    top: 50%;
+}
+
+.choices.is-open[data-type*="select-one"]::after {
+    margin-top: -7.5px;
+}
+
+.choices__list--dropdown .choices__item--disabled {
+    color: #6c757d;
+    background-color: transparent;
+}
+
+/* Override Choices.js default gray backgrounds */
+.choices__list--dropdown .choices__item--selectable.is-selected {
+    background-color: #007faf !important;
+    color: #fff !important;
+}
+
+.choices__list--dropdown .choices__item.is-selected {
+    background-color: #007faf !important;
+    color: #fff !important;
+}
+
+/* Style for selected item displayed in closed dropdown */
+.choices__list--single .choices__item {
+    color: #212529 !important;
+}
+
+/* Override placeholder color */
+.choices__placeholder {
+    color: #6c757d !important;
+    opacity: 1 !important;
 }

@@ -1,3 +1,4 @@
+using Cedeva.Core.DTOs.Excursions;
 using Cedeva.Core.Entities;
 using Cedeva.Core.Enums;
 
@@ -27,33 +28,4 @@ public interface IExcursionViewModelBuilderService
     /// <param name="excursionId">The excursion ID</param>
     /// <returns>Dictionary with ActivityGroup keys and lists of child attendance info</returns>
     Task<Dictionary<ActivityGroup, List<ExcursionAttendanceInfo>>> BuildAttendanceByGroupAsync(int excursionId);
-}
-
-/// <summary>
-/// Information about a child for excursion registration management.
-/// </summary>
-public class ExcursionChildInfo
-{
-    public int BookingId { get; set; }
-    public int ChildId { get; set; }
-    public string FirstName { get; set; } = string.Empty;
-    public string LastName { get; set; } = string.Empty;
-    public DateTime BirthDate { get; set; }
-    public bool IsRegistered { get; set; }
-    public int? RegistrationId { get; set; }
-    public decimal ExcursionCost { get; set; }
-    public string PaymentStatus { get; set; } = string.Empty;
-}
-
-/// <summary>
-/// Information about a child for excursion attendance tracking.
-/// </summary>
-public class ExcursionAttendanceInfo
-{
-    public int RegistrationId { get; set; }
-    public int BookingId { get; set; }
-    public string FirstName { get; set; } = string.Empty;
-    public string LastName { get; set; } = string.Empty;
-    public DateTime BirthDate { get; set; }
-    public bool IsPresent { get; set; }
 }

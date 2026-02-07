@@ -1,3 +1,5 @@
+using Cedeva.Core.DTOs.Banking;
+
 namespace Cedeva.Core.Interfaces;
 
 /// <summary>
@@ -42,58 +44,4 @@ public interface IBankReconciliationService
     /// <param name="organisationId">ID de l'organisation</param>
     /// <returns>Liste des suggestions de rapprochement avec score de confiance</returns>
     Task<List<ReconciliationSuggestionDto>> GetReconciliationSuggestionsAsync(int organisationId);
-}
-
-/// <summary>
-/// DTO pour une transaction bancaire non rapprochée
-/// </summary>
-public class UnreconciledTransactionDto
-{
-    public int Id { get; set; }
-    public DateTime TransactionDate { get; set; }
-    public decimal Amount { get; set; }
-    public string? StructuredCommunication { get; set; }
-    public string? FreeCommunication { get; set; }
-    public string? CounterpartyName { get; set; }
-    public string? CounterpartyAccount { get; set; }
-    public string AccountNumber { get; set; } = string.Empty;
-}
-
-/// <summary>
-/// DTO pour une réservation non ou partiellement payée
-/// </summary>
-public class UnpaidBookingDto
-{
-    public int Id { get; set; }
-    public string? StructuredCommunication { get; set; }
-    public decimal TotalAmount { get; set; }
-    public decimal PaidAmount { get; set; }
-    public decimal RemainingAmount => TotalAmount - PaidAmount;
-    public string ChildName { get; set; } = string.Empty;
-    public string ParentName { get; set; } = string.Empty;
-    public string ActivityName { get; set; } = string.Empty;
-    public DateTime ActivityStartDate { get; set; }
-}
-
-/// <summary>
-/// DTO pour une suggestion de rapprochement semi-automatique
-/// </summary>
-public class ReconciliationSuggestionDto
-{
-    public int TransactionId { get; set; }
-    public int BookingId { get; set; }
-    public DateTime TransactionDate { get; set; }
-    public decimal TransactionAmount { get; set; }
-    public string? CounterpartyName { get; set; }
-    public string? TransactionCommunication { get; set; } // Communication reçue (structured or free)
-    public string? ExpectedCommunication { get; set; } // Communication structurée prévue
-    public string ChildFirstName { get; set; } = string.Empty;
-    public string ChildLastName { get; set; } = string.Empty;
-    public string ChildName { get; set; } = string.Empty;
-    public string ParentName { get; set; } = string.Empty;
-    public string ActivityName { get; set; } = string.Empty;
-    public DateTime BookingDate { get; set; }
-    public decimal BookingRemainingAmount { get; set; }
-    public int ConfidenceScore { get; set; } // 0-100
-    public List<string> MatchReasons { get; set; } = new();
 }

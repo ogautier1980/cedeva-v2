@@ -98,6 +98,10 @@
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
     <script>
+        $(document).ready(function() {
+            CedevaChoices.initAll('.form-select');
+        });
+
         function updateExpenseTypeVisibility() {
             const value = document.getElementById('assignedToSelect').value;
             const expenseTypeDiv = document.getElementById('expenseTypeDiv');

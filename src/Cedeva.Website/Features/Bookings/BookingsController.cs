@@ -250,6 +250,9 @@ public class BookingsController : Controller
             IsMedicalSheet = false
         };
 
+        // Pass organisation ID for inline parent creation
+        ViewBag.CurrentOrganisationId = _currentUserService.OrganisationId ?? 0;
+
         return View(viewModel);
     }
 
@@ -684,6 +687,19 @@ public class BookingsController : Controller
             })
             .ToList();
         ViewBag.Children = new SelectList(childList, "Id", "FullName", selectedChildId);
+
+        // Parents dropdown (for inline child creation)
+        var parents = await _context.Parents.ToListAsync();
+        var parentList = parents
+            .OrderBy(p => p.LastName)
+            .ThenBy(p => p.FirstName)
+            .Select(p => new
+            {
+                Id = p.Id,
+                FullName = $"{p.FirstName} {p.LastName}"
+            })
+            .ToList();
+        ViewBag.Parents = new SelectList(parentList, "Id", "FullName");
 
         // Activities dropdown
         var activities = await _context.Activities.ToListAsync();

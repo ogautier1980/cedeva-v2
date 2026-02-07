@@ -32,7 +32,7 @@ public class ParentInformationViewModel
     public string MobilePhoneNumber { get; set; } = string.Empty;
 
     [Required(ErrorMessage = "Validation.Required")]
-    [RegularExpression(@"^\d{2}\.\d{2}\.\d{2}-\d{3}\.\d{2}$")]
+    [RegularExpression(@"^\d{2}\.\d{2}\.\d{2}-\d{3}\.\d{2}$", ErrorMessage = "Validation.NRNFormat")]
     [StringLength(15, ErrorMessage = "Validation.StringLength")]
     [Display(Name = "Field.NationalRegisterNumber")]
     public string NationalRegisterNumber { get; set; } = string.Empty;

@@ -247,6 +247,9 @@
   <data name="Activities.GeneralInformation" xml:space="preserve">
     <value>[NL] Informations générales</value>
   </data>
+  <data name="Activities.Group" xml:space="preserve">
+    <value>[NL] Groupe</value>
+  </data>
   <data name="Activities.Groups" xml:space="preserve">
     <value>[NL] Groupes</value>
   </data>
@@ -612,6 +615,51 @@
   </data>
   <data name="ActivityQuestions.Yes" xml:space="preserve">
     <value>[NL] Oui</value>
+  </data>
+  <data name="ActivityQuestions.Import.Button" xml:space="preserve">
+    <value>[NL] Importer depuis une activité</value>
+  </data>
+  <data name="ActivityQuestions.Import.Title" xml:space="preserve">
+    <value>[NL] Importer des questions</value>
+  </data>
+  <data name="ActivityQuestions.Import.SelectActivity" xml:space="preserve">
+    <value>[NL] Sélectionnez une activité pour importer ses questions.</value>
+  </data>
+  <data name="ActivityQuestions.Import.SourceActivity" xml:space="preserve">
+    <value>[NL] Activité source</value>
+  </data>
+  <data name="ActivityQuestions.Import.SelectActivityPlaceholder" xml:space="preserve">
+    <value>[NL] -- Sélectionnez une activité --</value>
+  </data>
+  <data name="ActivityQuestions.Import.SelectQuestions" xml:space="preserve">
+    <value>[NL] Sélectionnez les questions à importer.</value>
+  </data>
+  <data name="ActivityQuestions.Import.SelectAll" xml:space="preserve">
+    <value>[NL] Tout sélectionner</value>
+  </data>
+  <data name="ActivityQuestions.Import.DeselectAll" xml:space="preserve">
+    <value>[NL] Tout désélectionner</value>
+  </data>
+  <data name="ActivityQuestions.Import.Confirm" xml:space="preserve">
+    <value>[NL] Importer les questions</value>
+  </data>
+  <data name="ActivityQuestions.Import.Importing" xml:space="preserve">
+    <value>[NL] Import en cours...</value>
+  </data>
+  <data name="ActivityQuestions.Import.NoQuestionsSelected" xml:space="preserve">
+    <value>[NL] Veuillez sélectionner au moins une question à importer.</value>
+  </data>
+  <data name="ActivityQuestions.Import.Success" xml:space="preserve">
+    <value>[NL] {0} question(s) importée(s) avec succès.</value>
+  </data>
+  <data name="ActivityQuestions.Import.NoActivitiesWithQuestions" xml:space="preserve">
+    <value>[NL] Aucune autre activité avec des questions trouvée.</value>
+  </data>
+  <data name="ActivityQuestions.Import.NoActiveQuestions" xml:space="preserve">
+    <value>[NL] Cette activité n'a aucune question active.</value>
+  </data>
+  <data name="ActivityQuestions.Import.Questions" xml:space="preserve">
+    <value>[NL] questions</value>
   </data>
   <data name="Add" xml:space="preserve">
     <value>Toevoegen</value>
@@ -1089,6 +1137,15 @@
   </data>
   <data name="Email.RecipientExcursion" xml:space="preserve">
     <value>Excursie</value>
+  </data>
+  <data name="Email.GeneralRecipients" xml:space="preserve">
+    <value>Algemene ontvangers</value>
+  </data>
+  <data name="Email.GroupRecipients" xml:space="preserve">
+    <value>Groepen</value>
+  </data>
+  <data name="Email.ExcursionRecipients" xml:space="preserve">
+    <value>Excursies</value>
   </data>
   <data name="Email.RecipientType" xml:space="preserve">
     <value>Type ontvanger</value>
@@ -3243,6 +3300,9 @@
   </data>
   <data name="Validation.NRNFormat" xml:space="preserve">
     <value>[NL] Format du numéro de registre national invalide</value>
+  </data>
+  <data name="Validation.TimeFormat" xml:space="preserve">
+    <value>[NL] Format invalide (HH:mm)</value>
   </data>
   <data name="Validation.OrganisationRequired" xml:space="preserve">
     <value>[NL] L'organisation est requise</value>

@@ -1,3 +1,4 @@
+using Cedeva.Core.DTOs.Banking;
 using Cedeva.Core.Interfaces;
 
 namespace Cedeva.Website.Features.Financial.ViewModels;

@@ -36,12 +36,3 @@ public class ActivityQuestionViewModel
     [Display(Name = "Field.Status")]
     public bool IsActive { get; set; }
 }
-
-/// <summary>
-/// DTO for AJAX reordering of questions
-/// </summary>
-public class QuestionOrderDto
-{
-    public int Id { get; set; }
-    public int DisplayOrder { get; set; }
-}

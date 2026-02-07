@@ -329,6 +329,9 @@
 
     <script>
         $(document).ready(function() {
+            // Initialize Choices.js on all selects
+            CedevaChoices.initAll('.form-select');
+
             // Override jQuery Validation to accept comma as decimal separator (French format)
             if ($.validator) {
                 // Override number validation to accept comma

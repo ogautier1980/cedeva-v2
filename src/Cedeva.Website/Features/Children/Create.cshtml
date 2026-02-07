@@ -189,6 +189,9 @@
 
     <script>
         $(function () {
+            // Initialize Choices.js on parent select with search
+            var parentChoices = CedevaChoices.initWithSearch('#ParentId');
+
             // Initialize address autocomplete for parent form
             initializeUnifiedAddressAutocomplete("#Parent_CombinedAddress", "#Parent_PostalCode", "#Parent_City");
 
@@ -219,14 +222,14 @@
                     data: formData,
                     success: function (response) {
                         if (response.success) {
-                            // Add new parent to dropdown
-                            $('#ParentId').append(
-                                $('<option>', {
+                            // Add new parent to Choices.js dropdown
+                            parentChoices.setChoices([
+                                {
                                     value: response.parentId,
-                                    text: response.parentName,
+                                    label: response.parentName,
                                     selected: true
-                                })
-                            );
+                                }
+                            ], 'value', 'label', false);
 
                             // Hide and reset form
                             $('#parentFormContainer').slideUp(300);

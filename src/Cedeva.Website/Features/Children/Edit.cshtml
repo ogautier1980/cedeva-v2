@@ -100,4 +100,10 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script>
+        $(document).ready(function () {
+            // Initialize Choices.js on parent select with search
+            CedevaChoices.initWithSearch('#ParentId');
+        });
+    </script>
 }

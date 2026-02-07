@@ -92,6 +92,10 @@
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
     <script>
+        $(document).ready(function() {
+            CedevaChoices.initAll('.form-select');
+        });
+
         document.getElementById('assignedToSelect').addEventListener('change', function() {
             const value = this.value;
             const expenseTypeDiv = document.getElementById('expenseTypeDiv');

@@ -111,6 +111,10 @@
     <script src="https://cdn.jsdelivr.net/npm/summernote@0.9.0/dist/summernote-bs5.min.js"></script>
 
     <script>
+        $(document).ready(function() {
+            CedevaChoices.initAll('.form-select');
+        });
+
         const availableVariables = @Html.Raw(Json.Serialize(availableVariables.Keys.ToList()));
 
         $(document).ready(function() {

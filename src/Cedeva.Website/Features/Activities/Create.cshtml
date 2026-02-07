@@ -164,6 +164,22 @@
 
     <script>
         $(document).ready(function() {
+            // Initialize Choices.js on organisation select (if it exists - only for Admin)
+            // Use setTimeout to ensure DOM is fully ready and avoid initialization errors
+            setTimeout(function() {
+                try {
+                    const orgSelect = document.getElementById('OrganisationId');
+                    if (orgSelect && typeof CedevaChoices !== 'undefined') {
+                        // Verify the select has options before initializing
+                        if (orgSelect.options && orgSelect.options.length > 0) {
+                            CedevaChoices.init('#OrganisationId');
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error initializing Choices.js on OrganisationId:', error);
+                }
+            }, 100);
+
             // Override jQuery Validation to accept comma as decimal separator (French format)
             if ($.validator) {
                 // Override number validation to accept comma
@@ -289,7 +305,20 @@
                         </div>
                     </div>`;
 
-                $('#questionsList').append(questionHtml);
+                // Create jQuery object from HTML
+                const $newQuestion = $(questionHtml);
+                $('#questionsList').append($newQuestion);
+
+                // Initialize Choices.js on the select element within the newly added HTML
+                try {
+                    const selectElement = $newQuestion.find('.question-type-select')[0];
+                    if (selectElement && typeof CedevaChoices !== 'undefined') {
+                        CedevaChoices.init(selectElement);
+                    }
+                } catch (error) {
+                    console.error('Error initializing Choices.js on new question select:', error);
+                }
+
                 questionIndex++;
             });
 

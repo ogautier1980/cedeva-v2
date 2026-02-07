@@ -271,13 +271,15 @@ public class ActivityManagementController : Controller
 
     private List<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem> BuildDayDropdownOptions(Activity activity, int? selectedDayId)
     {
+        var culture = System.Globalization.CultureInfo.CurrentCulture;
+
         return activity.Days
             .Where(d => d.IsActive)
             .OrderBy(d => d.DayDate)
             .Select(d => new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem
             {
                 Value = d.DayId.ToString(),
-                Text = $"{d.Label} - {d.DayDate:dd/MM/yyyy}",
+                Text = $"{char.ToUpper(d.DayDate.ToString("dddd", culture)[0])}{d.DayDate.ToString("dddd", culture).Substring(1)} {d.DayDate:dd-MM}",
                 Selected = d.DayId == selectedDayId
             })
             .ToList();
@@ -764,33 +766,31 @@ public class ActivityManagementController : Controller
         return RedirectToAction(nameof(TeamMembers));
     }
 
-    private List<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem> GetRecipientOptions(
+    private List<SelectListItem> GetRecipientOptions(
         IEnumerable<Core.Entities.ActivityGroup> groups,
         IEnumerable<Core.Entities.Excursion> excursions)
     {
-        var options = new List<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem>
+        var generalGroup = new SelectListGroup { Name = _localizer["Email.GeneralRecipients"] };
+
+        var options = new List<SelectListItem>
         {
-            new() { Value = RecipientAllParents, Text = _localizer["Email.RecipientAllParents"] },
-            new() { Value = RecipientMedicalSheetReminder, Text = _localizer["Email.RecipientMedicalSheetReminder"] },
-            new() { Value = RecipientUnpaidParents, Text = _localizer["Email.RecipientUnpaidParents"] }
+            new() { Value = RecipientAllParents, Text = _localizer["Email.RecipientAllParents"], Group = generalGroup },
+            new() { Value = RecipientMedicalSheetReminder, Text = _localizer["Email.RecipientMedicalSheetReminder"], Group = generalGroup },
+            new() { Value = RecipientUnpaidParents, Text = _localizer["Email.RecipientUnpaidParents"], Group = generalGroup }
         };
 
         // Add groups section
         if (groups.Any())
         {
-            options.Add(new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem
-            {
-                Value = "",
-                Text = "──────────────────────────",
-                Disabled = true
-            });
+            var groupsListGroup = new SelectListGroup { Name = _localizer["Email.GroupRecipients"] };
 
             foreach (var group in groups)
             {
-                options.Add(new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem
+                options.Add(new SelectListItem
                 {
                     Value = $"{RecipientGroupPrefix}{group.Id}",
-                    Text = $"{_localizer["Email.RecipientGroup"]}: {group.Label}"
+                    Text = group.Label,
+                    Group = groupsListGroup
                 });
             }
         }
@@ -799,19 +799,15 @@ public class ActivityManagementController : Controller
         var activeExcursions = excursions.Where(e => e.IsActive).ToList();
         if (activeExcursions.Any())
         {
-            options.Add(new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem
-            {
-                Value = "",
-                Text = "──────────────────────────",
-                Disabled = true
-            });
+            var excursionsListGroup = new SelectListGroup { Name = _localizer["Email.ExcursionRecipients"] };
 
             foreach (var excursion in activeExcursions)
             {
-                options.Add(new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem
+                options.Add(new SelectListItem
                 {
                     Value = $"{RecipientExcursionPrefix}{excursion.Id}",
-                    Text = $"{_localizer["Email.RecipientExcursion"]}: {excursion.Name}"
+                    Text = excursion.Name,
+                    Group = excursionsListGroup
                 });
             }
         }

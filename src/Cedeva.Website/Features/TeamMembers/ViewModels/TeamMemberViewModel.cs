@@ -33,7 +33,7 @@ public class TeamMemberViewModel : AuditableViewModel
 
     [Required(ErrorMessage = "Validation.Required")]
     [StringLength(15, MinimumLength = 11, ErrorMessage = "Validation.StringLength")]
-    [RegularExpression(@"^(\d{2})[.\- ]?(0[1-9]|1[0-2])[.\- ]?(0[1-9]|[12]\d|3[01])[.\- ]?(\d{3})[.\- ]?(\d{2})$")]
+    [RegularExpression(@"^(\d{2})[.\- ]?(0[1-9]|1[0-2])[.\- ]?(0[1-9]|[12]\d|3[01])[.\- ]?(\d{3})[.\- ]?(\d{2})$", ErrorMessage = "Validation.NRNFormat")]
     [Display(Name = "Field.NationalRegisterNumber")]
     public string NationalRegisterNumber { get; set; } = string.Empty;
 

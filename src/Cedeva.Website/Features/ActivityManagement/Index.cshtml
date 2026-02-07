@@ -194,11 +194,11 @@
     <!-- Actions -->
     <div class="row">
         <div class="col-12">
-            <div class="d-flex justify-content-center gap-3 mb-5 pb-3">
-                <a class="btn btn-lg btn-primary px-4" asp-controller="Activities" asp-action="Details" asp-route-id="@Model.Activity.Id">
+            <div class="d-flex justify-content-center gap-2 mb-5 pb-3">
+                <a class="btn btn-primary" asp-controller="Activities" asp-action="Details" asp-route-id="@Model.Activity.Id">
                     <i class="fa-solid fa-gear me-2"></i>@Localizer["ActivityManagement.Settings"]
                 </a>
-                <a class="btn btn-lg btn-outline-danger px-4" asp-controller="Home" asp-action="Index">
+                <a class="btn btn-outline-danger" asp-controller="Home" asp-action="Index">
                     <i class="fa-solid fa-arrow-right-from-bracket me-2"></i>@Localizer["ActivityManagement.Exit"]
                 </a>
             </div>

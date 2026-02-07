@@ -107,6 +107,10 @@
 
 @section Scripts {
     <script>
+        $(document).ready(function() {
+            CedevaChoices.initAll('.form-select');
+        });
+
         const activityId = @activityId;
         const baseUrl = '@(Context.Request.Scheme)://@(Context.Request.Host)';
 

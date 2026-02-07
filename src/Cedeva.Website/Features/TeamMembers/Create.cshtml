@@ -163,6 +163,12 @@
 
     <script>
         $(function () {
+            // Initialize Choices.js on all selects
+            CedevaChoices.init('#TeamRole');
+            CedevaChoices.init('#License');
+            CedevaChoices.init('#Status');
+            CedevaChoices.init('#OrganisationId');
+
             initializeUnifiedAddressAutocomplete("#CombinedAddress", "#PostalCode", "#City");
 
             // Handle file selection preview

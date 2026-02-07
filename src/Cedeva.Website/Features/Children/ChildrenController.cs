@@ -29,6 +29,7 @@ public class ChildrenController : Controller
     private readonly IUserDisplayService _userDisplayService;
     private readonly ICurrentUserService _currentUserService;
     private readonly ISessionStateService _sessionState;
+    private readonly ILogger<ChildrenController> _logger;
 
     public ChildrenController(
         IRepository<Child> childRepository,
@@ -40,7 +41,8 @@ public class ChildrenController : Controller
         IStringLocalizer<SharedResources> localizer,
         IUserDisplayService userDisplayService,
         ICurrentUserService currentUserService,
-        ISessionStateService sessionState)
+        ISessionStateService sessionState,
+        ILogger<ChildrenController> logger)
     {
         _childRepository = childRepository;
         _parentRepository = parentRepository;
@@ -52,6 +54,7 @@ public class ChildrenController : Controller
         _userDisplayService = userDisplayService;
         _currentUserService = currentUserService;
         _sessionState = sessionState;
+        _logger = logger;
     }
 
     // GET: Children
@@ -312,6 +315,48 @@ public class ChildrenController : Controller
 
         await PopulateParentDropdown(viewModel.ParentId);
         return View(viewModel);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> CreateAjax([FromForm] ChildViewModel viewModel)
+    {
+        if (!ModelState.IsValid)
+        {
+            var errors = ModelState
+                .Where(x => x.Value?.Errors.Count > 0)
+                .ToDictionary(
+                    kvp => kvp.Key,
+                    kvp => kvp.Value?.Errors.Select(e => e.ErrorMessage).ToArray() ?? Array.Empty<string>()
+                );
+            return Json(new { success = false, errors });
+        }
+
+        var child = new Child
+        {
+            FirstName = viewModel.FirstName,
+            LastName = viewModel.LastName,
+            NationalRegisterNumber = NationalRegisterNumberHelper.StripFormatting(viewModel.NationalRegisterNumber),
+            BirthDate = viewModel.BirthDate,
+            IsDisadvantagedEnvironment = viewModel.IsDisadvantagedEnvironment,
+            IsMildDisability = viewModel.IsMildDisability,
+            IsSevereDisability = viewModel.IsSevereDisability,
+            ParentId = viewModel.ParentId,
+            ActivityGroupId = viewModel.ActivityGroupId
+        };
+
+        await _childRepository.AddAsync(child);
+        await _unitOfWork.SaveChangesAsync();
+
+        _logger.LogInformation("Child {Name} created via AJAX by user {UserId}", child.FullName, _currentUserService.UserId);
+
+        return Json(new
+        {
+            success = true,
+            childId = child.Id,
+            childName = child.FullName,
+            message = _localizer["Message.ChildCreated"].Value
+        });
     }
 
     // GET: Children/Edit/5

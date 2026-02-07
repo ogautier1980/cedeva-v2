@@ -23,11 +23,11 @@ public class CreateExcursionViewModel
     public DateTime ExcursionDate { get; set; } = DateTime.Today;
 
     [Display(Name = "Field.StartTime")]
-    [RegularExpression(@"^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$", ErrorMessage = "Format invalide (HH:mm)")]
+    [RegularExpression(@"^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$", ErrorMessage = "Validation.TimeFormat")]
     public string? StartTime { get; set; }
 
     [Display(Name = "Field.EndTime")]
-    [RegularExpression(@"^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$", ErrorMessage = "Format invalide (HH:mm)")]
+    [RegularExpression(@"^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$", ErrorMessage = "Validation.TimeFormat")]
     public string? EndTime { get; set; }
 
     [Required(ErrorMessage = "Validation.Required")]

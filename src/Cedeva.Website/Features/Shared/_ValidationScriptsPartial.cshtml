@@ -1,2 +1,10 @@
+@using System.Globalization
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.20.0/jquery.validate.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/4.0.0/jquery.validate.unobtrusive.min.js"></script>
+@{
+    var culture = CultureInfo.CurrentCulture.TwoLetterISOLanguageName;
+    if (culture == "fr" || culture == "nl")
+    {
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.20.0/localization/messages_@(culture).min.js"></script>
+    }
+}

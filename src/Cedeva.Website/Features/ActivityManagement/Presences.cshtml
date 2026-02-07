@@ -17,7 +17,7 @@
                 <input type="hidden" name="id" value="@Model.Activity.Id" />
                 <div class="col-md-6">
                     <label for="dayId" class="form-label fw-bold">@Localizer["ActivityManagement.SelectDay"]</label>
-                    <select name="dayId" id="dayId" class="form-select" onchange="this.form.submit()">
+                    <select name="dayId" id="dayId" class="form-select">
                         @if (!Model.ActivityDayOptions.Any())
                         {
                             <option value="">@Localizer["ActivityManagement.NoActiveDay"]</option>
@@ -128,6 +128,22 @@
     @Html.AntiForgeryToken()
     <script>
         $(document).ready(function () {
+            // Initialize Choices.js on the day selector
+            const daySelector = document.getElementById('dayId');
+            if (daySelector) {
+                const choices = new Choices(daySelector, {
+                    searchEnabled: false,
+                    itemSelectText: '',
+                    shouldSort: false,
+                    callbackOnInit: function() {
+                        // Auto-submit form on change
+                        daySelector.addEventListener('change', function() {
+                            this.form.submit();
+                        });
+                    }
+                });
+            }
+
             $('.presence-checkbox').on('change', function () {
                 var checkbox = $(this);
                 var bookingDayId = checkbox.data('bookingday-id');

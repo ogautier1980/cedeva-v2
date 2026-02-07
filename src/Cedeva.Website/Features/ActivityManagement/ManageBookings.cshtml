@@ -79,7 +79,7 @@ else
                                 <td>@item.LastName</td>
                                 <td>@item.Age</td>
                                 <td>
-                                    <select class="form-select form-select-sm"
+                                    <select class="form-select form-select-sm group-selector"
                                             data-booking-id="@item.BookingId"
                                             onchange="updateGroup(this)"
                                             style="max-width: 200px;">
@@ -141,6 +141,11 @@ else
 
 @section Scripts {
     <script>
+        $(document).ready(function () {
+            // Initialize Choices.js on all group selectors
+            CedevaChoices.initAll('.group-selector');
+        });
+
         // Sorting state
         let currentSort = { column: null, direction: 'asc' };
 

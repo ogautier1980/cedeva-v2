@@ -1,3 +1,4 @@
+using Cedeva.Core.DTOs;
 using Cedeva.Core.Entities;
 using Cedeva.Core.Enums;
 using Cedeva.Core.Interfaces;
@@ -356,6 +357,124 @@ public class ActivityQuestionsController : Controller
 
             var statusKey = isActive ? "Message.QuestionActivated" : "Message.QuestionDeactivated";
             return Json(new { success = true, message = _localizer[statusKey].ToString() });
+        }
+        catch (Exception)
+        {
+            return Json(new { success = false, message = _localizer["Error.UnexpectedError"].ToString() });
+        }
+    }
+
+    // GET: ActivityQuestions/GetActivitiesWithQuestions?currentActivityId=5
+    [HttpGet]
+    public async Task<IActionResult> GetActivitiesWithQuestions(int? currentActivityId)
+    {
+        try
+        {
+            var query = _context.Activities
+                .Where(a => a.AdditionalQuestions.Any()) // Only activities with questions
+                .OrderBy(a => a.Name);
+
+            // Exclude current activity if specified
+            if (currentActivityId.HasValue)
+            {
+                query = (IOrderedQueryable<Activity>)query.Where(a => a.Id != currentActivityId.Value);
+            }
+
+            var activities = await query
+                .Select(a => new
+                {
+                    a.Id,
+                    a.Name,
+                    QuestionCount = a.AdditionalQuestions.Count
+                })
+                .ToListAsync();
+
+            return Json(new { success = true, activities });
+        }
+        catch (Exception)
+        {
+            return Json(new { success = false, message = _localizer["Error.UnexpectedError"].ToString() });
+        }
+    }
+
+    // GET: ActivityQuestions/GetQuestionsForActivity?activityId=5
+    [HttpGet]
+    public async Task<IActionResult> GetQuestionsForActivity(int activityId)
+    {
+        try
+        {
+            var questions = await _context.ActivityQuestions
+                .Where(q => q.ActivityId == activityId && q.IsActive)
+                .OrderBy(q => q.DisplayOrder)
+                .Select(q => new
+                {
+                    q.Id,
+                    q.QuestionText,
+                    q.QuestionType,
+                    q.IsRequired,
+                    q.Options,
+                    q.DisplayOrder,
+                    QuestionTypeLabel = _localizer[$"Enum.QuestionType.{q.QuestionType}"].Value
+                })
+                .ToListAsync();
+
+            return Json(new { success = true, questions });
+        }
+        catch (Exception)
+        {
+            return Json(new { success = false, message = _localizer["Error.UnexpectedError"].ToString() });
+        }
+    }
+
+    // POST: ActivityQuestions/ImportQuestions
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> ImportQuestions([FromBody] ImportQuestionsRequest request)
+    {
+        try
+        {
+            if (request == null || !request.QuestionIds.Any())
+                return Json(new { success = false, message = _localizer["ActivityQuestions.Import.NoQuestionsSelected"].ToString() });
+
+            var targetActivityId = _sessionState.Get<int>("ActivityId");
+            if (!targetActivityId.HasValue)
+                return Json(new { success = false, message = _localizer["Error.InvalidData"].ToString() });
+
+            // Get source questions
+            var sourceQuestions = await _context.ActivityQuestions
+                .Where(q => request.QuestionIds.Contains(q.Id))
+                .ToListAsync();
+
+            if (!sourceQuestions.Any())
+                return Json(new { success = false, message = _localizer["Error.NotFound"].ToString() });
+
+            // Get max DisplayOrder for target activity
+            var maxOrder = await _context.ActivityQuestions
+                .Where(q => q.ActivityId == targetActivityId.Value)
+                .MaxAsync(q => (int?)q.DisplayOrder) ?? 0;
+
+            // Create new questions for target activity
+            var newQuestions = new List<ActivityQuestion>();
+            foreach (var sourceQuestion in sourceQuestions.OrderBy(q => q.DisplayOrder))
+            {
+                var newQuestion = new ActivityQuestion
+                {
+                    QuestionText = sourceQuestion.QuestionText,
+                    QuestionType = sourceQuestion.QuestionType,
+                    IsRequired = sourceQuestion.IsRequired,
+                    Options = sourceQuestion.Options,
+                    ActivityId = targetActivityId.Value,
+                    DisplayOrder = ++maxOrder,
+                    IsActive = true
+                };
+                newQuestions.Add(newQuestion);
+            }
+
+            await _context.ActivityQuestions.AddRangeAsync(newQuestions);
+            await _unitOfWork.SaveChangesAsync();
+
+            var successMessage = _localizer["ActivityQuestions.Import.Success", newQuestions.Count].ToString();
+            return Json(new { success = true, message = successMessage });
         }
         catch (Exception)
         {

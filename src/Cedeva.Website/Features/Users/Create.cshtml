@@ -88,4 +88,9 @@
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        $(document).ready(function () {
+            CedevaChoices.initAll('.form-select');
+        });
+    </script>
 }

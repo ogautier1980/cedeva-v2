@@ -198,6 +198,11 @@
 
         // Initialize Summernote with custom Variables button
         $(document).ready(function() {
+            // Initialize Choices.js on select elements
+            CedevaChoices.init('#SelectedRecipient');
+            CedevaChoices.init('#SelectedDayId');
+            CedevaChoices.init('#templateSelect');
+
             // Custom button for inserting variables
             var VariablesButton = function (context) {
                 var ui = $.summernote.ui;

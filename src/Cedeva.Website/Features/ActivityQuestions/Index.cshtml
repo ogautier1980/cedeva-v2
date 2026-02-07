@@ -22,6 +22,9 @@
             </a>
             @if (activityId.HasValue)
             {
+                <button type="button" class="btn btn-outline-primary text-nowrap" data-bs-toggle="modal" data-bs-target="#importModal">
+                    <i class="fas fa-file-import me-2"></i>@Localizer["ActivityQuestions.Import.Button"]
+                </button>
                 <a asp-controller="Activities" asp-action="Details" asp-route-id="@activityId" class="btn btn-outline-secondary text-nowrap">
                     <i class="fas fa-arrow-left me-2"></i>@Localizer["Back"]
                 </a>
@@ -142,11 +145,69 @@
     </div>
 </div>
 
+<!-- Import Modal -->
+@if (activityId.HasValue)
+{
+    <div class="modal fade" id="importModal" tabindex="-1" aria-labelledby="importModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="importModalLabel">
+                        <i class="fas fa-file-import me-2"></i>@Localizer["ActivityQuestions.Import.Title"]
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="importStep1">
+                        <p class="text-muted">@Localizer["ActivityQuestions.Import.SelectActivity"]</p>
+                        <div class="mb-3">
+                            <label for="sourceActivitySelect" class="form-label">@Localizer["ActivityQuestions.Import.SourceActivity"]</label>
+                            <select id="sourceActivitySelect" class="form-select">
+                                <option value="">@Localizer["ActivityQuestions.Import.SelectActivityPlaceholder"]</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div id="importStep2" style="display: none;">
+                        <p class="text-muted">@Localizer["ActivityQuestions.Import.SelectQuestions"]</p>
+                        <div class="mb-3">
+                            <button type="button" class="btn btn-sm btn-outline-primary" id="selectAllBtn">
+                                <i class="fas fa-check-square me-1"></i>@Localizer["ActivityQuestions.Import.SelectAll"]
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-secondary" id="deselectAllBtn">
+                                <i class="fas fa-square me-1"></i>@Localizer["ActivityQuestions.Import.DeselectAll"]
+                            </button>
+                        </div>
+                        <div id="questionsList" class="list-group" style="max-height: 400px; overflow-y: auto;">
+                            <!-- Questions will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">@Localizer["Cancel"]</button>
+                    <button type="button" class="btn btn-primary" id="importBtn" style="display: none;">
+                        <i class="fas fa-check me-2"></i>@Localizer["ActivityQuestions.Import.Confirm"]
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
     <script>
         $(function () {
+            // Initialize Choices.js on all selects
+            CedevaChoices.initAll('.form-select');
+
             var isSingleActivity = @(isSingleActivity ? "true" : "false");
+
+            // Check for success message from import
+            var successMessage = sessionStorage.getItem('importSuccessMessage');
+            if (successMessage) {
+                toastr.success(successMessage);
+                sessionStorage.removeItem('importSuccessMessage');
+            }
 
             // Initialize SortableJS (only if single activity)
             if (isSingleActivity) {
@@ -228,6 +289,146 @@
                 }
             });
         }
+
+        // Import functionality
+        var currentActivityId = @(activityId ?? 0);
+
+        $('#importModal').on('show.bs.modal', function () {
+            // Load activities with questions
+            $.ajax({
+                url: '@Url.Action("GetActivitiesWithQuestions")',
+                type: 'GET',
+                data: { currentActivityId: currentActivityId },
+                success: function (response) {
+                    if (response.success && response.activities.length > 0) {
+                        var select = $('#sourceActivitySelect');
+                        select.empty();
+                        select.append('<option value="">@Localizer["ActivityQuestions.Import.SelectActivityPlaceholder"]</option>');
+                        response.activities.forEach(function (activity) {
+                            select.append(`<option value="${activity.id}">${activity.name} (${activity.questionCount} @Localizer["ActivityQuestions.Import.Questions"])</option>`);
+                        });
+                        // Re-initialize Choices.js on dynamically populated select
+                        CedevaChoices.init('#sourceActivitySelect');
+                    } else {
+                        toastr.warning('@Localizer["ActivityQuestions.Import.NoActivitiesWithQuestions"]');
+                    }
+                },
+                error: function () {
+                    toastr.error('@Localizer["Error.UnexpectedError"]');
+                }
+            });
+        });
+
+        $('#sourceActivitySelect').on('change', function () {
+            var selectedActivityId = $(this).val();
+            if (!selectedActivityId) {
+                $('#importStep2').hide();
+                $('#importBtn').hide();
+                return;
+            }
+
+            // Load questions for selected activity
+            $.ajax({
+                url: '@Url.Action("GetQuestionsForActivity")',
+                type: 'GET',
+                data: { activityId: selectedActivityId },
+                success: function (response) {
+                    if (response.success) {
+                        var questionsList = $('#questionsList');
+                        questionsList.empty();
+
+                        if (response.questions.length === 0) {
+                            questionsList.append('<div class="alert alert-info">@Localizer["ActivityQuestions.Import.NoActiveQuestions"]</div>');
+                            $('#importBtn').hide();
+                        } else {
+                            response.questions.forEach(function (question) {
+                                var requiredBadge = question.isRequired ? '<span class="badge bg-danger ms-2">@Localizer["ActivityQuestions.Required"]</span>' : '';
+                                var item = `
+                                    <label class="list-group-item d-flex align-items-start">
+                                        <input type="checkbox" class="form-check-input me-3 mt-1" value="${question.id}">
+                                        <div class="flex-grow-1">
+                                            <div class="fw-bold">${question.questionText}</div>
+                                            <small class="text-muted">
+                                                <span class="badge bg-primary">${question.questionTypeLabel}</span>
+                                                ${requiredBadge}
+                                                ${question.options ? '<br><i class="fas fa-list-ul me-1"></i>' + question.options : ''}
+                                            </small>
+                                        </div>
+                                    </label>
+                                `;
+                                questionsList.append(item);
+                            });
+                            $('#importStep2').show();
+                            $('#importBtn').show();
+                        }
+                    } else {
+                        toastr.error(response.message);
+                    }
+                },
+                error: function () {
+                    toastr.error('@Localizer["Error.UnexpectedError"]');
+                }
+            });
+        });
+
+        $('#selectAllBtn').on('click', function () {
+            $('#questionsList input[type="checkbox"]').prop('checked', true);
+        });
+
+        $('#deselectAllBtn').on('click', function () {
+            $('#questionsList input[type="checkbox"]').prop('checked', false);
+        });
+
+        $('#importBtn').on('click', function () {
+            var selectedQuestions = [];
+            $('#questionsList input[type="checkbox"]:checked').each(function () {
+                selectedQuestions.push(parseInt($(this).val()));
+            });
+
+            if (selectedQuestions.length === 0) {
+                toastr.warning('@Localizer["ActivityQuestions.Import.NoQuestionsSelected"]');
+                return;
+            }
+
+            // Disable button and show loading state
+            var $btn = $(this);
+            var originalHtml = $btn.html();
+            $btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-2"></i>@Localizer["ActivityQuestions.Import.Importing"]');
+
+            $.ajax({
+                url: '@Url.Action("ImportQuestions")',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ questionIds: selectedQuestions }),
+                headers: {
+                    'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                },
+                success: function (response) {
+                    if (response.success) {
+                        // Store success message in TempData and reload immediately
+                        sessionStorage.setItem('importSuccessMessage', response.message);
+                        location.reload();
+                    } else {
+                        toastr.error(response.message);
+                        // Restore button
+                        $btn.prop('disabled', false).html(originalHtml);
+                    }
+                },
+                error: function () {
+                    toastr.error('@Localizer["Error.UnexpectedError"]');
+                    // Restore button
+                    $btn.prop('disabled', false).html(originalHtml);
+                }
+            });
+        });
+
+        // Reset modal on close
+        $('#importModal').on('hidden.bs.modal', function () {
+            $('#sourceActivitySelect').val('');
+            $('#importStep2').hide();
+            $('#importBtn').hide();
+            $('#questionsList').empty();
+        });
     </script>
 
     <style>

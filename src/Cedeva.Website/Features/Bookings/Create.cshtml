@@ -30,9 +30,9 @@
                                 </select>
                                 <span asp-validation-for="ChildId" class="text-danger"></span>
                                 <div class="form-text">
-                                    <a asp-controller="Children" asp-action="Create" class="text-decoration-none">
+                                    <button type="button" class="btn btn-link p-0 text-decoration-none" id="toggleChildForm">
                                         <i class="fas fa-plus-circle me-1"></i>@Localizer["Bookings.CreateNewChild"]
-                                    </a>
+                                    </button>
                                 </div>
                             </div>
                             <div class="col-md-6 mb-3">
@@ -44,9 +44,182 @@
                             </div>
                         </div>
 
+                        <!-- Inline Child Creation Form -->
+                        <div id="childFormContainer" class="card border-primary mb-3" style="display: none;">
+                            <div class="card-header bg-primary text-white">
+                                <h6 class="mb-0"><i class="fas fa-child me-2"></i>@Localizer["Children.AddChild"]</h6>
+                            </div>
+                            <div class="card-body">
+                                <div id="childFormErrors" class="alert alert-danger" style="display: none;"></div>
+
+                                <form id="childForm">
+                                    @Html.AntiForgeryToken()
+
+                                    <h6 class="mb-3 text-primary"><i class="fas fa-user me-2"></i>@Localizer["Children.PersonalInformation"]</h6>
+
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label for="Child_FirstName" class="form-label">@Localizer["Field.FirstName"]</label>
+                                            <input type="text" class="form-control" id="Child_FirstName" name="FirstName" required />
+                                            <span class="text-danger field-error" data-field="FirstName"></span>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label for="Child_LastName" class="form-label">@Localizer["Field.LastName"]</label>
+                                            <input type="text" class="form-control" id="Child_LastName" name="LastName" required />
+                                            <span class="text-danger field-error" data-field="LastName"></span>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label for="Child_NationalRegisterNumber" class="form-label">@Localizer["Field.NationalRegisterNumber"]</label>
+                                            <input type="text" class="form-control" id="Child_NationalRegisterNumber" name="NationalRegisterNumber" placeholder="@Localizer["Children.NRNPlaceholder"]" />
+                                            <span class="text-danger field-error" data-field="NationalRegisterNumber"></span>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label for="Child_BirthDate" class="form-label">@Localizer["Field.BirthDate"]</label>
+                                            <input type="date" class="form-control" id="Child_BirthDate" name="BirthDate" required />
+                                            <span class="text-danger field-error" data-field="BirthDate"></span>
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="Child_ParentId" class="form-label">@Localizer["Field.Parent"]</label>
+                                        <select class="form-select" id="Child_ParentId" name="ParentId" required>
+                                            <option value="">@Localizer["Children.SelectParent"]</option>
+                                            @if (ViewBag.Parents != null)
+                                            {
+                                                @foreach (var parent in ViewBag.Parents)
+                                                {
+                                                    <option value="@parent.Value">@parent.Text</option>
+                                                }
+                                            }
+                                        </select>
+                                        <span class="text-danger field-error" data-field="ParentId"></span>
+                                        <div class="form-text">
+                                            <button type="button" class="btn btn-link p-0 text-decoration-none" id="toggleNestedParentForm">
+                                                <i class="fas fa-plus-circle me-1"></i>@Localizer["Children.CreateNewParent"]
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <!-- Nested Inline Parent Creation Form -->
+                                    <div id="nestedParentFormContainer" class="card border-primary mb-3" style="display: none;">
+                                        <div class="card-header bg-primary text-white">
+                                            <h6 class="mb-0"><i class="fas fa-user-plus me-2"></i>@Localizer["Parents.NewParent"]</h6>
+                                        </div>
+                                        <div class="card-body">
+                                            <div id="nestedParentFormErrors" class="alert alert-danger" style="display: none;"></div>
+
+                                            <form id="nestedParentForm">
+                                                @Html.AntiForgeryToken()
+                                                <input type="hidden" name="OrganisationId" value="@ViewBag.CurrentOrganisationId" />
+                                                <input type="hidden" name="Country" value="0" />
+
+                                                <div class="row">
+                                                    <div class="col-md-6 mb-3">
+                                                        <label for="NestedParent_FirstName" class="form-label">@Localizer["Field.FirstName"]</label>
+                                                        <input type="text" class="form-control form-control-sm" id="NestedParent_FirstName" name="FirstName" required />
+                                                        <span class="text-danger nested-parent-error" data-field="FirstName"></span>
+                                                    </div>
+                                                    <div class="col-md-6 mb-3">
+                                                        <label for="NestedParent_LastName" class="form-label">@Localizer["Field.LastName"]</label>
+                                                        <input type="text" class="form-control form-control-sm" id="NestedParent_LastName" name="LastName" required />
+                                                        <span class="text-danger nested-parent-error" data-field="LastName"></span>
+                                                    </div>
+                                                </div>
+
+                                                <div class="mb-3">
+                                                    <label for="NestedParent_NationalRegisterNumber" class="form-label">@Localizer["Field.NationalRegisterNumber"]</label>
+                                                    <input type="text" class="form-control form-control-sm" id="NestedParent_NationalRegisterNumber" name="NationalRegisterNumber" placeholder="@Localizer["Children.NRNPlaceholder"]" />
+                                                    <span class="text-danger nested-parent-error" data-field="NationalRegisterNumber"></span>
+                                                </div>
+
+                                                <div class="mb-3">
+                                                    <label for="NestedParent_Email" class="form-label">@Localizer["Field.Email"]</label>
+                                                    <input type="email" class="form-control form-control-sm" id="NestedParent_Email" name="Email" required />
+                                                    <span class="text-danger nested-parent-error" data-field="Email"></span>
+                                                </div>
+
+                                                <div class="row">
+                                                    <div class="col-md-6 mb-3">
+                                                        <label for="NestedParent_MobilePhoneNumber" class="form-label">@Localizer["Field.MobilePhoneNumber"]</label>
+                                                        <input type="text" class="form-control form-control-sm" id="NestedParent_MobilePhoneNumber" name="MobilePhoneNumber" placeholder="@Localizer["Parents.MobilePlaceholder"]" />
+                                                        <span class="text-danger nested-parent-error" data-field="MobilePhoneNumber"></span>
+                                                    </div>
+                                                    <div class="col-md-6 mb-3">
+                                                        <label for="NestedParent_PhoneNumber" class="form-label">@Localizer["Field.PhoneNumber"]</label>
+                                                        <input type="text" class="form-control form-control-sm" id="NestedParent_PhoneNumber" name="PhoneNumber" placeholder="@Localizer["Parents.PhonePlaceholder"]" />
+                                                        <span class="text-danger nested-parent-error" data-field="PhoneNumber"></span>
+                                                    </div>
+                                                </div>
+
+                                                <div class="mb-3">
+                                                    <label for="NestedParent_Street" class="form-label">@Localizer["Field.Street"]</label>
+                                                    <input type="text" class="form-control form-control-sm" id="NestedParent_Street" name="Street" placeholder="@Localizer["Parents.StreetPlaceholder"]" required />
+                                                    <span class="text-danger nested-parent-error" data-field="Street"></span>
+                                                </div>
+
+                                                <div class="mb-3">
+                                                    <label for="NestedParent_CombinedAddress" class="form-label">@Localizer["Field.PostalCodeCity"]</label>
+                                                    <input type="text" class="form-control form-control-sm" id="NestedParent_CombinedAddress" placeholder="@Localizer["Parents.PostalCodeCityPlaceholder"]" />
+                                                    <small class="form-text text-muted">@Localizer["Parents.PostalCodeCityHelp"]</small>
+                                                    <input type="hidden" name="PostalCode" id="NestedParent_PostalCode" />
+                                                    <input type="hidden" name="City" id="NestedParent_City" />
+                                                    <span class="text-danger nested-parent-error" data-field="PostalCode"></span>
+                                                    <span class="text-danger nested-parent-error" data-field="City"></span>
+                                                </div>
+
+                                                <div class="d-flex justify-content-end gap-2">
+                                                    <button type="button" class="btn btn-sm btn-outline-secondary" id="cancelNestedParentForm">
+                                                        <i class="fas fa-times me-1"></i>@Localizer["Cancel"]
+                                                    </button>
+                                                    <button type="submit" class="btn btn-sm btn-primary">
+                                                        <i class="fas fa-save me-1"></i>@Localizer["Parents.CreateParent"]
+                                                    </button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+
+                                    <h6 class="mb-3 text-primary"><i class="fas fa-info-circle me-2"></i>@Localizer["Children.SpecificInformation"]</h6>
+
+                                    <div class="row">
+                                        <div class="col-md-4 mb-3">
+                                            <div class="form-check">
+                                                <input type="checkbox" class="form-check-input" id="Child_IsDisadvantagedEnvironment" name="IsDisadvantagedEnvironment" value="true" />
+                                                <label for="Child_IsDisadvantagedEnvironment" class="form-check-label">@Localizer["Field.IsDisadvantagedEnvironment"]</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 mb-3">
+                                            <div class="form-check">
+                                                <input type="checkbox" class="form-check-input" id="Child_IsMildDisability" name="IsMildDisability" value="true" />
+                                                <label for="Child_IsMildDisability" class="form-check-label">@Localizer["Field.IsMildDisability"]</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 mb-3">
+                                            <div class="form-check">
+                                                <input type="checkbox" class="form-check-input" id="Child_IsSevereDisability" name="IsSevereDisability" value="true" />
+                                                <label for="Child_IsSevereDisability" class="form-check-label">@Localizer["Field.IsSevereDisability"]</label>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="d-flex justify-content-end gap-2">
+                                        <button type="button" class="btn btn-outline-secondary" id="cancelChildForm">
+                                            <i class="fas fa-times me-1"></i>@Localizer["Cancel"]
+                                        </button>
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="fas fa-save me-1"></i>@Localizer["Save"]
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+
                         <div class="mb-3">
                             <label for="GroupId" class="form-label">@Localizer["Field.Group"]</label>
-                            <select asp-for="GroupId" class="form-select" asp-items="ViewBag.Groups" id="GroupId">
+                            <select asp-for="GroupId" class="form-select" asp-items="ViewBag.Groups" id="GroupId" disabled>
                                 <option value="">@Localizer["NoGroupOptional"]</option>
                             </select>
                             <span asp-validation-for="GroupId" class="text-danger"></span>
@@ -109,6 +282,8 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script src="~/js/belgian-municipality-validator.js"></script>
+    <script src="~/js/unified-address-autocomplete.js"></script>
     <script>
         $(document).ready(function () {
             var $activitySelect = $('#ActivityId');
@@ -119,12 +294,239 @@
             var $questionsContainer = $('#questionsContainer');
             var daysOfWeek = ['@Localizer["DayOfWeek.Sunday"]', '@Localizer["DayOfWeek.Monday"]', '@Localizer["DayOfWeek.Tuesday"]', '@Localizer["DayOfWeek.Wednesday"]', '@Localizer["DayOfWeek.Thursday"]', '@Localizer["DayOfWeek.Friday"]', '@Localizer["DayOfWeek.Saturday"]'];
 
+            // Initialize Choices.js on static selects
+            var childChoices = CedevaChoices.initWithSearch('#ChildId');
+            var activityChoices = CedevaChoices.init('#ActivityId');
+            var groupChoices = null;
+
+            // Initialize Choices.js on child form parent select
+            var childParentChoices = null;
+            var nestedParentInitialized = false;
+
+            // Toggle child form visibility
+            $('#toggleChildForm').on('click', function () {
+                $('#childFormContainer').slideToggle(300, function() {
+                    // Initialize Choices.js on parent select when form becomes visible
+                    if ($(this).is(':visible') && !childParentChoices) {
+                        childParentChoices = CedevaChoices.initWithSearch('#Child_ParentId');
+                    }
+                });
+                $(this).find('i').toggleClass('fa-plus-circle fa-minus-circle');
+            });
+
+            // Toggle nested parent form visibility
+            $('#toggleNestedParentForm').on('click', function () {
+                $('#nestedParentFormContainer').slideToggle(300, function() {
+                    // Initialize address autocomplete when form becomes visible
+                    if ($(this).is(':visible') && !nestedParentInitialized) {
+                        initializeUnifiedAddressAutocomplete("#NestedParent_CombinedAddress", "#NestedParent_PostalCode", "#NestedParent_City");
+                        nestedParentInitialized = true;
+                    }
+                });
+                $(this).find('i').toggleClass('fa-plus-circle fa-minus-circle');
+            });
+
+            // Cancel nested parent form
+            $('#cancelNestedParentForm').on('click', function () {
+                $('#nestedParentFormContainer').slideUp(300);
+                $('#toggleNestedParentForm').find('i').removeClass('fa-minus-circle').addClass('fa-plus-circle');
+                var nestedParentForm = document.getElementById('nestedParentForm');
+                if (nestedParentForm) {
+                    nestedParentForm.reset();
+                }
+                clearNestedParentFormErrors();
+            });
+
+            // Submit nested parent form via AJAX
+            $('#nestedParentForm').on('submit', function (e) {
+                e.preventDefault();
+                clearNestedParentFormErrors();
+
+                var formData = $(this).serialize();
+
+                $.ajax({
+                    url: '@Url.Action("CreateAjax", "Parents")',
+                    type: 'POST',
+                    data: formData,
+                    success: function (response) {
+                        if (response.success) {
+                            // Add new parent to child form's parent dropdown
+                            var $parentSelect = $('#Child_ParentId');
+                            $parentSelect.append($('<option></option>').val(response.parentId).text(response.parentName));
+
+                            // Update Choices.js instance if initialized
+                            if (childParentChoices) {
+                                childParentChoices.setChoices([
+                                    {
+                                        value: response.parentId,
+                                        label: response.parentName,
+                                        selected: true
+                                    }
+                                ], 'value', 'label', false);
+                            } else {
+                                // If Choices.js not initialized yet, just set the value
+                                $parentSelect.val(response.parentId);
+                            }
+
+                            // Hide and reset nested form
+                            $('#nestedParentFormContainer').slideUp(300);
+                            $('#toggleNestedParentForm').find('i').removeClass('fa-minus-circle').addClass('fa-plus-circle');
+                            var nestedParentForm = document.getElementById('nestedParentForm');
+                            if (nestedParentForm) {
+                                nestedParentForm.reset();
+                            }
+
+                            // Show success message
+                            if (typeof toastr !== 'undefined') {
+                                toastr.success(response.message || '@Localizer["Message.ParentCreated"]');
+                            }
+                        } else {
+                            // Show validation errors
+                            if (response.errors) {
+                                displayNestedParentFormErrors(response.errors);
+                            } else if (response.message) {
+                                $('#nestedParentFormErrors').html(response.message).show();
+                            }
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        $('#nestedParentFormErrors').html('@Localizer["Error.UnexpectedError"]').show();
+                        console.error('Error creating parent:', error);
+                    }
+                });
+            });
+
+            function displayNestedParentFormErrors(errors) {
+                var errorHtml = '<ul class="mb-0">';
+                for (var field in errors) {
+                    var fieldErrors = errors[field];
+                    for (var i = 0; i < fieldErrors.length; i++) {
+                        errorHtml += '<li>' + fieldErrors[i] + '</li>';
+
+                        // Also show error next to field
+                        var errorSpan = $('.nested-parent-error[data-field="' + field + '"]');
+                        if (errorSpan.length > 0) {
+                            errorSpan.text(fieldErrors[i]);
+                        }
+                    }
+                }
+                errorHtml += '</ul>';
+                $('#nestedParentFormErrors').html(errorHtml).show();
+            }
+
+            function clearNestedParentFormErrors() {
+                $('#nestedParentFormErrors').hide().empty();
+                $('.nested-parent-error').text('');
+            }
+
+            // Cancel child form
+            $('#cancelChildForm').on('click', function () {
+                // Also hide and reset nested parent form if open
+                if ($('#nestedParentFormContainer').is(':visible')) {
+                    $('#nestedParentFormContainer').hide();
+                    $('#toggleNestedParentForm').find('i').removeClass('fa-minus-circle').addClass('fa-plus-circle');
+                    var nestedParentForm = document.getElementById('nestedParentForm');
+                    if (nestedParentForm) {
+                        nestedParentForm.reset();
+                    }
+                    clearNestedParentFormErrors();
+                }
+
+                $('#childFormContainer').slideUp(300);
+                $('#toggleChildForm').find('i').removeClass('fa-minus-circle').addClass('fa-plus-circle');
+                var childForm = document.getElementById('childForm');
+                if (childForm) {
+                    childForm.reset();
+                }
+                clearChildFormErrors();
+            });
+
+            // Submit child form via AJAX
+            $('#childForm').on('submit', function (e) {
+                e.preventDefault();
+                clearChildFormErrors();
+
+                var formData = $(this).serialize();
+
+                $.ajax({
+                    url: '@Url.Action("CreateAjax", "Children")',
+                    type: 'POST',
+                    data: formData,
+                    success: function (response) {
+                        if (response.success) {
+                            // Add new child to Choices.js dropdown
+                            childChoices.setChoices([
+                                {
+                                    value: response.childId,
+                                    label: response.childName,
+                                    selected: true
+                                }
+                            ], 'value', 'label', false);
+
+                            // Hide and reset form
+                            $('#childFormContainer').slideUp(300);
+                            $('#toggleChildForm').find('i').removeClass('fa-minus-circle').addClass('fa-plus-circle');
+                            var childForm = document.getElementById('childForm');
+                            if (childForm) {
+                                childForm.reset();
+                            }
+
+                            // Show success message
+                            if (typeof toastr !== 'undefined') {
+                                toastr.success(response.message || '@Localizer["Message.ChildCreated"]');
+                            }
+                        } else {
+                            // Show validation errors
+                            if (response.errors) {
+                                displayChildFormErrors(response.errors);
+                            } else if (response.message) {
+                                $('#childFormErrors').html(response.message).show();
+                            }
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        $('#childFormErrors').html('@Localizer["Error.UnexpectedError"]').show();
+                        console.error('Error creating child:', error);
+                    }
+                });
+            });
+
+            function displayChildFormErrors(errors) {
+                var errorHtml = '<ul class="mb-0">';
+                for (var field in errors) {
+                    var fieldErrors = errors[field];
+                    for (var i = 0; i < fieldErrors.length; i++) {
+                        errorHtml += '<li>' + fieldErrors[i] + '</li>';
+
+                        // Also show error next to field
+                        var errorSpan = $('.field-error[data-field="' + field + '"]');
+                        if (errorSpan.length > 0) {
+                            errorSpan.text(fieldErrors[i]);
+                        }
+                    }
+                }
+                errorHtml += '</ul>';
+                $('#childFormErrors').html(errorHtml).show();
+            }
+
+            function clearChildFormErrors() {
+                $('#childFormErrors').hide().empty();
+                $('.field-error').text('');
+            }
+
             $activitySelect.on('change', function () {
                 var activityId = $(this).val();
+
+                // Destroy existing Choices instance for groups
+                if (groupChoices) {
+                    CedevaChoices.destroy(groupChoices);
+                    groupChoices = null;
+                }
 
                 // Clear and disable group select
                 $groupSelect.empty();
                 $groupSelect.append('<option value="">@Localizer["NoGroupOptional"]</option>');
+                $groupSelect.prop('disabled', true);
 
                 // Clear days selection
                 $daysCheckboxes.empty();
@@ -140,6 +542,10 @@
                         $.each(groups, function (index, group) {
                             $groupSelect.append($('<option></option>').val(group.id).text(group.label));
                         });
+
+                        // Enable and re-initialize Choices.js on group select
+                        $groupSelect.prop('disabled', false);
+                        groupChoices = CedevaChoices.init('#GroupId');
                     });
 
                     // Fetch activity days
@@ -261,7 +667,7 @@
                             break;
 
                         case 3: // Dropdown
-                            questionHtml += '<select class="form-select" name="QuestionAnswers[' + question.id + ']" ' + (question.isRequired ? 'required' : '') + '>';
+                            questionHtml += '<select class="form-select question-dropdown" name="QuestionAnswers[' + question.id + ']" ' + (question.isRequired ? 'required' : '') + '>';
                             questionHtml += '<option value="">@Localizer["Select"]</option>';
                             if (question.options) {
                                 var options = question.options.split(',');
@@ -277,6 +683,9 @@
                     questionHtml += '</div>';
                     $questionsContainer.append(questionHtml);
                 });
+
+                // Initialize Choices.js on question dropdowns
+                CedevaChoices.initAll('.question-dropdown');
             }
 
             // Trigger change if activity is pre-selected

@@ -330,6 +330,9 @@
 @section Scripts {
     <script>
         $(document).ready(function () {
+            // Initialize Choices.js on all selects
+            CedevaChoices.initAll('.form-select');
+
             var selectedTransactionId = null;
 
             // Sélectionner une transaction

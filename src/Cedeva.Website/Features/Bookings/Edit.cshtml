@@ -176,7 +176,7 @@
                                             break;
 
                                         case Cedeva.Core.Enums.QuestionType.Dropdown:
-                                            <select class="form-select" name="QuestionAnswers[@question.Id]" required="@question.IsRequired">
+                                            <select class="form-select question-dropdown" name="QuestionAnswers[@question.Id]" required="@question.IsRequired">
                                                 <option value="">@Localizer["Select"]</option>
                                                 @if (!string.IsNullOrWhiteSpace(question.Options))
                                                 {
@@ -224,8 +224,22 @@
             var $groupSelect = $('#GroupId');
             var initialGroupId = $groupSelect.val();
 
+            // Initialize Choices.js on static selects
+            var childChoices = CedevaChoices.initWithSearch('#ChildId');
+            var activityChoices = CedevaChoices.init('#ActivityId');
+            var groupChoices = CedevaChoices.init('#GroupId');
+
+            // Initialize Choices.js on question dropdowns
+            CedevaChoices.initAll('.question-dropdown');
+
             $activitySelect.on('change', function () {
                 var activityId = $(this).val();
+
+                // Destroy existing Choices instance for groups
+                if (groupChoices) {
+                    CedevaChoices.destroy(groupChoices);
+                    groupChoices = null;
+                }
 
                 // Clear and disable group select
                 $groupSelect.empty();
@@ -242,6 +256,9 @@
                             }
                             $groupSelect.append(option);
                         });
+
+                        // Re-initialize Choices.js on group select
+                        groupChoices = CedevaChoices.init('#GroupId');
                     });
                 }
             });
