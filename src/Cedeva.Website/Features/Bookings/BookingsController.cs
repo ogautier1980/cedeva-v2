@@ -339,6 +339,30 @@ public class BookingsController : Controller
             })
             .ToList();
 
+        // Load questions and existing answers
+        var questions = await _context.ActivityQuestions
+            .Where(q => q.ActivityId == booking.ActivityId && q.IsActive)
+            .OrderBy(q => q.DisplayOrder)
+            .ToListAsync();
+
+        var existingAnswers = await _context.ActivityQuestionAnswers
+            .Where(a => a.BookingId == id)
+            .ToDictionaryAsync(a => a.ActivityQuestionId, a => a.AnswerText);
+
+        viewModel.Questions = questions.Select(q => new BookingQuestionViewModel
+        {
+            Id = q.Id,
+            QuestionText = q.QuestionText,
+            QuestionType = q.QuestionType,
+            IsRequired = q.IsRequired,
+            Options = q.Options,
+            DisplayOrder = q.DisplayOrder,
+            AnswerText = existingAnswers.ContainsKey(q.Id) ? existingAnswers[q.Id] : null
+        }).ToList();
+
+        // Pre-fill QuestionAnswers dictionary for form binding
+        viewModel.QuestionAnswers = existingAnswers.ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+
         await PopulateDropdowns(booking.ChildId, booking.ActivityId, booking.GroupId);
         return View(viewModel);
     }
@@ -379,6 +403,29 @@ public class BookingsController : Controller
 
             await _bookingRepository.UpdateAsync(booking);
             await _unitOfWork.SaveChangesAsync();
+
+            // Update question answers
+            // Delete existing answers
+            var existingAnswers = await _context.ActivityQuestionAnswers
+                .Where(a => a.BookingId == id)
+                .ToListAsync();
+            _context.ActivityQuestionAnswers.RemoveRange(existingAnswers);
+
+            // Add new answers
+            if (viewModel.QuestionAnswers != null && viewModel.QuestionAnswers.Any())
+            {
+                foreach (var answer in viewModel.QuestionAnswers.Where(a => !string.IsNullOrWhiteSpace(a.Value)))
+                {
+                    var questionAnswer = new ActivityQuestionAnswer
+                    {
+                        BookingId = id,
+                        ActivityQuestionId = answer.Key,
+                        AnswerText = answer.Value
+                    };
+                    _context.ActivityQuestionAnswers.Add(questionAnswer);
+                }
+            }
+            await _context.SaveChangesAsync();
 
             if (wasNotConfirmed && booking.IsConfirmed)
             {

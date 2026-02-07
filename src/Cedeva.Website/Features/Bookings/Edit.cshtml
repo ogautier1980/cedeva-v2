@@ -130,6 +130,71 @@
                             </div>
                         }
 
+                        @if (Model.Questions.Any())
+                        {
+                            <h6 class="mb-3 mt-4 text-primary"><i class="fas fa-question-circle me-2"></i>@Localizer["Bookings.QuestionsSection"]</h6>
+
+                            @foreach (var question in Model.Questions)
+                            {
+                                <div class="mb-3">
+                                    <label class="form-label">
+                                        @question.QuestionText
+                                        @if (question.IsRequired)
+                                        {
+                                            <span class="badge bg-danger ms-1" style="font-size: 0.65rem;">@Localizer["Required"]</span>
+                                        }
+                                    </label>
+
+                                    @switch (question.QuestionType)
+                                    {
+                                        case Cedeva.Core.Enums.QuestionType.Text:
+                                            <input type="text" class="form-control" name="QuestionAnswers[@question.Id]" value="@question.AnswerText" @(question.IsRequired ? "required" : "") />
+                                            break;
+
+                                        case Cedeva.Core.Enums.QuestionType.Checkbox:
+                                            <div class="form-check">
+                                                <input type="checkbox" class="form-check-input" name="QuestionAnswers[@question.Id]" value="true" id="question_@question.Id" @(question.AnswerText == "true" ? "checked" : "") />
+                                                <label class="form-check-label" for="question_@question.Id">@Localizer["ActivityQuestions.Yes"]</label>
+                                            </div>
+                                            break;
+
+                                        case Cedeva.Core.Enums.QuestionType.Radio:
+                                            @if (!string.IsNullOrWhiteSpace(question.Options))
+                                            {
+                                                var options = question.Options.Split(',');
+                                                for (int i = 0; i < options.Length; i++)
+                                                {
+                                                    var option = options[i].Trim();
+                                                    var radioId = $"question_{question.Id}_{i}";
+                                                    var isChecked = question.AnswerText == option;
+                                                    <div class="form-check">
+                                                        <input type="radio" class="form-check-input" name="QuestionAnswers[@question.Id]" value="@option" id="@radioId" checked="@isChecked" required="@question.IsRequired" />
+                                                        <label class="form-check-label" for="@radioId">@option</label>
+                                                    </div>
+                                                }
+                                            }
+                                            break;
+
+                                        case Cedeva.Core.Enums.QuestionType.Dropdown:
+                                            <select class="form-select" name="QuestionAnswers[@question.Id]" required="@question.IsRequired">
+                                                <option value="">@Localizer["Select"]</option>
+                                                @if (!string.IsNullOrWhiteSpace(question.Options))
+                                                {
+                                                    var options = question.Options.Split(',');
+                                                    foreach (var option in options)
+                                                    {
+                                                        var trimmedOption = option.Trim();
+                                                        var isSelected = question.AnswerText == trimmedOption;
+                                                        <option value="@trimmedOption" selected="@isSelected">@trimmedOption</option>
+                                                    }
+                                                }
+                                            </select>
+                                            break;
+                                    }
+                                </div>
+                            }
+                        }
+
                         <hr />
 
                         <div class="d-flex justify-content-between">
