@@ -292,6 +292,10 @@ public class ActivitiesController : Controller
             return NotFound();
         }
 
+        // Ensure all days between StartDate and EndDate exist in DB (create missing days as inactive)
+        EnsureAllDaysExist(activity);
+        await _context.SaveChangesAsync();
+
         ViewData["ReturnUrl"] = returnUrl;
         var viewModel = MapToViewModel(activity);
 
@@ -617,6 +621,30 @@ public class ActivitiesController : Controller
         var firstMonday = firstSunday.AddDays(1);
         var daysSinceFirstMonday = (date - firstMonday).Days;
         return (daysSinceFirstMonday / 7) + 2; // +2 because week 1 already happened
+    }
+
+    /// <summary>
+    /// Ensures all days between activity StartDate and EndDate exist in database.
+    /// Missing days are created as inactive.
+    /// </summary>
+    private static void EnsureAllDaysExist(Activity activity)
+    {
+        var existingDates = activity.Days.Select(d => d.DayDate.Date).ToHashSet();
+
+        for (var date = activity.StartDate; date <= activity.EndDate; date = date.AddDays(1))
+        {
+            if (!existingDates.Contains(date.Date))
+            {
+                var isWeekend = date.DayOfWeek == DayOfWeek.Saturday || date.DayOfWeek == DayOfWeek.Sunday;
+                activity.Days.Add(new ActivityDay
+                {
+                    Label = date.ToString("dddd d MMMM", new System.Globalization.CultureInfo("fr-BE")),
+                    DayDate = date,
+                    Week = GetWeekNumber(date, activity.StartDate),
+                    IsActive = false // Create as inactive by default
+                });
+            }
+        }
     }
 
     /// <summary>
