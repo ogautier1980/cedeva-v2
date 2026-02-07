@@ -128,7 +128,7 @@ public class BookingsController : Controller
             queryParams.IsConfirmed);
 
         // Apply sorting
-        query = (queryParams.SortBy?.ToLower(), queryParams.SortOrder?.ToLower()) switch
+        query = (queryParams.SortBy?.ToLowerInvariant(), queryParams.SortOrder?.ToLowerInvariant()) switch
         {
             ("bookingdate", "asc") => query.OrderBy(b => b.BookingDate),
             ("bookingdate", SortOrderDescending) => query.OrderByDescending(b => b.BookingDate),
@@ -198,11 +198,10 @@ public class BookingsController : Controller
 
         if (!string.IsNullOrEmpty(searchString))
         {
-            var searchLower = searchString.ToLower();
             query = query.Where(b =>
-                b.Child.FirstName.ToLower().Contains(searchLower) ||
-                b.Child.LastName.ToLower().Contains(searchLower) ||
-                b.Activity.Name.ToLower().Contains(searchLower));
+                b.Child.FirstName.Contains(searchString, StringComparison.OrdinalIgnoreCase) ||
+                b.Child.LastName.Contains(searchString, StringComparison.OrdinalIgnoreCase) ||
+                b.Activity.Name.Contains(searchString, StringComparison.OrdinalIgnoreCase));
         }
 
         if (activityId.HasValue)
@@ -770,11 +769,10 @@ public class BookingsController : Controller
 
         if (!string.IsNullOrEmpty(searchString))
         {
-            var searchLower = searchString.ToLower();
             query = query.Where(b =>
-                b.Child.FirstName.ToLower().Contains(searchLower) ||
-                b.Child.LastName.ToLower().Contains(searchLower) ||
-                b.Activity.Name.ToLower().Contains(searchLower));
+                b.Child.FirstName.Contains(searchString, StringComparison.OrdinalIgnoreCase) ||
+                b.Child.LastName.Contains(searchString, StringComparison.OrdinalIgnoreCase) ||
+                b.Activity.Name.Contains(searchString, StringComparison.OrdinalIgnoreCase));
         }
 
         if (activityId.HasValue)
@@ -826,11 +824,10 @@ public class BookingsController : Controller
 
         if (!string.IsNullOrEmpty(searchString))
         {
-            var searchLower = searchString.ToLower();
             query = query.Where(b =>
-                b.Child.FirstName.ToLower().Contains(searchLower) ||
-                b.Child.LastName.ToLower().Contains(searchLower) ||
-                b.Activity.Name.ToLower().Contains(searchLower));
+                b.Child.FirstName.Contains(searchString, StringComparison.OrdinalIgnoreCase) ||
+                b.Child.LastName.Contains(searchString, StringComparison.OrdinalIgnoreCase) ||
+                b.Activity.Name.Contains(searchString, StringComparison.OrdinalIgnoreCase));
         }
 
         if (activityId.HasValue)

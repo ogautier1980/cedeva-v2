@@ -114,7 +114,7 @@ public class ActivitiesController : Controller
         }
 
         // Apply sorting
-        query = (queryParams.SortBy?.ToLower(), queryParams.SortOrder?.ToLower()) switch
+        query = (queryParams.SortBy?.ToLowerInvariant(), queryParams.SortOrder?.ToLowerInvariant()) switch
         {
             ("name", "asc") => query.OrderBy(a => a.Name),
             ("name", SortOrderDescending) => query.OrderByDescending(a => a.Name),

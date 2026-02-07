@@ -116,7 +116,7 @@ public class OrganisationsController : Controller
         }
 
         // Apply sorting
-        query = (queryParams.SortBy?.ToLower(), queryParams.SortOrder?.ToLower()) switch
+        query = (queryParams.SortBy?.ToLowerInvariant(), queryParams.SortOrder?.ToLowerInvariant()) switch
         {
             ("name", SortOrderDescending) => query.OrderByDescending(o => o.Name),
             ("city", "asc") => query.OrderBy(o => o.Address.City),

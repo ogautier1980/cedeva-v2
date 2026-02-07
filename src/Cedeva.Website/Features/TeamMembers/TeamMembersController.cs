@@ -119,7 +119,7 @@ public class TeamMembersController : Controller
         }
 
         // Apply sorting
-        query = (queryParams.SortBy?.ToLower(), queryParams.SortOrder?.ToLower()) switch
+        query = (queryParams.SortBy?.ToLowerInvariant(), queryParams.SortOrder?.ToLowerInvariant()) switch
         {
             ("firstname", "asc") => query.OrderBy(t => t.FirstName).ThenBy(t => t.LastName),
             ("firstname", SortOrderDescending) => query.OrderByDescending(t => t.FirstName).ThenByDescending(t => t.LastName),

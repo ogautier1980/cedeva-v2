@@ -126,7 +126,7 @@ public class ChildrenController : Controller
         }
 
         // Apply sorting
-        query = (queryParams.SortBy?.ToLower(), queryParams.SortOrder?.ToLower()) switch
+        query = (queryParams.SortBy?.ToLowerInvariant(), queryParams.SortOrder?.ToLowerInvariant()) switch
         {
             ("firstname", "asc") => query.OrderBy(c => c.FirstName).ThenBy(c => c.LastName),
             ("firstname", SortOrderDescending) => query.OrderByDescending(c => c.FirstName).ThenByDescending(c => c.LastName),
