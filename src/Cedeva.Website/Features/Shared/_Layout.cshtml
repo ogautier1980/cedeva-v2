@@ -233,7 +233,7 @@
                     <div class="collapse navbar-collapse">
                         <ul class="navbar-nav ms-auto">
                             @{
-                                var currentCulture = System.Globalization.CultureInfo.CurrentCulture.Name;
+                                var currentCulture = System.Globalization.CultureInfo.CurrentUICulture.Name;
                                 var languageCode = currentCulture.StartsWith("fr") ? "fr" :
                                                    currentCulture.StartsWith("nl") ? "nl" :
                                                    currentCulture.StartsWith("en") ? "en" : "";
