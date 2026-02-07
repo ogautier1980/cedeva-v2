@@ -825,7 +825,7 @@ public class ActivitiesController : Controller
                 .Select(d => d.Label)
                 .ToList();
 
-            TempData["Warning"] = string.Format(
+            TempData[ControllerExtensions.WarningMessageKey] = string.Format(
                 _localizer["Activities.DeactivateDaysWarning"].Value,
                 bookingsWithDeactivatedDays,
                 string.Join(", ", deactivatedDaysLabels));
@@ -907,7 +907,7 @@ public class ActivitiesController : Controller
                 .Select(d => d.Label)
                 .ToList();
 
-            TempData["Info"] = string.Format(
+            TempData[ControllerExtensions.InfoMessageKey] = string.Format(
                 _localizer["Activities.ActivateDaysInfo"].Value,
                 string.Join(", ", activatedDaysLabels));
             TempData["ActivatedDays"] = string.Join(",", daysBeingActivated);

@@ -12,6 +12,7 @@ public static class ControllerExtensions
     public const string SuccessMessageKey = "SuccessMessage";
     public const string ErrorMessageKey = "ErrorMessage";
     public const string WarningMessageKey = "WarningMessage";
+    public const string InfoMessageKey = "InfoMessage";
     public const string KeepFiltersKey = "KeepFilters";
 
     /// <summary>
@@ -39,6 +40,14 @@ public static class ControllerExtensions
     }
 
     /// <summary>
+    /// Sets an info message in TempData with standardized key.
+    /// </summary>
+    public static void SetInfoMessage(this Controller controller, string message)
+    {
+        controller.TempData[InfoMessageKey] = message;
+    }
+
+    /// <summary>
     /// Gets a success message from TempData if it exists.
     /// </summary>
     public static string? GetSuccessMessage(this Controller controller)
@@ -60,6 +69,14 @@ public static class ControllerExtensions
     public static string? GetWarningMessage(this Controller controller)
     {
         return controller.TempData[WarningMessageKey] as string;
+    }
+
+    /// <summary>
+    /// Gets an info message from TempData if it exists.
+    /// </summary>
+    public static string? GetInfoMessage(this Controller controller)
+    {
+        return controller.TempData[InfoMessageKey] as string;
     }
 
     /// <summary>
