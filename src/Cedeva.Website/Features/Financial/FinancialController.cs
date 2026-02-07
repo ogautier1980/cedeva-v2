@@ -26,6 +26,8 @@ public class FinancialController : Controller
     private const string SessionKeyActivityId = "Financial_ActivityId";
     private const string ActionIndex = "Index";
     private const string ControllerActivities = "Activities";
+    private const string OrganizationCard = "OrganizationCard";
+    private const string OrganizationCash = "OrganizationCash";
 
     public FinancialController(
         CedevaDbContext context,
@@ -542,7 +544,7 @@ public class FinancialController : Controller
         };
 
         // Parse AssignedTo
-        if (viewModel.AssignedTo == "OrganizationCard" || viewModel.AssignedTo == "OrganizationCash")
+        if (viewModel.AssignedTo == OrganizationCard || viewModel.AssignedTo == OrganizationCash)
         {
             expense.OrganizationPaymentSource = viewModel.AssignedTo;
             expense.TeamMemberId = null;
@@ -593,7 +595,7 @@ public class FinancialController : Controller
             ActivityId = expense.ActivityId,
             AssignedTo = expense.TeamMemberId?.ToString()
                 ?? expense.OrganizationPaymentSource
-                ?? "OrganizationCard"
+                ?? OrganizationCard
         };
 
         ViewData["ReturnUrl"] = returnUrl;
@@ -637,7 +639,7 @@ public class FinancialController : Controller
         expense.ExpenseDate = viewModel.ExpenseDate;
 
         // Parse AssignedTo
-        if (viewModel.AssignedTo == "OrganizationCard" || viewModel.AssignedTo == "OrganizationCash")
+        if (viewModel.AssignedTo == OrganizationCard || viewModel.AssignedTo == OrganizationCash)
         {
             expense.OrganizationPaymentSource = viewModel.AssignedTo;
             expense.TeamMemberId = null;
@@ -718,7 +720,7 @@ public class FinancialController : Controller
             Amount = e.Amount,
             AssignedTo = e.TeamMemberId.HasValue
                 ? e.TeamMember!.FullName
-                : (e.OrganizationPaymentSource == "OrganizationCard"
+                : (e.OrganizationPaymentSource == OrganizationCard
                     ? _localizer["Expense.OrganizationCard"].Value
                     : _localizer["Expense.OrganizationCash"].Value),
             Type = e.ExpenseType.HasValue
@@ -805,7 +807,7 @@ public class FinancialController : Controller
                 Category = e.Category,
                 AssignedTo = e.TeamMemberId.HasValue
                     ? e.TeamMember?.FullName
-                    : e.OrganizationPaymentSource == "OrganizationCard"
+                    : e.OrganizationPaymentSource == OrganizationCard
                         ? _localizer["Expense.OrganizationCard"].Value
                         : _localizer["Expense.OrganizationCash"].Value,
                 Amount = e.Amount,
@@ -909,8 +911,8 @@ public class FinancialController : Controller
     private (decimal cardExpenses, decimal cashExpenses, List<ExpenseDetailViewModel> details) BuildOrganizationExpenseBreakdown(List<Expense> expenses)
     {
         var orgExpenses = expenses.Where(e => !e.TeamMemberId.HasValue).ToList();
-        var cardExpenses = orgExpenses.Where(e => e.OrganizationPaymentSource == "OrganizationCard").Sum(e => e.Amount);
-        var cashExpenses = orgExpenses.Where(e => e.OrganizationPaymentSource == "OrganizationCash").Sum(e => e.Amount);
+        var cardExpenses = orgExpenses.Where(e => e.OrganizationPaymentSource == OrganizationCard).Sum(e => e.Amount);
+        var cashExpenses = orgExpenses.Where(e => e.OrganizationPaymentSource == OrganizationCash).Sum(e => e.Amount);
 
         var details = orgExpenses.Select(e => new ExpenseDetailViewModel
         {
@@ -969,8 +971,8 @@ public class FinancialController : Controller
 
         var assignedToList = new List<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem>
         {
-            new() { Value = "OrganizationCard", Text = _localizer["Expense.OrganizationCard"].Value },
-            new() { Value = "OrganizationCash", Text = _localizer["Expense.OrganizationCash"].Value }
+            new() { Value = OrganizationCard, Text = _localizer["Expense.OrganizationCard"].Value },
+            new() { Value = OrganizationCash, Text = _localizer["Expense.OrganizationCash"].Value }
         };
 
         assignedToList.AddRange(teamMembers.Select(tm => new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem
