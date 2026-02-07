@@ -239,12 +239,49 @@ public class BookingsController : Controller
                 await _context.SaveChangesAsync();
             }
 
+            // Save question answers
+            if (viewModel.QuestionAnswers != null && viewModel.QuestionAnswers.Any())
+            {
+                foreach (var answer in viewModel.QuestionAnswers.Where(a => !string.IsNullOrWhiteSpace(a.Value)))
+                {
+                    var questionAnswer = new ActivityQuestionAnswer
+                    {
+                        BookingId = booking.Id,
+                        ActivityQuestionId = answer.Key,
+                        AnswerText = answer.Value
+                    };
+                    _context.ActivityQuestionAnswers.Add(questionAnswer);
+                }
+                await _context.SaveChangesAsync();
+            }
+
             TempData[TempDataSuccessMessage] = _localizer["Message.BookingCreated"].Value;
             return RedirectToAction(nameof(Details), new { id = booking.Id });
         }
 
         await PopulateDropdowns(viewModel.ChildId, viewModel.ActivityId, viewModel.GroupId);
         return View(viewModel);
+    }
+
+    // GET: Bookings/GetActivityQuestions?activityId=5
+    [HttpGet]
+    public async Task<IActionResult> GetActivityQuestions(int activityId)
+    {
+        var questions = await _context.ActivityQuestions
+            .Where(q => q.ActivityId == activityId && q.IsActive)
+            .OrderBy(q => q.DisplayOrder)
+            .Select(q => new
+            {
+                id = q.Id,
+                questionText = q.QuestionText,
+                questionType = (int)q.QuestionType,
+                isRequired = q.IsRequired,
+                options = q.Options,
+                displayOrder = q.DisplayOrder
+            })
+            .ToListAsync();
+
+        return Json(new { questions });
     }
 
     // GET: Bookings/Edit/5

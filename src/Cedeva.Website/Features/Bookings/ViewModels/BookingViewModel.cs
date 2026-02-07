@@ -56,6 +56,9 @@ public class BookingViewModel : AuditableViewModel
 
     // Questions and answers (for Details/Edit views)
     public List<BookingQuestionViewModel> Questions { get; set; } = new();
+
+    // Question answers for Create/Edit forms (key: questionId, value: answerText)
+    public Dictionary<int, string> QuestionAnswers { get; set; } = new();
 }
 
 public class BookingQuestionViewModel

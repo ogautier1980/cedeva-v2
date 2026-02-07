@@ -64,6 +64,13 @@
                             </div>
                         </div>
 
+                        <div id="questionsSection" class="mb-3" style="display: none;">
+                            <h6 class="mb-3 mt-4 text-primary"><i class="fas fa-question-circle me-2"></i>@Localizer["Bookings.QuestionsSection"]</h6>
+                            <div id="questionsContainer">
+                                <!-- Questions will be populated via JavaScript -->
+                            </div>
+                        </div>
+
                         <h6 class="mb-3 mt-4 text-primary"><i class="fas fa-check-circle me-2"></i>@Localizer["Status"]</h6>
 
                         <div class="row">
@@ -108,6 +115,8 @@
             var $groupSelect = $('#GroupId');
             var $daysSelection = $('#daysSelection');
             var $daysCheckboxes = $('#daysCheckboxes');
+            var $questionsSection = $('#questionsSection');
+            var $questionsContainer = $('#questionsContainer');
             var daysOfWeek = ['@Localizer["DayOfWeek.Sunday"]', '@Localizer["DayOfWeek.Monday"]', '@Localizer["DayOfWeek.Tuesday"]', '@Localizer["DayOfWeek.Wednesday"]', '@Localizer["DayOfWeek.Thursday"]', '@Localizer["DayOfWeek.Friday"]', '@Localizer["DayOfWeek.Saturday"]'];
 
             $activitySelect.on('change', function () {
@@ -120,6 +129,10 @@
                 // Clear days selection
                 $daysCheckboxes.empty();
                 $daysSelection.hide();
+
+                // Clear questions section
+                $questionsContainer.empty();
+                $questionsSection.hide();
 
                 if (activityId) {
                     // Fetch groups for selected activity
@@ -196,8 +209,75 @@
                             });
                         }
                     });
+
+                    // Fetch questions for selected activity
+                    $.get('@Url.Action("GetActivityQuestions", "Bookings")', { activityId: activityId }, function (data) {
+                        if (data.questions && data.questions.length > 0) {
+                            $questionsSection.show();
+                            renderQuestions(data.questions);
+                        }
+                    });
                 }
             });
+
+            function renderQuestions(questions) {
+                $questionsContainer.empty();
+
+                $.each(questions, function (index, question) {
+                    var questionHtml = '<div class="mb-3">';
+                    questionHtml += '<label class="form-label">' + question.questionText;
+
+                    if (question.isRequired) {
+                        questionHtml += ' <span class="badge bg-danger ms-1" style="font-size: 0.65rem;">@Localizer["Required"]</span>';
+                    }
+
+                    questionHtml += '</label>';
+
+                    // Render different input types based on questionType
+                    // 0 = Text, 1 = Checkbox, 2 = Radio, 3 = Dropdown
+                    switch (question.questionType) {
+                        case 0: // Text
+                            questionHtml += '<input type="text" class="form-control" name="QuestionAnswers[' + question.id + ']" ' + (question.isRequired ? 'required' : '') + ' />';
+                            break;
+
+                        case 1: // Checkbox
+                            questionHtml += '<div class="form-check">';
+                            questionHtml += '<input type="checkbox" class="form-check-input" name="QuestionAnswers[' + question.id + ']" value="true" id="question_' + question.id + '" />';
+                            questionHtml += '<label class="form-check-label" for="question_' + question.id + '">@Localizer["ActivityQuestions.Yes"]</label>';
+                            questionHtml += '</div>';
+                            break;
+
+                        case 2: // Radio
+                            if (question.options) {
+                                var options = question.options.split(',');
+                                $.each(options, function (optIndex, option) {
+                                    option = option.trim();
+                                    questionHtml += '<div class="form-check">';
+                                    questionHtml += '<input type="radio" class="form-check-input" name="QuestionAnswers[' + question.id + ']" value="' + option + '" id="question_' + question.id + '_' + optIndex + '" ' + (question.isRequired ? 'required' : '') + ' />';
+                                    questionHtml += '<label class="form-check-label" for="question_' + question.id + '_' + optIndex + '">' + option + '</label>';
+                                    questionHtml += '</div>';
+                                });
+                            }
+                            break;
+
+                        case 3: // Dropdown
+                            questionHtml += '<select class="form-select" name="QuestionAnswers[' + question.id + ']" ' + (question.isRequired ? 'required' : '') + '>';
+                            questionHtml += '<option value="">@Localizer["Select"]</option>';
+                            if (question.options) {
+                                var options = question.options.split(',');
+                                $.each(options, function (optIndex, option) {
+                                    option = option.trim();
+                                    questionHtml += '<option value="' + option + '">' + option + '</option>';
+                                });
+                            }
+                            questionHtml += '</select>';
+                            break;
+                    }
+
+                    questionHtml += '</div>';
+                    $questionsContainer.append(questionHtml);
+                });
+            }
 
             // Trigger change if activity is pre-selected
             if ($activitySelect.val()) {
