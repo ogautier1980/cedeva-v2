@@ -1,5 +1,6 @@
 using Cedeva.Core.Entities;
 using Cedeva.Core.Enums;
+using Cedeva.Core.Helpers;
 using Cedeva.Core.Interfaces;
 using Cedeva.Infrastructure.Data;
 using Cedeva.Website.Features.Parents.ViewModels;
@@ -307,7 +308,7 @@ public class ParentsController : Controller
             Email = viewModel.Email,
             PhoneNumber = viewModel.PhoneNumber,
             MobilePhoneNumber = viewModel.MobilePhoneNumber,
-            NationalRegisterNumber = viewModel.NationalRegisterNumber,
+            NationalRegisterNumber = NationalRegisterNumberHelper.StripFormatting(viewModel.NationalRegisterNumber),
             Address = address,
             OrganisationId = _currentUserService.IsAdmin ? viewModel.OrganisationId : organisationId!.Value
         };
@@ -357,7 +358,7 @@ public class ParentsController : Controller
             Email = viewModel.Email,
             PhoneNumber = viewModel.PhoneNumber,
             MobilePhoneNumber = viewModel.MobilePhoneNumber,
-            NationalRegisterNumber = viewModel.NationalRegisterNumber,
+            NationalRegisterNumber = NationalRegisterNumberHelper.StripFormatting(viewModel.NationalRegisterNumber),
             Address = address,
             OrganisationId = _currentUserService.IsAdmin ? viewModel.OrganisationId : organisationId!.Value
         };
@@ -433,7 +434,7 @@ public class ParentsController : Controller
         parent.Email = viewModel.Email;
         parent.PhoneNumber = viewModel.PhoneNumber;
         parent.MobilePhoneNumber = viewModel.MobilePhoneNumber;
-        parent.NationalRegisterNumber = viewModel.NationalRegisterNumber;
+        parent.NationalRegisterNumber = NationalRegisterNumberHelper.StripFormatting(viewModel.NationalRegisterNumber);
 
         // Update OrganisationId if admin
         if (_currentUserService.IsAdmin)
@@ -558,7 +559,7 @@ public class ParentsController : Controller
             Email = parent.Email,
             PhoneNumber = parent.PhoneNumber,
             MobilePhoneNumber = parent.MobilePhoneNumber,
-            NationalRegisterNumber = parent.NationalRegisterNumber,
+            NationalRegisterNumber = NationalRegisterNumberHelper.Format(parent.NationalRegisterNumber),
             Street = parent.Address?.Street ?? string.Empty,
             City = parent.Address?.City ?? string.Empty,
             PostalCode = parent.Address?.PostalCode ?? "",

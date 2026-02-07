@@ -1084,6 +1084,12 @@
   <data name="Email.RecipientMedicalSheetReminder" xml:space="preserve">
     <value>[NL] Rappel fiche médicale</value>
   </data>
+  <data name="Email.RecipientUnpaidParents" xml:space="preserve">
+    <value>Ouders met achterstallige betalingen</value>
+  </data>
+  <data name="Email.RecipientExcursion" xml:space="preserve">
+    <value>Excursie</value>
+  </data>
   <data name="Email.RecipientType" xml:space="preserve">
     <value>Type ontvanger</value>
   </data>
@@ -2071,6 +2077,9 @@
   <data name="Home.ErrorTitle" xml:space="preserve">
     <value>[NL] Une erreur s'est produite</value>
   </data>
+  <data name="Home.Manage" xml:space="preserve">
+    <value>Beheren</value>
+  </data>
   <data name="Home.NewActivity" xml:space="preserve">
     <value>[NL] Nouvelle activité</value>
   </data>
@@ -2788,6 +2797,12 @@
   <data name="PublicRegistration.BackgroundColor" xml:space="preserve">
     <value>[NL] Couleur de fond</value>
   </data>
+  <data name="PublicRegistration.ButtonColor" xml:space="preserve">
+    <value>Kleur van de knoppen</value>
+  </data>
+  <data name="PublicRegistration.ButtonColorHelp" xml:space="preserve">
+    <value>Kies de kleur van de formulierknoppen</value>
+  </data>
   <data name="PublicRegistration.BirthDate" xml:space="preserve">
     <value>[NL] Date de naissance:</value>
   </data>
@@ -2857,8 +2872,11 @@
   <data name="PublicRegistration.From" xml:space="preserve">
     <value>[NL] Du:</value>
   </data>
+  <data name="PublicRegistration.Width" xml:space="preserve">
+    <value>Breedte</value>
+  </data>
   <data name="PublicRegistration.Height" xml:space="preserve">
-    <value>[NL] Hauteur</value>
+    <value>Hoogte</value>
   </data>
   <data name="PublicRegistration.Instruction1" xml:space="preserve">
     <value>[NL] Copiez le code HTML ci-dessus</value>

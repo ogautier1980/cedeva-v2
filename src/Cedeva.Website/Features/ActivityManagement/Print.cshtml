@@ -189,24 +189,14 @@
                 </tr>
             </thead>
             <tbody>
-                @{
-                    string? currentGroup = null;
-                }
-                @for (int i = 0; i < Model.PresenceItems.Count; i++)
+                @foreach (var item in Model.PresenceItems)
                 {
-                    var item = Model.PresenceItems[i];
-                    var isNewGroup = currentGroup != item.ActivityGroupName;
-                    currentGroup = item.ActivityGroupName;
-
-                    <tr class="@(isNewGroup && i > 0 ? "group-row" : "")">
+                    <tr>
                         <td class="checkbox-cell">
                             <span class="checkbox"></span>
                         </td>
                         <td>
-                            @if (isNewGroup)
-                            {
-                                <span class="group-badge">@(item.ActivityGroupName ?? Localizer["Presence.None"].Value)</span>
-                            }
+                            <span class="group-badge">@(item.ActivityGroupName ?? Localizer["Presence.None"].Value)</span>
                         </td>
                         <td>
                             <strong>@item.ChildFirstName @item.ChildLastName</strong>

@@ -17,7 +17,9 @@ public class ActivityManagementController : Controller
 {
     private const string RecipientAllParents = "allparents";
     private const string RecipientMedicalSheetReminder = "medicalsheetreminder";
+    private const string RecipientUnpaidParents = "unpaidparents";
     private const string RecipientGroupPrefix = "group_";
+    private const string RecipientExcursionPrefix = "excursion_";
     private const string TempDataSuccessMessage = "SuccessMessage";
     private const string TempDataErrorMessage = "ErrorMessage";
 
@@ -238,7 +240,7 @@ public class ActivityManagementController : Controller
         dayId = SelectDefaultActivityDay(activity, dayId);
         var selectedDay = activity.Days.FirstOrDefault(d => d.DayId == dayId);
         var dayOptions = BuildDayDropdownOptions(activity, dayId);
-        var childrenByGroup = BuildChildrenByGroup(activity, dayId);
+        var children = BuildChildrenList(activity, dayId);
 
         var viewModel = new PresencesViewModel
         {
@@ -246,7 +248,7 @@ public class ActivityManagementController : Controller
             SelectedActivityDayId = dayId,
             SelectedActivityDay = selectedDay,
             ActivityDayOptions = dayOptions,
-            ChildrenByGroup = childrenByGroup
+            Children = children
         };
 
         return View(viewModel);
@@ -278,6 +280,30 @@ public class ActivityManagementController : Controller
                 Text = $"{d.Label} - {d.DayDate:dd/MM/yyyy}",
                 Selected = d.DayId == selectedDayId
             })
+            .ToList();
+    }
+
+    private List<PresenceChildInfo> BuildChildrenList(Activity activity, int? dayId)
+    {
+        return activity.Bookings
+            .Where(b => b.IsConfirmed)
+            .Select(b =>
+            {
+                var bookingDay = b.Days.FirstOrDefault(bd => bd.ActivityDayId == dayId);
+                return new PresenceChildInfo
+                {
+                    BookingId = b.Id,
+                    ChildId = b.ChildId,
+                    ChildFirstName = b.Child.FirstName,
+                    ChildLastName = b.Child.LastName,
+                    IsReserved = bookingDay?.IsReserved ?? false,
+                    IsPresent = bookingDay?.IsPresent ?? false,
+                    BookingDayId = bookingDay?.Id,
+                    ActivityGroupName = b.Group?.Label
+                };
+            })
+            .OrderBy(c => c.ChildLastName)
+            .ThenBy(c => c.ChildFirstName)
             .ToList();
     }
 
@@ -368,13 +394,18 @@ public class ActivityManagementController : Controller
         // Store the activity ID for future visits
         _sessionState.Set<int>("ActivityId", id.Value);
 
+        // Load excursions for this activity
+        var excursions = await _context.Excursions
+            .Where(e => e.ActivityId == id)
+            .ToListAsync();
+
         ViewBag.Templates = await _templateService.GetAllTemplatesAsync(activity.OrganisationId);
 
         var viewModel = new SendEmailViewModel
         {
             ActivityId = activity.Id,
             ActivityName = activity.Name,
-            RecipientOptions = GetRecipientOptions(activity.Groups),
+            RecipientOptions = GetRecipientOptions(activity.Groups, excursions),
             DayOptions = GetDayOptions(activity.Days)
         };
 
@@ -530,9 +561,28 @@ public class ActivityManagementController : Controller
         {
             query = query.Where(b => !b.IsMedicalSheet);
         }
+        else if (selectedRecipient == RecipientUnpaidParents)
+        {
+            // Filter bookings where PaidAmount < TotalAmount (unpaid balance)
+            query = query.Where(b => b.PaidAmount < b.TotalAmount);
+        }
         else if (selectedRecipient.StartsWith(RecipientGroupPrefix) && recipientGroupId.HasValue)
         {
             query = query.Where(b => b.GroupId == recipientGroupId);
+        }
+        else if (selectedRecipient.StartsWith(RecipientExcursionPrefix))
+        {
+            // Extract excursion ID and filter bookings registered to that excursion
+            var excursionIdStr = selectedRecipient.Substring(RecipientExcursionPrefix.Length);
+            if (int.TryParse(excursionIdStr, out var excursionId))
+            {
+                var registeredBookingIds = await _context.ExcursionRegistrations
+                    .Where(er => er.ExcursionId == excursionId)
+                    .Select(er => er.BookingId)
+                    .ToListAsync(ct);
+
+                query = query.Where(b => registeredBookingIds.Contains(b.Id));
+            }
         }
 
         return await query.ToListAsync(ct);
@@ -714,21 +764,56 @@ public class ActivityManagementController : Controller
         return RedirectToAction(nameof(TeamMembers));
     }
 
-    private List<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem> GetRecipientOptions(IEnumerable<Core.Entities.ActivityGroup> groups)
+    private List<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem> GetRecipientOptions(
+        IEnumerable<Core.Entities.ActivityGroup> groups,
+        IEnumerable<Core.Entities.Excursion> excursions)
     {
         var options = new List<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem>
         {
             new() { Value = RecipientAllParents, Text = _localizer["Email.RecipientAllParents"] },
-            new() { Value = RecipientMedicalSheetReminder, Text = _localizer["Email.RecipientMedicalSheetReminder"] }
+            new() { Value = RecipientMedicalSheetReminder, Text = _localizer["Email.RecipientMedicalSheetReminder"] },
+            new() { Value = RecipientUnpaidParents, Text = _localizer["Email.RecipientUnpaidParents"] }
         };
 
-        foreach (var group in groups)
+        // Add groups section
+        if (groups.Any())
         {
             options.Add(new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem
             {
-                Value = $"{RecipientGroupPrefix}{group.Id}",
-                Text = $"{_localizer["Email.RecipientGroup"]}: {group.Label}"
+                Value = "",
+                Text = "──────────────────────────",
+                Disabled = true
             });
+
+            foreach (var group in groups)
+            {
+                options.Add(new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem
+                {
+                    Value = $"{RecipientGroupPrefix}{group.Id}",
+                    Text = $"{_localizer["Email.RecipientGroup"]}: {group.Label}"
+                });
+            }
+        }
+
+        // Add excursions section
+        var activeExcursions = excursions.Where(e => e.IsActive).ToList();
+        if (activeExcursions.Any())
+        {
+            options.Add(new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem
+            {
+                Value = "",
+                Text = "──────────────────────────",
+                Disabled = true
+            });
+
+            foreach (var excursion in activeExcursions)
+            {
+                options.Add(new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem
+                {
+                    Value = $"{RecipientExcursionPrefix}{excursion.Id}",
+                    Text = $"{_localizer["Email.RecipientExcursion"]}: {excursion.Name}"
+                });
+            }
         }
 
         return options;
@@ -743,7 +828,11 @@ public class ActivityManagementController : Controller
 
         if (activity != null)
         {
-            model.RecipientOptions = GetRecipientOptions(activity.Groups);
+            var excursions = await _context.Excursions
+                .Where(e => e.ActivityId == model.ActivityId)
+                .ToListAsync(ct);
+
+            model.RecipientOptions = GetRecipientOptions(activity.Groups, excursions);
             model.DayOptions = GetDayOptions(activity.Days);
             ViewBag.Templates = await _templateService.GetAllTemplatesAsync(activity.OrganisationId);
         }
@@ -883,8 +972,7 @@ public class ActivityManagementController : Controller
             Activity = activity,
             ActivityDay = activityDay,
             PresenceItems = presenceItems
-                .OrderBy(p => p.ActivityGroupName)
-                .ThenBy(p => p.ChildLastName)
+                .OrderBy(p => p.ChildLastName)
                 .ThenBy(p => p.ChildFirstName)
                 .ToList()
         };

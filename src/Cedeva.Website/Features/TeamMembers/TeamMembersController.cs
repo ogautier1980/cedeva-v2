@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Cedeva.Core.Entities;
+using Cedeva.Core.Helpers;
 using Cedeva.Core.Interfaces;
 using Cedeva.Website.Features.TeamMembers.ViewModels;
 using Cedeva.Website.Localization;
@@ -319,7 +320,7 @@ public class TeamMembersController : Controller
             LastName = viewModel.LastName,
             Email = viewModel.Email,
             MobilePhoneNumber = viewModel.MobilePhoneNumber,
-            NationalRegisterNumber = viewModel.NationalRegisterNumber,
+            NationalRegisterNumber = NationalRegisterNumberHelper.StripFormatting(viewModel.NationalRegisterNumber),
             BirthDate = viewModel.BirthDate,
             AddressId = addressId,
             TeamRole = viewModel.TeamRole,
@@ -381,7 +382,7 @@ public class TeamMembersController : Controller
             LastName = teamMember.LastName,
             Email = teamMember.Email,
             MobilePhoneNumber = teamMember.MobilePhoneNumber,
-            NationalRegisterNumber = teamMember.NationalRegisterNumber,
+            NationalRegisterNumber = NationalRegisterNumberHelper.Format(teamMember.NationalRegisterNumber),
             BirthDate = teamMember.BirthDate,
             Street = address?.Street ?? "",
             City = address?.City ?? "",
@@ -614,7 +615,7 @@ public class TeamMembersController : Controller
             LastName = teamMember.LastName,
             Email = teamMember.Email,
             MobilePhoneNumber = teamMember.MobilePhoneNumber,
-            NationalRegisterNumber = teamMember.NationalRegisterNumber,
+            NationalRegisterNumber = NationalRegisterNumberHelper.Format(teamMember.NationalRegisterNumber),
             BirthDate = teamMember.BirthDate,
             Street = address?.Street ?? "",
             City = address?.City ?? "",
@@ -673,7 +674,7 @@ public class TeamMembersController : Controller
         teamMember.LastName = viewModel.LastName;
         teamMember.Email = viewModel.Email;
         teamMember.MobilePhoneNumber = viewModel.MobilePhoneNumber;
-        teamMember.NationalRegisterNumber = viewModel.NationalRegisterNumber;
+        teamMember.NationalRegisterNumber = NationalRegisterNumberHelper.StripFormatting(viewModel.NationalRegisterNumber);
         teamMember.BirthDate = viewModel.BirthDate;
         teamMember.TeamRole = viewModel.TeamRole;
         teamMember.License = viewModel.License;

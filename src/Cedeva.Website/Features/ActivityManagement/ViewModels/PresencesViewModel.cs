@@ -9,7 +9,7 @@ public class PresencesViewModel
     public int? SelectedActivityDayId { get; set; }
     public ActivityDay? SelectedActivityDay { get; set; }
     public List<SelectListItem> ActivityDayOptions { get; set; } = new();
-    public Dictionary<ActivityGroup, List<PresenceChildInfo>> ChildrenByGroup { get; set; } = new();
+    public List<PresenceChildInfo> Children { get; set; } = new();
 }
 
 public class PresenceChildInfo

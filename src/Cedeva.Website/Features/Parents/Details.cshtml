@@ -29,7 +29,7 @@
                         <dd class="col-sm-8">@Model.LastName</dd>
 
                         <dt class="col-sm-4">@Localizer["NationalRegisterNumber"]</dt>
-                        <dd class="col-sm-8">@Model.NationalRegisterNumber</dd>
+                        <dd class="col-sm-8">@Cedeva.Core.Helpers.NationalRegisterNumberHelper.Format(Model.NationalRegisterNumber)</dd>
                     </dl>
 
                     <hr />

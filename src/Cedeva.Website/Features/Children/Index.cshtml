@@ -79,7 +79,7 @@
                                             @child.ParentFullName
                                         </a>
                                     </td>
-                                    <td><small>@child.NationalRegisterNumber</small></td>
+                                    <td><small>@Cedeva.Core.Helpers.NationalRegisterNumberHelper.Format(child.NationalRegisterNumber)</small></td>
                                     <td class="text-end">
                                         <div class="btn-group">
                                             <a asp-action="Details" asp-route-id="@child.Id" class="btn btn-sm btn-outline-primary" title="@Localizer["Details"]">

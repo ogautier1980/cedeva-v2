@@ -46,7 +46,7 @@
 
     @if (Model.SelectedActivityDay != null)
     {
-        @if (!Model.ChildrenByGroup.Any())
+        @if (!Model.Children.Any())
         {
             <div class="alert alert-info">
                 <i class="fas fa-info-circle"></i> @Localizer["ActivityManagement.NoConfirmedBookings"]
@@ -54,70 +54,66 @@
         }
         else
         {
-            <!-- Affichage par groupe -->
-            @foreach (var groupEntry in Model.ChildrenByGroup)
-            {
-                var group = groupEntry.Key;
-                var children = groupEntry.Value;
-
-                <div class="card mb-4">
-                    <div class="card-header bg-primary text-white">
-                        <h5 class="mb-0">
-                            <i class="fas fa-users"></i> @group.Label
-                            <span class="badge bg-light text-dark ms-2">@children.Count @Localizer["ActivityManagement.ChildrenCount"]</span>
-                        </h5>
-                    </div>
-                    <div class="card-body p-0">
-                        <div class="table-responsive">
-                            <table class="table table-hover mb-0">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th>@Localizer["LastName"]</th>
-                                        <th>@Localizer["FirstName"]</th>
-                                        <th class="text-center">@Localizer["Reserved"]</th>
-                                        <th class="text-center">@Localizer["Present"]</th>
+            <!-- Liste alphabétique -->
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-list"></i> @Localizer["Presences"]
+                        <span class="badge bg-light text-dark ms-2">@Model.Children.Count @Localizer["ActivityManagement.ChildrenCount"]</span>
+                    </h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>@Localizer["LastName"]</th>
+                                    <th>@Localizer["FirstName"]</th>
+                                    <th>@Localizer["Activities.Group"]</th>
+                                    <th class="text-center">@Localizer["Reserved"]</th>
+                                    <th class="text-center">@Localizer["Present"]</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var child in Model.Children)
+                                {
+                                    <tr class="@(child.IsPresent ? "table-success" : "")">
+                                        <td>@child.ChildLastName</td>
+                                        <td>@child.ChildFirstName</td>
+                                        <td><span class="badge bg-secondary">@child.ActivityGroupName</span></td>
+                                        <td class="text-center">
+                                            @if (child.IsReserved)
+                                            {
+                                                <i class="fas fa-check text-success"></i>
+                                            }
+                                            else
+                                            {
+                                                <i class="fas fa-times text-danger"></i>
+                                            }
+                                        </td>
+                                        <td class="text-center">
+                                            @if (child.BookingDayId.HasValue)
+                                            {
+                                                <div class="form-check d-inline-block">
+                                                    <input type="checkbox"
+                                                           class="form-check-input presence-checkbox"
+                                                           data-bookingday-id="@child.BookingDayId.Value"
+                                                           @(child.IsPresent ? "checked" : "")
+                                                           style="cursor: pointer;" />
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted">N/A</span>
+                                            }
+                                        </td>
                                     </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach (var child in children)
-                                    {
-                                        <tr class="@(child.IsPresent ? "table-success" : "")">
-                                            <td>@child.ChildLastName</td>
-                                            <td>@child.ChildFirstName</td>
-                                            <td class="text-center">
-                                                @if (child.IsReserved)
-                                                {
-                                                    <i class="fas fa-check text-success"></i>
-                                                }
-                                                else
-                                                {
-                                                    <i class="fas fa-times text-danger"></i>
-                                                }
-                                            </td>
-                                            <td class="text-center">
-                                                @if (child.BookingDayId.HasValue)
-                                                {
-                                                    <div class="form-check d-inline-block">
-                                                        <input type="checkbox"
-                                                               class="form-check-input presence-checkbox"
-                                                               data-bookingday-id="@child.BookingDayId.Value"
-                                                               @(child.IsPresent ? "checked" : "")
-                                                               style="cursor: pointer;" />
-                                                    </div>
-                                                }
-                                                else
-                                                {
-                                                    <span class="text-muted">N/A</span>
-                                                }
-                                            </td>
-                                        </tr>
-                                    }
-                                </tbody>
-                            </table>
-                        </div>
+                                }
+                            </tbody>
+                        </table>
                     </div>
                 </div>
-            }
+            </div>
         }
     }
     else

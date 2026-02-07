@@ -2,7 +2,15 @@
 @{
     ViewData["Title"] = Localizer["PublicRegistration.Registration"];
     Layout = null;
-    var bgColor = ViewBag.BackgroundColor as string ?? "ffffff";
+
+    // Get colors from query string
+    var bgColor = Context.Request.Query["bg"].ToString();
+    var btnColor = Context.Request.Query["btn"].ToString();
+
+    // Default colors
+    if (string.IsNullOrEmpty(bgColor)) bgColor = "ffffff";
+    if (string.IsNullOrEmpty(btnColor)) btnColor = "0d6efd";
+
     var questions = ViewBag.Questions as List<Cedeva.Core.Entities.ActivityQuestion> ?? new List<Cedeva.Core.Entities.ActivityQuestion>();
 }
 
@@ -64,9 +72,16 @@
             border-radius: 6px;
         }
         .btn-primary {
+            background-color: #@btnColor !important;
+            border-color: #@btnColor !important;
             border-radius: 6px;
             padding: 0.75rem 2rem;
             font-weight: 500;
+        }
+        .btn-primary:hover,
+        .btn-primary:focus {
+            background-color: #@(btnColor)dd !important;
+            border-color: #@(btnColor)dd !important;
         }
         .required-mark::after {
             content: " *";
@@ -99,7 +114,11 @@
             <form asp-action="Register" method="post">
                 <input type="hidden" asp-for="ActivityId" />
                 <input type="hidden" name="bg" value="@bgColor" />
-                <div asp-validation-summary="All" class="alert alert-danger" role="alert"></div>
+
+                @if (!ViewData.ModelState.IsValid)
+                {
+                    <div asp-validation-summary="All" class="alert alert-danger" role="alert"></div>
+                }
 
                 <div class="section-title">
                     <i class="fas fa-user me-2"></i>@Localizer["PublicRegistration.ParentInformation"]
@@ -189,21 +208,6 @@
                         <label asp-for="ChildNationalRegisterNumber" class="form-label required-mark"></label>
                         <input asp-for="ChildNationalRegisterNumber" class="form-control" />
                         <span asp-validation-for="ChildNationalRegisterNumber" class="text-danger"></span>
-                    </div>
-                </div>
-
-                <div class="mb-4">
-                    <div class="form-check mb-2">
-                        <input asp-for="IsDisadvantagedEnvironment" class="form-check-input" type="checkbox" />
-                        <label asp-for="IsDisadvantagedEnvironment" class="form-check-label"></label>
-                    </div>
-                    <div class="form-check mb-2">
-                        <input asp-for="IsMildDisability" class="form-check-input" type="checkbox" />
-                        <label asp-for="IsMildDisability" class="form-check-label"></label>
-                    </div>
-                    <div class="form-check">
-                        <input asp-for="IsSevereDisability" class="form-check-input" type="checkbox" />
-                        <label asp-for="IsSevereDisability" class="form-check-label"></label>
                     </div>
                 </div>
 

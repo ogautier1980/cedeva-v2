@@ -101,10 +101,7 @@
                     <a asp-controller="Bookings" asp-action="Index" asp-route-activityId="@Model.Id" class="list-group-item list-group-item-action">
                         <i class="fas fa-clipboard-list me-2"></i>@Localizer["Activities.ViewBookings"]
                     </a>
-                    <a asp-controller="ActivityManagement" asp-action="Presences" asp-route-activityId="@Model.Id" class="list-group-item list-group-item-action">
-                        <i class="fas fa-calendar-check me-2"></i>@Localizer["Activities.ManagePresences"]
-                    </a>
-                    <a asp-controller="PublicRegistration" asp-action="EmbedCode" asp-route-activityId="@Model.Id" class="list-group-item list-group-item-action">
+                    <a asp-controller="PublicRegistration" asp-action="EmbedCode" asp-route-id="@Model.Id" class="list-group-item list-group-item-action">
                         <i class="fas fa-code me-2"></i>@Localizer["Activities.IntegrationCode"]
                     </a>
                 </div>

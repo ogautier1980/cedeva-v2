@@ -10,7 +10,7 @@ public class SendEmailViewModel
 
     [Required(ErrorMessage = "Validation.Required")]
     [Display(Name = "Field.Recipient")]
-    public string SelectedRecipient { get; set; } = string.Empty;
+    public string? SelectedRecipient { get; set; }
 
     [Display(Name = "Email.ScheduledForDay")]
     public int? SelectedDayId { get; set; }

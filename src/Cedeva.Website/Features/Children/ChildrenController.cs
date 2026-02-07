@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Cedeva.Core.Entities;
+using Cedeva.Core.Helpers;
 using Cedeva.Core.Interfaces;
 using Cedeva.Website.Features.Children.ViewModels;
 using Cedeva.Website.Localization;
@@ -293,7 +294,7 @@ public class ChildrenController : Controller
             {
                 FirstName = viewModel.FirstName,
                 LastName = viewModel.LastName,
-                NationalRegisterNumber = viewModel.NationalRegisterNumber,
+                NationalRegisterNumber = NationalRegisterNumberHelper.StripFormatting(viewModel.NationalRegisterNumber),
                 BirthDate = viewModel.BirthDate,
                 IsDisadvantagedEnvironment = viewModel.IsDisadvantagedEnvironment,
                 IsMildDisability = viewModel.IsMildDisability,
@@ -328,7 +329,7 @@ public class ChildrenController : Controller
             Id = child.Id,
             FirstName = child.FirstName,
             LastName = child.LastName,
-            NationalRegisterNumber = child.NationalRegisterNumber,
+            NationalRegisterNumber = NationalRegisterNumberHelper.Format(child.NationalRegisterNumber),
             BirthDate = child.BirthDate,
             IsDisadvantagedEnvironment = child.IsDisadvantagedEnvironment,
             IsMildDisability = child.IsMildDisability,
@@ -365,7 +366,7 @@ public class ChildrenController : Controller
 
             child.FirstName = viewModel.FirstName;
             child.LastName = viewModel.LastName;
-            child.NationalRegisterNumber = viewModel.NationalRegisterNumber;
+            child.NationalRegisterNumber = NationalRegisterNumberHelper.StripFormatting(viewModel.NationalRegisterNumber);
             child.BirthDate = viewModel.BirthDate;
             child.IsDisadvantagedEnvironment = viewModel.IsDisadvantagedEnvironment;
             child.IsMildDisability = viewModel.IsMildDisability;

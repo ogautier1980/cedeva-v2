@@ -19,21 +19,43 @@
                     <h5 class="mb-0"><i class="fas fa-palette me-2"></i>@Localizer["PublicRegistration.Customization"]</h5>
                 </div>
                 <div class="card-body">
-                    <div class="mb-3">
-                        <label for="bgColor" class="form-label">@Localizer["PublicRegistration.BackgroundColor"]</label>
-                        <div class="input-group">
-                            <span class="input-group-text">#</span>
-                            <input type="text" class="form-control" id="bgColor" value="ffffff" maxlength="6" placeholder="ffffff" />
-                            <input type="color" class="form-control form-control-color" id="colorPicker" value="#ffffff" title="@Localizer["PublicRegistration.ChooseColor"]" />
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="bgColor" class="form-label">@Localizer["PublicRegistration.BackgroundColor"]</label>
+                            <div class="input-group">
+                                <span class="input-group-text">#</span>
+                                <input type="text" class="form-control" id="bgColor" value="667eea" maxlength="6" placeholder="667eea" style="max-width: 120px;" />
+                                <input type="color" class="form-control form-control-color" id="bgColorPicker" value="#667eea" title="@Localizer["PublicRegistration.ChooseColor"]" />
+                            </div>
+                            <small class="form-text text-muted">@Localizer["PublicRegistration.ColorHelp"]</small>
                         </div>
-                        <small class="form-text text-muted">@Localizer["PublicRegistration.ColorHelp"]</small>
+
+                        <div class="col-md-6 mb-3">
+                            <label for="btnColor" class="form-label">@Localizer["PublicRegistration.ButtonColor"]</label>
+                            <div class="input-group">
+                                <span class="input-group-text">#</span>
+                                <input type="text" class="form-control" id="btnColor" value="0d6efd" maxlength="6" placeholder="0d6efd" style="max-width: 120px;" />
+                                <input type="color" class="form-control form-control-color" id="btnColorPicker" value="#0d6efd" title="@Localizer["PublicRegistration.ChooseColor"]" />
+                            </div>
+                            <small class="form-text text-muted">@Localizer["PublicRegistration.ButtonColorHelp"]</small>
+                        </div>
                     </div>
 
-                    <div class="mb-3">
-                        <label for="iframeHeight" class="form-label">@Localizer["PublicRegistration.Height"]</label>
-                        <div class="input-group">
-                            <input type="number" class="form-control" id="iframeHeight" value="1200" min="600" max="3000" />
-                            <span class="input-group-text">px</span>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="iframeWidth" class="form-label">@Localizer["PublicRegistration.Width"]</label>
+                            <div class="input-group" style="max-width: 200px;">
+                                <input type="number" class="form-control" id="iframeWidth" value="100" min="50" max="100" />
+                                <span class="input-group-text">%</span>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label for="iframeHeight" class="form-label">@Localizer["PublicRegistration.Height"]</label>
+                            <div class="input-group" style="max-width: 200px;">
+                                <input type="number" class="form-control" id="iframeHeight" value="1200" min="600" max="3000" />
+                                <span class="input-group-text">px</span>
+                            </div>
                         </div>
                     </div>
 
@@ -51,7 +73,7 @@
                     <p>@Localizer["PublicRegistration.EmbedInstructions"]</p>
 
                     <div class="position-relative">
-                        <pre class="bg-light p-3 border rounded"><code id="embedCode"></code></pre>
+                        <pre class="bg-light p-3 border rounded" style="padding-top: 3rem !important; min-height: 80px;"><code id="embedCode"></code></pre>
                         <button class="btn btn-sm btn-outline-primary position-absolute top-0 end-0 m-2" onclick="copyToClipboard()">
                             <i class="fas fa-copy me-2"></i>@Localizer["PublicRegistration.Copy"]
                         </button>
@@ -90,14 +112,21 @@
 
         function updateCode() {
             const bgColor = document.getElementById('bgColor').value.replace('#', '');
+            const btnColor = document.getElementById('btnColor').value.replace('#', '');
+            const width = document.getElementById('iframeWidth').value;
             const height = document.getElementById('iframeHeight').value;
-            const iframeUrl = `${baseUrl}/PublicRegistration/Register?activityId=${activityId}&bg=${bgColor}`;
+            const iframeUrl = `${baseUrl}/PublicRegistration/Register?activityId=${activityId}&bg=${bgColor}&btn=${btnColor}`;
 
-            const embedCode = `<iframe src="${iframeUrl}" width="100%" height="${height}" frameborder="0" style="border: 1px solid #ddd; border-radius: 8px;"></iframe>`;
+            const embedCode = `<iframe src="${iframeUrl}" width="${width}%" height="${height}" frameborder="0" style="border: 1px solid #ddd; border-radius: 8px;"></iframe>`;
 
             document.getElementById('embedCode').textContent = embedCode;
             document.getElementById('directLink').value = iframeUrl;
-            document.getElementById('previewFrame').src = iframeUrl;
+
+            // Update preview frame
+            const previewFrame = document.getElementById('previewFrame');
+            previewFrame.src = iframeUrl;
+            previewFrame.style.width = width + '%';
+            previewFrame.style.height = height + 'px';
         }
 
         function copyToClipboard() {
@@ -118,15 +147,41 @@
             });
         }
 
-        // Color picker sync
-        document.getElementById('colorPicker').addEventListener('input', function() {
+        // Background color picker sync
+        document.getElementById('bgColorPicker').addEventListener('input', function() {
             document.getElementById('bgColor').value = this.value.substring(1);
         });
 
         document.getElementById('bgColor').addEventListener('input', function() {
             let color = this.value.replace('#', '');
             if (color.length === 6) {
-                document.getElementById('colorPicker').value = '#' + color;
+                document.getElementById('bgColorPicker').value = '#' + color;
+            }
+        });
+
+        // Button color picker sync
+        document.getElementById('btnColorPicker').addEventListener('input', function() {
+            document.getElementById('btnColor').value = this.value.substring(1);
+            updateCode();
+        });
+
+        document.getElementById('btnColor').addEventListener('input', function() {
+            let color = this.value.replace('#', '');
+            if (color.length === 6) {
+                document.getElementById('btnColorPicker').value = '#' + color;
+                updateCode();
+            }
+        });
+
+        // Width and height auto-update
+        document.getElementById('iframeWidth').addEventListener('input', updateCode);
+        document.getElementById('iframeHeight').addEventListener('input', updateCode);
+
+        // Background color auto-update
+        document.getElementById('bgColorPicker').addEventListener('change', updateCode);
+        document.getElementById('bgColor').addEventListener('change', function() {
+            if (this.value.length === 6) {
+                updateCode();
             }
         });
 

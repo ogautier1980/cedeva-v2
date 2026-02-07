@@ -1084,6 +1084,12 @@
   <data name="Email.RecipientMedicalSheetReminder" xml:space="preserve">
     <value>[EN] Rappel fiche médicale</value>
   </data>
+  <data name="Email.RecipientUnpaidParents" xml:space="preserve">
+    <value>Parents with unpaid balance</value>
+  </data>
+  <data name="Email.RecipientExcursion" xml:space="preserve">
+    <value>Excursion</value>
+  </data>
   <data name="Email.RecipientType" xml:space="preserve">
     <value>Recipient Type</value>
   </data>
@@ -2071,6 +2077,9 @@
   <data name="Home.ErrorTitle" xml:space="preserve">
     <value>[EN] Une erreur s'est produite</value>
   </data>
+  <data name="Home.Manage" xml:space="preserve">
+    <value>Manage</value>
+  </data>
   <data name="Home.NewActivity" xml:space="preserve">
     <value>[EN] Nouvelle activité</value>
   </data>
@@ -2788,6 +2797,12 @@
   <data name="PublicRegistration.BackgroundColor" xml:space="preserve">
     <value>[EN] Couleur de fond</value>
   </data>
+  <data name="PublicRegistration.ButtonColor" xml:space="preserve">
+    <value>Button color</value>
+  </data>
+  <data name="PublicRegistration.ButtonColorHelp" xml:space="preserve">
+    <value>Choose the color of form buttons</value>
+  </data>
   <data name="PublicRegistration.BirthDate" xml:space="preserve">
     <value>[EN] Date de naissance:</value>
   </data>
@@ -2857,8 +2872,11 @@
   <data name="PublicRegistration.From" xml:space="preserve">
     <value>[EN] Du:</value>
   </data>
+  <data name="PublicRegistration.Width" xml:space="preserve">
+    <value>Width</value>
+  </data>
   <data name="PublicRegistration.Height" xml:space="preserve">
-    <value>[EN] Hauteur</value>
+    <value>Height</value>
   </data>
   <data name="PublicRegistration.Instruction1" xml:space="preserve">
     <value>[EN] Copiez le code HTML ci-dessus</value>

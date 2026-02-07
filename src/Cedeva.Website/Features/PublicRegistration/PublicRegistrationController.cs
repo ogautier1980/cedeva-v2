@@ -1,5 +1,6 @@
 using Cedeva.Core.Entities;
 using Cedeva.Core.Enums;
+using Cedeva.Core.Helpers;
 using Cedeva.Core.Interfaces;
 using Cedeva.Infrastructure.Data;
 using Cedeva.Website.Features.PublicRegistration.ViewModels;
@@ -182,7 +183,7 @@ public class PublicRegistrationController : Controller
                 FirstName = model.FirstName,
                 LastName = model.LastName,
                 BirthDate = model.BirthDate,
-                NationalRegisterNumber = model.NationalRegisterNumber,
+                NationalRegisterNumber = NationalRegisterNumberHelper.StripFormatting(model.NationalRegisterNumber),
                 IsDisadvantagedEnvironment = model.IsDisadvantagedEnvironment,
                 IsMildDisability = model.IsMildDisability,
                 IsSevereDisability = model.IsSevereDisability,
@@ -662,17 +663,17 @@ public class PublicRegistrationController : Controller
         return booking.Id;
     }
 
-    // GET: PublicRegistration/EmbedCode?activityId=1
+    // GET: PublicRegistration/EmbedCode/1
     [Authorize(Roles = "Admin,Coordinator")]
-    public async Task<IActionResult> EmbedCode(int activityId)
+    public async Task<IActionResult> EmbedCode(int id)
     {
-        var activity = await _context.Activities.FindAsync(activityId);
+        var activity = await _context.Activities.FindAsync(id);
         if (activity == null)
         {
             return NotFound();
         }
 
-        ViewBag.ActivityId = activityId;
+        ViewBag.ActivityId = id;
         ViewBag.ActivityName = activity.Name;
 
         return View();
@@ -751,7 +752,7 @@ public class PublicRegistrationController : Controller
         existingParent.LastName = model.LastName;
         existingParent.PhoneNumber = model.PhoneNumber;
         existingParent.MobilePhoneNumber = model.MobilePhoneNumber;
-        existingParent.NationalRegisterNumber = model.NationalRegisterNumber;
+        existingParent.NationalRegisterNumber = NationalRegisterNumberHelper.StripFormatting(model.NationalRegisterNumber);
 
         if (existingParent.Address != null)
         {
@@ -781,7 +782,7 @@ public class PublicRegistrationController : Controller
             Email = model.Email,
             PhoneNumber = model.PhoneNumber,
             MobilePhoneNumber = model.MobilePhoneNumber,
-            NationalRegisterNumber = model.NationalRegisterNumber,
+            NationalRegisterNumber = NationalRegisterNumberHelper.StripFormatting(model.NationalRegisterNumber),
             Address = CreateAddressFromModel(model),
             OrganisationId = organisationId
         };
