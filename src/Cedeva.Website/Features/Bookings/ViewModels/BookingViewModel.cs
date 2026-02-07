@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using Cedeva.Core.Enums;
 using Cedeva.Website.ViewModels;
 
 namespace Cedeva.Website.Features.Bookings.ViewModels;
@@ -52,4 +53,18 @@ public class BookingViewModel : AuditableViewModel
 
     // Days grouped by week (for Details view)
     public List<WeeklyBookingDaysViewModel> WeeklyDays { get; set; } = new();
+
+    // Questions and answers (for Details/Edit views)
+    public List<BookingQuestionViewModel> Questions { get; set; } = new();
+}
+
+public class BookingQuestionViewModel
+{
+    public int Id { get; set; }
+    public string QuestionText { get; set; } = string.Empty;
+    public QuestionType QuestionType { get; set; }
+    public bool IsRequired { get; set; }
+    public string? Options { get; set; }
+    public int DisplayOrder { get; set; }
+    public string? AnswerText { get; set; }
 }

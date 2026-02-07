@@ -423,6 +423,8 @@ public class BookingsController : Controller
         var booking = await _context.Bookings
             .Include(b => b.Days)
                 .ThenInclude(d => d.ActivityDay)
+            .Include(b => b.QuestionAnswers)
+                .ThenInclude(qa => qa.ActivityQuestion)
             .FirstOrDefaultAsync(b => b.Id == id);
 
         if (booking == null)
@@ -434,6 +436,25 @@ public class BookingsController : Controller
         var parent = child != null ? await _context.Parents.FindAsync(child.ParentId) : null;
         var activity = await _context.Activities.FindAsync(booking.ActivityId);
         var group = booking.GroupId.HasValue ? await _context.ActivityGroups.FindAsync(booking.GroupId.Value) : null;
+
+        // Load all questions for the activity (active questions + questions with existing answers even if inactive)
+        var allQuestions = await _context.ActivityQuestions
+            .Where(q => q.ActivityId == booking.ActivityId)
+            .Where(q => q.IsActive || booking.QuestionAnswers.Any(a => a.ActivityQuestionId == q.Id))
+            .OrderBy(q => q.DisplayOrder)
+            .ToListAsync();
+
+        // Map questions with their answers
+        var questions = allQuestions.Select(q => new BookingQuestionViewModel
+        {
+            Id = q.Id,
+            QuestionText = q.QuestionText,
+            QuestionType = q.QuestionType,
+            IsRequired = q.IsRequired,
+            Options = q.Options,
+            DisplayOrder = q.DisplayOrder,
+            AnswerText = booking.QuestionAnswers.FirstOrDefault(a => a.ActivityQuestionId == q.Id)?.AnswerText
+        }).ToList();
 
         // Group booking days by week
         var weeklyDays = booking.Days
@@ -481,6 +502,7 @@ public class BookingsController : Controller
             DaysCount = booking.Days.Count,
             QuestionAnswersCount = booking.QuestionAnswers.Count,
             WeeklyDays = weeklyDays,
+            Questions = questions,
 
             // Audit fields
             CreatedAt = booking.CreatedAt,

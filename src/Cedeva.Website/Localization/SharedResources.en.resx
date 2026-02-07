@@ -643,6 +643,9 @@
   <data name="Bookings.ActionRequired" xml:space="preserve">
     <value>[EN] Action requise</value>
   </data>
+  <data name="Bookings.Answer" xml:space="preserve">
+    <value>Answer</value>
+  </data>
   <data name="Bookings.ActivityGroupHelp" xml:space="preserve">
     <value>[EN] Groupe d'activité (si applicable)</value>
   </data>
@@ -730,6 +733,9 @@
   <data name="Bookings.NoDaysSelected" xml:space="preserve">
     <value>[EN] Aucun jour sélectionné</value>
   </data>
+  <data name="Bookings.NoAnswerProvided" xml:space="preserve">
+    <value>No answer provided</value>
+  </data>
   <data name="Bookings.NotYetConfirmed" xml:space="preserve">
     <value>[EN] Cette inscription n'est pas encore confirmée.</value>
   </data>
@@ -744,6 +750,9 @@
   </data>
   <data name="Bookings.PendingOnly" xml:space="preserve">
     <value>Pending</value>
+  </data>
+  <data name="Bookings.QuestionsSection" xml:space="preserve">
+    <value>Additional Questions</value>
   </data>
   <data name="Bookings.ReservedDays" xml:space="preserve">
     <value>[EN] Jours réservés</value>
