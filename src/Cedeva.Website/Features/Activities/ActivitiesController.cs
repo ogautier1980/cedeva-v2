@@ -49,41 +49,45 @@ public class ActivitiesController : Controller
 
     public async Task<IActionResult> Index([FromQuery] ActivityQueryParameters queryParams)
     {
-        // Handle filters: query string takes priority, otherwise use filter state
-        if (!string.IsNullOrWhiteSpace(queryParams.SearchString))
+        // Check if any query parameters were provided
+        bool hasQueryParams = !string.IsNullOrWhiteSpace(queryParams.SearchString) ||
+                              queryParams.ShowActiveOnly.HasValue ||
+                              !string.IsNullOrWhiteSpace(queryParams.SortBy) ||
+                              !string.IsNullOrWhiteSpace(queryParams.SortOrder) ||
+                              queryParams.PageNumber > 1;
+
+        // If query params provided, store them and redirect to clean URL
+        if (hasQueryParams)
         {
-            _filterStateService.SetFilter("Activities_SearchString", queryParams.SearchString);
-        }
-        else
-        {
-            queryParams.SearchString = _filterStateService.GetFilter("Activities_SearchString");
+            if (!string.IsNullOrWhiteSpace(queryParams.SearchString))
+                _filterStateService.SetFilter("Activities_SearchString", queryParams.SearchString);
+
+            if (queryParams.ShowActiveOnly.HasValue)
+                _filterStateService.SetFilter("Activities_ShowActiveOnly", queryParams.ShowActiveOnly);
+
+            if (!string.IsNullOrWhiteSpace(queryParams.SortBy))
+                _filterStateService.SetFilter("Activities_SortBy", queryParams.SortBy);
+
+            if (!string.IsNullOrWhiteSpace(queryParams.SortOrder))
+                _filterStateService.SetFilter("Activities_SortOrder", queryParams.SortOrder);
+
+            if (queryParams.PageNumber > 1)
+                _filterStateService.SetFilter("Activities_PageNumber", queryParams.PageNumber.ToString());
+
+            // Redirect to clean URL
+            return RedirectToAction(nameof(Index));
         }
 
-        if (queryParams.ShowActiveOnly.HasValue)
-        {
-            _filterStateService.SetFilter("Activities_ShowActiveOnly", queryParams.ShowActiveOnly);
-        }
-        else
-        {
-            queryParams.ShowActiveOnly = _filterStateService.GetFilter<bool>("Activities_ShowActiveOnly");
-        }
+        // Load filters from state
+        queryParams.SearchString = _filterStateService.GetFilter("Activities_SearchString");
+        queryParams.ShowActiveOnly = _filterStateService.GetFilter<bool>("Activities_ShowActiveOnly");
+        queryParams.SortBy = _filterStateService.GetFilter("Activities_SortBy");
+        queryParams.SortOrder = _filterStateService.GetFilter("Activities_SortOrder");
 
-        if (!string.IsNullOrWhiteSpace(queryParams.SortBy))
+        var pageNumberStr = _filterStateService.GetFilter("Activities_PageNumber");
+        if (!string.IsNullOrEmpty(pageNumberStr) && int.TryParse(pageNumberStr, out var pageNum))
         {
-            _filterStateService.SetFilter("Activities_SortBy", queryParams.SortBy);
-        }
-        else
-        {
-            queryParams.SortBy = _filterStateService.GetFilter("Activities_SortBy");
-        }
-
-        if (!string.IsNullOrWhiteSpace(queryParams.SortOrder))
-        {
-            _filterStateService.SetFilter("Activities_SortOrder", queryParams.SortOrder);
-        }
-        else
-        {
-            queryParams.SortOrder = _filterStateService.GetFilter("Activities_SortOrder");
+            queryParams.PageNumber = pageNum;
         }
 
         var query = _context.Activities
