@@ -46,40 +46,49 @@
     }
 
     @await Html.PartialAsync("_AlertMessages")
-    <div class="row mb-3">
-        <div class="col-md-4">
-            <div class="card shadow-sm">
-                <div class="card-body position-relative" style="padding: 1rem;">
-                    <h6 class="text-uppercase fw-bold text-primary mb-1" style="font-size: 0.7rem; letter-spacing: 0.5px;">
-                        @Localizer["Financial.UnreconciledTransactions"]
-                    </h6>
-                    <h3 class="mb-0">@Model.TotalUnreconciledCount</h3>
-                    <small class="text-muted">@Model.TotalUnreconciledAmount.ToString("C")</small>
-                    <i class="fas fa-university position-absolute" style="font-size: 3rem; top: 50%; right: 1rem; transform: translateY(-50%); color: #dee2e6; opacity: 0.3;"></i>
+    <div class="row">
+        <div class="col-md-4 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2 stats-card">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs fw-bold text-primary text-uppercase mb-1">@Localizer["Financial.UnreconciledTransactions"]</div>
+                            <div class="h5 mb-0 fw-bold text-gray-800">@Model.TotalUnreconciledCount <small class="text-muted fw-normal">(@Model.TotalUnreconciledAmount.ToString("C"))</small></div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-university fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="col-md-4">
-            <div class="card shadow-sm">
-                <div class="card-body position-relative" style="padding: 1rem;">
-                    <h6 class="text-uppercase fw-bold text-primary mb-1" style="font-size: 0.7rem; letter-spacing: 0.5px;">
-                        @Localizer["Financial.UnpaidBookings"]
-                    </h6>
-                    <h3 class="mb-0">@Model.TotalUnpaidCount</h3>
-                    <small class="text-muted">@Model.TotalUnpaidAmount.ToString("C")</small>
-                    <i class="fas fa-exclamation-circle position-absolute" style="font-size: 3rem; top: 50%; right: 1rem; transform: translateY(-50%); color: #dee2e6; opacity: 0.3;"></i>
+        <div class="col-md-4 mb-4">
+            <div class="card border-left-success shadow h-100 py-2 stats-card">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs fw-bold text-success text-uppercase mb-1">@Localizer["Financial.UnpaidBookings"]</div>
+                            <div class="h5 mb-0 fw-bold text-gray-800">@Model.TotalUnpaidCount <small class="text-muted fw-normal">(@Model.TotalUnpaidAmount.ToString("C"))</small></div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-exclamation-circle fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="col-md-4">
-            <div class="card shadow-sm">
-                <div class="card-body position-relative" style="padding: 1rem;">
-                    <h6 class="text-uppercase fw-bold text-primary mb-1" style="font-size: 0.7rem; letter-spacing: 0.5px;">
-                        @Localizer["Financial.Suggestions"]
-                    </h6>
-                    <h3 class="mb-0">@Model.SuggestionsCount</h3>
-                    <small class="text-muted">@Localizer["Financial.AutomaticSuggestions"]</small>
-                    <i class="fas fa-lightbulb position-absolute" style="font-size: 3rem; top: 50%; right: 1rem; transform: translateY(-50%); color: #dee2e6; opacity: 0.3;"></i>
+        <div class="col-md-4 mb-4">
+            <div class="card border-left-info shadow h-100 py-2 stats-card">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs fw-bold text-primary text-uppercase mb-1">@Localizer["Financial.Suggestions"]</div>
+                            <div class="h5 mb-0 fw-bold text-gray-800">@Model.SuggestionsCount</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-lightbulb fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
