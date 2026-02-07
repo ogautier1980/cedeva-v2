@@ -327,9 +327,8 @@ public class ActivityQuestionsController : Controller
 
             return Json(new { success = true, message = _localizer["Message.OrderUpdated"].ToString() });
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            // Log error if logger is available
             return Json(new { success = false, message = _localizer["Error.UnexpectedError"].ToString() });
         }
     }
@@ -351,9 +350,8 @@ public class ActivityQuestionsController : Controller
             var statusKey = isActive ? "Message.QuestionActivated" : "Message.QuestionDeactivated";
             return Json(new { success = true, message = _localizer[statusKey].ToString() });
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            // Log error if logger is available
             return Json(new { success = false, message = _localizer["Error.UnexpectedError"].ToString() });
         }
     }

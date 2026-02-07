@@ -109,6 +109,8 @@ try
 
     // Add FluentValidation
     builder.Services.AddValidatorsFromAssemblyContaining<Program>();
+    builder.Services.AddFluentValidationAutoValidation();
+    builder.Services.AddFluentValidationClientsideAdapters();
 
     // Add MVC with feature folders
     builder.Services.AddControllersWithViews()
@@ -118,8 +120,6 @@ try
             options.DataAnnotationLocalizerProvider = (type, factory) =>
                 factory.Create(typeof(SharedResources));
         })
-        .AddFluentValidationAutoValidation()
-        .AddFluentValidationClientsideAdapters()
         .AddRazorOptions(options =>
         {
             // Feature folder view locations
