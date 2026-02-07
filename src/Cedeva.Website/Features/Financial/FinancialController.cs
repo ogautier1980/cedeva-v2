@@ -202,7 +202,11 @@ public class FinancialController : Controller
         try
         {
             var organisationId = _currentUserService.OrganisationId ?? throw new InvalidOperationException("Organisation ID not found");
-            var userId = int.Parse(_currentUserService.UserId ?? throw new InvalidOperationException("User ID not found"));
+
+            if (!int.TryParse(_currentUserService.UserId, out var userId))
+            {
+                throw new InvalidOperationException("User ID not found or invalid");
+            }
 
             // Parser le fichier CODA
             CodaFileDto codaData;
@@ -225,9 +229,27 @@ public class FinancialController : Controller
 
             return RedirectToAction(nameof(CodaFileDetails), new { id = codaFileId });
         }
+        catch (InvalidOperationException ex)
+        {
+            _logger.LogError(ex, "Invalid operation during CODA import");
+            ModelState.AddModelError(string.Empty, _localizer["Error.InvalidOperation"].Value);
+            return await ImportCoda();
+        }
+        catch (InvalidDataException ex)
+        {
+            _logger.LogError(ex, "Invalid CODA file format");
+            ModelState.AddModelError(string.Empty, _localizer["Error.InvalidCodaFormat"].Value);
+            return await ImportCoda();
+        }
+        catch (DbUpdateException ex)
+        {
+            _logger.LogError(ex, "Database error while importing CODA file");
+            ModelState.AddModelError(string.Empty, _localizer["Error.DatabaseError"].Value);
+            return await ImportCoda();
+        }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error importing CODA file");
+            _logger.LogError(ex, "Unexpected error importing CODA file");
             ModelState.AddModelError(string.Empty, _localizer["Error.CodaImportFailed", ex.Message].Value);
             return await ImportCoda();
         }
