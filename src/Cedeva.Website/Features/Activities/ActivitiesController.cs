@@ -25,6 +25,7 @@ public class ActivitiesController : Controller
     private readonly IPdfExportService _pdfExportService;
     private readonly IStringLocalizer<SharedResources> _localizer;
     private readonly IUserDisplayService _userDisplayService;
+    private readonly IFilterStateService _filterStateService;
 
     public ActivitiesController(
         CedevaDbContext context,
@@ -33,7 +34,8 @@ public class ActivitiesController : Controller
         IExcelExportService excelExportService,
         IPdfExportService pdfExportService,
         IStringLocalizer<SharedResources> localizer,
-        IUserDisplayService userDisplayService)
+        IUserDisplayService userDisplayService,
+        IFilterStateService filterStateService)
     {
         _context = context;
         _currentUserService = currentUserService;
@@ -42,10 +44,48 @@ public class ActivitiesController : Controller
         _pdfExportService = pdfExportService;
         _localizer = localizer;
         _userDisplayService = userDisplayService;
+        _filterStateService = filterStateService;
     }
 
     public async Task<IActionResult> Index([FromQuery] ActivityQueryParameters queryParams)
     {
+        // Handle filters: query string takes priority, otherwise use filter state
+        if (!string.IsNullOrWhiteSpace(queryParams.SearchString))
+        {
+            _filterStateService.SetFilter("Activities_SearchString", queryParams.SearchString);
+        }
+        else
+        {
+            queryParams.SearchString = _filterStateService.GetFilter("Activities_SearchString");
+        }
+
+        if (queryParams.ShowActiveOnly.HasValue)
+        {
+            _filterStateService.SetFilter("Activities_ShowActiveOnly", queryParams.ShowActiveOnly);
+        }
+        else
+        {
+            queryParams.ShowActiveOnly = _filterStateService.GetFilter<bool>("Activities_ShowActiveOnly");
+        }
+
+        if (!string.IsNullOrWhiteSpace(queryParams.SortBy))
+        {
+            _filterStateService.SetFilter("Activities_SortBy", queryParams.SortBy);
+        }
+        else
+        {
+            queryParams.SortBy = _filterStateService.GetFilter("Activities_SortBy");
+        }
+
+        if (!string.IsNullOrWhiteSpace(queryParams.SortOrder))
+        {
+            _filterStateService.SetFilter("Activities_SortOrder", queryParams.SortOrder);
+        }
+        else
+        {
+            queryParams.SortOrder = _filterStateService.GetFilter("Activities_SortOrder");
+        }
+
         var query = _context.Activities
             .IncludeAll()
             .AsQueryable();

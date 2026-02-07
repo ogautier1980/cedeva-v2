@@ -29,6 +29,8 @@ public class BookingsController : Controller
     private readonly ICurrentUserService _currentUserService;
     private readonly IUserDisplayService _userDisplayService;
     private readonly IBookingQuestionService _bookingQuestionService;
+    private readonly IActivitySelectionService _activitySelectionService;
+    private readonly IFilterStateService _filterStateService;
 
     public BookingsController(
         IRepository<Booking> bookingRepository,
@@ -40,7 +42,9 @@ public class BookingsController : Controller
         IStringLocalizer<SharedResources> localizer,
         ICurrentUserService currentUserService,
         IUserDisplayService userDisplayService,
-        IBookingQuestionService bookingQuestionService)
+        IBookingQuestionService bookingQuestionService,
+        IActivitySelectionService activitySelectionService,
+        IFilterStateService filterStateService)
     {
         _bookingRepository = bookingRepository;
         _context = context;
@@ -52,11 +56,25 @@ public class BookingsController : Controller
         _currentUserService = currentUserService;
         _userDisplayService = userDisplayService;
         _bookingQuestionService = bookingQuestionService;
+        _activitySelectionService = activitySelectionService;
+        _filterStateService = filterStateService;
     }
 
     // GET: Bookings
     public async Task<IActionResult> Index([FromQuery] BookingQueryParameters queryParams)
     {
+        // Handle activityId: query string takes priority, otherwise use service
+        if (queryParams.ActivityId.HasValue)
+        {
+            // Store in service for future requests
+            _activitySelectionService.SetSelectedActivityId(queryParams.ActivityId.Value);
+        }
+        else
+        {
+            // Try to get from service
+            queryParams.ActivityId = _activitySelectionService.GetSelectedActivityId();
+        }
+
         var query = BuildBookingsQuery(
             queryParams.SearchString,
             queryParams.ActivityId,
