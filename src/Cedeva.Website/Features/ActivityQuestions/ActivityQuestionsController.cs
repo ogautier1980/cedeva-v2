@@ -17,24 +17,26 @@ namespace Cedeva.Website.Features.ActivityQuestions;
 [Authorize]
 public class ActivityQuestionsController : Controller
 {
-    private const string TempDataSuccessMessage = "SuccessMessage";
-    private const string TempDataErrorMessage = "ErrorMessage";
+    private const string ErrorUnexpectedError = "Error.UnexpectedError";
 
     private readonly CedevaDbContext _context;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IStringLocalizer<SharedResources> _localizer;
     private readonly ISessionStateService _sessionState;
+    private readonly ILogger<ActivityQuestionsController> _logger;
 
     public ActivityQuestionsController(
         CedevaDbContext context,
         IUnitOfWork unitOfWork,
         IStringLocalizer<SharedResources> localizer,
-        ISessionStateService sessionState)
+        ISessionStateService sessionState,
+        ILogger<ActivityQuestionsController> logger)
     {
         _context = context;
         _unitOfWork = unitOfWork;
         _localizer = localizer;
         _sessionState = sessionState;
+        _logger = logger;
     }
 
     // GET: ActivityQuestions?activityId=5
@@ -138,7 +140,7 @@ public class ActivityQuestionsController : Controller
         await _context.ActivityQuestions.AddAsync(question);
         await _unitOfWork.SaveChangesAsync();
 
-        TempData[TempDataSuccessMessage] = _localizer["ActivityQuestions.CreateSuccess"].ToString();
+        TempData[ControllerExtensions.SuccessMessageKey] = _localizer["ActivityQuestions.CreateSuccess"].ToString();
 
         // ActivityId is already in session
         return RedirectToAction(nameof(Index));
@@ -215,7 +217,7 @@ public class ActivityQuestionsController : Controller
         _context.ActivityQuestions.Update(question);
         await _unitOfWork.SaveChangesAsync();
 
-        TempData[TempDataSuccessMessage] = _localizer["ActivityQuestions.UpdateSuccess"].ToString();
+        TempData[ControllerExtensions.SuccessMessageKey] = _localizer["ActivityQuestions.UpdateSuccess"].ToString();
 
         return this.RedirectToReturnUrlOrAction(returnUrl, nameof(Index));
     }
@@ -265,14 +267,14 @@ public class ActivityQuestionsController : Controller
         // Check if question has answers
         if (question.Answers.Any())
         {
-            TempData[TempDataErrorMessage] = _localizer["ActivityQuestions.DeleteErrorHasAnswers"].Value;
+            TempData[ControllerExtensions.ErrorMessageKey] = _localizer["ActivityQuestions.DeleteErrorHasAnswers"].Value;
             return RedirectToAction(nameof(Delete), new { id });
         }
 
         _context.ActivityQuestions.Remove(question);
         await _unitOfWork.SaveChangesAsync();
 
-        TempData[TempDataSuccessMessage] = _localizer["ActivityQuestions.DeleteSuccess"].ToString();
+        TempData[ControllerExtensions.SuccessMessageKey] = _localizer["ActivityQuestions.DeleteSuccess"].ToString();
 
         // ActivityId is already in session
         return RedirectToAction(nameof(Index));
@@ -335,9 +337,20 @@ public class ActivityQuestionsController : Controller
 
             return Json(new { success = true, message = _localizer["Message.OrderUpdated"].ToString() });
         }
-        catch (Exception)
+        catch (InvalidOperationException ex)
         {
-            return Json(new { success = false, message = _localizer["Error.UnexpectedError"].ToString() });
+            _logger.LogWarning(ex, "Invalid operation while updating question order");
+            return Json(new { success = false, message = ex.Message });
+        }
+        catch (DbUpdateException ex)
+        {
+            _logger.LogError(ex, "Database error while updating question order");
+            return Json(new { success = false, message = _localizer[ErrorUnexpectedError].ToString() });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Unexpected error while updating question order");
+            return Json(new { success = false, message = _localizer[ErrorUnexpectedError].ToString() });
         }
     }
 
@@ -358,9 +371,20 @@ public class ActivityQuestionsController : Controller
             var statusKey = isActive ? "Message.QuestionActivated" : "Message.QuestionDeactivated";
             return Json(new { success = true, message = _localizer[statusKey].ToString() });
         }
-        catch (Exception)
+        catch (InvalidOperationException ex)
         {
-            return Json(new { success = false, message = _localizer["Error.UnexpectedError"].ToString() });
+            _logger.LogWarning(ex, "Invalid operation while toggling question {QuestionId} active status", id);
+            return Json(new { success = false, message = ex.Message });
+        }
+        catch (DbUpdateException ex)
+        {
+            _logger.LogError(ex, "Database error while toggling question {QuestionId} active status", id);
+            return Json(new { success = false, message = _localizer[ErrorUnexpectedError].ToString() });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Unexpected error while toggling question {QuestionId} active status", id);
+            return Json(new { success = false, message = _localizer[ErrorUnexpectedError].ToString() });
         }
     }
 
@@ -391,9 +415,15 @@ public class ActivityQuestionsController : Controller
 
             return Json(new { success = true, activities });
         }
-        catch (Exception)
+        catch (InvalidOperationException ex)
         {
-            return Json(new { success = false, message = _localizer["Error.UnexpectedError"].ToString() });
+            _logger.LogWarning(ex, "Invalid operation while getting activities with questions");
+            return Json(new { success = false, message = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Unexpected error while getting activities with questions");
+            return Json(new { success = false, message = _localizer[ErrorUnexpectedError].ToString() });
         }
     }
 
@@ -420,9 +450,15 @@ public class ActivityQuestionsController : Controller
 
             return Json(new { success = true, questions });
         }
-        catch (Exception)
+        catch (InvalidOperationException ex)
         {
-            return Json(new { success = false, message = _localizer["Error.UnexpectedError"].ToString() });
+            _logger.LogWarning(ex, "Invalid operation while getting questions for activity {ActivityId}", activityId);
+            return Json(new { success = false, message = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Unexpected error while getting questions for activity {ActivityId}", activityId);
+            return Json(new { success = false, message = _localizer[ErrorUnexpectedError].ToString() });
         }
     }
 
@@ -476,9 +512,20 @@ public class ActivityQuestionsController : Controller
             var successMessage = _localizer["ActivityQuestions.Import.Success", newQuestions.Count].ToString();
             return Json(new { success = true, message = successMessage });
         }
-        catch (Exception)
+        catch (InvalidOperationException ex)
         {
-            return Json(new { success = false, message = _localizer["Error.UnexpectedError"].ToString() });
+            _logger.LogWarning(ex, "Invalid operation while importing questions");
+            return Json(new { success = false, message = ex.Message });
+        }
+        catch (DbUpdateException ex)
+        {
+            _logger.LogError(ex, "Database error while importing questions");
+            return Json(new { success = false, message = _localizer[ErrorUnexpectedError].ToString() });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Unexpected error while importing questions");
+            return Json(new { success = false, message = _localizer[ErrorUnexpectedError].ToString() });
         }
     }
 }
