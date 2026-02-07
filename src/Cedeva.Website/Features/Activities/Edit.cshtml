@@ -235,6 +235,75 @@
 
                         <hr />
 
+                        <h6 class="mb-3 text-primary"><i class="fas fa-question-circle me-2"></i>@Localizer["Activities.ManageQuestions"]</h6>
+
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>@Localizer["Activities.DragToReorder"]
+                        </div>
+
+                        <div id="existingQuestionsList" class="mb-3">
+                            @for (int i = 0; i < Model.ExistingQuestions.Count; i++)
+                            {
+                                var question = Model.ExistingQuestions[i];
+                                <div class="card mb-2 question-item" data-question-id="@question.Id">
+                                    <div class="card-body py-2">
+                                        <input type="hidden" name="ExistingQuestions[@i].Id" value="@question.Id" />
+                                        <input type="hidden" name="ExistingQuestions[@i].DisplayOrder" value="@question.DisplayOrder" class="display-order-input" />
+
+                                        <div class="row g-2 align-items-center">
+                                            <div class="col-auto">
+                                                <i class="fas fa-grip-vertical drag-handle text-muted" style="cursor: move;"></i>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <input type="text" name="ExistingQuestions[@i].QuestionText" value="@question.QuestionText"
+                                                       class="form-control form-control-sm" required maxlength="500" />
+                                            </div>
+                                            <div class="col-md-2">
+                                                <select name="ExistingQuestions[@i].QuestionType" class="form-select form-select-sm question-type-select-edit"
+                                                        data-question-index="@i" required>
+                                                    <option value="0" selected="@(question.QuestionType == QuestionType.Text)">@Localizer["Enum.QuestionType.Text"]</option>
+                                                    <option value="1" selected="@(question.QuestionType == QuestionType.Checkbox)">@Localizer["Enum.QuestionType.Checkbox"]</option>
+                                                    <option value="2" selected="@(question.QuestionType == QuestionType.Radio)">@Localizer["Enum.QuestionType.Radio"]</option>
+                                                    <option value="3" selected="@(question.QuestionType == QuestionType.Dropdown)">@Localizer["Enum.QuestionType.Dropdown"]</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-md-2">
+                                                <div class="form-check form-switch">
+                                                    <input type="checkbox" name="ExistingQuestions[@i].IsRequired" value="true"
+                                                           class="form-check-input" id="existing_required_@i" checked="@question.IsRequired" />
+                                                    <input type="hidden" name="ExistingQuestions[@i].IsRequired" value="false" />
+                                                    <label class="form-check-label small" for="existing_required_@i">@Localizer["Required"]</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-2">
+                                                <div class="form-check form-switch">
+                                                    <input type="checkbox" name="ExistingQuestions[@i].IsActive" value="true"
+                                                           class="form-check-input" id="existing_active_@i" checked="@question.IsActive" />
+                                                    <input type="hidden" name="ExistingQuestions[@i].IsActive" value="false" />
+                                                    <label class="form-check-label small" for="existing_active_@i">@Localizer["Active"]</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-12 question-options-container-edit" id="existing_options_@i"
+                                                 style="display: @(question.QuestionType == QuestionType.Radio || question.QuestionType == QuestionType.Dropdown ? "block" : "none");">
+                                                <input type="text" name="ExistingQuestions[@i].Options" value="@question.Options"
+                                                       class="form-control form-control-sm" maxlength="1000"
+                                                       placeholder="@Localizer["Activities.OptionsPlaceholder"]" />
+                                                <small class="form-text text-muted">@Localizer["Activities.OptionsHelp"]</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+
+                        <div id="newQuestionsList"></div>
+
+                        <button type="button" class="btn btn-sm btn-outline-primary mb-3" id="addNewQuestionBtn">
+                            <i class="fas fa-plus me-2"></i>@Localizer["Activities.AddQuestion"]
+                        </button>
+
+                        <hr />
+
                         <div class="d-flex justify-content-between">
                             @{
                                 var returnUrl = ViewData["ReturnUrl"]?.ToString();
@@ -256,6 +325,7 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 
     <script>
         $(document).ready(function() {
@@ -292,6 +362,105 @@
                     }
                 }, 100);
             }
+
+            // Initialize SortableJS for drag & drop
+            var el = document.getElementById('existingQuestionsList');
+            if (el) {
+                var sortable = Sortable.create(el, {
+                    handle: '.drag-handle',
+                    animation: 150,
+                    onEnd: function(evt) {
+                        // Update DisplayOrder values after drag
+                        $('#existingQuestionsList .question-item').each(function(index) {
+                            $(this).find('.display-order-input').val(index + 1);
+                        });
+                    }
+                });
+            }
+
+            // Show/hide options field based on question type (existing questions)
+            $(document).on('change', '.question-type-select-edit', function() {
+                const questionIdx = $(this).data('question-index');
+                const selectedType = $(this).val();
+                const optionsContainer = $('#existing_options_' + questionIdx);
+
+                // Show options field for Radio (2) and Dropdown (3)
+                if (selectedType === '2' || selectedType === '3') {
+                    optionsContainer.show();
+                } else {
+                    optionsContainer.hide();
+                    optionsContainer.find('input').val(''); // Clear options value
+                }
+            });
+
+            // New questions management
+            let newQuestionIndex = 0;
+
+            $('#addNewQuestionBtn').on('click', function() {
+                const questionHtml = `
+                    <div class="card mb-2">
+                        <div class="card-body py-2">
+                            <div class="row g-2">
+                                <div class="col-md-5">
+                                    <input type="text" name="NewQuestions[\${newQuestionIndex}].QuestionText" class="form-control form-control-sm"
+                                           placeholder="@Localizer["Activities.QuestionTextPlaceholder"]" required maxlength="500" />
+                                </div>
+                                <div class="col-md-3">
+                                    <select name="NewQuestions[\${newQuestionIndex}].QuestionType" class="form-select form-select-sm question-type-select-new"
+                                            data-question-index="\${newQuestionIndex}" required>
+                                        <option value="">@Localizer["Activities.SelectQuestionType"]</option>
+                                        <option value="0">@Localizer["Enum.QuestionType.Text"]</option>
+                                        <option value="1">@Localizer["Enum.QuestionType.Checkbox"]</option>
+                                        <option value="2">@Localizer["Enum.QuestionType.Radio"]</option>
+                                        <option value="3">@Localizer["Enum.QuestionType.Dropdown"]</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-2">
+                                    <div class="form-check">
+                                        <input type="checkbox" name="NewQuestions[\${newQuestionIndex}].IsRequired" value="true"
+                                               class="form-check-input" id="new_required_\${newQuestionIndex}" />
+                                        <input type="hidden" name="NewQuestions[\${newQuestionIndex}].IsRequired" value="false" />
+                                        <label class="form-check-label small" for="new_required_\${newQuestionIndex}">
+                                            @Localizer["Required"]
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-2 text-end">
+                                    <button type="button" class="btn btn-sm btn-outline-danger remove-new-question-btn">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                                <div class="col-12 question-options-container-new" id="new_options_\${newQuestionIndex}" style="display: none;">
+                                    <input type="text" name="NewQuestions[\${newQuestionIndex}].Options" class="form-control form-control-sm"
+                                           placeholder="@Localizer["Activities.OptionsPlaceholder"]" maxlength="1000" />
+                                    <small class="form-text text-muted">@Localizer["Activities.OptionsHelp"]</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>`;
+
+                $('#newQuestionsList').append(questionHtml);
+                newQuestionIndex++;
+            });
+
+            $(document).on('click', '.remove-new-question-btn', function() {
+                $(this).closest('.card').remove();
+            });
+
+            // Show/hide options field based on question type (new questions)
+            $(document).on('change', '.question-type-select-new', function() {
+                const questionIdx = $(this).data('question-index');
+                const selectedType = $(this).val();
+                const optionsContainer = $('#new_options_' + questionIdx);
+
+                // Show options field for Radio (2) and Dropdown (3)
+                if (selectedType === '2' || selectedType === '3') {
+                    optionsContainer.show();
+                } else {
+                    optionsContainer.hide();
+                    optionsContainer.find('input').val(''); // Clear options value
+                }
+            });
         });
     </script>
 }

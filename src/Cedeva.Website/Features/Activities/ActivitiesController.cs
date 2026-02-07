@@ -281,6 +281,7 @@ public class ActivitiesController : Controller
     {
         var activity = await _context.Activities
             .IncludeAllWithDays()
+            .Include(a => a.Questions)
             .FirstOrDefaultAsync(a => a.Id == id);
 
         if (activity == null)
@@ -290,6 +291,24 @@ public class ActivitiesController : Controller
 
         ViewData["ReturnUrl"] = returnUrl;
         var viewModel = MapToViewModel(activity);
+
+        // Load existing questions
+        if (activity.Questions != null && activity.Questions.Any())
+        {
+            viewModel.ExistingQuestions = activity.Questions
+                .OrderBy(q => q.DisplayOrder)
+                .Select(q => new ExistingActivityQuestionViewModel
+                {
+                    Id = q.Id,
+                    QuestionText = q.QuestionText,
+                    QuestionType = q.QuestionType,
+                    IsRequired = q.IsRequired,
+                    Options = q.Options,
+                    DisplayOrder = q.DisplayOrder,
+                    IsActive = q.IsActive
+                }).ToList();
+        }
+
         return View(viewModel);
     }
 
@@ -363,6 +382,57 @@ public class ActivitiesController : Controller
             if (result != null)
             {
                 return result;
+            }
+        }
+
+        // Handle existing questions updates
+        if (viewModel.ExistingQuestions != null && viewModel.ExistingQuestions.Any())
+        {
+            var existingQuestions = await _context.ActivityQuestions
+                .Where(q => q.ActivityId == id)
+                .ToListAsync();
+
+            foreach (var questionVm in viewModel.ExistingQuestions)
+            {
+                var question = existingQuestions.FirstOrDefault(q => q.Id == questionVm.Id);
+                if (question != null)
+                {
+                    question.QuestionText = questionVm.QuestionText.Trim();
+                    question.QuestionType = questionVm.QuestionType;
+                    question.IsRequired = questionVm.IsRequired;
+                    question.Options = questionVm.Options?.Trim();
+                    question.DisplayOrder = questionVm.DisplayOrder;
+                    question.IsActive = questionVm.IsActive;
+                    _context.ActivityQuestions.Update(question);
+                }
+            }
+        }
+
+        // Handle new questions
+        if (viewModel.NewQuestions != null && viewModel.NewQuestions.Any())
+        {
+            // Get max DisplayOrder for existing questions
+            var maxDisplayOrder = await _context.ActivityQuestions
+                .Where(q => q.ActivityId == id)
+                .MaxAsync(q => (int?)q.DisplayOrder) ?? 0;
+
+            foreach (var questionVm in viewModel.NewQuestions)
+            {
+                if (!string.IsNullOrWhiteSpace(questionVm.QuestionText))
+                {
+                    maxDisplayOrder++;
+                    var question = new ActivityQuestion
+                    {
+                        ActivityId = id,
+                        QuestionText = questionVm.QuestionText.Trim(),
+                        QuestionType = questionVm.QuestionType,
+                        IsRequired = questionVm.IsRequired,
+                        Options = questionVm.Options?.Trim(),
+                        DisplayOrder = maxDisplayOrder,
+                        IsActive = true
+                    };
+                    _context.ActivityQuestions.Add(question);
+                }
             }
         }
 

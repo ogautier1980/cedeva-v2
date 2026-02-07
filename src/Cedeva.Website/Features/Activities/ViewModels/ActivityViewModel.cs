@@ -68,6 +68,9 @@ public class ActivityViewModel : AuditableViewModel
     // For Create: new groups and questions to be created with the activity
     public List<NewActivityGroupViewModel> NewGroups { get; set; } = new();
     public List<NewActivityQuestionViewModel> NewQuestions { get; set; } = new();
+
+    // For Edit: existing questions with Id, DisplayOrder, IsActive
+    public List<ExistingActivityQuestionViewModel> ExistingQuestions { get; set; } = new();
 }
 
 public class NewActivityGroupViewModel
@@ -93,6 +96,26 @@ public class NewActivityQuestionViewModel
 
     [StringLength(1000, ErrorMessage = "Validation.StringLength")]
     public string? Options { get; set; }
+}
+
+public class ExistingActivityQuestionViewModel
+{
+    public int Id { get; set; }
+
+    [Required(ErrorMessage = "Validation.Required")]
+    [StringLength(500, ErrorMessage = "Validation.StringLength")]
+    public string QuestionText { get; set; } = string.Empty;
+
+    [Required(ErrorMessage = "Validation.Required")]
+    public QuestionType QuestionType { get; set; }
+
+    public bool IsRequired { get; set; }
+
+    [StringLength(1000, ErrorMessage = "Validation.StringLength")]
+    public string? Options { get; set; }
+
+    public int DisplayOrder { get; set; } = 1;
+    public bool IsActive { get; set; } = true;
 }
 
 public class ActivityListViewModel
