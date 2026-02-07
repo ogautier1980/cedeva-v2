@@ -46,17 +46,22 @@ public class BookingQuestionService : IBookingQuestionService
     {
         // Load existing answers if bookingId provided
         List<ActivityQuestionAnswer> existingAnswers = new();
+        var answeredQuestionIds = new List<int>();
+
         if (bookingId.HasValue)
         {
             existingAnswers = await _context.ActivityQuestionAnswers
                 .Where(a => a.BookingId == bookingId.Value)
                 .ToListAsync(ct);
+
+            // Extract question IDs for use in EF Core query (avoids LINQ translation error)
+            answeredQuestionIds = existingAnswers.Select(a => a.ActivityQuestionId).ToList();
         }
 
         // Load questions: active ones OR ones that have answers (even if inactive)
         var allQuestions = await _context.ActivityQuestions
             .Where(q => q.ActivityId == activityId)
-            .Where(q => q.IsActive || existingAnswers.Any(a => a.ActivityQuestionId == q.Id))
+            .Where(q => q.IsActive || answeredQuestionIds.Contains(q.Id))
             .OrderBy(q => q.DisplayOrder)
             .ToListAsync(ct);
 
