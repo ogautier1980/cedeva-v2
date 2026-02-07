@@ -140,7 +140,7 @@ try
     builder.Services.AddLocalization();
     builder.Services.Configure<RequestLocalizationOptions>(options =>
     {
-        // Create custom cultures that all use EUR (€) as currency
+        // Create custom Belgian cultures that all use EUR (€) as currency for formatting
         var frBE = new System.Globalization.CultureInfo("fr-BE");
         var nlBE = new System.Globalization.CultureInfo("nl-BE");
         var enBE = new System.Globalization.CultureInfo("en-BE");
@@ -150,10 +150,22 @@ try
         nlBE.NumberFormat.CurrencySymbol = "€";
         enBE.NumberFormat.CurrencySymbol = "€";
 
-        // Set supported cultures directly (cannot use AddSupportedCultures with CultureInfo objects)
+        // SupportedCultures: for formatting numbers/dates/currency (uses Belgian formats with €)
         options.SupportedCultures = new[] { frBE, nlBE, enBE };
-        options.SupportedUICultures = new[] { frBE, nlBE, enBE };
-        options.DefaultRequestCulture = new Microsoft.AspNetCore.Localization.RequestCulture("fr-BE");
+
+        // SupportedUICultures: for resource file selection (uses neutral cultures fr/nl/en)
+        // This matches the resource file names (SharedResources.fr.resx, etc.)
+        options.SupportedUICultures = new[] {
+            new System.Globalization.CultureInfo("fr"),
+            new System.Globalization.CultureInfo("nl"),
+            new System.Globalization.CultureInfo("en")
+        };
+
+        // Default: French with Belgian formatting
+        options.DefaultRequestCulture = new Microsoft.AspNetCore.Localization.RequestCulture(
+            culture: "fr-BE",  // for formatting
+            uiCulture: "fr"    // for resource files
+        );
 
         // Use cookie for culture preference
         options.RequestCultureProviders.Insert(0, new Microsoft.AspNetCore.Localization.CookieRequestCultureProvider());
