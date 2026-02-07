@@ -136,14 +136,26 @@ try
         options.Cookie.IsEssential = true;
     });
 
-    // Add localization
+    // Add localization with custom cultures (all use EUR currency)
     builder.Services.AddLocalization();
     builder.Services.Configure<RequestLocalizationOptions>(options =>
     {
-        var supportedCultures = new[] { "fr-BE", "nl-BE", "en-US" };
+        // Create custom cultures that all use EUR (€) as currency
+        var frBE = new System.Globalization.CultureInfo("fr-BE");
+        var nlBE = new System.Globalization.CultureInfo("nl-BE");
+        var enBE = new System.Globalization.CultureInfo("en-BE");
+
+        // Ensure all cultures use EUR currency symbol
+        frBE.NumberFormat.CurrencySymbol = "€";
+        nlBE.NumberFormat.CurrencySymbol = "€";
+        enBE.NumberFormat.CurrencySymbol = "€";
+
+        var supportedCultures = new[] { frBE, nlBE, enBE };
+        var supportedUICultures = new[] { "fr", "nl", "en" };
+
         options.SetDefaultCulture("fr-BE")
             .AddSupportedCultures(supportedCultures)
-            .AddSupportedUICultures(supportedCultures);
+            .AddSupportedUICultures(supportedUICultures);
 
         // Use cookie for culture preference
         options.RequestCultureProviders.Insert(0, new Microsoft.AspNetCore.Localization.CookieRequestCultureProvider());
