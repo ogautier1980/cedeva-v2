@@ -150,12 +150,10 @@ try
         nlBE.NumberFormat.CurrencySymbol = "€";
         enBE.NumberFormat.CurrencySymbol = "€";
 
-        var supportedCultures = new[] { frBE, nlBE, enBE };
-        var supportedUICultures = new[] { "fr", "nl", "en" };
-
-        options.SetDefaultCulture("fr-BE")
-            .AddSupportedCultures(supportedCultures)
-            .AddSupportedUICultures(supportedUICultures);
+        // Set supported cultures directly (cannot use AddSupportedCultures with CultureInfo objects)
+        options.SupportedCultures = new[] { frBE, nlBE, enBE };
+        options.SupportedUICultures = new[] { frBE, nlBE, enBE };
+        options.DefaultRequestCulture = new Microsoft.AspNetCore.Localization.RequestCulture("fr-BE");
 
         // Use cookie for culture preference
         options.RequestCultureProviders.Insert(0, new Microsoft.AspNetCore.Localization.CookieRequestCultureProvider());
