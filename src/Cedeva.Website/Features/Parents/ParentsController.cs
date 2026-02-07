@@ -71,14 +71,14 @@ public class ParentsController : Controller
                 _sessionState.Set("Parents_PageNumber", queryParams.PageNumber.ToString(), persistToCookie: false);
 
             // Mark that filters should be kept for the next request (after redirect)
-            TempData["KeepFilters"] = true;
+            TempData[ControllerExtensions.KeepFiltersKey] = true;
 
             // Redirect to clean URL
             return RedirectToAction(nameof(Index));
         }
 
         // If not keeping filters (no redirect, just navigation/F5), clear them
-        if (TempData["KeepFilters"] == null)
+        if (TempData[ControllerExtensions.KeepFiltersKey] == null)
         {
             _sessionState.Clear("Parents_SearchString");
             _sessionState.Clear("Parents_SortBy");

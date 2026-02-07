@@ -82,14 +82,14 @@ public class TeamMembersController : Controller
                 _sessionState.Set("TeamMembers_PageNumber", queryParams.PageNumber.ToString(), persistToCookie: false);
 
             // Mark that filters should be kept for the next request (after redirect)
-            TempData["KeepFilters"] = true;
+            TempData[ControllerExtensions.KeepFiltersKey] = true;
 
             // Redirect to clean URL
             return RedirectToAction(nameof(Index));
         }
 
         // If not keeping filters (no redirect, just navigation/F5), clear them
-        if (TempData["KeepFilters"] == null)
+        if (TempData[ControllerExtensions.KeepFiltersKey] == null)
         {
             _sessionState.Clear("TeamMembers_SearchString");
             _sessionState.Clear("TeamMembers_SortBy");

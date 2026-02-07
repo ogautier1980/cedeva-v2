@@ -22,10 +22,9 @@ public class EmailTemplatesController : Controller
     private readonly IStringLocalizer<SharedResources> _localizer;
     private readonly UserManager<CedevaUser> _userManager;
     private readonly CedevaDbContext _context;
+    private readonly ILogger<EmailTemplatesController> _logger;
 
     private const string SessionKeyActivityId = "EmailTemplates_ActivityId";
-    private const string TempDataSuccessMessage = "SuccessMessage";
-    private const string TempDataErrorMessage = "ErrorMessage";
     private const string ErrorGeneric = "Error.Generic";
     private const string ErrorNotFound = "Error.NotFound";
 
@@ -34,13 +33,15 @@ public class EmailTemplatesController : Controller
         ICurrentUserService currentUserService,
         IStringLocalizer<SharedResources> localizer,
         UserManager<CedevaUser> userManager,
-        CedevaDbContext context)
+        CedevaDbContext context,
+        ILogger<EmailTemplatesController> logger)
     {
         _templateService = templateService;
         _currentUserService = currentUserService;
         _localizer = localizer;
         _userManager = userManager;
         _context = context;
+        _logger = logger;
     }
 
     public async Task<IActionResult> Index(EmailTemplateType? type = null, int? id = null)
@@ -101,7 +102,7 @@ public class EmailTemplatesController : Controller
             var user = await _userManager.GetUserAsync(User);
             if (user == null)
             {
-                TempData[TempDataErrorMessage] = _localizer["Error.Unauthorized"].ToString();
+                TempData[ControllerExtensions.ErrorMessageKey] = _localizer["Error.Unauthorized"].ToString();
                 return RedirectToAction(nameof(Index));
             }
 
@@ -120,12 +121,27 @@ public class EmailTemplatesController : Controller
 
             await _templateService.CreateTemplateAsync(template);
 
-            TempData[TempDataSuccessMessage] = _localizer["EmailTemplate.CreateSuccess"].ToString();
+            TempData[ControllerExtensions.SuccessMessageKey] = _localizer["EmailTemplate.CreateSuccess"].ToString();
             return RedirectToAction(nameof(Index));
         }
-        catch (Exception)
+        catch (InvalidOperationException ex)
         {
-            TempData[TempDataErrorMessage] = _localizer[ErrorGeneric].ToString();
+            _logger.LogWarning(ex, "Invalid operation while creating email template");
+            TempData[ControllerExtensions.ErrorMessageKey] = _localizer[ErrorGeneric].ToString();
+            viewModel.TemplateTypeOptions = GetTemplateTypeOptions();
+            return View(viewModel);
+        }
+        catch (DbUpdateException ex)
+        {
+            _logger.LogError(ex, "Database error while creating email template");
+            TempData[ControllerExtensions.ErrorMessageKey] = _localizer[ErrorGeneric].ToString();
+            viewModel.TemplateTypeOptions = GetTemplateTypeOptions();
+            return View(viewModel);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Unexpected error while creating email template");
+            TempData[ControllerExtensions.ErrorMessageKey] = _localizer[ErrorGeneric].ToString();
             viewModel.TemplateTypeOptions = GetTemplateTypeOptions();
             return View(viewModel);
         }
@@ -136,7 +152,7 @@ public class EmailTemplatesController : Controller
         var template = await _templateService.GetTemplateByIdAsync(id);
         if (template == null)
         {
-            TempData[TempDataErrorMessage] = _localizer[ErrorNotFound].ToString();
+            TempData[ControllerExtensions.ErrorMessageKey] = _localizer[ErrorNotFound].ToString();
             return RedirectToAction(nameof(Index));
         }
 
@@ -170,7 +186,7 @@ public class EmailTemplatesController : Controller
             var template = await _templateService.GetTemplateByIdAsync(viewModel.Id);
             if (template == null)
             {
-                TempData[TempDataErrorMessage] = _localizer[ErrorNotFound].ToString();
+                TempData[ControllerExtensions.ErrorMessageKey] = _localizer[ErrorNotFound].ToString();
                 return RedirectToAction(nameof(Index));
             }
 
@@ -183,12 +199,27 @@ public class EmailTemplatesController : Controller
 
             await _templateService.UpdateTemplateAsync(template);
 
-            TempData[TempDataSuccessMessage] = _localizer["EmailTemplate.UpdateSuccess"].ToString();
+            TempData[ControllerExtensions.SuccessMessageKey] = _localizer["EmailTemplate.UpdateSuccess"].ToString();
             return RedirectToAction(nameof(Index));
         }
-        catch (Exception)
+        catch (InvalidOperationException ex)
         {
-            TempData[TempDataErrorMessage] = _localizer[ErrorGeneric].ToString();
+            _logger.LogWarning(ex, "Invalid operation while updating email template {TemplateId}", viewModel.Id);
+            TempData[ControllerExtensions.ErrorMessageKey] = _localizer[ErrorGeneric].ToString();
+            viewModel.TemplateTypeOptions = GetTemplateTypeOptions();
+            return View(viewModel);
+        }
+        catch (DbUpdateException ex)
+        {
+            _logger.LogError(ex, "Database error while updating email template {TemplateId}", viewModel.Id);
+            TempData[ControllerExtensions.ErrorMessageKey] = _localizer[ErrorGeneric].ToString();
+            viewModel.TemplateTypeOptions = GetTemplateTypeOptions();
+            return View(viewModel);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Unexpected error while updating email template {TemplateId}", viewModel.Id);
+            TempData[ControllerExtensions.ErrorMessageKey] = _localizer[ErrorGeneric].ToString();
             viewModel.TemplateTypeOptions = GetTemplateTypeOptions();
             return View(viewModel);
         }
@@ -201,11 +232,22 @@ public class EmailTemplatesController : Controller
         try
         {
             await _templateService.DeleteTemplateAsync(id);
-            TempData[TempDataSuccessMessage] = _localizer["EmailTemplate.DeleteSuccess"].ToString();
+            TempData[ControllerExtensions.SuccessMessageKey] = _localizer["EmailTemplate.DeleteSuccess"].ToString();
         }
-        catch (Exception)
+        catch (InvalidOperationException ex)
         {
-            TempData[TempDataErrorMessage] = _localizer[ErrorGeneric].ToString();
+            _logger.LogWarning(ex, "Invalid operation while deleting email template {TemplateId}", id);
+            TempData[ControllerExtensions.ErrorMessageKey] = _localizer[ErrorGeneric].ToString();
+        }
+        catch (DbUpdateException ex)
+        {
+            _logger.LogError(ex, "Database error while deleting email template {TemplateId}", id);
+            TempData[ControllerExtensions.ErrorMessageKey] = _localizer[ErrorGeneric].ToString();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Unexpected error while deleting email template {TemplateId}", id);
+            TempData[ControllerExtensions.ErrorMessageKey] = _localizer[ErrorGeneric].ToString();
         }
 
         return RedirectToAction(nameof(Index));
@@ -218,11 +260,22 @@ public class EmailTemplatesController : Controller
         try
         {
             await _templateService.SetDefaultTemplateAsync(id, type);
-            TempData[TempDataSuccessMessage] = _localizer["EmailTemplate.SetDefaultSuccess"].ToString();
+            TempData[ControllerExtensions.SuccessMessageKey] = _localizer["EmailTemplate.SetDefaultSuccess"].ToString();
         }
-        catch (Exception)
+        catch (InvalidOperationException ex)
         {
-            TempData[TempDataErrorMessage] = _localizer[ErrorGeneric].ToString();
+            _logger.LogWarning(ex, "Invalid operation while setting default email template {TemplateId}", id);
+            TempData[ControllerExtensions.ErrorMessageKey] = _localizer[ErrorGeneric].ToString();
+        }
+        catch (DbUpdateException ex)
+        {
+            _logger.LogError(ex, "Database error while setting default email template {TemplateId}", id);
+            TempData[ControllerExtensions.ErrorMessageKey] = _localizer[ErrorGeneric].ToString();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Unexpected error while setting default email template {TemplateId}", id);
+            TempData[ControllerExtensions.ErrorMessageKey] = _localizer[ErrorGeneric].ToString();
         }
 
         return RedirectToAction(nameof(Index));
@@ -233,7 +286,7 @@ public class EmailTemplatesController : Controller
         var template = await _templateService.GetTemplateByIdAsync(id);
         if (template == null)
         {
-            TempData[TempDataErrorMessage] = _localizer[ErrorNotFound].ToString();
+            TempData[ControllerExtensions.ErrorMessageKey] = _localizer[ErrorNotFound].ToString();
             return RedirectToAction(nameof(Index));
         }
 

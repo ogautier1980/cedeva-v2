@@ -12,6 +12,7 @@ public static class ControllerExtensions
     public const string SuccessMessageKey = "SuccessMessage";
     public const string ErrorMessageKey = "ErrorMessage";
     public const string WarningMessageKey = "WarningMessage";
+    public const string KeepFiltersKey = "KeepFilters";
 
     /// <summary>
     /// Sets a success message in TempData with standardized key.
