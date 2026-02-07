@@ -16,7 +16,6 @@ namespace Cedeva.Website.Features.TeamMembers;
 [Authorize]
 public class TeamMembersController : Controller
 {
-    private const string TempDataSuccessMessage = "SuccessMessage";
     private const string SortOrderDescending = "desc";
 
     private readonly IRepository<TeamMember> _teamMemberRepository;
@@ -289,7 +288,7 @@ public class TeamMembersController : Controller
             var teamMember = await CreateTeamMemberFromViewModel(viewModel, address.Id, organisationId);
             await UploadLicenseFileIfProvided(viewModel, teamMember, organisationId);
 
-            TempData[TempDataSuccessMessage] = _localizer["Message.TeamMemberCreated"].Value;
+            TempData[ControllerExtensions.SuccessMessageKey] = _localizer["Message.TeamMemberCreated"].Value;
             return RedirectToAction(nameof(Details), new { id = teamMember.TeamMemberId });
         }
 
@@ -431,7 +430,7 @@ public class TeamMembersController : Controller
             await _teamMemberRepository.UpdateAsync(teamMember);
             await _unitOfWork.SaveChangesAsync();
 
-            TempData[TempDataSuccessMessage] = _localizer["Message.TeamMemberUpdated"].Value;
+            TempData[ControllerExtensions.SuccessMessageKey] = _localizer["Message.TeamMemberUpdated"].Value;
             return this.RedirectToReturnUrlOrAction(returnUrl, nameof(Details), new { id = teamMember.TeamMemberId });
         }
 
@@ -592,7 +591,7 @@ public class TeamMembersController : Controller
             await _unitOfWork.SaveChangesAsync();
         }
 
-        TempData[TempDataSuccessMessage] = _localizer["Message.TeamMemberDeleted"].Value;
+        TempData[ControllerExtensions.SuccessMessageKey] = _localizer["Message.TeamMemberDeleted"].Value;
         return RedirectToAction(nameof(Index));
     }
 

@@ -12,8 +12,6 @@ namespace Cedeva.Website.Features.Account;
 
 public class AccountController : Controller
 {
-    private const string TempDataSuccessMessage = "SuccessMessage";
-    private const string TempDataWarningMessage = "WarningMessage";
     private const string ViewDataReturnUrl = "ReturnUrl";
 
     private readonly SignInManager<CedevaUser> _signInManager;
@@ -135,7 +133,7 @@ public class AccountController : Controller
             {
                 // Log error but don't block registration
                 // Email sending failure should not prevent user from using the app
-                TempData[TempDataWarningMessage] = string.Format(_localizer["Message.WelcomeEmailFailed"].Value, ex.Message);
+                TempData[ControllerExtensions.WarningMessageKey] = string.Format(_localizer["Message.WelcomeEmailFailed"].Value, ex.Message);
             }
 
             await _signInManager.SignInAsync(user, isPersistent: false);
@@ -191,7 +189,7 @@ public class AccountController : Controller
 
         if (result.Succeeded)
         {
-            TempData[TempDataSuccessMessage] = _localizer["Message.ProfileUpdated"].Value;
+            TempData[ControllerExtensions.SuccessMessageKey] = _localizer["Message.ProfileUpdated"].Value;
             return RedirectToAction(nameof(Profile));
         }
 

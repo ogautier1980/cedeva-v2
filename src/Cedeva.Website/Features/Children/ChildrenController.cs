@@ -16,7 +16,6 @@ namespace Cedeva.Website.Features.Children;
 [Authorize]
 public class ChildrenController : Controller
 {
-    private const string TempDataSuccessMessage = "SuccessMessage";
     private const string SortOrderDescending = "desc";
 
     private readonly IRepository<Child> _childRepository;
@@ -309,7 +308,7 @@ public class ChildrenController : Controller
             await _childRepository.AddAsync(child);
             await _unitOfWork.SaveChangesAsync();
 
-            TempData[TempDataSuccessMessage] = _localizer["Message.ChildCreated"].Value;
+            TempData[ControllerExtensions.SuccessMessageKey] = _localizer["Message.ChildCreated"].Value;
             return RedirectToAction(nameof(Details), new { id = child.Id });
         }
 
@@ -422,7 +421,7 @@ public class ChildrenController : Controller
             await _childRepository.UpdateAsync(child);
             await _unitOfWork.SaveChangesAsync();
 
-            TempData[TempDataSuccessMessage] = _localizer["Message.ChildUpdated"].Value;
+            TempData[ControllerExtensions.SuccessMessageKey] = _localizer["Message.ChildUpdated"].Value;
             return this.RedirectToReturnUrlOrAction(returnUrl, nameof(Details), new { id = child.Id });
         }
 
@@ -457,7 +456,7 @@ public class ChildrenController : Controller
         await _childRepository.DeleteAsync(child);
         await _unitOfWork.SaveChangesAsync();
 
-        TempData[TempDataSuccessMessage] = _localizer["Message.ChildDeleted"].Value;
+        TempData[ControllerExtensions.SuccessMessageKey] = _localizer["Message.ChildDeleted"].Value;
         return RedirectToAction(nameof(Index));
     }
 

@@ -15,9 +15,7 @@ namespace Cedeva.Website.Features.ActivityGroups;
 [Authorize]
 public class ActivityGroupsController : Controller
 {
-    private const string TempDataSuccessMessage = "SuccessMessage";
-    private const string TempDataErrorMessage = "ErrorMessage";
-
+        
     private readonly CedevaDbContext _context;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IStringLocalizer<SharedResources> _localizer;
@@ -121,7 +119,7 @@ public class ActivityGroupsController : Controller
         await _context.ActivityGroups.AddAsync(group);
         await _unitOfWork.SaveChangesAsync();
 
-        TempData[TempDataSuccessMessage] = _localizer["ActivityGroups.CreateSuccess"].ToString();
+        TempData[ControllerExtensions.SuccessMessageKey] = _localizer["ActivityGroups.CreateSuccess"].ToString();
 
         // ActivityId is already in session
         return RedirectToAction(nameof(Index));
@@ -185,7 +183,7 @@ public class ActivityGroupsController : Controller
         _context.ActivityGroups.Update(group);
         await _unitOfWork.SaveChangesAsync();
 
-        TempData[TempDataSuccessMessage] = _localizer["ActivityGroups.UpdateSuccess"].ToString();
+        TempData[ControllerExtensions.SuccessMessageKey] = _localizer["ActivityGroups.UpdateSuccess"].ToString();
 
         return this.RedirectToReturnUrlOrAction(returnUrl, nameof(Index));
     }
@@ -233,14 +231,14 @@ public class ActivityGroupsController : Controller
         // Check if group has bookings
         if (group.Bookings.Any())
         {
-            TempData[TempDataErrorMessage] = _localizer["ActivityGroups.DeleteErrorHasBookings"].Value;
+            TempData[ControllerExtensions.ErrorMessageKey] = _localizer["ActivityGroups.DeleteErrorHasBookings"].Value;
             return RedirectToAction(nameof(Delete), new { id });
         }
 
         _context.ActivityGroups.Remove(group);
         await _unitOfWork.SaveChangesAsync();
 
-        TempData[TempDataSuccessMessage] = _localizer["ActivityGroups.DeleteSuccess"].ToString();
+        TempData[ControllerExtensions.SuccessMessageKey] = _localizer["ActivityGroups.DeleteSuccess"].ToString();
 
         // ActivityId is already in session
         return RedirectToAction(nameof(Index));

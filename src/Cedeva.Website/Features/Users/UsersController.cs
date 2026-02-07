@@ -17,7 +17,6 @@ namespace Cedeva.Website.Features.Users;
 [Authorize(Roles = "Admin")]
 public class UsersController : Controller
 {
-    private const string TempDataSuccessMessage = "SuccessMessage";
     private const string SortOrderDescending = "desc";
 
     private readonly UserManager<CedevaUser> _userManager;
@@ -170,7 +169,7 @@ public class UsersController : Controller
                 var roleName = viewModel.Role == Role.Admin ? "Admin" : "Coordinator";
                 await _userManager.AddToRoleAsync(user, roleName);
 
-                TempData[TempDataSuccessMessage] = _localizer["Message.UserCreated"].Value;
+                TempData[ControllerExtensions.SuccessMessageKey] = _localizer["Message.UserCreated"].Value;
                 return RedirectToAction(nameof(Details), new { id = user.Id });
             }
 
@@ -249,7 +248,7 @@ public class UsersController : Controller
                 await UpdateUserPasswordIfProvided(user, viewModel.Password);
                 await UpdateUserRole(user, viewModel.Role);
 
-                TempData[TempDataSuccessMessage] = _localizer["Message.UserUpdated"].Value;
+                TempData[ControllerExtensions.SuccessMessageKey] = _localizer["Message.UserUpdated"].Value;
                 return RedirectToAction(nameof(Details), new { id = user.Id });
             }
 
@@ -296,7 +295,7 @@ public class UsersController : Controller
 
         if (result.Succeeded)
         {
-            TempData[TempDataSuccessMessage] = _localizer["Message.UserDeleted"].Value;
+            TempData[ControllerExtensions.SuccessMessageKey] = _localizer["Message.UserDeleted"].Value;
             return RedirectToAction(nameof(Index));
         }
 

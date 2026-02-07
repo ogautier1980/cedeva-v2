@@ -14,8 +14,6 @@ namespace Cedeva.Website.Features.Activities;
 [Authorize]
 public class ActivitiesController : Controller
 {
-    private const string TempDataSuccessMessage = "SuccessMessage";
-    private const string TempDataErrorMessage = "ErrorMessage";
     private const string SortOrderDescending = "desc";
 
     private readonly CedevaDbContext _context;
@@ -302,7 +300,7 @@ public class ActivitiesController : Controller
         _logger.LogInformation("Activity {Name} created by user {UserId} with {GroupCount} groups and {QuestionCount} questions",
             activity.Name, _currentUserService.UserId, viewModel.NewGroups?.Count ?? 0, viewModel.NewQuestions?.Count ?? 0);
 
-        TempData[TempDataSuccessMessage] = _localizer["Message.ActivityCreated"].Value;
+        TempData[ControllerExtensions.SuccessMessageKey] = _localizer["Message.ActivityCreated"].Value;
         return RedirectToAction(nameof(Index));
     }
 
@@ -500,7 +498,7 @@ public class ActivitiesController : Controller
         {
             await _context.SaveChangesAsync();
             _logger.LogInformation("Activity {Name} updated by user {UserId}", activity.Name, _currentUserService.UserId);
-            TempData[TempDataSuccessMessage] = _localizer["Message.ActivityUpdated"].Value;
+            TempData[ControllerExtensions.SuccessMessageKey] = _localizer["Message.ActivityUpdated"].Value;
         }
         catch (DbUpdateConcurrencyException ex)
         {
@@ -550,7 +548,7 @@ public class ActivitiesController : Controller
 
         if (activity.Bookings.Any())
         {
-            TempData[TempDataErrorMessage] = _localizer["Message.ActivityHasBookings"].Value;
+            TempData[ControllerExtensions.ErrorMessageKey] = _localizer["Message.ActivityHasBookings"].Value;
             return RedirectToAction(nameof(Index));
         }
 
@@ -558,7 +556,7 @@ public class ActivitiesController : Controller
         await _context.SaveChangesAsync();
 
         _logger.LogInformation("Activity {Name} deleted by user {UserId}", activity.Name, _currentUserService.UserId);
-        TempData[TempDataSuccessMessage] = _localizer["Message.ActivityDeleted"].Value;
+        TempData[ControllerExtensions.SuccessMessageKey] = _localizer["Message.ActivityDeleted"].Value;
 
         return RedirectToAction(nameof(Index));
     }

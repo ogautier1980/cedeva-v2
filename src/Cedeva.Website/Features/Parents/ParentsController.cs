@@ -17,8 +17,6 @@ namespace Cedeva.Website.Features.Parents;
 [Authorize]
 public class ParentsController : Controller
 {
-    private const string TempDataSuccessMessage = "SuccessMessage";
-    private const string TempDataErrorMessage = "ErrorMessage";
     private const string SortOrderDescending = "desc";
 
     private readonly CedevaDbContext _context;
@@ -318,7 +316,7 @@ public class ParentsController : Controller
 
         _logger.LogInformation("Parent {Name} created by user {UserId}", parent.FullName, _currentUserService.UserId);
 
-        TempData[TempDataSuccessMessage] = _localizer["Message.ParentCreated"].Value;
+        TempData[ControllerExtensions.SuccessMessageKey] = _localizer["Message.ParentCreated"].Value;
         return RedirectToAction(nameof(Index));
     }
 
@@ -451,7 +449,7 @@ public class ParentsController : Controller
         {
             await _context.SaveChangesAsync();
             _logger.LogInformation("Parent {Name} updated by user {UserId}", parent.FullName, _currentUserService.UserId);
-            TempData[TempDataSuccessMessage] = _localizer["Message.ParentUpdated"].Value;
+            TempData[ControllerExtensions.SuccessMessageKey] = _localizer["Message.ParentUpdated"].Value;
         }
         catch (DbUpdateConcurrencyException ex)
         {
@@ -493,7 +491,7 @@ public class ParentsController : Controller
 
         if (parent.Children.Any())
         {
-            TempData[TempDataErrorMessage] = _localizer["Message.ParentHasChildren"].Value;
+            TempData[ControllerExtensions.ErrorMessageKey] = _localizer["Message.ParentHasChildren"].Value;
             return RedirectToAction(nameof(Index));
         }
 
@@ -502,7 +500,7 @@ public class ParentsController : Controller
         await _context.SaveChangesAsync();
 
         _logger.LogInformation("Parent {Name} deleted by user {UserId}", parent.FullName, _currentUserService.UserId);
-        TempData[TempDataSuccessMessage] = _localizer["Message.ParentDeleted"].Value;
+        TempData[ControllerExtensions.SuccessMessageKey] = _localizer["Message.ParentDeleted"].Value;
 
         return RedirectToAction(nameof(Index));
     }

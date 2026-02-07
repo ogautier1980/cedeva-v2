@@ -14,7 +14,6 @@ namespace Cedeva.Website.Features.Organisations;
 [Authorize(Roles = "Admin")]
 public class OrganisationsController : Controller
 {
-    private const string TempDataSuccessMessage = "SuccessMessage";
     private const string SortOrderDescending = "desc";
 
     private readonly IRepository<Organisation> _organisationRepository;
@@ -241,7 +240,7 @@ public class OrganisationsController : Controller
 
             await UploadLogoFileForNewOrganisation(organisation, viewModel.LogoFile);
 
-            TempData[TempDataSuccessMessage] = _localizer["Message.OrganisationCreated"].Value;
+            TempData[ControllerExtensions.SuccessMessageKey] = _localizer["Message.OrganisationCreated"].Value;
             return RedirectToAction(nameof(Details), new { id = organisation.Id });
         }
 
@@ -309,7 +308,7 @@ public class OrganisationsController : Controller
             await _organisationRepository.UpdateAsync(organisation);
             await _unitOfWork.SaveChangesAsync();
 
-            TempData[TempDataSuccessMessage] = _localizer["Message.OrganisationUpdated"].Value;
+            TempData[ControllerExtensions.SuccessMessageKey] = _localizer["Message.OrganisationUpdated"].Value;
             return this.RedirectToReturnUrlOrAction(returnUrl, nameof(Details), new { id = organisation.Id });
         }
 
@@ -405,7 +404,7 @@ public class OrganisationsController : Controller
             await _unitOfWork.SaveChangesAsync();
         }
 
-        TempData[TempDataSuccessMessage] = _localizer["Message.OrganisationDeleted"].Value;
+        TempData[ControllerExtensions.SuccessMessageKey] = _localizer["Message.OrganisationDeleted"].Value;
         return RedirectToAction(nameof(Index));
     }
 

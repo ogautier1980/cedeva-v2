@@ -15,8 +15,6 @@ namespace Cedeva.Website.Features.Bookings;
 [Authorize]
 public class BookingsController : Controller
 {
-    private const string TempDataSuccessMessage = "SuccessMessage";
-    private const string TempDataWarningMessage = "WarningMessage";
     private const string SortOrderDescending = "desc";
 
     private readonly IRepository<Booking> _bookingRepository;
@@ -314,7 +312,7 @@ public class BookingsController : Controller
                 await _bookingQuestionService.SaveAnswersAsync(booking.Id, viewModel.QuestionAnswers);
             }
 
-            TempData[TempDataSuccessMessage] = _localizer["Message.BookingCreated"].Value;
+            TempData[ControllerExtensions.SuccessMessageKey] = _localizer["Message.BookingCreated"].Value;
             return RedirectToAction(nameof(Details), new { id = booking.Id });
         }
 
@@ -470,7 +468,7 @@ public class BookingsController : Controller
             }
             else
             {
-                TempData[TempDataSuccessMessage] = _localizer["Message.BookingUpdated"].Value;
+                TempData[ControllerExtensions.SuccessMessageKey] = _localizer["Message.BookingUpdated"].Value;
             }
 
             return this.RedirectToReturnUrlOrAction(returnUrl, nameof(Details), new { id = booking.Id });
@@ -507,7 +505,7 @@ public class BookingsController : Controller
         await _bookingRepository.DeleteAsync(booking);
         await _unitOfWork.SaveChangesAsync();
 
-        TempData[TempDataSuccessMessage] = _localizer["Message.BookingDeleted"].Value;
+        TempData[ControllerExtensions.SuccessMessageKey] = _localizer["Message.BookingDeleted"].Value;
         return RedirectToAction(nameof(Index));
     }
 
@@ -659,16 +657,16 @@ public class BookingsController : Controller
                     activity.StartDate,
                     activity.EndDate);
 
-                TempData[TempDataSuccessMessage] = _localizer["Message.BookingConfirmedEmailSent"].Value;
+                TempData[ControllerExtensions.SuccessMessageKey] = _localizer["Message.BookingConfirmedEmailSent"].Value;
             }
             catch (Exception ex)
             {
-                TempData[TempDataWarningMessage] = string.Format(_localizer["Message.BookingConfirmedEmailFailed"].Value, ex.Message);
+                TempData[ControllerExtensions.WarningMessageKey] = string.Format(_localizer["Message.BookingConfirmedEmailFailed"].Value, ex.Message);
             }
         }
         else
         {
-            TempData[TempDataSuccessMessage] = _localizer["Message.BookingUpdated"].Value;
+            TempData[ControllerExtensions.SuccessMessageKey] = _localizer["Message.BookingUpdated"].Value;
         }
     }
 
