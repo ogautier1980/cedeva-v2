@@ -280,6 +280,12 @@
   <data name="Activities.ManagePresences" xml:space="preserve">
     <value>Gérer les présences</value>
   </data>
+  <data name="Activities.ManageQuestions" xml:space="preserve">
+    <value>Gérer les questions</value>
+  </data>
+  <data name="Activities.DragToReorder" xml:space="preserve">
+    <value>Glissez pour réorganiser</value>
+  </data>
   <data name="Activities.NamePlaceholder" xml:space="preserve">
     <value>Ex: Stage de Pâques 2026</value>
   </data>

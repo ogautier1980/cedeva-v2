@@ -160,6 +160,7 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 
     <script>
         $(document).ready(function() {
@@ -233,12 +234,24 @@
             // Questions management
             let questionIndex = 0;
 
+            // Initialize SortableJS for drag & drop
+            var questionsList = document.getElementById('questionsList');
+            if (questionsList) {
+                Sortable.create(questionsList, {
+                    handle: '.drag-handle-question',
+                    animation: 150
+                });
+            }
+
             $('#addQuestionBtn').on('click', function() {
                 const questionHtml = `
-                    <div class="card mb-2" data-question-index="${questionIndex}">
+                    <div class="card mb-2 question-item" data-question-index="${questionIndex}">
                         <div class="card-body py-2">
-                            <div class="row g-2">
-                                <div class="col-md-6">
+                            <div class="row g-2 align-items-center">
+                                <div class="col-auto">
+                                    <i class="fas fa-grip-vertical drag-handle-question text-muted" style="cursor: move;"></i>
+                                </div>
+                                <div class="col-md-5">
                                     <input type="text" name="NewQuestions[${questionIndex}].QuestionText" class="form-control form-control-sm"
                                            placeholder="@Localizer["Activities.QuestionTextPlaceholder"]" required maxlength="500" />
                                 </div>

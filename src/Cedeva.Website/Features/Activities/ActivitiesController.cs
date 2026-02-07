@@ -225,6 +225,7 @@ public class ActivitiesController : Controller
         // Create questions if provided
         if (viewModel.NewQuestions != null && viewModel.NewQuestions.Any())
         {
+            var displayOrder = 1;
             foreach (var questionVm in viewModel.NewQuestions)
             {
                 if (!string.IsNullOrWhiteSpace(questionVm.QuestionText))
@@ -235,7 +236,9 @@ public class ActivitiesController : Controller
                         QuestionText = questionVm.QuestionText.Trim(),
                         QuestionType = questionVm.QuestionType,
                         IsRequired = questionVm.IsRequired,
-                        Options = questionVm.Options?.Trim()
+                        Options = questionVm.Options?.Trim(),
+                        DisplayOrder = displayOrder++,
+                        IsActive = true
                     };
                     _context.ActivityQuestions.Add(question);
                 }
