@@ -69,6 +69,7 @@ try
         containerBuilder.RegisterType<ExcursionViewModelBuilderService>().As<IExcursionViewModelBuilderService>().InstancePerLifetimeScope();
         containerBuilder.RegisterType<FinancialCalculationService>().As<IFinancialCalculationService>().InstancePerLifetimeScope();
         containerBuilder.RegisterType<ActivitySelectionService>().As<IActivitySelectionService>().InstancePerLifetimeScope();
+        containerBuilder.RegisterType<BookingQuestionService>().As<IBookingQuestionService>().InstancePerLifetimeScope();
         containerBuilder.RegisterType<UserDisplayService>().As<IUserDisplayService>().InstancePerLifetimeScope();
         containerBuilder.RegisterType<UnitOfWork>().As<IUnitOfWork>().InstancePerLifetimeScope();
         containerBuilder.RegisterGeneric(typeof(Repository<>)).As(typeof(IRepository<>)).InstancePerLifetimeScope();

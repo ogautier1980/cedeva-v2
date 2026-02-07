@@ -28,6 +28,7 @@ public class BookingsController : Controller
     private readonly IStringLocalizer<SharedResources> _localizer;
     private readonly ICurrentUserService _currentUserService;
     private readonly IUserDisplayService _userDisplayService;
+    private readonly IBookingQuestionService _bookingQuestionService;
 
     public BookingsController(
         IRepository<Booking> bookingRepository,
@@ -38,7 +39,8 @@ public class BookingsController : Controller
         IEmailService emailService,
         IStringLocalizer<SharedResources> localizer,
         ICurrentUserService currentUserService,
-        IUserDisplayService userDisplayService)
+        IUserDisplayService userDisplayService,
+        IBookingQuestionService bookingQuestionService)
     {
         _bookingRepository = bookingRepository;
         _context = context;
@@ -49,6 +51,7 @@ public class BookingsController : Controller
         _localizer = localizer;
         _currentUserService = currentUserService;
         _userDisplayService = userDisplayService;
+        _bookingQuestionService = bookingQuestionService;
     }
 
     // GET: Bookings
@@ -242,17 +245,7 @@ public class BookingsController : Controller
             // Save question answers
             if (viewModel.QuestionAnswers != null && viewModel.QuestionAnswers.Any())
             {
-                foreach (var answer in viewModel.QuestionAnswers.Where(a => !string.IsNullOrWhiteSpace(a.Value)))
-                {
-                    var questionAnswer = new ActivityQuestionAnswer
-                    {
-                        BookingId = booking.Id,
-                        ActivityQuestionId = answer.Key,
-                        AnswerText = answer.Value
-                    };
-                    _context.ActivityQuestionAnswers.Add(questionAnswer);
-                }
-                await _context.SaveChangesAsync();
+                await _bookingQuestionService.SaveAnswersAsync(booking.Id, viewModel.QuestionAnswers);
             }
 
             TempData[TempDataSuccessMessage] = _localizer["Message.BookingCreated"].Value;
@@ -340,28 +333,23 @@ public class BookingsController : Controller
             .ToList();
 
         // Load questions and existing answers
-        var questions = await _context.ActivityQuestions
-            .Where(q => q.ActivityId == booking.ActivityId && q.IsActive)
-            .OrderBy(q => q.DisplayOrder)
-            .ToListAsync();
+        var questionDtos = await _bookingQuestionService.GetQuestionsWithAnswersAsync(booking.ActivityId, id);
 
-        var existingAnswers = await _context.ActivityQuestionAnswers
-            .Where(a => a.BookingId == id)
-            .ToDictionaryAsync(a => a.ActivityQuestionId, a => a.AnswerText);
-
-        viewModel.Questions = questions.Select(q => new BookingQuestionViewModel
+        viewModel.Questions = questionDtos.Select(dto => new BookingQuestionViewModel
         {
-            Id = q.Id,
-            QuestionText = q.QuestionText,
-            QuestionType = q.QuestionType,
-            IsRequired = q.IsRequired,
-            Options = q.Options,
-            DisplayOrder = q.DisplayOrder,
-            AnswerText = existingAnswers.ContainsKey(q.Id) ? existingAnswers[q.Id] : null
+            Id = dto.Id,
+            QuestionText = dto.QuestionText,
+            QuestionType = dto.QuestionType,
+            IsRequired = dto.IsRequired,
+            Options = dto.Options,
+            DisplayOrder = dto.DisplayOrder,
+            AnswerText = dto.AnswerText
         }).ToList();
 
         // Pre-fill QuestionAnswers dictionary for form binding
-        viewModel.QuestionAnswers = existingAnswers.ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+        viewModel.QuestionAnswers = viewModel.Questions
+            .Where(q => !string.IsNullOrEmpty(q.AnswerText))
+            .ToDictionary(q => q.Id, q => q.AnswerText!);
 
         await PopulateDropdowns(booking.ChildId, booking.ActivityId, booking.GroupId);
         return View(viewModel);
@@ -405,27 +393,10 @@ public class BookingsController : Controller
             await _unitOfWork.SaveChangesAsync();
 
             // Update question answers
-            // Delete existing answers
-            var existingAnswers = await _context.ActivityQuestionAnswers
-                .Where(a => a.BookingId == id)
-                .ToListAsync();
-            _context.ActivityQuestionAnswers.RemoveRange(existingAnswers);
-
-            // Add new answers
-            if (viewModel.QuestionAnswers != null && viewModel.QuestionAnswers.Any())
+            if (viewModel.QuestionAnswers != null)
             {
-                foreach (var answer in viewModel.QuestionAnswers.Where(a => !string.IsNullOrWhiteSpace(a.Value)))
-                {
-                    var questionAnswer = new ActivityQuestionAnswer
-                    {
-                        BookingId = id,
-                        ActivityQuestionId = answer.Key,
-                        AnswerText = answer.Value
-                    };
-                    _context.ActivityQuestionAnswers.Add(questionAnswer);
-                }
+                await _bookingQuestionService.SaveAnswersAsync(id, viewModel.QuestionAnswers);
             }
-            await _context.SaveChangesAsync();
 
             if (wasNotConfirmed && booking.IsConfirmed)
             {
@@ -521,23 +492,18 @@ public class BookingsController : Controller
         var activity = await _context.Activities.FindAsync(booking.ActivityId);
         var group = booking.GroupId.HasValue ? await _context.ActivityGroups.FindAsync(booking.GroupId.Value) : null;
 
-        // Load all questions for the activity (active questions + questions with existing answers even if inactive)
-        var allQuestions = await _context.ActivityQuestions
-            .Where(q => q.ActivityId == booking.ActivityId)
-            .Where(q => q.IsActive || booking.QuestionAnswers.Any(a => a.ActivityQuestionId == q.Id))
-            .OrderBy(q => q.DisplayOrder)
-            .ToListAsync();
+        // Load questions with answers
+        var questionDtos = await _bookingQuestionService.GetQuestionsWithAnswersAsync(booking.ActivityId, id);
 
-        // Map questions with their answers
-        var questions = allQuestions.Select(q => new BookingQuestionViewModel
+        var questions = questionDtos.Select(dto => new BookingQuestionViewModel
         {
-            Id = q.Id,
-            QuestionText = q.QuestionText,
-            QuestionType = q.QuestionType,
-            IsRequired = q.IsRequired,
-            Options = q.Options,
-            DisplayOrder = q.DisplayOrder,
-            AnswerText = booking.QuestionAnswers.FirstOrDefault(a => a.ActivityQuestionId == q.Id)?.AnswerText
+            Id = dto.Id,
+            QuestionText = dto.QuestionText,
+            QuestionType = dto.QuestionType,
+            IsRequired = dto.IsRequired,
+            Options = dto.Options,
+            DisplayOrder = dto.DisplayOrder,
+            AnswerText = dto.AnswerText
         }).ToList();
 
         // Group booking days by week
