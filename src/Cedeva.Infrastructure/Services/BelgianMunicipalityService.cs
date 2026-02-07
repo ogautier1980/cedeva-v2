@@ -18,7 +18,7 @@ public class BelgianMunicipalityService : IBelgianMunicipalityService
     {
         return await _dbContext.BelgianMunicipalities
             .AnyAsync(m => m.PostalCode == postalCode &&
-                           m.City.ToLower() == city.ToLower());
+                           m.City.Equals(city, StringComparison.OrdinalIgnoreCase));
     }
 
     public async Task<IEnumerable<BelgianMunicipality>> SearchMunicipalitiesAsync(string searchTerm)
@@ -29,10 +29,10 @@ public class BelgianMunicipalityService : IBelgianMunicipalityService
         }
 
         searchTerm = searchTerm.Trim();
-        string lowerSearchTerm = searchTerm.ToLower();
+        string lowerSearchTerm = searchTerm.ToLowerInvariant();
 
         return await _dbContext.BelgianMunicipalities
-            .Where(m => m.City.ToLower().StartsWith(lowerSearchTerm) ||
+            .Where(m => m.City.ToLowerInvariant().StartsWith(lowerSearchTerm) ||
                         m.PostalCode.StartsWith(lowerSearchTerm))
             .OrderBy(m => m.City)
             .ToListAsync();

@@ -478,7 +478,7 @@ public class TeamMembersController : Controller
                 return NotFound();
             }
 
-            var contentType = Path.GetExtension(filePath).ToLower() switch
+            var contentType = Path.GetExtension(filePath).ToLowerInvariant() switch
             {
                 ".pdf" => "application/pdf",
                 ".jpg" or ".jpeg" => "image/jpeg",
