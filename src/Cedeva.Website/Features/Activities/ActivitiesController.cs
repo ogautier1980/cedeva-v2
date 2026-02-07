@@ -106,7 +106,7 @@ public class ActivitiesController : Controller
             query = query.Where(a => a.Name.Contains(queryParams.SearchString) || a.Description.Contains(queryParams.SearchString));
         }
 
-        if (queryParams.ShowActiveOnly == true)
+        if (queryParams.ShowActiveOnly )
         {
             query = query.Where(a => a.IsActive);
         }
@@ -930,7 +930,7 @@ public class ActivitiesController : Controller
             query = query.Where(a => a.Name.Contains(searchTerm) || a.Description.Contains(searchTerm));
         }
 
-        if (showActiveOnly == true)
+        if (showActiveOnly )
         {
             query = query.Where(a => a.IsActive);
         }
@@ -972,7 +972,7 @@ public class ActivitiesController : Controller
             query = query.Where(a => a.Name.Contains(searchTerm) || a.Description.Contains(searchTerm));
         }
 
-        if (showActiveOnly == true)
+        if (showActiveOnly )
         {
             query = query.Where(a => a.IsActive);
         }
