@@ -281,7 +281,7 @@ public class ActivitiesController : Controller
     {
         var activity = await _context.Activities
             .IncludeAllWithDays()
-            .Include(a => a.Questions)
+            .Include(a => a.AdditionalQuestions)
             .FirstOrDefaultAsync(a => a.Id == id);
 
         if (activity == null)
@@ -293,9 +293,9 @@ public class ActivitiesController : Controller
         var viewModel = MapToViewModel(activity);
 
         // Load existing questions
-        if (activity.Questions != null && activity.Questions.Any())
+        if (activity.AdditionalQuestions != null && activity.AdditionalQuestions.Any())
         {
-            viewModel.ExistingQuestions = activity.Questions
+            viewModel.ExistingQuestions = activity.AdditionalQuestions
                 .OrderBy(q => q.DisplayOrder)
                 .Select(q => new ExistingActivityQuestionViewModel
                 {
