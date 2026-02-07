@@ -128,12 +128,27 @@
                                                 <strong class="text-success">@suggestion.TransactionAmount.ToString("C")</strong><br />
                                                 <small class="text-muted">@suggestion.TransactionDate.ToString("dd/MM/yyyy")</small><br />
                                                 <small>@suggestion.CounterpartyName</small>
+                                                @if (!string.IsNullOrWhiteSpace(suggestion.TransactionCommunication))
+                                                {
+                                                    <br />
+                                                    <span class="badge bg-info text-white mt-1">
+                                                        <i class="fas fa-comment"></i> @suggestion.TransactionCommunication
+                                                    </span>
+                                                }
                                             </td>
                                             <td>
                                                 <strong>@suggestion.ChildName</strong><br />
                                                 <small class="text-muted">@suggestion.ParentName</small><br />
                                                 <small>@suggestion.ActivityName</small><br />
+                                                <small class="text-muted">@Localizer["Field.BookingDate"]: @suggestion.BookingDate.ToString("dd/MM/yyyy")</small><br />
                                                 <strong class="text-danger">@suggestion.BookingRemainingAmount.ToString("C")</strong>
+                                                @if (!string.IsNullOrWhiteSpace(suggestion.ExpectedCommunication))
+                                                {
+                                                    <br />
+                                                    <span class="badge bg-secondary text-white mt-1">
+                                                        <i class="fas fa-barcode"></i> @suggestion.ExpectedCommunication
+                                                    </span>
+                                                }
                                             </td>
                                             <td>
                                                 @foreach (var reason in suggestion.MatchReasons)

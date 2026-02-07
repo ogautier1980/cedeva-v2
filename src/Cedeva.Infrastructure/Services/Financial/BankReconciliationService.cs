@@ -213,6 +213,13 @@ public class BankReconciliationService : IBankReconciliationService
 
     /// <summary>
     /// Calcule le score de correspondance entre une transaction et une réservation.
+    /// Critères par ordre d'importance décroissante:
+    /// 1. Date paiement >= date réservation (obligatoire)
+    /// 2. Nom parent
+    /// 3. Communication structurée ressemblante
+    /// 4. Montant identique
+    /// 5. Montant proche
+    /// 6. Communication contient nom/prénom enfant
     /// </summary>
     private ReconciliationSuggestionDto? CalculateReconciliationMatch(BankTransaction transaction, Booking booking)
     {
@@ -220,19 +227,44 @@ public class BankReconciliationService : IBankReconciliationService
         var reasons = new List<string>();
         var remainingAmount = booking.TotalAmount - booking.PaidAmount;
 
-        // Vérifier la correspondance du montant
-        score += CalculateAmountMatchScore(transaction.Amount, remainingAmount, reasons);
+        // CRITÈRE OBLIGATOIRE: Date paiement doit être >= date réservation
+        if (transaction.TransactionDate < booking.BookingDate)
+        {
+            return null; // Éliminer cette correspondance
+        }
 
-        // Vérifier la correspondance du nom
+        // 1. Vérifier la correspondance du nom parent (priorité haute: 40-50 points)
         score += CalculateNameMatchScore(transaction.CounterpartyName, booking.Child.Parent, reasons);
 
-        // Vérifier la proximité des dates
-        score += CalculateDateMatchScore(transaction.TransactionDate, booking.Activity.StartDate, reasons);
+        // 2. Vérifier la communication structurée (priorité haute: 30 points)
+        score += CalculateCommunicationMatchScore(
+            transaction.StructuredCommunication,
+            transaction.FreeCommunication,
+            booking.StructuredCommunication,
+            reasons);
 
-        if (score < 50)
+        // 3. Vérifier le montant exact (priorité moyenne-haute: 25 points)
+        // 4. Vérifier le montant proche (priorité moyenne: 15 points)
+        score += CalculateAmountMatchScore(transaction.Amount, remainingAmount, reasons);
+
+        // 5. Vérifier si la communication contient le nom/prénom de l'enfant (bonus: 10 points)
+        score += CalculateChildNameInCommunicationScore(
+            transaction.StructuredCommunication,
+            transaction.FreeCommunication,
+            booking.Child.FirstName,
+            booking.Child.LastName,
+            reasons);
+
+        // Score minimum pour être considéré comme une suggestion valide
+        if (score < MinimumConfidenceScore)
         {
             return null;
         }
+
+        // Déterminer la communication reçue (structurée ou libre)
+        var transactionCommunication = !string.IsNullOrWhiteSpace(transaction.StructuredCommunication)
+            ? transaction.StructuredCommunication
+            : transaction.FreeCommunication;
 
         return new ReconciliationSuggestionDto
         {
@@ -241,9 +273,14 @@ public class BankReconciliationService : IBankReconciliationService
             TransactionDate = transaction.TransactionDate,
             TransactionAmount = transaction.Amount,
             CounterpartyName = transaction.CounterpartyName,
+            TransactionCommunication = transactionCommunication,
+            ExpectedCommunication = booking.StructuredCommunication,
+            ChildFirstName = booking.Child.FirstName,
+            ChildLastName = booking.Child.LastName,
             ChildName = $"{booking.Child.FirstName} {booking.Child.LastName}",
             ParentName = $"{booking.Child.Parent.FirstName} {booking.Child.Parent.LastName}",
             ActivityName = booking.Activity.Name,
+            BookingDate = booking.BookingDate,
             BookingRemainingAmount = remainingAmount,
             ConfidenceScore = score,
             MatchReasons = reasons
@@ -255,13 +292,13 @@ public class BankReconciliationService : IBankReconciliationService
         if (transactionAmount == remainingAmount)
         {
             reasons.Add("Montant exact");
-            return 50;
+            return 25; // Priorité moyenne-haute
         }
 
         if (Math.Abs(transactionAmount - remainingAmount) <= remainingAmount * 0.05m)
         {
-            reasons.Add("Montant proche");
-            return 30;
+            reasons.Add("Montant proche (±5%)");
+            return 15; // Priorité moyenne
         }
 
         return 0;
@@ -281,35 +318,118 @@ public class BankReconciliationService : IBankReconciliationService
         if (counterpartyLower.Contains(parentLastName) && counterpartyLower.Contains(parentFirstName))
         {
             reasons.Add("Nom et prénom du parent");
-            return 30;
+            return 50; // Priorité haute - correspondance parfaite
         }
 
         if (counterpartyLower.Contains(parentLastName))
         {
             reasons.Add("Nom du parent");
-            return 20;
+            return 40; // Priorité haute - nom de famille
         }
 
         if (counterpartyLower.Contains(parentFirstName))
         {
             reasons.Add("Prénom du parent");
-            return 10;
+            return 20; // Priorité moyenne
         }
 
         return 0;
     }
 
-    private static int CalculateDateMatchScore(DateTime transactionDate, DateTime activityStartDate, List<string> reasons)
+    private static int CalculateCommunicationMatchScore(
+        string? transactionStructuredComm,
+        string? transactionFreeComm,
+        string? bookingStructuredComm,
+        List<string> reasons)
     {
-        var daysDifference = Math.Abs((transactionDate - activityStartDate).TotalDays);
-
-        if (daysDifference <= 14)
+        // Si pas de communication structurée attendue, pas de score
+        if (string.IsNullOrWhiteSpace(bookingStructuredComm))
         {
-            reasons.Add($"Date proche de l'activité ({daysDifference:F0} jours)");
-            return 10;
+            return 0;
+        }
+
+        // Vérifier si la communication structurée de la transaction correspond exactement
+        if (!string.IsNullOrWhiteSpace(transactionStructuredComm) &&
+            transactionStructuredComm.Equals(bookingStructuredComm, StringComparison.OrdinalIgnoreCase))
+        {
+            reasons.Add("Communication structurée identique");
+            return 30; // Priorité haute
+        }
+
+        // Vérifier si la communication structurée est similaire (peut contenir espaces, tirets, etc.)
+        if (!string.IsNullOrWhiteSpace(transactionStructuredComm))
+        {
+            var transClean = CleanStructuredCommunication(transactionStructuredComm);
+            var bookingClean = CleanStructuredCommunication(bookingStructuredComm);
+
+            if (transClean == bookingClean)
+            {
+                reasons.Add("Communication structurée similaire");
+                return 25; // Priorité haute
+            }
+        }
+
+        // Vérifier si la communication libre contient la communication structurée attendue
+        if (!string.IsNullOrWhiteSpace(transactionFreeComm) &&
+            transactionFreeComm.Contains(bookingStructuredComm, StringComparison.OrdinalIgnoreCase))
+        {
+            reasons.Add("Communication libre contient la référence");
+            return 20; // Priorité moyenne-haute
         }
 
         return 0;
+    }
+
+    private static int CalculateChildNameInCommunicationScore(
+        string? transactionStructuredComm,
+        string? transactionFreeComm,
+        string childFirstName,
+        string childLastName,
+        List<string> reasons)
+    {
+        var communication = transactionFreeComm ?? transactionStructuredComm ?? "";
+        if (string.IsNullOrWhiteSpace(communication))
+        {
+            return 0;
+        }
+
+        var commLower = communication.ToLowerInvariant();
+        var firstNameLower = childFirstName.ToLowerInvariant();
+        var lastNameLower = childLastName.ToLowerInvariant();
+
+        if (commLower.Contains(firstNameLower) && commLower.Contains(lastNameLower))
+        {
+            reasons.Add("Communication contient nom et prénom de l'enfant");
+            return 10; // Bonus
+        }
+
+        if (commLower.Contains(lastNameLower))
+        {
+            reasons.Add("Communication contient nom de l'enfant");
+            return 7; // Bonus
+        }
+
+        if (commLower.Contains(firstNameLower))
+        {
+            reasons.Add("Communication contient prénom de l'enfant");
+            return 5; // Bonus
+        }
+
+        return 0;
+    }
+
+    /// <summary>
+    /// Nettoie une communication structurée en supprimant espaces, tirets, slashes
+    /// pour comparaison plus flexible.
+    /// </summary>
+    private static string CleanStructuredCommunication(string communication)
+    {
+        return communication.Replace(" ", "")
+            .Replace("-", "")
+            .Replace("/", "")
+            .Replace("*", "")
+            .Replace("+", "")
+            .ToUpperInvariant();
     }
 
     /// <summary>
