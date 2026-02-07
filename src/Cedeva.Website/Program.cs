@@ -13,6 +13,8 @@ using Cedeva.Infrastructure.Services.Pdf;
 using Cedeva.Infrastructure.Services.Storage;
 using Cedeva.Website.Infrastructure;
 using Cedeva.Website.Localization;
+using FluentValidation;
+using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
@@ -105,6 +107,9 @@ try
         options.SlidingExpiration = true;
     });
 
+    // Add FluentValidation
+    builder.Services.AddValidatorsFromAssemblyContaining<Program>();
+
     // Add MVC with feature folders
     builder.Services.AddControllersWithViews()
         .AddViewLocalization()
@@ -113,6 +118,8 @@ try
             options.DataAnnotationLocalizerProvider = (type, factory) =>
                 factory.Create(typeof(SharedResources));
         })
+        .AddFluentValidationAutoValidation()
+        .AddFluentValidationClientsideAdapters()
         .AddRazorOptions(options =>
         {
             // Feature folder view locations

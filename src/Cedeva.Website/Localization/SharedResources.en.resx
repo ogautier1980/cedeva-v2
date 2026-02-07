@@ -3624,4 +3624,22 @@
   <data name="Audit.At" xml:space="preserve">
     <value> at</value>
   </data>
+  <data name="Field.Order" xml:space="preserve">
+    <value>Order</value>
+  </data>
+  <data name="Message.OrderUpdated" xml:space="preserve">
+    <value>Order updated successfully</value>
+  </data>
+  <data name="Message.QuestionActivated" xml:space="preserve">
+    <value>Question activated</value>
+  </data>
+  <data name="Message.QuestionDeactivated" xml:space="preserve">
+    <value>Question deactivated</value>
+  </data>
+  <data name="ActivityQuestions.DragDisabledMultipleActivities" xml:space="preserve">
+    <value>Drag &amp; drop is disabled when multiple activities are displayed. Filter by activity to reorder.</value>
+  </data>
+  <data name="Error.InvalidOperation" xml:space="preserve">
+    <value>Invalid operation</value>
+  </data>
 </root>

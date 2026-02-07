@@ -3624,4 +3624,22 @@
   <data name="Audit.At" xml:space="preserve">
     <value> om</value>
   </data>
+  <data name="Field.Order" xml:space="preserve">
+    <value>Volgorde</value>
+  </data>
+  <data name="Message.OrderUpdated" xml:space="preserve">
+    <value>Volgorde succesvol bijgewerkt</value>
+  </data>
+  <data name="Message.QuestionActivated" xml:space="preserve">
+    <value>Vraag geactiveerd</value>
+  </data>
+  <data name="Message.QuestionDeactivated" xml:space="preserve">
+    <value>Vraag gedeactiveerd</value>
+  </data>
+  <data name="ActivityQuestions.DragDisabledMultipleActivities" xml:space="preserve">
+    <value>Slepen is uitgeschakeld wanneer meerdere activiteiten worden weergegeven. Filter op activiteit om te herschikken.</value>
+  </data>
+  <data name="Error.InvalidOperation" xml:space="preserve">
+    <value>Ongeldige bewerking</value>
+  </data>
 </root>

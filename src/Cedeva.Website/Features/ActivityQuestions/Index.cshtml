@@ -1,8 +1,10 @@
 @model IEnumerable<Cedeva.Website.Features.ActivityQuestions.ViewModels.ActivityQuestionViewModel>
+@inject IStringLocalizer<SharedResources> Localizer
 @{
     ViewData["Title"] = Localizer["ActivityQuestions.Title"];
     var activityName = ViewData["ActivityName"] as string;
     var activityId = ViewData["ActivityId"] as int?;
+    var isSingleActivity = activityId.HasValue;
 }
 
 <div class="container-fluid">
@@ -28,6 +30,15 @@
     </div>
 
     @await Html.PartialAsync("_AlertMessages")
+
+    @if (!isSingleActivity && Model.Any())
+    {
+        <div class="alert alert-info mb-3">
+            <i class="fas fa-info-circle me-2"></i>
+            @Localizer["ActivityQuestions.DragDisabledMultipleActivities"]
+        </div>
+    }
+
     <div class="card shadow">
         <div class="card-body">
             @if (!Model.Any())
@@ -43,24 +54,42 @@
             else
             {
                 <div class="table-responsive">
-                    <table class="table table-hover">
+                    <table class="table table-hover" id="questionsTable">
                         <thead class="table-light">
                             <tr>
-                                <th>@Localizer["ActivityQuestions.QuestionText"]</th>
+                                @if (isSingleActivity)
+                                {
+                                    <th style="width: 40px;"></th> @* Drag handle *@
+                                }
+                                <th style="width: 80px;">@Localizer["Field.Order"]</th>
                                 @if (!activityId.HasValue)
                                 {
                                     <th>@Localizer["Field.Activity"]</th>
                                 }
+                                <th>@Localizer["ActivityQuestions.QuestionText"]</th>
                                 <th>@Localizer["ActivityQuestions.QuestionType"]</th>
                                 <th>@Localizer["ActivityQuestions.Required"]</th>
-                                <th>@Localizer["ActivityQuestions.AnswersCount"]</th>
-                                <th class="text-end">@Localizer["Actions"]</th>
+                                <th style="width: 150px;">@Localizer["Field.Status"]</th>
+                                <th style="width: 120px;" class="text-end">@Localizer["Actions"]</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody id="sortableQuestions">
                             @foreach (var question in Model)
                             {
-                                <tr>
+                                <tr data-question-id="@question.Id" class="@(question.IsActive ? "" : "table-secondary")">
+                                    @if (isSingleActivity)
+                                    {
+                                        <td class="drag-handle" style="cursor: move;">
+                                            <i class="fas fa-grip-vertical text-muted"></i>
+                                        </td>
+                                    }
+                                    <td>
+                                        <span class="badge bg-secondary order-badge">@question.DisplayOrder</span>
+                                    </td>
+                                    @if (!activityId.HasValue)
+                                    {
+                                        <td>@question.ActivityName</td>
+                                    }
                                     <td>
                                         <strong>@question.QuestionText</strong>
                                         @if (!string.IsNullOrWhiteSpace(question.Options))
@@ -71,10 +100,6 @@
                                             </small>
                                         }
                                     </td>
-                                    @if (!activityId.HasValue)
-                                    {
-                                        <td>@question.ActivityName</td>
-                                    }
                                     <td>
                                         <span class="badge bg-primary">@Localizer[$"Enum.QuestionType.{question.QuestionType}"]</span>
                                     </td>
@@ -89,7 +114,13 @@
                                         }
                                     </td>
                                     <td>
-                                        <span class="badge bg-primary">@question.AnswersCount</span>
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" data-question-id="@question.Id"
+                                                   @(question.IsActive ? "checked" : "") onchange="toggleActive(this)" />
+                                            <label class="form-check-label small status-label">
+                                                @(question.IsActive ? Localizer["Active"] : Localizer["Inactive"])
+                                            </label>
+                                        </div>
                                     </td>
                                     <td class="text-end">
                                         <div class="btn-group btn-group-sm">
@@ -110,3 +141,105 @@
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+    <script>
+        $(function () {
+            var isSingleActivity = @(isSingleActivity ? "true" : "false");
+
+            // Initialize SortableJS (only if single activity)
+            if (isSingleActivity) {
+                var sortable = Sortable.create(document.getElementById('sortableQuestions'), {
+                    handle: '.drag-handle',
+                    animation: 150,
+                    ghostClass: 'sortable-ghost',
+                    onEnd: function (evt) {
+                        updateQuestionOrder();
+                    }
+                });
+            }
+
+            function updateQuestionOrder() {
+                var updates = [];
+                $('#sortableQuestions tr').each(function (index) {
+                    updates.push({
+                        id: $(this).data('question-id'),
+                        displayOrder: index + 1
+                    });
+                    // Mettre à jour le badge visuellement
+                    $(this).find('.order-badge').text(index + 1);
+                });
+
+                $.ajax({
+                    url: '@Url.Action("UpdateOrder")',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(updates),
+                    headers: {
+                        'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                    },
+                    success: function (response) {
+                        if (response.success) {
+                            toastr.success(response.message);
+                        } else {
+                            toastr.error(response.message);
+                            location.reload(); // Revert visual changes
+                        }
+                    },
+                    error: function () {
+                        toastr.error('@Localizer["Error.UnexpectedError"]');
+                        location.reload();
+                    }
+                });
+            }
+        });
+
+        function toggleActive(checkbox) {
+            var questionId = $(checkbox).data('question-id');
+            var isActive = checkbox.checked;
+
+            $.ajax({
+                url: '@Url.Action("ToggleActive")',
+                type: 'POST',
+                data: {
+                    id: questionId,
+                    isActive: isActive,
+                    __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+                },
+                success: function (response) {
+                    if (response.success) {
+                        toastr.success(response.message);
+                        // Changer la classe de la ligne (gris si inactif)
+                        var row = $(checkbox).closest('tr');
+                        row.toggleClass('table-secondary', !isActive);
+                        // Mettre à jour le label
+                        var label = $(checkbox).siblings('.status-label');
+                        label.text(isActive ? '@Localizer["Active"]' : '@Localizer["Inactive"]');
+                    } else {
+                        toastr.error(response.message);
+                        // Revert checkbox
+                        checkbox.checked = !isActive;
+                    }
+                },
+                error: function () {
+                    toastr.error('@Localizer["Error.UnexpectedError"]');
+                    checkbox.checked = !isActive;
+                }
+            });
+        }
+    </script>
+
+    <style>
+        .sortable-ghost {
+            opacity: 0.4;
+            background-color: #f0f7fb;
+        }
+        .drag-handle {
+            cursor: move !important;
+        }
+        .drag-handle:hover {
+            color: #007faf !important;
+        }
+    </style>
+}

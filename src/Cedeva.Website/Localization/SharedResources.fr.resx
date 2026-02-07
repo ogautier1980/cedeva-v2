@@ -3784,4 +3784,22 @@
   <data name="Audit.At" xml:space="preserve">
     <value> à</value>
   </data>
+  <data name="Field.Order" xml:space="preserve">
+    <value>Ordre</value>
+  </data>
+  <data name="Message.OrderUpdated" xml:space="preserve">
+    <value>Ordre mis à jour avec succès</value>
+  </data>
+  <data name="Message.QuestionActivated" xml:space="preserve">
+    <value>Question activée</value>
+  </data>
+  <data name="Message.QuestionDeactivated" xml:space="preserve">
+    <value>Question désactivée</value>
+  </data>
+  <data name="ActivityQuestions.DragDisabledMultipleActivities" xml:space="preserve">
+    <value>Le glisser-déposer est désactivé lorsque plusieurs activités sont affichées. Filtrez par activité pour réorganiser.</value>
+  </data>
+  <data name="Error.InvalidOperation" xml:space="preserve">
+    <value>Opération invalide</value>
+  </data>
 </root>

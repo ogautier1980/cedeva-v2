@@ -65,7 +65,7 @@ public class ActivityQuestionsController : Controller
 
         var questions = await query
             .OrderBy(q => q.Activity != null ? q.Activity.Name : "")
-            .ThenBy(q => q.Id)
+            .ThenBy(q => q.DisplayOrder)
             .Select(q => new ActivityQuestionViewModel
             {
                 Id = q.Id,
@@ -75,7 +75,9 @@ public class ActivityQuestionsController : Controller
                 Options = q.Options,
                 ActivityId = q.ActivityId,
                 ActivityName = q.Activity != null ? q.Activity.Name : "",
-                AnswersCount = q.Answers.Count
+                AnswersCount = q.Answers.Count,
+                DisplayOrder = q.DisplayOrder,
+                IsActive = q.IsActive
             })
             .ToListAsync();
 
@@ -288,5 +290,71 @@ public class ActivityQuestionsController : Controller
             .ToList();
 
         ViewBag.QuestionTypes = new SelectList(questionTypes, "Value", "Text");
+    }
+
+    // POST: ActivityQuestions/UpdateOrder
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> UpdateOrder([FromBody] List<QuestionOrderDto> updates)
+    {
+        try
+        {
+            if (updates == null || !updates.Any())
+                return Json(new { success = false, message = _localizer["Error.InvalidData"].ToString() });
+
+            // Récupérer toutes les questions à mettre à jour
+            var questionIds = updates.Select(u => u.Id).ToList();
+            var questions = await _context.ActivityQuestions
+                .Where(q => questionIds.Contains(q.Id))
+                .ToListAsync();
+
+            if (questions.Count != updates.Count)
+                return Json(new { success = false, message = _localizer["Error.NotFound"].ToString() });
+
+            // Vérifier que toutes les questions appartiennent à la même activité (sécurité)
+            var activityIds = questions.Select(q => q.ActivityId).Distinct().ToList();
+            if (activityIds.Count > 1)
+                return Json(new { success = false, message = _localizer["Error.InvalidOperation"].ToString() });
+
+            // Mettre à jour les DisplayOrder
+            foreach (var update in updates)
+            {
+                var question = questions.First(q => q.Id == update.Id);
+                question.DisplayOrder = update.DisplayOrder;
+            }
+
+            await _unitOfWork.SaveChangesAsync();
+
+            return Json(new { success = true, message = _localizer["Message.OrderUpdated"].ToString() });
+        }
+        catch (Exception ex)
+        {
+            // Log error if logger is available
+            return Json(new { success = false, message = _localizer["Error.UnexpectedError"].ToString() });
+        }
+    }
+
+    // POST: ActivityQuestions/ToggleActive
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> ToggleActive(int id, bool isActive)
+    {
+        try
+        {
+            var question = await _context.ActivityQuestions.FindAsync(id);
+            if (question == null)
+                return Json(new { success = false, message = _localizer["Error.NotFound"].ToString() });
+
+            question.IsActive = isActive;
+            await _unitOfWork.SaveChangesAsync();
+
+            var statusKey = isActive ? "Message.QuestionActivated" : "Message.QuestionDeactivated";
+            return Json(new { success = true, message = _localizer[statusKey].ToString() });
+        }
+        catch (Exception ex)
+        {
+            // Log error if logger is available
+            return Json(new { success = false, message = _localizer["Error.UnexpectedError"].ToString() });
+        }
     }
 }

@@ -214,8 +214,8 @@ public class PublicRegistrationController : Controller
         var activityId = (int)TempData[TempDataActivityId]!;
 
         var questions = await _context.ActivityQuestions
-            .Where(q => q.ActivityId == activityId)
-            .OrderBy(q => q.Id)
+            .Where(q => q.ActivityId == activityId && q.IsActive)
+            .OrderBy(q => q.DisplayOrder)
             .ToListAsync();
 
         var viewModel = new ActivityQuestionsViewModel
@@ -263,8 +263,8 @@ public class PublicRegistrationController : Controller
         if (!ModelState.IsValid)
         {
             model.Questions = await _context.ActivityQuestions
-                .Where(q => q.ActivityId == model.ActivityId)
-                .OrderBy(q => q.Id)
+                .Where(q => q.ActivityId == model.ActivityId && q.IsActive)
+                .OrderBy(q => q.DisplayOrder)
                 .ToListAsync();
             return View(model);
         }
@@ -430,8 +430,8 @@ public class PublicRegistrationController : Controller
         }
 
         var questions = await _context.ActivityQuestions
-            .Where(q => q.ActivityId == activityId)
-            .OrderBy(q => q.Id)
+            .Where(q => q.ActivityId == activityId && q.IsActive)
+            .OrderBy(q => q.DisplayOrder)
             .ToListAsync();
 
         var viewModel = new SimpleRegistrationViewModel

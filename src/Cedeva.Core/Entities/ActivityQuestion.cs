@@ -23,5 +23,15 @@ public class ActivityQuestion : AuditableEntity
     /// </summary>
     public string? Options { get; set; }
 
+    /// <summary>
+    /// Display order for questions within an activity (1, 2, 3...)
+    /// </summary>
+    public int DisplayOrder { get; set; } = 1;
+
+    /// <summary>
+    /// Whether the question is active and should be displayed in public registration
+    /// </summary>
+    public bool IsActive { get; set; } = true;
+
     public ICollection<ActivityQuestionAnswer> Answers { get; set; } = new List<ActivityQuestionAnswer>();
 }
