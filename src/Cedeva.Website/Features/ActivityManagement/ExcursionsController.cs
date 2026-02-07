@@ -15,8 +15,6 @@ namespace Cedeva.Website.Features.ActivityManagement;
 [Authorize]
 public class ExcursionsController : Controller
 {
-    private const string TempDataSuccessMessage = "SuccessMessage";
-    private const string TempDataErrorMessage = "ErrorMessage";
     private const string ErrorGeneric = "Error";
     private const string ErrorRegistrationNotFound = "Error.RegistrationNotFound";
 
@@ -185,7 +183,7 @@ public class ExcursionsController : Controller
 
         await _context.SaveChangesAsync();
 
-        TempData[TempDataSuccessMessage] = _localizer["Message.ExcursionCreated"].ToString();
+        TempData[ControllerExtensions.SuccessMessageKey] = _localizer["Message.ExcursionCreated"].ToString();
         return RedirectToAction(nameof(Index), new { id = model.ActivityId });
     }
 
@@ -359,7 +357,7 @@ public class ExcursionsController : Controller
 
         await _context.SaveChangesAsync();
 
-        TempData[TempDataSuccessMessage] = _localizer["Message.ExcursionUpdated"].ToString();
+        TempData[ControllerExtensions.SuccessMessageKey] = _localizer["Message.ExcursionUpdated"].ToString();
         return RedirectToAction(nameof(Index), new { id = model.ActivityId });
     }
 
@@ -392,7 +390,7 @@ public class ExcursionsController : Controller
 
         if (excursion.Registrations.Count > 0)
         {
-            TempData[TempDataErrorMessage] = _localizer["Excursion.CannotDeleteRegistrations"].ToString();
+            TempData[ControllerExtensions.ErrorMessageKey] = _localizer["Excursion.CannotDeleteRegistrations"].ToString();
             return RedirectToAction(nameof(Index), new { id = excursion.ActivityId });
         }
 
@@ -400,7 +398,7 @@ public class ExcursionsController : Controller
         excursion.IsActive = false;
         await _context.SaveChangesAsync();
 
-        TempData[TempDataSuccessMessage] = _localizer["Message.ExcursionDeleted"].ToString();
+        TempData[ControllerExtensions.SuccessMessageKey] = _localizer["Message.ExcursionDeleted"].ToString();
         return RedirectToAction(nameof(Index), new { id = excursion.ActivityId });
     }
 
@@ -444,11 +442,17 @@ public class ExcursionsController : Controller
         }
         catch (InvalidOperationException ex)
         {
+            _logger.LogWarning(ex, "Invalid operation while registering child for excursion {ExcursionId}, booking {BookingId}", excursionId, bookingId);
             return Json(new { success = false, message = ex.Message });
+        }
+        catch (DbUpdateException ex)
+        {
+            _logger.LogError(ex, "Database error while registering child for excursion {ExcursionId}, booking {BookingId}", excursionId, bookingId);
+            return Json(new { success = false, message = _localizer[ErrorGeneric].ToString() });
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error registering child for excursion {ExcursionId}, booking {BookingId}", excursionId, bookingId);
+            _logger.LogError(ex, "Unexpected error while registering child for excursion {ExcursionId}, booking {BookingId}", excursionId, bookingId);
             return Json(new { success = false, message = _localizer[ErrorGeneric].ToString() });
         }
     }
@@ -469,9 +473,19 @@ public class ExcursionsController : Controller
                 return Json(new { success = false, message = _localizer[ErrorRegistrationNotFound].ToString() });
             }
         }
+        catch (InvalidOperationException ex)
+        {
+            _logger.LogWarning(ex, "Invalid operation while unregistering child from excursion {ExcursionId}, booking {BookingId}", excursionId, bookingId);
+            return Json(new { success = false, message = ex.Message });
+        }
+        catch (DbUpdateException ex)
+        {
+            _logger.LogError(ex, "Database error while unregistering child from excursion {ExcursionId}, booking {BookingId}", excursionId, bookingId);
+            return Json(new { success = false, message = _localizer[ErrorGeneric].ToString() });
+        }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error unregistering child from excursion {ExcursionId}, booking {BookingId}", excursionId, bookingId);
+            _logger.LogError(ex, "Unexpected error while unregistering child from excursion {ExcursionId}, booking {BookingId}", excursionId, bookingId);
             return Json(new { success = false, message = _localizer[ErrorGeneric].ToString() });
         }
     }
@@ -519,9 +533,19 @@ public class ExcursionsController : Controller
                 return Json(new { success = false, message = _localizer[ErrorRegistrationNotFound].ToString() });
             }
         }
+        catch (InvalidOperationException ex)
+        {
+            _logger.LogWarning(ex, "Invalid operation while updating attendance for registration {RegistrationId}", registrationId);
+            return Json(new { success = false, message = ex.Message });
+        }
+        catch (DbUpdateException ex)
+        {
+            _logger.LogError(ex, "Database error while updating attendance for registration {RegistrationId}", registrationId);
+            return Json(new { success = false, message = _localizer[ErrorGeneric].ToString() });
+        }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error updating attendance for registration {RegistrationId}", registrationId);
+            _logger.LogError(ex, "Unexpected error while updating attendance for registration {RegistrationId}", registrationId);
             return Json(new { success = false, message = _localizer[ErrorGeneric].ToString() });
         }
     }
@@ -590,7 +614,7 @@ public class ExcursionsController : Controller
 
         var emailCount = registrations.Select(r => r.Booking.Child.Parent.Email).Distinct().Count();
 
-        TempData[TempDataSuccessMessage] = string.Format(_localizer["Message.EmailSent"].Value, emailCount);
+        TempData[ControllerExtensions.SuccessMessageKey] = string.Format(_localizer["Message.EmailSent"].Value, emailCount);
         return RedirectToAction(nameof(Index), new { id = model.Excursion?.ActivityId ?? model.ExcursionId });
     }
 
@@ -685,7 +709,7 @@ public class ExcursionsController : Controller
         _context.Expenses.Add(expense);
         await _context.SaveChangesAsync();
 
-        TempData[TempDataSuccessMessage] = _localizer["Message.ExpenseAdded"].ToString();
+        TempData[ControllerExtensions.SuccessMessageKey] = _localizer["Message.ExpenseAdded"].ToString();
         return RedirectToAction(nameof(Expenses), new { id = model.Excursion.Id });
     }
 

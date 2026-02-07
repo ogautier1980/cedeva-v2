@@ -3,6 +3,7 @@ using Cedeva.Core.Enums;
 using Cedeva.Core.Interfaces;
 using Cedeva.Infrastructure.Data;
 using Cedeva.Website.Features.ActivityManagement.ViewModels;
+using Cedeva.Website.Infrastructure;
 using Cedeva.Website.Localization;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -20,8 +21,6 @@ public class ActivityManagementController : Controller
     private const string RecipientUnpaidParents = "unpaidparents";
     private const string RecipientGroupPrefix = "group_";
     private const string RecipientExcursionPrefix = "excursion_";
-    private const string TempDataSuccessMessage = "SuccessMessage";
-    private const string TempDataErrorMessage = "ErrorMessage";
 
     private readonly CedevaDbContext _context;
     private readonly ILogger<ActivityManagementController> _logger;
@@ -209,7 +208,7 @@ public class ActivityManagementController : Controller
 
         await _context.SaveChangesAsync();
 
-        TempData[TempDataSuccessMessage] = _localizer["Message.BookingConfirmed"].Value;
+        TempData[ControllerExtensions.SuccessMessageKey] = _localizer["Message.BookingConfirmed"].Value;
         return RedirectToAction(nameof(UnconfirmedBookings));
     }
 
@@ -465,12 +464,19 @@ public class ActivityManagementController : Controller
                 model.ActivityId, model.SelectedRecipient!, recipientGroupId, model.SelectedDayId, ct);
             await LogSentEmailAsync(model, recipientGroupId, allEmails, attachmentFileName, attachmentFilePath, ct);
 
-            TempData[TempDataSuccessMessage] = string.Format(_localizer["Message.EmailSent"].Value, emailsSentCount);
+            TempData[ControllerExtensions.SuccessMessageKey] = string.Format(_localizer["Message.EmailSent"].Value, emailsSentCount);
             return RedirectToAction(nameof(SendEmail));
+        }
+        catch (InvalidOperationException ex)
+        {
+            _logger.LogWarning(ex, "Invalid operation while sending email for activity {ActivityId}", model.ActivityId);
+            ModelState.AddModelError(string.Empty, $"{_localizer["Message.EmailSendError"]}: {ex.Message}");
+            await RepopulateViewModelAsync(model, ct);
+            return View(model);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error sending email for activity {ActivityId}", model.ActivityId);
+            _logger.LogError(ex, "Unexpected error while sending email for activity {ActivityId}", model.ActivityId);
             ModelState.AddModelError(string.Empty, $"{_localizer["Message.EmailSendError"]}: {ex.Message}");
             await RepopulateViewModelAsync(model, ct);
             return View(model);
@@ -724,7 +730,7 @@ public class ActivityManagementController : Controller
 
         if (teamMember == null)
         {
-            TempData[TempDataErrorMessage] = _localizer["Message.TeamMemberNotFound"].Value;
+            TempData[ControllerExtensions.ErrorMessageKey] = _localizer["Message.TeamMemberNotFound"].Value;
             return RedirectToAction(nameof(TeamMembers));
         }
 
@@ -732,7 +738,7 @@ public class ActivityManagementController : Controller
         {
             activity.TeamMembers.Add(teamMember);
             await _context.SaveChangesAsync();
-            TempData[TempDataSuccessMessage] = string.Format(_localizer["Message.TeamMemberAdded"].Value, teamMember.FirstName, teamMember.LastName);
+            TempData[ControllerExtensions.SuccessMessageKey] = string.Format(_localizer["Message.TeamMemberAdded"].Value, teamMember.FirstName, teamMember.LastName);
         }
 
         return RedirectToAction(nameof(TeamMembers));
@@ -760,7 +766,7 @@ public class ActivityManagementController : Controller
         {
             activity.TeamMembers.Remove(teamMember);
             await _context.SaveChangesAsync();
-            TempData[TempDataSuccessMessage] = string.Format(_localizer["Message.TeamMemberRemoved"].Value, teamMember.FirstName, teamMember.LastName);
+            TempData[ControllerExtensions.SuccessMessageKey] = string.Format(_localizer["Message.TeamMemberRemoved"].Value, teamMember.FirstName, teamMember.LastName);
         }
 
         return RedirectToAction(nameof(TeamMembers));
@@ -987,7 +993,7 @@ public class ActivityManagementController : Controller
         var selectedActivityId = _sessionState.Get<int>("ActivityId");
         if (selectedActivityId == null)
         {
-            TempData[TempDataErrorMessage] = _localizer["ActivityManagement.SelectActivity"].Value;
+            TempData[ControllerExtensions.ErrorMessageKey] = _localizer["ActivityManagement.SelectActivity"].Value;
             return RedirectToAction(nameof(Index));
         }
 
@@ -1073,9 +1079,19 @@ public class ActivityManagementController : Controller
 
             return Ok(new { success = true, message = _localizer["Message.GroupAssigned"].Value });
         }
+        catch (InvalidOperationException ex)
+        {
+            _logger.LogWarning(ex, "Invalid operation while assigning booking {BookingId} to group {GroupId}", request.BookingId, request.GroupId);
+            return StatusCode(500, new { success = false, message = ex.Message });
+        }
+        catch (DbUpdateException ex)
+        {
+            _logger.LogError(ex, "Database error while assigning booking {BookingId} to group {GroupId}", request.BookingId, request.GroupId);
+            return StatusCode(500, new { success = false, message = _localizer["Message.ErrorOccurred"].Value });
+        }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error assigning booking {BookingId} to group {GroupId}", request.BookingId, request.GroupId);
+            _logger.LogError(ex, "Unexpected error while assigning booking {BookingId} to group {GroupId}", request.BookingId, request.GroupId);
             return StatusCode(500, new { success = false, message = _localizer["Message.ErrorOccurred"].Value });
         }
     }
@@ -1101,7 +1117,7 @@ public class ActivityManagementController : Controller
         var selectedActivityId = _sessionState.Get<int>("ActivityId");
         if (selectedActivityId == null)
         {
-            TempData[TempDataErrorMessage] = _localizer["ActivityManagement.SelectActivity"].Value;
+            TempData[ControllerExtensions.ErrorMessageKey] = _localizer["ActivityManagement.SelectActivity"].Value;
             return RedirectToAction(nameof(Index));
         }
 
@@ -1247,9 +1263,19 @@ public class ActivityManagementController : Controller
                 isComplete = isComplete
             });
         }
+        catch (InvalidOperationException ex)
+        {
+            _logger.LogWarning(ex, "Invalid operation while updating booking {BookingId}", request.BookingId);
+            return StatusCode(500, new { success = false, message = ex.Message });
+        }
+        catch (DbUpdateException ex)
+        {
+            _logger.LogError(ex, "Database error while updating booking {BookingId}", request.BookingId);
+            return StatusCode(500, new { success = false, message = _localizer["Message.ErrorOccurred"].Value });
+        }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error updating booking {BookingId}", request.BookingId);
+            _logger.LogError(ex, "Unexpected error while updating booking {BookingId}", request.BookingId);
             return StatusCode(500, new { success = false, message = _localizer["Message.ErrorOccurred"].Value });
         }
     }
