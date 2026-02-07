@@ -4,6 +4,10 @@
 
 @{
     ViewData["Title"] = Localizer["Financial.Transactions"];
+    ViewData["ActivityId"] = Model.ActivityId;
+    ViewData["ActivityName"] = Model.ActivityName;
+    ViewData["NavSection"] = "Financial";
+    ViewData["NavAction"] = "Transactions";
     var currentFilter = ViewBag.CurrentFilter as string;
 }
 

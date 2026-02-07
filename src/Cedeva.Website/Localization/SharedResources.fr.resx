@@ -631,6 +631,9 @@
   <data name="BackToList" xml:space="preserve">
     <value>Retour à la liste</value>
   </data>
+  <data name="BankingInformation" xml:space="preserve">
+    <value>Informations bancaires</value>
+  </data>
   <data name="BirthDate" xml:space="preserve">
     <value>Date de naissance</value>
   </data>
@@ -1450,6 +1453,18 @@
   <data name="Field.Attachment" xml:space="preserve">
     <value>Pièce jointe</value>
   </data>
+  <data name="Field.BankAccountName" xml:space="preserve">
+    <value>Titulaire du compte</value>
+  </data>
+  <data name="Field.BankAccountNameHelp" xml:space="preserve">
+    <value>Nom du titulaire du compte bancaire</value>
+  </data>
+  <data name="Field.BankAccountNumber" xml:space="preserve">
+    <value>Numéro de compte (IBAN)</value>
+  </data>
+  <data name="Field.BankAccountNumberHelp" xml:space="preserve">
+    <value>IBAN du compte bancaire pour les paiements</value>
+  </data>
   <data name="Field.BirthDate" xml:space="preserve">
     <value>Date de naissance</value>
   </data>
@@ -2107,6 +2122,9 @@
   <data name="Layout.Dashboard" xml:space="preserve">
     <value>Tableau de bord</value>
   </data>
+  <data name="Layout.Finance" xml:space="preserve">
+    <value>Finance</value>
+  </data>
   <data name="Layout.IframeForm" xml:space="preserve">
     <value>Formulaire iframe</value>
   </data>
@@ -2343,6 +2361,9 @@
   </data>
   <data name="NotReceived" xml:space="preserve">
     <value>Non reçu</value>
+  </data>
+  <data name="NotSpecified" xml:space="preserve">
+    <value>Non renseigné</value>
   </data>
   <data name="Of" xml:space="preserve">
     <value>sur</value>

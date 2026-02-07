@@ -273,6 +273,61 @@ public class ParentsController : Controller
         return RedirectToAction(nameof(Index));
     }
 
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> CreateAjax([FromForm] ParentViewModel viewModel)
+    {
+        if (!ModelState.IsValid)
+        {
+            var errors = ModelState
+                .Where(x => x.Value?.Errors.Count > 0)
+                .ToDictionary(
+                    kvp => kvp.Key,
+                    kvp => kvp.Value?.Errors.Select(e => e.ErrorMessage).ToArray() ?? Array.Empty<string>()
+                );
+            return Json(new { success = false, errors });
+        }
+
+        var organisationId = _currentUserService.OrganisationId;
+        if (!_currentUserService.IsAdmin && organisationId == null)
+        {
+            return Json(new { success = false, message = _localizer["Error.Unauthorized"].Value });
+        }
+
+        var address = new Address
+        {
+            Street = viewModel.Street,
+            City = viewModel.City,
+            PostalCode = viewModel.PostalCode,
+            Country = viewModel.Country
+        };
+
+        var parent = new Parent
+        {
+            FirstName = viewModel.FirstName,
+            LastName = viewModel.LastName,
+            Email = viewModel.Email,
+            PhoneNumber = viewModel.PhoneNumber,
+            MobilePhoneNumber = viewModel.MobilePhoneNumber,
+            NationalRegisterNumber = viewModel.NationalRegisterNumber,
+            Address = address,
+            OrganisationId = _currentUserService.IsAdmin ? viewModel.OrganisationId : organisationId!.Value
+        };
+
+        _context.Parents.Add(parent);
+        await _context.SaveChangesAsync();
+
+        _logger.LogInformation("Parent {Name} created via AJAX by user {UserId}", parent.FullName, _currentUserService.UserId);
+
+        return Json(new
+        {
+            success = true,
+            parentId = parent.Id,
+            parentName = parent.FullName,
+            message = _localizer["Message.ParentCreated"].Value
+        });
+    }
+
     public async Task<IActionResult> Edit(int id, string? returnUrl = null)
     {
         var parent = await _context.Parents

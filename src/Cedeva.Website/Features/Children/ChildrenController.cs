@@ -26,6 +26,7 @@ public class ChildrenController : Controller
     private readonly IPdfExportService _pdfExportService;
     private readonly IStringLocalizer<SharedResources> _localizer;
     private readonly IUserDisplayService _userDisplayService;
+    private readonly ICurrentUserService _currentUserService;
 
     public ChildrenController(
         IRepository<Child> childRepository,
@@ -35,7 +36,8 @@ public class ChildrenController : Controller
         IExcelExportService excelExportService,
         IPdfExportService pdfExportService,
         IStringLocalizer<SharedResources> localizer,
-        IUserDisplayService userDisplayService)
+        IUserDisplayService userDisplayService,
+        ICurrentUserService currentUserService)
     {
         _childRepository = childRepository;
         _parentRepository = parentRepository;
@@ -45,6 +47,7 @@ public class ChildrenController : Controller
         _pdfExportService = pdfExportService;
         _localizer = localizer;
         _userDisplayService = userDisplayService;
+        _currentUserService = currentUserService;
     }
 
     // GET: Children
@@ -219,6 +222,9 @@ public class ChildrenController : Controller
             ParentId = parentId ?? 0,
             BirthDate = DateTime.Today.AddYears(-10) // Default date
         };
+
+        // Pass organisation ID for inline parent creation
+        ViewBag.CurrentOrganisationId = _currentUserService.OrganisationId ?? 0;
 
         return View(viewModel);
     }

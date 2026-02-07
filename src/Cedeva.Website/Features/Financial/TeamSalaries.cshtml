@@ -4,6 +4,10 @@
 
 @{
     ViewData["Title"] = Localizer["Financial.TeamSalaries"];
+    ViewData["ActivityId"] = Model.ActivityId;
+    ViewData["ActivityName"] = Model.ActivityName;
+    ViewData["NavSection"] = "Financial";
+    ViewData["NavAction"] = "TeamSalaries";
 }
 
 
@@ -26,7 +30,7 @@
                     <a asp-action="Index" class="btn btn-secondary">
                         <i class="fas fa-arrow-left me-1"></i>@Localizer["Button.Back"]
                     </a>
-                    <a asp-action="ExportTeamSalaries" class="btn btn-success" title="@Localizer["Button.ExportExcel"]">
+                    <a asp-action="ExportTeamSalaries" class="btn btn-primary" title="@Localizer["Button.ExportExcel"]">
                         <i class="fas fa-file-excel"></i>
                     </a>
                 </div>

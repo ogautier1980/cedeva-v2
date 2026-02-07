@@ -51,9 +51,94 @@
                             </select>
                             <span asp-validation-for="ParentId" class="text-danger"></span>
                             <div class="form-text">
-                                <a asp-controller="Parents" asp-action="Create" class="text-decoration-none">
+                                <button type="button" class="btn btn-link p-0 text-decoration-none" id="toggleParentForm">
                                     <i class="fas fa-plus-circle me-1"></i>@Localizer["Children.CreateNewParent"]
-                                </a>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Inline Parent Creation Form -->
+                        <div id="parentFormContainer" class="card border-primary mb-3" style="display: none;">
+                            <div class="card-header bg-primary text-white">
+                                <h6 class="mb-0"><i class="fas fa-user-plus me-2"></i>@Localizer["Parents.NewParent"]</h6>
+                            </div>
+                            <div class="card-body">
+                                <div id="parentFormErrors" class="alert alert-danger" style="display: none;"></div>
+
+                                <form id="parentForm">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="OrganisationId" value="@ViewBag.CurrentOrganisationId" />
+                                    <input type="hidden" name="Country" value="0" />
+
+                                    <h6 class="mb-3 text-primary"><i class="fas fa-user me-2"></i>@Localizer["PersonalInformation"]</h6>
+
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label for="Parent_FirstName" class="form-label">@Localizer["Field.FirstName"]</label>
+                                            <input type="text" class="form-control" id="Parent_FirstName" name="FirstName" required />
+                                            <span class="text-danger field-error" data-field="FirstName"></span>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label for="Parent_LastName" class="form-label">@Localizer["Field.LastName"]</label>
+                                            <input type="text" class="form-control" id="Parent_LastName" name="LastName" required />
+                                            <span class="text-danger field-error" data-field="LastName"></span>
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="Parent_NationalRegisterNumber" class="form-label">@Localizer["Field.NationalRegisterNumber"]</label>
+                                        <input type="text" class="form-control" id="Parent_NationalRegisterNumber" name="NationalRegisterNumber" placeholder="@Localizer["Children.NRNPlaceholder"]" />
+                                        <span class="text-danger field-error" data-field="NationalRegisterNumber"></span>
+                                    </div>
+
+                                    <h6 class="mb-3 text-primary"><i class="fas fa-phone me-2"></i>@Localizer["Contact"]</h6>
+
+                                    <div class="mb-3">
+                                        <label for="Parent_Email" class="form-label">@Localizer["Field.Email"]</label>
+                                        <input type="email" class="form-control" id="Parent_Email" name="Email" required />
+                                        <span class="text-danger field-error" data-field="Email"></span>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label for="Parent_MobilePhoneNumber" class="form-label">@Localizer["Field.MobilePhoneNumber"]</label>
+                                            <input type="text" class="form-control" id="Parent_MobilePhoneNumber" name="MobilePhoneNumber" placeholder="@Localizer["Parents.MobilePlaceholder"]" />
+                                            <span class="text-danger field-error" data-field="MobilePhoneNumber"></span>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label for="Parent_PhoneNumber" class="form-label">@Localizer["Field.PhoneNumber"]</label>
+                                            <input type="text" class="form-control" id="Parent_PhoneNumber" name="PhoneNumber" placeholder="@Localizer["Parents.PhonePlaceholder"]" />
+                                            <span class="text-danger field-error" data-field="PhoneNumber"></span>
+                                        </div>
+                                    </div>
+
+                                    <h6 class="mb-3 text-primary"><i class="fas fa-map-marker-alt me-2"></i>@Localizer["Address"]</h6>
+
+                                    <div class="mb-3">
+                                        <label for="Parent_Street" class="form-label">@Localizer["Field.Street"]</label>
+                                        <input type="text" class="form-control" id="Parent_Street" name="Street" placeholder="@Localizer["Parents.StreetPlaceholder"]" required />
+                                        <span class="text-danger field-error" data-field="Street"></span>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="Parent_CombinedAddress" class="form-label">@Localizer["Field.PostalCodeCity"]</label>
+                                        <input type="text" class="form-control" id="Parent_CombinedAddress" placeholder="@Localizer["Parents.PostalCodeCityPlaceholder"]" />
+                                        <small class="form-text text-muted">@Localizer["Parents.PostalCodeCityHelp"]</small>
+                                        <input type="hidden" name="PostalCode" id="Parent_PostalCode" />
+                                        <input type="hidden" name="City" id="Parent_City" />
+                                        <span class="text-danger field-error" data-field="PostalCode"></span>
+                                        <span class="text-danger field-error" data-field="City"></span>
+                                    </div>
+
+                                    <div class="d-flex justify-content-end gap-2">
+                                        <button type="button" class="btn btn-outline-secondary" id="cancelParentForm">
+                                            <i class="fas fa-times me-1"></i>@Localizer["Cancel"]
+                                        </button>
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="fas fa-save me-1"></i>@Localizer["Parents.CreateParent"]
+                                        </button>
+                                    </div>
+                                </form>
                             </div>
                         </div>
 
@@ -99,4 +184,95 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script src="~/js/belgian-municipality-validator.js"></script>
+    <script src="~/js/unified-address-autocomplete.js"></script>
+
+    <script>
+        $(function () {
+            // Initialize address autocomplete for parent form
+            initializeUnifiedAddressAutocomplete("#Parent_CombinedAddress", "#Parent_PostalCode", "#Parent_City");
+
+            // Toggle parent form visibility
+            $('#toggleParentForm').on('click', function () {
+                $('#parentFormContainer').slideToggle(300);
+                $(this).find('i').toggleClass('fa-plus-circle fa-minus-circle');
+            });
+
+            // Cancel parent form
+            $('#cancelParentForm').on('click', function () {
+                $('#parentFormContainer').slideUp(300);
+                $('#toggleParentForm').find('i').removeClass('fa-minus-circle').addClass('fa-plus-circle');
+                $('#parentForm')[0].reset();
+                clearParentFormErrors();
+            });
+
+            // Submit parent form via AJAX
+            $('#parentForm').on('submit', function (e) {
+                e.preventDefault();
+                clearParentFormErrors();
+
+                var formData = $(this).serialize();
+
+                $.ajax({
+                    url: '@Url.Action("CreateAjax", "Parents")',
+                    type: 'POST',
+                    data: formData,
+                    success: function (response) {
+                        if (response.success) {
+                            // Add new parent to dropdown
+                            $('#ParentId').append(
+                                $('<option>', {
+                                    value: response.parentId,
+                                    text: response.parentName,
+                                    selected: true
+                                })
+                            );
+
+                            // Hide and reset form
+                            $('#parentFormContainer').slideUp(300);
+                            $('#toggleParentForm').find('i').removeClass('fa-minus-circle').addClass('fa-plus-circle');
+                            $('#parentForm')[0].reset();
+
+                            // Show success message
+                            toastr.success(response.message || '@Localizer["Message.ParentCreated"]');
+                        } else {
+                            // Show validation errors
+                            if (response.errors) {
+                                displayParentFormErrors(response.errors);
+                            } else if (response.message) {
+                                $('#parentFormErrors').html(response.message).show();
+                            }
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        $('#parentFormErrors').html('@Localizer["Error.UnexpectedError"]').show();
+                        console.error('Error creating parent:', error);
+                    }
+                });
+            });
+
+            function displayParentFormErrors(errors) {
+                var errorHtml = '<ul class="mb-0">';
+                for (var field in errors) {
+                    var fieldErrors = errors[field];
+                    for (var i = 0; i < fieldErrors.length; i++) {
+                        errorHtml += '<li>' + fieldErrors[i] + '</li>';
+
+                        // Also show error next to field
+                        var errorSpan = $('.field-error[data-field="' + field + '"]');
+                        if (errorSpan.length > 0) {
+                            errorSpan.text(fieldErrors[i]);
+                        }
+                    }
+                }
+                errorHtml += '</ul>';
+                $('#parentFormErrors').html(errorHtml).show();
+            }
+
+            function clearParentFormErrors() {
+                $('#parentFormErrors').hide().empty();
+                $('.field-error').text('');
+            }
+        });
+    </script>
 }
