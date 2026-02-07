@@ -13,12 +13,32 @@
         var bgColor = Context.Request.Query["bg"].ToString();
         var btnColor = Context.Request.Query["btn"].ToString();
 
-        // Default colors if not provided
-        if (string.IsNullOrEmpty(bgColor)) bgColor = "667eea,764ba2"; // gradient colors
-        if (string.IsNullOrEmpty(btnColor)) btnColor = "0d6efd"; // Bootstrap primary
+        // Validate hex color format (only alphanumeric, no special chars to prevent CSS injection)
+        bool IsValidHexColor(string color)
+        {
+            if (string.IsNullOrEmpty(color)) return false;
+            return System.Text.RegularExpressions.Regex.IsMatch(color, "^[0-9A-Fa-f]{6}$");
+        }
 
-        // Parse gradient or solid color
+        // Default colors if not provided or invalid
+        if (string.IsNullOrEmpty(bgColor)) bgColor = "667eea,764ba2"; // gradient colors
+        if (string.IsNullOrEmpty(btnColor) || !IsValidHexColor(btnColor)) btnColor = "0d6efd"; // Bootstrap primary
+
+        // Parse and validate gradient or solid color
         var bgColors = bgColor.Split(',');
+
+        // Validate all color parts
+        for (int i = 0; i < bgColors.Length; i++)
+        {
+            bgColors[i] = bgColors[i].Trim();
+            if (!IsValidHexColor(bgColors[i]))
+            {
+                // Fallback to defaults if invalid
+                bgColors = new[] { "667eea", "764ba2" };
+                break;
+            }
+        }
+
         var bgStyle = bgColors.Length > 1
             ? $"background: linear-gradient(135deg, #{bgColors[0]} 0%, #{bgColors[1]} 100%);"
             : $"background-color: #{bgColors[0]};";

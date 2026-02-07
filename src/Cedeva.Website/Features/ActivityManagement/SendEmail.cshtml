@@ -180,7 +180,7 @@
 
     <script>
         const subjectInput = document.getElementById('Subject');
-        const availableVariables = @Html.Raw(Json.Serialize(availableVariables.Keys.ToList()));
+        const availableVariables = @Json.Serialize(availableVariables.Keys.ToList());
 
         // Function to insert text at cursor position (for Subject field)
         function insertAtCursor(targetElement, text) {

@@ -115,7 +115,7 @@
             CedevaChoices.initAll('.form-select');
         });
 
-        const availableVariables = @Html.Raw(Json.Serialize(availableVariables.Keys.ToList()));
+        const availableVariables = @Json.Serialize(availableVariables.Keys.ToList());
 
         $(document).ready(function() {
             // Custom button for inserting variables

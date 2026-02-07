@@ -166,11 +166,36 @@ public class FinancialController : Controller
             return await ImportCoda();
         }
 
-        // Valider l'extension du fichier
-        var extension = Path.GetExtension(viewModel.CodaFile.FileName).ToLowerInvariant();
+        // Validate file size (max 10MB)
+        const long maxFileSize = 10 * 1024 * 1024; // 10MB
+        if (viewModel.CodaFile.Length > maxFileSize)
+        {
+            ModelState.AddModelError(nameof(ImportCodaViewModel.CodaFile), _localizer["Validation.FileTooLarge", "10MB"].Value);
+            return await ImportCoda();
+        }
+
+        if (viewModel.CodaFile.Length == 0)
+        {
+            ModelState.AddModelError(nameof(ImportCodaViewModel.CodaFile), _localizer["Validation.FileEmpty"].Value);
+            return await ImportCoda();
+        }
+
+        // Sanitize filename to prevent path traversal attacks
+        var safeFileName = Path.GetFileName(viewModel.CodaFile.FileName);
+
+        // Validate file extension
+        var extension = Path.GetExtension(safeFileName).ToLowerInvariant();
         if (extension != ".cod" && extension != ".txt")
         {
             ModelState.AddModelError(nameof(ImportCodaViewModel.CodaFile), _localizer["Validation.InvalidCodaFileExtension"].Value);
+            return await ImportCoda();
+        }
+
+        // Validate Content-Type (MIME type)
+        var allowedContentTypes = new[] { "text/plain", "application/octet-stream" };
+        if (!allowedContentTypes.Contains(viewModel.CodaFile.ContentType.ToLowerInvariant()))
+        {
+            ModelState.AddModelError(nameof(ImportCodaViewModel.CodaFile), _localizer["Validation.InvalidFileType"].Value);
             return await ImportCoda();
         }
 
@@ -183,13 +208,13 @@ public class FinancialController : Controller
             CodaFileDto codaData;
             using (var stream = viewModel.CodaFile.OpenReadStream())
             {
-                codaData = await _codaParserService.ParseCodaFileAsync(stream, viewModel.CodaFile.FileName);
+                codaData = await _codaParserService.ParseCodaFileAsync(stream, safeFileName);
             }
 
             // Importer dans la base de données
             var codaFileId = await _codaParserService.ImportCodaFileAsync(codaData, organisationId, userId);
 
-            _logger.LogInformation("CODA file {FileName} imported successfully by user {UserId}", viewModel.CodaFile.FileName, userId);
+            _logger.LogInformation("CODA file {FileName} imported successfully by user {UserId}", safeFileName, userId);
 
             // Lancer le rapprochement automatique
             var reconciledCount = await _reconciliationService.AutoReconcileTransactionsAsync(codaFileId);
