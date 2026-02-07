@@ -30,6 +30,15 @@ public class OrganisationViewModel : AuditableViewModel
     [Display(Name = "Field.LogoUrl")]
     public string? LogoUrl { get; set; }
 
+    // Banking Information
+    [StringLength(34, ErrorMessage = "Validation.StringLength")]
+    [Display(Name = "Field.BankAccountNumber")]
+    public string? BankAccountNumber { get; set; }
+
+    [StringLength(100, ErrorMessage = "Validation.StringLength")]
+    [Display(Name = "Field.BankAccountName")]
+    public string? BankAccountName { get; set; }
+
     // Address
     [Required(ErrorMessage = "Validation.Required")]
     [StringLength(100, MinimumLength = 2, ErrorMessage = "Validation.StringLength")]

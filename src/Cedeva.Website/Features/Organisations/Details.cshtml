@@ -56,6 +56,36 @@
 
                     <hr />
 
+                    <h6 class="mb-3 text-primary"><i class="fas fa-university me-2"></i>@Localizer["BankingInformation"]</h6>
+
+                    <dl class="row">
+                        <dt class="col-sm-4">@Localizer["Field.BankAccountNumber"]</dt>
+                        <dd class="col-sm-8">
+                            @if (!string.IsNullOrWhiteSpace(Model.BankAccountNumber))
+                            {
+                                <span class="font-monospace">@Model.BankAccountNumber</span>
+                            }
+                            else
+                            {
+                                <span class="text-muted fst-italic">@Localizer["NotSpecified"]</span>
+                            }
+                        </dd>
+
+                        <dt class="col-sm-4">@Localizer["Field.BankAccountName"]</dt>
+                        <dd class="col-sm-8">
+                            @if (!string.IsNullOrWhiteSpace(Model.BankAccountName))
+                            {
+                                @Model.BankAccountName
+                            }
+                            else
+                            {
+                                <span class="text-muted fst-italic">@Localizer["NotSpecified"]</span>
+                            }
+                        </dd>
+                    </dl>
+
+                    <hr />
+
                     <div class="mt-4">
                         <a asp-action="Index" class="btn btn-outline-secondary">
                             <i class="fas fa-arrow-left me-2"></i>@Localizer["BackToList"]

@@ -74,6 +74,22 @@
 
                         <input type="hidden" asp-for="Country" />
 
+                        <h6 class="mb-3 mt-4 text-primary"><i class="fas fa-university me-2"></i>@Localizer["BankingInformation"]</h6>
+
+                        <div class="mb-3">
+                            <label for="BankAccountNumber" class="form-label">@Localizer["Field.BankAccountNumber"]</label>
+                            <input asp-for="BankAccountNumber" class="form-control" id="BankAccountNumber" placeholder="BE00 0000 0000 0000" />
+                            <span asp-validation-for="BankAccountNumber" class="text-danger"></span>
+                            <small class="form-text text-muted">@Localizer["Field.BankAccountNumberHelp"]</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="BankAccountName" class="form-label">@Localizer["Field.BankAccountName"]</label>
+                            <input asp-for="BankAccountName" class="form-control" id="BankAccountName" />
+                            <span asp-validation-for="BankAccountName" class="text-danger"></span>
+                            <small class="form-text text-muted">@Localizer["Field.BankAccountNameHelp"]</small>
+                        </div>
+
                         <hr />
 
                         <div class="d-flex justify-content-between">
