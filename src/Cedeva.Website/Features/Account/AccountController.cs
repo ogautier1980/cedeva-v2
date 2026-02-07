@@ -19,19 +19,22 @@ public class AccountController : Controller
     private readonly IRepository<Organisation> _organisationRepository;
     private readonly IEmailService _emailService;
     private readonly IStringLocalizer<SharedResources> _localizer;
+    private readonly ILogger<AccountController> _logger;
 
     public AccountController(
         SignInManager<CedevaUser> signInManager,
         UserManager<CedevaUser> userManager,
         IRepository<Organisation> organisationRepository,
         IEmailService emailService,
-        IStringLocalizer<SharedResources> localizer)
+        IStringLocalizer<SharedResources> localizer,
+        ILogger<AccountController> logger)
     {
         _signInManager = signInManager;
         _userManager = userManager;
         _organisationRepository = organisationRepository;
         _emailService = emailService;
         _localizer = localizer;
+        _logger = logger;
     }
 
     [AllowAnonymous]
@@ -133,6 +136,7 @@ public class AccountController : Controller
             {
                 // Log error but don't block registration
                 // Email sending failure should not prevent user from using the app
+                _logger.LogWarning(ex, "Failed to send welcome email to {Email}", user.Email);
                 TempData[ControllerExtensions.WarningMessageKey] = string.Format(_localizer["Message.WelcomeEmailFailed"].Value, ex.Message);
             }
 

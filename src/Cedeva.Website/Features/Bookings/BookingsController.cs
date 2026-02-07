@@ -28,6 +28,7 @@ public class BookingsController : Controller
     private readonly IUserDisplayService _userDisplayService;
     private readonly IBookingQuestionService _bookingQuestionService;
     private readonly ISessionStateService _sessionState;
+    private readonly ILogger<BookingsController> _logger;
 
     public BookingsController(
         IRepository<Booking> bookingRepository,
@@ -40,7 +41,8 @@ public class BookingsController : Controller
         ICurrentUserService currentUserService,
         IUserDisplayService userDisplayService,
         IBookingQuestionService bookingQuestionService,
-        ISessionStateService sessionState)
+        ISessionStateService sessionState,
+        ILogger<BookingsController> logger)
     {
         _bookingRepository = bookingRepository;
         _context = context;
@@ -53,6 +55,7 @@ public class BookingsController : Controller
         _userDisplayService = userDisplayService;
         _bookingQuestionService = bookingQuestionService;
         _sessionState = sessionState;
+        _logger = logger;
     }
 
     // GET: Bookings
@@ -661,6 +664,8 @@ public class BookingsController : Controller
             }
             catch (Exception ex)
             {
+                _logger.LogWarning(ex, "Failed to send booking confirmation email to {Email} for booking {BookingId}",
+                    child.Parent.Email, id);
                 TempData[ControllerExtensions.WarningMessageKey] = string.Format(_localizer["Message.BookingConfirmedEmailFailed"].Value, ex.Message);
             }
         }
