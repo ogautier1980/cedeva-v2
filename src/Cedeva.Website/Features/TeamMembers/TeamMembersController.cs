@@ -29,6 +29,7 @@ public class TeamMembersController : Controller
     private readonly IStorageService _storageService;
     private readonly IWebHostEnvironment _webHostEnvironment;
     private readonly IUserDisplayService _userDisplayService;
+    private readonly ISessionStateService _sessionState;
 
     public TeamMembersController(
         IRepository<TeamMember> teamMemberRepository,
@@ -41,7 +42,8 @@ public class TeamMembersController : Controller
         IStringLocalizer<SharedResources> localizer,
         IStorageService storageService,
         IWebHostEnvironment webHostEnvironment,
-        IUserDisplayService userDisplayService)
+        IUserDisplayService userDisplayService,
+        ISessionStateService sessionState)
     {
         _teamMemberRepository = teamMemberRepository;
         _addressRepository = addressRepository;
@@ -54,11 +56,57 @@ public class TeamMembersController : Controller
         _storageService = storageService;
         _webHostEnvironment = webHostEnvironment;
         _userDisplayService = userDisplayService;
+        _sessionState = sessionState;
     }
 
     // GET: TeamMembers
     public async Task<IActionResult> Index([FromQuery] TeamMemberQueryParameters queryParams)
     {
+        // Check if any query parameters were provided in the actual HTTP request
+        bool hasQueryParams = Request.Query.Count > 0;
+
+        // If query params provided, store them and redirect to clean URL
+        if (hasQueryParams)
+        {
+            if (!string.IsNullOrWhiteSpace(queryParams.SearchString))
+                _sessionState.Set("TeamMembers_SearchString", queryParams.SearchString, persistToCookie: false);
+
+            if (!string.IsNullOrWhiteSpace(queryParams.SortBy))
+                _sessionState.Set("TeamMembers_SortBy", queryParams.SortBy, persistToCookie: false);
+
+            if (!string.IsNullOrWhiteSpace(queryParams.SortOrder))
+                _sessionState.Set("TeamMembers_SortOrder", queryParams.SortOrder, persistToCookie: false);
+
+            if (queryParams.PageNumber > 1)
+                _sessionState.Set("TeamMembers_PageNumber", queryParams.PageNumber.ToString(), persistToCookie: false);
+
+            // Mark that filters should be kept for the next request (after redirect)
+            TempData["KeepFilters"] = true;
+
+            // Redirect to clean URL
+            return RedirectToAction(nameof(Index));
+        }
+
+        // If not keeping filters (no redirect, just navigation/F5), clear them
+        if (TempData["KeepFilters"] == null)
+        {
+            _sessionState.Clear("TeamMembers_SearchString");
+            _sessionState.Clear("TeamMembers_SortBy");
+            _sessionState.Clear("TeamMembers_SortOrder");
+            _sessionState.Clear("TeamMembers_PageNumber");
+        }
+
+        // Load filters from state (will be empty if just cleared)
+        queryParams.SearchString = _sessionState.Get("TeamMembers_SearchString");
+        queryParams.SortBy = _sessionState.Get("TeamMembers_SortBy");
+        queryParams.SortOrder = _sessionState.Get("TeamMembers_SortOrder");
+
+        var pageNumberStr = _sessionState.Get("TeamMembers_PageNumber");
+        if (!string.IsNullOrEmpty(pageNumberStr) && int.TryParse(pageNumberStr, out var pageNum))
+        {
+            queryParams.PageNumber = pageNum;
+        }
+
         var query = _context.TeamMembers.AsQueryable();
 
         if (!string.IsNullOrEmpty(queryParams.SearchString))

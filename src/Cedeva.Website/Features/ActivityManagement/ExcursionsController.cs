@@ -23,7 +23,7 @@ public class ExcursionsController : Controller
     private readonly CedevaDbContext _context;
     private readonly IExcursionService _excursionService;
     private readonly IExcursionViewModelBuilderService _viewModelBuilder;
-    private readonly IActivitySelectionService _activitySelectionService;
+    private readonly ISessionStateService _sessionState;
     private readonly ILogger<ExcursionsController> _logger;
     private readonly IStringLocalizer<SharedResources> _localizer;
     private readonly IUserDisplayService _userDisplayService;
@@ -32,7 +32,7 @@ public class ExcursionsController : Controller
         CedevaDbContext context,
         IExcursionService excursionService,
         IExcursionViewModelBuilderService viewModelBuilder,
-        IActivitySelectionService activitySelectionService,
+        ISessionStateService sessionState,
         ILogger<ExcursionsController> logger,
         IStringLocalizer<SharedResources> localizer,
         IUserDisplayService userDisplayService)
@@ -40,7 +40,7 @@ public class ExcursionsController : Controller
         _context = context;
         _excursionService = excursionService;
         _viewModelBuilder = viewModelBuilder;
-        _activitySelectionService = activitySelectionService;
+        _sessionState = sessionState;
         _logger = logger;
         _localizer = localizer;
         _userDisplayService = userDisplayService;
@@ -49,7 +49,7 @@ public class ExcursionsController : Controller
     [HttpGet]
     public async Task<IActionResult> Index(int? id)
     {
-        var activityId = id ?? _activitySelectionService.GetSelectedActivityId();
+        var activityId = id ?? _sessionState.Get<int>("ActivityId");
         if (activityId == null)
             return NotFound();
 
@@ -60,7 +60,7 @@ public class ExcursionsController : Controller
         if (activity == null)
             return NotFound();
 
-        _activitySelectionService.SetSelectedActivityId(activityId.Value);
+        _sessionState.Set<int>("ActivityId", activityId.Value);
 
         // Load excursions with related data
         var excursions = await _context.Excursions
@@ -101,7 +101,7 @@ public class ExcursionsController : Controller
     [HttpGet]
     public async Task<IActionResult> Create(int? id)
     {
-        var activityId = id ?? _activitySelectionService.GetSelectedActivityId();
+        var activityId = id ?? _sessionState.Get<int>("ActivityId");
         if (activityId == null)
             return NotFound();
 
@@ -826,7 +826,7 @@ public class ExcursionsController : Controller
     [ValidateAntiForgeryToken]
     public IActionResult BeginExcursions(int id)
     {
-        _activitySelectionService.SetSelectedActivityId(id);
+        _sessionState.Set<int>("ActivityId", id);
         return RedirectToAction(nameof(Index), new { id });
     }
 

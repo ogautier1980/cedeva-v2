@@ -26,6 +26,7 @@ public class OrganisationsController : Controller
     private readonly IPdfExportService _pdfExportService;
     private readonly IStorageService _storageService;
     private readonly IUserDisplayService _userDisplayService;
+    private readonly ISessionStateService _sessionState;
 
     public OrganisationsController(
         IRepository<Organisation> organisationRepository,
@@ -36,7 +37,8 @@ public class OrganisationsController : Controller
         IExcelExportService excelExportService,
         IPdfExportService pdfExportService,
         IStorageService storageService,
-        IUserDisplayService userDisplayService)
+        IUserDisplayService userDisplayService,
+        ISessionStateService sessionState)
     {
         _organisationRepository = organisationRepository;
         _addressRepository = addressRepository;
@@ -47,11 +49,57 @@ public class OrganisationsController : Controller
         _pdfExportService = pdfExportService;
         _storageService = storageService;
         _userDisplayService = userDisplayService;
+        _sessionState = sessionState;
     }
 
     // GET: Organisations
     public async Task<IActionResult> Index([FromQuery] OrganisationQueryParameters queryParams)
     {
+        // Check if any query parameters were provided in the actual HTTP request
+        bool hasQueryParams = Request.Query.Count > 0;
+
+        // If query params provided, store them and redirect to clean URL
+        if (hasQueryParams)
+        {
+            if (!string.IsNullOrWhiteSpace(queryParams.SearchString))
+                _sessionState.Set("Organisations_SearchString", queryParams.SearchString, persistToCookie: false);
+
+            if (!string.IsNullOrWhiteSpace(queryParams.SortBy))
+                _sessionState.Set("Organisations_SortBy", queryParams.SortBy, persistToCookie: false);
+
+            if (!string.IsNullOrWhiteSpace(queryParams.SortOrder))
+                _sessionState.Set("Organisations_SortOrder", queryParams.SortOrder, persistToCookie: false);
+
+            if (queryParams.PageNumber > 1)
+                _sessionState.Set("Organisations_PageNumber", queryParams.PageNumber.ToString(), persistToCookie: false);
+
+            // Mark that filters should be kept for the next request (after redirect)
+            TempData["KeepFilters"] = true;
+
+            // Redirect to clean URL
+            return RedirectToAction(nameof(Index));
+        }
+
+        // If not keeping filters (no redirect, just navigation/F5), clear them
+        if (TempData["KeepFilters"] == null)
+        {
+            _sessionState.Clear("Organisations_SearchString");
+            _sessionState.Clear("Organisations_SortBy");
+            _sessionState.Clear("Organisations_SortOrder");
+            _sessionState.Clear("Organisations_PageNumber");
+        }
+
+        // Load filters from state (will be empty if just cleared)
+        queryParams.SearchString = _sessionState.Get("Organisations_SearchString");
+        queryParams.SortBy = _sessionState.Get("Organisations_SortBy");
+        queryParams.SortOrder = _sessionState.Get("Organisations_SortOrder");
+
+        var pageNumberStr = _sessionState.Get("Organisations_PageNumber");
+        if (!string.IsNullOrEmpty(pageNumberStr) && int.TryParse(pageNumberStr, out var pageNum))
+        {
+            queryParams.PageNumber = pageNum;
+        }
+
         var query = _context.Organisations
             .Include(o => o.Address)
             .Include(o => o.Activities)

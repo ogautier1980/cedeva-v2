@@ -29,8 +29,7 @@ public class BookingsController : Controller
     private readonly ICurrentUserService _currentUserService;
     private readonly IUserDisplayService _userDisplayService;
     private readonly IBookingQuestionService _bookingQuestionService;
-    private readonly IActivitySelectionService _activitySelectionService;
-    private readonly IFilterStateService _filterStateService;
+    private readonly ISessionStateService _sessionState;
 
     public BookingsController(
         IRepository<Booking> bookingRepository,
@@ -43,8 +42,7 @@ public class BookingsController : Controller
         ICurrentUserService currentUserService,
         IUserDisplayService userDisplayService,
         IBookingQuestionService bookingQuestionService,
-        IActivitySelectionService activitySelectionService,
-        IFilterStateService filterStateService)
+        ISessionStateService sessionState)
     {
         _bookingRepository = bookingRepository;
         _context = context;
@@ -56,23 +54,71 @@ public class BookingsController : Controller
         _currentUserService = currentUserService;
         _userDisplayService = userDisplayService;
         _bookingQuestionService = bookingQuestionService;
-        _activitySelectionService = activitySelectionService;
-        _filterStateService = filterStateService;
+        _sessionState = sessionState;
     }
 
     // GET: Bookings
     public async Task<IActionResult> Index([FromQuery] BookingQueryParameters queryParams)
     {
-        // Handle activityId: query string takes priority, otherwise use service
-        if (queryParams.ActivityId.HasValue)
+        // Check if any query parameters were provided in the actual HTTP request
+        bool hasQueryParams = Request.Query.Count > 0;
+
+        // If query params provided, store them and redirect to clean URL
+        if (hasQueryParams)
         {
-            // Store in service for future requests
-            _activitySelectionService.SetSelectedActivityId(queryParams.ActivityId.Value);
+            // Store activityId (context, not a filter - persists to cookie)
+            if (queryParams.ActivityId.HasValue)
+                _sessionState.Set<int>("ActivityId", queryParams.ActivityId.Value);
+
+            // Store other filters (session only, cleared on fresh navigation)
+            if (!string.IsNullOrWhiteSpace(queryParams.SearchString))
+                _sessionState.Set("Bookings_SearchString", queryParams.SearchString, persistToCookie: false);
+
+            if (queryParams.ChildId.HasValue)
+                _sessionState.Set("Bookings_ChildId", queryParams.ChildId, persistToCookie: false);
+
+            if (queryParams.IsConfirmed.HasValue)
+                _sessionState.Set("Bookings_IsConfirmed", queryParams.IsConfirmed, persistToCookie: false);
+
+            if (!string.IsNullOrWhiteSpace(queryParams.SortBy))
+                _sessionState.Set("Bookings_SortBy", queryParams.SortBy, persistToCookie: false);
+
+            if (!string.IsNullOrWhiteSpace(queryParams.SortOrder))
+                _sessionState.Set("Bookings_SortOrder", queryParams.SortOrder, persistToCookie: false);
+
+            if (queryParams.PageNumber > 1)
+                _sessionState.Set("Bookings_PageNumber", queryParams.PageNumber.ToString(), persistToCookie: false);
+
+            // Mark that filters should be kept for the next request (after redirect)
+            TempData["KeepFilters"] = true;
+
+            // Redirect to clean URL
+            return RedirectToAction(nameof(Index));
         }
-        else
+
+        // If not keeping filters (no redirect, just navigation/F5), clear them
+        if (TempData["KeepFilters"] == null)
         {
-            // Try to get from service
-            queryParams.ActivityId = _activitySelectionService.GetSelectedActivityId();
+            _sessionState.Clear("Bookings_SearchString");
+            _sessionState.Clear("Bookings_ChildId");
+            _sessionState.Clear("Bookings_IsConfirmed");
+            _sessionState.Clear("Bookings_SortBy");
+            _sessionState.Clear("Bookings_SortOrder");
+            _sessionState.Clear("Bookings_PageNumber");
+        }
+
+        // Load filters from state (will be empty if just cleared)
+        queryParams.ActivityId = _sessionState.Get<int>("ActivityId");
+        queryParams.SearchString = _sessionState.Get("Bookings_SearchString");
+        queryParams.ChildId = _sessionState.Get<int>("Bookings_ChildId");
+        queryParams.IsConfirmed = _sessionState.Get<bool>("Bookings_IsConfirmed");
+        queryParams.SortBy = _sessionState.Get("Bookings_SortBy");
+        queryParams.SortOrder = _sessionState.Get("Bookings_SortOrder");
+
+        var pageNumberStr = _sessionState.Get("Bookings_PageNumber");
+        if (!string.IsNullOrEmpty(pageNumberStr) && int.TryParse(pageNumberStr, out var pageNum))
+        {
+            queryParams.PageNumber = pageNum;
         }
 
         var query = BuildBookingsQuery(

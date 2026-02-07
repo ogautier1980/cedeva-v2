@@ -27,6 +27,7 @@ public class ChildrenController : Controller
     private readonly IStringLocalizer<SharedResources> _localizer;
     private readonly IUserDisplayService _userDisplayService;
     private readonly ICurrentUserService _currentUserService;
+    private readonly ISessionStateService _sessionState;
 
     public ChildrenController(
         IRepository<Child> childRepository,
@@ -37,7 +38,8 @@ public class ChildrenController : Controller
         IPdfExportService pdfExportService,
         IStringLocalizer<SharedResources> localizer,
         IUserDisplayService userDisplayService,
-        ICurrentUserService currentUserService)
+        ICurrentUserService currentUserService,
+        ISessionStateService sessionState)
     {
         _childRepository = childRepository;
         _parentRepository = parentRepository;
@@ -48,11 +50,62 @@ public class ChildrenController : Controller
         _localizer = localizer;
         _userDisplayService = userDisplayService;
         _currentUserService = currentUserService;
+        _sessionState = sessionState;
     }
 
     // GET: Children
     public async Task<IActionResult> Index([FromQuery] ChildQueryParameters queryParams)
     {
+        // Check if any query parameters were provided in the actual HTTP request
+        bool hasQueryParams = Request.Query.Count > 0;
+
+        // If query params provided, store them and redirect to clean URL
+        if (hasQueryParams)
+        {
+            if (!string.IsNullOrWhiteSpace(queryParams.SearchString))
+                _sessionState.Set("Children_SearchString", queryParams.SearchString, persistToCookie: false);
+
+            if (queryParams.ParentId.HasValue)
+                _sessionState.Set("Children_ParentId", queryParams.ParentId, persistToCookie: false);
+
+            if (!string.IsNullOrWhiteSpace(queryParams.SortBy))
+                _sessionState.Set("Children_SortBy", queryParams.SortBy, persistToCookie: false);
+
+            if (!string.IsNullOrWhiteSpace(queryParams.SortOrder))
+                _sessionState.Set("Children_SortOrder", queryParams.SortOrder, persistToCookie: false);
+
+            if (queryParams.PageNumber > 1)
+                _sessionState.Set("Children_PageNumber", queryParams.PageNumber.ToString(), persistToCookie: false);
+
+            // Mark that filters should be kept for the next request (after redirect)
+            TempData["KeepFilters"] = true;
+
+            // Redirect to clean URL
+            return RedirectToAction(nameof(Index));
+        }
+
+        // If not keeping filters (no redirect, just navigation/F5), clear them
+        if (TempData["KeepFilters"] == null)
+        {
+            _sessionState.Clear("Children_SearchString");
+            _sessionState.Clear("Children_ParentId");
+            _sessionState.Clear("Children_SortBy");
+            _sessionState.Clear("Children_SortOrder");
+            _sessionState.Clear("Children_PageNumber");
+        }
+
+        // Load filters from state (will be empty if just cleared)
+        queryParams.SearchString = _sessionState.Get("Children_SearchString");
+        queryParams.ParentId = _sessionState.Get<int>("Children_ParentId");
+        queryParams.SortBy = _sessionState.Get("Children_SortBy");
+        queryParams.SortOrder = _sessionState.Get("Children_SortOrder");
+
+        var pageNumberStr = _sessionState.Get("Children_PageNumber");
+        if (!string.IsNullOrEmpty(pageNumberStr) && int.TryParse(pageNumberStr, out var pageNum))
+        {
+            queryParams.PageNumber = pageNum;
+        }
+
         var query = _context.Children.AsQueryable();
 
         if (!string.IsNullOrEmpty(queryParams.SearchString))

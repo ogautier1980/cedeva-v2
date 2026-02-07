@@ -17,24 +17,18 @@
     {
         icon = "fa-sort";
     }
-
-    var routeValues = new Dictionary<string, string>();
-
-    // Preserve existing query string parameters
-    foreach (var key in Context.Request.Query.Keys)
-    {
-        if (!key.Equals("sortBy", StringComparison.OrdinalIgnoreCase) &&
-            !key.Equals("sortOrder", StringComparison.OrdinalIgnoreCase))
-        {
-            routeValues[key] = Context.Request.Query[key].ToString();
-        }
-    }
-
-    routeValues["sortBy"] = sortBy;
-    routeValues["sortOrder"] = newSortOrder;
 }
 
-<a asp-action="Index" asp-all-route-data="routeValues" class="text-decoration-none text-dark">
+<button type="button" onclick="sortBy('@sortBy', '@newSortOrder')" class="btn btn-link text-decoration-none text-dark p-0">
     @Model.DisplayName
     <i class="fas @icon ms-1"></i>
-</a>
+</button>
+
+<script>
+    function sortBy(column, order) {
+        const url = new URL(window.location);
+        url.searchParams.set('sortBy', column);
+        url.searchParams.set('sortOrder', order);
+        window.location.href = url.toString();
+    }
+</script>

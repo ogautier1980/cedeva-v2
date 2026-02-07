@@ -5,21 +5,22 @@ using System.Globalization;
 namespace Cedeva.Infrastructure.Services;
 
 /// <summary>
-/// Service for managing filter state in session and cookies.
-/// Keeps URLs clean while maintaining filter persistence.
+/// Generic service for managing state across user sessions.
+/// Uses session storage (temporary) and cookies (persistent, 30 days).
+/// Keeps URLs clean by storing filter parameters, navigation state, and other values.
 /// </summary>
-public class FilterStateService : IFilterStateService
+public class SessionStateService : ISessionStateService
 {
-    private const string SessionKeyPrefix = "Filter_";
-    private const string CookieKeyPrefix = "Filter_";
+    private const string SessionKeyPrefix = "State_";
+    private const string CookieKeyPrefix = "State_";
     private readonly IHttpContextAccessor _httpContextAccessor;
 
-    public FilterStateService(IHttpContextAccessor httpContextAccessor)
+    public SessionStateService(IHttpContextAccessor httpContextAccessor)
     {
         _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
     }
 
-    public string? GetFilter(string key)
+    public string? Get(string key)
     {
         var httpContext = _httpContextAccessor.HttpContext;
         if (httpContext == null)
@@ -47,7 +48,7 @@ public class FilterStateService : IFilterStateService
         return null;
     }
 
-    public void SetFilter(string key, string? value)
+    public void Set(string key, string? value, bool persistToCookie = true)
     {
         var httpContext = _httpContextAccessor.HttpContext;
         if (httpContext == null)
@@ -58,28 +59,30 @@ public class FilterStateService : IFilterStateService
 
         if (string.IsNullOrWhiteSpace(value))
         {
-            // Clear if value is null/empty
-            ClearFilter(key);
+            Clear(key);
             return;
         }
 
-        // Store in session (temporary)
+        // Store in session (always)
         httpContext.Session.SetString(sessionKey, value);
 
-        // Store in cookie (persistent, 30 days)
-        httpContext.Response.Cookies.Append(
-            cookieKey,
-            value,
-            new CookieOptions
-            {
-                Expires = DateTimeOffset.UtcNow.AddDays(30),
-                HttpOnly = true,
-                Secure = true,
-                SameSite = SameSiteMode.Lax
-            });
+        // Store in cookie only if persistence requested (for ActivityId, ReturnUrl, etc.)
+        if (persistToCookie)
+        {
+            httpContext.Response.Cookies.Append(
+                cookieKey,
+                value,
+                new CookieOptions
+                {
+                    Expires = DateTimeOffset.UtcNow.AddDays(30),
+                    HttpOnly = true,
+                    Secure = true,
+                    SameSite = SameSiteMode.Lax
+                });
+        }
     }
 
-    public void ClearFilter(string key)
+    public void Clear(string key)
     {
         var httpContext = _httpContextAccessor.HttpContext;
         if (httpContext == null)
@@ -95,22 +98,19 @@ public class FilterStateService : IFilterStateService
         httpContext.Response.Cookies.Delete(cookieKey);
     }
 
-    public void ClearAllFilters(string controllerName)
+    public void ClearAllWithPrefix(string prefix)
     {
         var httpContext = _httpContextAccessor.HttpContext;
         if (httpContext == null)
             return;
 
-        // Get all session keys for this controller
-        var prefix = $"{SessionKeyPrefix}{controllerName}_";
-
-        // Clear from session (note: Session doesn't provide key enumeration, so we clear known keys)
-        // Controllers should call ClearFilter for each known filter key
+        // Note: Session doesn't provide key enumeration
+        // Controllers should call Clear for each known key
     }
 
-    public T? GetFilter<T>(string key) where T : struct
+    public T? Get<T>(string key) where T : struct
     {
-        var value = GetFilter(key);
+        var value = Get(key);
         if (string.IsNullOrEmpty(value))
             return null;
 
@@ -145,11 +145,11 @@ public class FilterStateService : IFilterStateService
         return null;
     }
 
-    public void SetFilter<T>(string key, T? value) where T : struct
+    public void Set<T>(string key, T? value, bool persistToCookie = true) where T : struct
     {
         if (!value.HasValue)
         {
-            ClearFilter(key);
+            Clear(key);
             return;
         }
 
@@ -168,6 +168,6 @@ public class FilterStateService : IFilterStateService
             stringValue = value.Value.ToString() ?? string.Empty;
         }
 
-        SetFilter(key, stringValue);
+        Set(key, stringValue, persistToCookie);
     }
 }

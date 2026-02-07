@@ -27,6 +27,7 @@ public class ParentsController : Controller
     private readonly IPdfExportService _pdfExportService;
     private readonly IStringLocalizer<SharedResources> _localizer;
     private readonly IUserDisplayService _userDisplayService;
+    private readonly ISessionStateService _sessionState;
 
     public ParentsController(
         CedevaDbContext context,
@@ -35,7 +36,8 @@ public class ParentsController : Controller
         IExcelExportService excelExportService,
         IPdfExportService pdfExportService,
         IStringLocalizer<SharedResources> localizer,
-        IUserDisplayService userDisplayService)
+        IUserDisplayService userDisplayService,
+        ISessionStateService sessionState)
     {
         _context = context;
         _currentUserService = currentUserService;
@@ -44,10 +46,56 @@ public class ParentsController : Controller
         _pdfExportService = pdfExportService;
         _localizer = localizer;
         _userDisplayService = userDisplayService;
+        _sessionState = sessionState;
     }
 
     public async Task<IActionResult> Index([FromQuery] ParentQueryParameters queryParams)
     {
+        // Check if any query parameters were provided in the actual HTTP request
+        bool hasQueryParams = Request.Query.Count > 0;
+
+        // If query params provided, store them and redirect to clean URL
+        if (hasQueryParams)
+        {
+            if (!string.IsNullOrWhiteSpace(queryParams.SearchString))
+                _sessionState.Set("Parents_SearchString", queryParams.SearchString, persistToCookie: false);
+
+            if (!string.IsNullOrWhiteSpace(queryParams.SortBy))
+                _sessionState.Set("Parents_SortBy", queryParams.SortBy, persistToCookie: false);
+
+            if (!string.IsNullOrWhiteSpace(queryParams.SortOrder))
+                _sessionState.Set("Parents_SortOrder", queryParams.SortOrder, persistToCookie: false);
+
+            if (queryParams.PageNumber > 1)
+                _sessionState.Set("Parents_PageNumber", queryParams.PageNumber.ToString(), persistToCookie: false);
+
+            // Mark that filters should be kept for the next request (after redirect)
+            TempData["KeepFilters"] = true;
+
+            // Redirect to clean URL
+            return RedirectToAction(nameof(Index));
+        }
+
+        // If not keeping filters (no redirect, just navigation/F5), clear them
+        if (TempData["KeepFilters"] == null)
+        {
+            _sessionState.Clear("Parents_SearchString");
+            _sessionState.Clear("Parents_SortBy");
+            _sessionState.Clear("Parents_SortOrder");
+            _sessionState.Clear("Parents_PageNumber");
+        }
+
+        // Load filters from state (will be empty if just cleared)
+        queryParams.SearchString = _sessionState.Get("Parents_SearchString");
+        queryParams.SortBy = _sessionState.Get("Parents_SortBy");
+        queryParams.SortOrder = _sessionState.Get("Parents_SortOrder");
+
+        var pageNumberStr = _sessionState.Get("Parents_PageNumber");
+        if (!string.IsNullOrEmpty(pageNumberStr) && int.TryParse(pageNumberStr, out var pageNum))
+        {
+            queryParams.PageNumber = pageNum;
+        }
+
         var query = _context.Parents
             .Include(p => p.Address)
             .Include(p => p.Children)

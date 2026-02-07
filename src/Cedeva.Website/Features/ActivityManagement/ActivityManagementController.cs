@@ -27,7 +27,7 @@ public class ActivityManagementController : Controller
     private readonly IEmailRecipientService _emailRecipientService;
     private readonly IEmailVariableReplacementService _variableReplacementService;
     private readonly IEmailTemplateService _templateService;
-    private readonly IActivitySelectionService _activitySelectionService;
+    private readonly ISessionStateService _sessionState;
     private readonly IStringLocalizer<SharedResources> _localizer;
 
     public ActivityManagementController(
@@ -37,7 +37,7 @@ public class ActivityManagementController : Controller
         IEmailRecipientService emailRecipientService,
         IEmailVariableReplacementService variableReplacementService,
         IEmailTemplateService templateService,
-        IActivitySelectionService activitySelectionService,
+        ISessionStateService sessionState,
         IStringLocalizer<SharedResources> localizer)
     {
         _context = context;
@@ -46,7 +46,7 @@ public class ActivityManagementController : Controller
         _emailRecipientService = emailRecipientService;
         _variableReplacementService = variableReplacementService;
         _templateService = templateService;
-        _activitySelectionService = activitySelectionService;
+        _sessionState = sessionState;
         _localizer = localizer;
     }
 
@@ -54,7 +54,7 @@ public class ActivityManagementController : Controller
     public async Task<IActionResult> Index(int? id)
     {
         // Use service to get or set activity ID
-        id ??= _activitySelectionService.GetSelectedActivityId();
+        id ??= _sessionState.Get<int>("ActivityId");
 
         if (id is null)
             return NotFound();
@@ -69,7 +69,7 @@ public class ActivityManagementController : Controller
             return NotFound();
 
         // Store the activity ID for future visits
-        _activitySelectionService.SetSelectedActivityId(id.Value);
+        _sessionState.Set<int>("ActivityId", id.Value);
 
         var viewModel = new IndexViewModel
         {
@@ -89,7 +89,7 @@ public class ActivityManagementController : Controller
             return RedirectToAction(nameof(Index));
         }
 
-        _activitySelectionService.SetSelectedActivityId(id);
+        _sessionState.Set<int>("ActivityId", id);
 
         return RedirectToAction(nameof(Index));
     }
@@ -97,7 +97,7 @@ public class ActivityManagementController : Controller
     [HttpGet]
     public async Task<IActionResult> UnconfirmedBookings(int? id)
     {
-        id ??= _activitySelectionService.GetSelectedActivityId();
+        id ??= _sessionState.Get<int>("ActivityId");
 
         if (id is null)
             return NotFound();
@@ -112,7 +112,7 @@ public class ActivityManagementController : Controller
             return NotFound();
 
         // Store the activity ID for future visits
-        _activitySelectionService.SetSelectedActivityId(id.Value);
+        _sessionState.Set<int>("ActivityId", id.Value);
 
         var unconfirmedBookings = activity.Bookings
             .Where(b => !b.IsConfirmed)
@@ -142,7 +142,7 @@ public class ActivityManagementController : Controller
             return RedirectToAction(nameof(Index));
         }
 
-        _activitySelectionService.SetSelectedActivityId(id);
+        _sessionState.Set<int>("ActivityId", id);
         return RedirectToAction(nameof(UnconfirmedBookings));
     }
 
@@ -156,7 +156,7 @@ public class ActivityManagementController : Controller
             return RedirectToAction(nameof(Index));
         }
 
-        _activitySelectionService.SetSelectedActivityId(id);
+        _sessionState.Set<int>("ActivityId", id);
         return RedirectToAction(nameof(GroupAssignment));
     }
 
@@ -214,7 +214,7 @@ public class ActivityManagementController : Controller
     [HttpGet]
     public async Task<IActionResult> Presences(int? id, int? dayId)
     {
-        id ??= _activitySelectionService.GetSelectedActivityId();
+        id ??= _sessionState.Get<int>("ActivityId");
 
         if (id is null)
             return NotFound();
@@ -233,7 +233,7 @@ public class ActivityManagementController : Controller
         if (activity == null)
             return NotFound();
 
-        _activitySelectionService.SetSelectedActivityId(id.Value);
+        _sessionState.Set<int>("ActivityId", id.Value);
 
         dayId = SelectDefaultActivityDay(activity, dayId);
         var selectedDay = activity.Days.FirstOrDefault(d => d.DayId == dayId);
@@ -326,7 +326,7 @@ public class ActivityManagementController : Controller
             return RedirectToAction(nameof(Index));
         }
 
-        _activitySelectionService.SetSelectedActivityId(id);
+        _sessionState.Set<int>("ActivityId", id);
         return RedirectToAction(nameof(Presences));
     }
 
@@ -352,7 +352,7 @@ public class ActivityManagementController : Controller
     [HttpGet]
     public async Task<IActionResult> SendEmail(int? id)
     {
-        id ??= _activitySelectionService.GetSelectedActivityId();
+        id ??= _sessionState.Get<int>("ActivityId");
 
         if (id is null)
             return NotFound();
@@ -366,7 +366,7 @@ public class ActivityManagementController : Controller
             return NotFound();
 
         // Store the activity ID for future visits
-        _activitySelectionService.SetSelectedActivityId(id.Value);
+        _sessionState.Set<int>("ActivityId", id.Value);
 
         ViewBag.Templates = await _templateService.GetAllTemplatesAsync(activity.OrganisationId);
 
@@ -548,14 +548,14 @@ public class ActivityManagementController : Controller
             return RedirectToAction(nameof(Index));
         }
 
-        _activitySelectionService.SetSelectedActivityId(id);
+        _sessionState.Set<int>("ActivityId", id);
         return RedirectToAction(nameof(SendEmail));
     }
 
     [HttpGet]
     public async Task<IActionResult> SentEmails(int? id)
     {
-        id ??= _activitySelectionService.GetSelectedActivityId();
+        id ??= _sessionState.Get<int>("ActivityId");
 
         if (id is null)
             return NotFound();
@@ -567,7 +567,7 @@ public class ActivityManagementController : Controller
             return NotFound();
 
         // Store the activity ID for future visits
-        _activitySelectionService.SetSelectedActivityId(id.Value);
+        _sessionState.Set<int>("ActivityId", id.Value);
 
         var sentEmails = await _context.EmailsSent
             .Where(e => e.ActivityId == id)
@@ -593,14 +593,14 @@ public class ActivityManagementController : Controller
             return RedirectToAction(nameof(Index));
         }
 
-        _activitySelectionService.SetSelectedActivityId(id);
+        _sessionState.Set<int>("ActivityId", id);
         return RedirectToAction(nameof(SentEmails));
     }
 
     [HttpGet]
     public async Task<IActionResult> TeamMembers(int? id)
     {
-        id ??= _activitySelectionService.GetSelectedActivityId();
+        id ??= _sessionState.Get<int>("ActivityId");
 
         if (id is null)
             return NotFound();
@@ -613,7 +613,7 @@ public class ActivityManagementController : Controller
             return NotFound();
 
         // Store the activity ID for future visits
-        _activitySelectionService.SetSelectedActivityId(id.Value);
+        _sessionState.Set<int>("ActivityId", id.Value);
 
         // Get all team members for this organisation
         var allTeamMembers = await _context.TeamMembers
@@ -646,7 +646,7 @@ public class ActivityManagementController : Controller
             return RedirectToAction(nameof(Index));
         }
 
-        _activitySelectionService.SetSelectedActivityId(id);
+        _sessionState.Set<int>("ActivityId", id);
         return RedirectToAction(nameof(TeamMembers));
     }
 
@@ -899,7 +899,7 @@ public class ActivityManagementController : Controller
     // GET: ActivityManagement/GroupAssignment
     public async Task<IActionResult> GroupAssignment()
     {
-        var selectedActivityId = _activitySelectionService.GetSelectedActivityId();
+        var selectedActivityId = _sessionState.Get<int>("ActivityId");
         if (selectedActivityId == null)
         {
             TempData[TempDataErrorMessage] = _localizer["ActivityManagement.SelectActivity"].Value;
@@ -1006,14 +1006,14 @@ public class ActivityManagementController : Controller
             return RedirectToAction(nameof(Index));
         }
 
-        _activitySelectionService.SetSelectedActivityId(id);
+        _sessionState.Set<int>("ActivityId", id);
         return RedirectToAction(nameof(ManageBookings));
     }
 
     // GET: ActivityManagement/ManageBookings
     public async Task<IActionResult> ManageBookings()
     {
-        var selectedActivityId = _activitySelectionService.GetSelectedActivityId();
+        var selectedActivityId = _sessionState.Get<int>("ActivityId");
         if (selectedActivityId == null)
         {
             TempData[TempDataErrorMessage] = _localizer["ActivityManagement.SelectActivity"].Value;

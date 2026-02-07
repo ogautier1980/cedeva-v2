@@ -17,35 +17,42 @@ public class ActivityGroupsController : Controller
 {
     private const string TempDataSuccessMessage = "SuccessMessage";
     private const string TempDataErrorMessage = "ErrorMessage";
-    private const string SessionKeyActivityId = "ActivityGroups_ActivityId";
 
     private readonly CedevaDbContext _context;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IStringLocalizer<SharedResources> _localizer;
+    private readonly ISessionStateService _sessionState;
 
     public ActivityGroupsController(
         CedevaDbContext context,
         IUnitOfWork unitOfWork,
-        IStringLocalizer<SharedResources> localizer)
+        IStringLocalizer<SharedResources> localizer,
+        ISessionStateService sessionState)
     {
         _context = context;
         _unitOfWork = unitOfWork;
         _localizer = localizer;
+        _sessionState = sessionState;
     }
 
     // GET: ActivityGroups?activityId=5
     public async Task<IActionResult> Index(int? activityId)
     {
-        // Store activityId in session if provided in URL
-        if (activityId.HasValue)
+        // Check if any query parameters were provided in the actual HTTP request
+        bool hasQueryParams = Request.Query.Count > 0;
+
+        // If query params provided, store them and redirect to clean URL
+        if (hasQueryParams)
         {
-            HttpContext.Session.SetInt32(SessionKeyActivityId, activityId.Value);
+            if (activityId.HasValue)
+                _sessionState.Set<int>("ActivityId", activityId.Value); // ActivityId is context, persists to cookie
+
+            // Redirect to clean URL
+            return RedirectToAction(nameof(Index));
         }
-        else
-        {
-            // Try to retrieve from session
-            activityId = HttpContext.Session.GetInt32(SessionKeyActivityId);
-        }
+
+        // Load activityId from service (no filters to clear - ActivityId is context, not a filter)
+        activityId = _sessionState.Get<int>("ActivityId");
 
         var query = _context.ActivityGroups
             .Include(g => g.Activity)

@@ -25,7 +25,7 @@ public class ActivitiesController : Controller
     private readonly IPdfExportService _pdfExportService;
     private readonly IStringLocalizer<SharedResources> _localizer;
     private readonly IUserDisplayService _userDisplayService;
-    private readonly IFilterStateService _filterStateService;
+    private readonly ISessionStateService _sessionState;
 
     public ActivitiesController(
         CedevaDbContext context,
@@ -35,7 +35,7 @@ public class ActivitiesController : Controller
         IPdfExportService pdfExportService,
         IStringLocalizer<SharedResources> localizer,
         IUserDisplayService userDisplayService,
-        IFilterStateService filterStateService)
+        ISessionStateService sessionState)
     {
         _context = context;
         _currentUserService = currentUserService;
@@ -44,47 +44,56 @@ public class ActivitiesController : Controller
         _pdfExportService = pdfExportService;
         _localizer = localizer;
         _userDisplayService = userDisplayService;
-        _filterStateService = filterStateService;
+        _sessionState = sessionState;
     }
 
     public async Task<IActionResult> Index([FromQuery] ActivityQueryParameters queryParams)
     {
-        // Check if any query parameters were provided
-        bool hasQueryParams = !string.IsNullOrWhiteSpace(queryParams.SearchString) ||
-                              queryParams.ShowActiveOnly.HasValue ||
-                              !string.IsNullOrWhiteSpace(queryParams.SortBy) ||
-                              !string.IsNullOrWhiteSpace(queryParams.SortOrder) ||
-                              queryParams.PageNumber > 1;
+        // Check if any query parameters were provided in the actual HTTP request
+        bool hasQueryParams = Request.Query.Count > 0;
 
         // If query params provided, store them and redirect to clean URL
         if (hasQueryParams)
         {
             if (!string.IsNullOrWhiteSpace(queryParams.SearchString))
-                _filterStateService.SetFilter("Activities_SearchString", queryParams.SearchString);
+                _sessionState.Set("Activities_SearchString", queryParams.SearchString, persistToCookie: false);
 
             if (queryParams.ShowActiveOnly.HasValue)
-                _filterStateService.SetFilter("Activities_ShowActiveOnly", queryParams.ShowActiveOnly);
+                _sessionState.Set("Activities_ShowActiveOnly", queryParams.ShowActiveOnly, persistToCookie: false);
 
             if (!string.IsNullOrWhiteSpace(queryParams.SortBy))
-                _filterStateService.SetFilter("Activities_SortBy", queryParams.SortBy);
+                _sessionState.Set("Activities_SortBy", queryParams.SortBy, persistToCookie: false);
 
             if (!string.IsNullOrWhiteSpace(queryParams.SortOrder))
-                _filterStateService.SetFilter("Activities_SortOrder", queryParams.SortOrder);
+                _sessionState.Set("Activities_SortOrder", queryParams.SortOrder, persistToCookie: false);
 
             if (queryParams.PageNumber > 1)
-                _filterStateService.SetFilter("Activities_PageNumber", queryParams.PageNumber.ToString());
+                _sessionState.Set("Activities_PageNumber", queryParams.PageNumber.ToString(), persistToCookie: false);
+
+            // Mark that filters should be kept for the next request (after redirect)
+            TempData["KeepFilters"] = true;
 
             // Redirect to clean URL
             return RedirectToAction(nameof(Index));
         }
 
-        // Load filters from state
-        queryParams.SearchString = _filterStateService.GetFilter("Activities_SearchString");
-        queryParams.ShowActiveOnly = _filterStateService.GetFilter<bool>("Activities_ShowActiveOnly");
-        queryParams.SortBy = _filterStateService.GetFilter("Activities_SortBy");
-        queryParams.SortOrder = _filterStateService.GetFilter("Activities_SortOrder");
+        // If not keeping filters (no redirect, just navigation/F5), clear them
+        if (TempData["KeepFilters"] == null)
+        {
+            _sessionState.Clear("Activities_SearchString");
+            _sessionState.Clear("Activities_ShowActiveOnly");
+            _sessionState.Clear("Activities_SortBy");
+            _sessionState.Clear("Activities_SortOrder");
+            _sessionState.Clear("Activities_PageNumber");
+        }
 
-        var pageNumberStr = _filterStateService.GetFilter("Activities_PageNumber");
+        // Load filters from state (will be empty if just cleared)
+        queryParams.SearchString = _sessionState.Get("Activities_SearchString");
+        queryParams.ShowActiveOnly = _sessionState.Get<bool>("Activities_ShowActiveOnly");
+        queryParams.SortBy = _sessionState.Get("Activities_SortBy");
+        queryParams.SortOrder = _sessionState.Get("Activities_SortOrder");
+
+        var pageNumberStr = _sessionState.Get("Activities_PageNumber");
         if (!string.IsNullOrEmpty(pageNumberStr) && int.TryParse(pageNumberStr, out var pageNum))
         {
             queryParams.PageNumber = pageNum;
