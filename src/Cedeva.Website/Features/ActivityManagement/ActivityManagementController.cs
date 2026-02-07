@@ -460,7 +460,7 @@ public class ActivityManagementController : Controller
 
             // Log the sent email
             var allEmails = await _emailRecipientService.GetRecipientEmailsAsync(
-                model.ActivityId, model.SelectedRecipient, recipientGroupId, model.SelectedDayId, ct);
+                model.ActivityId, model.SelectedRecipient!, recipientGroupId, model.SelectedDayId, ct);
             await LogSentEmailAsync(model, recipientGroupId, allEmails, attachmentFileName, attachmentFilePath, ct);
 
             TempData[TempDataSuccessMessage] = string.Format(_localizer["Message.EmailSent"].Value, emailsSentCount);
@@ -514,7 +514,7 @@ public class ActivityManagementController : Controller
         CancellationToken ct)
     {
         var recipientEmails = await _emailRecipientService.GetRecipientEmailsAsync(
-            model.ActivityId, model.SelectedRecipient, recipientGroupId, model.SelectedDayId, ct);
+            model.ActivityId, model.SelectedRecipient!, recipientGroupId, model.SelectedDayId, ct);
 
         if (!recipientEmails.Any())
             return 0;
@@ -537,7 +537,7 @@ public class ActivityManagementController : Controller
     /// </summary>
     private async Task<List<Booking>> GetFilteredBookingsAsync(
         int activityId,
-        string selectedRecipient,
+        string? selectedRecipient,
         int? recipientGroupId,
         int? scheduledDayId,
         CancellationToken ct)
@@ -566,11 +566,11 @@ public class ActivityManagementController : Controller
             // Filter bookings where PaidAmount < TotalAmount (unpaid balance)
             query = query.Where(b => b.PaidAmount < b.TotalAmount);
         }
-        else if (selectedRecipient.StartsWith(RecipientGroupPrefix) && recipientGroupId.HasValue)
+        else if (!string.IsNullOrEmpty(selectedRecipient) && selectedRecipient.StartsWith(RecipientGroupPrefix) && recipientGroupId.HasValue)
         {
             query = query.Where(b => b.GroupId == recipientGroupId);
         }
-        else if (selectedRecipient.StartsWith(RecipientExcursionPrefix))
+        else if (!string.IsNullOrEmpty(selectedRecipient) && selectedRecipient.StartsWith(RecipientExcursionPrefix))
         {
             // Extract excursion ID and filter bookings registered to that excursion
             var excursionIdStr = selectedRecipient.Substring(RecipientExcursionPrefix.Length);
@@ -851,9 +851,10 @@ public class ActivityManagementController : Controller
             .ToList();
     }
 
-    private static int? ExtractRecipientGroupId(string selectedRecipient)
+    private static int? ExtractRecipientGroupId(string? selectedRecipient)
     {
-        if (selectedRecipient.StartsWith(RecipientGroupPrefix) &&
+        if (!string.IsNullOrEmpty(selectedRecipient) &&
+            selectedRecipient.StartsWith(RecipientGroupPrefix) &&
             int.TryParse(selectedRecipient.Substring(RecipientGroupPrefix.Length), out var groupId))
         {
             return groupId;
@@ -898,7 +899,7 @@ public class ActivityManagementController : Controller
         {
             var r when r == RecipientAllParents => EmailRecipient.AllParents,
             var r when r == RecipientMedicalSheetReminder => EmailRecipient.MedicalSheetReminder,
-            var r when r.StartsWith(RecipientGroupPrefix) => EmailRecipient.ActivityGroup,
+            var r when r != null && r.StartsWith(RecipientGroupPrefix) => EmailRecipient.ActivityGroup,
             _ => EmailRecipient.AllParents
         };
 
