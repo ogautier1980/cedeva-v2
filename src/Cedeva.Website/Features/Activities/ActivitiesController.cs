@@ -21,8 +21,7 @@ public class ActivitiesController : Controller
     private readonly CedevaDbContext _context;
     private readonly ICurrentUserService _currentUserService;
     private readonly ILogger<ActivitiesController> _logger;
-    private readonly IExcelExportService _excelExportService;
-    private readonly IPdfExportService _pdfExportService;
+    private readonly IExportFacadeService _exportServices;
     private readonly IStringLocalizer<SharedResources> _localizer;
     private readonly IUserDisplayService _userDisplayService;
     private readonly ISessionStateService _sessionState;
@@ -31,8 +30,7 @@ public class ActivitiesController : Controller
         CedevaDbContext context,
         ICurrentUserService currentUserService,
         ILogger<ActivitiesController> logger,
-        IExcelExportService excelExportService,
-        IPdfExportService pdfExportService,
+        IExportFacadeService exportServices,
         IStringLocalizer<SharedResources> localizer,
         IUserDisplayService userDisplayService,
         ISessionStateService sessionState)
@@ -40,8 +38,7 @@ public class ActivitiesController : Controller
         _context = context;
         _currentUserService = currentUserService;
         _logger = logger;
-        _excelExportService = excelExportService;
-        _pdfExportService = pdfExportService;
+        _exportServices = exportServices;
         _localizer = localizer;
         _userDisplayService = userDisplayService;
         _sessionState = sessionState;
@@ -956,7 +953,7 @@ public class ActivitiesController : Controller
         };
 
         var sheetName = _localizer["Excel.ActivitiesSheet"];
-        var excelData = _excelExportService.ExportToExcel(activities, sheetName, columns);
+        var excelData = _exportServices.Excel.ExportToExcel(activities, sheetName, columns);
         var fileName = $"{sheetName}_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx";
 
         return File(excelData, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
@@ -998,7 +995,7 @@ public class ActivitiesController : Controller
         };
 
         var title = _localizer["Excel.ActivitiesSheet"];
-        var pdfData = _pdfExportService.ExportToPdf(activities, title, columns);
+        var pdfData = _exportServices.Pdf.ExportToPdf(activities, title, columns);
         var fileName = $"{title}_{DateTime.Now:yyyyMMdd_HHmmss}.pdf";
 
         return File(pdfData, "application/pdf", fileName);
