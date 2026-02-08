@@ -8,7 +8,7 @@ public interface IEmailService
     /// <param name="to">Recipient email address</param>
     /// <param name="subject">Email subject</param>
     /// <param name="htmlContent">HTML content of the email</param>
-    /// <param name="attachmentPath">Optional file attachment path</param>
+    /// <param name="attachmentPath">Optional absolute file path for attachment</param>
     /// <returns>Task representing the async operation</returns>
     Task SendEmailAsync(string to, string subject, string htmlContent, string? attachmentPath = null);
 
@@ -18,7 +18,7 @@ public interface IEmailService
     /// <param name="to">List of recipient email addresses</param>
     /// <param name="subject">Email subject</param>
     /// <param name="htmlContent">HTML content of the email</param>
-    /// <param name="attachmentPath">Optional file attachment path</param>
+    /// <param name="attachmentPath">Optional absolute file path for attachment</param>
     /// <returns>Task representing the async operation</returns>
     Task SendEmailAsync(IEnumerable<string> to, string subject, string htmlContent, string? attachmentPath = null);
 

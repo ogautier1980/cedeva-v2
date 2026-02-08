@@ -1,41 +1,32 @@
-using brevo_csharp.Api;
-using brevo_csharp.Client;
-using brevo_csharp.Model;
 using Cedeva.Core.DTOs;
 using Cedeva.Core.Interfaces;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using System.Net.Http.Json;
+using System.Text.Json;
 using Task = System.Threading.Tasks.Task; // Resolve conflict with brevo_csharp.Model.Task
 
 namespace Cedeva.Infrastructure.Services.Email;
 
 public class BrevoEmailService : IEmailService
 {
-    private readonly TransactionalEmailsApi _emailsApi;
+    private readonly IHttpClientFactory _httpClientFactory;
     private readonly ILogger<BrevoEmailService> _logger;
     private readonly string _senderEmail;
     private readonly string _senderName;
 
     public BrevoEmailService(
         IConfiguration configuration,
+        IHttpClientFactory httpClientFactory,
         ILogger<BrevoEmailService> logger)
     {
+        _httpClientFactory = httpClientFactory;
         _logger = logger;
 
-        var apiKey = configuration["Brevo:ApiKey"]
-            ?? throw new InvalidOperationException("Brevo API key not configured");
         _senderEmail = configuration["Brevo:SenderEmail"]
             ?? throw new InvalidOperationException("Brevo sender email not configured");
         _senderName = configuration["Brevo:SenderName"]
             ?? throw new InvalidOperationException("Brevo sender name not configured");
-
-        // Configure Brevo SDK
-        var brevoConfig = new brevo_csharp.Client.Configuration();
-        brevoConfig.AddApiKey("api-key", apiKey);
-        _emailsApi = new TransactionalEmailsApi(brevoConfig);
-
-        _logger.LogInformation("BrevoEmailService initialized with SDK. Sender: {SenderEmail} ({SenderName})",
-            _senderEmail, _senderName);
     }
 
     public async Task SendEmailAsync(string to, string subject, string htmlContent, string? attachmentPath = null)
@@ -45,38 +36,78 @@ public class BrevoEmailService : IEmailService
 
     public async Task SendEmailAsync(IEnumerable<string> to, string subject, string htmlContent, string? attachmentPath = null)
     {
-        var sender = new SendSmtpEmailSender(name: _senderName, email: _senderEmail);
-        var recipients = to.Select(email => new SendSmtpEmailTo(email: email)).ToList();
+        var cleanRecipients = to
+        .Where(addr => !string.IsNullOrWhiteSpace(addr))
+        .Select(addr => addr.Trim())
+        .ToList();
 
-        var email = new SendSmtpEmail(
-            sender: sender,
-            to: recipients,
-            subject: subject,
-            htmlContent: htmlContent
-        );
+        if (!cleanRecipients.Any())
+        {
+            _logger.LogWarning("Sending cancelled: no valid recipient.");
+            return;
+        }
+
+        object payload;
+
+        if (!string.IsNullOrWhiteSpace(attachmentPath) && File.Exists(attachmentPath))
+        {
+            var fileBytes = await File.ReadAllBytesAsync(attachmentPath);
+            var base64Content = Convert.ToBase64String(fileBytes);
+            var fileName = Path.GetFileName(attachmentPath);
+
+            payload = new
+            {
+                sender = new { name = _senderName, email = _senderEmail },
+                to = cleanRecipients.Select(addr => new { email = addr, name = addr }).ToArray(),
+                subject = subject,
+                htmlContent = htmlContent,
+                attachment = new[]
+                {
+                    new
+                    {
+                        name = fileName,
+                        content = base64Content
+                    }
+                }
+            };
+
+            _logger.LogInformation("Email prepared with attachment: {FileName} ({Size} bytes)", fileName, fileBytes.Length);
+        }
+        else
+        {
+            payload = new
+            {
+                sender = new { name = _senderName, email = _senderEmail },
+                to = cleanRecipients.Select(addr => new { email = addr, name = addr }).ToArray(),
+                subject = subject,
+                htmlContent = htmlContent
+            };
+
+            if (!string.IsNullOrWhiteSpace(attachmentPath))
+            {
+                _logger.LogWarning("Attachment path specified but file not found: {Path}", attachmentPath);
+            }
+        }
 
         try
         {
-            _logger.LogInformation("Sending email FROM {SenderEmail} TO {Recipients} with subject '{Subject}'",
-                _senderEmail, string.Join(", ", to), subject);
+            _logger.LogInformation("Sending email FROM {SenderEmail} TO {Recipients}...", _senderEmail, string.Join(", ", cleanRecipients));
 
-            var stopwatch = System.Diagnostics.Stopwatch.StartNew();
-            await _emailsApi.SendTransacEmailAsync(email);
-            stopwatch.Stop();
+            var client = _httpClientFactory.CreateClient("BrevoClient");
+            var response = await client.PostAsJsonAsync("/v3/smtp/email", payload);
 
-            _logger.LogInformation("Email sent successfully to {Recipients} in {ElapsedMs}ms",
-                string.Join(", ", to), stopwatch.ElapsedMilliseconds);
-        }
-        catch (ApiException ex)
-        {
-            _logger.LogError(ex, "Brevo API error sending email. Code: {ErrorCode}, Message: {Message}",
-                ex.ErrorCode, ex.Message);
-            throw new InvalidOperationException($"Failed to send email via Brevo: {ex.ErrorCode} - {ex.Message}", ex);
+            if (!response.IsSuccessStatusCode)
+            {
+                var errorContent = await response.Content.ReadAsStringAsync();
+                throw new InvalidOperationException($"Brevo Error ({response.StatusCode}): {errorContent}");
+            }
+
+            _logger.LogInformation("Email successfully sent to {Count} recipient(s).", cleanRecipients.Count);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error sending email via Brevo to {Recipients}", string.Join(", ", to));
-            throw new InvalidOperationException($"Error sending email to {string.Join(", ", to)}", ex);
+            _logger.LogError(ex, "Fatal error sending email via Brevo to {Recipients}", string.Join(", ", cleanRecipients));
+            throw new InvalidOperationException($"Failed to send email to {cleanRecipients.Count} recipient(s). See inner exception for details.", ex);
         }
     }
 
@@ -88,7 +119,6 @@ public class BrevoEmailService : IEmailService
         DateTime startDate,
         DateTime endDate)
     {
-        // Version de compatibilité sans informations de paiement
         var subject = $"Confirmation d'inscription - {activityName}";
 
         var htmlContent = $@"

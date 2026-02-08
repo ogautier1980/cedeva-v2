@@ -18,6 +18,8 @@ using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
+using System.Net;
+using System.Net.Sockets;
 
 Log.Logger = new LoggerConfiguration()
     .WriteTo.Console()
@@ -45,6 +47,43 @@ try
     {
         builder.Services.AddScoped<IStorageService, AzureBlobStorageService>();
     }
+
+    builder.Services.AddHttpClient("BrevoClient", client =>
+    {
+        var apiBaseUrl = builder.Configuration["Brevo:ApiBaseUrl"]
+            ?? throw new InvalidOperationException("Brevo:ApiBaseUrl not configured in appsettings.json");
+        client.BaseAddress = new Uri(apiBaseUrl);
+        client.DefaultRequestHeaders.Add("Accept", "application/json");
+        var apiKey = builder.Configuration["Brevo:ApiKey"]
+            ?? throw new InvalidOperationException("Brevo:ApiKey not configured in appsettings.json");
+        client.DefaultRequestHeaders.Add("api-key", apiKey);
+    })
+    .ConfigurePrimaryHttpMessageHandler(() => new SocketsHttpHandler
+    {
+        ConnectCallback = async (context, cancellationToken) =>
+        {
+            var entry = await Dns.GetHostEntryAsync(context.DnsEndPoint.Host, cancellationToken);
+            var ipAddress = entry.AddressList.FirstOrDefault(ip => ip.AddressFamily == AddressFamily.InterNetwork);
+
+            if (ipAddress == null)
+            {
+                throw new InvalidOperationException($"No IPv4 address found for {context.DnsEndPoint.Host}");
+            }
+
+            var socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            
+            try 
+            {
+                await socket.ConnectAsync(ipAddress, context.DnsEndPoint.Port, cancellationToken);
+                return new NetworkStream(socket, ownsSocket: true);
+            }
+            catch
+            {
+                socket.Dispose();
+                throw;
+            }
+        }
+    });
 
     // Note: IEmailService is NOT registered here - it's registered in Autofac below
     // Brevo SDK configuration is handled internally by BrevoEmailService constructor
