@@ -17,11 +17,11 @@ namespace Cedeva.Website.Features.Parents;
 [Authorize]
 public class ParentsController : Controller
 {
-    private const string SessionKeyParentsSearchString = SessionKeyParentsSearchString;
-    private const string SessionKeyParentsSortBy = SessionKeyParentsSortBy;
-    private const string SessionKeyParentsSortOrder = SessionKeyParentsSortOrder;
-    private const string SessionKeyParentsPageNumber = SessionKeyParentsPageNumber;
     private const string SortOrderDescending = "desc";
+    private const string SessionKeyParentsSearchString = "Parents_SearchString";
+    private const string SessionKeyParentsSortBy = "Parents_SortBy";
+    private const string SessionKeyParentsSortOrder = "Parents_SortOrder";
+    private const string SessionKeyParentsPageNumber = "Parents_PageNumber";
 
     private readonly CedevaDbContext _context;
     private readonly ICurrentUserService _currentUserService;

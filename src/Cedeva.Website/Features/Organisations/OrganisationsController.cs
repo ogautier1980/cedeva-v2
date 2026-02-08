@@ -17,6 +17,10 @@ public class OrganisationsController : Controller
     private const string SortOrderDescending = "desc";
 
     private readonly IRepository<Organisation> _organisationRepository;
+    private const string SessionKeyOrganisationsSearchString = "Organisations_SearchString";
+    private const string SessionKeyOrganisationsSortBy = "Organisations_SortBy";
+    private const string SessionKeyOrganisationsSortOrder = "Organisations_SortOrder";
+    private const string SessionKeyOrganisationsPageNumber = "Organisations_PageNumber";
     private readonly IRepository<Address> _addressRepository;
     private readonly CedevaDbContext _context;
     private readonly IUnitOfWork _unitOfWork;
@@ -61,16 +65,16 @@ public class OrganisationsController : Controller
         if (hasQueryParams)
         {
             if (!string.IsNullOrWhiteSpace(queryParams.SearchString))
-                _sessionState.Set("Organisations_SearchString", queryParams.SearchString, persistToCookie: false);
+                _sessionState.Set(SessionKeyOrganisationsSearchString, queryParams.SearchString, persistToCookie: false);
 
             if (!string.IsNullOrWhiteSpace(queryParams.SortBy))
-                _sessionState.Set("Organisations_SortBy", queryParams.SortBy, persistToCookie: false);
+                _sessionState.Set(SessionKeyOrganisationsSortBy, queryParams.SortBy, persistToCookie: false);
 
             if (!string.IsNullOrWhiteSpace(queryParams.SortOrder))
-                _sessionState.Set("Organisations_SortOrder", queryParams.SortOrder, persistToCookie: false);
+                _sessionState.Set(SessionKeyOrganisationsSortOrder, queryParams.SortOrder, persistToCookie: false);
 
             if (queryParams.PageNumber > 1)
-                _sessionState.Set("Organisations_PageNumber", queryParams.PageNumber.ToString(), persistToCookie: false);
+                _sessionState.Set(SessionKeyOrganisationsPageNumber, queryParams.PageNumber.ToString(), persistToCookie: false);
 
             // Mark that filters should be kept for the next request (after redirect)
             TempData[ControllerExtensions.KeepFiltersKey] = true;
@@ -82,18 +86,18 @@ public class OrganisationsController : Controller
         // If not keeping filters (no redirect, just navigation/F5), clear them
         if (TempData[ControllerExtensions.KeepFiltersKey] == null)
         {
-            _sessionState.Clear("Organisations_SearchString");
-            _sessionState.Clear("Organisations_SortBy");
-            _sessionState.Clear("Organisations_SortOrder");
-            _sessionState.Clear("Organisations_PageNumber");
+            _sessionState.Clear(SessionKeyOrganisationsSearchString);
+            _sessionState.Clear(SessionKeyOrganisationsSortBy);
+            _sessionState.Clear(SessionKeyOrganisationsSortOrder);
+            _sessionState.Clear(SessionKeyOrganisationsPageNumber);
         }
 
         // Load filters from state (will be empty if just cleared)
-        queryParams.SearchString = _sessionState.Get("Organisations_SearchString");
-        queryParams.SortBy = _sessionState.Get("Organisations_SortBy");
-        queryParams.SortOrder = _sessionState.Get("Organisations_SortOrder");
+        queryParams.SearchString = _sessionState.Get(SessionKeyOrganisationsSearchString);
+        queryParams.SortBy = _sessionState.Get(SessionKeyOrganisationsSortBy);
+        queryParams.SortOrder = _sessionState.Get(SessionKeyOrganisationsSortOrder);
 
-        var pageNumberStr = _sessionState.Get("Organisations_PageNumber");
+        var pageNumberStr = _sessionState.Get(SessionKeyOrganisationsPageNumber);
         if (!string.IsNullOrEmpty(pageNumberStr) && int.TryParse(pageNumberStr, out var pageNum))
         {
             queryParams.PageNumber = pageNum;
