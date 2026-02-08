@@ -146,16 +146,16 @@
                     <table class="table table-bordered table-hover">
                         <thead class="table-light">
                             <tr>
-                                <th>@Localizer["Field.TeamMember"]</th>
-                                <th>@Localizer["Field.Email"]</th>
-                                <th>@Localizer["Field.Role"]</th>
-                                <th class="text-end">@Localizer["Financial.Days"]</th>
-                                <th class="text-end">@Localizer["Financial.DailyCompensation"]</th>
-                                <th class="text-end">@Localizer["Financial.Prestations"]</th>
-                                <th class="text-end">@Localizer["Financial.Reimbursements"]</th>
-                                <th class="text-end">@Localizer["Financial.Consumptions"]</th>
-                                <th class="text-end"><strong>@Localizer["Financial.TotalToPay"]</strong></th>
-                                <th class="text-center">@Localizer["Field.Details"]</th>
+                                <th scope="col">@Localizer["Field.TeamMember"]</th>
+                                <th scope="col">@Localizer["Field.Email"]</th>
+                                <th scope="col">@Localizer["Field.Role"]</th>
+                                <th scope="col" class="text-end">@Localizer["Financial.Days"]</th>
+                                <th scope="col" class="text-end">@Localizer["Financial.DailyCompensation"]</th>
+                                <th scope="col" class="text-end">@Localizer["Financial.Prestations"]</th>
+                                <th scope="col" class="text-end">@Localizer["Financial.Reimbursements"]</th>
+                                <th scope="col" class="text-end">@Localizer["Financial.Consumptions"]</th>
+                                <th scope="col" class="text-end"><strong>@Localizer["Financial.TotalToPay"]</strong></th>
+                                <th scope="col" class="text-center">@Localizer["Field.Details"]</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -210,12 +210,12 @@
                         </tbody>
                         <tfoot>
                             <tr class="table-secondary">
-                                <th colspan="5">@Localizer["Financial.Total"]</th>
-                                <th class="text-end">@Model.TotalPrestations.ToString("N2") €</th>
-                                <th class="text-end text-success">+@Model.TotalReimbursements.ToString("N2") €</th>
-                                <th class="text-end text-danger">-@Model.TotalPersonalConsumptions.ToString("N2") €</th>
-                                <th class="text-end"><strong>@Model.GrandTotal.ToString("N2") €</strong></th>
-                                <th></th>
+                                <th scope="col" colspan="5">@Localizer["Financial.Total"]</th>
+                                <th scope="col" class="text-end">@Model.TotalPrestations.ToString("N2") €</th>
+                                <th scope="col" class="text-end text-success">+@Model.TotalReimbursements.ToString("N2") €</th>
+                                <th scope="col" class="text-end text-danger">-@Model.TotalPersonalConsumptions.ToString("N2") €</th>
+                                <th scope="col" class="text-end"><strong>@Model.GrandTotal.ToString("N2") €</strong></th>
+                                <th scope="col"></th>
                             </tr>
                         </tfoot>
                     </table>
@@ -248,8 +248,8 @@
                             <table class="table table-sm table-bordered mb-4">
                                 <thead class="table-light">
                                     <tr>
-                                        <th>@Localizer["Field.Label"]</th>
-                                        <th class="text-end">@Localizer["Field.Amount"]</th>
+                                        <th scope="col">@Localizer["Field.Label"]</th>
+                                        <th scope="col" class="text-end">@Localizer["Field.Amount"]</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -263,8 +263,8 @@
                                 </tbody>
                                 <tfoot>
                                     <tr class="table-success">
-                                        <th>@Localizer["Financial.TotalReimbursements"]</th>
-                                        <th class="text-end">@salary.Reimbursements.ToString("N2") €</th>
+                                        <th scope="col">@Localizer["Financial.TotalReimbursements"]</th>
+                                        <th scope="col" class="text-end">@salary.Reimbursements.ToString("N2") €</th>
                                     </tr>
                                 </tfoot>
                             </table>
@@ -278,8 +278,8 @@
                             <table class="table table-sm table-bordered">
                                 <thead class="table-light">
                                     <tr>
-                                        <th>@Localizer["Field.Label"]</th>
-                                        <th class="text-end">@Localizer["Field.Amount"]</th>
+                                        <th scope="col">@Localizer["Field.Label"]</th>
+                                        <th scope="col" class="text-end">@Localizer["Field.Amount"]</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -293,8 +293,8 @@
                                 </tbody>
                                 <tfoot>
                                     <tr class="table-danger">
-                                        <th>@Localizer["Financial.TotalConsumptions"]</th>
-                                        <th class="text-end">@salary.PersonalConsumptions.ToString("N2") €</th>
+                                        <th scope="col">@Localizer["Financial.TotalConsumptions"]</th>
+                                        <th scope="col" class="text-end">@salary.PersonalConsumptions.ToString("N2") €</th>
                                     </tr>
                                 </tfoot>
                             </table>

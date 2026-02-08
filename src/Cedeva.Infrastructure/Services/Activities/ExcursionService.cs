@@ -9,12 +9,10 @@ namespace Cedeva.Infrastructure.Services.Activities;
 public class ExcursionService : IExcursionService
 {
     private readonly CedevaDbContext _context;
-    private readonly ICurrentUserService _currentUserService;
 
-    public ExcursionService(CedevaDbContext context, ICurrentUserService currentUserService)
+    public ExcursionService(CedevaDbContext context)
     {
         _context = context;
-        _currentUserService = currentUserService;
     }
 
     public async Task<Excursion?> GetByIdAsync(int id)

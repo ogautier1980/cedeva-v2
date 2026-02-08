@@ -39,12 +39,13 @@
                             </div>
 
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">&nbsp;</label>
-                                <div class="form-check">
-                                    <input asp-for="IsRequired" class="form-check-input" type="checkbox" id="IsRequired" />
-                                    <label for="IsRequired" class="form-check-label">@Localizer["ActivityQuestions.IsRequired"]</label>
+                                <div class="mt-4">
+                                    <div class="form-check">
+                                        <input asp-for="IsRequired" class="form-check-input" type="checkbox" id="IsRequired" />
+                                        <label for="IsRequired" class="form-check-label">@Localizer["ActivityQuestions.IsRequired"]</label>
+                                    </div>
+                                    <div class="form-text">@Localizer["ActivityQuestions.IsRequiredHelp"]</div>
                                 </div>
-                                <div class="form-text">@Localizer["ActivityQuestions.IsRequiredHelp"]</div>
                             </div>
                         </div>
 

@@ -13,7 +13,11 @@ public class TestDataSeeder
     private int _structuredCommCounter = 100;
     private List<(string PostalCode, string City)> _municipalities = new();
 
+    // Placeholder URL for test data only - not used in production
     private const string ExampleLicenseUrl = "https://example.com/license.pdf";
+
+    // Email template common greeting
+    private const string EmailGreetingParent = "<p>Chère famille <strong>%nom_complet_parent%</strong>,</p>";
 
     private static readonly string[] FrenchFirstNamesMale = {
         "Antoine", "Thomas", "Lucas", "Louis", "Hugo", "Arthur", "Jules", "Gabriel", "Léo", "Nathan",
@@ -429,10 +433,9 @@ public class TestDataSeeder
 
         if (!teamMembers.Any()) return;
 
-        foreach (var activity in activities)
+        var activitiesWithoutTeam = activities.Where(a => !a.TeamMembers.Any());
+        foreach (var activity in activitiesWithoutTeam)
         {
-            if (activity.TeamMembers.Any()) continue; // Already assigned
-
             var count = _random.Next(3, Math.Min(6, teamMembers.Count + 1));
             foreach (var tm in teamMembers.OrderBy(_ => _random.Next()).Take(count))
                 activity.TeamMembers.Add(tm);
@@ -1063,7 +1066,7 @@ public class TestDataSeeder
         _logger.LogInformation("Seeded excursions for org {OrgId}", organisationId);
     }
 
-    private string GetExcursionName(ExcursionType type, int index)
+    private static string GetExcursionName(ExcursionType type, int index)
     {
         var names = type switch
         {
@@ -1077,7 +1080,7 @@ public class TestDataSeeder
         return names[index % names.Length];
     }
 
-    private string GetExcursionDescription(int index)
+    private static string GetExcursionDescription(int index)
     {
         var descriptions = new[]
         {
@@ -1110,7 +1113,7 @@ public class TestDataSeeder
                 Subject = "Confirmation inscription – %nom_activite%",
                 HtmlContent =
                     "<h2 style=\"color:#007faf;\">Confirmation de votre inscription</h2>" +
-                    "<p>Chère famille <strong>%nom_complet_parent%</strong>,</p>" +
+                    EmailGreetingParent +
                     "<p>Nous vous confirmons l'inscription de <strong>%nom_complet_enfant%</strong> " +
                     "à l'activité <strong>%nom_activite%</strong> " +
                     "(du %date_debut_activite% au %date_fin_activite%).</p>" +
@@ -1131,7 +1134,7 @@ public class TestDataSeeder
                 Subject = "Rappel paiement – %nom_complet_enfant% – %nom_activite%",
                 HtmlContent =
                     "<h2 style=\"color:#dc3545;\">Rappel de paiement</h2>" +
-                    "<p>Chère famille <strong>%nom_complet_parent%</strong>,</p>" +
+                    EmailGreetingParent +
                     "<p>Le paiement pour l'inscription de <strong>%nom_complet_enfant%</strong> " +
                     "à <strong>%nom_activite%</strong> est en attente.</p>" +
                     "<p><strong>Montant restant :</strong> %montant_restant%<br>" +
@@ -1151,7 +1154,7 @@ public class TestDataSeeder
                 Subject = "Fiche médicale manquante – %nom_complet_enfant%",
                 HtmlContent =
                     "<h2 style=\"color:#ffc107;\">Fiche médicale à compléter</h2>" +
-                    "<p>Chère famille <strong>%nom_complet_parent%</strong>,</p>" +
+                    EmailGreetingParent +
                     "<p>La fiche médicale de <strong>%nom_complet_enfant%</strong> " +
                     "pour l'activité <strong>%nom_activite%</strong> n'a pas encore été reçue.</p>" +
                     "<p>Merci de nous la transmettre au plus tôt pour que votre enfant puisse " +
@@ -1170,7 +1173,7 @@ public class TestDataSeeder
                 Subject = "Bienvenue chez %nom_organisation% !",
                 HtmlContent =
                     "<h2 style=\"color:#28a745;\">Bienvenue !</h2>" +
-                    "<p>Chère famille <strong>%nom_complet_parent%</strong>,</p>" +
+                    EmailGreetingParent +
                     "<p>Nous sommes ravis de vous accueillir parmi nous. " +
                     "<strong>%nom_complet_enfant%</strong> va passer un merveilleux séjour " +
                     "à <strong>%nom_activite%</strong> !</p>" +

@@ -27,26 +27,26 @@
 
                         <div class="row mb-3">
                             <div class="col-md-6">
-                                <label asp-for="Amount" class="form-label"></label>
+                                <label for="Amount" class="form-label">@Localizer["Field.Amount"]</label>
                                 <div class="input-group">
                                     <span class="input-group-text"><i class="fas fa-euro-sign"></i></span>
-                                    <input asp-for="Amount" class="form-control" step="0.01" />
+                                    <input asp-for="Amount" class="form-control" id="Amount" step="0.01" />
                                 </div>
                                 <span asp-validation-for="Amount" class="text-danger"></span>
                                 <small class="text-muted">@Localizer["Payments.RemainingAmount"]: <strong class="text-danger">@Model.BookingRemainingAmount.ToString("C")</strong></small>
                             </div>
 
                             <div class="col-md-6">
-                                <label asp-for="PaymentDate" class="form-label"></label>
-                                <input asp-for="PaymentDate" class="form-control" type="date" />
+                                <label for="PaymentDate" class="form-label">@Localizer["Field.PaymentDate"]</label>
+                                <input asp-for="PaymentDate" class="form-control" id="PaymentDate" type="date" />
                                 <span asp-validation-for="PaymentDate" class="text-danger"></span>
                             </div>
                         </div>
 
                         <div class="row mb-3">
                             <div class="col-md-6">
-                                <label asp-for="PaymentMethod" class="form-label"></label>
-                                <select asp-for="PaymentMethod" class="form-select">
+                                <label for="PaymentMethod" class="form-label">@Localizer["Field.PaymentMethod"]</label>
+                                <select asp-for="PaymentMethod" class="form-select" id="PaymentMethod">
                                     <option value="@PaymentMethod.Cash">@Localizer["PaymentMethod.Cash"]</option>
                                     <option value="@PaymentMethod.Other">@Localizer["PaymentMethod.Other"]</option>
                                 </select>
@@ -54,8 +54,8 @@
                             </div>
 
                             <div class="col-md-6">
-                                <label asp-for="Reference" class="form-label"></label>
-                                <input asp-for="Reference" class="form-control" placeholder="@Localizer["Payments.ReferenceHelp"]" />
+                                <label for="Reference" class="form-label">@Localizer["Payment.Reference"]</label>
+                                <input asp-for="Reference" class="form-control" id="Reference" placeholder="@Localizer["Payments.ReferenceHelp"]" />
                                 <span asp-validation-for="Reference" class="text-danger"></span>
                             </div>
                         </div>

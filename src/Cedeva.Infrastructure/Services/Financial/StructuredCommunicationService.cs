@@ -49,7 +49,6 @@ public partial class StructuredCommunicationService : IStructuredCommunicationSe
             return false;
         }
 
-        // Extraire les chiffres (sans les '/' et '+++')
         string digits = match.Groups[1].Value + match.Groups[2].Value + match.Groups[3].Value;
 
         // Les 10 premiers chiffres

@@ -109,7 +109,7 @@
     <!-- Filter -->
     <div class="row mb-3">
         <div class="col-12">
-            <div class="btn-group" role="group">
+            <nav class="btn-group" aria-label="@Localizer["Field.Filter"]">
                 <a asp-action="Transactions" class="btn btn-@(string.IsNullOrEmpty(currentFilter) ? "primary" : "outline-primary")">
                     <i class="fas fa-list me-1"></i>@Localizer["Financial.AllTransactions"]
                 </a>
@@ -119,7 +119,7 @@
                 <a asp-action="Transactions" asp-route-filter="expense" class="btn btn-@(currentFilter == "expense" ? "danger" : "outline-danger")">
                     <i class="fas fa-arrow-up me-1"></i>@Localizer["Financial.ExpensesOnly"]
                 </a>
-            </div>
+            </nav>
         </div>
     </div>
 
@@ -143,11 +143,11 @@
                     <table class="table table-hover">
                         <thead class="table-light">
                             <tr>
-                                <th>@Localizer["Field.Date"]</th>
-                                <th>@Localizer["Field.Type"]</th>
-                                <th>@Localizer["Field.Label"]</th>
-                                <th>@Localizer["Financial.Details"]</th>
-                                <th class="text-end">@Localizer["Field.Amount"]</th>
+                                <th scope="col">@Localizer["Field.Date"]</th>
+                                <th scope="col">@Localizer["Field.Type"]</th>
+                                <th scope="col">@Localizer["Field.Label"]</th>
+                                <th scope="col">@Localizer["Financial.Details"]</th>
+                                <th scope="col" class="text-end">@Localizer["Field.Amount"]</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -216,8 +216,8 @@
                         </tbody>
                         <tfoot>
                             <tr class="table-secondary">
-                                <th colspan="4" class="text-end">@Localizer["Financial.NetBalance"]:</th>
-                                <th class="text-end">
+                                <th scope="col" colspan="4" class="text-end">@Localizer["Financial.NetBalance"]:</th>
+                                <th scope="col" class="text-end">
                                     <strong class="@(Model.NetBalance >= 0 ? "text-success" : "text-danger")">
                                         @(Model.NetBalance >= 0 ? "+" : "")@Model.NetBalance.ToString("N2") €
                                     </strong>

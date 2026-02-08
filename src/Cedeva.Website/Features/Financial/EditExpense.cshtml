@@ -24,51 +24,51 @@
                         <input type="hidden" name="returnUrl" value="@ViewData["ReturnUrl"]" />
 
                         <div class="mb-3">
-                            <label asp-for="Label" class="form-label"></label>
-                            <input asp-for="Label" class="form-control" />
+                            <label for="Label" class="form-label">@Localizer["Field.Label"]</label>
+                            <input asp-for="Label" class="form-control" id="Label" />
                             <span asp-validation-for="Label" class="text-danger"></span>
                         </div>
 
                         <div class="mb-3">
-                            <label asp-for="Description" class="form-label"></label>
-                            <textarea asp-for="Description" class="form-control" rows="3"></textarea>
+                            <label for="Description" class="form-label">@Localizer["Field.Description"]</label>
+                            <textarea asp-for="Description" class="form-control" id="Description" rows="3"></textarea>
                             <span asp-validation-for="Description" class="text-danger"></span>
                         </div>
 
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label asp-for="Amount" class="form-label"></label>
+                                <label for="Amount" class="form-label">@Localizer["Field.Amount"]</label>
                                 <div class="input-group">
-                                    <input asp-for="Amount" class="form-control" step="0.01" />
+                                    <input asp-for="Amount" class="form-control" id="Amount" step="0.01" />
                                     <span class="input-group-text">€</span>
                                 </div>
                                 <span asp-validation-for="Amount" class="text-danger"></span>
                             </div>
 
                             <div class="col-md-6 mb-3">
-                                <label asp-for="ExpenseDate" class="form-label"></label>
-                                <input asp-for="ExpenseDate" class="form-control" type="date" />
+                                <label for="ExpenseDate" class="form-label">@Localizer["Field.ExpenseDate"]</label>
+                                <input asp-for="ExpenseDate" class="form-control" id="ExpenseDate" type="date" />
                                 <span asp-validation-for="ExpenseDate" class="text-danger"></span>
                             </div>
                         </div>
 
                         <div class="mb-3">
-                            <label asp-for="Category" class="form-label"></label>
-                            <input asp-for="Category" class="form-control" />
+                            <label for="Category" class="form-label">@Localizer["Field.Category"]</label>
+                            <input asp-for="Category" class="form-control" id="Category" />
                             <span asp-validation-for="Category" class="text-danger"></span>
                         </div>
 
                         <div class="mb-3">
-                            <label asp-for="AssignedTo" class="form-label"></label>
-                            <select asp-for="AssignedTo" class="form-select" asp-items="ViewBag.AssignedToList" id="assignedToSelect">
+                            <label for="AssignedTo" class="form-label">@Localizer["Expense.AssignedTo"]</label>
+                            <select asp-for="AssignedTo" class="form-select" id="AssignedTo" asp-items="ViewBag.AssignedToList">
                                 <option value="">@Localizer["Expense.SelectAssignedTo"]</option>
                             </select>
                             <span asp-validation-for="AssignedTo" class="text-danger"></span>
                         </div>
 
                         <div class="mb-3" id="expenseTypeDiv">
-                            <label asp-for="ExpenseType" class="form-label"></label>
-                            <select asp-for="ExpenseType" class="form-select">
+                            <label for="ExpenseType" class="form-label">@Localizer["Field.ExpenseType"]</label>
+                            <select asp-for="ExpenseType" class="form-select" id="ExpenseType">
                                 <option value="">@Localizer["Expense.SelectType"]</option>
                                 <option value="@Cedeva.Core.Enums.ExpenseType.Reimbursement">@Localizer["ExpenseType.Reimbursement"]</option>
                                 <option value="@Cedeva.Core.Enums.ExpenseType.PersonalConsumption">@Localizer["ExpenseType.PersonalConsumption"]</option>

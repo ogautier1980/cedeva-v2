@@ -19,6 +19,11 @@ public class ExcursionsController : Controller
     private const string ErrorGeneric = "Error";
     private const string ErrorRegistrationNotFound = "Error.RegistrationNotFound";
 
+    // Navigation ViewData keys
+    private const string NavSectionKey = "NavSection";
+    private const string NavActionKey = "NavAction";
+    private const string NavSectionExcursions = "Excursions";
+
     private readonly CedevaDbContext _context;
     private readonly IExcursionService _excursionService;
     private readonly IExcursionViewModelBuilderService _viewModelBuilder;
@@ -216,17 +221,17 @@ public class ExcursionsController : Controller
         }
     }
 
-    private (TimeSpan? startTime, TimeSpan? endTime) ParseTimeFields(string? startTimeStr, string? endTimeStr)
+    private static (TimeSpan? startTime, TimeSpan? endTime) ParseTimeFields(string? startTimeStr, string? endTimeStr)
     {
         TimeSpan? startTime = null;
         TimeSpan? endTime = null;
 
-        if (!string.IsNullOrWhiteSpace(startTimeStr) && TimeSpan.TryParse(startTimeStr, out var parsedStartTime))
+        if (!string.IsNullOrWhiteSpace(startTimeStr) && TimeSpan.TryParse(startTimeStr, System.Globalization.CultureInfo.InvariantCulture, out var parsedStartTime))
         {
             startTime = parsedStartTime;
         }
 
-        if (!string.IsNullOrWhiteSpace(endTimeStr) && TimeSpan.TryParse(endTimeStr, out var parsedEndTime))
+        if (!string.IsNullOrWhiteSpace(endTimeStr) && TimeSpan.TryParse(endTimeStr, System.Globalization.CultureInfo.InvariantCulture, out var parsedEndTime))
         {
             endTime = parsedEndTime;
         }
@@ -426,8 +431,8 @@ public class ExcursionsController : Controller
         };
 
         this.SetActivityViewData(excursion.ActivityId, excursion.Activity.Name);
-        ViewData["NavSection"] = "Excursions";
-        ViewData["NavAction"] = "Registrations";
+        ViewData[NavSectionKey] = NavSectionExcursions;
+        ViewData[NavActionKey] = "Registrations";
 
         return View(viewModel);
     }
@@ -522,8 +527,8 @@ public class ExcursionsController : Controller
         };
 
         this.SetActivityViewData(excursion.ActivityId, excursion.Activity.Name);
-        ViewData["NavSection"] = "Excursions";
-        ViewData["NavAction"] = "Attendance";
+        ViewData[NavSectionKey] = NavSectionExcursions;
+        ViewData[NavActionKey] = "Attendance";
 
         return View(viewModel);
     }
@@ -589,8 +594,8 @@ public class ExcursionsController : Controller
         };
 
         this.SetActivityViewData(excursion.ActivityId, excursion.Activity.Name);
-        ViewData["NavSection"] = "Excursions";
-        ViewData["NavAction"] = "SendEmail";
+        ViewData[NavSectionKey] = NavSectionExcursions;
+        ViewData[NavActionKey] = "SendEmail";
 
         return View(viewModel);
     }
@@ -671,8 +676,8 @@ public class ExcursionsController : Controller
         };
 
         this.SetActivityViewData(excursion.ActivityId, excursion.Activity.Name);
-        ViewData["NavSection"] = "Excursions";
-        ViewData["NavAction"] = "Expenses";
+        ViewData[NavSectionKey] = NavSectionExcursions;
+        ViewData[NavActionKey] = "Expenses";
 
         return View(viewModel);
     }
@@ -702,8 +707,8 @@ public class ExcursionsController : Controller
                 this.SetActivityViewData(excursion.ActivityId, excursion.Activity.Name);
             }
 
-            ViewData["NavSection"] = "Excursions";
-            ViewData["NavAction"] = "Expenses";
+            ViewData[NavSectionKey] = NavSectionExcursions;
+            ViewData[NavActionKey] = "Expenses";
 
             return View("Expenses", model);
         }
@@ -774,8 +779,8 @@ public class ExcursionsController : Controller
         };
 
         this.SetActivityViewData(excursion.ActivityId, excursion.Activity.Name);
-        ViewData["NavSection"] = "Excursions";
-        ViewData["NavAction"] = "TeamManagement";
+        ViewData[NavSectionKey] = NavSectionExcursions;
+        ViewData[NavActionKey] = "TeamManagement";
 
         return View(viewModel);
     }

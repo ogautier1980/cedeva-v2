@@ -69,21 +69,21 @@
                         <!-- Subject -->
                         <div class="mb-3">
                             <label for="Subject" class="form-label">@Localizer["Email.Subject"]</label>
-                            <input asp-for="Subject" class="form-control" placeholder="@Localizer["Email.SubjectPlaceholder"]" id="Subject" />
+                            <input asp-for="Subject" class="form-control" id="Subject" placeholder="@Localizer["Email.SubjectPlaceholder"]" />
                             <span asp-validation-for="Subject" class="text-danger"></span>
                         </div>
 
                         <!-- Message -->
                         <div class="mb-3">
                             <label for="Message" class="form-label">@Localizer["Email.Message"]</label>
-                            <textarea asp-for="Message" class="form-control" rows="10" id="Message"></textarea>
+                            <textarea asp-for="Message" class="form-control" id="Message" rows="10"></textarea>
                             <span asp-validation-for="Message" class="text-danger"></span>
                         </div>
 
                         <!-- Send per child checkbox -->
                         <div class="mb-3 form-check">
                             <input asp-for="SendSeparateEmailPerChild" class="form-check-input" id="SendSeparateEmailPerChild" />
-                            <label asp-for="SendSeparateEmailPerChild" class="form-check-label"></label>
+                            <label for="SendSeparateEmailPerChild" class="form-check-label">@Localizer["Email.PerChild"]</label>
                             <div class="form-text">
                                 <span id="perChildInfo" class="text-muted">@Localizer["Email.PerChildInfo"]</span>
                                 <span id="perParentInfo" class="text-muted d-none">@Localizer["Email.PerParentInfo"]</span>
@@ -128,8 +128,8 @@
                     <table class="table table-sm table-hover">
                         <thead class="table-light">
                             <tr>
-                                <th class="small">@Localizer["EmailTemplate.Variable"]</th>
-                                <th class="small">@Localizer["EmailTemplate.Description"]</th>
+                                <th scope="col" class="small">@Localizer["EmailTemplate.Variable"]</th>
+                                <th scope="col" class="small">@Localizer["EmailTemplate.Description"]</th>
                             </tr>
                         </thead>
                         <tbody>

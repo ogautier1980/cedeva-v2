@@ -4,8 +4,8 @@ function initializeAddressAutocomplete(cityInputId, postalCodeInputId, apiUrl) {
         apiUrl = "/api/AddressApi/municipalities/search";
     }
 
-    var cityInput = $(cityInputId);
-    var postalCodeInput = $(postalCodeInputId);
+    const cityInput = $(cityInputId);
+    const postalCodeInput = $(postalCodeInputId);
 
     // Validation is attached to the CityInput field
     // We need to trigger CityInput validation when either field changes

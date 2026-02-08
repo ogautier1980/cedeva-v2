@@ -155,10 +155,10 @@
 
                             <!-- Comptes (dropdown avec sous-actions) -->
                             <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle @(navSection == "Financial" ? "active" : "")"
-                                   href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <button class="nav-link dropdown-toggle @(navSection == "Financial" ? "active" : "") btn btn-link"
+                                        type="button" data-bs-toggle="dropdown" aria-expanded="false">
                                     <i class="far fa-money-bill-1"></i> @Localizer["ActivityManagement.Accounts"]
-                                </a>
+                                </button>
                                 <ul class="dropdown-menu">
                                     <li>
                                         <a class="dropdown-item @(navAction == "Index" ? "active" : "")"
@@ -189,10 +189,10 @@
 
                             <!-- E-mails (dropdown avec sous-actions) -->
                             <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle @(navSection == "Emails" ? "active" : "")"
-                                   href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <button class="nav-link dropdown-toggle @(navSection == "Emails" ? "active" : "") btn btn-link"
+                                        type="button" data-bs-toggle="dropdown" aria-expanded="false">
                                     <i class="fas fa-envelope"></i> @Localizer["ActivityManagement.Emails"]
-                                </a>
+                                </button>
                                 <ul class="dropdown-menu">
                                     <li>
                                         <a class="dropdown-item @(navAction == "SendEmail" ? "active" : "")"

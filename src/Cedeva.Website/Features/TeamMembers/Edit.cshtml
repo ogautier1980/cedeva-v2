@@ -211,7 +211,7 @@
                                 var successMsg = @Json.Serialize(Localizer["TeamMembers.LicenseDeletedSuccess"].Value);
                                 $('form').before('<div class="alert alert-success alert-dismissible fade show" role="alert">' +
                                     $('<div>').text(successMsg).html() +
-                                    '<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>');
+                                    '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>');
                             }
                         }).fail(function() {
                             alert(@Json.Serialize(Localizer["TeamMembers.LicenseDeletedError"].Value));

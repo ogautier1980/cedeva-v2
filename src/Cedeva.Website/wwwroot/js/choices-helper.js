@@ -84,7 +84,7 @@ const CedevaChoices = {
             ? document.querySelector(selector)
             : selector;
 
-        if (!element || !element.form) {
+        if (!element?.form) {
             console.warn('Choices.js: Element not found or not in a form:', selector);
             return null;
         }

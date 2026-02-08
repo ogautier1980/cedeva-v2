@@ -25,37 +25,37 @@
                         <input type="hidden" asp-for="ActivityId" />
 
                         <div class="mb-3">
-                            <label asp-for="Name" class="form-label"></label>
-                            <input asp-for="Name" class="form-control" />
+                            <label for="Name" class="form-label">@Localizer["Field.Name"]</label>
+                            <input asp-for="Name" class="form-control" id="Name" />
                             <span asp-validation-for="Name" class="text-danger"></span>
                         </div>
 
                         <div class="mb-3">
-                            <label asp-for="Description" class="form-label"></label>
-                            <textarea asp-for="Description" class="form-control" rows="3"></textarea>
+                            <label for="Description" class="form-label">@Localizer["Field.Description"]</label>
+                            <textarea asp-for="Description" class="form-control" id="Description" rows="3"></textarea>
                             <span asp-validation-for="Description" class="text-danger"></span>
                         </div>
 
                         <div class="row">
                             <div class="col-md-4">
                                 <div class="mb-3">
-                                    <label asp-for="ExcursionDate" class="form-label"></label>
-                                    <input asp-for="ExcursionDate" type="date" class="form-control" />
+                                    <label for="ExcursionDate" class="form-label">@Localizer["Field.ExcursionDate"]</label>
+                                    <input asp-for="ExcursionDate" type="date" class="form-control" id="ExcursionDate" />
                                     <span asp-validation-for="ExcursionDate" class="text-danger"></span>
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="mb-3">
-                                    <label asp-for="StartTime" class="form-label"></label>
-                                    <input asp-for="StartTime" type="time" class="form-control" placeholder="HH:mm" />
+                                    <label for="StartTime" class="form-label">@Localizer["Field.StartTime"]</label>
+                                    <input asp-for="StartTime" type="time" class="form-control" id="StartTime" placeholder="HH:mm" />
                                     <span asp-validation-for="StartTime" class="text-danger"></span>
                                     <small class="form-text text-muted">@Localizer["Excursion.StartTimeHelp"]</small>
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="mb-3">
-                                    <label asp-for="EndTime" class="form-label"></label>
-                                    <input asp-for="EndTime" type="time" class="form-control" placeholder="HH:mm" />
+                                    <label for="EndTime" class="form-label">@Localizer["Field.EndTime"]</label>
+                                    <input asp-for="EndTime" type="time" class="form-control" id="EndTime" placeholder="HH:mm" />
                                     <span asp-validation-for="EndTime" class="text-danger"></span>
                                     <small class="form-text text-muted">@Localizer["Excursion.EndTimeHelp"]</small>
                                 </div>
@@ -65,10 +65,10 @@
                         <div class="row">
                             <div class="col-md-12">
                                 <div class="mb-3">
-                                    <label asp-for="Cost" class="form-label"></label>
+                                    <label for="Cost" class="form-label">@Localizer["Field.Cost"]</label>
                                     <div class="input-group">
                                         <span class="input-group-text">€</span>
-                                        <input asp-for="Cost" type="text" class="form-control"
+                                        <input asp-for="Cost" type="text" class="form-control" id="Cost"
                                                data-val-number="@Localizer["Validation.Number"]" />
                                     </div>
                                     <span asp-validation-for="Cost" class="text-danger"></span>
@@ -77,8 +77,8 @@
                         </div>
 
                         <div class="mb-3">
-                            <label asp-for="Type" class="form-label"></label>
-                            <select asp-for="Type" class="form-select">
+                            <label for="Type" class="form-label">@Localizer["Field.Type"]</label>
+                            <select asp-for="Type" class="form-select" id="Type">
                                 <option value="">-- @Localizer["Select"] --</option>
                                 @foreach (var type in Enum.GetValues<Cedeva.Core.Enums.ExcursionType>())
                                 {
@@ -89,7 +89,7 @@
                         </div>
 
                         <div class="mb-3">
-                            <label asp-for="SelectedGroupIds" class="form-label"></label>
+                            <label for="SelectedGroupIds" class="form-label">@Localizer["Field.SelectedGroupIds"]</label>
                             <div class="alert alert-info">
                                 <i class="fas fa-info-circle"></i> @Localizer["Excursion.SelectTargetGroupsHelp"]
                             </div>
@@ -106,24 +106,26 @@
                                     {
                                         var group = Model.AvailableGroups[i];
                                         var isChecked = Model.SelectedGroupIds != null && Model.SelectedGroupIds.Contains(group.Id);
+                                        var checkboxId = $"group_{group.Id}";
 
-                                        <label class="list-group-item">
+                                        <div class="list-group-item">
                                             <div class="form-check">
                                                 <input type="checkbox"
+                                                       id="@checkboxId"
                                                        name="SelectedGroupIds"
                                                        value="@group.Id"
                                                        class="form-check-input"
                                                        @(isChecked ? "checked" : "") />
-                                                <span class="form-check-label">
+                                                <label for="@checkboxId" class="form-check-label">
                                                     <strong>@group.Label</strong>
                                                     @if (group.Capacity.HasValue)
                                                     {
                                                         <br />
                                                         <small class="text-muted">@Localizer["Capacity"]: @group.Capacity</small>
                                                     }
-                                                </span>
+                                                </label>
                                             </div>
-                                        </label>
+                                        </div>
                                     }
                                 </div>
                             }

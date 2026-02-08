@@ -48,6 +48,31 @@ public class SessionStateService : ISessionStateService
         return null;
     }
 
+    public T? Get<T>(string key) where T : struct
+    {
+        var value = Get(key);
+        if (string.IsNullOrEmpty(value))
+            return null;
+
+        try
+        {
+            if (typeof(T) == typeof(int) && int.TryParse(value, out var intValue))
+                return (T)(object)intValue;
+            if (typeof(T) == typeof(bool) && bool.TryParse(value, out var boolValue))
+                return (T)(object)boolValue;
+            if (typeof(T) == typeof(DateTime) && DateTime.TryParse(value, CultureInfo.InvariantCulture, DateTimeStyles.None, out var dateValue))
+                return (T)(object)dateValue;
+            if (typeof(T) == typeof(decimal) && decimal.TryParse(value, NumberStyles.Any, CultureInfo.InvariantCulture, out var decimalValue))
+                return (T)(object)decimalValue;
+        }
+        catch
+        {
+            // Parsing failed, return null
+        }
+
+        return null;
+    }
+
     public void Set(string key, string? value, bool persistToCookie = true)
     {
         var httpContext = _httpContextAccessor.HttpContext;
@@ -82,69 +107,6 @@ public class SessionStateService : ISessionStateService
         }
     }
 
-    public void Clear(string key)
-    {
-        var httpContext = _httpContextAccessor.HttpContext;
-        if (httpContext == null)
-            return;
-
-        var sessionKey = SessionKeyPrefix + key;
-        var cookieKey = CookieKeyPrefix + key;
-
-        // Clear session
-        httpContext.Session.Remove(sessionKey);
-
-        // Clear cookie
-        httpContext.Response.Cookies.Delete(cookieKey);
-    }
-
-    public void ClearAllWithPrefix(string prefix)
-    {
-        var httpContext = _httpContextAccessor.HttpContext;
-        if (httpContext == null)
-            return;
-
-        // Note: Session doesn't provide key enumeration
-        // Controllers should call Clear for each known key
-    }
-
-    public T? Get<T>(string key) where T : struct
-    {
-        var value = Get(key);
-        if (string.IsNullOrEmpty(value))
-            return null;
-
-        try
-        {
-            if (typeof(T) == typeof(int))
-            {
-                if (int.TryParse(value, out var intValue))
-                    return (T)(object)intValue;
-            }
-            else if (typeof(T) == typeof(bool))
-            {
-                if (bool.TryParse(value, out var boolValue))
-                    return (T)(object)boolValue;
-            }
-            else if (typeof(T) == typeof(DateTime))
-            {
-                if (DateTime.TryParse(value, CultureInfo.InvariantCulture, DateTimeStyles.None, out var dateValue))
-                    return (T)(object)dateValue;
-            }
-            else if (typeof(T) == typeof(decimal))
-            {
-                if (decimal.TryParse(value, NumberStyles.Any, CultureInfo.InvariantCulture, out var decimalValue))
-                    return (T)(object)decimalValue;
-            }
-        }
-        catch
-        {
-            // Parsing failed, return null
-        }
-
-        return null;
-    }
-
     public void Set<T>(string key, T? value, bool persistToCookie = true) where T : struct
     {
         if (!value.HasValue)
@@ -169,5 +131,28 @@ public class SessionStateService : ISessionStateService
         }
 
         Set(key, stringValue, persistToCookie);
+    }
+
+    public void Clear(string key)
+    {
+        var httpContext = _httpContextAccessor.HttpContext;
+        if (httpContext == null)
+            return;
+
+        var sessionKey = SessionKeyPrefix + key;
+        var cookieKey = CookieKeyPrefix + key;
+
+        // Clear session
+        httpContext.Session.Remove(sessionKey);
+
+        // Clear cookie
+        httpContext.Response.Cookies.Delete(cookieKey);
+    }
+
+    public void ClearAllWithPrefix(string prefix)
+    {
+        // Note: Session doesn't provide key enumeration
+        // Controllers should call Clear for each known key
+        // Method kept for interface compatibility
     }
 }

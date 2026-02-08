@@ -53,11 +53,11 @@
                     <table class="table table-hover">
                         <thead class="table-light">
                             <tr>
-                                <th>@await Html.PartialAsync("_SortableColumnHeader", ("LastName", Localizer["Name"].Value, ViewData["SortBy"] as string, ViewData["SortOrder"] as string))</th>
-                                <th>@await Html.PartialAsync("_SortableColumnHeader", ("Email", Localizer["Contact"].Value, ViewData["SortBy"] as string, ViewData["SortOrder"] as string))</th>
-                                <th>@await Html.PartialAsync("_SortableColumnHeader", ("City", Localizer["Address"].Value, ViewData["SortBy"] as string, ViewData["SortOrder"] as string))</th>
-                                <th class="text-center">@Localizer["Children"]</th>
-                                <th class="text-end">@Localizer["Actions"]</th>
+                                <th scope="col">@await Html.PartialAsync("_SortableColumnHeader", ("LastName", Localizer["Name"].Value, ViewData["SortBy"] as string, ViewData["SortOrder"] as string))</th>
+                                <th scope="col">@await Html.PartialAsync("_SortableColumnHeader", ("Email", Localizer["Contact"].Value, ViewData["SortBy"] as string, ViewData["SortOrder"] as string))</th>
+                                <th scope="col">@await Html.PartialAsync("_SortableColumnHeader", ("City", Localizer["Address"].Value, ViewData["SortBy"] as string, ViewData["SortOrder"] as string))</th>
+                                <th scope="col" class="text-center">@Localizer["Children"]</th>
+                                <th scope="col" class="text-end">@Localizer["Actions"]</th>
                             </tr>
                         </thead>
                         <tbody>

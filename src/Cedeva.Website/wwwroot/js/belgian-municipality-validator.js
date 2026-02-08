@@ -1,10 +1,10 @@
 // Client-side validation for postal code + city combination
 $.validator.addMethod("belgianmunicipality", function (value, element, params) {
-    var cityFieldId = $(element).attr('data-val-belgianmunicipality-cityfieldid');
-    var postalCodeFieldId = $(element).attr('data-val-belgianmunicipality-postalcodefieldid');
+    const cityFieldId = $(element).attr('data-val-belgianmunicipality-cityfieldid');
+    const postalCodeFieldId = $(element).attr('data-val-belgianmunicipality-postalcodefieldid');
 
-    var city = $("#" + cityFieldId).val();
-    var postalCode = $("#" + postalCodeFieldId).val();
+    const city = $("#" + cityFieldId).val();
+    const postalCode = $("#" + postalCodeFieldId).val();
 
     // If both fields are empty, no error
     if (!city && !postalCode) {
@@ -17,7 +17,7 @@ $.validator.addMethod("belgianmunicipality", function (value, element, params) {
     }
 
     // Validation via AJAX
-    var isValid = true;
+    let isValid = true;
     $.ajax({
         url: "/api/AddressApi/validate-municipality",
         type: "GET",

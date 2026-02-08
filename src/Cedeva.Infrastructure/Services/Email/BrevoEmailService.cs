@@ -1,6 +1,7 @@
 using brevo_csharp.Api;
 using brevo_csharp.Client;
 using brevo_csharp.Model;
+using Cedeva.Core.DTOs;
 using Cedeva.Core.Interfaces;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -63,8 +64,8 @@ public class BrevoEmailService : IEmailService
             await _emailsApi.SendTransacEmailAsync(email);
             stopwatch.Stop();
 
-            _logger.LogInformation("Brevo API call completed in {ElapsedMs}ms", stopwatch.ElapsedMilliseconds);
-            _logger.LogInformation("Email sent successfully to {Recipients}", string.Join(", ", to));
+            _logger.LogInformation("Email sent successfully to {Recipients} in {ElapsedMs}ms",
+                string.Join(", ", to), stopwatch.ElapsedMilliseconds);
         }
         catch (ApiException ex)
         {
@@ -129,18 +130,11 @@ public class BrevoEmailService : IEmailService
         await SendEmailAsync(parentEmail, subject, htmlContent);
     }
 
-    public async Task SendBookingConfirmationEmailAsync(
-        string parentEmail,
-        string parentName,
-        string childName,
-        string activityName,
-        DateTime startDate,
-        DateTime endDate,
-        decimal totalAmount,
-        string structuredCommunication,
-        string bankAccount)
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("csharpsquid", "S2325:Methods should be static if they do not reference instance data",
+        Justification = "False positive - method calls instance method SendEmailAsync")]
+    public async Task SendBookingConfirmationEmailAsync(BookingConfirmationEmailDto data)
     {
-        var subject = $"Confirmation d'inscription - {activityName}";
+        var subject = $"Confirmation d'inscription - {data.ActivityName}";
 
         var htmlContent = $@"
             <html>
@@ -162,18 +156,18 @@ public class BrevoEmailService : IEmailService
                             <h1>Confirmation d'inscription</h1>
                         </div>
                         <div class='content'>
-                            <p>Bonjour {parentName},</p>
-                            <p>Nous confirmons l'inscription de <strong>{childName}</strong> pour l'activité suivante :</p>
+                            <p>Bonjour {data.ParentName},</p>
+                            <p>Nous confirmons l'inscription de <strong>{data.ChildName}</strong> pour l'activité suivante :</p>
                             <div class='details'>
-                                <h3>{activityName}</h3>
-                                <p><strong>Date de début :</strong> {startDate:dd/MM/yyyy}</p>
-                                <p><strong>Date de fin :</strong> {endDate:dd/MM/yyyy}</p>
+                                <h3>{data.ActivityName}</h3>
+                                <p><strong>Date de début :</strong> {data.StartDate:dd/MM/yyyy}</p>
+                                <p><strong>Date de fin :</strong> {data.EndDate:dd/MM/yyyy}</p>
                             </div>
                             <div class='payment-info'>
                                 <h3>Informations de paiement</h3>
-                                <p class='highlight'>Montant à payer : {totalAmount:F2} €</p>
-                                <p><strong>Compte bancaire (IBAN) :</strong><br>{bankAccount}</p>
-                                <p><strong>Communication structurée (OBLIGATOIRE) :</strong><br><span style='font-size: 16px; font-family: monospace; font-weight: bold;'>{structuredCommunication}</span></p>
+                                <p class='highlight'>Montant à payer : {data.TotalAmount:F2} €</p>
+                                <p><strong>Compte bancaire (IBAN) :</strong><br>{data.BankAccount}</p>
+                                <p><strong>Communication structurée (OBLIGATOIRE) :</strong><br><span style='font-size: 16px; font-family: monospace; font-weight: bold;'>{data.StructuredCommunication}</span></p>
                                 <p style='color: #d32f2f; font-weight: bold;'>⚠ IMPORTANT : N'oubliez pas d'indiquer la communication structurée lors de votre virement !</p>
                             </div>
                             <p>Nous sommes impatients d'accueillir votre enfant pour cette activité !</p>
@@ -187,7 +181,7 @@ public class BrevoEmailService : IEmailService
                 </body>
             </html>";
 
-        await SendEmailAsync(parentEmail, subject, htmlContent);
+        await SendEmailAsync(data.ParentEmail, subject, htmlContent);
     }
 
     public async Task SendWelcomeEmailAsync(string userEmail, string userName, string organisationName)

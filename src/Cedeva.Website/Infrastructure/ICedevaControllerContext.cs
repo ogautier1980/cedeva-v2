@@ -26,7 +26,7 @@ public class CedevaControllerContext<T> : ICedevaControllerContext<T> where T : 
         IUserDisplayService userDisplay,
         IStringLocalizer<SharedResources> localizer,
         ISessionStateService session,
-        ILogger<T> logger)
+        ILogger<T> logger) // NOSONAR - intentional: logs attributed to controller type T
     {
         CurrentUser = currentUser;
         UserDisplay = userDisplay;

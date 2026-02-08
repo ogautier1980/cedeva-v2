@@ -38,16 +38,16 @@
                     <table class="table table-hover">
                         <thead class="table-light">
                             <tr>
-                                <th>@Localizer["Field.ExcursionName"]</th>
-                                <th>@Localizer["Field.ExcursionDate"]</th>
-                                <th>@Localizer["Field.ExcursionType"]</th>
-                                <th>@Localizer["Field.TargetGroups"]</th>
-                                <th>@Localizer["Excursion.Registrations"]</th>
-                                <th>@Localizer["Field.ExcursionCost"]</th>
-                                <th>@Localizer["Excursion.TotalRevenue"]</th>
-                                <th>@Localizer["Excursion.TotalExpenses"]</th>
-                                <th>@Localizer["Excursion.NetBalance"]</th>
-                                <th class="text-end">@Localizer["Actions"]</th>
+                                <th scope="col">@Localizer["Field.ExcursionName"]</th>
+                                <th scope="col">@Localizer["Field.ExcursionDate"]</th>
+                                <th scope="col">@Localizer["Field.ExcursionType"]</th>
+                                <th scope="col">@Localizer["Field.TargetGroups"]</th>
+                                <th scope="col">@Localizer["Excursion.Registrations"]</th>
+                                <th scope="col">@Localizer["Field.ExcursionCost"]</th>
+                                <th scope="col">@Localizer["Excursion.TotalRevenue"]</th>
+                                <th scope="col">@Localizer["Excursion.TotalExpenses"]</th>
+                                <th scope="col">@Localizer["Excursion.NetBalance"]</th>
+                                <th scope="col" class="text-end">@Localizer["Actions"]</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -79,7 +79,7 @@
                                         <strong>@excursion.NetBalance.ToString("C")</strong>
                                     </td>
                                     <td class="text-end">
-                                        <div class="btn-group" role="group">
+                                        <nav class="btn-group" aria-label="@Localizer["Field.Actions"]">
                                             <a asp-action="Registrations" asp-route-id="@excursion.Id"
                                                class="btn btn-sm btn-outline-primary"
                                                title="@Localizer["Excursion.ManageRegistrations"]">
@@ -110,7 +110,7 @@
                                                title="@Localizer["Delete"]">
                                                 <i class="fas fa-trash"></i>
                                             </a>
-                                        </div>
+                                        </nav>
                                     </td>
                                 </tr>
                             }

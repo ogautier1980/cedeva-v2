@@ -3,6 +3,7 @@ using Microsoft.Extensions.Localization;
 
 namespace Cedeva.Website.Validation;
 
+[AttributeUsage(AttributeTargets.Property | AttributeTargets.Field | AttributeTargets.Parameter)]
 public class AllowedExtensionsAttribute : ValidationAttribute
 {
     private readonly string[] _extensions;
@@ -44,6 +45,7 @@ public class AllowedExtensionsAttribute : ValidationAttribute
     }
 }
 
+[AttributeUsage(AttributeTargets.Property | AttributeTargets.Field | AttributeTargets.Parameter)]
 public class MaxFileSizeAttribute : ValidationAttribute
 {
     private readonly int _maxFileSize;
@@ -55,12 +57,9 @@ public class MaxFileSizeAttribute : ValidationAttribute
 
     protected override ValidationResult? IsValid(object? value, ValidationContext validationContext)
     {
-        if (value is IFormFile file)
+        if (value is IFormFile file && file.Length > _maxFileSize)
         {
-            if (file.Length > _maxFileSize)
-            {
-                return new ValidationResult(GetErrorMessage(validationContext));
-            }
+            return new ValidationResult(GetErrorMessage(validationContext));
         }
 
         return ValidationResult.Success;

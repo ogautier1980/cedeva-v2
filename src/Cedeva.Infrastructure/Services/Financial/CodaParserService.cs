@@ -27,7 +27,6 @@ public class CodaParserService : ICodaParserService
     private const int OldBalanceAmountStart = 42;
     private const int OldBalanceAmountLength = 15;
     private const int OldBalanceSignPosition = 41;
-    private const int DecimalPlaces = 3;
     private const decimal DecimalDivisor = 1000m;
 
     // Date parsing
@@ -134,7 +133,7 @@ public class CodaParserService : ICodaParserService
         }
     }
 
-    private void ParseHeader(string line, CodaFileDto codaFile)
+    private static void ParseHeader(string line, CodaFileDto codaFile)
     {
         // Position 6-17: Account number (12 chars)
         codaFile.AccountNumber = line.Substring(HeaderAccountNumberStart, HeaderAccountNumberLength).Trim();
@@ -146,11 +145,11 @@ public class CodaParserService : ICodaParserService
             var day = int.Parse(datePart.Substring(0, DateDayLength));
             var month = int.Parse(datePart.Substring(DateMonthStart, DateMonthLength));
             var year = DateYearBase + int.Parse(datePart.Substring(DateYearStart, DateYearLength));
-            codaFile.StatementDate = new DateTime(year, month, day);
+            codaFile.StatementDate = new DateTime(year, month, day, 0, 0, 0, DateTimeKind.Utc);
         }
     }
 
-    private void ParseOldBalance(string line, CodaFileDto codaFile)
+    private static void ParseOldBalance(string line, CodaFileDto codaFile)
     {
         // Position 43-57: Old balance (15 chars: 12 digits + 3 decimals)
         var balanceStr = line.Substring(OldBalanceAmountStart, OldBalanceAmountLength);
@@ -166,7 +165,7 @@ public class CodaParserService : ICodaParserService
         }
     }
 
-    private CodaTransactionDto ParseTransaction(string line)
+    private static CodaTransactionDto ParseTransaction(string line)
     {
         var transaction = new CodaTransactionDto();
 
@@ -181,7 +180,7 @@ public class CodaParserService : ICodaParserService
             var day = int.Parse(transDateStr.Substring(0, 2));
             var month = int.Parse(transDateStr.Substring(2, 2));
             var year = 2000 + int.Parse(transDateStr.Substring(4, 2));
-            transaction.TransactionDate = new DateTime(year, month, day);
+            transaction.TransactionDate = new DateTime(year, month, day, 0, 0, 0, DateTimeKind.Utc);
         }
 
         // Position 32-37: Value date (DDMMYY)
@@ -191,7 +190,7 @@ public class CodaParserService : ICodaParserService
             var day = int.Parse(valueDateStr.Substring(0, 2));
             var month = int.Parse(valueDateStr.Substring(2, 2));
             var year = 2000 + int.Parse(valueDateStr.Substring(4, 2));
-            transaction.ValueDate = new DateTime(year, month, day);
+            transaction.ValueDate = new DateTime(year, month, day, 0, 0, 0, DateTimeKind.Utc);
         }
         else
         {
@@ -217,20 +216,16 @@ public class CodaParserService : ICodaParserService
 
         // Position 113-125: Structured communication (13 chars)
         var structuredComm = line.Substring(112, 13).Trim();
-        if (!string.IsNullOrWhiteSpace(structuredComm) && structuredComm != "0")
+        if (!string.IsNullOrWhiteSpace(structuredComm) && structuredComm != "0" &&
+            structuredComm.Length == 12 && structuredComm.All(char.IsDigit))
         {
-            // Format: XXXXXXXXXXXCC (11 digits + 2 checksum)
-            // Convert to +++XXX/XXXX/XXXXX+++
-            if (structuredComm.Length == 12 && structuredComm.All(char.IsDigit))
-            {
-                transaction.StructuredCommunication = $"+++{structuredComm.Substring(0, 3)}/{structuredComm.Substring(3, 4)}/{structuredComm.Substring(7, 5)}+++";
-            }
+            transaction.StructuredCommunication = $"+++{structuredComm.Substring(0, 3)}/{structuredComm.Substring(3, 4)}/{structuredComm.Substring(7, 5)}+++";
         }
 
         return transaction;
     }
 
-    private void ParseAdditionalInfo(string line, CodaTransactionDto transaction, StringBuilder additionalInfo)
+    private static void ParseAdditionalInfo(string line, CodaTransactionDto transaction, StringBuilder additionalInfo)
     {
         var infoType = line.Substring(1, 1);
 
@@ -276,7 +271,7 @@ public class CodaParserService : ICodaParserService
         }
     }
 
-    private void ParseNewBalance(string line, CodaFileDto codaFile)
+    private static void ParseNewBalance(string line, CodaFileDto codaFile)
     {
         // Position 43-57: New balance (15 chars: 12 digits + 3 decimals)
         var balanceStr = line.Substring(42, 15);

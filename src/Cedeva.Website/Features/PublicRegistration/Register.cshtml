@@ -126,58 +126,58 @@
 
                 <div class="row mb-3">
                     <div class="col-md-6">
-                        <label asp-for="ParentFirstName" class="form-label required-mark"></label>
-                        <input asp-for="ParentFirstName" class="form-control" />
+                        <label for="ParentFirstName" class="form-label required-mark">@Localizer["Field.FirstName"]</label>
+                        <input asp-for="ParentFirstName" class="form-control" id="ParentFirstName" />
                         <span asp-validation-for="ParentFirstName" class="text-danger"></span>
                     </div>
                     <div class="col-md-6">
-                        <label asp-for="ParentLastName" class="form-label required-mark"></label>
-                        <input asp-for="ParentLastName" class="form-control" />
+                        <label for="ParentLastName" class="form-label required-mark">@Localizer["Field.LastName"]</label>
+                        <input asp-for="ParentLastName" class="form-control" id="ParentLastName" />
                         <span asp-validation-for="ParentLastName" class="text-danger"></span>
                     </div>
                 </div>
 
                 <div class="row mb-3">
                     <div class="col-md-6">
-                        <label asp-for="ParentEmail" class="form-label required-mark"></label>
-                        <input asp-for="ParentEmail" class="form-control" type="email" />
+                        <label for="ParentEmail" class="form-label required-mark">@Localizer["Field.Email"]</label>
+                        <input asp-for="ParentEmail" class="form-control" id="ParentEmail" type="email" />
                         <span asp-validation-for="ParentEmail" class="text-danger"></span>
                     </div>
                     <div class="col-md-6">
-                        <label asp-for="ParentPhoneNumber" class="form-label required-mark"></label>
-                        <input asp-for="ParentPhoneNumber" class="form-control" type="tel" />
+                        <label for="ParentPhoneNumber" class="form-label required-mark">@Localizer["Field.PhoneNumber"]</label>
+                        <input asp-for="ParentPhoneNumber" class="form-control" id="ParentPhoneNumber" type="tel" />
                         <span asp-validation-for="ParentPhoneNumber" class="text-danger"></span>
                     </div>
                 </div>
 
                 <div class="mb-3">
-                    <label asp-for="ParentMobilePhoneNumber" class="form-label"></label>
-                    <input asp-for="ParentMobilePhoneNumber" class="form-control" type="tel" />
+                    <label for="ParentMobilePhoneNumber" class="form-label">@Localizer["Field.MobilePhone"]</label>
+                    <input asp-for="ParentMobilePhoneNumber" class="form-control" id="ParentMobilePhoneNumber" type="tel" />
                     <span asp-validation-for="ParentMobilePhoneNumber" class="text-danger"></span>
                 </div>
 
                 <div class="mb-3">
-                    <label asp-for="ParentStreet" class="form-label required-mark"></label>
-                    <input asp-for="ParentStreet" class="form-control" />
+                    <label for="ParentStreet" class="form-label required-mark">@Localizer["Field.Street"]</label>
+                    <input asp-for="ParentStreet" class="form-control" id="ParentStreet" />
                     <span asp-validation-for="ParentStreet" class="text-danger"></span>
                 </div>
 
                 <div class="row mb-3">
                     <div class="col-md-4">
-                        <label asp-for="ParentPostalCode" class="form-label required-mark"></label>
-                        <input asp-for="ParentPostalCode" class="form-control" />
+                        <label for="ParentPostalCode" class="form-label required-mark">@Localizer["Field.PostalCode"]</label>
+                        <input asp-for="ParentPostalCode" class="form-control" id="ParentPostalCode" />
                         <span asp-validation-for="ParentPostalCode" class="text-danger"></span>
                     </div>
                     <div class="col-md-8">
-                        <label asp-for="ParentCity" class="form-label required-mark"></label>
-                        <input asp-for="ParentCity" class="form-control" />
+                        <label for="ParentCity" class="form-label required-mark">@Localizer["Field.City"]</label>
+                        <input asp-for="ParentCity" class="form-control" id="ParentCity" />
                         <span asp-validation-for="ParentCity" class="text-danger"></span>
                     </div>
                 </div>
 
                 <div class="mb-4">
-                    <label asp-for="ParentNationalRegisterNumber" class="form-label"></label>
-                    <input asp-for="ParentNationalRegisterNumber" class="form-control" />
+                    <label for="ParentNationalRegisterNumber" class="form-label">@Localizer["Field.NationalRegisterNumber"]</label>
+                    <input asp-for="ParentNationalRegisterNumber" class="form-control" id="ParentNationalRegisterNumber" />
                     <span asp-validation-for="ParentNationalRegisterNumber" class="text-danger"></span>
                 </div>
 
@@ -187,26 +187,26 @@
 
                 <div class="row mb-3">
                     <div class="col-md-6">
-                        <label asp-for="ChildFirstName" class="form-label required-mark"></label>
-                        <input asp-for="ChildFirstName" class="form-control" />
+                        <label for="ChildFirstName" class="form-label required-mark">@Localizer["Field.FirstName"]</label>
+                        <input asp-for="ChildFirstName" class="form-control" id="ChildFirstName" />
                         <span asp-validation-for="ChildFirstName" class="text-danger"></span>
                     </div>
                     <div class="col-md-6">
-                        <label asp-for="ChildLastName" class="form-label required-mark"></label>
-                        <input asp-for="ChildLastName" class="form-control" />
+                        <label for="ChildLastName" class="form-label required-mark">@Localizer["Field.LastName"]</label>
+                        <input asp-for="ChildLastName" class="form-control" id="ChildLastName" />
                         <span asp-validation-for="ChildLastName" class="text-danger"></span>
                     </div>
                 </div>
 
                 <div class="row mb-3">
                     <div class="col-md-6">
-                        <label asp-for="ChildBirthDate" class="form-label required-mark"></label>
-                        <input asp-for="ChildBirthDate" class="form-control" type="date" />
+                        <label for="ChildBirthDate" class="form-label required-mark">@Localizer["Field.BirthDate"]</label>
+                        <input asp-for="ChildBirthDate" class="form-control" id="ChildBirthDate" type="date" />
                         <span asp-validation-for="ChildBirthDate" class="text-danger"></span>
                     </div>
                     <div class="col-md-6">
-                        <label asp-for="ChildNationalRegisterNumber" class="form-label required-mark"></label>
-                        <input asp-for="ChildNationalRegisterNumber" class="form-control" />
+                        <label for="ChildNationalRegisterNumber" class="form-label required-mark">@Localizer["Field.NationalRegisterNumber"]</label>
+                        <input asp-for="ChildNationalRegisterNumber" class="form-control" id="ChildNationalRegisterNumber" />
                         <span asp-validation-for="ChildNationalRegisterNumber" class="text-danger"></span>
                     </div>
                 </div>
@@ -220,41 +220,44 @@
                     @foreach (var question in questions)
                     {
                         <div class="mb-3">
-                            <label class="form-label @(question.IsRequired ? "required-mark" : "")">@question.QuestionText</label>
-
                             @switch (question.QuestionType)
                             {
                                 case Cedeva.Core.Enums.QuestionType.Text:
-                                    <textarea name="QuestionAnswers[@question.Id]" class="form-control" rows="3" @(question.IsRequired ? "required" : "")></textarea>
+                                    <label for="q_text_@question.Id" class="form-label @(question.IsRequired ? "required-mark" : "")">@question.QuestionText</label>
+                                    <textarea name="QuestionAnswers[@question.Id]" id="q_text_@question.Id" class="form-control" rows="3" @(question.IsRequired ? "required" : "")></textarea>
                                     break;
 
                                 case Cedeva.Core.Enums.QuestionType.Checkbox:
                                     <div class="form-check">
                                         <input type="checkbox" name="QuestionAnswers[@question.Id]" value="Oui" class="form-check-input" id="q_@question.Id" />
-                                        <label class="form-check-label" for="q_@question.Id">@Localizer["Yes"]</label>
+                                        <label class="form-check-label @(question.IsRequired ? "required-mark" : "")" for="q_@question.Id">@question.QuestionText</label>
                                     </div>
                                     break;
 
                                 case Cedeva.Core.Enums.QuestionType.Radio:
-                                    @if (!string.IsNullOrWhiteSpace(question.Options))
-                                    {
-                                        var options = question.Options.Split(',');
-                                        foreach (var option in options)
+                                    <fieldset class="mb-0">
+                                        <legend class="form-label @(question.IsRequired ? "required-mark" : "")">@question.QuestionText</legend>
+                                        @if (!string.IsNullOrWhiteSpace(question.Options))
                                         {
-                                            var optionId = $"q_{question.Id}_{option.Trim()}";
-                                            <div class="form-check">
-                                                <input type="radio" name="QuestionAnswers[@question.Id]" value="@option.Trim()" class="form-check-input" id="@optionId" @(question.IsRequired ? "required" : "") />
-                                                <label class="form-check-label" for="@optionId">@option.Trim()</label>
-                                            </div>
+                                            var options = question.Options.Split(',');
+                                            foreach (var option in options)
+                                            {
+                                                var optionId = $"q_{question.Id}_{option.Trim()}";
+                                                <div class="form-check">
+                                                    <input type="radio" name="QuestionAnswers[@question.Id]" value="@option.Trim()" class="form-check-input" id="@optionId" @(question.IsRequired ? "required" : "") />
+                                                    <label class="form-check-label" for="@optionId">@option.Trim()</label>
+                                                </div>
+                                            }
                                         }
-                                    }
+                                    </fieldset>
                                     break;
 
                                 case Cedeva.Core.Enums.QuestionType.Dropdown:
+                                    <label for="q_dropdown_@question.Id" class="form-label @(question.IsRequired ? "required-mark" : "")">@question.QuestionText</label>
                                     @if (!string.IsNullOrWhiteSpace(question.Options))
                                     {
                                         var options = question.Options.Split(',');
-                                        <select name="QuestionAnswers[@question.Id]" class="form-select" @(question.IsRequired ? "required" : "")>
+                                        <select name="QuestionAnswers[@question.Id]" id="q_dropdown_@question.Id" class="form-select" @(question.IsRequired ? "required" : "")>
                                             <option value="">@Localizer["SelectOption"]</option>
                                             @foreach (var option in options)
                                             {

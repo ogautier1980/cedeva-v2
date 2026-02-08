@@ -53,13 +53,13 @@
                     <table class="table table-hover">
                         <thead class="table-light">
                             <tr>
-                                <th>@await Html.PartialAsync("_SortableColumnHeader", ("LastName", Localizer["Name"].Value, ViewData["SortBy"] as string, ViewData["SortOrder"] as string))</th>
-                                <th>@await Html.PartialAsync("_SortableColumnHeader", ("Email", Localizer["Email"].Value, ViewData["SortBy"] as string, ViewData["SortOrder"] as string))</th>
-                                <th>@Localizer["Phone"]</th>
-                                <th>@await Html.PartialAsync("_SortableColumnHeader", ("TeamRole", Localizer["Role"].Value, ViewData["SortBy"] as string, ViewData["SortOrder"] as string))</th>
-                                <th>@Localizer["License"]</th>
-                                <th>@await Html.PartialAsync("_SortableColumnHeader", ("Status", Localizer["Status"].Value, ViewData["SortBy"] as string, ViewData["SortOrder"] as string))</th>
-                                <th class="text-end">@Localizer["Actions"]</th>
+                                <th scope="col">@await Html.PartialAsync("_SortableColumnHeader", ("LastName", Localizer["Name"].Value, ViewData["SortBy"] as string, ViewData["SortOrder"] as string))</th>
+                                <th scope="col">@await Html.PartialAsync("_SortableColumnHeader", ("Email", Localizer["Email"].Value, ViewData["SortBy"] as string, ViewData["SortOrder"] as string))</th>
+                                <th scope="col">@Localizer["Phone"]</th>
+                                <th scope="col">@await Html.PartialAsync("_SortableColumnHeader", ("TeamRole", Localizer["Role"].Value, ViewData["SortBy"] as string, ViewData["SortOrder"] as string))</th>
+                                <th scope="col">@Localizer["License"]</th>
+                                <th scope="col">@await Html.PartialAsync("_SortableColumnHeader", ("Status", Localizer["Status"].Value, ViewData["SortBy"] as string, ViewData["SortOrder"] as string))</th>
+                                <th scope="col" class="text-end">@Localizer["Actions"]</th>
                             </tr>
                         </thead>
                         <tbody>

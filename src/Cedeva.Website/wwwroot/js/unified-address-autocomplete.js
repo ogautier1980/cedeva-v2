@@ -4,9 +4,9 @@ function initializeUnifiedAddressAutocomplete(combinedInputId, postalCodeHiddenI
         apiUrl = "/api/AddressApi/municipalities/search";
     }
 
-    var combinedInput = $(combinedInputId);
-    var postalCodeHidden = $(postalCodeHiddenId);
-    var cityHidden = $(cityHiddenId);
+    const combinedInput = $(combinedInputId);
+    const postalCodeHidden = $(postalCodeHiddenId);
+    const cityHidden = $(cityHiddenId);
 
     // Initialize autocomplete on the combined field
     combinedInput.autocomplete({
@@ -17,7 +17,7 @@ function initializeUnifiedAddressAutocomplete(combinedInputId, postalCodeHiddenI
                 dataType: "json",
                 success: function (data) {
                     // Transform data to show "PostalCode City" format
-                    var transformedData = data.map(function(item) {
+                    const transformedData = data.map(function(item) {
                         return {
                             label: item.postalCode + ' ' + item.value,  // "5030 Gembloux"
                             value: item.postalCode + ' ' + item.value,  // What gets filled in the input
@@ -48,7 +48,7 @@ function initializeUnifiedAddressAutocomplete(combinedInputId, postalCodeHiddenI
 
     // Parse manually entered text (e.g., "5030 Gembloux" or "5030" or "Gembloux")
     function parseAndValidate() {
-        var value = combinedInput.val().trim();
+        const value = combinedInput.val().trim();
 
         if (!value) {
             postalCodeHidden.val('');
@@ -57,7 +57,7 @@ function initializeUnifiedAddressAutocomplete(combinedInputId, postalCodeHiddenI
         }
 
         // Try to parse "PostalCode City" format
-        var parts = value.split(/\s+/);
+        const parts = value.split(/\s+/);
 
         if (parts.length >= 2 && /^\d+$/.test(parts[0])) {
             // First part is numeric (postal code)

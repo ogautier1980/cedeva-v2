@@ -62,18 +62,18 @@
                             <tr>
                                 @if (isSingleActivity)
                                 {
-                                    <th style="width: 40px;"></th> @* Drag handle *@
+                                    <th scope="col" style="width: 40px;"></th> @* Drag handle *@
                                 }
-                                <th style="width: 80px;">@Localizer["Field.Order"]</th>
+                                <th scope="col" style="width: 80px;">@Localizer["Field.Order"]</th>
                                 @if (!activityId.HasValue)
                                 {
-                                    <th>@Localizer["Field.Activity"]</th>
+                                    <th scope="col">@Localizer["Field.Activity"]</th>
                                 }
-                                <th>@Localizer["ActivityQuestions.QuestionText"]</th>
-                                <th>@Localizer["ActivityQuestions.QuestionType"]</th>
-                                <th>@Localizer["ActivityQuestions.Required"]</th>
-                                <th style="width: 150px;">@Localizer["Field.Status"]</th>
-                                <th style="width: 120px;" class="text-end">@Localizer["Actions"]</th>
+                                <th scope="col">@Localizer["ActivityQuestions.QuestionText"]</th>
+                                <th scope="col">@Localizer["ActivityQuestions.QuestionType"]</th>
+                                <th scope="col">@Localizer["ActivityQuestions.Required"]</th>
+                                <th scope="col" style="width: 150px;">@Localizer["Field.Status"]</th>
+                                <th scope="col" style="width: 120px;" class="text-end">@Localizer["Actions"]</th>
                             </tr>
                         </thead>
                         <tbody id="sortableQuestions">
@@ -118,9 +118,9 @@
                                     </td>
                                     <td>
                                         <div class="form-check form-switch">
-                                            <input class="form-check-input" type="checkbox" data-question-id="@question.Id"
+                                            <input class="form-check-input" type="checkbox" id="toggle_@question.Id" data-question-id="@question.Id"
                                                    @(question.IsActive ? "checked" : "") onchange="toggleActive(this)" />
-                                            <label class="form-check-label small status-label">
+                                            <label for="toggle_@question.Id" class="form-check-label small status-label">
                                                 @(question.IsActive ? Localizer["Active"] : Localizer["Inactive"])
                                             </label>
                                         </div>
@@ -343,18 +343,19 @@
                         } else {
                             response.questions.forEach(function (question) {
                                 var requiredBadge = question.isRequired ? '<span class="badge bg-danger ms-2">@Localizer["ActivityQuestions.Required"]</span>' : '';
+                                var checkboxId = 'import_question_' + question.id;
                                 var item = `
-                                    <label class="list-group-item d-flex align-items-start">
-                                        <input type="checkbox" class="form-check-input me-3 mt-1" value="${question.id}">
-                                        <div class="flex-grow-1">
+                                    <div class="list-group-item d-flex align-items-start">
+                                        <input type="checkbox" class="form-check-input me-3 mt-1" id="${checkboxId}" value="${question.id}">
+                                        <label for="${checkboxId}" class="flex-grow-1 mb-0" style="cursor: pointer;">
                                             <div class="fw-bold">${question.questionText}</div>
                                             <small class="text-muted">
                                                 <span class="badge bg-primary">${question.questionTypeLabel}</span>
                                                 ${requiredBadge}
                                                 ${question.options ? '<br><i class="fas fa-list-ul me-1"></i>' + question.options : ''}
                                             </small>
-                                        </div>
-                                    </label>
+                                        </label>
+                                    </div>
                                 `;
                                 questionsList.append(item);
                             });

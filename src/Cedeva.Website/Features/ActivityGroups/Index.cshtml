@@ -46,14 +46,14 @@
                     <table class="table table-hover">
                         <thead class="table-light">
                             <tr>
-                                <th>@Localizer["Field.Label"]</th>
+                                <th scope="col">@Localizer["Field.Label"]</th>
                                 @if (!activityId.HasValue)
                                 {
-                                    <th>@Localizer["Field.Activity"]</th>
+                                    <th scope="col">@Localizer["Field.Activity"]</th>
                                 }
-                                <th>@Localizer["Field.Capacity"]</th>
-                                <th>@Localizer["ActivityGroups.BookingsCount"]</th>
-                                <th class="text-end">@Localizer["Actions"]</th>
+                                <th scope="col">@Localizer["Field.Capacity"]</th>
+                                <th scope="col">@Localizer["ActivityGroups.BookingsCount"]</th>
+                                <th scope="col" class="text-end">@Localizer["Actions"]</th>
                             </tr>
                         </thead>
                         <tbody>

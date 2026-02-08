@@ -55,11 +55,11 @@
                     <table class="table table-hover">
                         <thead class="table-light">
                             <tr>
-                                <th>@await Html.PartialAsync("_SortableColumnHeader", ("LastName", Localizer["Name"].Value, ViewData["SortBy"] as string, ViewData["SortOrder"] as string))</th>
-                                <th>@await Html.PartialAsync("_SortableColumnHeader", ("BirthDate", Localizer["BirthDate"].Value, ViewData["SortBy"] as string, ViewData["SortOrder"] as string))</th>
-                                <th>@Localizer["Parent"]</th>
-                                <th>@Localizer["Children.NationalRegisterNumber"]</th>
-                                <th class="text-end">@Localizer["Actions"]</th>
+                                <th scope="col">@await Html.PartialAsync("_SortableColumnHeader", ("LastName", Localizer["Name"].Value, ViewData["SortBy"] as string, ViewData["SortOrder"] as string))</th>
+                                <th scope="col">@await Html.PartialAsync("_SortableColumnHeader", ("BirthDate", Localizer["BirthDate"].Value, ViewData["SortBy"] as string, ViewData["SortOrder"] as string))</th>
+                                <th scope="col">@Localizer["Parent"]</th>
+                                <th scope="col">@Localizer["Children.NationalRegisterNumber"]</th>
+                                <th scope="col" class="text-end">@Localizer["Actions"]</th>
                             </tr>
                         </thead>
                         <tbody>

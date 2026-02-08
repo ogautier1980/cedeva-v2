@@ -2,9 +2,9 @@ namespace Cedeva.Website.Localization;
 
 /// <summary>
 /// Marker class for shared localization resources.
-/// This class is intentionally empty - it serves as a type reference for IStringLocalizer
-/// to locate the associated resource files (SharedResources.resx, SharedResources.fr.resx, etc.)
+/// Used as type parameter for IStringLocalizer&lt;SharedResources&gt;.
 /// </summary>
 public class SharedResources
 {
+    protected SharedResources() { }
 }

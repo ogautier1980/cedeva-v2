@@ -19,41 +19,41 @@
             <div class="card-body">
                 <form asp-action="Create" method="post">
                     <div class="mb-3">
-                        <label asp-for="Name" class="form-label"></label>
-                        <input asp-for="Name" class="form-control" />
+                        <label for="Name" class="form-label">@Localizer["Field.Name"]</label>
+                        <input asp-for="Name" class="form-control" id="Name" />
                         <span asp-validation-for="Name" class="text-danger"></span>
                     </div>
 
                     <div class="mb-3">
-                        <label asp-for="TemplateType" class="form-label"></label>
-                        <select asp-for="TemplateType" asp-items="Model.TemplateTypeOptions" class="form-select">
+                        <label for="TemplateType" class="form-label">@Localizer["EmailTemplate.TemplateType"]</label>
+                        <select asp-for="TemplateType" asp-items="Model.TemplateTypeOptions" class="form-select" id="TemplateType">
                             <option value="">@Localizer["Common.SelectOption"]</option>
                         </select>
                         <span asp-validation-for="TemplateType" class="text-danger"></span>
                     </div>
 
                     <div class="mb-3">
-                        <label asp-for="Subject" class="form-label"></label>
-                        <input asp-for="Subject" class="form-control" />
+                        <label for="Subject" class="form-label">@Localizer["Field.Subject"]</label>
+                        <input asp-for="Subject" class="form-control" id="Subject" />
                         <span asp-validation-for="Subject" class="text-danger"></span>
                         <small class="form-text text-muted">@Localizer["EmailTemplate.SubjectHelp"]</small>
                     </div>
 
                     <div class="mb-3">
-                        <label asp-for="HtmlContent" class="form-label"></label>
+                        <label for="HtmlContent" class="form-label">@Localizer["EmailTemplate.HtmlContent"]</label>
                         <textarea asp-for="HtmlContent" class="form-control" rows="15" id="HtmlContent"></textarea>
                         <span asp-validation-for="HtmlContent" class="text-danger"></span>
                     </div>
 
                     <div class="mb-3 form-check">
-                        <input asp-for="IsDefault" class="form-check-input" />
-                        <label asp-for="IsDefault" class="form-check-label"></label>
+                        <input asp-for="IsDefault" class="form-check-input" id="IsDefault" />
+                        <label for="IsDefault" class="form-check-label">@Localizer["EmailTemplate.IsDefault"]</label>
                         <small class="form-text text-muted d-block">@Localizer["EmailTemplate.IsDefaultHelp"]</small>
                     </div>
 
                     <div class="mb-3 form-check">
-                        <input asp-for="IsShared" class="form-check-input" />
-                        <label asp-for="IsShared" class="form-check-label"></label>
+                        <input asp-for="IsShared" class="form-check-input" id="IsShared" />
+                        <label for="IsShared" class="form-check-label">@Localizer["EmailTemplate.IsShared"]</label>
                         <small class="form-text text-muted d-block">@Localizer["EmailTemplate.IsSharedHelp"]</small>
                     </div>
 
@@ -83,8 +83,8 @@
                 <table class="table table-sm">
                     <thead class="table-light">
                         <tr>
-                            <th>@Localizer["EmailTemplate.Variable"]</th>
-                            <th>@Localizer["EmailTemplate.Description"]</th>
+                            <th scope="col">@Localizer["EmailTemplate.Variable"]</th>
+                            <th scope="col">@Localizer["EmailTemplate.Description"]</th>
                         </tr>
                     </thead>
                     <tbody>

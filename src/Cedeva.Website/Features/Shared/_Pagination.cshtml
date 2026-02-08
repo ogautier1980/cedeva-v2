@@ -14,8 +14,8 @@
 <div class="row align-items-center mt-3">
     <div class="col-md-4">
         <div class="d-flex align-items-center">
-            <label class="me-2 mb-0">@Localizer["ItemsPerPage"]:</label>
-            <select class="form-select form-select-sm" style="width: auto;" onchange="changePageSize(this.value)">
+            <label for="pageSizeSelect" class="me-2 mb-0">@Localizer["ItemsPerPage"]:</label>
+            <select id="pageSizeSelect" class="form-select form-select-sm" style="width: auto;" onchange="changePageSize(this.value)">
                 <option value="10" selected="@(pageSize == 10)">10</option>
                 <option value="25" selected="@(pageSize == 25)">25</option>
                 <option value="50" selected="@(pageSize == 50)">50</option>
@@ -33,9 +33,9 @@
             <nav>
                 <ul class="pagination justify-content-end mb-0">
                     <li class="page-item @(pageNumber == 1 ? "disabled" : "")">
-                        <a class="page-link" onclick="goToPage(@(pageNumber - 1))">
+                        <button type="button" class="page-link" onclick="goToPage(@(pageNumber - 1))" @(pageNumber == 1 ? "disabled" : "")>
                             <i class="fas fa-chevron-left"></i>
-                        </a>
+                        </button>
                     </li>
 
                     @for (int i = 1; i <= totalPages; i++)
@@ -43,7 +43,7 @@
                         if (i == 1 || i == totalPages || (i >= pageNumber - 2 && i <= pageNumber + 2))
                         {
                             <li class="page-item @(i == pageNumber ? "active" : "")">
-                                <a class="page-link" onclick="goToPage(@i)">@i</a>
+                                <button type="button" class="page-link" onclick="goToPage(@i)" @(i == pageNumber ? "aria-current=\"page\"" : "")>@i</button>
                             </li>
                         }
                         else if (i == pageNumber - 3 || i == pageNumber + 3)
@@ -55,9 +55,9 @@
                     }
 
                     <li class="page-item @(pageNumber == totalPages ? "disabled" : "")">
-                        <a class="page-link" onclick="goToPage(@(pageNumber + 1))">
+                        <button type="button" class="page-link" onclick="goToPage(@(pageNumber + 1))" @(pageNumber == totalPages ? "disabled" : "")>
                             <i class="fas fa-chevron-right"></i>
-                        </a>
+                        </button>
                     </li>
                 </ul>
             </nav>

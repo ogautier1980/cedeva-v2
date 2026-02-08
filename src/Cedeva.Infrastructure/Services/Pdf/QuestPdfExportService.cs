@@ -24,81 +24,82 @@ public class QuestPdfExportService : IPdfExportService
                 page.Size(PageSizes.A4.Landscape());
                 page.Margin(30);
 
-                // Header
-                page.Header().Row(row =>
-                {
-                    row.RelativeItem().Column(column =>
-                    {
-                        column.Item().Text(title)
-                            .FontSize(20)
-                            .Bold()
-                            .FontColor(Colors.Blue.Darken2);
-
-                        column.Item().Text($"Généré le {DateTime.UtcNow:dd/MM/yyyy HH:mm}")
-                            .FontSize(10)
-                            .FontColor(Colors.Grey.Darken1);
-                    });
-
-                    row.ConstantItem(80).AlignRight().Text($"{dataList.Count} élément(s)")
-                        .FontSize(12)
-                        .SemiBold();
-                });
-
-                // Content
-                page.Content().PaddingVertical(10).Table(table =>
-                {
-                    // Define columns
-                    var columnCount = columns.Count;
-                    table.ColumnsDefinition(columns =>
-                    {
-                        for (int i = 0; i < columnCount; i++)
-                        {
-                            columns.RelativeColumn();
-                        }
-                    });
-
-                    // Header row
-                    table.Header(header =>
-                    {
-                        foreach (var column in columns.Keys)
-                        {
-                            header.Cell().Background(Colors.Blue.Darken2).Padding(5).Text(column)
-                                .FontColor(Colors.White)
-                                .FontSize(10)
-                                .Bold();
-                        }
-                    });
-
-                    // Data rows
-                    foreach (var item in dataList)
-                    {
-                        foreach (var column in columns.Values)
-                        {
-                            var value = column(item);
-                            var displayValue = FormatValue(value);
-
-                            table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5)
-                                .Text(displayValue)
-                                .FontSize(9);
-                        }
-                    }
-                });
-
-                // Footer
-                page.Footer().AlignCenter().Text(text =>
-                {
-                    text.Span("Page ");
-                    text.CurrentPageNumber();
-                    text.Span(" / ");
-                    text.TotalPages();
-                });
+                page.Header().Row(row => BuildHeader(row, title, dataList.Count));
+                page.Content().PaddingVertical(10).Table(table => BuildTable(table, dataList, columns));
+                page.Footer().AlignCenter().Text(text => BuildFooter(text));
             });
         });
 
         return document.GeneratePdf();
     }
 
-    private string FormatValue(object? value)
+    private static void BuildHeader(RowDescriptor row, string title, int itemCount)
+    {
+        row.RelativeItem().Column(column =>
+        {
+            column.Item().Text(title)
+                .FontSize(20)
+                .Bold()
+                .FontColor(Colors.Blue.Darken2);
+
+            column.Item().Text($"Généré le {DateTime.UtcNow:dd/MM/yyyy HH:mm}")
+                .FontSize(10)
+                .FontColor(Colors.Grey.Darken1);
+        });
+
+        row.ConstantItem(80).AlignRight().Text($"{itemCount} élément(s)")
+            .FontSize(12)
+            .SemiBold();
+    }
+
+    private static void BuildTable<T>(TableDescriptor table, List<T> dataList, Dictionary<string, Func<T, object>> columns)
+    {
+        // Define columns
+        var columnCount = columns.Count;
+        table.ColumnsDefinition(cols =>
+        {
+            for (int i = 0; i < columnCount; i++)
+            {
+                cols.RelativeColumn();
+            }
+        });
+
+        // Header row
+        table.Header(header =>
+        {
+            foreach (var column in columns.Keys)
+            {
+                header.Cell().Background(Colors.Blue.Darken2).Padding(5).Text(column)
+                    .FontColor(Colors.White)
+                    .FontSize(10)
+                    .Bold();
+            }
+        });
+
+        // Data rows
+        foreach (var item in dataList)
+        {
+            foreach (var column in columns.Values)
+            {
+                var value = column(item);
+                var displayValue = FormatValue(value);
+
+                table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5)
+                    .Text(displayValue)
+                    .FontSize(9);
+            }
+        }
+    }
+
+    private static void BuildFooter(TextDescriptor text)
+    {
+        text.Span("Page ");
+        text.CurrentPageNumber();
+        text.Span(" / ");
+        text.TotalPages();
+    }
+
+    private static string FormatValue(object? value)
     {
         if (value == null)
             return string.Empty;

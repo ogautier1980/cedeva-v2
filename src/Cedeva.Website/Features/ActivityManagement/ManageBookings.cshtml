@@ -54,18 +54,18 @@ else
                 <table class="table table-hover mb-0" id="bookings-table">
                     <thead class="table-light">
                         <tr>
-                            <th class="sortable" data-column="firstName">
+                            <th scope="col" class="sortable" data-column="firstName">
                                 @Localizer["Field.FirstName"] <i class="fas fa-sort text-muted"></i>
                             </th>
-                            <th class="sortable" data-column="lastName">
+                            <th scope="col" class="sortable" data-column="lastName">
                                 @Localizer["Field.LastName"] <i class="fas fa-sort text-muted"></i>
                             </th>
-                            <th class="sortable" data-column="age">
+                            <th scope="col" class="sortable" data-column="age">
                                 @Localizer["Field.Age"] <i class="fas fa-sort text-muted"></i>
                             </th>
-                            <th>@Localizer["Field.Group"]</th>
-                            <th class="text-center">@Localizer["Field.MedicalSheet"]</th>
-                            <th class="text-center">@Localizer["Field.Status"]</th>
+                            <th scope="col">@Localizer["Field.Group"]</th>
+                            <th scope="col" class="text-center">@Localizer["Field.MedicalSheet"]</th>
+                            <th scope="col" class="text-center">@Localizer["Field.Status"]</th>
                         </tr>
                     </thead>
                     <tbody>

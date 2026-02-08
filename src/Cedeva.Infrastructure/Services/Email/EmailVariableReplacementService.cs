@@ -90,7 +90,7 @@ public class EmailVariableReplacementService : IEmailVariableReplacementService
     /// <summary>
     /// Builds a dictionary of variable resolvers for the given booking
     /// </summary>
-    private Dictionary<string, Func<string?>> BuildVariableResolvers(Booking booking, Organisation organisation)
+    private static Dictionary<string, Func<string?>> BuildVariableResolvers(Booking booking, Organisation organisation)
     {
         return new Dictionary<string, Func<string?>>(StringComparer.OrdinalIgnoreCase)
         {

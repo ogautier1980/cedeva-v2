@@ -68,14 +68,14 @@
                     <table class="table table-hover">
                         <thead class="table-light">
                             <tr>
-                                <th>@await Html.PartialAsync("_SortableColumnHeader", ("BookingDate", Localizer["Date"].Value, ViewData["SortBy"] as string, ViewData["SortOrder"] as string))</th>
-                                <th>@await Html.PartialAsync("_SortableColumnHeader", ("ChildName", Localizer["Child"].Value, ViewData["SortBy"] as string, ViewData["SortOrder"] as string))</th>
-                                <th>@Localizer["Parent"]</th>
-                                <th>@await Html.PartialAsync("_SortableColumnHeader", ("ActivityName", Localizer["Activity"].Value, ViewData["SortBy"] as string, ViewData["SortOrder"] as string))</th>
-                                <th>@Localizer["Group"]</th>
-                                <th>@await Html.PartialAsync("_SortableColumnHeader", ("IsConfirmed", Localizer["Status"].Value, ViewData["SortBy"] as string, ViewData["SortOrder"] as string))</th>
-                                <th>@Localizer["Bookings.MedicalSheet"]</th>
-                                <th class="text-end">@Localizer["Actions"]</th>
+                                <th scope="col">@await Html.PartialAsync("_SortableColumnHeader", ("BookingDate", Localizer["Date"].Value, ViewData["SortBy"] as string, ViewData["SortOrder"] as string))</th>
+                                <th scope="col">@await Html.PartialAsync("_SortableColumnHeader", ("ChildName", Localizer["Child"].Value, ViewData["SortBy"] as string, ViewData["SortOrder"] as string))</th>
+                                <th scope="col">@Localizer["Parent"]</th>
+                                <th scope="col">@await Html.PartialAsync("_SortableColumnHeader", ("ActivityName", Localizer["Activity"].Value, ViewData["SortBy"] as string, ViewData["SortOrder"] as string))</th>
+                                <th scope="col">@Localizer["Group"]</th>
+                                <th scope="col">@await Html.PartialAsync("_SortableColumnHeader", ("IsConfirmed", Localizer["Status"].Value, ViewData["SortBy"] as string, ViewData["SortOrder"] as string))</th>
+                                <th scope="col">@Localizer["Bookings.MedicalSheet"]</th>
+                                <th scope="col" class="text-end">@Localizer["Actions"]</th>
                             </tr>
                         </thead>
                         <tbody>

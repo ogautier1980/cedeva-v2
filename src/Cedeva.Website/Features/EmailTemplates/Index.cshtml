@@ -64,12 +64,12 @@ else
                 <table class="table table-hover">
                     <thead class="table-light">
                         <tr>
-                            <th>@Localizer["Field.Name"]</th>
-                            <th>@Localizer["EmailTemplate.TemplateType"]</th>
-                            <th>@Localizer["Field.Subject"]</th>
-                            <th>@Localizer["EmailTemplate.IsDefault"]</th>
-                            <th>@Localizer["EmailTemplate.IsShared"]</th>
-                            <th>@Localizer["Field.Actions"]</th>
+                            <th scope="col">@Localizer["Field.Name"]</th>
+                            <th scope="col">@Localizer["EmailTemplate.TemplateType"]</th>
+                            <th scope="col">@Localizer["Field.Subject"]</th>
+                            <th scope="col">@Localizer["EmailTemplate.IsDefault"]</th>
+                            <th scope="col">@Localizer["EmailTemplate.IsShared"]</th>
+                            <th scope="col">@Localizer["Field.Actions"]</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -108,7 +108,7 @@ else
                                     }
                                 </td>
                                 <td>
-                                    <div class="btn-group" role="group">
+                                    <nav class="btn-group" aria-label="@Localizer["Field.Actions"]">
                                         <a asp-action="Edit" asp-route-id="@template.Id" class="btn btn-sm btn-outline-primary" title="@Localizer["Button.Edit"]">
                                             <i class="fas fa-edit"></i>
                                         </a>
@@ -118,7 +118,7 @@ else
                                         <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal-@template.Id" title="@Localizer["Button.Delete"]">
                                             <i class="fas fa-trash"></i>
                                         </button>
-                                    </div>
+                                    </nav>
 
                                     <!-- Delete Confirmation Modal -->
                                     <div class="modal fade" id="deleteModal-@template.Id" tabindex="-1">
@@ -126,7 +126,7 @@ else
                                             <div class="modal-content">
                                                 <div class="modal-header">
                                                     <h5 class="modal-title">@Localizer["EmailTemplate.ConfirmDelete"]</h5>
-                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                                 </div>
                                                 <div class="modal-body">
                                                     @Localizer["EmailTemplate.DeleteConfirmMessage", template.Name]

@@ -28,7 +28,7 @@
                         <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
 
                         <div class="mb-3">
-                            <label asp-for="CodaFile" class="form-label">@Localizer["Field.CodaFile"]</label>
+                            <label for="CodaFile" class="form-label">@Localizer["Field.CodaFile"]</label>
                             <input asp-for="CodaFile" type="file" class="form-control" accept=".cod,.txt" />
                             <span asp-validation-for="CodaFile" class="text-danger"></span>
                             <div class="form-text">
@@ -66,12 +66,12 @@
                             <table class="table table-hover">
                                 <thead class="table-light">
                                     <tr>
-                                        <th>@Localizer["Field.FileName"]</th>
-                                        <th>@Localizer["Field.StatementDate"]</th>
-                                        <th>@Localizer["Field.AccountNumber"]</th>
-                                        <th class="text-end">@Localizer["Field.Transactions"]</th>
-                                        <th class="text-end">@Localizer["Field.Reconciled"]</th>
-                                        <th></th>
+                                        <th scope="col">@Localizer["Field.FileName"]</th>
+                                        <th scope="col">@Localizer["Field.StatementDate"]</th>
+                                        <th scope="col">@Localizer["Field.AccountNumber"]</th>
+                                        <th scope="col" class="text-end">@Localizer["Field.Transactions"]</th>
+                                        <th scope="col" class="text-end">@Localizer["Field.Reconciled"]</th>
+                                        <th scope="col"></th>
                                     </tr>
                                 </thead>
                                 <tbody>

@@ -617,7 +617,7 @@ h2.cedeva-title {
 
 .nav-pills .nav-link:not(.active):not(.disabled):hover {
     background-color: #f0f7fb;
-    color: #007faf;
+    color: #005f80;
 }
 
 .nav-pills .nav-link.active {
@@ -645,7 +645,7 @@ h2.cedeva-title {
 
 .nav-pills .dropdown-menu .dropdown-item:hover {
     background-color: #f0f7fb;
-    color: #007faf;
+    color: #005f80;
 }
 
 .nav-pills .dropdown-menu .dropdown-item.active {
