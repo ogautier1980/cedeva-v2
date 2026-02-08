@@ -74,21 +74,7 @@ public class BookingsController : Controller
             queryParams.ChildId,
             queryParams.IsConfirmed);
 
-        // Apply sorting
-        query = (queryParams.SortBy?.ToLowerInvariant(), queryParams.SortOrder?.ToLowerInvariant()) switch
-        {
-            ("bookingdate", SortOrderAscending) => query.OrderBy(b => b.BookingDate),
-            ("bookingdate", SortOrderDescending) => query.OrderByDescending(b => b.BookingDate),
-            ("childname", SortOrderAscending) => query.OrderBy(b => b.Child.LastName).ThenBy(b => b.Child.FirstName),
-            ("childname", SortOrderDescending) => query.OrderByDescending(b => b.Child.LastName).ThenByDescending(b => b.Child.FirstName),
-            ("activityname", SortOrderAscending) => query.OrderBy(b => b.Activity.Name),
-            ("activityname", SortOrderDescending) => query.OrderByDescending(b => b.Activity.Name),
-            ("activitystartdate", SortOrderAscending) => query.OrderBy(b => b.Activity.StartDate),
-            ("activitystartdate", SortOrderDescending) => query.OrderByDescending(b => b.Activity.StartDate),
-            ("isconfirmed", SortOrderAscending) => query.OrderBy(b => b.IsConfirmed),
-            ("isconfirmed", SortOrderDescending) => query.OrderByDescending(b => b.IsConfirmed),
-            _ => query.OrderByDescending(b => b.BookingDate) // default
-        };
+        query = ApplyBookingsSorting(query, queryParams.SortBy, queryParams.SortOrder);
 
         var pagedResult = await query
             .Select(b => new BookingViewModel
@@ -859,5 +845,23 @@ public class BookingsController : Controller
         var pageNumberStr = _ctx.Session.Get(SessionKeyBookingsPageNumber);
         if (!string.IsNullOrEmpty(pageNumberStr) && int.TryParse(pageNumberStr, out var pageNum))
             queryParams.PageNumber = pageNum;
+    }
+
+    private static IQueryable<Booking> ApplyBookingsSorting(IQueryable<Booking> query, string? sortBy, string? sortOrder)
+    {
+        return (sortBy?.ToLowerInvariant(), sortOrder?.ToLowerInvariant()) switch
+        {
+            ("bookingdate", SortOrderAscending) => query.OrderBy(b => b.BookingDate),
+            ("bookingdate", SortOrderDescending) => query.OrderByDescending(b => b.BookingDate),
+            ("childname", SortOrderAscending) => query.OrderBy(b => b.Child.LastName).ThenBy(b => b.Child.FirstName),
+            ("childname", SortOrderDescending) => query.OrderByDescending(b => b.Child.LastName).ThenByDescending(b => b.Child.FirstName),
+            ("activityname", SortOrderAscending) => query.OrderBy(b => b.Activity.Name),
+            ("activityname", SortOrderDescending) => query.OrderByDescending(b => b.Activity.Name),
+            ("activitystartdate", SortOrderAscending) => query.OrderBy(b => b.Activity.StartDate),
+            ("activitystartdate", SortOrderDescending) => query.OrderByDescending(b => b.Activity.StartDate),
+            ("isconfirmed", SortOrderAscending) => query.OrderBy(b => b.IsConfirmed),
+            ("isconfirmed", SortOrderDescending) => query.OrderByDescending(b => b.IsConfirmed),
+            _ => query.OrderByDescending(b => b.BookingDate)
+        };
     }
 }

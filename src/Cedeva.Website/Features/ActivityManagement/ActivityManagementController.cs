@@ -1164,34 +1164,11 @@ public class ActivityManagementController : Controller
             }
 
             // Update the requested field(s)
-            bool updated = false;
+            var (updated, groupNotFound) = await ApplyBookingUpdatesAsync(booking, request);
 
-            if (request.GroupId.HasValue)
+            if (groupNotFound)
             {
-                var group = await _context.ActivityGroups.FindAsync(request.GroupId.Value);
-                if (group == null)
-                {
-                    return NotFound(new { success = false, message = _localizer["Message.GroupNotFound"].Value });
-                }
-                booking.GroupId = request.GroupId.Value;
-                updated = true;
-            }
-
-            if (request.IsConfirmed.HasValue)
-            {
-                booking.IsConfirmed = request.IsConfirmed.Value;
-
-                if (request.IsConfirmed.Value && booking.GroupId == null)
-                {
-                    await AssignDefaultGroupAsync(booking);
-                }
-                updated = true;
-            }
-
-            if (request.IsMedicalSheet.HasValue)
-            {
-                booking.IsMedicalSheet = request.IsMedicalSheet.Value;
-                updated = true;
+                return NotFound(new { success = false, message = _localizer["Message.GroupNotFound"].Value });
             }
 
             if (updated)
@@ -1227,6 +1204,40 @@ public class ActivityManagementController : Controller
             _logger.LogError(ex, "Unexpected error while updating booking {BookingId}", request.BookingId);
             return StatusCode(500, new { success = false, message = _localizer[LocalizerKeyErrorOccurred].Value });
         }
+    }
+
+    private async Task<(bool updated, bool groupNotFound)> ApplyBookingUpdatesAsync(Booking booking, UpdateBookingRequest request)
+    {
+        bool updated = false;
+
+        if (request.GroupId.HasValue)
+        {
+            var group = await _context.ActivityGroups.FindAsync(request.GroupId.Value);
+            if (group == null)
+            {
+                return (false, true);
+            }
+            booking.GroupId = request.GroupId.Value;
+            updated = true;
+        }
+
+        if (request.IsConfirmed.HasValue)
+        {
+            booking.IsConfirmed = request.IsConfirmed.Value;
+            if (request.IsConfirmed.Value && booking.GroupId == null)
+            {
+                await AssignDefaultGroupAsync(booking);
+            }
+            updated = true;
+        }
+
+        if (request.IsMedicalSheet.HasValue)
+        {
+            booking.IsMedicalSheet = request.IsMedicalSheet.Value;
+            updated = true;
+        }
+
+        return (updated, false);
     }
 
     private async Task AssignDefaultGroupAsync(Booking booking)

@@ -58,49 +58,19 @@ public class ActivitiesController : Controller
         // If query params provided, store them and redirect to clean URL
         if (hasQueryParams)
         {
-            if (!string.IsNullOrWhiteSpace(queryParams.SearchString))
-                _sessionState.Set(SessionKeyActivitiesSearchString, queryParams.SearchString, persistToCookie: false);
-
-            if (queryParams.ShowActiveOnly.HasValue)
-                _sessionState.Set(SessionKeyActivitiesShowActiveOnly, queryParams.ShowActiveOnly, persistToCookie: false);
-
-            if (!string.IsNullOrWhiteSpace(queryParams.SortBy))
-                _sessionState.Set(SessionKeyActivitiesSortBy, queryParams.SortBy, persistToCookie: false);
-
-            if (!string.IsNullOrWhiteSpace(queryParams.SortOrder))
-                _sessionState.Set(SessionKeyActivitiesSortOrder, queryParams.SortOrder, persistToCookie: false);
-
-            if (queryParams.PageNumber > 1)
-                _sessionState.Set(SessionKeyActivitiesPageNumber, queryParams.PageNumber.ToString(), persistToCookie: false);
-
-            // Mark that filters should be kept for the next request (after redirect)
+            StoreActivityFiltersToSession(queryParams);
             TempData[ControllerExtensions.KeepFiltersKey] = true;
-
-            // Redirect to clean URL
             return RedirectToAction(nameof(Index));
         }
 
         // If not keeping filters (no redirect, just navigation/F5), clear them
         if (TempData[ControllerExtensions.KeepFiltersKey] == null)
         {
-            _sessionState.Clear(SessionKeyActivitiesSearchString);
-            _sessionState.Clear(SessionKeyActivitiesShowActiveOnly);
-            _sessionState.Clear(SessionKeyActivitiesSortBy);
-            _sessionState.Clear(SessionKeyActivitiesSortOrder);
-            _sessionState.Clear(SessionKeyActivitiesPageNumber);
+            ClearActivityFilters();
         }
 
         // Load filters from state (will be empty if just cleared)
-        queryParams.SearchString = _sessionState.Get(SessionKeyActivitiesSearchString);
-        queryParams.ShowActiveOnly = _sessionState.Get<bool>(SessionKeyActivitiesShowActiveOnly);
-        queryParams.SortBy = _sessionState.Get(SessionKeyActivitiesSortBy);
-        queryParams.SortOrder = _sessionState.Get(SessionKeyActivitiesSortOrder);
-
-        var pageNumberStr = _sessionState.Get(SessionKeyActivitiesPageNumber);
-        if (!string.IsNullOrEmpty(pageNumberStr) && int.TryParse(pageNumberStr, out var pageNum))
-        {
-            queryParams.PageNumber = pageNum;
-        }
+        LoadActivityFiltersFromSession(queryParams);
 
         var query = _context.Activities
             .IncludeAll()
@@ -259,48 +229,8 @@ public class ActivitiesController : Controller
         _context.Activities.Add(activity);
         await _context.SaveChangesAsync();
 
-        // Create groups if provided
-        if (viewModel.NewGroups != null && viewModel.NewGroups.Any())
-        {
-            foreach (var groupVm in viewModel.NewGroups)
-            {
-                if (!string.IsNullOrWhiteSpace(groupVm.Label))
-                {
-                    var group = new ActivityGroup
-                    {
-                        Label = groupVm.Label.Trim(),
-                        Capacity = groupVm.Capacity,
-                        ActivityId = activity.Id
-                    };
-                    _context.ActivityGroups.Add(group);
-                }
-            }
-            await _context.SaveChangesAsync();
-        }
-
-        // Create questions if provided
-        if (viewModel.NewQuestions != null && viewModel.NewQuestions.Any())
-        {
-            var displayOrder = 1;
-            foreach (var questionVm in viewModel.NewQuestions)
-            {
-                if (!string.IsNullOrWhiteSpace(questionVm.QuestionText))
-                {
-                    var question = new ActivityQuestion
-                    {
-                        ActivityId = activity.Id,
-                        QuestionText = questionVm.QuestionText.Trim(),
-                        QuestionType = questionVm.QuestionType,
-                        IsRequired = questionVm.IsRequired,
-                        Options = questionVm.Options?.Trim(),
-                        DisplayOrder = displayOrder++,
-                        IsActive = true
-                    };
-                    _context.ActivityQuestions.Add(question);
-                }
-            }
-            await _context.SaveChangesAsync();
-        }
+        await CreateActivityGroupsAsync(activity.Id, viewModel.NewGroups);
+        await CreateActivityQuestionsAsync(activity.Id, viewModel.NewQuestions);
 
         _logger.LogInformation("Activity {Name} created by user {UserId} with {GroupCount} groups and {QuestionCount} questions",
             activity.Name, _currentUserService.UserId, viewModel.NewGroups?.Count ?? 0, viewModel.NewQuestions?.Count ?? 0);
@@ -318,6 +248,47 @@ public class ActivitiesController : Controller
                 .Select(o => new { o.Id, o.Name })
                 .ToListAsync();
         }
+    }
+
+    private async Task CreateActivityGroupsAsync(int activityId, IEnumerable<NewActivityGroupViewModel>? groups)
+    {
+        if (groups == null || !groups.Any())
+            return;
+
+        foreach (var groupVm in groups.Where(g => !string.IsNullOrWhiteSpace(g.Label)))
+        {
+            var group = new ActivityGroup
+            {
+                Label = groupVm.Label!.Trim(),
+                Capacity = groupVm.Capacity,
+                ActivityId = activityId
+            };
+            _context.ActivityGroups.Add(group);
+        }
+        await _context.SaveChangesAsync();
+    }
+
+    private async Task CreateActivityQuestionsAsync(int activityId, IEnumerable<NewActivityQuestionViewModel>? questions)
+    {
+        if (questions == null || !questions.Any())
+            return;
+
+        var displayOrder = 1;
+        foreach (var questionVm in questions.Where(q => !string.IsNullOrWhiteSpace(q.QuestionText)))
+        {
+            var question = new ActivityQuestion
+            {
+                ActivityId = activityId,
+                QuestionText = questionVm.QuestionText!.Trim(),
+                QuestionType = questionVm.QuestionType,
+                IsRequired = questionVm.IsRequired,
+                Options = questionVm.Options?.Trim(),
+                DisplayOrder = displayOrder++,
+                IsActive = true
+            };
+            _context.ActivityQuestions.Add(question);
+        }
+        await _context.SaveChangesAsync();
     }
 
     private void GenerateActivityDays(Activity activity)
@@ -1003,5 +974,46 @@ public class ActivitiesController : Controller
         var fileName = $"{title}_{DateTime.Now:yyyyMMdd_HHmmss}.pdf";
 
         return File(pdfData, "application/pdf", fileName);
+    }
+
+    private void StoreActivityFiltersToSession(ActivityQueryParameters queryParams)
+    {
+        if (!string.IsNullOrWhiteSpace(queryParams.SearchString))
+            _sessionState.Set(SessionKeyActivitiesSearchString, queryParams.SearchString, persistToCookie: false);
+
+        if (queryParams.ShowActiveOnly.HasValue)
+            _sessionState.Set(SessionKeyActivitiesShowActiveOnly, queryParams.ShowActiveOnly, persistToCookie: false);
+
+        if (!string.IsNullOrWhiteSpace(queryParams.SortBy))
+            _sessionState.Set(SessionKeyActivitiesSortBy, queryParams.SortBy, persistToCookie: false);
+
+        if (!string.IsNullOrWhiteSpace(queryParams.SortOrder))
+            _sessionState.Set(SessionKeyActivitiesSortOrder, queryParams.SortOrder, persistToCookie: false);
+
+        if (queryParams.PageNumber > 1)
+            _sessionState.Set(SessionKeyActivitiesPageNumber, queryParams.PageNumber.ToString(), persistToCookie: false);
+    }
+
+    private void ClearActivityFilters()
+    {
+        _sessionState.Clear(SessionKeyActivitiesSearchString);
+        _sessionState.Clear(SessionKeyActivitiesShowActiveOnly);
+        _sessionState.Clear(SessionKeyActivitiesSortBy);
+        _sessionState.Clear(SessionKeyActivitiesSortOrder);
+        _sessionState.Clear(SessionKeyActivitiesPageNumber);
+    }
+
+    private void LoadActivityFiltersFromSession(ActivityQueryParameters queryParams)
+    {
+        queryParams.SearchString = _sessionState.Get(SessionKeyActivitiesSearchString);
+        queryParams.ShowActiveOnly = _sessionState.Get<bool>(SessionKeyActivitiesShowActiveOnly);
+        queryParams.SortBy = _sessionState.Get(SessionKeyActivitiesSortBy);
+        queryParams.SortOrder = _sessionState.Get(SessionKeyActivitiesSortOrder);
+
+        var pageNumberStr = _sessionState.Get(SessionKeyActivitiesPageNumber);
+        if (!string.IsNullOrEmpty(pageNumberStr) && int.TryParse(pageNumberStr, out var pageNum))
+        {
+            queryParams.PageNumber = pageNum;
+        }
     }
 }

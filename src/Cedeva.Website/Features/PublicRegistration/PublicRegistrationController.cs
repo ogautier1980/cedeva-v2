@@ -473,7 +473,7 @@ public class PublicRegistrationController : Controller
         }
 
         // Create booking with answers
-        var bookingId = await CreateBookingWithAnswersAsync(model, childId, questions);
+        var bookingId = await CreateBookingWithAnswersAsync(model, childId);
 
         // Send confirmation email
         var parent = await _context.Parents.FindAsync(parentId);
@@ -490,14 +490,13 @@ public class PublicRegistrationController : Controller
 
     private void ValidateRequiredQuestions(List<ActivityQuestion> questions, SimpleRegistrationViewModel model)
     {
-        var requiredQuestions = questions.Where(q => q.IsRequired).ToList();
-        foreach (var question in requiredQuestions)
+        var unansweredRequired = questions
+            .Where(q => q.IsRequired)
+            .Where(q => !model.QuestionAnswers.TryGetValue(q.Id, out var answer) || string.IsNullOrWhiteSpace(answer));
+
+        foreach (var question in unansweredRequired)
         {
-            if (!model.QuestionAnswers.ContainsKey(question.Id) ||
-                string.IsNullOrWhiteSpace(model.QuestionAnswers[question.Id]))
-            {
-                ModelState.AddModelError("", $"{_localizer["PublicRegistration.QuestionRequired"]}: {question.QuestionText}");
-            }
+            ModelState.AddModelError("", $"{_localizer["PublicRegistration.QuestionRequired"]}: {question.QuestionText}");
         }
     }
 
@@ -575,6 +574,23 @@ public class PublicRegistrationController : Controller
         }
     }
 
+    /// <summary>
+    /// Creates a new parent or updates existing parent by email.
+    /// </summary>
+    private async Task<int> CreateOrUpdateParentAsync(ParentInformationViewModel model, int organisationId)
+    {
+        var existingParent = await _context.Parents
+            .Include(p => p.Address)
+            .FirstOrDefaultAsync(p => p.Email == model.Email && p.OrganisationId == organisationId);
+
+        if (existingParent != null)
+        {
+            return await UpdateExistingParentAsync(existingParent, model);
+        }
+
+        return await CreateNewParentAsync(model, organisationId);
+    }
+
     private async Task<int> CreateOrUpdateChildAsync(SimpleRegistrationViewModel model, int parentId)
     {
         var existingChild = await _context.Children
@@ -610,7 +626,7 @@ public class PublicRegistrationController : Controller
         }
     }
 
-    private async Task<int> CreateBookingWithAnswersAsync(SimpleRegistrationViewModel model, int childId, List<ActivityQuestion> questions)
+    private async Task<int> CreateBookingWithAnswersAsync(SimpleRegistrationViewModel model, int childId)
     {
         var booking = new Booking
         {
@@ -701,23 +717,6 @@ public class PublicRegistrationController : Controller
         }
 
         return (true, null);
-    }
-
-    /// <summary>
-    /// Creates a new parent or updates existing parent by email.
-    /// </summary>
-    private async Task<int> CreateOrUpdateParentAsync(ParentInformationViewModel model, int organisationId)
-    {
-        var existingParent = await _context.Parents
-            .Include(p => p.Address)
-            .FirstOrDefaultAsync(p => p.Email == model.Email && p.OrganisationId == organisationId);
-
-        if (existingParent != null)
-        {
-            return await UpdateExistingParentAsync(existingParent, model);
-        }
-
-        return await CreateNewParentAsync(model, organisationId);
     }
 
     /// <summary>

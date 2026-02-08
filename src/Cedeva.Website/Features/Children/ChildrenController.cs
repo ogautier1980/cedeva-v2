@@ -50,55 +50,19 @@ public class ChildrenController : Controller
     // GET: Children
     public async Task<IActionResult> Index([FromQuery] ChildQueryParameters queryParams)
     {
-        // Check if any query parameters were provided in the actual HTTP request
-        bool hasQueryParams = Request.Query.Count > 0;
-
-        // If query params provided, store them and redirect to clean URL
-        if (hasQueryParams)
+        if (Request.Query.Count > 0)
         {
-            if (!string.IsNullOrWhiteSpace(queryParams.SearchString))
-                _ctx.Session.Set("SessionKeyChildrenSearchString", queryParams.SearchString, persistToCookie: false);
-
-            if (queryParams.ParentId.HasValue)
-                _ctx.Session.Set("SessionKeyChildrenParentId", queryParams.ParentId, persistToCookie: false);
-
-            if (!string.IsNullOrWhiteSpace(queryParams.SortBy))
-                _ctx.Session.Set("SessionKeyChildrenSortBy", queryParams.SortBy, persistToCookie: false);
-
-            if (!string.IsNullOrWhiteSpace(queryParams.SortOrder))
-                _ctx.Session.Set("SessionKeyChildrenSortOrder", queryParams.SortOrder, persistToCookie: false);
-
-            if (queryParams.PageNumber > 1)
-                _ctx.Session.Set("SessionKeyChildrenPageNumber", queryParams.PageNumber.ToString(), persistToCookie: false);
-
-            // Mark that filters should be kept for the next request (after redirect)
+            StoreChildFiltersToSession(queryParams);
             TempData[ControllerExtensions.KeepFiltersKey] = true;
-
-            // Redirect to clean URL
             return RedirectToAction(nameof(Index));
         }
 
-        // If not keeping filters (no redirect, just navigation/F5), clear them
         if (TempData[ControllerExtensions.KeepFiltersKey] == null)
         {
-            _ctx.Session.Clear("SessionKeyChildrenSearchString");
-            _ctx.Session.Clear("SessionKeyChildrenParentId");
-            _ctx.Session.Clear("SessionKeyChildrenSortBy");
-            _ctx.Session.Clear("SessionKeyChildrenSortOrder");
-            _ctx.Session.Clear("SessionKeyChildrenPageNumber");
+            ClearChildFilters();
         }
 
-        // Load filters from state (will be empty if just cleared)
-        queryParams.SearchString = _ctx.Session.Get("SessionKeyChildrenSearchString");
-        queryParams.ParentId = _ctx.Session.Get<int>("SessionKeyChildrenParentId");
-        queryParams.SortBy = _ctx.Session.Get("SessionKeyChildrenSortBy");
-        queryParams.SortOrder = _ctx.Session.Get("SessionKeyChildrenSortOrder");
-
-        var pageNumberStr = _ctx.Session.Get("SessionKeyChildrenPageNumber");
-        if (!string.IsNullOrEmpty(pageNumberStr) && int.TryParse(pageNumberStr, out var pageNum))
-        {
-            queryParams.PageNumber = pageNum;
-        }
+        LoadChildFiltersFromSession(queryParams);
 
         var query = _context.Children.AsQueryable();
 
@@ -115,18 +79,7 @@ public class ChildrenController : Controller
             query = query.Where(c => c.ParentId == queryParams.ParentId.Value);
         }
 
-        // Apply sorting
-        query = (queryParams.SortBy?.ToLowerInvariant(), queryParams.SortOrder?.ToLowerInvariant()) switch
-        {
-            ("firstname", SortOrderAscending) => query.OrderBy(c => c.FirstName).ThenBy(c => c.LastName),
-            ("firstname", SortOrderDescending) => query.OrderByDescending(c => c.FirstName).ThenByDescending(c => c.LastName),
-            ("lastname", SortOrderDescending) => query.OrderByDescending(c => c.LastName).ThenByDescending(c => c.FirstName),
-            ("birthdate", SortOrderAscending) => query.OrderBy(c => c.BirthDate),
-            ("birthdate", SortOrderDescending) => query.OrderByDescending(c => c.BirthDate),
-            ("nationalregisternumber", SortOrderAscending) => query.OrderBy(c => c.NationalRegisterNumber),
-            ("nationalregisternumber", SortOrderDescending) => query.OrderByDescending(c => c.NationalRegisterNumber),
-            _ => query.OrderBy(c => c.LastName).ThenBy(c => c.FirstName) // default
-        };
+        query = ApplyChildrenSorting(query, queryParams.SortBy, queryParams.SortOrder);
 
         var pagedResult = await query
             .Select(c => new ChildViewModel
@@ -526,5 +479,54 @@ public class ChildrenController : Controller
             .ToList();
 
         ViewBag.Parents = new SelectList(parentList, "Id", "FullName", selectedParentId);
+    }
+
+    private void StoreChildFiltersToSession(ChildQueryParameters queryParams)
+    {
+        if (!string.IsNullOrWhiteSpace(queryParams.SearchString))
+            _ctx.Session.Set(SessionKeyChildrenSearchString, queryParams.SearchString, persistToCookie: false);
+        if (queryParams.ParentId.HasValue)
+            _ctx.Session.Set(SessionKeyChildrenParentId, queryParams.ParentId, persistToCookie: false);
+        if (!string.IsNullOrWhiteSpace(queryParams.SortBy))
+            _ctx.Session.Set(SessionKeyChildrenSortBy, queryParams.SortBy, persistToCookie: false);
+        if (!string.IsNullOrWhiteSpace(queryParams.SortOrder))
+            _ctx.Session.Set(SessionKeyChildrenSortOrder, queryParams.SortOrder, persistToCookie: false);
+        if (queryParams.PageNumber > 1)
+            _ctx.Session.Set(SessionKeyChildrenPageNumber, queryParams.PageNumber.ToString(), persistToCookie: false);
+    }
+
+    private void ClearChildFilters()
+    {
+        _ctx.Session.Clear(SessionKeyChildrenSearchString);
+        _ctx.Session.Clear(SessionKeyChildrenParentId);
+        _ctx.Session.Clear(SessionKeyChildrenSortBy);
+        _ctx.Session.Clear(SessionKeyChildrenSortOrder);
+        _ctx.Session.Clear(SessionKeyChildrenPageNumber);
+    }
+
+    private void LoadChildFiltersFromSession(ChildQueryParameters queryParams)
+    {
+        queryParams.SearchString = _ctx.Session.Get(SessionKeyChildrenSearchString);
+        queryParams.ParentId = _ctx.Session.Get<int>(SessionKeyChildrenParentId);
+        queryParams.SortBy = _ctx.Session.Get(SessionKeyChildrenSortBy);
+        queryParams.SortOrder = _ctx.Session.Get(SessionKeyChildrenSortOrder);
+        var pageNumberStr = _ctx.Session.Get(SessionKeyChildrenPageNumber);
+        if (!string.IsNullOrEmpty(pageNumberStr) && int.TryParse(pageNumberStr, out var pageNum))
+            queryParams.PageNumber = pageNum;
+    }
+
+    private static IQueryable<Child> ApplyChildrenSorting(IQueryable<Child> query, string? sortBy, string? sortOrder)
+    {
+        return (sortBy?.ToLowerInvariant(), sortOrder?.ToLowerInvariant()) switch
+        {
+            ("firstname", SortOrderAscending) => query.OrderBy(c => c.FirstName).ThenBy(c => c.LastName),
+            ("firstname", SortOrderDescending) => query.OrderByDescending(c => c.FirstName).ThenByDescending(c => c.LastName),
+            ("lastname", SortOrderDescending) => query.OrderByDescending(c => c.LastName).ThenByDescending(c => c.FirstName),
+            ("birthdate", SortOrderAscending) => query.OrderBy(c => c.BirthDate),
+            ("birthdate", SortOrderDescending) => query.OrderByDescending(c => c.BirthDate),
+            ("nationalregisternumber", SortOrderAscending) => query.OrderBy(c => c.NationalRegisterNumber),
+            ("nationalregisternumber", SortOrderDescending) => query.OrderByDescending(c => c.NationalRegisterNumber),
+            _ => query.OrderBy(c => c.LastName).ThenBy(c => c.FirstName)
+        };
     }
 }

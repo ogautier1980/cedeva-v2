@@ -59,16 +59,16 @@ public class TeamMembersController : Controller
         if (hasQueryParams)
         {
             if (!string.IsNullOrWhiteSpace(queryParams.SearchString))
-                _ctx.Session.Set("SessionKeyTeamMembersSearchString", queryParams.SearchString, persistToCookie: false);
+                _ctx.Session.Set(SessionKeyTeamMembersSearchString, queryParams.SearchString, persistToCookie: false);
 
             if (!string.IsNullOrWhiteSpace(queryParams.SortBy))
-                _ctx.Session.Set("SessionKeyTeamMembersSortBy", queryParams.SortBy, persistToCookie: false);
+                _ctx.Session.Set(SessionKeyTeamMembersSortBy, queryParams.SortBy, persistToCookie: false);
 
             if (!string.IsNullOrWhiteSpace(queryParams.SortOrder))
-                _ctx.Session.Set("SessionKeyTeamMembersSortOrder", queryParams.SortOrder, persistToCookie: false);
+                _ctx.Session.Set(SessionKeyTeamMembersSortOrder, queryParams.SortOrder, persistToCookie: false);
 
             if (queryParams.PageNumber > 1)
-                _ctx.Session.Set("SessionKeyTeamMembersPageNumber", queryParams.PageNumber.ToString(), persistToCookie: false);
+                _ctx.Session.Set(SessionKeyTeamMembersPageNumber, queryParams.PageNumber.ToString(), persistToCookie: false);
 
             // Mark that filters should be kept for the next request (after redirect)
             TempData[ControllerExtensions.KeepFiltersKey] = true;
@@ -80,18 +80,18 @@ public class TeamMembersController : Controller
         // If not keeping filters (no redirect, just navigation/F5), clear them
         if (TempData[ControllerExtensions.KeepFiltersKey] == null)
         {
-            _ctx.Session.Clear("SessionKeyTeamMembersSearchString");
-            _ctx.Session.Clear("SessionKeyTeamMembersSortBy");
-            _ctx.Session.Clear("SessionKeyTeamMembersSortOrder");
-            _ctx.Session.Clear("SessionKeyTeamMembersPageNumber");
+            _ctx.Session.Clear(SessionKeyTeamMembersSearchString);
+            _ctx.Session.Clear(SessionKeyTeamMembersSortBy);
+            _ctx.Session.Clear(SessionKeyTeamMembersSortOrder);
+            _ctx.Session.Clear(SessionKeyTeamMembersPageNumber);
         }
 
         // Load filters from state (will be empty if just cleared)
-        queryParams.SearchString = _ctx.Session.Get("SessionKeyTeamMembersSearchString");
-        queryParams.SortBy = _ctx.Session.Get("SessionKeyTeamMembersSortBy");
-        queryParams.SortOrder = _ctx.Session.Get("SessionKeyTeamMembersSortOrder");
+        queryParams.SearchString = _ctx.Session.Get(SessionKeyTeamMembersSearchString);
+        queryParams.SortBy = _ctx.Session.Get(SessionKeyTeamMembersSortBy);
+        queryParams.SortOrder = _ctx.Session.Get(SessionKeyTeamMembersSortOrder);
 
-        var pageNumberStr = _ctx.Session.Get("SessionKeyTeamMembersPageNumber");
+        var pageNumberStr = _ctx.Session.Get(SessionKeyTeamMembersPageNumber);
         if (!string.IsNullOrEmpty(pageNumberStr) && int.TryParse(pageNumberStr, out var pageNum))
         {
             queryParams.PageNumber = pageNum;

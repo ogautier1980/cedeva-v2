@@ -701,11 +701,7 @@ public class FinancialController : Controller
             Description = e.Description ?? "",
             Category = e.Category ?? "",
             Amount = e.Amount,
-            AssignedTo = e.TeamMemberId.HasValue
-                ? e.TeamMember!.FullName
-                : (e.OrganizationPaymentSource == OrganizationCard
-                    ? _ctx.Localizer["Expense.OrganizationCard"].Value
-                    : _ctx.Localizer["Expense.OrganizationCash"].Value),
+            AssignedTo = GetExpenseAssignedToLabel(e),
             Type = e.ExpenseType.HasValue
                 ? _ctx.Localizer[$"ExpenseType.{e.ExpenseType}"].Value
                 : ""
@@ -788,11 +784,7 @@ public class FinancialController : Controller
                 Type = "Expense",
                 Label = e.Label,
                 Category = e.Category,
-                AssignedTo = e.TeamMemberId.HasValue
-                    ? e.TeamMember?.FullName
-                    : e.OrganizationPaymentSource == OrganizationCard
-                        ? _ctx.Localizer["Expense.OrganizationCard"].Value
-                        : _ctx.Localizer["Expense.OrganizationCash"].Value,
+                AssignedTo = GetExpenseAssignedToLabel(e),
                 Amount = e.Amount,
                 IsIncome = false,
                 RelatedId = e.Id,
@@ -851,9 +843,8 @@ public class FinancialController : Controller
         var pendingAmount = _financialCalculationService.CalculatePendingPayments(activity);
         var confirmedBookings = activity.Bookings.Count(b => b.IsConfirmed);
         var pendingBookings = activity.Bookings
-            .Where(b => b.PaymentStatus == Core.Enums.PaymentStatus.NotPaid ||
-                       b.PaymentStatus == Core.Enums.PaymentStatus.PartiallyPaid)
-            .Count();
+            .Count(b => b.PaymentStatus == Core.Enums.PaymentStatus.NotPaid ||
+                       b.PaymentStatus == Core.Enums.PaymentStatus.PartiallyPaid);
         var avgRevenue = activity.Bookings.Any() ? totalRevenue / activity.Bookings.Count : 0;
 
         var (orgCardExpenses, orgCashExpenses, orgExpenseDetails) = BuildOrganizationExpenseBreakdown(expenses);
@@ -965,5 +956,16 @@ public class FinancialController : Controller
         }));
 
         ViewBag.AssignedToList = assignedToList;
+    }
+
+    private string GetExpenseAssignedToLabel(Expense e)
+    {
+        if (e.TeamMemberId.HasValue)
+        {
+            return e.TeamMember?.FullName ?? "";
+        }
+        return e.OrganizationPaymentSource == OrganizationCard
+            ? _ctx.Localizer["Expense.OrganizationCard"].Value
+            : _ctx.Localizer["Expense.OrganizationCash"].Value;
     }
 }
