@@ -17,6 +17,7 @@ namespace Cedeva.Website.Features.TeamMembers;
 public class TeamMembersController : Controller
 {
     private const string SortOrderDescending = "desc";
+    private const string SortOrderAscending = "asc";
     private const string SessionKeyTeamMembersSearchString = "TeamMembers_SearchString";
     private const string SessionKeyTeamMembersSortBy = "TeamMembers_SortBy";
     private const string SessionKeyTeamMembersSortOrder = "TeamMembers_SortOrder";
@@ -109,14 +110,14 @@ public class TeamMembersController : Controller
         // Apply sorting
         query = (queryParams.SortBy?.ToLowerInvariant(), queryParams.SortOrder?.ToLowerInvariant()) switch
         {
-            ("firstname", "asc") => query.OrderBy(t => t.FirstName).ThenBy(t => t.LastName),
+            ("firstname", SortOrderAscending) => query.OrderBy(t => t.FirstName).ThenBy(t => t.LastName),
             ("firstname", SortOrderDescending) => query.OrderByDescending(t => t.FirstName).ThenByDescending(t => t.LastName),
             ("lastname", SortOrderDescending) => query.OrderByDescending(t => t.LastName).ThenByDescending(t => t.FirstName),
-            ("email", "asc") => query.OrderBy(t => t.Email),
+            ("email", SortOrderAscending) => query.OrderBy(t => t.Email),
             ("email", SortOrderDescending) => query.OrderByDescending(t => t.Email),
-            ("teamrole", "asc") => query.OrderBy(t => t.TeamRole),
+            ("teamrole", SortOrderAscending) => query.OrderBy(t => t.TeamRole),
             ("teamrole", SortOrderDescending) => query.OrderByDescending(t => t.TeamRole),
-            ("status", "asc") => query.OrderBy(t => t.Status),
+            ("status", SortOrderAscending) => query.OrderBy(t => t.Status),
             ("status", SortOrderDescending) => query.OrderByDescending(t => t.Status),
             _ => query.OrderBy(t => t.LastName).ThenBy(t => t.FirstName) // default
         };

@@ -18,6 +18,7 @@ namespace Cedeva.Website.Features.Parents;
 public class ParentsController : Controller
 {
     private const string SortOrderDescending = "desc";
+    private const string SortOrderAscending = "asc";
     private const string SessionKeyParentsSearchString = "Parents_SearchString";
     private const string SessionKeyParentsSortBy = "Parents_SortBy";
     private const string SessionKeyParentsSortOrder = "Parents_SortOrder";
@@ -112,12 +113,12 @@ public class ParentsController : Controller
         // Apply sorting
         query = (queryParams.SortBy?.ToLowerInvariant(), queryParams.SortOrder?.ToLowerInvariant()) switch
         {
-            ("firstname", "asc") => query.OrderBy(p => p.FirstName),
+            ("firstname", SortOrderAscending) => query.OrderBy(p => p.FirstName),
             ("firstname", SortOrderDescending) => query.OrderByDescending(p => p.FirstName),
             ("lastname", SortOrderDescending) => query.OrderByDescending(p => p.LastName),
-            ("email", "asc") => query.OrderBy(p => p.Email),
+            ("email", SortOrderAscending) => query.OrderBy(p => p.Email),
             ("email", SortOrderDescending) => query.OrderByDescending(p => p.Email),
-            ("city", "asc") => query.OrderBy(p => p.Address.City),
+            ("city", SortOrderAscending) => query.OrderBy(p => p.Address.City),
             ("city", SortOrderDescending) => query.OrderByDescending(p => p.Address.City),
             _ => query.OrderBy(p => p.LastName).ThenBy(p => p.FirstName)
         };

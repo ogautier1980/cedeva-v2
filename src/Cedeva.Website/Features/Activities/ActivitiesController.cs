@@ -15,6 +15,7 @@ namespace Cedeva.Website.Features.Activities;
 public class ActivitiesController : Controller
 {
     private const string SortOrderDescending = "desc";
+    private const string SortOrderAscending = "asc";
     private const string DateFormatFull = "dddd d MMMM";
     private const string CultureFrBe = "fr-BE";
     private const string SessionKeyActivitiesSearchString = "Activities_SearchString";
@@ -118,13 +119,13 @@ public class ActivitiesController : Controller
         // Apply sorting
         query = (queryParams.SortBy?.ToLowerInvariant(), queryParams.SortOrder?.ToLowerInvariant()) switch
         {
-            ("name", "asc") => query.OrderBy(a => a.Name),
+            ("name", SortOrderAscending) => query.OrderBy(a => a.Name),
             ("name", SortOrderDescending) => query.OrderByDescending(a => a.Name),
-            ("startdate", "asc") => query.OrderBy(a => a.StartDate),
+            ("startdate", SortOrderAscending) => query.OrderBy(a => a.StartDate),
             ("startdate", SortOrderDescending) => query.OrderByDescending(a => a.StartDate),
-            ("enddate", "asc") => query.OrderBy(a => a.EndDate),
+            ("enddate", SortOrderAscending) => query.OrderBy(a => a.EndDate),
             ("enddate", SortOrderDescending) => query.OrderByDescending(a => a.EndDate),
-            ("isactive", "asc") => query.OrderBy(a => a.IsActive),
+            ("isactive", SortOrderAscending) => query.OrderBy(a => a.IsActive),
             ("isactive", SortOrderDescending) => query.OrderByDescending(a => a.IsActive),
             _ => query.OrderByDescending(a => a.StartDate)
         };

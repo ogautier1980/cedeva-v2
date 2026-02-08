@@ -17,6 +17,7 @@ namespace Cedeva.Website.Features.Children;
 public class ChildrenController : Controller
 {
     private const string SortOrderDescending = "desc";
+    private const string SortOrderAscending = "asc";
     private const string SessionKeyChildrenSearchString = "Children_SearchString";
     private const string SessionKeyChildrenParentId = "Children_ParentId";
     private const string SessionKeyChildrenSortBy = "Children_SortBy";
@@ -117,12 +118,12 @@ public class ChildrenController : Controller
         // Apply sorting
         query = (queryParams.SortBy?.ToLowerInvariant(), queryParams.SortOrder?.ToLowerInvariant()) switch
         {
-            ("firstname", "asc") => query.OrderBy(c => c.FirstName).ThenBy(c => c.LastName),
+            ("firstname", SortOrderAscending) => query.OrderBy(c => c.FirstName).ThenBy(c => c.LastName),
             ("firstname", SortOrderDescending) => query.OrderByDescending(c => c.FirstName).ThenByDescending(c => c.LastName),
             ("lastname", SortOrderDescending) => query.OrderByDescending(c => c.LastName).ThenByDescending(c => c.FirstName),
-            ("birthdate", "asc") => query.OrderBy(c => c.BirthDate),
+            ("birthdate", SortOrderAscending) => query.OrderBy(c => c.BirthDate),
             ("birthdate", SortOrderDescending) => query.OrderByDescending(c => c.BirthDate),
-            ("nationalregisternumber", "asc") => query.OrderBy(c => c.NationalRegisterNumber),
+            ("nationalregisternumber", SortOrderAscending) => query.OrderBy(c => c.NationalRegisterNumber),
             ("nationalregisternumber", SortOrderDescending) => query.OrderByDescending(c => c.NationalRegisterNumber),
             _ => query.OrderBy(c => c.LastName).ThenBy(c => c.FirstName) // default
         };

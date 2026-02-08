@@ -16,6 +16,7 @@ namespace Cedeva.Website.Features.Bookings;
 public class BookingsController : Controller
 {
     private const string SortOrderDescending = "desc";
+    private const string SortOrderAscending = "asc";
     private const string SessionKeyActivityId = "ActivityId";
     private const string SessionKeyBookingsSearchString = "Bookings_SearchString";
     private const string SessionKeyBookingsChildId = "Bookings_ChildId";
@@ -76,15 +77,15 @@ public class BookingsController : Controller
         // Apply sorting
         query = (queryParams.SortBy?.ToLowerInvariant(), queryParams.SortOrder?.ToLowerInvariant()) switch
         {
-            ("bookingdate", "asc") => query.OrderBy(b => b.BookingDate),
+            ("bookingdate", SortOrderAscending) => query.OrderBy(b => b.BookingDate),
             ("bookingdate", SortOrderDescending) => query.OrderByDescending(b => b.BookingDate),
-            ("childname", "asc") => query.OrderBy(b => b.Child.LastName).ThenBy(b => b.Child.FirstName),
+            ("childname", SortOrderAscending) => query.OrderBy(b => b.Child.LastName).ThenBy(b => b.Child.FirstName),
             ("childname", SortOrderDescending) => query.OrderByDescending(b => b.Child.LastName).ThenByDescending(b => b.Child.FirstName),
-            ("activityname", "asc") => query.OrderBy(b => b.Activity.Name),
+            ("activityname", SortOrderAscending) => query.OrderBy(b => b.Activity.Name),
             ("activityname", SortOrderDescending) => query.OrderByDescending(b => b.Activity.Name),
-            ("activitystartdate", "asc") => query.OrderBy(b => b.Activity.StartDate),
+            ("activitystartdate", SortOrderAscending) => query.OrderBy(b => b.Activity.StartDate),
             ("activitystartdate", SortOrderDescending) => query.OrderByDescending(b => b.Activity.StartDate),
-            ("isconfirmed", "asc") => query.OrderBy(b => b.IsConfirmed),
+            ("isconfirmed", SortOrderAscending) => query.OrderBy(b => b.IsConfirmed),
             ("isconfirmed", SortOrderDescending) => query.OrderByDescending(b => b.IsConfirmed),
             _ => query.OrderByDescending(b => b.BookingDate) // default
         };
