@@ -868,6 +868,9 @@
   <data name="Cancel" xml:space="preserve">
     <value>Annuler</value>
   </data>
+  <data name="Capacity" xml:space="preserve">
+    <value>Capacité</value>
+  </data>
   <data name="Child" xml:space="preserve">
     <value>Enfant</value>
   </data>
@@ -1146,6 +1149,18 @@
   </data>
   <data name="Email.ExcursionRecipients" xml:space="preserve">
     <value>Excursions</value>
+  </data>
+  <data name="Email.RecipientOptions" xml:space="preserve">
+    <value>Options de destinataires</value>
+  </data>
+  <data name="Email.RecipientOptionsHelp" xml:space="preserve">
+    <value>Sélectionnez le type de destinataires pour votre email</value>
+  </data>
+  <data name="Email.GroupRecipientsDesc" xml:space="preserve">
+    <value>Envoyer aux parents des enfants d'un groupe spécifique</value>
+  </data>
+  <data name="Email.ExcursionRecipientsDesc" xml:space="preserve">
+    <value>Envoyer aux parents des enfants inscrits à une excursion</value>
   </data>
   <data name="Email.RecipientType" xml:space="preserve">
     <value>Type de destinataire</value>
@@ -1582,6 +1597,9 @@
   <data name="Field.Country" xml:space="preserve">
     <value>Pays</value>
   </data>
+  <data name="Field.Cost" xml:space="preserve">
+    <value>Coût</value>
+  </data>
   <data name="Field.DailyCompensation" xml:space="preserve">
     <value>Indemnité journalière</value>
   </data>
@@ -1728,6 +1746,9 @@
   </data>
   <data name="Field.Role" xml:space="preserve">
     <value>Rôle</value>
+  </data>
+  <data name="Field.SelectedGroupIds" xml:space="preserve">
+    <value>Groupes cibles</value>
   </data>
   <data name="Field.StartDate" xml:space="preserve">
     <value>Date de début</value>
@@ -3465,6 +3486,9 @@
   </data>
   <data name="Email.LoadTemplate" xml:space="preserve">
     <value>Charger le modèle</value>
+  </data>
+  <data name="Email.PerChild" xml:space="preserve">
+    <value>Un email par enfant</value>
   </data>
   <data name="Email.SaveAsTemplate" xml:space="preserve">
     <value>Sauvegarder comme modèle</value>

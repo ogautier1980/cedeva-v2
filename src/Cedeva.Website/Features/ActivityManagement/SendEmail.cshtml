@@ -12,7 +12,6 @@
     bool hasTemplates = ViewBag.Templates != null && ((dynamic)ViewBag.Templates).Count > 0;
 }
 
-
 <div class="container-fluid py-4">
     @await Html.PartialAsync("_AlertMessages")
     <div class="row">
@@ -52,11 +51,7 @@
                                         <option value="">@Localizer["Email.NoTemplate"]</option>
                                         @foreach (dynamic tmpl in ViewBag.Templates)
                                         {
-                                            <option value="@tmpl.Id">
-                                                @tmpl.Name
-                                                @if (tmpl.IsDefault) { <span>(default)</span> }
-                                                - @Localizer[$"EmailTemplateType.{tmpl.TemplateType}"]
-                                            </option>
+                                            <option value="@tmpl.Id">@tmpl.Name@(tmpl.IsDefault ? " ★" : "")</option>
                                         }
                                     </select>
                                     <button type="button" class="btn btn-outline-primary" id="loadTemplateBtn">
@@ -151,11 +146,14 @@
                     <i class="fas fa-info-circle"></i> @Localizer["Information"]
                 </div>
                 <div class="card-body">
-                    <h6 class="fw-bold">@Localizer["Email.Options"]</h6>
-                    <ul class="mb-3">
-                        <li><strong>@Localizer["Email.AllParents"]</strong> : @Localizer["Email.AllParentsDesc"]</li>
-                        <li><strong>@Localizer["Email.MedicalSheetReminder"]</strong> : @Localizer["Email.MedicalSheetDesc"]</li>
-                        <li><strong>@Localizer["Email.Group"]</strong> : @Localizer["Email.GroupDesc"]</li>
+                    <h6 class="fw-bold">@Localizer["Email.RecipientOptions"]</h6>
+                    <p class="small text-muted mb-2">@Localizer["Email.RecipientOptionsHelp"]</p>
+                    <ul class="small mb-3">
+                        <li><strong>@Localizer["Email.RecipientAllParents"]</strong></li>
+                        <li><strong>@Localizer["Email.RecipientMedicalSheetReminder"]</strong></li>
+                        <li><strong>@Localizer["Email.RecipientUnpaidParents"]</strong></li>
+                        <li><strong>@Localizer["Email.GroupRecipients"]</strong> : @Localizer["Email.GroupRecipientsDesc"]</li>
+                        <li><strong>@Localizer["Email.ExcursionRecipients"]</strong> : @Localizer["Email.ExcursionRecipientsDesc"]</li>
                     </ul>
 
                     <h6 class="fw-bold">@Localizer["Email.Tips"]</h6>
@@ -202,6 +200,14 @@
             CedevaChoices.init('#SelectedRecipient');
             CedevaChoices.init('#SelectedDayId');
             CedevaChoices.init('#templateSelect');
+
+            // Apply bold style to optgroup labels after Choices.js initialization
+            setTimeout(function() {
+                document.querySelectorAll('.choices__heading').forEach(function(heading) {
+                    heading.style.fontWeight = '900';
+                    heading.style.fontSize = '0.95rem';
+                });
+            }, 100);
 
             // Custom button for inserting variables
             var VariablesButton = function (context) {

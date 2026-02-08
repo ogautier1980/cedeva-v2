@@ -865,6 +865,9 @@
   <data name="Cancel" xml:space="preserve">
     <value>Annuleren</value>
   </data>
+  <data name="Capacity" xml:space="preserve">
+    <value>Capaciteit</value>
+  </data>
   <data name="Child" xml:space="preserve">
     <value>Kind</value>
   </data>
@@ -1147,6 +1150,18 @@
   <data name="Email.ExcursionRecipients" xml:space="preserve">
     <value>Excursies</value>
   </data>
+  <data name="Email.RecipientOptions" xml:space="preserve">
+    <value>Ontvanger opties</value>
+  </data>
+  <data name="Email.RecipientOptionsHelp" xml:space="preserve">
+    <value>Selecteer het type ontvangers voor uw e-mail</value>
+  </data>
+  <data name="Email.GroupRecipientsDesc" xml:space="preserve">
+    <value>Verzenden naar ouders van kinderen in een specifieke groep</value>
+  </data>
+  <data name="Email.ExcursionRecipientsDesc" xml:space="preserve">
+    <value>Verzenden naar ouders van kinderen ingeschreven voor een excursie</value>
+  </data>
   <data name="Email.RecipientType" xml:space="preserve">
     <value>Type ontvanger</value>
   </data>
@@ -1188,6 +1203,51 @@
   </data>
   <data name="Email.Unknown" xml:space="preserve">
     <value>Onbekend</value>
+  </data>
+  <data name="Email.ScheduledForDay" xml:space="preserve">
+    <value>[NL] Prévu pour le jour</value>
+  </data>
+  <data name="Email.AllDays" xml:space="preserve">
+    <value>[NL] Tous les jours</value>
+  </data>
+  <data name="Email.DayFilterHelp" xml:space="preserve">
+    <value>[NL] Optionnel : filtrer pour envoyer uniquement aux enfants présents ce jour-là</value>
+  </data>
+  <data name="Email.MergeFields" xml:space="preserve">
+    <value>[NL] Champs de fusion</value>
+  </data>
+  <data name="Email.MergeFieldsHelp" xml:space="preserve">
+    <value>[NL] Cliquez sur une variable pour l'insérer dans votre message</value>
+  </data>
+  <data name="Email.SendSeparateEmailPerChild" xml:space="preserve">
+    <value>[NL] Envoyer un email séparé par enfant</value>
+  </data>
+  <data name="Email.UseTemplate" xml:space="preserve">
+    <value>[NL] Utiliser un modèle</value>
+  </data>
+  <data name="Email.NoTemplate" xml:space="preserve">
+    <value>[NL] Aucun modèle</value>
+  </data>
+  <data name="Email.LoadTemplate" xml:space="preserve">
+    <value>[NL] Charger le modèle</value>
+  </data>
+  <data name="Email.PerChild" xml:space="preserve">
+    <value>Een e-mail per kind</value>
+  </data>
+  <data name="Email.SaveAsTemplate" xml:space="preserve">
+    <value>[NL] Sauvegarder comme modèle</value>
+  </data>
+  <data name="Email.PerChildInfo" xml:space="preserve">
+    <value>[NL] Les variables (%prenom_enfant%, etc.) seront remplacées par les données de chaque enfant</value>
+  </data>
+  <data name="Email.PerParentInfo" xml:space="preserve">
+    <value>[NL] Un seul email envoyé par parent, les variables enfant ne seront pas remplacées</value>
+  </data>
+  <data name="Email.SelectTemplateFirst" xml:space="preserve">
+    <value>[NL] Veuillez sélectionner un modèle avant de charger</value>
+  </data>
+  <data name="Email.TemplateLoadError" xml:space="preserve">
+    <value>[NL] Erreur lors du chargement du modèle</value>
   </data>
   <data name="EndDate" xml:space="preserve">
     <value>Einddatum</value>
@@ -1582,6 +1642,9 @@
   <data name="Field.Country" xml:space="preserve">
     <value>[NL] Pays</value>
   </data>
+  <data name="Field.Cost" xml:space="preserve">
+    <value>Kosten</value>
+  </data>
   <data name="Field.DailyCompensation" xml:space="preserve">
     <value>[NL] Indemnité journalière</value>
   </data>
@@ -1728,6 +1791,9 @@
   </data>
   <data name="Field.Role" xml:space="preserve">
     <value>[NL] Rôle</value>
+  </data>
+  <data name="Field.SelectedGroupIds" xml:space="preserve">
+    <value>Doelgroepen</value>
   </data>
   <data name="Field.StartDate" xml:space="preserve">
     <value>[NL] Date de début</value>

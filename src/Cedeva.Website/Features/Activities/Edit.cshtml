@@ -39,7 +39,7 @@
                                     <button type="submit" class="btn btn-danger">
                                         <i class="fas fa-check me-2"></i>@Localizer["Activities.ConfirmRemoveDays"]
                                     </button>
-                                    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-secondary">
+                                    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-outline-secondary">
                                         <i class="fas fa-times me-2"></i>@Localizer["Cancel"]
                                     </a>
                                 </form>
@@ -95,7 +95,7 @@
                                         }
                                     }
                                     <input type="hidden" name="addDaysToBookings" value="false" />
-                                    <button type="submit" class="btn btn-secondary">
+                                    <button type="submit" class="btn btn-outline-secondary">
                                         <i class="fas fa-times me-2"></i>@Localizer["No"]
                                     </button>
                                 </form>

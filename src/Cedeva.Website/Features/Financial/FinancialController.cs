@@ -96,8 +96,7 @@ public class FinancialController : Controller
 
         // Count pending bookings for display
         var pendingBookings = activity.Bookings
-            .Where(b => b.PaymentStatus == Core.Enums.PaymentStatus.NotPaid ||
-                       b.PaymentStatus == Core.Enums.PaymentStatus.PartiallyPaid)
+            .Where(b => !b.IsConfirmed)
             .ToList();
 
         var viewModel = new ActivityFinancialDashboardViewModel
@@ -842,9 +841,7 @@ public class FinancialController : Controller
         var totalRevenue = _financialCalculationService.CalculateTotalRevenue(activity);
         var pendingAmount = _financialCalculationService.CalculatePendingPayments(activity);
         var confirmedBookings = activity.Bookings.Count(b => b.IsConfirmed);
-        var pendingBookings = activity.Bookings
-            .Count(b => b.PaymentStatus == Core.Enums.PaymentStatus.NotPaid ||
-                       b.PaymentStatus == Core.Enums.PaymentStatus.PartiallyPaid);
+        var pendingBookings = activity.Bookings.Count(b => !b.IsConfirmed);
         var avgRevenue = activity.Bookings.Any() ? totalRevenue / activity.Bookings.Count : 0;
 
         var (orgCardExpenses, orgCashExpenses, orgExpenseDetails) = BuildOrganizationExpenseBreakdown(expenses);
