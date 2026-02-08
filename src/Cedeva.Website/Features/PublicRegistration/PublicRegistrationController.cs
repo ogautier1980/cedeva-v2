@@ -285,29 +285,37 @@ public class PublicRegistrationController : Controller
     public async Task<IActionResult> CreateBooking()
     {
         if (TempData[TempDataActivityId] == null || TempData[TempDataParentId] == null || TempData[TempDataChildId] == null)
-        {
             return RedirectToAction(nameof(SelectActivity));
-        }
 
         var activityId = (int)TempData[TempDataActivityId]!;
         var childId = (int)TempData[TempDataChildId]!;
+        var parentId = (int)TempData[TempDataParentId]!;
 
-        // Check if booking already exists
-        var existingBooking = await _context.Bookings
-            .AnyAsync(b => b.ActivityId == activityId && b.ChildId == childId);
-
-        if (existingBooking)
+        if (await _context.Bookings.AnyAsync(b => b.ActivityId == activityId && b.ChildId == childId))
         {
             ModelState.AddModelError("", _localizer["Message.BookingAlreadyExists"]);
             return RedirectToAction(nameof(SelectActivity));
         }
 
-        // Get active days for the activity
+        var booking = await CreateBookingWithDaysAsync(activityId, childId);
+        await SaveBookingAnswersFromTempDataAsync(booking.Id);
+
+        var parent = await _context.Parents.FindAsync(parentId);
+        var child = await _context.Children.FindAsync(childId);
+        var activity = await _context.Activities.FindAsync(activityId);
+
+        if (parent != null && child != null && activity != null)
+            await SendConfirmationEmail(parent, child, activity, booking);
+
+        return RedirectToAction(nameof(Confirmation), new { bookingId = booking.Id });
+    }
+
+    private async Task<Booking> CreateBookingWithDaysAsync(int activityId, int childId)
+    {
         var activeDays = await _context.ActivityDays
             .Where(d => d.ActivityId == activityId && d.IsActive)
             .ToListAsync();
 
-        // Create booking
         var booking = new Booking
         {
             ActivityId = activityId,
@@ -316,57 +324,26 @@ public class PublicRegistrationController : Controller
             IsConfirmed = false,
             IsMedicalSheet = false
         };
-
         _context.Bookings.Add(booking);
         await _context.SaveChangesAsync();
 
-        // Add all active days to the booking
-        foreach (var activityDay in activeDays)
-        {
-            var bookingDay = new BookingDay
-            {
-                BookingId = booking.Id,
-                ActivityDayId = activityDay.DayId,
-                IsReserved = true,
-                IsPresent = false
-            };
-            _context.BookingDays.Add(bookingDay);
-        }
+        foreach (var day in activeDays)
+            _context.BookingDays.Add(new BookingDay { BookingId = booking.Id, ActivityDayId = day.DayId, IsReserved = true, IsPresent = false });
         await _context.SaveChangesAsync();
+        return booking;
+    }
 
-        // Save question answers if any
-        if (TempData[TempDataQuestionAnswers] != null)
-        {
-            var answersJson = TempData[TempDataQuestionAnswers]!.ToString();
-            var answers = JsonSerializer.Deserialize<Dictionary<int, string>>(answersJson!);
+    private async Task SaveBookingAnswersFromTempDataAsync(int bookingId)
+    {
+        var answersJson = TempData[TempDataQuestionAnswers]?.ToString();
+        if (string.IsNullOrEmpty(answersJson)) return;
 
-            if (answers != null)
-            {
-                foreach (var answer in answers)
-                {
-                    var questionAnswer = new ActivityQuestionAnswer
-                    {
-                        BookingId = booking.Id,
-                        ActivityQuestionId = answer.Key,
-                        AnswerText = answer.Value
-                    };
-                    _context.ActivityQuestionAnswers.Add(questionAnswer);
-                }
-                await _context.SaveChangesAsync();
-            }
-        }
+        var answers = JsonSerializer.Deserialize<Dictionary<int, string>>(answersJson);
+        if (answers == null) return;
 
-        // Send confirmation email
-        var parent = await _context.Parents.FindAsync((int)TempData[TempDataParentId]!);
-        var child = await _context.Children.FindAsync(childId);
-        var activity = await _context.Activities.FindAsync(activityId);
-
-        if (parent != null && child != null && activity != null)
-        {
-            await SendConfirmationEmail(parent, child, activity, booking);
-        }
-
-        return RedirectToAction(nameof(Confirmation), new { bookingId = booking.Id });
+        foreach (var answer in answers)
+            _context.ActivityQuestionAnswers.Add(new ActivityQuestionAnswer { BookingId = bookingId, ActivityQuestionId = answer.Key, AnswerText = answer.Value });
+        await _context.SaveChangesAsync();
     }
 
     // GET: PublicRegistration/Confirmation/5

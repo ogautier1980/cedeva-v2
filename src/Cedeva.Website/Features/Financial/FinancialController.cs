@@ -350,56 +350,10 @@ public class FinancialController : Controller
             return NotFound();
         }
 
-        var teamSalaries = new List<TeamSalaryViewModel>();
         var daysCount = activity.Days.Count;
-
+        var teamSalaries = new List<TeamSalaryViewModel>();
         foreach (var teamMember in activity.TeamMembers)
-        {
-            // Récupérer les dépenses du membre pour cette activité
-            var expenses = await _context.Expenses
-                .Where(e => e.TeamMemberId == teamMember.TeamMemberId && e.ActivityId == activityId.Value)
-                .ToListAsync();
-
-            // Calculate salary using service
-            var totalToPay = _financialCalculationService.CalculateTeamMemberSalary(teamMember, daysCount, expenses);
-
-            // Separate expense types for display details
-            var reimbursements = expenses.Where(e => e.ExpenseType == Core.Enums.ExpenseType.Reimbursement).ToList();
-            var personalConsumptions = expenses.Where(e => e.ExpenseType == Core.Enums.ExpenseType.PersonalConsumption).ToList();
-            var reimbursementsTotal = reimbursements.Sum(e => e.Amount);
-            var personalConsumptionsTotal = personalConsumptions.Sum(e => e.Amount);
-            var prestations = daysCount * (teamMember.DailyCompensation ?? 0);
-
-            var salary = new TeamSalaryViewModel
-            {
-                TeamMemberId = teamMember.TeamMemberId,
-                TeamMemberName = teamMember.FullName,
-                Email = teamMember.Email,
-                TeamRole = teamMember.TeamRole.ToString(),
-                DaysCount = daysCount,
-                DailyCompensation = teamMember.DailyCompensation ?? 0,
-                Prestations = prestations,
-                Reimbursements = reimbursementsTotal,
-                ReimbursementsCount = reimbursements.Count,
-                PersonalConsumptions = personalConsumptionsTotal,
-                PersonalConsumptionsCount = personalConsumptions.Count,
-                TotalToPay = totalToPay,
-                ReimbursementDetails = reimbursements.Select(e => new ExpenseDetailViewModel
-                {
-                    Id = e.Id,
-                    Label = e.Label,
-                    Amount = e.Amount
-                }).ToList(),
-                PersonalConsumptionDetails = personalConsumptions.Select(e => new ExpenseDetailViewModel
-                {
-                    Id = e.Id,
-                    Label = e.Label,
-                    Amount = e.Amount
-                }).ToList()
-            };
-
-            teamSalaries.Add(salary);
-        }
+            teamSalaries.Add(await BuildTeamSalaryViewModelAsync(teamMember, daysCount, activityId.Value));
 
         var viewModel = new TeamSalariesViewModel
         {
@@ -416,6 +370,35 @@ public class FinancialController : Controller
         };
 
         return View(viewModel);
+    }
+
+    private async Task<TeamSalaryViewModel> BuildTeamSalaryViewModelAsync(TeamMember teamMember, int daysCount, int activityId)
+    {
+        var expenses = await _context.Expenses
+            .Where(e => e.TeamMemberId == teamMember.TeamMemberId && e.ActivityId == activityId)
+            .ToListAsync();
+
+        var totalToPay = _financialCalculationService.CalculateTeamMemberSalary(teamMember, daysCount, expenses);
+        var reimbursements = expenses.Where(e => e.ExpenseType == Core.Enums.ExpenseType.Reimbursement).ToList();
+        var personalConsumptions = expenses.Where(e => e.ExpenseType == Core.Enums.ExpenseType.PersonalConsumption).ToList();
+
+        return new TeamSalaryViewModel
+        {
+            TeamMemberId = teamMember.TeamMemberId,
+            TeamMemberName = teamMember.FullName,
+            Email = teamMember.Email,
+            TeamRole = teamMember.TeamRole.ToString(),
+            DaysCount = daysCount,
+            DailyCompensation = teamMember.DailyCompensation ?? 0,
+            Prestations = daysCount * (teamMember.DailyCompensation ?? 0),
+            Reimbursements = reimbursements.Sum(e => e.Amount),
+            ReimbursementsCount = reimbursements.Count,
+            PersonalConsumptions = personalConsumptions.Sum(e => e.Amount),
+            PersonalConsumptionsCount = personalConsumptions.Count,
+            TotalToPay = totalToPay,
+            ReimbursementDetails = reimbursements.Select(e => new ExpenseDetailViewModel { Id = e.Id, Label = e.Label, Amount = e.Amount }).ToList(),
+            PersonalConsumptionDetails = personalConsumptions.Select(e => new ExpenseDetailViewModel { Id = e.Id, Label = e.Label, Amount = e.Amount }).ToList()
+        };
     }
 
     // GET: Financial/ExportTeamSalaries
