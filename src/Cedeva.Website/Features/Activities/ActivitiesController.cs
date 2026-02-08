@@ -321,14 +321,12 @@ public class ActivitiesController : Controller
     {
         for (var date = activity.StartDate; date <= activity.EndDate; date = date.AddDays(1))
         {
-            var isWeekend = date.DayOfWeek == DayOfWeek.Saturday || date.DayOfWeek == DayOfWeek.Sunday;
-
             activity.Days.Add(new ActivityDay
             {
                 Label = date.ToString(DateFormatFull, new System.Globalization.CultureInfo(CultureFrBe)),
                 DayDate = date,
                 Week = GetWeekNumber(date, activity.StartDate),
-                IsActive = !isWeekend
+                IsActive = !IsWeekend(date)
             });
         }
     }
@@ -676,6 +674,11 @@ public class ActivitiesController : Controller
         return (daysSinceFirstMonday / 7) + 2; // +2 because week 1 already happened
     }
 
+    private static bool IsWeekend(DateTime date)
+    {
+        return date.DayOfWeek == DayOfWeek.Saturday || date.DayOfWeek == DayOfWeek.Sunday;
+    }
+
     /// <summary>
     /// Ensures all days between activity StartDate and EndDate exist in database.
     /// Missing days are created as inactive.
@@ -718,13 +721,12 @@ public class ActivitiesController : Controller
             {
                 if (!existingDates.Contains(date.Date))
                 {
-                    var isWeekend = date.DayOfWeek == DayOfWeek.Saturday || date.DayOfWeek == DayOfWeek.Sunday;
                     activity.Days.Add(new ActivityDay
                     {
                         Label = date.ToString(DateFormatFull, new System.Globalization.CultureInfo(CultureFrBe)),
                         DayDate = date,
                         Week = GetWeekNumber(date, newStartDate),
-                        IsActive = !isWeekend
+                        IsActive = !IsWeekend(date)
                     });
                 }
             }
@@ -737,13 +739,12 @@ public class ActivitiesController : Controller
             {
                 if (!existingDates.Contains(date.Date))
                 {
-                    var isWeekend = date.DayOfWeek == DayOfWeek.Saturday || date.DayOfWeek == DayOfWeek.Sunday;
                     activity.Days.Add(new ActivityDay
                     {
                         Label = date.ToString(DateFormatFull, new System.Globalization.CultureInfo(CultureFrBe)),
                         DayDate = date,
                         Week = GetWeekNumber(date, newStartDate),
-                        IsActive = !isWeekend
+                        IsActive = !IsWeekend(date)
                     });
                 }
             }
