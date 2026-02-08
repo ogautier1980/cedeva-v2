@@ -17,6 +17,11 @@ namespace Cedeva.Website.Features.Children;
 public class ChildrenController : Controller
 {
     private const string SortOrderDescending = "desc";
+    private const string SessionKeyChildrenSearchString = "Children_SearchString";
+    private const string SessionKeyChildrenParentId = "Children_ParentId";
+    private const string SessionKeyChildrenSortBy = "Children_SortBy";
+    private const string SessionKeyChildrenSortOrder = "Children_SortOrder";
+    private const string SessionKeyChildrenPageNumber = "Children_PageNumber";
 
     private readonly IRepository<Child> _childRepository;
     private readonly IRepository<Parent> _parentRepository;
@@ -66,19 +71,19 @@ public class ChildrenController : Controller
         if (hasQueryParams)
         {
             if (!string.IsNullOrWhiteSpace(queryParams.SearchString))
-                _sessionState.Set("Children_SearchString", queryParams.SearchString, persistToCookie: false);
+                _sessionState.Set("SessionKeyChildrenSearchString", queryParams.SearchString, persistToCookie: false);
 
             if (queryParams.ParentId.HasValue)
-                _sessionState.Set("Children_ParentId", queryParams.ParentId, persistToCookie: false);
+                _sessionState.Set("SessionKeyChildrenParentId", queryParams.ParentId, persistToCookie: false);
 
             if (!string.IsNullOrWhiteSpace(queryParams.SortBy))
-                _sessionState.Set("Children_SortBy", queryParams.SortBy, persistToCookie: false);
+                _sessionState.Set("SessionKeyChildrenSortBy", queryParams.SortBy, persistToCookie: false);
 
             if (!string.IsNullOrWhiteSpace(queryParams.SortOrder))
-                _sessionState.Set("Children_SortOrder", queryParams.SortOrder, persistToCookie: false);
+                _sessionState.Set("SessionKeyChildrenSortOrder", queryParams.SortOrder, persistToCookie: false);
 
             if (queryParams.PageNumber > 1)
-                _sessionState.Set("Children_PageNumber", queryParams.PageNumber.ToString(), persistToCookie: false);
+                _sessionState.Set("SessionKeyChildrenPageNumber", queryParams.PageNumber.ToString(), persistToCookie: false);
 
             // Mark that filters should be kept for the next request (after redirect)
             TempData[ControllerExtensions.KeepFiltersKey] = true;
@@ -90,20 +95,20 @@ public class ChildrenController : Controller
         // If not keeping filters (no redirect, just navigation/F5), clear them
         if (TempData[ControllerExtensions.KeepFiltersKey] == null)
         {
-            _sessionState.Clear("Children_SearchString");
-            _sessionState.Clear("Children_ParentId");
-            _sessionState.Clear("Children_SortBy");
-            _sessionState.Clear("Children_SortOrder");
-            _sessionState.Clear("Children_PageNumber");
+            _sessionState.Clear("SessionKeyChildrenSearchString");
+            _sessionState.Clear("SessionKeyChildrenParentId");
+            _sessionState.Clear("SessionKeyChildrenSortBy");
+            _sessionState.Clear("SessionKeyChildrenSortOrder");
+            _sessionState.Clear("SessionKeyChildrenPageNumber");
         }
 
         // Load filters from state (will be empty if just cleared)
-        queryParams.SearchString = _sessionState.Get("Children_SearchString");
-        queryParams.ParentId = _sessionState.Get<int>("Children_ParentId");
-        queryParams.SortBy = _sessionState.Get("Children_SortBy");
-        queryParams.SortOrder = _sessionState.Get("Children_SortOrder");
+        queryParams.SearchString = _sessionState.Get("SessionKeyChildrenSearchString");
+        queryParams.ParentId = _sessionState.Get<int>("SessionKeyChildrenParentId");
+        queryParams.SortBy = _sessionState.Get("SessionKeyChildrenSortBy");
+        queryParams.SortOrder = _sessionState.Get("SessionKeyChildrenSortOrder");
 
-        var pageNumberStr = _sessionState.Get("Children_PageNumber");
+        var pageNumberStr = _sessionState.Get("SessionKeyChildrenPageNumber");
         if (!string.IsNullOrEmpty(pageNumberStr) && int.TryParse(pageNumberStr, out var pageNum))
         {
             queryParams.PageNumber = pageNum;
