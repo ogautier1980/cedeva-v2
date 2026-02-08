@@ -27,8 +27,7 @@ public class ChildrenController : Controller
     private readonly IRepository<Parent> _parentRepository;
     private readonly CedevaDbContext _context;
     private readonly IUnitOfWork _unitOfWork;
-    private readonly IExcelExportService _excelExportService;
-    private readonly IPdfExportService _pdfExportService;
+    private readonly IExportFacadeService _exportServices;
     private readonly IStringLocalizer<SharedResources> _localizer;
     private readonly IUserDisplayService _userDisplayService;
     private readonly ICurrentUserService _currentUserService;
@@ -40,8 +39,7 @@ public class ChildrenController : Controller
         IRepository<Parent> parentRepository,
         CedevaDbContext context,
         IUnitOfWork unitOfWork,
-        IExcelExportService excelExportService,
-        IPdfExportService pdfExportService,
+        IExportFacadeService exportServices,
         IStringLocalizer<SharedResources> localizer,
         IUserDisplayService userDisplayService,
         ICurrentUserService currentUserService,
@@ -52,8 +50,7 @@ public class ChildrenController : Controller
         _parentRepository = parentRepository;
         _context = context;
         _unitOfWork = unitOfWork;
-        _excelExportService = excelExportService;
-        _pdfExportService = pdfExportService;
+        _exportServices = exportServices;
         _localizer = localizer;
         _userDisplayService = userDisplayService;
         _currentUserService = currentUserService;
@@ -212,7 +209,7 @@ public class ChildrenController : Controller
         };
 
         var sheetName = _localizer["Excel.ChildrenSheet"];
-        var excelData = _excelExportService.ExportToExcel(children, sheetName, columns);
+        var excelData = _exportServices.Excel.ExportToExcel(children, sheetName, columns);
         var fileName = $"{sheetName}_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx";
 
         return File(excelData, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
@@ -254,7 +251,7 @@ public class ChildrenController : Controller
         };
 
         var title = _localizer["Excel.ChildrenSheet"];
-        var pdfData = _pdfExportService.ExportToPdf(children, title, columns);
+        var pdfData = _exportServices.Pdf.ExportToPdf(children, title, columns);
         var fileName = $"{title}_{DateTime.Now:yyyyMMdd_HHmmss}.pdf";
 
         return File(pdfData, "application/pdf", fileName);

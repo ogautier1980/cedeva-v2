@@ -25,8 +25,7 @@ public class OrganisationsController : Controller
     private readonly CedevaDbContext _context;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IStringLocalizer<SharedResources> _localizer;
-    private readonly IExcelExportService _excelExportService;
-    private readonly IPdfExportService _pdfExportService;
+    private readonly IExportFacadeService _exportServices;
     private readonly IStorageService _storageService;
     private readonly IUserDisplayService _userDisplayService;
     private readonly ISessionStateService _sessionState;
@@ -37,8 +36,7 @@ public class OrganisationsController : Controller
         CedevaDbContext context,
         IUnitOfWork unitOfWork,
         IStringLocalizer<SharedResources> localizer,
-        IExcelExportService excelExportService,
-        IPdfExportService pdfExportService,
+        IExportFacadeService exportServices,
         IStorageService storageService,
         IUserDisplayService userDisplayService,
         ISessionStateService sessionState)
@@ -48,8 +46,7 @@ public class OrganisationsController : Controller
         _context = context;
         _unitOfWork = unitOfWork;
         _localizer = localizer;
-        _excelExportService = excelExportService;
-        _pdfExportService = pdfExportService;
+        _exportServices = exportServices;
         _storageService = storageService;
         _userDisplayService = userDisplayService;
         _sessionState = sessionState;
@@ -568,7 +565,7 @@ public class OrganisationsController : Controller
         };
 
         var sheetName = _localizer["Excel.OrganisationsSheet"];
-        var excelData = _excelExportService.ExportToExcel(organisations, sheetName, columns);
+        var excelData = _exportServices.Excel.ExportToExcel(organisations, sheetName, columns);
         var fileName = $"{sheetName}_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx";
 
         return File(excelData, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
@@ -606,7 +603,7 @@ public class OrganisationsController : Controller
         };
 
         var title = _localizer["Excel.OrganisationsSheet"];
-        var pdfData = _pdfExportService.ExportToPdf(organisations, title, columns);
+        var pdfData = _exportServices.Pdf.ExportToPdf(organisations, title, columns);
         var fileName = $"{title}_{DateTime.Now:yyyyMMdd_HHmmss}.pdf";
 
         return File(pdfData, "application/pdf", fileName);

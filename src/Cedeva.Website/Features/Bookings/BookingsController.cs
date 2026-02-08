@@ -26,8 +26,7 @@ public class BookingsController : Controller
     private readonly IRepository<Booking> _bookingRepository;
     private readonly CedevaDbContext _context;
     private readonly IUnitOfWork _unitOfWork;
-    private readonly IExcelExportService _excelExportService;
-    private readonly IPdfExportService _pdfExportService;
+    private readonly IExportFacadeService _exportServices;
     private readonly IEmailService _emailService;
     private readonly IStringLocalizer<SharedResources> _localizer;
     private readonly ICurrentUserService _currentUserService;
@@ -40,8 +39,7 @@ public class BookingsController : Controller
         IRepository<Booking> bookingRepository,
         CedevaDbContext context,
         IUnitOfWork unitOfWork,
-        IExcelExportService excelExportService,
-        IPdfExportService pdfExportService,
+        IExportFacadeService exportServices,
         IEmailService emailService,
         IStringLocalizer<SharedResources> localizer,
         ICurrentUserService currentUserService,
@@ -53,8 +51,7 @@ public class BookingsController : Controller
         _bookingRepository = bookingRepository;
         _context = context;
         _unitOfWork = unitOfWork;
-        _excelExportService = excelExportService;
-        _pdfExportService = pdfExportService;
+        _exportServices = exportServices;
         _emailService = emailService;
         _localizer = localizer;
         _currentUserService = currentUserService;
@@ -819,7 +816,7 @@ public class BookingsController : Controller
         };
 
         var sheetName = _localizer["Excel.BookingsSheet"];
-        var excelData = _excelExportService.ExportToExcel(bookings, sheetName, columns);
+        var excelData = _exportServices.Excel.ExportToExcel(bookings, sheetName, columns);
         var fileName = $"{sheetName}_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx";
 
         return File(excelData, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
@@ -874,7 +871,7 @@ public class BookingsController : Controller
         };
 
         var title = _localizer["Excel.BookingsSheet"];
-        var pdfData = _pdfExportService.ExportToPdf(bookings, title, columns);
+        var pdfData = _exportServices.Pdf.ExportToPdf(bookings, title, columns);
         var fileName = $"{title}_{DateTime.Now:yyyyMMdd_HHmmss}.pdf";
 
         return File(pdfData, "application/pdf", fileName);

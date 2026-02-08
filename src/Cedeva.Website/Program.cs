@@ -59,6 +59,7 @@ try
         containerBuilder.RegisterType<EmailRecipientService>().As<IEmailRecipientService>().InstancePerLifetimeScope();
         containerBuilder.RegisterType<EmailVariableReplacementService>().As<IEmailVariableReplacementService>().InstancePerLifetimeScope();
         containerBuilder.RegisterType<EmailTemplateService>().As<IEmailTemplateService>().InstancePerLifetimeScope();
+        containerBuilder.RegisterType<EmailFacadeService>().As<IEmailFacadeService>().InstancePerLifetimeScope();
         containerBuilder.RegisterType<ClosedXmlExportService>().As<IExcelExportService>().InstancePerLifetimeScope();
         containerBuilder.RegisterType<QuestPdfExportService>().As<IPdfExportService>().InstancePerLifetimeScope();
         containerBuilder.RegisterType<ExportFacadeService>().As<IExportFacadeService>().InstancePerLifetimeScope();

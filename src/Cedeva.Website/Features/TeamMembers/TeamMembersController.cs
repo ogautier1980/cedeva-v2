@@ -27,8 +27,7 @@ public class TeamMembersController : Controller
     private readonly CedevaDbContext _context;
     private readonly ICurrentUserService _currentUserService;
     private readonly IUnitOfWork _unitOfWork;
-    private readonly IExcelExportService _excelExportService;
-    private readonly IPdfExportService _pdfExportService;
+    private readonly IExportFacadeService _exportServices;
     private readonly IStringLocalizer<SharedResources> _localizer;
     private readonly IStorageService _storageService;
     private readonly IWebHostEnvironment _webHostEnvironment;
@@ -41,8 +40,7 @@ public class TeamMembersController : Controller
         CedevaDbContext context,
         ICurrentUserService currentUserService,
         IUnitOfWork unitOfWork,
-        IExcelExportService excelExportService,
-        IPdfExportService pdfExportService,
+        IExportFacadeService exportServices,
         IStringLocalizer<SharedResources> localizer,
         IStorageService storageService,
         IWebHostEnvironment webHostEnvironment,
@@ -54,8 +52,7 @@ public class TeamMembersController : Controller
         _context = context;
         _currentUserService = currentUserService;
         _unitOfWork = unitOfWork;
-        _excelExportService = excelExportService;
-        _pdfExportService = pdfExportService;
+        _exportServices = exportServices;
         _localizer = localizer;
         _storageService = storageService;
         _webHostEnvironment = webHostEnvironment;
@@ -203,7 +200,7 @@ public class TeamMembersController : Controller
         };
 
         var sheetName = _localizer["Excel.TeamMembersSheet"];
-        var excelData = _excelExportService.ExportToExcel(teamMembers, sheetName, columns);
+        var excelData = _exportServices.Excel.ExportToExcel(teamMembers, sheetName, columns);
         var fileName = $"{sheetName}_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx";
 
         return File(excelData, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
@@ -243,7 +240,7 @@ public class TeamMembersController : Controller
         };
 
         var title = _localizer["Excel.TeamMembersSheet"];
-        var pdfData = _pdfExportService.ExportToPdf(teamMembers, title, columns);
+        var pdfData = _exportServices.Pdf.ExportToPdf(teamMembers, title, columns);
         var fileName = $"{title}_{DateTime.Now:yyyyMMdd_HHmmss}.pdf";
 
         return File(pdfData, "application/pdf", fileName);

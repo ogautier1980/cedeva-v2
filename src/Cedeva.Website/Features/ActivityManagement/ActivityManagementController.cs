@@ -27,29 +27,20 @@ public class ActivityManagementController : Controller
 
     private readonly CedevaDbContext _context;
     private readonly ILogger<ActivityManagementController> _logger;
-    private readonly IEmailService _emailService;
-    private readonly IEmailRecipientService _emailRecipientService;
-    private readonly IEmailVariableReplacementService _variableReplacementService;
-    private readonly IEmailTemplateService _templateService;
+    private readonly IEmailFacadeService _emailServices;
     private readonly ISessionStateService _sessionState;
     private readonly IStringLocalizer<SharedResources> _localizer;
 
     public ActivityManagementController(
         CedevaDbContext context,
         ILogger<ActivityManagementController> logger,
-        IEmailService emailService,
-        IEmailRecipientService emailRecipientService,
-        IEmailVariableReplacementService variableReplacementService,
-        IEmailTemplateService templateService,
+        IEmailFacadeService emailServices,
         ISessionStateService sessionState,
         IStringLocalizer<SharedResources> localizer)
     {
         _context = context;
         _logger = logger;
-        _emailService = emailService;
-        _emailRecipientService = emailRecipientService;
-        _variableReplacementService = variableReplacementService;
-        _templateService = templateService;
+        _emailServices = emailServices;
         _sessionState = sessionState;
         _localizer = localizer;
     }
@@ -368,7 +359,7 @@ public class ActivityManagementController : Controller
             .Where(e => e.ActivityId == id)
             .ToListAsync();
 
-        ViewBag.Templates = await _templateService.GetAllTemplatesAsync(activity.OrganisationId);
+        ViewBag.Templates = await _emailServices.Template.GetAllTemplatesAsync(activity.OrganisationId);
 
         var viewModel = new SendEmailViewModel
         {
@@ -428,7 +419,7 @@ public class ActivityManagementController : Controller
             }
 
             // Log the sent email
-            var allEmails = await _emailRecipientService.GetRecipientEmailsAsync(
+            var allEmails = await _emailServices.Recipient.GetRecipientEmailsAsync(
                 model.ActivityId, model.SelectedRecipient!, recipientGroupId, model.SelectedDayId, ct);
             await LogSentEmailAsync(model, recipientGroupId, allEmails, attachmentFileName, attachmentFilePath, ct);
 
@@ -466,10 +457,10 @@ public class ActivityManagementController : Controller
         int count = 0;
         foreach (var booking in bookings)
         {
-            var personalizedSubject = _variableReplacementService.ReplaceVariables(model.Subject, booking, organisation);
-            var personalizedMessage = _variableReplacementService.ReplaceVariables(model.Message, booking, organisation);
+            var personalizedSubject = _emailServices.VariableReplacement.ReplaceVariables(model.Subject, booking, organisation);
+            var personalizedMessage = _emailServices.VariableReplacement.ReplaceVariables(model.Message, booking, organisation);
 
-            await _emailService.SendEmailAsync(
+            await _emailServices.Email.SendEmailAsync(
                 new List<string> { booking.Child.Parent.Email },
                 personalizedSubject,
                 personalizedMessage,
@@ -489,7 +480,7 @@ public class ActivityManagementController : Controller
         string? attachmentFilePath,
         CancellationToken ct)
     {
-        var recipientEmails = await _emailRecipientService.GetRecipientEmailsAsync(
+        var recipientEmails = await _emailServices.Recipient.GetRecipientEmailsAsync(
             model.ActivityId, model.SelectedRecipient!, recipientGroupId, model.SelectedDayId, ct);
 
         if (!recipientEmails.Any())
@@ -498,7 +489,7 @@ public class ActivityManagementController : Controller
         // Send same message to all unique parent emails (HTML content used as-is from TinyMCE)
         foreach (var email in recipientEmails)
         {
-            await _emailService.SendEmailAsync(
+            await _emailServices.Email.SendEmailAsync(
                 new List<string> { email },
                 model.Subject,
                 model.Message,
@@ -804,7 +795,7 @@ public class ActivityManagementController : Controller
 
             model.RecipientOptions = GetRecipientOptions(activity.Groups, excursions);
             model.DayOptions = GetDayOptions(activity.Days);
-            ViewBag.Templates = await _templateService.GetAllTemplatesAsync(activity.OrganisationId);
+            ViewBag.Templates = await _emailServices.Template.GetAllTemplatesAsync(activity.OrganisationId);
         }
     }
 
