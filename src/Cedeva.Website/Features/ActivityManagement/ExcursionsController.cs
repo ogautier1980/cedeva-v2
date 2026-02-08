@@ -435,6 +435,11 @@ public class ExcursionsController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> RegisterChild(int excursionId, int bookingId)
     {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
         try
         {
             await _excursionService.RegisterChildAsync(excursionId, bookingId);
@@ -461,6 +466,11 @@ public class ExcursionsController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> UnregisterChild(int excursionId, int bookingId)
     {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
         try
         {
             var result = await _excursionService.UnregisterChildAsync(excursionId, bookingId);
@@ -521,6 +531,11 @@ public class ExcursionsController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> UpdateAttendance(int registrationId, bool isPresent)
     {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
         try
         {
             var result = await _excursionService.UpdateAttendanceAsync(registrationId, isPresent);
@@ -768,6 +783,11 @@ public class ExcursionsController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> AssignTeamMember(int excursionId, int teamMemberId)
     {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
         var existing = await _context.ExcursionTeamMembers
             .FirstOrDefaultAsync(tm => tm.ExcursionId == excursionId && tm.TeamMemberId == teamMemberId);
 
@@ -790,6 +810,11 @@ public class ExcursionsController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> UnassignTeamMember(int excursionId, int teamMemberId)
     {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
         var existing = await _context.ExcursionTeamMembers
             .FirstOrDefaultAsync(tm => tm.ExcursionId == excursionId && tm.TeamMemberId == teamMemberId);
 
@@ -805,6 +830,11 @@ public class ExcursionsController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> UpdateTeamAttendance(int excursionTeamMemberId, bool isPresent)
     {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
         var etm = await _context.ExcursionTeamMembers
             .FirstOrDefaultAsync(tm => tm.Id == excursionTeamMemberId);
 

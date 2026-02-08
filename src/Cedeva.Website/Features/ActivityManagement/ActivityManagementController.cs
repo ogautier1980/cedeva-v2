@@ -1028,6 +1028,11 @@ public class ActivityManagementController : Controller
     [HttpPost]
     public async Task<IActionResult> AssignToGroup([FromBody] AssignToGroupRequest request)
     {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
         try
         {
             var booking = await _context.Bookings.FindAsync(request.BookingId);
@@ -1151,6 +1156,11 @@ public class ActivityManagementController : Controller
     [HttpPost]
     public async Task<IActionResult> UpdateBooking([FromBody] UpdateBookingRequest request)
     {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
         try
         {
             var booking = await _context.Bookings
