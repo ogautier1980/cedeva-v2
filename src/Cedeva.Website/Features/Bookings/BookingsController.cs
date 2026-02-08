@@ -64,66 +64,19 @@ public class BookingsController : Controller
     // GET: Bookings
     public async Task<IActionResult> Index([FromQuery] BookingQueryParameters queryParams)
     {
-        // Check if any query parameters were provided in the actual HTTP request
-        bool hasQueryParams = Request.Query.Count > 0;
-
-        // If query params provided, store them and redirect to clean URL
-        if (hasQueryParams)
+        if (Request.Query.Count > 0)
         {
-            // Store activityId (context, not a filter - persists to cookie)
-            if (queryParams.ActivityId.HasValue)
-                _sessionState.Set<int>("ActivityId", queryParams.ActivityId.Value);
-
-            // Store other filters (session only, cleared on fresh navigation)
-            if (!string.IsNullOrWhiteSpace(queryParams.SearchString))
-                _sessionState.Set("SessionKeyBookingsSearchString", queryParams.SearchString, persistToCookie: false);
-
-            if (queryParams.ChildId.HasValue)
-                _sessionState.Set("SessionKeyBookingsChildId", queryParams.ChildId, persistToCookie: false);
-
-            if (queryParams.IsConfirmed.HasValue)
-                _sessionState.Set("SessionKeyBookingsIsConfirmed", queryParams.IsConfirmed, persistToCookie: false);
-
-            if (!string.IsNullOrWhiteSpace(queryParams.SortBy))
-                _sessionState.Set("SessionKeyBookingsSortBy", queryParams.SortBy, persistToCookie: false);
-
-            if (!string.IsNullOrWhiteSpace(queryParams.SortOrder))
-                _sessionState.Set("SessionKeyBookingsSortOrder", queryParams.SortOrder, persistToCookie: false);
-
-            if (queryParams.PageNumber > 1)
-                _sessionState.Set("SessionKeyBookingsPageNumber", queryParams.PageNumber.ToString(), persistToCookie: false);
-
-            // Mark that filters should be kept for the next request (after redirect)
+            StoreBookingFiltersToSession(queryParams);
             TempData[ControllerExtensions.KeepFiltersKey] = true;
-
-            // Redirect to clean URL
             return RedirectToAction(nameof(Index));
         }
 
-        // If not keeping filters (no redirect, just navigation/F5), clear them
         if (TempData[ControllerExtensions.KeepFiltersKey] == null)
         {
-            _sessionState.Clear("SessionKeyBookingsSearchString");
-            _sessionState.Clear("SessionKeyBookingsChildId");
-            _sessionState.Clear("SessionKeyBookingsIsConfirmed");
-            _sessionState.Clear("SessionKeyBookingsSortBy");
-            _sessionState.Clear("SessionKeyBookingsSortOrder");
-            _sessionState.Clear("SessionKeyBookingsPageNumber");
+            ClearBookingFilters();
         }
 
-        // Load filters from state (will be empty if just cleared)
-        queryParams.ActivityId = _sessionState.Get<int>("ActivityId");
-        queryParams.SearchString = _sessionState.Get("SessionKeyBookingsSearchString");
-        queryParams.ChildId = _sessionState.Get<int>("SessionKeyBookingsChildId");
-        queryParams.IsConfirmed = _sessionState.Get<bool>("SessionKeyBookingsIsConfirmed");
-        queryParams.SortBy = _sessionState.Get("SessionKeyBookingsSortBy");
-        queryParams.SortOrder = _sessionState.Get("SessionKeyBookingsSortOrder");
-
-        var pageNumberStr = _sessionState.Get("SessionKeyBookingsPageNumber");
-        if (!string.IsNullOrEmpty(pageNumberStr) && int.TryParse(pageNumberStr, out var pageNum))
-        {
-            queryParams.PageNumber = pageNum;
-        }
+        LoadBookingFiltersFromSession(queryParams);
 
         var query = BuildBookingsQuery(
             queryParams.SearchString,
@@ -875,5 +828,46 @@ public class BookingsController : Controller
         var fileName = $"{title}_{DateTime.Now:yyyyMMdd_HHmmss}.pdf";
 
         return File(pdfData, "application/pdf", fileName);
+    }
+
+    private void StoreBookingFiltersToSession(BookingQueryParameters queryParams)
+    {
+        if (queryParams.ActivityId.HasValue)
+            _sessionState.Set<int>("ActivityId", queryParams.ActivityId.Value);
+        if (!string.IsNullOrWhiteSpace(queryParams.SearchString))
+            _sessionState.Set(SessionKeyBookingsSearchString, queryParams.SearchString, persistToCookie: false);
+        if (queryParams.ChildId.HasValue)
+            _sessionState.Set(SessionKeyBookingsChildId, queryParams.ChildId, persistToCookie: false);
+        if (queryParams.IsConfirmed.HasValue)
+            _sessionState.Set(SessionKeyBookingsIsConfirmed, queryParams.IsConfirmed, persistToCookie: false);
+        if (!string.IsNullOrWhiteSpace(queryParams.SortBy))
+            _sessionState.Set(SessionKeyBookingsSortBy, queryParams.SortBy, persistToCookie: false);
+        if (!string.IsNullOrWhiteSpace(queryParams.SortOrder))
+            _sessionState.Set(SessionKeyBookingsSortOrder, queryParams.SortOrder, persistToCookie: false);
+        if (queryParams.PageNumber > 1)
+            _sessionState.Set(SessionKeyBookingsPageNumber, queryParams.PageNumber.ToString(), persistToCookie: false);
+    }
+
+    private void ClearBookingFilters()
+    {
+        _sessionState.Clear(SessionKeyBookingsSearchString);
+        _sessionState.Clear(SessionKeyBookingsChildId);
+        _sessionState.Clear(SessionKeyBookingsIsConfirmed);
+        _sessionState.Clear(SessionKeyBookingsSortBy);
+        _sessionState.Clear(SessionKeyBookingsSortOrder);
+        _sessionState.Clear(SessionKeyBookingsPageNumber);
+    }
+
+    private void LoadBookingFiltersFromSession(BookingQueryParameters queryParams)
+    {
+        queryParams.ActivityId = _sessionState.Get<int>("ActivityId");
+        queryParams.SearchString = _sessionState.Get(SessionKeyBookingsSearchString);
+        queryParams.ChildId = _sessionState.Get<int>(SessionKeyBookingsChildId);
+        queryParams.IsConfirmed = _sessionState.Get<bool>(SessionKeyBookingsIsConfirmed);
+        queryParams.SortBy = _sessionState.Get(SessionKeyBookingsSortBy);
+        queryParams.SortOrder = _sessionState.Get(SessionKeyBookingsSortOrder);
+        var pageNumberStr = _sessionState.Get(SessionKeyBookingsPageNumber);
+        if (!string.IsNullOrEmpty(pageNumberStr) && int.TryParse(pageNumberStr, out var pageNum))
+            queryParams.PageNumber = pageNum;
     }
 }
