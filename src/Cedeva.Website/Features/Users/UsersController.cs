@@ -19,6 +19,8 @@ public class UsersController : Controller
 {
     private const string SortOrderDescending = "desc";
     private const string SortOrderAscending = "asc";
+    private const string RoleAdmin = "Admin";
+    private const string RoleCoordinator = "Coordinator";
 
     private readonly UserManager<CedevaUser> _userManager;
     private readonly CedevaDbContext _context;
@@ -167,7 +169,7 @@ public class UsersController : Controller
             if (result.Succeeded)
             {
                 // Assign role
-                var roleName = viewModel.Role == Role.Admin ? "Admin" : "Coordinator";
+                var roleName = viewModel.Role == Role.Admin ? RoleAdmin : RoleCoordinator;
                 await _userManager.AddToRoleAsync(user, roleName);
 
                 TempData[ControllerExtensions.SuccessMessageKey] = _localizer["Message.UserCreated"].Value;
@@ -321,7 +323,7 @@ public class UsersController : Controller
     {
         var currentRoles = await _userManager.GetRolesAsync(user);
         await _userManager.RemoveFromRolesAsync(user, currentRoles);
-        var roleName = role == Role.Admin ? "Admin" : "Coordinator";
+        var roleName = role == Role.Admin ? RoleAdmin : RoleCoordinator;
         await _userManager.AddToRoleAsync(user, roleName);
     }
 
