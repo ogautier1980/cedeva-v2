@@ -17,6 +17,10 @@ namespace Cedeva.Website.Features.Parents;
 [Authorize]
 public class ParentsController : Controller
 {
+    private const string SessionKeyParentsSearchString = SessionKeyParentsSearchString;
+    private const string SessionKeyParentsSortBy = SessionKeyParentsSortBy;
+    private const string SessionKeyParentsSortOrder = SessionKeyParentsSortOrder;
+    private const string SessionKeyParentsPageNumber = SessionKeyParentsPageNumber;
     private const string SortOrderDescending = "desc";
 
     private readonly CedevaDbContext _context;
@@ -57,16 +61,16 @@ public class ParentsController : Controller
         if (hasQueryParams)
         {
             if (!string.IsNullOrWhiteSpace(queryParams.SearchString))
-                _sessionState.Set("Parents_SearchString", queryParams.SearchString, persistToCookie: false);
+                _sessionState.Set(SessionKeyParentsSearchString, queryParams.SearchString, persistToCookie: false);
 
             if (!string.IsNullOrWhiteSpace(queryParams.SortBy))
-                _sessionState.Set("Parents_SortBy", queryParams.SortBy, persistToCookie: false);
+                _sessionState.Set(SessionKeyParentsSortBy, queryParams.SortBy, persistToCookie: false);
 
             if (!string.IsNullOrWhiteSpace(queryParams.SortOrder))
-                _sessionState.Set("Parents_SortOrder", queryParams.SortOrder, persistToCookie: false);
+                _sessionState.Set(SessionKeyParentsSortOrder, queryParams.SortOrder, persistToCookie: false);
 
             if (queryParams.PageNumber > 1)
-                _sessionState.Set("Parents_PageNumber", queryParams.PageNumber.ToString(), persistToCookie: false);
+                _sessionState.Set(SessionKeyParentsPageNumber, queryParams.PageNumber.ToString(), persistToCookie: false);
 
             // Mark that filters should be kept for the next request (after redirect)
             TempData[ControllerExtensions.KeepFiltersKey] = true;
@@ -78,18 +82,18 @@ public class ParentsController : Controller
         // If not keeping filters (no redirect, just navigation/F5), clear them
         if (TempData[ControllerExtensions.KeepFiltersKey] == null)
         {
-            _sessionState.Clear("Parents_SearchString");
-            _sessionState.Clear("Parents_SortBy");
-            _sessionState.Clear("Parents_SortOrder");
-            _sessionState.Clear("Parents_PageNumber");
+            _sessionState.Clear(SessionKeyParentsSearchString);
+            _sessionState.Clear(SessionKeyParentsSortBy);
+            _sessionState.Clear(SessionKeyParentsSortOrder);
+            _sessionState.Clear(SessionKeyParentsPageNumber);
         }
 
         // Load filters from state (will be empty if just cleared)
-        queryParams.SearchString = _sessionState.Get("Parents_SearchString");
-        queryParams.SortBy = _sessionState.Get("Parents_SortBy");
-        queryParams.SortOrder = _sessionState.Get("Parents_SortOrder");
+        queryParams.SearchString = _sessionState.Get(SessionKeyParentsSearchString);
+        queryParams.SortBy = _sessionState.Get(SessionKeyParentsSortBy);
+        queryParams.SortOrder = _sessionState.Get(SessionKeyParentsSortOrder);
 
-        var pageNumberStr = _sessionState.Get("Parents_PageNumber");
+        var pageNumberStr = _sessionState.Get(SessionKeyParentsPageNumber);
         if (!string.IsNullOrEmpty(pageNumberStr) && int.TryParse(pageNumberStr, out var pageNum))
         {
             queryParams.PageNumber = pageNum;
