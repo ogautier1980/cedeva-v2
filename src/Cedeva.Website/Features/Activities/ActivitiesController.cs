@@ -17,6 +17,11 @@ public class ActivitiesController : Controller
     private const string SortOrderDescending = "desc";
     private const string DateFormatFull = "dddd d MMMM";
     private const string CultureFrBe = "fr-BE";
+    private const string SessionKeyActivitiesSearchString = "Activities_SearchString";
+    private const string SessionKeyActivitiesShowActiveOnly = "Activities_ShowActiveOnly";
+    private const string SessionKeyActivitiesSortBy = "Activities_SortBy";
+    private const string SessionKeyActivitiesSortOrder = "Activities_SortOrder";
+    private const string SessionKeyActivitiesPageNumber = "Activities_PageNumber";
 
     private readonly CedevaDbContext _context;
     private readonly ICurrentUserService _currentUserService;
@@ -53,19 +58,19 @@ public class ActivitiesController : Controller
         if (hasQueryParams)
         {
             if (!string.IsNullOrWhiteSpace(queryParams.SearchString))
-                _sessionState.Set("Activities_SearchString", queryParams.SearchString, persistToCookie: false);
+                _sessionState.Set(SessionKeyActivitiesSearchString, queryParams.SearchString, persistToCookie: false);
 
             if (queryParams.ShowActiveOnly.HasValue)
-                _sessionState.Set("Activities_ShowActiveOnly", queryParams.ShowActiveOnly, persistToCookie: false);
+                _sessionState.Set(SessionKeyActivitiesShowActiveOnly, queryParams.ShowActiveOnly, persistToCookie: false);
 
             if (!string.IsNullOrWhiteSpace(queryParams.SortBy))
-                _sessionState.Set("Activities_SortBy", queryParams.SortBy, persistToCookie: false);
+                _sessionState.Set(SessionKeyActivitiesSortBy, queryParams.SortBy, persistToCookie: false);
 
             if (!string.IsNullOrWhiteSpace(queryParams.SortOrder))
-                _sessionState.Set("Activities_SortOrder", queryParams.SortOrder, persistToCookie: false);
+                _sessionState.Set(SessionKeyActivitiesSortOrder, queryParams.SortOrder, persistToCookie: false);
 
             if (queryParams.PageNumber > 1)
-                _sessionState.Set("Activities_PageNumber", queryParams.PageNumber.ToString(), persistToCookie: false);
+                _sessionState.Set(SessionKeyActivitiesPageNumber, queryParams.PageNumber.ToString(), persistToCookie: false);
 
             // Mark that filters should be kept for the next request (after redirect)
             TempData[ControllerExtensions.KeepFiltersKey] = true;
@@ -77,20 +82,20 @@ public class ActivitiesController : Controller
         // If not keeping filters (no redirect, just navigation/F5), clear them
         if (TempData[ControllerExtensions.KeepFiltersKey] == null)
         {
-            _sessionState.Clear("Activities_SearchString");
-            _sessionState.Clear("Activities_ShowActiveOnly");
-            _sessionState.Clear("Activities_SortBy");
-            _sessionState.Clear("Activities_SortOrder");
-            _sessionState.Clear("Activities_PageNumber");
+            _sessionState.Clear(SessionKeyActivitiesSearchString);
+            _sessionState.Clear(SessionKeyActivitiesShowActiveOnly);
+            _sessionState.Clear(SessionKeyActivitiesSortBy);
+            _sessionState.Clear(SessionKeyActivitiesSortOrder);
+            _sessionState.Clear(SessionKeyActivitiesPageNumber);
         }
 
         // Load filters from state (will be empty if just cleared)
-        queryParams.SearchString = _sessionState.Get("Activities_SearchString");
-        queryParams.ShowActiveOnly = _sessionState.Get<bool>("Activities_ShowActiveOnly");
-        queryParams.SortBy = _sessionState.Get("Activities_SortBy");
-        queryParams.SortOrder = _sessionState.Get("Activities_SortOrder");
+        queryParams.SearchString = _sessionState.Get(SessionKeyActivitiesSearchString);
+        queryParams.ShowActiveOnly = _sessionState.Get<bool>(SessionKeyActivitiesShowActiveOnly);
+        queryParams.SortBy = _sessionState.Get(SessionKeyActivitiesSortBy);
+        queryParams.SortOrder = _sessionState.Get(SessionKeyActivitiesSortOrder);
 
-        var pageNumberStr = _sessionState.Get("Activities_PageNumber");
+        var pageNumberStr = _sessionState.Get(SessionKeyActivitiesPageNumber);
         if (!string.IsNullOrEmpty(pageNumberStr) && int.TryParse(pageNumberStr, out var pageNum))
         {
             queryParams.PageNumber = pageNum;

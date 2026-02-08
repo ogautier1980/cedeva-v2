@@ -16,6 +16,7 @@ namespace Cedeva.Website.Features.Bookings;
 public class BookingsController : Controller
 {
     private const string SortOrderDescending = "desc";
+    private const string SessionKeyActivityId = "ActivityId";
     private const string SessionKeyBookingsSearchString = "Bookings_SearchString";
     private const string SessionKeyBookingsChildId = "Bookings_ChildId";
     private const string SessionKeyBookingsIsConfirmed = "Bookings_IsConfirmed";
@@ -821,7 +822,7 @@ public class BookingsController : Controller
     private void StoreBookingFiltersToSession(BookingQueryParameters queryParams)
     {
         if (queryParams.ActivityId.HasValue)
-            _ctx.Session.Set<int>("ActivityId", queryParams.ActivityId.Value);
+            _ctx.Session.Set<int>(SessionKeyActivityId, queryParams.ActivityId.Value);
         if (!string.IsNullOrWhiteSpace(queryParams.SearchString))
             _ctx.Session.Set(SessionKeyBookingsSearchString, queryParams.SearchString, persistToCookie: false);
         if (queryParams.ChildId.HasValue)
@@ -848,7 +849,7 @@ public class BookingsController : Controller
 
     private void LoadBookingFiltersFromSession(BookingQueryParameters queryParams)
     {
-        queryParams.ActivityId = _ctx.Session.Get<int>("ActivityId");
+        queryParams.ActivityId = _ctx.Session.Get<int>(SessionKeyActivityId);
         queryParams.SearchString = _ctx.Session.Get(SessionKeyBookingsSearchString);
         queryParams.ChildId = _ctx.Session.Get<int>(SessionKeyBookingsChildId);
         queryParams.IsConfirmed = _ctx.Session.Get<bool>(SessionKeyBookingsIsConfirmed);

@@ -16,6 +16,8 @@ namespace Cedeva.Website.Features.ActivityGroups;
 public class ActivityGroupsController : Controller
 {
         
+    private const string SessionKeyActivityId = "ActivityId";
+
     private readonly CedevaDbContext _context;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IStringLocalizer<SharedResources> _localizer;
@@ -43,14 +45,14 @@ public class ActivityGroupsController : Controller
         if (hasQueryParams)
         {
             if (activityId.HasValue)
-                _sessionState.Set<int>("ActivityId", activityId.Value); // ActivityId is context, persists to cookie
+                _sessionState.Set<int>(SessionKeyActivityId, activityId.Value); // ActivityId is context, persists to cookie
 
             // Redirect to clean URL
             return RedirectToAction(nameof(Index));
         }
 
         // Load activityId from service (no filters to clear - ActivityId is context, not a filter)
-        activityId = _sessionState.Get<int>("ActivityId");
+        activityId = _sessionState.Get<int>(SessionKeyActivityId);
 
         var query = _context.ActivityGroups
             .Include(g => g.Activity)

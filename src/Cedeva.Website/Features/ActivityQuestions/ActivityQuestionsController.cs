@@ -17,6 +17,7 @@ namespace Cedeva.Website.Features.ActivityQuestions;
 [Authorize]
 public class ActivityQuestionsController : Controller
 {
+    private const string SessionKeyActivityId = "ActivityId";
     private const string ErrorUnexpectedError = "Error.UnexpectedError";
 
     private readonly CedevaDbContext _context;
@@ -49,14 +50,14 @@ public class ActivityQuestionsController : Controller
         if (hasQueryParams)
         {
             if (activityId.HasValue)
-                _sessionState.Set<int>("ActivityId", activityId.Value); // ActivityId is context, persists to cookie
+                _sessionState.Set<int>(SessionKeyActivityId, activityId.Value); // ActivityId is context, persists to cookie
 
             // Redirect to clean URL
             return RedirectToAction(nameof(Index));
         }
 
         // Load activityId from service (no filters to clear - ActivityId is context, not a filter)
-        activityId = _sessionState.Get<int>("ActivityId");
+        activityId = _sessionState.Get<int>(SessionKeyActivityId);
 
         var query = _context.ActivityQuestions
             .Include(q => q.Activity)
@@ -487,7 +488,7 @@ public class ActivityQuestionsController : Controller
             if (request == null || !request.QuestionIds.Any())
                 return Json(new { success = false, message = _localizer["ActivityQuestions.Import.NoQuestionsSelected"].ToString() });
 
-            var targetActivityId = _sessionState.Get<int>("ActivityId");
+            var targetActivityId = _sessionState.Get<int>(SessionKeyActivityId);
             if (!targetActivityId.HasValue)
                 return Json(new { success = false, message = _localizer["Error.InvalidData"].ToString() });
 

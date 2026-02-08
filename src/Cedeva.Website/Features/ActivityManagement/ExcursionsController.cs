@@ -15,6 +15,7 @@ namespace Cedeva.Website.Features.ActivityManagement;
 [Authorize]
 public class ExcursionsController : Controller
 {
+    private const string SessionKeyActivityId = "ActivityId";
     private const string ErrorGeneric = "Error";
     private const string ErrorRegistrationNotFound = "Error.RegistrationNotFound";
 
@@ -47,7 +48,7 @@ public class ExcursionsController : Controller
     [HttpGet]
     public async Task<IActionResult> Index(int? id)
     {
-        var activityId = id ?? _sessionState.Get<int>("ActivityId");
+        var activityId = id ?? _sessionState.Get<int>(SessionKeyActivityId);
         if (activityId == null)
             return NotFound();
 
@@ -58,7 +59,7 @@ public class ExcursionsController : Controller
         if (activity == null)
             return NotFound();
 
-        _sessionState.Set<int>("ActivityId", activityId.Value);
+        _sessionState.Set<int>(SessionKeyActivityId, activityId.Value);
 
         // Load excursions with related data
         var excursions = await _context.Excursions
@@ -99,7 +100,7 @@ public class ExcursionsController : Controller
     [HttpGet]
     public async Task<IActionResult> Create(int? id)
     {
-        var activityId = id ?? _sessionState.Get<int>("ActivityId");
+        var activityId = id ?? _sessionState.Get<int>(SessionKeyActivityId);
         if (activityId == null)
             return NotFound();
 
@@ -880,7 +881,7 @@ public class ExcursionsController : Controller
     [ValidateAntiForgeryToken]
     public IActionResult BeginExcursions(int id)
     {
-        _sessionState.Set<int>("ActivityId", id);
+        _sessionState.Set<int>(SessionKeyActivityId, id);
         return RedirectToAction(nameof(Index), new { id });
     }
 
