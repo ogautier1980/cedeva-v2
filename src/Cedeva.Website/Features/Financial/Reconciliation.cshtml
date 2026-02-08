@@ -21,12 +21,10 @@
             <div class="d-flex flex-nowrap align-items-center gap-2 mb-0">
                 <i class="fas fa-building"></i>
                 <span class="text-nowrap me-2">@Localizer["Financial.SelectOrganisation"]:</span>
-                <select name="organisationId" id="organisationSelect" class="form-select form-select-sm" style="width: 300px;" onchange="this.form.submit()">
+                <select name="organisationId" id="organisationSelect" class="form-select form-select-sm no-choices" style="width: 300px;" onchange="this.form.submit()">
                     @foreach (var org in (List<Organisation>)ViewBag.Organisations)
                     {
-                        <option value="@org.Id" selected="@(org.Id == ViewBag.CurrentOrganisationId)">
-                            @org.Name
-                        </option>
+                        <option value="@org.Id" selected="@(org.Id == ViewBag.CurrentOrganisationId)">@org.Name</option>
                     }
                 </select>
             </div>
@@ -34,21 +32,6 @@
                 <i class="fas fa-info-circle"></i> @Localizer["Financial.AdminOrganisationSelector"]
             </small>
         </form>
-        <style>
-            #organisationSelect + .choices .choices__inner {
-                min-height: 28px !important;
-                height: 28px !important;
-                padding: 2px 8px !important;
-                line-height: 24px !important;
-            }
-            #organisationSelect + .choices .choices__list--single {
-                padding: 0 !important;
-            }
-            #organisationSelect + .choices .choices__list--single .choices__item {
-                padding: 0 !important;
-                line-height: 24px !important;
-            }
-        </style>
     }
 
     @await Html.PartialAsync("_AlertMessages")
