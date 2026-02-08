@@ -17,6 +17,10 @@ namespace Cedeva.Website.Features.TeamMembers;
 public class TeamMembersController : Controller
 {
     private const string SortOrderDescending = "desc";
+    private const string SessionKeyTeamMembersSearchString = "TeamMembers_SearchString";
+    private const string SessionKeyTeamMembersSortBy = "TeamMembers_SortBy";
+    private const string SessionKeyTeamMembersSortOrder = "TeamMembers_SortOrder";
+    private const string SessionKeyTeamMembersPageNumber = "TeamMembers_PageNumber";
 
     private readonly IRepository<TeamMember> _teamMemberRepository;
     private readonly IRepository<Address> _addressRepository;
@@ -69,16 +73,16 @@ public class TeamMembersController : Controller
         if (hasQueryParams)
         {
             if (!string.IsNullOrWhiteSpace(queryParams.SearchString))
-                _sessionState.Set("TeamMembers_SearchString", queryParams.SearchString, persistToCookie: false);
+                _sessionState.Set("SessionKeyTeamMembersSearchString", queryParams.SearchString, persistToCookie: false);
 
             if (!string.IsNullOrWhiteSpace(queryParams.SortBy))
-                _sessionState.Set("TeamMembers_SortBy", queryParams.SortBy, persistToCookie: false);
+                _sessionState.Set("SessionKeyTeamMembersSortBy", queryParams.SortBy, persistToCookie: false);
 
             if (!string.IsNullOrWhiteSpace(queryParams.SortOrder))
-                _sessionState.Set("TeamMembers_SortOrder", queryParams.SortOrder, persistToCookie: false);
+                _sessionState.Set("SessionKeyTeamMembersSortOrder", queryParams.SortOrder, persistToCookie: false);
 
             if (queryParams.PageNumber > 1)
-                _sessionState.Set("TeamMembers_PageNumber", queryParams.PageNumber.ToString(), persistToCookie: false);
+                _sessionState.Set("SessionKeyTeamMembersPageNumber", queryParams.PageNumber.ToString(), persistToCookie: false);
 
             // Mark that filters should be kept for the next request (after redirect)
             TempData[ControllerExtensions.KeepFiltersKey] = true;
@@ -90,18 +94,18 @@ public class TeamMembersController : Controller
         // If not keeping filters (no redirect, just navigation/F5), clear them
         if (TempData[ControllerExtensions.KeepFiltersKey] == null)
         {
-            _sessionState.Clear("TeamMembers_SearchString");
-            _sessionState.Clear("TeamMembers_SortBy");
-            _sessionState.Clear("TeamMembers_SortOrder");
-            _sessionState.Clear("TeamMembers_PageNumber");
+            _sessionState.Clear("SessionKeyTeamMembersSearchString");
+            _sessionState.Clear("SessionKeyTeamMembersSortBy");
+            _sessionState.Clear("SessionKeyTeamMembersSortOrder");
+            _sessionState.Clear("SessionKeyTeamMembersPageNumber");
         }
 
         // Load filters from state (will be empty if just cleared)
-        queryParams.SearchString = _sessionState.Get("TeamMembers_SearchString");
-        queryParams.SortBy = _sessionState.Get("TeamMembers_SortBy");
-        queryParams.SortOrder = _sessionState.Get("TeamMembers_SortOrder");
+        queryParams.SearchString = _sessionState.Get("SessionKeyTeamMembersSearchString");
+        queryParams.SortBy = _sessionState.Get("SessionKeyTeamMembersSortBy");
+        queryParams.SortOrder = _sessionState.Get("SessionKeyTeamMembersSortOrder");
 
-        var pageNumberStr = _sessionState.Get("TeamMembers_PageNumber");
+        var pageNumberStr = _sessionState.Get("SessionKeyTeamMembersPageNumber");
         if (!string.IsNullOrEmpty(pageNumberStr) && int.TryParse(pageNumberStr, out var pageNum))
         {
             queryParams.PageNumber = pageNum;
