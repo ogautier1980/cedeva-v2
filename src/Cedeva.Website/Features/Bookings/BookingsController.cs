@@ -16,6 +16,12 @@ namespace Cedeva.Website.Features.Bookings;
 public class BookingsController : Controller
 {
     private const string SortOrderDescending = "desc";
+    private const string SessionKeyBookingsSearchString = "Bookings_SearchString";
+    private const string SessionKeyBookingsChildId = "Bookings_ChildId";
+    private const string SessionKeyBookingsIsConfirmed = "Bookings_IsConfirmed";
+    private const string SessionKeyBookingsSortBy = "Bookings_SortBy";
+    private const string SessionKeyBookingsSortOrder = "Bookings_SortOrder";
+    private const string SessionKeyBookingsPageNumber = "Bookings_PageNumber";
 
     private readonly IRepository<Booking> _bookingRepository;
     private readonly CedevaDbContext _context;
@@ -73,22 +79,22 @@ public class BookingsController : Controller
 
             // Store other filters (session only, cleared on fresh navigation)
             if (!string.IsNullOrWhiteSpace(queryParams.SearchString))
-                _sessionState.Set("Bookings_SearchString", queryParams.SearchString, persistToCookie: false);
+                _sessionState.Set("SessionKeyBookingsSearchString", queryParams.SearchString, persistToCookie: false);
 
             if (queryParams.ChildId.HasValue)
-                _sessionState.Set("Bookings_ChildId", queryParams.ChildId, persistToCookie: false);
+                _sessionState.Set("SessionKeyBookingsChildId", queryParams.ChildId, persistToCookie: false);
 
             if (queryParams.IsConfirmed.HasValue)
-                _sessionState.Set("Bookings_IsConfirmed", queryParams.IsConfirmed, persistToCookie: false);
+                _sessionState.Set("SessionKeyBookingsIsConfirmed", queryParams.IsConfirmed, persistToCookie: false);
 
             if (!string.IsNullOrWhiteSpace(queryParams.SortBy))
-                _sessionState.Set("Bookings_SortBy", queryParams.SortBy, persistToCookie: false);
+                _sessionState.Set("SessionKeyBookingsSortBy", queryParams.SortBy, persistToCookie: false);
 
             if (!string.IsNullOrWhiteSpace(queryParams.SortOrder))
-                _sessionState.Set("Bookings_SortOrder", queryParams.SortOrder, persistToCookie: false);
+                _sessionState.Set("SessionKeyBookingsSortOrder", queryParams.SortOrder, persistToCookie: false);
 
             if (queryParams.PageNumber > 1)
-                _sessionState.Set("Bookings_PageNumber", queryParams.PageNumber.ToString(), persistToCookie: false);
+                _sessionState.Set("SessionKeyBookingsPageNumber", queryParams.PageNumber.ToString(), persistToCookie: false);
 
             // Mark that filters should be kept for the next request (after redirect)
             TempData[ControllerExtensions.KeepFiltersKey] = true;
@@ -100,23 +106,23 @@ public class BookingsController : Controller
         // If not keeping filters (no redirect, just navigation/F5), clear them
         if (TempData[ControllerExtensions.KeepFiltersKey] == null)
         {
-            _sessionState.Clear("Bookings_SearchString");
-            _sessionState.Clear("Bookings_ChildId");
-            _sessionState.Clear("Bookings_IsConfirmed");
-            _sessionState.Clear("Bookings_SortBy");
-            _sessionState.Clear("Bookings_SortOrder");
-            _sessionState.Clear("Bookings_PageNumber");
+            _sessionState.Clear("SessionKeyBookingsSearchString");
+            _sessionState.Clear("SessionKeyBookingsChildId");
+            _sessionState.Clear("SessionKeyBookingsIsConfirmed");
+            _sessionState.Clear("SessionKeyBookingsSortBy");
+            _sessionState.Clear("SessionKeyBookingsSortOrder");
+            _sessionState.Clear("SessionKeyBookingsPageNumber");
         }
 
         // Load filters from state (will be empty if just cleared)
         queryParams.ActivityId = _sessionState.Get<int>("ActivityId");
-        queryParams.SearchString = _sessionState.Get("Bookings_SearchString");
-        queryParams.ChildId = _sessionState.Get<int>("Bookings_ChildId");
-        queryParams.IsConfirmed = _sessionState.Get<bool>("Bookings_IsConfirmed");
-        queryParams.SortBy = _sessionState.Get("Bookings_SortBy");
-        queryParams.SortOrder = _sessionState.Get("Bookings_SortOrder");
+        queryParams.SearchString = _sessionState.Get("SessionKeyBookingsSearchString");
+        queryParams.ChildId = _sessionState.Get<int>("SessionKeyBookingsChildId");
+        queryParams.IsConfirmed = _sessionState.Get<bool>("SessionKeyBookingsIsConfirmed");
+        queryParams.SortBy = _sessionState.Get("SessionKeyBookingsSortBy");
+        queryParams.SortOrder = _sessionState.Get("SessionKeyBookingsSortOrder");
 
-        var pageNumberStr = _sessionState.Get("Bookings_PageNumber");
+        var pageNumberStr = _sessionState.Get("SessionKeyBookingsPageNumber");
         if (!string.IsNullOrEmpty(pageNumberStr) && int.TryParse(pageNumberStr, out var pageNum))
         {
             queryParams.PageNumber = pageNum;
