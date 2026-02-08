@@ -1181,29 +1181,9 @@ public class ActivityManagementController : Controller
             {
                 booking.IsConfirmed = request.IsConfirmed.Value;
 
-                // If confirming and no group assigned, create/assign "Sans groupe"
                 if (request.IsConfirmed.Value && booking.GroupId == null)
                 {
-                    var activity = await _context.Activities
-                        .Include(a => a.Groups)
-                        .FirstOrDefaultAsync(a => a.Id == booking.ActivityId);
-
-                    if (activity != null)
-                    {
-                        var noGroup = activity.Groups.FirstOrDefault(g => g.Label == DefaultGroupLabel);
-                        if (noGroup == null)
-                        {
-                            noGroup = new ActivityGroup
-                            {
-                                ActivityId = activity.Id,
-                                Label = DefaultGroupLabel,
-                                Capacity = null
-                            };
-                            _context.ActivityGroups.Add(noGroup);
-                            await _context.SaveChangesAsync();
-                        }
-                        booking.GroupId = noGroup.Id;
-                    }
+                    await AssignDefaultGroupAsync(booking);
                 }
                 updated = true;
             }
@@ -1247,6 +1227,29 @@ public class ActivityManagementController : Controller
             _logger.LogError(ex, "Unexpected error while updating booking {BookingId}", request.BookingId);
             return StatusCode(500, new { success = false, message = _localizer[LocalizerKeyErrorOccurred].Value });
         }
+    }
+
+    private async Task AssignDefaultGroupAsync(Booking booking)
+    {
+        var activity = await _context.Activities
+            .Include(a => a.Groups)
+            .FirstOrDefaultAsync(a => a.Id == booking.ActivityId);
+
+        if (activity == null) return;
+
+        var noGroup = activity.Groups.FirstOrDefault(g => g.Label == DefaultGroupLabel);
+        if (noGroup == null)
+        {
+            noGroup = new ActivityGroup
+            {
+                ActivityId = activity.Id,
+                Label = DefaultGroupLabel,
+                Capacity = null
+            };
+            _context.ActivityGroups.Add(noGroup);
+            await _context.SaveChangesAsync();
+        }
+        booking.GroupId = noGroup.Id;
     }
 
     // GET: ActivityManagement/GetManageBookingsStats
