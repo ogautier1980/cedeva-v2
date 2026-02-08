@@ -255,7 +255,7 @@ public class ActivityManagementController : Controller
         return View(viewModel);
     }
 
-    private int? SelectDefaultActivityDay(Activity activity, int? dayId)
+    private static int? SelectDefaultActivityDay(Activity activity, int? dayId)
     {
         if (dayId != null)
             return dayId;
@@ -308,41 +308,6 @@ public class ActivityManagementController : Controller
             .OrderBy(c => c.ChildLastName)
             .ThenBy(c => c.ChildFirstName)
             .ToList();
-    }
-
-    private Dictionary<Core.Entities.ActivityGroup, List<PresenceChildInfo>> BuildChildrenByGroup(Activity activity, int? dayId)
-    {
-        var childrenByGroup = new Dictionary<Core.Entities.ActivityGroup, List<PresenceChildInfo>>();
-
-        foreach (var group in activity.Groups.OrderBy(g => g.Label))
-        {
-            var children = activity.Bookings
-                .Where(b => b.IsConfirmed && b.GroupId == group.Id)
-                .Select(b =>
-                {
-                    var bookingDay = b.Days.FirstOrDefault(bd => bd.ActivityDayId == dayId);
-                    return new PresenceChildInfo
-                    {
-                        BookingId = b.Id,
-                        ChildId = b.ChildId,
-                        ChildFirstName = b.Child.FirstName,
-                        ChildLastName = b.Child.LastName,
-                        IsReserved = bookingDay?.IsReserved ?? false,
-                        IsPresent = bookingDay?.IsPresent ?? false,
-                        BookingDayId = bookingDay?.Id
-                    };
-                })
-                .OrderBy(c => c.ChildLastName)
-                .ThenBy(c => c.ChildFirstName)
-                .ToList();
-
-            if (children.Any())
-            {
-                childrenByGroup[group] = children;
-            }
-        }
-
-        return childrenByGroup;
     }
 
     [HttpPost]
