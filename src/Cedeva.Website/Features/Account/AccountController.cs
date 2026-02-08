@@ -14,6 +14,7 @@ namespace Cedeva.Website.Features.Account;
 public class AccountController : Controller
 {
     private const string ViewDataReturnUrl = "ReturnUrl";
+    private const string SessionKeyActivityId = "Activity_Id";
 
     private readonly SignInManager<CedevaUser> _signInManager;
     private readonly UserManager<CedevaUser> _userManager;
@@ -226,7 +227,7 @@ public class AccountController : Controller
         if (user?.Role == Core.Enums.Role.Coordinator)
         {
             // First check session
-            var activityIdStr = HttpContext.Session.GetString("Activity_Id");
+            var activityIdStr = HttpContext.Session.GetString(SessionKeyActivityId);
 
             // If not in session, try to restore from persistent cookie
             if (string.IsNullOrEmpty(activityIdStr))
@@ -236,7 +237,7 @@ public class AccountController : Controller
                 // Restore session from cookie
                 if (!string.IsNullOrEmpty(activityIdStr) && int.TryParse(activityIdStr, out int cookieActivityId))
                 {
-                    HttpContext.Session.SetString("Activity_Id", cookieActivityId.ToString());
+                    HttpContext.Session.SetString(SessionKeyActivityId, cookieActivityId.ToString());
                     return RedirectToAction("Index", "ActivityManagement", new { id = cookieActivityId });
                 }
             }

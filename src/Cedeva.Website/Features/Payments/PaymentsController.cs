@@ -21,6 +21,7 @@ public class PaymentsController : Controller
     private readonly ILogger<PaymentsController> _logger;
     private readonly IUserDisplayService _userDisplayService;
 
+    private const string SessionKeyFinancialActivityId = "FinancialActivityId";
     private const string LocalizerKeyPaymentCreationFailed = "Error.PaymentCreationFailed";
     private const string LocalizerKeyPaymentCancellationFailed = "Error.PaymentCancellationFailed";
 
@@ -91,7 +92,7 @@ public class PaymentsController : Controller
         var organisationId = _currentUserService.OrganisationId;
 
         // Récupérer l'activité depuis la session (depuis Financial)
-        var activityId = HttpContext.Session.GetInt32("FinancialActivityId");
+        var activityId = HttpContext.Session.GetInt32(SessionKeyFinancialActivityId);
 
         var query = _context.Bookings
             .Include(b => b.Child)
