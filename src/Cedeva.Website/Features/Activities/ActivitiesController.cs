@@ -15,6 +15,8 @@ namespace Cedeva.Website.Features.Activities;
 public class ActivitiesController : Controller
 {
     private const string SortOrderDescending = "desc";
+    private const string DateFormatFull = "dddd d MMMM";
+    private const string CultureFrBe = "fr-BE";
 
     private readonly CedevaDbContext _context;
     private readonly ICurrentUserService _currentUserService;
@@ -323,7 +325,7 @@ public class ActivitiesController : Controller
 
             activity.Days.Add(new ActivityDay
             {
-                Label = date.ToString("dddd d MMMM", new System.Globalization.CultureInfo("fr-BE")),
+                Label = date.ToString(DateFormatFull, new System.Globalization.CultureInfo(CultureFrBe)),
                 DayDate = date,
                 Week = GetWeekNumber(date, activity.StartDate),
                 IsActive = !isWeekend
@@ -686,10 +688,9 @@ public class ActivitiesController : Controller
         {
             if (!existingDates.Contains(date.Date))
             {
-                var isWeekend = date.DayOfWeek == DayOfWeek.Saturday || date.DayOfWeek == DayOfWeek.Sunday;
                 activity.Days.Add(new ActivityDay
                 {
-                    Label = date.ToString("dddd d MMMM", new System.Globalization.CultureInfo("fr-BE")),
+                    Label = date.ToString(DateFormatFull, new System.Globalization.CultureInfo(CultureFrBe)),
                     DayDate = date,
                     Week = GetWeekNumber(date, activity.StartDate),
                     IsActive = false // Create as inactive by default
@@ -720,7 +721,7 @@ public class ActivitiesController : Controller
                     var isWeekend = date.DayOfWeek == DayOfWeek.Saturday || date.DayOfWeek == DayOfWeek.Sunday;
                     activity.Days.Add(new ActivityDay
                     {
-                        Label = date.ToString("dddd d MMMM", new System.Globalization.CultureInfo("fr-BE")),
+                        Label = date.ToString(DateFormatFull, new System.Globalization.CultureInfo(CultureFrBe)),
                         DayDate = date,
                         Week = GetWeekNumber(date, newStartDate),
                         IsActive = !isWeekend
@@ -739,7 +740,7 @@ public class ActivitiesController : Controller
                     var isWeekend = date.DayOfWeek == DayOfWeek.Saturday || date.DayOfWeek == DayOfWeek.Sunday;
                     activity.Days.Add(new ActivityDay
                     {
-                        Label = date.ToString("dddd d MMMM", new System.Globalization.CultureInfo("fr-BE")),
+                        Label = date.ToString(DateFormatFull, new System.Globalization.CultureInfo(CultureFrBe)),
                         DayDate = date,
                         Week = GetWeekNumber(date, newStartDate),
                         IsActive = !isWeekend
