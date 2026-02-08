@@ -185,6 +185,55 @@ src/
 
 ---
 
+## UI Design Standards
+
+### Colors
+- **Primary:** `#007faf` (buttons, links, accents) — hover: `#005f80`
+- Functional: `success` green, `danger` red, `warning` yellow, `info` light blue, `secondary` grey
+
+### Typography
+- **Index pages:** `<h2><i class="fas fa-icon me-2"></i>@Localizer["Title"]</h2>`
+- **Details pages:** `<h1 class="h3 mb-0">@Model.Name</h1>`
+- **Form sections:** `<h6 class="mb-3 text-primary"><i class="fas fa-icon me-2"></i>@Localizer["Section"]</h6>` (add `mt-4` for sections after first)
+- **Card headers:** `<h6 class="mb-0"><i class="fas fa-icon me-2"></i>Title</h6>`
+
+### Buttons
+- **Primary actions (Save/Create):** `btn btn-primary`
+- **Edit:** `btn btn-outline-secondary` (tables: add `btn-sm`)
+- **Delete:** `btn btn-outline-danger` (tables: `btn-sm`), `btn btn-danger` (confirm page)
+- **Back/Cancel:** `btn btn-outline-secondary` — **never** `btn-secondary` (filled)
+- **Never use** `btn-warning` for Edit buttons
+
+### Tables
+- Always: `<thead class="table-light">`, `<th scope="col">` on all headers
+- Classes: `table table-hover`, optionally `table-sm`, `table-responsive`
+
+### Card Headers
+- Data tables: `card-header bg-primary text-white`
+- Delete confirm: `card-header bg-danger text-white`
+- Forms: `card-header` (default grey)
+- Info/help: `card-header bg-success text-white` or `bg-info text-white`
+
+### Badges (color = semantic)
+- `bg-success`: Confirmed / Active / Paid
+- `bg-warning text-dark`: Pending / Unconfirmed
+- `bg-danger`: Cancelled / Errors / Locked accounts
+- `bg-primary`: Generic counters / IDs
+- `bg-secondary`: Inactive / Neutral
+- `bg-info`: Enum types (excursion type, payment method)
+
+### Empty States
+```html
+<div class="text-center py-5">
+    <i class="fas fa-icon fa-3x text-muted mb-3"></i>
+    <p class="text-muted">@Localizer["NoItemsFound"]</p>
+    <a asp-action="Create" class="btn btn-primary">...</a>
+</div>
+```
+**Never** use `<div class="alert alert-info">` for empty states.
+
+---
+
 ## Troubleshooting
 
 ### Build warnings CS8604/CS8602 (null reference)
