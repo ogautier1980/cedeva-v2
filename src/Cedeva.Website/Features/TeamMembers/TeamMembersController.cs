@@ -25,39 +25,27 @@ public class TeamMembersController : Controller
     private readonly IRepository<TeamMember> _teamMemberRepository;
     private readonly IRepository<Address> _addressRepository;
     private readonly CedevaDbContext _context;
-    private readonly ICurrentUserService _currentUserService;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IExportFacadeService _exportServices;
-    private readonly IStringLocalizer<SharedResources> _localizer;
-    private readonly IStorageService _storageService;
-    private readonly IWebHostEnvironment _webHostEnvironment;
-    private readonly IUserDisplayService _userDisplayService;
-    private readonly ISessionStateService _sessionState;
+    private readonly IStorageContext _storage;
+    private readonly ICedevaControllerContext<TeamMembersController> _ctx;
 
     public TeamMembersController(
         IRepository<TeamMember> teamMemberRepository,
         IRepository<Address> addressRepository,
         CedevaDbContext context,
-        ICurrentUserService currentUserService,
         IUnitOfWork unitOfWork,
         IExportFacadeService exportServices,
-        IStringLocalizer<SharedResources> localizer,
-        IStorageService storageService,
-        IWebHostEnvironment webHostEnvironment,
-        IUserDisplayService userDisplayService,
-        ISessionStateService sessionState)
+        IStorageContext storage,
+        ICedevaControllerContext<TeamMembersController> ctx)
     {
         _teamMemberRepository = teamMemberRepository;
         _addressRepository = addressRepository;
         _context = context;
-        _currentUserService = currentUserService;
         _unitOfWork = unitOfWork;
         _exportServices = exportServices;
-        _localizer = localizer;
-        _storageService = storageService;
-        _webHostEnvironment = webHostEnvironment;
-        _userDisplayService = userDisplayService;
-        _sessionState = sessionState;
+        _storage = storage;
+        _ctx = ctx;
     }
 
     // GET: TeamMembers
@@ -70,16 +58,16 @@ public class TeamMembersController : Controller
         if (hasQueryParams)
         {
             if (!string.IsNullOrWhiteSpace(queryParams.SearchString))
-                _sessionState.Set("SessionKeyTeamMembersSearchString", queryParams.SearchString, persistToCookie: false);
+                _ctx.Session.Set("SessionKeyTeamMembersSearchString", queryParams.SearchString, persistToCookie: false);
 
             if (!string.IsNullOrWhiteSpace(queryParams.SortBy))
-                _sessionState.Set("SessionKeyTeamMembersSortBy", queryParams.SortBy, persistToCookie: false);
+                _ctx.Session.Set("SessionKeyTeamMembersSortBy", queryParams.SortBy, persistToCookie: false);
 
             if (!string.IsNullOrWhiteSpace(queryParams.SortOrder))
-                _sessionState.Set("SessionKeyTeamMembersSortOrder", queryParams.SortOrder, persistToCookie: false);
+                _ctx.Session.Set("SessionKeyTeamMembersSortOrder", queryParams.SortOrder, persistToCookie: false);
 
             if (queryParams.PageNumber > 1)
-                _sessionState.Set("SessionKeyTeamMembersPageNumber", queryParams.PageNumber.ToString(), persistToCookie: false);
+                _ctx.Session.Set("SessionKeyTeamMembersPageNumber", queryParams.PageNumber.ToString(), persistToCookie: false);
 
             // Mark that filters should be kept for the next request (after redirect)
             TempData[ControllerExtensions.KeepFiltersKey] = true;
@@ -91,18 +79,18 @@ public class TeamMembersController : Controller
         // If not keeping filters (no redirect, just navigation/F5), clear them
         if (TempData[ControllerExtensions.KeepFiltersKey] == null)
         {
-            _sessionState.Clear("SessionKeyTeamMembersSearchString");
-            _sessionState.Clear("SessionKeyTeamMembersSortBy");
-            _sessionState.Clear("SessionKeyTeamMembersSortOrder");
-            _sessionState.Clear("SessionKeyTeamMembersPageNumber");
+            _ctx.Session.Clear("SessionKeyTeamMembersSearchString");
+            _ctx.Session.Clear("SessionKeyTeamMembersSortBy");
+            _ctx.Session.Clear("SessionKeyTeamMembersSortOrder");
+            _ctx.Session.Clear("SessionKeyTeamMembersPageNumber");
         }
 
         // Load filters from state (will be empty if just cleared)
-        queryParams.SearchString = _sessionState.Get("SessionKeyTeamMembersSearchString");
-        queryParams.SortBy = _sessionState.Get("SessionKeyTeamMembersSortBy");
-        queryParams.SortOrder = _sessionState.Get("SessionKeyTeamMembersSortOrder");
+        queryParams.SearchString = _ctx.Session.Get("SessionKeyTeamMembersSearchString");
+        queryParams.SortBy = _ctx.Session.Get("SessionKeyTeamMembersSortBy");
+        queryParams.SortOrder = _ctx.Session.Get("SessionKeyTeamMembersSortOrder");
 
-        var pageNumberStr = _sessionState.Get("SessionKeyTeamMembersPageNumber");
+        var pageNumberStr = _ctx.Session.Get("SessionKeyTeamMembersPageNumber");
         if (!string.IsNullOrEmpty(pageNumberStr) && int.TryParse(pageNumberStr, out var pageNum))
         {
             queryParams.PageNumber = pageNum;
@@ -182,24 +170,24 @@ public class TeamMembersController : Controller
 
         var columns = new Dictionary<string, Func<TeamMember, object>>
         {
-            { _localizer["Excel.FirstName"], t => t.FirstName },
-            { _localizer["Excel.LastName"], t => t.LastName },
-            { _localizer["Excel.Email"], t => t.Email },
-            { _localizer["Excel.MobilePhone"], t => t.MobilePhoneNumber },
-            { _localizer["Excel.NationalRegisterNumber"], t => t.NationalRegisterNumber },
-            { _localizer["Excel.BirthDate"], t => t.BirthDate },
-            { _localizer["Excel.Age"], t => DateTime.Today.Year - t.BirthDate.Year - (DateTime.Today.DayOfYear < t.BirthDate.DayOfYear ? 1 : 0) },
-            { _localizer["Excel.Role"], t => t.TeamRole.ToString() },
-            { _localizer["Excel.License"], t => t.License.ToString() },
-            { _localizer["Excel.Status"], t => t.Status.ToString() },
-            { _localizer["Excel.DailyCompensation"], t => t.DailyCompensation ?? 0m },
-            { _localizer["Excel.Organisation"], t => t.Organisation?.Name ?? "" },
-            { _localizer["Excel.Street"], t => t.Address?.Street ?? "" },
-            { _localizer["Excel.PostalCode"], t => t.Address?.PostalCode ?? "" },
-            { _localizer["Excel.City"], t => t.Address?.City ?? "" }
+            { _ctx.Localizer["Excel.FirstName"], t => t.FirstName },
+            { _ctx.Localizer["Excel.LastName"], t => t.LastName },
+            { _ctx.Localizer["Excel.Email"], t => t.Email },
+            { _ctx.Localizer["Excel.MobilePhone"], t => t.MobilePhoneNumber },
+            { _ctx.Localizer["Excel.NationalRegisterNumber"], t => t.NationalRegisterNumber },
+            { _ctx.Localizer["Excel.BirthDate"], t => t.BirthDate },
+            { _ctx.Localizer["Excel.Age"], t => DateTime.Today.Year - t.BirthDate.Year - (DateTime.Today.DayOfYear < t.BirthDate.DayOfYear ? 1 : 0) },
+            { _ctx.Localizer["Excel.Role"], t => t.TeamRole.ToString() },
+            { _ctx.Localizer["Excel.License"], t => t.License.ToString() },
+            { _ctx.Localizer["Excel.Status"], t => t.Status.ToString() },
+            { _ctx.Localizer["Excel.DailyCompensation"], t => t.DailyCompensation ?? 0m },
+            { _ctx.Localizer["Excel.Organisation"], t => t.Organisation?.Name ?? "" },
+            { _ctx.Localizer["Excel.Street"], t => t.Address?.Street ?? "" },
+            { _ctx.Localizer["Excel.PostalCode"], t => t.Address?.PostalCode ?? "" },
+            { _ctx.Localizer["Excel.City"], t => t.Address?.City ?? "" }
         };
 
-        var sheetName = _localizer["Excel.TeamMembersSheet"];
+        var sheetName = _ctx.Localizer["Excel.TeamMembersSheet"];
         var excelData = _exportServices.Excel.ExportToExcel(teamMembers, sheetName, columns);
         var fileName = $"{sheetName}_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx";
 
@@ -229,17 +217,17 @@ public class TeamMembersController : Controller
 
         var columns = new Dictionary<string, Func<TeamMember, object>>
         {
-            { _localizer["Excel.FirstName"], t => t.FirstName },
-            { _localizer["Excel.LastName"], t => t.LastName },
-            { _localizer["Excel.Email"], t => t.Email },
-            { _localizer["Excel.MobilePhone"], t => t.MobilePhoneNumber },
-            { _localizer["Excel.Role"], t => t.TeamRole.ToString() },
-            { _localizer["Excel.License"], t => t.License.ToString() },
-            { _localizer["Excel.Status"], t => t.Status.ToString() },
-            { _localizer["Excel.City"], t => t.Address?.City ?? "" }
+            { _ctx.Localizer["Excel.FirstName"], t => t.FirstName },
+            { _ctx.Localizer["Excel.LastName"], t => t.LastName },
+            { _ctx.Localizer["Excel.Email"], t => t.Email },
+            { _ctx.Localizer["Excel.MobilePhone"], t => t.MobilePhoneNumber },
+            { _ctx.Localizer["Excel.Role"], t => t.TeamRole.ToString() },
+            { _ctx.Localizer["Excel.License"], t => t.License.ToString() },
+            { _ctx.Localizer["Excel.Status"], t => t.Status.ToString() },
+            { _ctx.Localizer["Excel.City"], t => t.Address?.City ?? "" }
         };
 
-        var title = _localizer["Excel.TeamMembersSheet"];
+        var title = _ctx.Localizer["Excel.TeamMembersSheet"];
         var pdfData = _exportServices.Pdf.ExportToPdf(teamMembers, title, columns);
         var fileName = $"{title}_{DateTime.Now:yyyyMMdd_HHmmss}.pdf";
 
@@ -265,7 +253,7 @@ public class TeamMembersController : Controller
         var viewModel = new TeamMemberViewModel
         {
             Country = Core.Enums.Country.Belgium,
-            OrganisationId = _currentUserService.OrganisationId ?? 0,
+            OrganisationId = _ctx.CurrentUser.OrganisationId ?? 0,
             BirthDate = DateTime.Today.AddYears(-25) // Default age
         };
 
@@ -281,15 +269,15 @@ public class TeamMembersController : Controller
     {
         if (ModelState.IsValid)
         {
-            var organisationId = _currentUserService.IsAdmin
+            var organisationId = _ctx.CurrentUser.IsAdmin
                 ? viewModel.OrganisationId
-                : _currentUserService.OrganisationId ?? 0;
+                : _ctx.CurrentUser.OrganisationId ?? 0;
 
             var address = await CreateAddressFromViewModel(viewModel);
             var teamMember = await CreateTeamMemberFromViewModel(viewModel, address.Id, organisationId);
             await UploadLicenseFileIfProvided(viewModel, teamMember, organisationId);
 
-            TempData[ControllerExtensions.SuccessMessageKey] = _localizer["Message.TeamMemberCreated"].Value;
+            TempData[ControllerExtensions.SuccessMessageKey] = _ctx.Localizer["Message.TeamMemberCreated"].Value;
             return RedirectToAction(nameof(Details), new { id = teamMember.TeamMemberId });
         }
 
@@ -340,7 +328,7 @@ public class TeamMembersController : Controller
         if (viewModel.LicenseFile != null)
         {
             var fileName = $"{Guid.NewGuid()}_{Path.GetFileName(viewModel.LicenseFile.FileName)}";
-            var filePath = await _storageService.UploadFileAsync(
+            var filePath = await _storage.Storage.UploadFileAsync(
                 viewModel.LicenseFile.OpenReadStream(),
                 fileName,
                 viewModel.LicenseFile.ContentType,
@@ -353,7 +341,7 @@ public class TeamMembersController : Controller
 
     private async Task PopulateOrganisationsDropdown(int? selectedOrganisationId = null)
     {
-        if (_currentUserService.IsAdmin)
+        if (_ctx.CurrentUser.IsAdmin)
         {
             var organisations = await _context.Organisations
                 .OrderBy(o => o.Name)
@@ -431,7 +419,7 @@ public class TeamMembersController : Controller
             await _teamMemberRepository.UpdateAsync(teamMember);
             await _unitOfWork.SaveChangesAsync();
 
-            TempData[ControllerExtensions.SuccessMessageKey] = _localizer["Message.TeamMemberUpdated"].Value;
+            TempData[ControllerExtensions.SuccessMessageKey] = _ctx.Localizer["Message.TeamMemberUpdated"].Value;
             return this.RedirectToReturnUrlOrAction(returnUrl, nameof(Details), new { id = teamMember.TeamMemberId });
         }
 
@@ -455,9 +443,9 @@ public class TeamMembersController : Controller
         }
 
         // Multi-tenancy check
-        if (!_currentUserService.IsAdmin)
+        if (!_ctx.CurrentUser.IsAdmin)
         {
-            var userOrgId = _currentUserService.OrganisationId;
+            var userOrgId = _ctx.CurrentUser.OrganisationId;
             if (teamMember.OrganisationId != userOrgId)
             {
                 return Forbid();
@@ -472,7 +460,7 @@ public class TeamMembersController : Controller
         // If local storage, return PhysicalFile
         if (teamMember.LicenseUrl.StartsWith("/uploads/"))
         {
-            var filePath = Path.Combine(_webHostEnvironment.WebRootPath, teamMember.LicenseUrl.TrimStart('/'));
+            var filePath = Path.Combine(_storage.WebHost.WebRootPath, teamMember.LicenseUrl.TrimStart('/'));
 
             if (!System.IO.File.Exists(filePath))
             {
@@ -513,9 +501,9 @@ public class TeamMembersController : Controller
         }
 
         // Multi-tenancy check
-        if (!_currentUserService.IsAdmin)
+        if (!_ctx.CurrentUser.IsAdmin)
         {
-            var userOrgId = _currentUserService.OrganisationId;
+            var userOrgId = _ctx.CurrentUser.OrganisationId;
             if (teamMember.OrganisationId != userOrgId)
             {
                 return Forbid();
@@ -527,7 +515,7 @@ public class TeamMembersController : Controller
         {
             try
             {
-                await _storageService.DeleteFileAsync(teamMember.LicenseUrl);
+                await _storage.Storage.DeleteFileAsync(teamMember.LicenseUrl);
             }
             catch
             {
@@ -572,7 +560,7 @@ public class TeamMembersController : Controller
         {
             try
             {
-                await _storageService.DeleteFileAsync(teamMember.LicenseUrl);
+                await _storage.Storage.DeleteFileAsync(teamMember.LicenseUrl);
             }
             catch
             {
@@ -592,7 +580,7 @@ public class TeamMembersController : Controller
             await _unitOfWork.SaveChangesAsync();
         }
 
-        TempData[ControllerExtensions.SuccessMessageKey] = _localizer["Message.TeamMemberDeleted"].Value;
+        TempData[ControllerExtensions.SuccessMessageKey] = _ctx.Localizer["Message.TeamMemberDeleted"].Value;
         return RedirectToAction(nameof(Index));
     }
 
@@ -639,10 +627,10 @@ public class TeamMembersController : Controller
         };
 
         // Fetch user display names for audit fields
-        viewModel.CreatedByDisplayName = await _userDisplayService.GetUserDisplayNameAsync(teamMember.CreatedBy);
+        viewModel.CreatedByDisplayName = await _ctx.UserDisplay.GetUserDisplayNameAsync(teamMember.CreatedBy);
         if (!string.IsNullOrEmpty(teamMember.ModifiedBy))
         {
-            viewModel.ModifiedByDisplayName = await _userDisplayService.GetUserDisplayNameAsync(teamMember.ModifiedBy);
+            viewModel.ModifiedByDisplayName = await _ctx.UserDisplay.GetUserDisplayNameAsync(teamMember.ModifiedBy);
         }
 
         return viewModel;
@@ -681,7 +669,7 @@ public class TeamMembersController : Controller
         teamMember.Status = viewModel.Status;
         teamMember.DailyCompensation = viewModel.DailyCompensation;
 
-        if (_currentUserService.IsAdmin)
+        if (_ctx.CurrentUser.IsAdmin)
         {
             teamMember.OrganisationId = viewModel.OrganisationId;
         }
@@ -710,7 +698,7 @@ public class TeamMembersController : Controller
 
             // Upload new license
             var fileName = $"{Guid.NewGuid()}_{Path.GetFileName(viewModel.LicenseFile.FileName)}";
-            var filePath = await _storageService.UploadFileAsync(
+            var filePath = await _storage.Storage.UploadFileAsync(
                 viewModel.LicenseFile.OpenReadStream(),
                 fileName,
                 viewModel.LicenseFile.ContentType,
@@ -727,7 +715,7 @@ public class TeamMembersController : Controller
     {
         try
         {
-            await _storageService.DeleteFileAsync(fileUrl);
+            await _storage.Storage.DeleteFileAsync(fileUrl);
         }
         catch
         {

@@ -28,12 +28,8 @@ public class BookingsController : Controller
     private readonly IUnitOfWork _unitOfWork;
     private readonly IExportFacadeService _exportServices;
     private readonly IEmailService _emailService;
-    private readonly IStringLocalizer<SharedResources> _localizer;
-    private readonly ICurrentUserService _currentUserService;
-    private readonly IUserDisplayService _userDisplayService;
     private readonly IBookingQuestionService _bookingQuestionService;
-    private readonly ISessionStateService _sessionState;
-    private readonly ILogger<BookingsController> _logger;
+    private readonly ICedevaControllerContext<BookingsController> _ctx;
 
     public BookingsController(
         IRepository<Booking> bookingRepository,
@@ -41,24 +37,16 @@ public class BookingsController : Controller
         IUnitOfWork unitOfWork,
         IExportFacadeService exportServices,
         IEmailService emailService,
-        IStringLocalizer<SharedResources> localizer,
-        ICurrentUserService currentUserService,
-        IUserDisplayService userDisplayService,
         IBookingQuestionService bookingQuestionService,
-        ISessionStateService sessionState,
-        ILogger<BookingsController> logger)
+        ICedevaControllerContext<BookingsController> ctx)
     {
         _bookingRepository = bookingRepository;
         _context = context;
         _unitOfWork = unitOfWork;
         _exportServices = exportServices;
         _emailService = emailService;
-        _localizer = localizer;
-        _currentUserService = currentUserService;
-        _userDisplayService = userDisplayService;
         _bookingQuestionService = bookingQuestionService;
-        _sessionState = sessionState;
-        _logger = logger;
+        _ctx = ctx;
     }
 
     // GET: Bookings
@@ -147,9 +135,9 @@ public class BookingsController : Controller
             .AsQueryable();
 
         // Manually apply organisation filter
-        if (!_currentUserService.IsAdmin)
+        if (!_ctx.CurrentUser.IsAdmin)
         {
-            var organisationId = _currentUserService.OrganisationId;
+            var organisationId = _ctx.CurrentUser.OrganisationId;
             query = query.Where(b => b.Activity.OrganisationId == organisationId);
         }
 
@@ -207,7 +195,7 @@ public class BookingsController : Controller
         };
 
         // Pass organisation ID for inline parent creation
-        ViewBag.CurrentOrganisationId = _currentUserService.OrganisationId ?? 0;
+        ViewBag.CurrentOrganisationId = _ctx.CurrentUser.OrganisationId ?? 0;
 
         return View(viewModel);
     }
@@ -223,7 +211,7 @@ public class BookingsController : Controller
             var activity = await _context.Activities.FindAsync(viewModel.ActivityId);
             if (activity == null)
             {
-                ModelState.AddModelError("", _localizer["Message.ActivityNotFound"].Value);
+                ModelState.AddModelError("", _ctx.Localizer["Message.ActivityNotFound"].Value);
                 await PopulateDropdowns(viewModel.ChildId, viewModel.ActivityId, viewModel.GroupId);
                 return View(viewModel);
             }
@@ -271,7 +259,7 @@ public class BookingsController : Controller
                 await _bookingQuestionService.SaveAnswersAsync(booking.Id, viewModel.QuestionAnswers);
             }
 
-            TempData[ControllerExtensions.SuccessMessageKey] = _localizer["Message.BookingCreated"].Value;
+            TempData[ControllerExtensions.SuccessMessageKey] = _ctx.Localizer["Message.BookingCreated"].Value;
             return RedirectToAction(nameof(Details), new { id = booking.Id });
         }
 
@@ -427,7 +415,7 @@ public class BookingsController : Controller
             }
             else
             {
-                TempData[ControllerExtensions.SuccessMessageKey] = _localizer["Message.BookingUpdated"].Value;
+                TempData[ControllerExtensions.SuccessMessageKey] = _ctx.Localizer["Message.BookingUpdated"].Value;
             }
 
             return this.RedirectToReturnUrlOrAction(returnUrl, nameof(Details), new { id = booking.Id });
@@ -464,7 +452,7 @@ public class BookingsController : Controller
         await _bookingRepository.DeleteAsync(booking);
         await _unitOfWork.SaveChangesAsync();
 
-        TempData[ControllerExtensions.SuccessMessageKey] = _localizer["Message.BookingDeleted"].Value;
+        TempData[ControllerExtensions.SuccessMessageKey] = _ctx.Localizer["Message.BookingDeleted"].Value;
         return RedirectToAction(nameof(Index));
     }
 
@@ -585,10 +573,10 @@ public class BookingsController : Controller
         };
 
         // Fetch user display names for audit fields
-        viewModel.CreatedByDisplayName = await _userDisplayService.GetUserDisplayNameAsync(booking.CreatedBy);
+        viewModel.CreatedByDisplayName = await _ctx.UserDisplay.GetUserDisplayNameAsync(booking.CreatedBy);
         if (!string.IsNullOrEmpty(booking.ModifiedBy))
         {
-            viewModel.ModifiedByDisplayName = await _userDisplayService.GetUserDisplayNameAsync(booking.ModifiedBy);
+            viewModel.ModifiedByDisplayName = await _ctx.UserDisplay.GetUserDisplayNameAsync(booking.ModifiedBy);
         }
 
         return viewModel;
@@ -616,18 +604,18 @@ public class BookingsController : Controller
                     activity.StartDate,
                     activity.EndDate);
 
-                TempData[ControllerExtensions.SuccessMessageKey] = _localizer["Message.BookingConfirmedEmailSent"].Value;
+                TempData[ControllerExtensions.SuccessMessageKey] = _ctx.Localizer["Message.BookingConfirmedEmailSent"].Value;
             }
             catch (Exception ex)
             {
-                _logger.LogWarning(ex, "Failed to send booking confirmation email to {Email} for booking {BookingId}",
+                _ctx.Logger.LogWarning(ex, "Failed to send booking confirmation email to {Email} for booking {BookingId}",
                     child.Parent.Email, booking.Id);
-                TempData[ControllerExtensions.WarningMessageKey] = string.Format(_localizer["Message.BookingConfirmedEmailFailed"].Value, ex.Message);
+                TempData[ControllerExtensions.WarningMessageKey] = string.Format(_ctx.Localizer["Message.BookingConfirmedEmailFailed"].Value, ex.Message);
             }
         }
         else
         {
-            TempData[ControllerExtensions.SuccessMessageKey] = _localizer["Message.BookingUpdated"].Value;
+            TempData[ControllerExtensions.SuccessMessageKey] = _ctx.Localizer["Message.BookingUpdated"].Value;
         }
     }
 
@@ -755,20 +743,20 @@ public class BookingsController : Controller
 
         var columns = new Dictionary<string, Func<Booking, object>>
         {
-            { _localizer["Excel.BookingDate"], b => b.BookingDate },
-            { _localizer["Excel.Child"], b => $"{b.Child.FirstName} {b.Child.LastName}" },
-            { _localizer["Excel.Parent"], b => $"{b.Child.Parent.FirstName} {b.Child.Parent.LastName}" },
-            { _localizer["Excel.ParentEmail"], b => b.Child.Parent.Email },
-            { _localizer["Excel.ParentPhone"], b => b.Child.Parent.MobilePhoneNumber ?? b.Child.Parent.PhoneNumber ?? "" },
-            { _localizer["Excel.Activity"], b => b.Activity.Name },
-            { _localizer["Excel.StartDate"], b => b.Activity.StartDate },
-            { _localizer["Excel.EndDate"], b => b.Activity.EndDate },
-            { _localizer["Excel.Group"], b => b.Group?.Label ?? "" },
-            { _localizer["Excel.Confirmed"], b => b.IsConfirmed },
-            { _localizer["Excel.MedicalSheet"], b => b.IsMedicalSheet }
+            { _ctx.Localizer["Excel.BookingDate"], b => b.BookingDate },
+            { _ctx.Localizer["Excel.Child"], b => $"{b.Child.FirstName} {b.Child.LastName}" },
+            { _ctx.Localizer["Excel.Parent"], b => $"{b.Child.Parent.FirstName} {b.Child.Parent.LastName}" },
+            { _ctx.Localizer["Excel.ParentEmail"], b => b.Child.Parent.Email },
+            { _ctx.Localizer["Excel.ParentPhone"], b => b.Child.Parent.MobilePhoneNumber ?? b.Child.Parent.PhoneNumber ?? "" },
+            { _ctx.Localizer["Excel.Activity"], b => b.Activity.Name },
+            { _ctx.Localizer["Excel.StartDate"], b => b.Activity.StartDate },
+            { _ctx.Localizer["Excel.EndDate"], b => b.Activity.EndDate },
+            { _ctx.Localizer["Excel.Group"], b => b.Group?.Label ?? "" },
+            { _ctx.Localizer["Excel.Confirmed"], b => b.IsConfirmed },
+            { _ctx.Localizer["Excel.MedicalSheet"], b => b.IsMedicalSheet }
         };
 
-        var sheetName = _localizer["Excel.BookingsSheet"];
+        var sheetName = _ctx.Localizer["Excel.BookingsSheet"];
         var excelData = _exportServices.Excel.ExportToExcel(bookings, sheetName, columns);
         var fileName = $"{sheetName}_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx";
 
@@ -810,20 +798,20 @@ public class BookingsController : Controller
 
         var columns = new Dictionary<string, Func<Booking, object>>
         {
-            { _localizer["Excel.BookingDate"], b => b.BookingDate },
-            { _localizer["Excel.Child"], b => $"{b.Child.FirstName} {b.Child.LastName}" },
-            { _localizer["Excel.Parent"], b => $"{b.Child.Parent.FirstName} {b.Child.Parent.LastName}" },
-            { _localizer["Excel.ParentEmail"], b => b.Child.Parent.Email },
-            { _localizer["Excel.ParentPhone"], b => b.Child.Parent.MobilePhoneNumber ?? b.Child.Parent.PhoneNumber ?? "" },
-            { _localizer["Excel.Activity"], b => b.Activity.Name },
-            { _localizer["Excel.StartDate"], b => b.Activity.StartDate },
-            { _localizer["Excel.EndDate"], b => b.Activity.EndDate },
-            { _localizer["Excel.Group"], b => b.Group?.Label ?? "" },
-            { _localizer["Excel.Confirmed"], b => b.IsConfirmed },
-            { _localizer["Excel.MedicalSheet"], b => b.IsMedicalSheet }
+            { _ctx.Localizer["Excel.BookingDate"], b => b.BookingDate },
+            { _ctx.Localizer["Excel.Child"], b => $"{b.Child.FirstName} {b.Child.LastName}" },
+            { _ctx.Localizer["Excel.Parent"], b => $"{b.Child.Parent.FirstName} {b.Child.Parent.LastName}" },
+            { _ctx.Localizer["Excel.ParentEmail"], b => b.Child.Parent.Email },
+            { _ctx.Localizer["Excel.ParentPhone"], b => b.Child.Parent.MobilePhoneNumber ?? b.Child.Parent.PhoneNumber ?? "" },
+            { _ctx.Localizer["Excel.Activity"], b => b.Activity.Name },
+            { _ctx.Localizer["Excel.StartDate"], b => b.Activity.StartDate },
+            { _ctx.Localizer["Excel.EndDate"], b => b.Activity.EndDate },
+            { _ctx.Localizer["Excel.Group"], b => b.Group?.Label ?? "" },
+            { _ctx.Localizer["Excel.Confirmed"], b => b.IsConfirmed },
+            { _ctx.Localizer["Excel.MedicalSheet"], b => b.IsMedicalSheet }
         };
 
-        var title = _localizer["Excel.BookingsSheet"];
+        var title = _ctx.Localizer["Excel.BookingsSheet"];
         var pdfData = _exportServices.Pdf.ExportToPdf(bookings, title, columns);
         var fileName = $"{title}_{DateTime.Now:yyyyMMdd_HHmmss}.pdf";
 
@@ -833,40 +821,40 @@ public class BookingsController : Controller
     private void StoreBookingFiltersToSession(BookingQueryParameters queryParams)
     {
         if (queryParams.ActivityId.HasValue)
-            _sessionState.Set<int>("ActivityId", queryParams.ActivityId.Value);
+            _ctx.Session.Set<int>("ActivityId", queryParams.ActivityId.Value);
         if (!string.IsNullOrWhiteSpace(queryParams.SearchString))
-            _sessionState.Set(SessionKeyBookingsSearchString, queryParams.SearchString, persistToCookie: false);
+            _ctx.Session.Set(SessionKeyBookingsSearchString, queryParams.SearchString, persistToCookie: false);
         if (queryParams.ChildId.HasValue)
-            _sessionState.Set(SessionKeyBookingsChildId, queryParams.ChildId, persistToCookie: false);
+            _ctx.Session.Set(SessionKeyBookingsChildId, queryParams.ChildId, persistToCookie: false);
         if (queryParams.IsConfirmed.HasValue)
-            _sessionState.Set(SessionKeyBookingsIsConfirmed, queryParams.IsConfirmed, persistToCookie: false);
+            _ctx.Session.Set(SessionKeyBookingsIsConfirmed, queryParams.IsConfirmed, persistToCookie: false);
         if (!string.IsNullOrWhiteSpace(queryParams.SortBy))
-            _sessionState.Set(SessionKeyBookingsSortBy, queryParams.SortBy, persistToCookie: false);
+            _ctx.Session.Set(SessionKeyBookingsSortBy, queryParams.SortBy, persistToCookie: false);
         if (!string.IsNullOrWhiteSpace(queryParams.SortOrder))
-            _sessionState.Set(SessionKeyBookingsSortOrder, queryParams.SortOrder, persistToCookie: false);
+            _ctx.Session.Set(SessionKeyBookingsSortOrder, queryParams.SortOrder, persistToCookie: false);
         if (queryParams.PageNumber > 1)
-            _sessionState.Set(SessionKeyBookingsPageNumber, queryParams.PageNumber.ToString(), persistToCookie: false);
+            _ctx.Session.Set(SessionKeyBookingsPageNumber, queryParams.PageNumber.ToString(), persistToCookie: false);
     }
 
     private void ClearBookingFilters()
     {
-        _sessionState.Clear(SessionKeyBookingsSearchString);
-        _sessionState.Clear(SessionKeyBookingsChildId);
-        _sessionState.Clear(SessionKeyBookingsIsConfirmed);
-        _sessionState.Clear(SessionKeyBookingsSortBy);
-        _sessionState.Clear(SessionKeyBookingsSortOrder);
-        _sessionState.Clear(SessionKeyBookingsPageNumber);
+        _ctx.Session.Clear(SessionKeyBookingsSearchString);
+        _ctx.Session.Clear(SessionKeyBookingsChildId);
+        _ctx.Session.Clear(SessionKeyBookingsIsConfirmed);
+        _ctx.Session.Clear(SessionKeyBookingsSortBy);
+        _ctx.Session.Clear(SessionKeyBookingsSortOrder);
+        _ctx.Session.Clear(SessionKeyBookingsPageNumber);
     }
 
     private void LoadBookingFiltersFromSession(BookingQueryParameters queryParams)
     {
-        queryParams.ActivityId = _sessionState.Get<int>("ActivityId");
-        queryParams.SearchString = _sessionState.Get(SessionKeyBookingsSearchString);
-        queryParams.ChildId = _sessionState.Get<int>(SessionKeyBookingsChildId);
-        queryParams.IsConfirmed = _sessionState.Get<bool>(SessionKeyBookingsIsConfirmed);
-        queryParams.SortBy = _sessionState.Get(SessionKeyBookingsSortBy);
-        queryParams.SortOrder = _sessionState.Get(SessionKeyBookingsSortOrder);
-        var pageNumberStr = _sessionState.Get(SessionKeyBookingsPageNumber);
+        queryParams.ActivityId = _ctx.Session.Get<int>("ActivityId");
+        queryParams.SearchString = _ctx.Session.Get(SessionKeyBookingsSearchString);
+        queryParams.ChildId = _ctx.Session.Get<int>(SessionKeyBookingsChildId);
+        queryParams.IsConfirmed = _ctx.Session.Get<bool>(SessionKeyBookingsIsConfirmed);
+        queryParams.SortBy = _ctx.Session.Get(SessionKeyBookingsSortBy);
+        queryParams.SortOrder = _ctx.Session.Get(SessionKeyBookingsSortOrder);
+        var pageNumberStr = _ctx.Session.Get(SessionKeyBookingsPageNumber);
         if (!string.IsNullOrEmpty(pageNumberStr) && int.TryParse(pageNumberStr, out var pageNum))
             queryParams.PageNumber = pageNum;
     }

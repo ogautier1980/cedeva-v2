@@ -63,6 +63,8 @@ try
         containerBuilder.RegisterType<ClosedXmlExportService>().As<IExcelExportService>().InstancePerLifetimeScope();
         containerBuilder.RegisterType<QuestPdfExportService>().As<IPdfExportService>().InstancePerLifetimeScope();
         containerBuilder.RegisterType<ExportFacadeService>().As<IExportFacadeService>().InstancePerLifetimeScope();
+        containerBuilder.RegisterGeneric(typeof(CedevaControllerContext<>)).As(typeof(ICedevaControllerContext<>)).InstancePerLifetimeScope();
+        containerBuilder.RegisterType<StorageContext>().As<IStorageContext>().InstancePerLifetimeScope();
         containerBuilder.RegisterType<BelgianMunicipalityService>().As<IBelgianMunicipalityService>().InstancePerLifetimeScope();
         containerBuilder.RegisterType<StructuredCommunicationService>().As<IStructuredCommunicationService>().InstancePerLifetimeScope();
         containerBuilder.RegisterType<CodaParserService>().As<ICodaParserService>().InstancePerLifetimeScope();

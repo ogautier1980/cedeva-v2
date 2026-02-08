@@ -24,32 +24,26 @@ public class OrganisationsController : Controller
     private readonly IRepository<Address> _addressRepository;
     private readonly CedevaDbContext _context;
     private readonly IUnitOfWork _unitOfWork;
-    private readonly IStringLocalizer<SharedResources> _localizer;
     private readonly IExportFacadeService _exportServices;
     private readonly IStorageService _storageService;
-    private readonly IUserDisplayService _userDisplayService;
-    private readonly ISessionStateService _sessionState;
+    private readonly ICedevaControllerContext<OrganisationsController> _ctx;
 
     public OrganisationsController(
         IRepository<Organisation> organisationRepository,
         IRepository<Address> addressRepository,
         CedevaDbContext context,
         IUnitOfWork unitOfWork,
-        IStringLocalizer<SharedResources> localizer,
         IExportFacadeService exportServices,
         IStorageService storageService,
-        IUserDisplayService userDisplayService,
-        ISessionStateService sessionState)
+        ICedevaControllerContext<OrganisationsController> ctx)
     {
         _organisationRepository = organisationRepository;
         _addressRepository = addressRepository;
         _context = context;
         _unitOfWork = unitOfWork;
-        _localizer = localizer;
         _exportServices = exportServices;
         _storageService = storageService;
-        _userDisplayService = userDisplayService;
-        _sessionState = sessionState;
+        _ctx = ctx;
     }
 
     // GET: Organisations
@@ -62,16 +56,16 @@ public class OrganisationsController : Controller
         if (hasQueryParams)
         {
             if (!string.IsNullOrWhiteSpace(queryParams.SearchString))
-                _sessionState.Set(SessionKeyOrganisationsSearchString, queryParams.SearchString, persistToCookie: false);
+                _ctx.Session.Set(SessionKeyOrganisationsSearchString, queryParams.SearchString, persistToCookie: false);
 
             if (!string.IsNullOrWhiteSpace(queryParams.SortBy))
-                _sessionState.Set(SessionKeyOrganisationsSortBy, queryParams.SortBy, persistToCookie: false);
+                _ctx.Session.Set(SessionKeyOrganisationsSortBy, queryParams.SortBy, persistToCookie: false);
 
             if (!string.IsNullOrWhiteSpace(queryParams.SortOrder))
-                _sessionState.Set(SessionKeyOrganisationsSortOrder, queryParams.SortOrder, persistToCookie: false);
+                _ctx.Session.Set(SessionKeyOrganisationsSortOrder, queryParams.SortOrder, persistToCookie: false);
 
             if (queryParams.PageNumber > 1)
-                _sessionState.Set(SessionKeyOrganisationsPageNumber, queryParams.PageNumber.ToString(), persistToCookie: false);
+                _ctx.Session.Set(SessionKeyOrganisationsPageNumber, queryParams.PageNumber.ToString(), persistToCookie: false);
 
             // Mark that filters should be kept for the next request (after redirect)
             TempData[ControllerExtensions.KeepFiltersKey] = true;
@@ -83,18 +77,18 @@ public class OrganisationsController : Controller
         // If not keeping filters (no redirect, just navigation/F5), clear them
         if (TempData[ControllerExtensions.KeepFiltersKey] == null)
         {
-            _sessionState.Clear(SessionKeyOrganisationsSearchString);
-            _sessionState.Clear(SessionKeyOrganisationsSortBy);
-            _sessionState.Clear(SessionKeyOrganisationsSortOrder);
-            _sessionState.Clear(SessionKeyOrganisationsPageNumber);
+            _ctx.Session.Clear(SessionKeyOrganisationsSearchString);
+            _ctx.Session.Clear(SessionKeyOrganisationsSortBy);
+            _ctx.Session.Clear(SessionKeyOrganisationsSortOrder);
+            _ctx.Session.Clear(SessionKeyOrganisationsPageNumber);
         }
 
         // Load filters from state (will be empty if just cleared)
-        queryParams.SearchString = _sessionState.Get(SessionKeyOrganisationsSearchString);
-        queryParams.SortBy = _sessionState.Get(SessionKeyOrganisationsSortBy);
-        queryParams.SortOrder = _sessionState.Get(SessionKeyOrganisationsSortOrder);
+        queryParams.SearchString = _ctx.Session.Get(SessionKeyOrganisationsSearchString);
+        queryParams.SortBy = _ctx.Session.Get(SessionKeyOrganisationsSortBy);
+        queryParams.SortOrder = _ctx.Session.Get(SessionKeyOrganisationsSortOrder);
 
-        var pageNumberStr = _sessionState.Get(SessionKeyOrganisationsPageNumber);
+        var pageNumberStr = _ctx.Session.Get(SessionKeyOrganisationsPageNumber);
         if (!string.IsNullOrEmpty(pageNumberStr) && int.TryParse(pageNumberStr, out var pageNum))
         {
             queryParams.PageNumber = pageNum;
@@ -200,10 +194,10 @@ public class OrganisationsController : Controller
         };
 
         // Fetch user display names for audit fields
-        viewModel.CreatedByDisplayName = await _userDisplayService.GetUserDisplayNameAsync(organisation.CreatedBy);
+        viewModel.CreatedByDisplayName = await _ctx.UserDisplay.GetUserDisplayNameAsync(organisation.CreatedBy);
         if (!string.IsNullOrEmpty(organisation.ModifiedBy))
         {
-            viewModel.ModifiedByDisplayName = await _userDisplayService.GetUserDisplayNameAsync(organisation.ModifiedBy);
+            viewModel.ModifiedByDisplayName = await _ctx.UserDisplay.GetUserDisplayNameAsync(organisation.ModifiedBy);
         }
 
         return View(viewModel);
@@ -241,7 +235,7 @@ public class OrganisationsController : Controller
 
             await UploadLogoFileForNewOrganisation(organisation, viewModel.LogoFile);
 
-            TempData[ControllerExtensions.SuccessMessageKey] = _localizer["Message.OrganisationCreated"].Value;
+            TempData[ControllerExtensions.SuccessMessageKey] = _ctx.Localizer["Message.OrganisationCreated"].Value;
             return RedirectToAction(nameof(Details), new { id = organisation.Id });
         }
 
@@ -309,7 +303,7 @@ public class OrganisationsController : Controller
             await _organisationRepository.UpdateAsync(organisation);
             await _unitOfWork.SaveChangesAsync();
 
-            TempData[ControllerExtensions.SuccessMessageKey] = _localizer["Message.OrganisationUpdated"].Value;
+            TempData[ControllerExtensions.SuccessMessageKey] = _ctx.Localizer["Message.OrganisationUpdated"].Value;
             return this.RedirectToReturnUrlOrAction(returnUrl, nameof(Details), new { id = organisation.Id });
         }
 
@@ -405,7 +399,7 @@ public class OrganisationsController : Controller
             await _unitOfWork.SaveChangesAsync();
         }
 
-        TempData[ControllerExtensions.SuccessMessageKey] = _localizer["Message.OrganisationDeleted"].Value;
+        TempData[ControllerExtensions.SuccessMessageKey] = _ctx.Localizer["Message.OrganisationDeleted"].Value;
         return RedirectToAction(nameof(Index));
     }
 
@@ -555,16 +549,16 @@ public class OrganisationsController : Controller
 
         var columns = new Dictionary<string, Func<Organisation, object>>
         {
-            { _localizer["Excel.Name"], o => o.Name },
-            { _localizer["Excel.Description"], o => o.Description ?? "" },
-            { _localizer["Excel.Address"], o => $"{o.Address?.Street}, {o.Address?.PostalCode} {o.Address?.City}" },
-            { _localizer["Excel.Activities"], o => o.Activities.Count },
-            { _localizer["Excel.Parents"], o => o.Parents.Count },
-            { _localizer["Excel.Team"], o => o.TeamMembers.Count },
-            { _localizer["Excel.Users"], o => o.Users.Count }
+            { _ctx.Localizer["Excel.Name"], o => o.Name },
+            { _ctx.Localizer["Excel.Description"], o => o.Description ?? "" },
+            { _ctx.Localizer["Excel.Address"], o => $"{o.Address?.Street}, {o.Address?.PostalCode} {o.Address?.City}" },
+            { _ctx.Localizer["Excel.Activities"], o => o.Activities.Count },
+            { _ctx.Localizer["Excel.Parents"], o => o.Parents.Count },
+            { _ctx.Localizer["Excel.Team"], o => o.TeamMembers.Count },
+            { _ctx.Localizer["Excel.Users"], o => o.Users.Count }
         };
 
-        var sheetName = _localizer["Excel.OrganisationsSheet"];
+        var sheetName = _ctx.Localizer["Excel.OrganisationsSheet"];
         var excelData = _exportServices.Excel.ExportToExcel(organisations, sheetName, columns);
         var fileName = $"{sheetName}_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx";
 
@@ -593,16 +587,16 @@ public class OrganisationsController : Controller
 
         var columns = new Dictionary<string, Func<Organisation, object>>
         {
-            { _localizer["Excel.Name"], o => o.Name },
-            { _localizer["Excel.Description"], o => o.Description ?? "" },
-            { _localizer["Excel.Address"], o => $"{o.Address?.Street}, {o.Address?.PostalCode} {o.Address?.City}" },
-            { _localizer["Excel.Activities"], o => o.Activities.Count },
-            { _localizer["Excel.Parents"], o => o.Parents.Count },
-            { _localizer["Excel.Team"], o => o.TeamMembers.Count },
-            { _localizer["Excel.Users"], o => o.Users.Count }
+            { _ctx.Localizer["Excel.Name"], o => o.Name },
+            { _ctx.Localizer["Excel.Description"], o => o.Description ?? "" },
+            { _ctx.Localizer["Excel.Address"], o => $"{o.Address?.Street}, {o.Address?.PostalCode} {o.Address?.City}" },
+            { _ctx.Localizer["Excel.Activities"], o => o.Activities.Count },
+            { _ctx.Localizer["Excel.Parents"], o => o.Parents.Count },
+            { _ctx.Localizer["Excel.Team"], o => o.TeamMembers.Count },
+            { _ctx.Localizer["Excel.Users"], o => o.Users.Count }
         };
 
-        var title = _localizer["Excel.OrganisationsSheet"];
+        var title = _ctx.Localizer["Excel.OrganisationsSheet"];
         var pdfData = _exportServices.Pdf.ExportToPdf(organisations, title, columns);
         var fileName = $"{title}_{DateTime.Now:yyyyMMdd_HHmmss}.pdf";
 

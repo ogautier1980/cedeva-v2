@@ -28,11 +28,7 @@ public class ChildrenController : Controller
     private readonly CedevaDbContext _context;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IExportFacadeService _exportServices;
-    private readonly IStringLocalizer<SharedResources> _localizer;
-    private readonly IUserDisplayService _userDisplayService;
-    private readonly ICurrentUserService _currentUserService;
-    private readonly ISessionStateService _sessionState;
-    private readonly ILogger<ChildrenController> _logger;
+    private readonly ICedevaControllerContext<ChildrenController> _ctx;
 
     public ChildrenController(
         IRepository<Child> childRepository,
@@ -40,22 +36,14 @@ public class ChildrenController : Controller
         CedevaDbContext context,
         IUnitOfWork unitOfWork,
         IExportFacadeService exportServices,
-        IStringLocalizer<SharedResources> localizer,
-        IUserDisplayService userDisplayService,
-        ICurrentUserService currentUserService,
-        ISessionStateService sessionState,
-        ILogger<ChildrenController> logger)
+        ICedevaControllerContext<ChildrenController> ctx)
     {
         _childRepository = childRepository;
         _parentRepository = parentRepository;
         _context = context;
         _unitOfWork = unitOfWork;
         _exportServices = exportServices;
-        _localizer = localizer;
-        _userDisplayService = userDisplayService;
-        _currentUserService = currentUserService;
-        _sessionState = sessionState;
-        _logger = logger;
+        _ctx = ctx;
     }
 
     // GET: Children
@@ -68,19 +56,19 @@ public class ChildrenController : Controller
         if (hasQueryParams)
         {
             if (!string.IsNullOrWhiteSpace(queryParams.SearchString))
-                _sessionState.Set("SessionKeyChildrenSearchString", queryParams.SearchString, persistToCookie: false);
+                _ctx.Session.Set("SessionKeyChildrenSearchString", queryParams.SearchString, persistToCookie: false);
 
             if (queryParams.ParentId.HasValue)
-                _sessionState.Set("SessionKeyChildrenParentId", queryParams.ParentId, persistToCookie: false);
+                _ctx.Session.Set("SessionKeyChildrenParentId", queryParams.ParentId, persistToCookie: false);
 
             if (!string.IsNullOrWhiteSpace(queryParams.SortBy))
-                _sessionState.Set("SessionKeyChildrenSortBy", queryParams.SortBy, persistToCookie: false);
+                _ctx.Session.Set("SessionKeyChildrenSortBy", queryParams.SortBy, persistToCookie: false);
 
             if (!string.IsNullOrWhiteSpace(queryParams.SortOrder))
-                _sessionState.Set("SessionKeyChildrenSortOrder", queryParams.SortOrder, persistToCookie: false);
+                _ctx.Session.Set("SessionKeyChildrenSortOrder", queryParams.SortOrder, persistToCookie: false);
 
             if (queryParams.PageNumber > 1)
-                _sessionState.Set("SessionKeyChildrenPageNumber", queryParams.PageNumber.ToString(), persistToCookie: false);
+                _ctx.Session.Set("SessionKeyChildrenPageNumber", queryParams.PageNumber.ToString(), persistToCookie: false);
 
             // Mark that filters should be kept for the next request (after redirect)
             TempData[ControllerExtensions.KeepFiltersKey] = true;
@@ -92,20 +80,20 @@ public class ChildrenController : Controller
         // If not keeping filters (no redirect, just navigation/F5), clear them
         if (TempData[ControllerExtensions.KeepFiltersKey] == null)
         {
-            _sessionState.Clear("SessionKeyChildrenSearchString");
-            _sessionState.Clear("SessionKeyChildrenParentId");
-            _sessionState.Clear("SessionKeyChildrenSortBy");
-            _sessionState.Clear("SessionKeyChildrenSortOrder");
-            _sessionState.Clear("SessionKeyChildrenPageNumber");
+            _ctx.Session.Clear("SessionKeyChildrenSearchString");
+            _ctx.Session.Clear("SessionKeyChildrenParentId");
+            _ctx.Session.Clear("SessionKeyChildrenSortBy");
+            _ctx.Session.Clear("SessionKeyChildrenSortOrder");
+            _ctx.Session.Clear("SessionKeyChildrenPageNumber");
         }
 
         // Load filters from state (will be empty if just cleared)
-        queryParams.SearchString = _sessionState.Get("SessionKeyChildrenSearchString");
-        queryParams.ParentId = _sessionState.Get<int>("SessionKeyChildrenParentId");
-        queryParams.SortBy = _sessionState.Get("SessionKeyChildrenSortBy");
-        queryParams.SortOrder = _sessionState.Get("SessionKeyChildrenSortOrder");
+        queryParams.SearchString = _ctx.Session.Get("SessionKeyChildrenSearchString");
+        queryParams.ParentId = _ctx.Session.Get<int>("SessionKeyChildrenParentId");
+        queryParams.SortBy = _ctx.Session.Get("SessionKeyChildrenSortBy");
+        queryParams.SortOrder = _ctx.Session.Get("SessionKeyChildrenSortOrder");
 
-        var pageNumberStr = _sessionState.Get("SessionKeyChildrenPageNumber");
+        var pageNumberStr = _ctx.Session.Get("SessionKeyChildrenPageNumber");
         if (!string.IsNullOrEmpty(pageNumberStr) && int.TryParse(pageNumberStr, out var pageNum))
         {
             queryParams.PageNumber = pageNum;
@@ -195,20 +183,20 @@ public class ChildrenController : Controller
 
         var columns = new Dictionary<string, Func<Child, object>>
         {
-            { _localizer["Excel.FirstName"], c => c.FirstName },
-            { _localizer["Excel.LastName"], c => c.LastName },
-            { _localizer["Excel.NationalRegisterNumber"], c => c.NationalRegisterNumber },
-            { _localizer["Excel.BirthDate"], c => c.BirthDate },
-            { _localizer["Excel.Age"], c => DateTime.Today.Year - c.BirthDate.Year - (DateTime.Today.DayOfYear < c.BirthDate.DayOfYear ? 1 : 0) },
-            { _localizer["Excel.Parent"], c => c.Parent != null ? $"{c.Parent.FirstName} {c.Parent.LastName}" : "" },
-            { _localizer["Excel.ParentEmail"], c => c.Parent?.Email ?? "" },
-            { _localizer["Excel.ParentPhone"], c => c.Parent?.MobilePhoneNumber ?? c.Parent?.PhoneNumber ?? "" },
-            { _localizer["Excel.DisadvantagedEnvironment"], c => c.IsDisadvantagedEnvironment },
-            { _localizer["Excel.MildDisability"], c => c.IsMildDisability },
-            { _localizer["Excel.SevereDisability"], c => c.IsSevereDisability }
+            { _ctx.Localizer["Excel.FirstName"], c => c.FirstName },
+            { _ctx.Localizer["Excel.LastName"], c => c.LastName },
+            { _ctx.Localizer["Excel.NationalRegisterNumber"], c => c.NationalRegisterNumber },
+            { _ctx.Localizer["Excel.BirthDate"], c => c.BirthDate },
+            { _ctx.Localizer["Excel.Age"], c => DateTime.Today.Year - c.BirthDate.Year - (DateTime.Today.DayOfYear < c.BirthDate.DayOfYear ? 1 : 0) },
+            { _ctx.Localizer["Excel.Parent"], c => c.Parent != null ? $"{c.Parent.FirstName} {c.Parent.LastName}" : "" },
+            { _ctx.Localizer["Excel.ParentEmail"], c => c.Parent?.Email ?? "" },
+            { _ctx.Localizer["Excel.ParentPhone"], c => c.Parent?.MobilePhoneNumber ?? c.Parent?.PhoneNumber ?? "" },
+            { _ctx.Localizer["Excel.DisadvantagedEnvironment"], c => c.IsDisadvantagedEnvironment },
+            { _ctx.Localizer["Excel.MildDisability"], c => c.IsMildDisability },
+            { _ctx.Localizer["Excel.SevereDisability"], c => c.IsSevereDisability }
         };
 
-        var sheetName = _localizer["Excel.ChildrenSheet"];
+        var sheetName = _ctx.Localizer["Excel.ChildrenSheet"];
         var excelData = _exportServices.Excel.ExportToExcel(children, sheetName, columns);
         var fileName = $"{sheetName}_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx";
 
@@ -242,15 +230,15 @@ public class ChildrenController : Controller
 
         var columns = new Dictionary<string, Func<Child, object>>
         {
-            { _localizer["Excel.FirstName"], c => c.FirstName },
-            { _localizer["Excel.LastName"], c => c.LastName },
-            { _localizer["Excel.BirthDate"], c => c.BirthDate },
-            { _localizer["Excel.Age"], c => DateTime.Today.Year - c.BirthDate.Year - (DateTime.Today.DayOfYear < c.BirthDate.DayOfYear ? 1 : 0) },
-            { _localizer["Excel.Parent"], c => c.Parent != null ? $"{c.Parent.FirstName} {c.Parent.LastName}" : "" },
-            { _localizer["Excel.ParentPhone"], c => c.Parent?.MobilePhoneNumber ?? c.Parent?.PhoneNumber ?? "" }
+            { _ctx.Localizer["Excel.FirstName"], c => c.FirstName },
+            { _ctx.Localizer["Excel.LastName"], c => c.LastName },
+            { _ctx.Localizer["Excel.BirthDate"], c => c.BirthDate },
+            { _ctx.Localizer["Excel.Age"], c => DateTime.Today.Year - c.BirthDate.Year - (DateTime.Today.DayOfYear < c.BirthDate.DayOfYear ? 1 : 0) },
+            { _ctx.Localizer["Excel.Parent"], c => c.Parent != null ? $"{c.Parent.FirstName} {c.Parent.LastName}" : "" },
+            { _ctx.Localizer["Excel.ParentPhone"], c => c.Parent?.MobilePhoneNumber ?? c.Parent?.PhoneNumber ?? "" }
         };
 
-        var title = _localizer["Excel.ChildrenSheet"];
+        var title = _ctx.Localizer["Excel.ChildrenSheet"];
         var pdfData = _exportServices.Pdf.ExportToPdf(children, title, columns);
         var fileName = $"{title}_{DateTime.Now:yyyyMMdd_HHmmss}.pdf";
 
@@ -282,7 +270,7 @@ public class ChildrenController : Controller
         };
 
         // Pass organisation ID for inline parent creation
-        ViewBag.CurrentOrganisationId = _currentUserService.OrganisationId ?? 0;
+        ViewBag.CurrentOrganisationId = _ctx.CurrentUser.OrganisationId ?? 0;
 
         return View(viewModel);
     }
@@ -310,7 +298,7 @@ public class ChildrenController : Controller
             await _childRepository.AddAsync(child);
             await _unitOfWork.SaveChangesAsync();
 
-            TempData[ControllerExtensions.SuccessMessageKey] = _localizer["Message.ChildCreated"].Value;
+            TempData[ControllerExtensions.SuccessMessageKey] = _ctx.Localizer["Message.ChildCreated"].Value;
             return RedirectToAction(nameof(Details), new { id = child.Id });
         }
 
@@ -349,14 +337,14 @@ public class ChildrenController : Controller
         await _childRepository.AddAsync(child);
         await _unitOfWork.SaveChangesAsync();
 
-        _logger.LogInformation("Child {Name} created via AJAX by user {UserId}", child.FullName, _currentUserService.UserId);
+        _ctx.Logger.LogInformation("Child {Name} created via AJAX by user {UserId}", child.FullName, _ctx.CurrentUser.UserId);
 
         return Json(new
         {
             success = true,
             childId = child.Id,
             childName = child.FullName,
-            message = _localizer["Message.ChildCreated"].Value
+            message = _ctx.Localizer["Message.ChildCreated"].Value
         });
     }
 
@@ -423,7 +411,7 @@ public class ChildrenController : Controller
             await _childRepository.UpdateAsync(child);
             await _unitOfWork.SaveChangesAsync();
 
-            TempData[ControllerExtensions.SuccessMessageKey] = _localizer["Message.ChildUpdated"].Value;
+            TempData[ControllerExtensions.SuccessMessageKey] = _ctx.Localizer["Message.ChildUpdated"].Value;
             return this.RedirectToReturnUrlOrAction(returnUrl, nameof(Details), new { id = child.Id });
         }
 
@@ -458,7 +446,7 @@ public class ChildrenController : Controller
         await _childRepository.DeleteAsync(child);
         await _unitOfWork.SaveChangesAsync();
 
-        TempData[ControllerExtensions.SuccessMessageKey] = _localizer["Message.ChildDeleted"].Value;
+        TempData[ControllerExtensions.SuccessMessageKey] = _ctx.Localizer["Message.ChildDeleted"].Value;
         return RedirectToAction(nameof(Index));
     }
 
@@ -513,10 +501,10 @@ public class ChildrenController : Controller
         };
 
         // Fetch user display names for audit fields
-        viewModel.CreatedByDisplayName = await _userDisplayService.GetUserDisplayNameAsync(child.CreatedBy);
+        viewModel.CreatedByDisplayName = await _ctx.UserDisplay.GetUserDisplayNameAsync(child.CreatedBy);
         if (!string.IsNullOrEmpty(child.ModifiedBy))
         {
-            viewModel.ModifiedByDisplayName = await _userDisplayService.GetUserDisplayNameAsync(child.ModifiedBy);
+            viewModel.ModifiedByDisplayName = await _ctx.UserDisplay.GetUserDisplayNameAsync(child.ModifiedBy);
         }
 
         return viewModel;
