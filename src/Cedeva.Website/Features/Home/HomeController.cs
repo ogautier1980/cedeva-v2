@@ -92,6 +92,11 @@ public class HomeController : Controller
     [HttpPost]
     public IActionResult SetLanguage(string culture, string returnUrl)
     {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
         if (!string.IsNullOrEmpty(culture))
         {
             Response.Cookies.Append(

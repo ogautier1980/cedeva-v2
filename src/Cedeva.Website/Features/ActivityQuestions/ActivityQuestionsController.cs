@@ -307,6 +307,11 @@ public class ActivityQuestionsController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> UpdateOrder([FromBody] List<QuestionOrderDto> updates)
     {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
         try
         {
             if (updates == null || !updates.Any())
@@ -359,6 +364,11 @@ public class ActivityQuestionsController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> ToggleActive(int id, bool isActive)
     {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
         try
         {
             var question = await _context.ActivityQuestions.FindAsync(id);
@@ -467,6 +477,11 @@ public class ActivityQuestionsController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> ImportQuestions([FromBody] ImportQuestionsRequest request)
     {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
         try
         {
             if (request == null || !request.QuestionIds.Any())

@@ -55,6 +55,11 @@ public class FinancialController : Controller
     [ValidateAntiForgeryToken]
     public IActionResult BeginFinancial(int id)
     {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
         HttpContext.Session.SetInt32(SessionKeyActivityId, id);
         return RedirectToAction(nameof(Index));
     }
