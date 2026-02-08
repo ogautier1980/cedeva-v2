@@ -665,7 +665,7 @@ public class BookingsController : Controller
             catch (Exception ex)
             {
                 _logger.LogWarning(ex, "Failed to send booking confirmation email to {Email} for booking {BookingId}",
-                    child.Parent.Email, id);
+                    child.Parent.Email, booking.Id);
                 TempData[ControllerExtensions.WarningMessageKey] = string.Format(_localizer["Message.BookingConfirmedEmailFailed"].Value, ex.Message);
             }
         }

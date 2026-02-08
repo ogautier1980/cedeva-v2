@@ -16,6 +16,8 @@ namespace Cedeva.Website.Features.ActivityManagement;
 [Authorize]
 public class ActivityManagementController : Controller
 {
+    private const string SessionKeyActivityId = "ActivityId";
+    private const string DefaultGroupLabel = "Sans groupe";
     private const string RecipientAllParents = "allparents";
     private const string RecipientMedicalSheetReminder = "medicalsheetreminder";
     private const string RecipientUnpaidParents = "unpaidparents";
@@ -55,7 +57,7 @@ public class ActivityManagementController : Controller
     public async Task<IActionResult> Index(int? id)
     {
         // Use service to get or set activity ID
-        id ??= _sessionState.Get<int>("ActivityId");
+        id ??= _sessionState.Get<int>(SessionKeyActivityId);
 
         if (id is null)
             return NotFound();
@@ -98,7 +100,7 @@ public class ActivityManagementController : Controller
     [HttpGet]
     public async Task<IActionResult> UnconfirmedBookings(int? id)
     {
-        id ??= _sessionState.Get<int>("ActivityId");
+        id ??= _sessionState.Get<int>(SessionKeyActivityId);
 
         if (id is null)
             return NotFound();
@@ -186,7 +188,7 @@ public class ActivityManagementController : Controller
         else
         {
             // Find or create "Sans groupe" group for this activity
-            var noGroupLabel = "Sans groupe";
+            var noGroupLabel = DefaultGroupLabel;
             var noGroup = booking.Activity.Groups.FirstOrDefault(g => g.Label == noGroupLabel);
 
             if (noGroup == null)
@@ -215,7 +217,7 @@ public class ActivityManagementController : Controller
     [HttpGet]
     public async Task<IActionResult> Presences(int? id, int? dayId)
     {
-        id ??= _sessionState.Get<int>("ActivityId");
+        id ??= _sessionState.Get<int>(SessionKeyActivityId);
 
         if (id is null)
             return NotFound();
@@ -379,7 +381,7 @@ public class ActivityManagementController : Controller
     [HttpGet]
     public async Task<IActionResult> SendEmail(int? id)
     {
-        id ??= _sessionState.Get<int>("ActivityId");
+        id ??= _sessionState.Get<int>(SessionKeyActivityId);
 
         if (id is null)
             return NotFound();
@@ -613,7 +615,7 @@ public class ActivityManagementController : Controller
     [HttpGet]
     public async Task<IActionResult> SentEmails(int? id)
     {
-        id ??= _sessionState.Get<int>("ActivityId");
+        id ??= _sessionState.Get<int>(SessionKeyActivityId);
 
         if (id is null)
             return NotFound();
@@ -658,7 +660,7 @@ public class ActivityManagementController : Controller
     [HttpGet]
     public async Task<IActionResult> TeamMembers(int? id)
     {
-        id ??= _sessionState.Get<int>("ActivityId");
+        id ??= _sessionState.Get<int>(SessionKeyActivityId);
 
         if (id is null)
             return NotFound();
@@ -990,7 +992,7 @@ public class ActivityManagementController : Controller
     // GET: ActivityManagement/GroupAssignment
     public async Task<IActionResult> GroupAssignment()
     {
-        var selectedActivityId = _sessionState.Get<int>("ActivityId");
+        var selectedActivityId = _sessionState.Get<int>(SessionKeyActivityId);
         if (selectedActivityId == null)
         {
             TempData[ControllerExtensions.ErrorMessageKey] = _localizer["ActivityManagement.SelectActivity"].Value;
@@ -1023,7 +1025,7 @@ public class ActivityManagementController : Controller
             .Include(b => b.Group)
             .Where(b => b.ActivityId == selectedActivityId.Value
                      && b.IsConfirmed
-                     && (b.GroupId == null || (b.Group != null && b.Group.Label == "Sans groupe")))
+                     && (b.GroupId == null || (b.Group != null && b.Group.Label == DefaultGroupLabel)))
             .OrderBy(b => b.Child.LastName)
             .ThenBy(b => b.Child.FirstName)
             .ToListAsync();
@@ -1114,7 +1116,7 @@ public class ActivityManagementController : Controller
     // GET: ActivityManagement/ManageBookings
     public async Task<IActionResult> ManageBookings()
     {
-        var selectedActivityId = _sessionState.Get<int>("ActivityId");
+        var selectedActivityId = _sessionState.Get<int>(SessionKeyActivityId);
         if (selectedActivityId == null)
         {
             TempData[ControllerExtensions.ErrorMessageKey] = _localizer["ActivityManagement.SelectActivity"].Value;
@@ -1138,7 +1140,7 @@ public class ActivityManagementController : Controller
             .Where(b => b.ActivityId == selectedActivityId.Value
                      && (!b.IsConfirmed
                          || b.GroupId == null
-                         || (b.Group != null && b.Group.Label == "Sans groupe")
+                         || (b.Group != null && b.Group.Label == DefaultGroupLabel)
                          || !b.IsMedicalSheet))
             .OrderBy(b => b.Child.LastName)
             .ThenBy(b => b.Child.FirstName)
@@ -1161,7 +1163,7 @@ public class ActivityManagementController : Controller
                 IsMedicalSheet = b.IsMedicalSheet
             }).ToList(),
             GroupOptions = activity.Groups
-                .Where(g => g.Label != "Sans groupe")
+                .Where(g => g.Label != DefaultGroupLabel)
                 .OrderBy(g => g.Label)
                 .Select(g => new SelectListItem
                 {
@@ -1221,13 +1223,13 @@ public class ActivityManagementController : Controller
 
                     if (activity != null)
                     {
-                        var noGroup = activity.Groups.FirstOrDefault(g => g.Label == "Sans groupe");
+                        var noGroup = activity.Groups.FirstOrDefault(g => g.Label == DefaultGroupLabel);
                         if (noGroup == null)
                         {
                             noGroup = new ActivityGroup
                             {
                                 ActivityId = activity.Id,
-                                Label = "Sans groupe",
+                                Label = DefaultGroupLabel,
                                 Capacity = null
                             };
                             _context.ActivityGroups.Add(noGroup);
@@ -1253,7 +1255,7 @@ public class ActivityManagementController : Controller
             // Check if booking is now complete (confirmed, has real group, has medical sheet)
             var isComplete = booking.IsConfirmed
                           && booking.GroupId.HasValue
-                          && (booking.Group == null || booking.Group.Label != "Sans groupe")
+                          && (booking.Group == null || booking.Group.Label != DefaultGroupLabel)
                           && booking.IsMedicalSheet;
 
             return Ok(new
@@ -1289,14 +1291,14 @@ public class ActivityManagementController : Controller
             .Where(b => b.ActivityId == activityId
                      && (!b.IsConfirmed
                          || b.GroupId == null
-                         || (b.Group != null && b.Group.Label == "Sans groupe")
+                         || (b.Group != null && b.Group.Label == DefaultGroupLabel)
                          || !b.IsMedicalSheet))
             .ToListAsync();
 
         var stats = new
         {
             pendingConfirmation = bookings.Count(b => !b.IsConfirmed),
-            withoutGroup = bookings.Count(b => b.GroupId == null || (b.Group != null && b.Group.Label == "Sans groupe")),
+            withoutGroup = bookings.Count(b => b.GroupId == null || (b.Group != null && b.Group.Label == DefaultGroupLabel)),
             withoutMedicalSheet = bookings.Count(b => !b.IsMedicalSheet)
         };
 
