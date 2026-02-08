@@ -23,6 +23,7 @@ public class ActivityManagementController : Controller
     private const string RecipientUnpaidParents = "unpaidparents";
     private const string RecipientGroupPrefix = "group_";
     private const string RecipientExcursionPrefix = "excursion_";
+    private const string ErrorMessageKey = "Message.ErrorOccurred";
 
     private readonly CedevaDbContext _context;
     private readonly ILogger<ActivityManagementController> _logger;
@@ -72,7 +73,7 @@ public class ActivityManagementController : Controller
             return NotFound();
 
         // Store the activity ID for future visits
-        _sessionState.Set<int>("ActivityId", id.Value);
+        _sessionState.Set<int>(SessionKeyActivityId, id.Value);
 
         var viewModel = new IndexViewModel
         {
@@ -92,7 +93,7 @@ public class ActivityManagementController : Controller
             return RedirectToAction(nameof(Index));
         }
 
-        _sessionState.Set<int>("ActivityId", id);
+        _sessionState.Set<int>(SessionKeyActivityId, id);
 
         return RedirectToAction(nameof(Index));
     }
@@ -115,7 +116,7 @@ public class ActivityManagementController : Controller
             return NotFound();
 
         // Store the activity ID for future visits
-        _sessionState.Set<int>("ActivityId", id.Value);
+        _sessionState.Set<int>(SessionKeyActivityId, id.Value);
 
         var unconfirmedBookings = activity.Bookings
             .Where(b => !b.IsConfirmed)
@@ -145,7 +146,7 @@ public class ActivityManagementController : Controller
             return RedirectToAction(nameof(Index));
         }
 
-        _sessionState.Set<int>("ActivityId", id);
+        _sessionState.Set<int>(SessionKeyActivityId, id);
         return RedirectToAction(nameof(UnconfirmedBookings));
     }
 
@@ -159,7 +160,7 @@ public class ActivityManagementController : Controller
             return RedirectToAction(nameof(Index));
         }
 
-        _sessionState.Set<int>("ActivityId", id);
+        _sessionState.Set<int>(SessionKeyActivityId, id);
         return RedirectToAction(nameof(GroupAssignment));
     }
 
@@ -236,7 +237,7 @@ public class ActivityManagementController : Controller
         if (activity == null)
             return NotFound();
 
-        _sessionState.Set<int>("ActivityId", id.Value);
+        _sessionState.Set<int>(SessionKeyActivityId, id.Value);
 
         dayId = SelectDefaultActivityDay(activity, dayId);
         var selectedDay = activity.Days.FirstOrDefault(d => d.DayId == dayId);
@@ -320,7 +321,7 @@ public class ActivityManagementController : Controller
             return RedirectToAction(nameof(Index));
         }
 
-        _sessionState.Set<int>("ActivityId", id);
+        _sessionState.Set<int>(SessionKeyActivityId, id);
         return RedirectToAction(nameof(Presences));
     }
 
@@ -360,7 +361,7 @@ public class ActivityManagementController : Controller
             return NotFound();
 
         // Store the activity ID for future visits
-        _sessionState.Set<int>("ActivityId", id.Value);
+        _sessionState.Set<int>(SessionKeyActivityId, id.Value);
 
         // Load excursions for this activity
         var excursions = await _context.Excursions
@@ -573,7 +574,7 @@ public class ActivityManagementController : Controller
             return RedirectToAction(nameof(Index));
         }
 
-        _sessionState.Set<int>("ActivityId", id);
+        _sessionState.Set<int>(SessionKeyActivityId, id);
         return RedirectToAction(nameof(SendEmail));
     }
 
@@ -592,7 +593,7 @@ public class ActivityManagementController : Controller
             return NotFound();
 
         // Store the activity ID for future visits
-        _sessionState.Set<int>("ActivityId", id.Value);
+        _sessionState.Set<int>(SessionKeyActivityId, id.Value);
 
         var sentEmails = await _context.EmailsSent
             .Where(e => e.ActivityId == id)
@@ -618,7 +619,7 @@ public class ActivityManagementController : Controller
             return RedirectToAction(nameof(Index));
         }
 
-        _sessionState.Set<int>("ActivityId", id);
+        _sessionState.Set<int>(SessionKeyActivityId, id);
         return RedirectToAction(nameof(SentEmails));
     }
 
@@ -638,7 +639,7 @@ public class ActivityManagementController : Controller
             return NotFound();
 
         // Store the activity ID for future visits
-        _sessionState.Set<int>("ActivityId", id.Value);
+        _sessionState.Set<int>(SessionKeyActivityId, id.Value);
 
         // Get all team members for this organisation
         var allTeamMembers = await _context.TeamMembers
@@ -671,7 +672,7 @@ public class ActivityManagementController : Controller
             return RedirectToAction(nameof(Index));
         }
 
-        _sessionState.Set<int>("ActivityId", id);
+        _sessionState.Set<int>(SessionKeyActivityId, id);
         return RedirectToAction(nameof(TeamMembers));
     }
 
@@ -1054,12 +1055,12 @@ public class ActivityManagementController : Controller
         catch (DbUpdateException ex)
         {
             _logger.LogError(ex, "Database error while assigning booking {BookingId} to group {GroupId}", request.BookingId, request.GroupId);
-            return StatusCode(500, new { success = false, message = _localizer["Message.ErrorOccurred"].Value });
+            return StatusCode(500, new { success = false, message = _localizer[ErrorMessageKey].Value });
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Unexpected error while assigning booking {BookingId} to group {GroupId}", request.BookingId, request.GroupId);
-            return StatusCode(500, new { success = false, message = _localizer["Message.ErrorOccurred"].Value });
+            return StatusCode(500, new { success = false, message = _localizer[ErrorMessageKey].Value });
         }
     }
 
@@ -1074,7 +1075,7 @@ public class ActivityManagementController : Controller
             return RedirectToAction(nameof(Index));
         }
 
-        _sessionState.Set<int>("ActivityId", id);
+        _sessionState.Set<int>(SessionKeyActivityId, id);
         return RedirectToAction(nameof(ManageBookings));
     }
 
@@ -1238,12 +1239,12 @@ public class ActivityManagementController : Controller
         catch (DbUpdateException ex)
         {
             _logger.LogError(ex, "Database error while updating booking {BookingId}", request.BookingId);
-            return StatusCode(500, new { success = false, message = _localizer["Message.ErrorOccurred"].Value });
+            return StatusCode(500, new { success = false, message = _localizer[ErrorMessageKey].Value });
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Unexpected error while updating booking {BookingId}", request.BookingId);
-            return StatusCode(500, new { success = false, message = _localizer["Message.ErrorOccurred"].Value });
+            return StatusCode(500, new { success = false, message = _localizer[ErrorMessageKey].Value });
         }
     }
 
