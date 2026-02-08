@@ -21,6 +21,9 @@ public class PaymentsController : Controller
     private readonly ILogger<PaymentsController> _logger;
     private readonly IUserDisplayService _userDisplayService;
 
+    private const string LocalizerKeyPaymentCreationFailed = "Error.PaymentCreationFailed";
+    private const string LocalizerKeyPaymentCancellationFailed = "Error.PaymentCancellationFailed";
+
     public PaymentsController(
         CedevaDbContext context,
         ICurrentUserService currentUserService,
@@ -199,19 +202,19 @@ public class PaymentsController : Controller
         catch (InvalidOperationException ex)
         {
             _logger.LogWarning(ex, "Invalid operation while creating manual payment for booking {BookingId}", viewModel.BookingId);
-            TempData[ControllerExtensions.ErrorMessageKey] = _localizer["Error.PaymentCreationFailed"].Value;
+            TempData[ControllerExtensions.ErrorMessageKey] = _localizer[LocalizerKeyPaymentCreationFailed].Value;
             return RedirectToAction(nameof(Create), new { bookingId = viewModel.BookingId });
         }
         catch (DbUpdateException ex)
         {
             _logger.LogError(ex, "Database error while creating manual payment for booking {BookingId}", viewModel.BookingId);
-            TempData[ControllerExtensions.ErrorMessageKey] = _localizer["Error.PaymentCreationFailed"].Value;
+            TempData[ControllerExtensions.ErrorMessageKey] = _localizer[LocalizerKeyPaymentCreationFailed].Value;
             return RedirectToAction(nameof(Create), new { bookingId = viewModel.BookingId });
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Unexpected error while creating manual payment for booking {BookingId}", viewModel.BookingId);
-            TempData[ControllerExtensions.ErrorMessageKey] = _localizer["Error.PaymentCreationFailed"].Value;
+            TempData[ControllerExtensions.ErrorMessageKey] = _localizer[LocalizerKeyPaymentCreationFailed].Value;
             return RedirectToAction(nameof(Create), new { bookingId = viewModel.BookingId });
         }
     }
@@ -294,19 +297,19 @@ public class PaymentsController : Controller
         catch (InvalidOperationException ex)
         {
             _logger.LogWarning(ex, "Invalid operation while cancelling payment {PaymentId}", id);
-            TempData[ControllerExtensions.ErrorMessageKey] = _localizer["Error.PaymentCancellationFailed"].Value;
+            TempData[ControllerExtensions.ErrorMessageKey] = _localizer[LocalizerKeyPaymentCancellationFailed].Value;
             return RedirectToAction(nameof(Details), new { id });
         }
         catch (DbUpdateException ex)
         {
             _logger.LogError(ex, "Database error while cancelling payment {PaymentId}", id);
-            TempData[ControllerExtensions.ErrorMessageKey] = _localizer["Error.PaymentCancellationFailed"].Value;
+            TempData[ControllerExtensions.ErrorMessageKey] = _localizer[LocalizerKeyPaymentCancellationFailed].Value;
             return RedirectToAction(nameof(Details), new { id });
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Unexpected error while cancelling payment {PaymentId}", id);
-            TempData[ControllerExtensions.ErrorMessageKey] = _localizer["Error.PaymentCancellationFailed"].Value;
+            TempData[ControllerExtensions.ErrorMessageKey] = _localizer[LocalizerKeyPaymentCancellationFailed].Value;
             return RedirectToAction(nameof(Details), new { id });
         }
     }
