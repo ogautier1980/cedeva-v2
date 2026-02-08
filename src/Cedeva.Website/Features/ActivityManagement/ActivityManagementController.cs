@@ -18,6 +18,7 @@ public class ActivityManagementController : Controller
 {
     private const string SessionKeyActivityId = "ActivityId";
     private const string DefaultGroupLabel = "Sans groupe";
+    private const string LocalizerKeyErrorOccurred = "Message.ErrorOccurred";
     private const string RecipientAllParents = "allparents";
     private const string RecipientMedicalSheetReminder = "medicalsheetreminder";
     private const string RecipientUnpaidParents = "unpaidparents";
@@ -1054,12 +1055,12 @@ public class ActivityManagementController : Controller
         catch (DbUpdateException ex)
         {
             _logger.LogError(ex, "Database error while assigning booking {BookingId} to group {GroupId}", request.BookingId, request.GroupId);
-            return StatusCode(500, new { success = false, message = _localizer["Message.ErrorOccurred"].Value });
+            return StatusCode(500, new { success = false, message = _localizer[LocalizerKeyErrorOccurred].Value });
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Unexpected error while assigning booking {BookingId} to group {GroupId}", request.BookingId, request.GroupId);
-            return StatusCode(500, new { success = false, message = _localizer["Message.ErrorOccurred"].Value });
+            return StatusCode(500, new { success = false, message = _localizer[LocalizerKeyErrorOccurred].Value });
         }
     }
 
@@ -1238,12 +1239,12 @@ public class ActivityManagementController : Controller
         catch (DbUpdateException ex)
         {
             _logger.LogError(ex, "Database error while updating booking {BookingId}", request.BookingId);
-            return StatusCode(500, new { success = false, message = _localizer["Message.ErrorOccurred"].Value });
+            return StatusCode(500, new { success = false, message = _localizer[LocalizerKeyErrorOccurred].Value });
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Unexpected error while updating booking {BookingId}", request.BookingId);
-            return StatusCode(500, new { success = false, message = _localizer["Message.ErrorOccurred"].Value });
+            return StatusCode(500, new { success = false, message = _localizer[LocalizerKeyErrorOccurred].Value });
         }
     }
 
