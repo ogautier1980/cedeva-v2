@@ -15,6 +15,7 @@ using Cedeva.Website.Infrastructure;
 using Cedeva.Website.Localization;
 using FluentValidation;
 using FluentValidation.AspNetCore;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
@@ -221,6 +222,16 @@ try
         options.RequestCultureProviders.Insert(0, new Microsoft.AspNetCore.Localization.CookieRequestCultureProvider());
     });
 
+    // Honour X-Forwarded-* from Azure App Service's TLS-terminating reverse proxy so the
+    // app sees the real scheme (https) — required for HSTS / HttpsRedirection to work.
+    // The only ingress is the platform proxy, so the proxy/network allow-lists are cleared.
+    builder.Services.Configure<ForwardedHeadersOptions>(options =>
+    {
+        options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+        options.KnownIPNetworks.Clear();
+        options.KnownProxies.Clear();
+    });
+
     // Add DbSeeder
     builder.Services.AddScoped<DbSeeder>();
     builder.Services.AddScoped<TestDataSeeder>();
@@ -254,6 +265,9 @@ try
             }
         }));
     }
+
+    // Must run first so downstream middleware sees the forwarded scheme/host.
+    app.UseForwardedHeaders();
 
     // Configure the HTTP request pipeline
     if (!app.Environment.IsDevelopment())
