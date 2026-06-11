@@ -17,10 +17,10 @@ jobs:
       contents: read
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Set up .NET Core
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
         with:
           dotnet-version: '10.x'
 
@@ -31,7 +31,7 @@ jobs:
         run: dotnet test tests/Cedeva.Tests -c Release
 
       - name: Login to Azure
-        uses: azure/login@v2
+        uses: azure/login@v3
         with:
           client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_4E9FCBF69E6643D0B0AC7CE0A07E4B83 }}
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_ED3D3FB0BE4B462C91A50A77FB7983D8 }}
