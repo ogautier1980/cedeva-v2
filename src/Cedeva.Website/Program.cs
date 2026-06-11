@@ -227,16 +227,29 @@ try
 
     var app = builder.Build();
 
-    // Seed database
-    using (var scope = app.Services.CreateScope())
+    // Seed the database AFTER the app starts listening, in the background.
+    // This keeps slow or failing seeding off the HTTP startup path: the platform
+    // warmup/health probe succeeds immediately (reliable, fast deployments) and a
+    // transient DB hiccup logs an error instead of crashing the worker. Schema
+    // migrations are also applied by the CI/CD pipeline before deploy.
+    // Demo/test data is only seeded in Development.
+    app.Lifetime.ApplicationStarted.Register(() => _ = Task.Run(async () =>
     {
-        var seeder = scope.ServiceProvider.GetRequiredService<DbSeeder>();
-        await seeder.SeedAsync();
+        try
+        {
+            using var scope = app.Services.CreateScope();
+            await scope.ServiceProvider.GetRequiredService<DbSeeder>().SeedAsync();
 
-        // Seed test data
-        var testDataSeeder = scope.ServiceProvider.GetRequiredService<TestDataSeeder>();
-        await testDataSeeder.SeedTestDataAsync();
-    }
+            if (app.Environment.IsDevelopment())
+            {
+                await scope.ServiceProvider.GetRequiredService<TestDataSeeder>().SeedTestDataAsync();
+            }
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "Database seeding failed at startup; the application will keep running");
+        }
+    }));
 
     // Configure the HTTP request pipeline
     if (!app.Environment.IsDevelopment())
