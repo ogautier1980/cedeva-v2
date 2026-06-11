@@ -233,23 +233,27 @@ try
     // transient DB hiccup logs an error instead of crashing the worker. Schema
     // migrations are also applied by the CI/CD pipeline before deploy.
     // Demo/test data is only seeded in Development.
-    app.Lifetime.ApplicationStarted.Register(() => _ = Task.Run(async () =>
+    // Background seeding can be disabled (e.g. in integration tests) via config.
+    if (app.Configuration.GetValue("RunStartupSeeding", true))
     {
-        try
+        app.Lifetime.ApplicationStarted.Register(() => _ = Task.Run(async () =>
         {
-            using var scope = app.Services.CreateScope();
-            await scope.ServiceProvider.GetRequiredService<DbSeeder>().SeedAsync();
-
-            if (app.Environment.IsDevelopment())
+            try
             {
-                await scope.ServiceProvider.GetRequiredService<TestDataSeeder>().SeedTestDataAsync();
+                using var scope = app.Services.CreateScope();
+                await scope.ServiceProvider.GetRequiredService<DbSeeder>().SeedAsync();
+
+                if (app.Environment.IsDevelopment())
+                {
+                    await scope.ServiceProvider.GetRequiredService<TestDataSeeder>().SeedTestDataAsync();
+                }
             }
-        }
-        catch (Exception ex)
-        {
-            Log.Error(ex, "Database seeding failed at startup; the application will keep running");
-        }
-    }));
+            catch (Exception ex)
+            {
+                Log.Error(ex, "Database seeding failed at startup; the application will keep running");
+            }
+        }));
+    }
 
     // Configure the HTTP request pipeline
     if (!app.Environment.IsDevelopment())
@@ -281,3 +285,6 @@ finally
 {
     await Log.CloseAndFlushAsync();
 }
+
+// Exposed for WebApplicationFactory-based integration tests.
+public partial class Program;

@@ -10,6 +10,7 @@
   <ItemGroup>
     <PackageReference Include="coverlet.collector" Version="6.0.2" />
     <PackageReference Include="FluentAssertions" Version="6.12.2" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="10.0.8" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.8" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
     <PackageReference Include="NSubstitute" Version="5.3.0" />
@@ -25,6 +26,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\Cedeva.Core\Cedeva.Core.csproj" />
     <ProjectReference Include="..\..\src\Cedeva.Infrastructure\Cedeva.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\src\Cedeva.Website\Cedeva.Website.csproj" />
   </ItemGroup>
 
 </Project>
