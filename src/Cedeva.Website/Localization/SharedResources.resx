@@ -2965,6 +2965,9 @@
   <data name="Validation.NRNFormat" xml:space="preserve">
     <value>Format du numéro de registre national invalide</value>
   </data>
+  <data name="Validation.NRNInvalid" xml:space="preserve">
+    <value>Numéro de registre national invalide</value>
+  </data>
   <data name="Validation.OrganisationRequired" xml:space="preserve">
     <value>L'organisation est requise</value>
   </data>

@@ -39,14 +39,39 @@ public static class NationalRegisterNumberHelper
     }
 
     /// <summary>
-    /// Checks if a national register number string (formatted or unformatted) is valid.
+    /// Checks if a national register number (formatted or unformatted) is a valid Belgian
+    /// national register number: 11 digits, a plausible birth-date fragment, and a correct
+    /// modulo-97 check number.
     /// </summary>
+    /// <remarks>
+    /// The check number equals <c>97 - (first 9 digits mod 97)</c>. For people born in or after
+    /// 2000 a leading <c>2</c> is prepended to those 9 digits before the modulo. Since the century
+    /// cannot always be inferred from the 2-digit year, a number is accepted if it matches EITHER
+    /// rule — the standard validation approach.
+    /// </remarks>
     public static bool IsValid(string? nationalRegisterNumber)
     {
         if (string.IsNullOrWhiteSpace(nationalRegisterNumber))
             return false;
 
-        var digitsOnly = StripFormatting(nationalRegisterNumber);
-        return digitsOnly.Length == 11 && digitsOnly.All(char.IsDigit);
+        var digits = StripFormatting(nationalRegisterNumber);
+        if (digits.Length != 11)
+            return false;
+
+        // Birth-date fragment plausibility (month 1-12, day 1-31). Belgian numbers can carry
+        // 00 for an unknown month/day, so 0 is tolerated; clearly impossible values are rejected.
+        var month = int.Parse(digits.Substring(2, 2));
+        var day = int.Parse(digits.Substring(4, 2));
+        if (month > 12 || day > 31)
+            return false;
+
+        var birthAndSequence = long.Parse(digits.Substring(0, 9));
+        var checkNumber = int.Parse(digits.Substring(9, 2));
+
+        var expectedBefore2000 = 97 - (int)(birthAndSequence % 97);
+        // Prefixing "2" to the 9-digit number is the same as adding 2_000_000_000.
+        var expectedFrom2000 = 97 - (int)((2_000_000_000L + birthAndSequence) % 97);
+
+        return checkNumber == expectedBefore2000 || checkNumber == expectedFrom2000;
     }
 }

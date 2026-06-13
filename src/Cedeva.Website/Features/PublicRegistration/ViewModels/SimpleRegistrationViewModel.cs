@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using Cedeva.Website.Validation;
 
 namespace Cedeva.Website.Features.PublicRegistration.ViewModels;
 
@@ -55,6 +56,7 @@ public class SimpleRegistrationViewModel
 
     [Display(Name = "Field.NationalRegisterNumber")]
     [StringLength(15, ErrorMessage = "Validation.StringLength")]
+    [ValidNationalRegisterNumber]
     public string? ParentNationalRegisterNumber { get; set; }
 
     // Child Information
@@ -75,6 +77,7 @@ public class SimpleRegistrationViewModel
     [Required(ErrorMessage = "Validation.Required")]
     [Display(Name = "Field.NationalRegisterNumber")]
     [StringLength(15, ErrorMessage = "Validation.StringLength")]
+    [ValidNationalRegisterNumber]
     public string ChildNationalRegisterNumber { get; set; } = string.Empty;
 
     [Display(Name = "Field.IsDisadvantagedEnvironment")]

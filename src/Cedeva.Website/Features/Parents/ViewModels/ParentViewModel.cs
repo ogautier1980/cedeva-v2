@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using Cedeva.Core.Enums;
+using Cedeva.Website.Validation;
 using Cedeva.Website.ViewModels;
 
 namespace Cedeva.Website.Features.Parents.ViewModels;
@@ -37,7 +38,7 @@ public class ParentViewModel : AuditableViewModel
 
     [Required(ErrorMessage = "Validation.Required")]
     [StringLength(15, MinimumLength = 11, ErrorMessage = "Validation.StringLength")]
-    [RegularExpression(@"^(\d{2})[.\- ]?(0[1-9]|1[0-2])[.\- ]?(0[1-9]|[12]\d|3[01])[.\- ]?(\d{3})[.\- ]?(\d{2})$", ErrorMessage = "Validation.NRNFormat")]
+    [ValidNationalRegisterNumber]
     [Display(Name = "Field.NationalRegisterNumber")]
     public string NationalRegisterNumber { get; set; } = string.Empty;
 

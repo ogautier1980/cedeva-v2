@@ -3244,6 +3244,9 @@
   <data name="Validation.NRNFormat" xml:space="preserve">
     <value>Format du numéro de registre national invalide</value>
   </data>
+  <data name="Validation.NRNInvalid" xml:space="preserve">
+    <value>Numéro de registre national invalide</value>
+  </data>
   <data name="Validation.TimeFormat" xml:space="preserve">
     <value>Format invalide (HH:mm)</value>
   </data>

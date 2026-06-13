@@ -3289,6 +3289,9 @@
   <data name="Validation.NRNFormat" xml:space="preserve">
     <value>[NL] Format du numéro de registre national invalide</value>
   </data>
+  <data name="Validation.NRNInvalid" xml:space="preserve">
+    <value>Ongeldig rijksregisternummer</value>
+  </data>
   <data name="Validation.TimeFormat" xml:space="preserve">
     <value>[NL] Format invalide (HH:mm)</value>
   </data>

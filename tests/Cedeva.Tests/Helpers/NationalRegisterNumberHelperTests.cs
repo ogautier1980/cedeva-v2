@@ -44,13 +44,24 @@ public class NationalRegisterNumberHelperTests
     }
 
     [Theory]
-    [InlineData("15031012345", true)]
-    [InlineData("15.03.10-123.45", true)]
+    // Valid — born before 2000 (plain modulo-97 check)
+    [InlineData("85.06.15-133.80", true)]
+    [InlineData("85061513380", true)]
+    [InlineData("90032223645", true)]
+    // Valid — born in/after 2000 (check computed with the leading "2")
+    [InlineData("15091012183", true)]
+    [InlineData("18042520265", true)]
+    // Invalid check number (off by one)
+    [InlineData("85061513381", false)]
+    [InlineData("15091012184", false)]
+    // Impossible birth-date fragment
+    [InlineData("85991513380", false)]
+    // Wrong length / empty
     [InlineData("123", false)]
     [InlineData("150310123456", false)]
     [InlineData("", false)]
     [InlineData(null, false)]
-    public void IsValid_ChecksElevenDigits(string? input, bool expected)
+    public void IsValid_ValidatesChecksumDateAndLength(string? input, bool expected)
     {
         NationalRegisterNumberHelper.IsValid(input).Should().Be(expected);
     }
