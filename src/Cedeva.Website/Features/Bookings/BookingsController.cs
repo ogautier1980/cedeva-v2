@@ -699,33 +699,11 @@ public class BookingsController : Controller
     // GET: Bookings/Export
     public async Task<IActionResult> Export(string? searchString, int? activityId, int? childId, bool? isConfirmed)
     {
-        var allBookings = await _bookingRepository.GetAllAsync();
-        var query = allBookings.AsQueryable();
-
-        if (!string.IsNullOrEmpty(searchString))
-        {
-            query = query.Where(b =>
-                b.Child.FirstName.Contains(searchString) ||
-                b.Child.LastName.Contains(searchString) ||
-                b.Activity.Name.Contains(searchString));
-        }
-
-        if (activityId.HasValue)
-        {
-            query = query.Where(b => b.ActivityId == activityId.Value);
-        }
-
-        if (childId.HasValue)
-        {
-            query = query.Where(b => b.ChildId == childId.Value);
-        }
-
-        if (isConfirmed.HasValue)
-        {
-            query = query.Where(b => b.IsConfirmed == isConfirmed.Value);
-        }
-
-        var bookings = await query
+        // Reuse the list view's query builder: a real EF query with the right Includes
+        // (Child→Parent, Activity, Group), organisation scoping and the same filters. The old
+        // path used the in-memory repository (navigations not loaded) + ToListAsync on a
+        // LINQ-to-Objects source, which threw and made every export 500.
+        var bookings = await BuildBookingsQuery(searchString, activityId, childId, isConfirmed)
             .OrderByDescending(b => b.BookingDate)
             .ToListAsync();
 
@@ -754,33 +732,11 @@ public class BookingsController : Controller
     // GET: Bookings/ExportPdf
     public async Task<IActionResult> ExportPdf(string? searchString, int? activityId, int? childId, bool? isConfirmed)
     {
-        var allBookings = await _bookingRepository.GetAllAsync();
-        var query = allBookings.AsQueryable();
-
-        if (!string.IsNullOrEmpty(searchString))
-        {
-            query = query.Where(b =>
-                b.Child.FirstName.Contains(searchString) ||
-                b.Child.LastName.Contains(searchString) ||
-                b.Activity.Name.Contains(searchString));
-        }
-
-        if (activityId.HasValue)
-        {
-            query = query.Where(b => b.ActivityId == activityId.Value);
-        }
-
-        if (childId.HasValue)
-        {
-            query = query.Where(b => b.ChildId == childId.Value);
-        }
-
-        if (isConfirmed.HasValue)
-        {
-            query = query.Where(b => b.IsConfirmed == isConfirmed.Value);
-        }
-
-        var bookings = await query
+        // Reuse the list view's query builder: a real EF query with the right Includes
+        // (Child→Parent, Activity, Group), organisation scoping and the same filters. The old
+        // path used the in-memory repository (navigations not loaded) + ToListAsync on a
+        // LINQ-to-Objects source, which threw and made every export 500.
+        var bookings = await BuildBookingsQuery(searchString, activityId, childId, isConfirmed)
             .OrderByDescending(b => b.BookingDate)
             .ToListAsync();
 
