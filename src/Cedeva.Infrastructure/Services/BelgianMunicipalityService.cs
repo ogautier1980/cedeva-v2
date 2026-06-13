@@ -16,9 +16,10 @@ public class BelgianMunicipalityService : IBelgianMunicipalityService
 
     public async Task<bool> IsValidMunicipalityAsync(string postalCode, string city)
     {
+        // Case-insensitivity is handled server-side by SQL Server's default CI collation.
+        // EF Core cannot translate string.Equals(string, StringComparison) to SQL.
         return await _dbContext.BelgianMunicipalities
-            .AnyAsync(m => m.PostalCode == postalCode &&
-                           m.City.Equals(city, StringComparison.OrdinalIgnoreCase));
+            .AnyAsync(m => m.PostalCode == postalCode && m.City == city);
     }
 
     public async Task<IEnumerable<BelgianMunicipality>> SearchMunicipalitiesAsync(string searchTerm)
@@ -29,17 +30,14 @@ public class BelgianMunicipalityService : IBelgianMunicipalityService
         }
 
         searchTerm = searchTerm.Trim();
-        string lowerSearchTerm = searchTerm.ToLowerInvariant();
 
-        // EF Core query: StartsWith(string, StringComparison) is not translatable to SQL,
-        // so CA1862 doesn't apply (case-insensitivity is already handled via ToLowerInvariant).
-#pragma warning disable CA1862
+        // Plain StartsWith translates to SQL LIKE 'term%' and is case-insensitive under
+        // SQL Server's default CI collation. Do NOT use ToLowerInvariant() here: EF Core
+        // cannot translate it and throws at query time (HTTP 500 on the autocomplete API).
         return await _dbContext.BelgianMunicipalities
-            .Where(m => m.City.ToLowerInvariant().StartsWith(lowerSearchTerm) ||
-                        m.PostalCode.StartsWith(lowerSearchTerm))
+            .Where(m => m.City.StartsWith(searchTerm) || m.PostalCode.StartsWith(searchTerm))
             .OrderBy(m => m.City)
             .ToListAsync();
-#pragma warning restore CA1862
     }
 
     public async Task ImportMunicipalitiesFromCsvAsync(string filePath)
