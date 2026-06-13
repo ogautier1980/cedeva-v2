@@ -32,8 +32,21 @@ const CedevaChoices = {
             return null;
         }
 
+        // Choices targets a <select> here. For non-admins some forms render OrganisationId as a
+        // hidden <input> instead; running Choices on it throws and would abort the rest of the
+        // page's scripts (e.g. the address autocomplete). Skip anything that isn't a <select>.
+        if (!(element instanceof HTMLSelectElement)) {
+            return null;
+        }
+
         const config = { ...this.defaultConfig, ...options };
-        const choices = new Choices(element, config);
+        let choices;
+        try {
+            choices = new Choices(element, config);
+        } catch (error) {
+            console.warn('Choices.js: initialization failed for', selector, error);
+            return null;
+        }
 
         // Add change event listener if provided
         if (onChange && typeof onChange === 'function') {

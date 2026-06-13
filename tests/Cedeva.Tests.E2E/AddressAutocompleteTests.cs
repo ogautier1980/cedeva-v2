@@ -17,7 +17,9 @@ public class AddressAutocompleteTests
     [Fact]
     public async Task ParentCreate_TypingPostalCode_ShowsMunicipalitySuggestion()
     {
-        await using var context = await _fx.NewAuthedContextAsync("Admin", _fx.OrganisationId);
+        // Coordinator on purpose: this role renders OrganisationId as a hidden input, which used
+        // to make Choices throw and abort the autocomplete init. Guards that regression.
+        await using var context = await _fx.NewAuthedContextAsync("Coordinator", _fx.OrganisationId);
         var page = await context.NewPageAsync();
 
         var response = await page.GotoAsync($"{_fx.BaseUrl}/Parents/Create");
