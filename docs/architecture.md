@@ -31,7 +31,7 @@ iframe sur des sites partenaires (anonyme).
 
 ```mermaid
 graph LR
-    subgraph azure["Azure (France Central)"]
+    subgraph azure["Azure - France Central"]
         app["App Service Linux<br/>cedeva-demo<br/>DOTNETCORE 10.0, Always On"]
         azsql["Azure SQL"]
         azblob["Azure Blob Storage"]
@@ -39,7 +39,7 @@ graph LR
     gh["GitHub Actions<br/>build → test → migrate → deploy → /health gate"]
     brevo["Brevo API"]
 
-    gh -->|az webapp deploy (zip)| app
+    gh -->|az webapp deploy zip| app
     gh -->|ef database update| azsql
     app --> azsql
     app --> azblob
@@ -77,16 +77,17 @@ graph TD
 ```mermaid
 sequenceDiagram
     participant B as Navigateur
-    participant MW as Middleware<br/>(ForwardedHeaders, SecurityHeaders, Auth, RateLimiter)
-    participant C as Controller (Feature)
+    participant MW as Middleware
+    participant C as Controller
     participant S as Service / DbContext
     participant DB as SQL Server
 
-    B->>MW: GET /Financial?id=42 (cookie)
-    MW->>C: requête authentifiée (claims: UserId, OrganisationId, Role)
-    C->>S: requête EF (filtre multi-tenant appliqué via ICurrentUserService)
+    B->>MW: GET /Financial?id=42 + cookie
+    Note over MW: ForwardedHeaders, SecurityHeaders, Auth, RateLimiter
+    MW->>C: requête authentifiée - claims UserId, OrganisationId, Role
+    C->>S: requête EF - filtre multi-tenant via ICurrentUserService
     S->>DB: SELECT ... WHERE OrganisationId = @org
-    DB-->>S: lignes (scopées au tenant)
+    DB-->>S: lignes scopées au tenant
     S-->>C: données
     C-->>B: Vue Razor
 ```
