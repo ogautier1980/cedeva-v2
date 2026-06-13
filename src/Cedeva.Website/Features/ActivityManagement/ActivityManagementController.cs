@@ -1267,6 +1267,15 @@ public class ActivityManagementController : Controller
     [HttpGet]
     public async Task<IActionResult> GetManageBookingsStats(int activityId)
     {
+        // Tenant isolation: the Activities DbSet is filtered by the multi-tenancy query filter
+        // (admin bypasses it). If the activity isn't visible to the current user, return empty
+        // stats rather than leaking another organisation's booking counts.
+        var activityIsVisible = await _context.Activities.AnyAsync(a => a.Id == activityId);
+        if (!activityIsVisible)
+        {
+            return Ok(new { pendingConfirmation = 0, withoutGroup = 0, withoutMedicalSheet = 0 });
+        }
+
         var bookings = await _context.Bookings
             .Include(b => b.Group)
             .Where(b => b.ActivityId == activityId
