@@ -401,7 +401,10 @@ public class PublicRegistrationController : Controller
     [AllowAnonymous]
     public async Task<IActionResult> Register(int activityId, string? bg)
     {
+        // Public, anonymous entry point: the activity is trusted via the embed's activityId, so
+        // bypass the multi-tenancy filter (no logged-in user => no OrganisationId => it would 404).
         var activity = await _context.Activities
+            .IgnoreQueryFilters()
             .FirstOrDefaultAsync(a => a.Id == activityId && a.StartDate > DateTime.Now);
 
         if (activity == null)
@@ -517,7 +520,10 @@ public class PublicRegistrationController : Controller
 
     private async Task<int> CreateOrUpdateParentAsync(SimpleRegistrationViewModel model, int organisationId)
     {
+        // Anonymous public flow: bypass the tenancy filter; the query is still scoped to the
+        // activity's organisationId, so it cannot leak across tenants.
         var existingParent = await _context.Parents
+            .IgnoreQueryFilters()
             .Include(p => p.Address)
             .FirstOrDefaultAsync(p => p.Email == model.ParentEmail && p.OrganisationId == organisationId);
 
@@ -596,6 +602,7 @@ public class PublicRegistrationController : Controller
     private async Task<int> CreateOrUpdateChildAsync(SimpleRegistrationViewModel model, int parentId)
     {
         var existingChild = await _context.Children
+            .IgnoreQueryFilters()
             .FirstOrDefaultAsync(c => c.NationalRegisterNumber == model.ChildNationalRegisterNumber && c.ParentId == parentId);
 
         if (existingChild != null)

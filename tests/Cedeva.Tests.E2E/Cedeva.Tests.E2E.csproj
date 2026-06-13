@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <IsPackable>false</IsPackable>
+    <!-- E2E (browser) tests are slow and need Playwright browsers installed; they run in a
+         dedicated CI job, not in the fast unit/integration run (tests/Cedeva.Tests). -->
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="FluentAssertions" Version="6.12.2" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="10.0.8" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.8" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
+    <PackageReference Include="Microsoft.Playwright" Version="1.49.0" />
+    <PackageReference Include="xunit" Version="2.9.2" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Xunit" />
+    <Using Include="FluentAssertions" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Cedeva.Core\Cedeva.Core.csproj" />
+    <ProjectReference Include="..\..\src\Cedeva.Infrastructure\Cedeva.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\src\Cedeva.Website\Cedeva.Website.csproj" />
+  </ItemGroup>
+
+</Project>
