@@ -1,0 +1,14 @@
+<Project>
+
+  <!-- Shared build settings for all Cedeva projects (Website / Core / Infrastructure / Tests). -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <!-- NET analyzers are intentionally left off here: enabling them surfaces ~40 pre-existing
+         CA suggestions (CA1510/CA1860/CA1862/CA1873…). Adopting + cleaning them is a worthwhile
+         dedicated follow-up, not part of this quick-wins batch (kept to preserve a 0-warning build). -->
+  </PropertyGroup>
+
+</Project>

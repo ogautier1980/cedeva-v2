@@ -59,17 +59,18 @@ jobs:
             --type zip \
             --async false
 
-      - name: Verify deployment
+      - name: Verify deployment (health endpoint)
         run: |
-          echo "Verifying deployment status..."
-          for i in {1..12}; do
-            STATUS=$(az webapp show --resource-group cedeva-rg --name cedeva-demo --query state -o tsv)
-            if [ "$STATUS" = "Running" ]; then
-              echo "✓ App is running successfully"
+          echo "Probing /health endpoint..."
+          HEALTH_URL="https://cedeva-demo-bhf0f0h3c9gtg8ar.francecentral-01.azurewebsites.net/health"
+          for i in {1..18}; do
+            CODE=$(curl -s -o /dev/null -w "%{http_code}" --max-time 15 "$HEALTH_URL" || echo "000")
+            if [ "$CODE" = "200" ]; then
+              echo "✓ App is healthy (HTTP 200 on /health)"
               exit 0
             fi
-            echo "Attempt $i/12: Status = $STATUS, waiting 10s..."
+            echo "Attempt $i/18: /health returned $CODE, waiting 10s..."
             sleep 10
           done
-          echo "✗ App failed to reach Running state"
+          echo "✗ App failed to become healthy within timeout"
           exit 1

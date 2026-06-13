@@ -32,6 +32,9 @@ try
 
     var builder = WebApplication.CreateBuilder(args);
 
+    // Don't advertise the server implementation (removes the "Server: Kestrel" header).
+    builder.WebHost.ConfigureKestrel(options => options.AddServerHeader = false);
+
     // Configure Serilog
     builder.Host.UseSerilog((context, services, configuration) => configuration
         .ReadFrom.Configuration(context.Configuration)
@@ -127,6 +130,10 @@ try
                 maxRetryDelay: TimeSpan.FromSeconds(30),
                 errorNumbersToAdd: null)));
 
+    // Health checks — /health verifies the app can reach the database (used by the deploy gate).
+    builder.Services.AddHealthChecks()
+        .AddDbContextCheck<CedevaDbContext>();
+
     // Add Identity
     builder.Services.AddIdentity<CedevaUser, IdentityRole>(options =>
     {
@@ -149,6 +156,15 @@ try
         options.AccessDeniedPath = "/Account/AccessDenied";
         options.ExpireTimeSpan = TimeSpan.FromDays(7);
         options.SlidingExpiration = true;
+
+        // Harden the auth cookie: HTTPS-only (prod) + HttpOnly + SameSite=Lax (Lax keeps normal
+        // navigation/login working; antiforgery tokens cover state-changing POST CSRF).
+        // SameAsRequest in Development so local http://localhost login still works.
+        options.Cookie.HttpOnly = true;
+        options.Cookie.SecurePolicy = builder.Environment.IsDevelopment()
+            ? CookieSecurePolicy.SameAsRequest
+            : CookieSecurePolicy.Always;
+        options.Cookie.SameSite = SameSiteMode.Lax;
     });
 
     // Add FluentValidation
@@ -269,6 +285,9 @@ try
     // Must run first so downstream middleware sees the forwarded scheme/host.
     app.UseForwardedHeaders();
 
+    // Baseline security response headers (X-Content-Type-Options, X-Frame-Options, etc.).
+    app.UseMiddleware<SecurityHeadersMiddleware>();
+
     // Configure the HTTP request pipeline
     if (!app.Environment.IsDevelopment())
     {
@@ -284,6 +303,8 @@ try
     app.UseSession();
     app.UseAuthentication();
     app.UseAuthorization();
+
+    app.MapHealthChecks("/health");
 
     app.MapControllerRoute(
         name: "default",
