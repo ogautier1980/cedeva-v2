@@ -15,12 +15,16 @@ graph TB
     brevo["Brevo<br/>(envoi d'emails)"]
     blob["Azure Blob Storage<br/>(fichiers : logos, brevets)"]
     sql["SQL Server 2022<br/>(données applicatives + Identity)"]
+    stripe["Stripe<br/>(paiement en ligne : Checkout + webhook)"]
 
     coord -->|HTTPS, cookie auth| cedeva
     parent -->|HTTPS, anonyme| cedeva
+    parent -->|paiement carte| stripe
     cedeva -->|REST / api-key| brevo
     cedeva -->|SDK| blob
     cedeva -->|EF Core| sql
+    cedeva -->|Checkout API| stripe
+    stripe -->|webhook signé| cedeva
 ```
 
 Deux profils d'accès : l'**application authentifiée** (coordinateurs/admin, cookie ASP.NET
@@ -70,7 +74,7 @@ graph TD
 |--------|----------------|
 | **Cedeva.Website** | Présentation MVC. Un dossier par fonctionnalité (`Features/{X}/` = controller + vues + ViewModels). `Program.cs` (pipeline + DI). Localisation FR/NL/EN. |
 | **Cedeva.Core** | Domaine pur : entités (`AuditableEntity` de base), interfaces de services, enums, DTOs, helpers. Aucune dépendance d'infrastructure. |
-| **Cedeva.Infrastructure** | `CedevaDbContext` (EF Core), migrations, seeders, implémentations de services (Email/Brevo, Financial, Excursion, Storage, Excel/PDF…), `Configuration/` (Options). |
+| **Cedeva.Infrastructure** | `CedevaDbContext` (EF Core), migrations, seeders, implémentations de services (Email/Brevo, Financial, Excursion, Paiement/Stripe, Storage, Excel/PDF…), `Configuration/` (Options). |
 
 ### Flux d'une requête authentifiée
 
@@ -115,11 +119,12 @@ sequenceDiagram
 | Auth | ASP.NET Core Identity (cookie, rôles) ([ADR 0008](adr/0008-cookie-identity-and-security-hardening.md)) |
 | DI | Autofac |
 | Email | Brevo (HTTP, `IHttpClientFactory`) |
+| Paiement | Stripe Checkout derrière `IPaymentGateway` ([ADR 0010](adr/0010-online-payments-provider-agnostic-stripe.md)) |
 | Fichiers | Azure Blob (prod) / disque local (dev) |
 | Export | ClosedXML (Excel), QuestPDF (PDF) |
 | Logs | Serilog (console + Seq optionnel, enrichers) |
-| Tests | xUnit + FluentAssertions + NSubstitute + EF SQLite + WebApplicationFactory |
-| CI/CD | GitHub Actions → Azure App Service |
+| Tests | xUnit + FluentAssertions + NSubstitute ; SQLite, Testcontainers (SQL Server), Playwright (E2E) ([ADR 0011](adr/0011-test-layers-e2e-and-db-fidelity.md)) |
+| CI/CD | GitHub Actions → Azure App Service (+ workflows E2E et SQL dédiés) |
 
 ## 6. Voir aussi
 - [Exigences non-fonctionnelles](non-functional-requirements.md)

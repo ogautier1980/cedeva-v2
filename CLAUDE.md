@@ -96,10 +96,19 @@ src/
 - **Audit trail:** CreatedAt/CreatedBy/ModifiedAt/ModifiedBy on all 24 entities (auto-populated)
 
 ### Financial Module
-- Payments, CODA import, bank reconciliation
-- Expenses tracking, team salary calculations
+- Payments, expenses tracking, team salary calculations
 - Excel export, color-coded transactions
 - `FinancialCalculationService` for reusable business logic
+- ⚠️ CODA import & bank reconciliation were **removed** (replaced by online payments — see below)
+
+### Online Payments (Stripe)
+- Provider-agnostic `IPaymentGateway` (Checkout + webhook) with `StripePaymentGateway`
+- `OnlinePaymentController` (anonymous): Checkout redirect, Return, signed Webhook
+- `BookingPaymentService` applies a paid webhook to the booking (records `Payment(Online)`,
+  updates `PaidAmount`/`PaymentStatus`, idempotent on provider reference)
+- "Pay online" button on the public confirmation page (amount = remaining due)
+- Secrets via config `Stripe:SecretKey` / `Stripe:WebhookSecret` (Azure `Stripe__*`) — never committed
+- See [docs/adr/0010](docs/adr/0010-online-payments-provider-agnostic-stripe.md)
 
 ### Activity Management
 - Dashboard, unconfirmed bookings, presences
@@ -134,10 +143,19 @@ src/
 - File upload validation
 
 ### UX
-- National register number formatting (YY.MM.DD-XXX.XX)
+- National register number formatting **and validation** (YY.MM.DD-XXX.XX + mod-97 check digit via
+  `[ValidNationalRegisterNumber]`, applied across all parent/child/team-member forms)
 - Email recipient grouping with separators
 - Color pickers for iframe customization
 - Clean URLs (route parameters vs query strings)
+
+## Testing (June 2026)
+- **~1130 tests, ≈89% line coverage** (branch ≈76%, method ≈95%); CI coverage gate at 85%.
+- 5 levels across 3 projects: `Cedeva.Tests` (unit + service-integration SQLite + controller
+  WebApplicationFactory), `Cedeva.Tests.Sql` (real SQL Server via Testcontainers), `Cedeva.Tests.E2E`
+  (Playwright + Chromium). E2E and SQL run in dedicated CI workflows that do **not** gate deploy.
+- Full guide + test-authoring gotchas: [docs/test-strategy.md](docs/test-strategy.md) and
+  [docs/adr/0011](docs/adr/0011-test-layers-e2e-and-db-fidelity.md).
 
 ---
 

@@ -17,3 +17,5 @@ Une décision n'est jamais réécrite : si elle change, on ajoute un nouvel ADR 
 | [0007](0007-cicd-azure-app-service-with-health-gate.md) | CI/CD GitHub Actions → Azure App Service avec gate `/health` | Accepté |
 | [0008](0008-cookie-identity-and-security-hardening.md) | Auth Identity par cookie + durcissement sécurité | Accepté |
 | [0009](0009-background-nonblocking-startup-seeding.md) | Seeding de démarrage non-bloquant et non-fatal | Accepté |
+| [0010](0010-online-payments-provider-agnostic-stripe.md) | Paiement en ligne agnostique (Stripe), remplace CODA | Accepté |
+| [0011](0011-test-layers-e2e-and-db-fidelity.md) | Niveaux E2E (Playwright) + SQL réel (Testcontainers) + cliquet de couverture | Accepté |
