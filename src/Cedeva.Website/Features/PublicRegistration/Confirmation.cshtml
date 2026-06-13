@@ -83,6 +83,21 @@
                             <p class="text-muted small mb-0">@Localizer["PublicRegistration.KeepNumber"]</p>
                         </div>
                     </div>
+
+                    @{
+                        var amountDue = Model.Booking.TotalAmount - Model.Booking.PaidAmount;
+                    }
+                    @if (amountDue > 0 && Model.Booking.PaymentStatus != Cedeva.Core.Enums.PaymentStatus.Paid)
+                    {
+                        <div class="text-center mt-4">
+                            @* target="_top" : Stripe Checkout refuse d'être chargé dans une iframe cross-origin *@
+                            <a asp-controller="OnlinePayment" asp-action="Checkout" asp-route-bookingId="@Model.Booking.Id"
+                               target="_top" class="btn btn-success btn-lg">
+                                <i class="fas fa-credit-card me-2"></i>@Localizer["PublicRegistration.PayOnline"] (@amountDue.ToString("C"))
+                            </a>
+                            <p class="text-muted small mt-2">@Localizer["PublicRegistration.SecurePayment"]</p>
+                        </div>
+                    }
                 </div>
             </div>
         </div>

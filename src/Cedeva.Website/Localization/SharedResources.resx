@@ -3070,4 +3070,10 @@
   <data name="Yes" xml:space="preserve">
     <value>Oui</value>
   </data>
+  <data name="PublicRegistration.PayOnline" xml:space="preserve">
+    <value>Payer en ligne</value>
+  </data>
+  <data name="PublicRegistration.SecurePayment" xml:space="preserve">
+    <value>Paiement sécurisé par carte ou Bancontact.</value>
+  </data>
 </root>

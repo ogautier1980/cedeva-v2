@@ -10,6 +10,7 @@ using Cedeva.Infrastructure.Services.Activities;
 using Cedeva.Infrastructure.Services.Email;
 using Cedeva.Infrastructure.Services.Excel;
 using Cedeva.Infrastructure.Services.Financial;
+using Cedeva.Infrastructure.Services.Payments;
 using Cedeva.Infrastructure.Services.Pdf;
 using Cedeva.Infrastructure.Services.Storage;
 using Cedeva.Website.Infrastructure;
@@ -60,6 +61,7 @@ try
     // Strongly-typed configuration (Options pattern)
     builder.Services.Configure<BrevoOptions>(builder.Configuration.GetSection(BrevoOptions.SectionName));
     builder.Services.Configure<AzureStorageOptions>(builder.Configuration.GetSection(AzureStorageOptions.SectionName));
+    builder.Services.Configure<StripeOptions>(builder.Configuration.GetSection(StripeOptions.SectionName));
 
     // Rate limiting (per client IP) for sensitive anonymous endpoints: login and the public
     // registration flow — mitigates brute-force and bot spam. Client IP is resolved from the
@@ -147,6 +149,8 @@ try
         containerBuilder.RegisterType<StorageContext>().As<IStorageContext>().InstancePerLifetimeScope();
         containerBuilder.RegisterType<BelgianMunicipalityService>().As<IBelgianMunicipalityService>().InstancePerLifetimeScope();
         containerBuilder.RegisterType<StructuredCommunicationService>().As<IStructuredCommunicationService>().InstancePerLifetimeScope();
+        containerBuilder.RegisterType<StripePaymentGateway>().As<IPaymentGateway>().InstancePerLifetimeScope();
+        containerBuilder.RegisterType<BookingPaymentService>().As<IBookingPaymentService>().InstancePerLifetimeScope();
         containerBuilder.RegisterType<ExcursionService>().As<IExcursionService>().InstancePerLifetimeScope();
         containerBuilder.RegisterType<ExcursionViewModelBuilderService>().As<IExcursionViewModelBuilderService>().InstancePerLifetimeScope();
         containerBuilder.RegisterType<FinancialCalculationService>().As<IFinancialCalculationService>().InstancePerLifetimeScope();
