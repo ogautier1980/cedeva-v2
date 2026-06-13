@@ -1,6 +1,7 @@
 using Cedeva.Core.Entities;
 using Cedeva.Core.Enums;
 using Cedeva.Infrastructure.Data;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Hosting.Server;
 using Microsoft.AspNetCore.Hosting.Server.Features;
@@ -60,6 +61,15 @@ public sealed class PlaywrightAppFactory : WebApplicationFactory<Program>
             foreach (var d in toRemove) services.Remove(d);
 
             services.AddDbContext<CedevaDbContext>(options => options.UseSqlite(_connection));
+
+            // Header-driven auth: anonymous without the header (realistic public flow), or a
+            // chosen role when a Playwright context sends X-Test-User (for admin pages).
+            services.AddAuthentication(options =>
+            {
+                options.DefaultScheme = TestAuthHandler.SchemeName;
+                options.DefaultAuthenticateScheme = TestAuthHandler.SchemeName;
+                options.DefaultChallengeScheme = TestAuthHandler.SchemeName;
+            }).AddScheme<AuthenticationSchemeOptions, TestAuthHandler>(TestAuthHandler.SchemeName, _ => { });
         });
     }
 
@@ -81,8 +91,15 @@ public sealed class PlaywrightAppFactory : WebApplicationFactory<Program>
         return testHost;
     }
 
-    /// <summary>Creates the schema once and seeds an active, future-dated activity. Returns its id.</summary>
-    public int SeedFutureActivity()
+    /// <summary>Id of the seeded organisation (use as the coordinator's OrganisationId).</summary>
+    public int OrganisationId { get; private set; }
+
+    /// <summary>Id of the seeded future-dated activity (the iframe registration target).</summary>
+    public int ActivityId { get; private set; }
+
+    /// <summary>Creates the schema once and seeds an organisation, a future activity and a couple
+    /// of Belgian municipalities (for the address autocomplete).</summary>
+    public void SeedData()
     {
         using var scope = Services.CreateScope();
         var ctx = scope.ServiceProvider.GetRequiredService<CedevaDbContext>();
@@ -107,8 +124,13 @@ public sealed class PlaywrightAppFactory : WebApplicationFactory<Program>
             Organisation = organisation
         };
         ctx.Add(activity);
+        ctx.AddRange(
+            new BelgianMunicipality { PostalCode = "1000", City = "Bruxelles" },
+            new BelgianMunicipality { PostalCode = "5030", City = "Gembloux" });
         ctx.SaveChanges();
-        return activity.Id;
+
+        OrganisationId = organisation.Id;
+        ActivityId = activity.Id;
     }
 
     protected override void Dispose(bool disposing)

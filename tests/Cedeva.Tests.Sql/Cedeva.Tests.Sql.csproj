@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <IsPackable>false</IsPackable>
+    <!-- Integration tests against a real SQL Server (Testcontainers + Docker). Slower than the
+         SQLite suite and Docker-dependent, so they run in a dedicated CI job, not the deploy gate.
+         They catch behaviour SQLite masks (collation case-insensitivity, LINQ translation). -->
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="FluentAssertions" Version="6.12.2" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.8" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
+    <PackageReference Include="Testcontainers.MsSql" Version="4.12.0" />
+    <PackageReference Include="xunit" Version="2.9.2" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Xunit" />
+    <Using Include="FluentAssertions" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Cedeva.Core\Cedeva.Core.csproj" />
+    <ProjectReference Include="..\..\src\Cedeva.Infrastructure\Cedeva.Infrastructure.csproj" />
+  </ItemGroup>
+
+</Project>
