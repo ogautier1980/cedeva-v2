@@ -55,3 +55,22 @@ dotnet_naming_rule.types_pascal.symbols = types_and_members
 dotnet_naming_rule.types_pascal.style = pascal_case
 dotnet_naming_symbols.types_and_members.applicable_kinds = class,struct,interface,enum,property,method,event
 dotnet_naming_style.pascal_case.capitalization = pascal_case
+
+# ---- Analyzer triage ----
+
+# EF Core migrations are generated code — exclude them from analyzers.
+[**/Migrations/*.cs]
+generated_code = true
+
+[*.cs]
+# CA1873: logging-argument evaluation cost. No auto-fix; the IsEnabled guard hurts
+# readability across ~100 call sites. Keep as IDE guidance, not a build warning.
+dotnet_diagnostic.CA1873.severity = suggestion
+# CA1859: "use concrete type for performance" — micro-optimisation, IDE guidance only.
+dotnet_diagnostic.CA1859.severity = suggestion
+# CA1860 (Any() vs Count), CA1822 (mark static), CA1861 (constant array -> static readonly),
+# CA1846 (AsSpan vs Substring): stylistic / micro-perf, high volume. Keep as IDE guidance.
+dotnet_diagnostic.CA1860.severity = suggestion
+dotnet_diagnostic.CA1822.severity = suggestion
+dotnet_diagnostic.CA1861.severity = suggestion
+dotnet_diagnostic.CA1846.severity = suggestion

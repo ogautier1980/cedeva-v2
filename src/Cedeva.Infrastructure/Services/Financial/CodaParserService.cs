@@ -254,7 +254,7 @@ public class CodaParserService : ICodaParserService
                 {
                     if (additionalInfo.Length > 0)
                     {
-                        additionalInfo.Append(" ");
+                        additionalInfo.Append(' ');
                     }
                     additionalInfo.Append(communication);
                 }

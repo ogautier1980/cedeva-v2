@@ -6,9 +6,8 @@
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <!-- NET analyzers are intentionally left off here: enabling them surfaces ~40 pre-existing
-         CA suggestions (CA1510/CA1860/CA1862/CA1873…). Adopting + cleaning them is a worthwhile
-         dedicated follow-up, not part of this quick-wins batch (kept to preserve a 0-warning build). -->
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
+    <AnalysisLevel>latest-minimum</AnalysisLevel>
   </PropertyGroup>
 
 </Project>

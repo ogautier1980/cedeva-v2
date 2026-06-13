@@ -31,11 +31,15 @@ public class BelgianMunicipalityService : IBelgianMunicipalityService
         searchTerm = searchTerm.Trim();
         string lowerSearchTerm = searchTerm.ToLowerInvariant();
 
+        // EF Core query: StartsWith(string, StringComparison) is not translatable to SQL,
+        // so CA1862 doesn't apply (case-insensitivity is already handled via ToLowerInvariant).
+#pragma warning disable CA1862
         return await _dbContext.BelgianMunicipalities
             .Where(m => m.City.ToLowerInvariant().StartsWith(lowerSearchTerm) ||
                         m.PostalCode.StartsWith(lowerSearchTerm))
             .OrderBy(m => m.City)
             .ToListAsync();
+#pragma warning restore CA1862
     }
 
     public async Task ImportMunicipalitiesFromCsvAsync(string filePath)

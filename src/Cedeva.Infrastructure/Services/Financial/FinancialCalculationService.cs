@@ -12,7 +12,7 @@ public class FinancialCalculationService : IFinancialCalculationService
 {
     public decimal CalculateTotalRevenue(Activity activity)
     {
-        if (activity == null) throw new ArgumentNullException(nameof(activity));
+        ArgumentNullException.ThrowIfNull(activity);
 
         return activity.Bookings
             .SelectMany(b => b.Payments)
@@ -22,7 +22,7 @@ public class FinancialCalculationService : IFinancialCalculationService
 
     public decimal CalculateOrganizationExpenses(IEnumerable<Expense> expenses)
     {
-        if (expenses == null) throw new ArgumentNullException(nameof(expenses));
+        ArgumentNullException.ThrowIfNull(expenses);
 
         return expenses
             .Where(e => !e.TeamMemberId.HasValue)
@@ -31,8 +31,8 @@ public class FinancialCalculationService : IFinancialCalculationService
 
     public decimal CalculateTeamMemberSalaries(Activity activity, IEnumerable<Expense> expenses)
     {
-        if (activity == null) throw new ArgumentNullException(nameof(activity));
-        if (expenses == null) throw new ArgumentNullException(nameof(expenses));
+        ArgumentNullException.ThrowIfNull(activity);
+        ArgumentNullException.ThrowIfNull(expenses);
 
         var daysCount = activity.Days.Count;
         var expensesList = expenses.ToList();
@@ -44,8 +44,8 @@ public class FinancialCalculationService : IFinancialCalculationService
 
     public decimal CalculateTeamMemberSalary(TeamMember teamMember, int daysCount, IEnumerable<Expense> memberExpenses)
     {
-        if (teamMember == null) throw new ArgumentNullException(nameof(teamMember));
-        if (memberExpenses == null) throw new ArgumentNullException(nameof(memberExpenses));
+        ArgumentNullException.ThrowIfNull(teamMember);
+        ArgumentNullException.ThrowIfNull(memberExpenses);
 
         var baseSalary = daysCount * (teamMember.DailyCompensation ?? 0);
         var expensesList = memberExpenses.ToList();
@@ -63,8 +63,8 @@ public class FinancialCalculationService : IFinancialCalculationService
 
     public decimal CalculateTotalExpenses(Activity activity, IEnumerable<Expense> expenses)
     {
-        if (activity == null) throw new ArgumentNullException(nameof(activity));
-        if (expenses == null) throw new ArgumentNullException(nameof(expenses));
+        ArgumentNullException.ThrowIfNull(activity);
+        ArgumentNullException.ThrowIfNull(expenses);
 
         var organizationExpenses = CalculateOrganizationExpenses(expenses);
         var teamMemberSalaries = CalculateTeamMemberSalaries(activity, expenses);
@@ -74,7 +74,7 @@ public class FinancialCalculationService : IFinancialCalculationService
 
     public decimal CalculatePendingPayments(Activity activity)
     {
-        if (activity == null) throw new ArgumentNullException(nameof(activity));
+        ArgumentNullException.ThrowIfNull(activity);
 
         return activity.Bookings
             .Where(b => b.PaymentStatus == PaymentStatus.NotPaid ||
@@ -84,8 +84,8 @@ public class FinancialCalculationService : IFinancialCalculationService
 
     public decimal CalculateNetProfit(Activity activity, IEnumerable<Expense> expenses)
     {
-        if (activity == null) throw new ArgumentNullException(nameof(activity));
-        if (expenses == null) throw new ArgumentNullException(nameof(expenses));
+        ArgumentNullException.ThrowIfNull(activity);
+        ArgumentNullException.ThrowIfNull(expenses);
 
         var revenue = CalculateTotalRevenue(activity);
         var totalExpenses = CalculateTotalExpenses(activity, expenses);

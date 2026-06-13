@@ -61,15 +61,16 @@ public class ExcursionViewModelBuilderService : IExcursionViewModelBuilderServic
 
         foreach (var booking in bookings.Where(b => b.Group != null))
         {
-            if (!childrenByGroup.ContainsKey(booking.Group!))
+            if (!childrenByGroup.TryGetValue(booking.Group!, out var groupChildren))
             {
-                childrenByGroup[booking.Group!] = new List<ExcursionChildInfo>();
+                groupChildren = new List<ExcursionChildInfo>();
+                childrenByGroup[booking.Group!] = groupChildren;
             }
 
             var isRegistered = registrationsByBookingId.ContainsKey(booking.Id);
             var registration = isRegistered ? registrationsByBookingId[booking.Id] : null;
 
-            childrenByGroup[booking.Group!].Add(new ExcursionChildInfo
+            groupChildren.Add(new ExcursionChildInfo
             {
                 BookingId = booking.Id,
                 ChildId = booking.ChildId,
@@ -113,12 +114,13 @@ public class ExcursionViewModelBuilderService : IExcursionViewModelBuilderServic
         {
             var group = registration.Booking.Group!;
 
-            if (!childrenByGroup.ContainsKey(group))
+            if (!childrenByGroup.TryGetValue(group, out var groupAttendance))
             {
-                childrenByGroup[group] = new List<ExcursionAttendanceInfo>();
+                groupAttendance = new List<ExcursionAttendanceInfo>();
+                childrenByGroup[group] = groupAttendance;
             }
 
-            childrenByGroup[group].Add(new ExcursionAttendanceInfo
+            groupAttendance.Add(new ExcursionAttendanceInfo
             {
                 RegistrationId = registration.Id,
                 BookingId = registration.BookingId,

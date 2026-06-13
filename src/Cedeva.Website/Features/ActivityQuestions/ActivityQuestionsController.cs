@@ -291,8 +291,7 @@ public class ActivityQuestionsController : Controller
         ViewBag.Activities = new SelectList(activities, "Id", "Name", selectedActivityId);
 
         // Question types dropdown
-        var questionTypes = Enum.GetValues(typeof(QuestionType))
-            .Cast<QuestionType>()
+        var questionTypes = Enum.GetValues<QuestionType>()
             .Select(qt => new
             {
                 Value = (int)qt,
