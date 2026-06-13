@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Localization;
+using Microsoft.Extensions.Logging;
 using System.Text.Json;
 
 namespace Cedeva.Website.Features.PublicRegistration;
@@ -26,22 +27,28 @@ public class PublicRegistrationController : Controller
     private readonly CedevaDbContext _context;
     private readonly IEmailService _emailService;
     private readonly IStringLocalizer<SharedResources> _localizer;
+    private readonly ILogger<PublicRegistrationController> _logger;
 
     public PublicRegistrationController(
         CedevaDbContext context,
         IEmailService emailService,
-        IStringLocalizer<SharedResources> localizer)
+        IStringLocalizer<SharedResources> localizer,
+        ILogger<PublicRegistrationController> logger)
     {
         _context = context;
         _emailService = emailService;
         _localizer = localizer;
+        _logger = logger;
     }
 
     // GET: PublicRegistration/SelectActivity?orgId=1
     [AllowAnonymous]
     public async Task<IActionResult> SelectActivity(int orgId)
     {
+        // Anonymous public entry point (orgId comes from the trusted embed link): bypass the
+        // multi-tenancy filter, but keep the explicit OrganisationId scope.
         var activities = await _context.Activities
+            .IgnoreQueryFilters()
             .Where(a => a.OrganisationId == orgId && a.StartDate > DateTime.Now)
             .OrderBy(a => a.StartDate)
             .ToListAsync();
@@ -160,6 +167,7 @@ public class PublicRegistrationController : Controller
 
         // Check if child already exists
         var existingChild = await _context.Children
+            .IgnoreQueryFilters()
             .FirstOrDefaultAsync(c => c.NationalRegisterNumber == model.NationalRegisterNumber && c.ParentId == model.ParentId);
 
         int childId;
@@ -302,9 +310,11 @@ public class PublicRegistrationController : Controller
         var booking = await CreateBookingWithDaysAsync(activityId, childId);
         await SaveBookingAnswersFromTempDataAsync(booking.Id);
 
-        var parent = await _context.Parents.FindAsync(parentId);
-        var child = await _context.Children.FindAsync(childId);
-        var activity = await _context.Activities.FindAsync(activityId);
+        // Anonymous flow: FindAsync honours the tenancy filter (returns null with no user), so
+        // resolve via IgnoreQueryFilters to actually load the entities for the confirmation email.
+        var parent = await _context.Parents.IgnoreQueryFilters().FirstOrDefaultAsync(p => p.Id == parentId);
+        var child = await _context.Children.IgnoreQueryFilters().FirstOrDefaultAsync(c => c.Id == childId);
+        var activity = await _context.Activities.IgnoreQueryFilters().FirstOrDefaultAsync(a => a.Id == activityId);
 
         if (parent != null && child != null && activity != null)
             await SendConfirmationEmail(parent, child, activity, booking);
@@ -352,7 +362,11 @@ public class PublicRegistrationController : Controller
     [AllowAnonymous]
     public async Task<IActionResult> Confirmation(int bookingId)
     {
+        // Anonymous confirmation page: the included Activity/Child/Parent are tenancy-filtered,
+        // so without IgnoreQueryFilters they would come back null for an anonymous visitor and
+        // dereferencing booking.Child.Parent would throw.
         var booking = await _context.Bookings
+            .IgnoreQueryFilters()
             .Include(b => b.Activity)
             .Include(b => b.Child)
                 .ThenInclude(c => c.Parent)
@@ -394,7 +408,16 @@ public class PublicRegistrationController : Controller
             <p>Cordialement,<br/>L'équipe Cedeva</p>
         ";
 
-        await _emailService.SendEmailAsync(parent.Email, subject, body);
+        // A failed confirmation email must not fail the registration itself (e.g. email provider
+        // down or unconfigured) — the booking is already saved. Log and continue.
+        try
+        {
+            await _emailService.SendEmailAsync(parent.Email, subject, body);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Confirmation email could not be sent for booking {BookingId}", booking.Id);
+        }
     }
 
     // GET: PublicRegistration/Register?activityId=1&bg=ffffff
@@ -454,7 +477,11 @@ public class PublicRegistrationController : Controller
             return View(model);
         }
 
-        var activityEntity = await _context.Activities.FindAsync(model.ActivityId);
+        // Anonymous public POST: bypass the tenancy filter (FindAsync would return null without a
+        // logged-in user and wrongly 404 the registration).
+        var activityEntity = await _context.Activities
+            .IgnoreQueryFilters()
+            .FirstOrDefaultAsync(a => a.Id == model.ActivityId);
         if (activityEntity == null)
         {
             return NotFound();
@@ -480,9 +507,9 @@ public class PublicRegistrationController : Controller
         // Create booking with answers
         var bookingId = await CreateBookingWithAnswersAsync(model, childId);
 
-        // Send confirmation email
-        var parent = await _context.Parents.FindAsync(parentId);
-        var child = await _context.Children.FindAsync(childId);
+        // Send confirmation email (anonymous flow: bypass tenancy filter to load parent/child)
+        var parent = await _context.Parents.IgnoreQueryFilters().FirstOrDefaultAsync(p => p.Id == parentId);
+        var child = await _context.Children.IgnoreQueryFilters().FirstOrDefaultAsync(c => c.Id == childId);
         var booking = await _context.Bookings.FindAsync(bookingId);
 
         if (parent != null && child != null && booking != null)
@@ -507,7 +534,9 @@ public class PublicRegistrationController : Controller
 
     private async Task ReloadModelWithActivityInfoAsync(SimpleRegistrationViewModel model)
     {
-        var activity = await _context.Activities.FindAsync(model.ActivityId);
+        var activity = await _context.Activities
+            .IgnoreQueryFilters()
+            .FirstOrDefaultAsync(a => a.Id == model.ActivityId);
         if (activity != null)
         {
             model.ActivityName = activity.Name;
@@ -588,6 +617,7 @@ public class PublicRegistrationController : Controller
     private async Task<int> CreateOrUpdateParentAsync(ParentInformationViewModel model, int organisationId)
     {
         var existingParent = await _context.Parents
+            .IgnoreQueryFilters()
             .Include(p => p.Address)
             .FirstOrDefaultAsync(p => p.Email == model.Email && p.OrganisationId == organisationId);
 
@@ -687,6 +717,7 @@ public class PublicRegistrationController : Controller
     private async Task<(bool IsValid, string? ErrorMessage)> ValidatePostalCodeAsync(int activityId, string? postalCode)
     {
         var activity = await _context.Activities
+            .IgnoreQueryFilters()
             .AsNoTracking()
             .FirstOrDefaultAsync(a => a.Id == activityId);
 
