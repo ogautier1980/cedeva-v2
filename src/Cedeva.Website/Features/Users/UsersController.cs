@@ -55,9 +55,9 @@ public class UsersController : Controller
         if (!string.IsNullOrEmpty(queryParams.SearchString))
         {
             query = query.Where(u =>
-                u.FirstName.Contains(queryParams.SearchString, StringComparison.OrdinalIgnoreCase) ||
-                u.LastName.Contains(queryParams.SearchString, StringComparison.OrdinalIgnoreCase) ||
-                u.Email!.Contains(queryParams.SearchString, StringComparison.OrdinalIgnoreCase));
+                u.FirstName.Contains(queryParams.SearchString) ||
+                u.LastName.Contains(queryParams.SearchString) ||
+                u.Email!.Contains(queryParams.SearchString));
         }
 
         if (queryParams.OrganisationId.HasValue)
@@ -393,9 +393,9 @@ public class UsersController : Controller
         if (!string.IsNullOrEmpty(searchString))
         {
             query = query.Where(u =>
-                u.FirstName.Contains(searchString, StringComparison.OrdinalIgnoreCase) ||
-                u.LastName.Contains(searchString, StringComparison.OrdinalIgnoreCase) ||
-                (u.Email != null && u.Email.Contains(searchString, StringComparison.OrdinalIgnoreCase)));
+                u.FirstName.Contains(searchString) ||
+                u.LastName.Contains(searchString) ||
+                (u.Email != null && u.Email.Contains(searchString)));
         }
 
         if (organisationId.HasValue)
@@ -436,9 +436,9 @@ public class UsersController : Controller
         if (!string.IsNullOrEmpty(searchString))
         {
             query = query.Where(u =>
-                u.FirstName.Contains(searchString, StringComparison.OrdinalIgnoreCase) ||
-                u.LastName.Contains(searchString, StringComparison.OrdinalIgnoreCase) ||
-                (u.Email != null && u.Email.Contains(searchString, StringComparison.OrdinalIgnoreCase)));
+                u.FirstName.Contains(searchString) ||
+                u.LastName.Contains(searchString) ||
+                (u.Email != null && u.Email.Contains(searchString)));
         }
 
         if (organisationId.HasValue)

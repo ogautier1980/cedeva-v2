@@ -159,9 +159,9 @@ public class TeamMembersController : Controller
         if (!string.IsNullOrEmpty(searchString))
         {
             query = query.Where(t =>
-                t.FirstName.Contains(searchString, StringComparison.OrdinalIgnoreCase) ||
-                t.LastName.Contains(searchString, StringComparison.OrdinalIgnoreCase) ||
-                t.Email.Contains(searchString, StringComparison.OrdinalIgnoreCase));
+                t.FirstName.Contains(searchString) ||
+                t.LastName.Contains(searchString) ||
+                t.Email.Contains(searchString));
         }
 
         var teamMembers = await query
@@ -206,9 +206,9 @@ public class TeamMembersController : Controller
         if (!string.IsNullOrEmpty(searchString))
         {
             query = query.Where(t =>
-                t.FirstName.Contains(searchString, StringComparison.OrdinalIgnoreCase) ||
-                t.LastName.Contains(searchString, StringComparison.OrdinalIgnoreCase) ||
-                t.Email.Contains(searchString, StringComparison.OrdinalIgnoreCase));
+                t.FirstName.Contains(searchString) ||
+                t.LastName.Contains(searchString) ||
+                t.Email.Contains(searchString));
         }
 
         var teamMembers = await query

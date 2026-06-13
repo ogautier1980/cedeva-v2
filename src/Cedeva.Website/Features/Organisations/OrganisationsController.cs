@@ -105,8 +105,8 @@ public class OrganisationsController : Controller
         if (!string.IsNullOrEmpty(queryParams.SearchString))
         {
             query = query.Where(o =>
-                o.Name.Contains(queryParams.SearchString, StringComparison.OrdinalIgnoreCase) ||
-                o.Description.Contains(queryParams.SearchString, StringComparison.OrdinalIgnoreCase));
+                o.Name.Contains(queryParams.SearchString) ||
+                o.Description.Contains(queryParams.SearchString));
         }
 
         // Apply sorting

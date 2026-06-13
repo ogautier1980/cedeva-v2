@@ -132,9 +132,9 @@ public class BookingsController : Controller
         if (!string.IsNullOrEmpty(searchString))
         {
             query = query.Where(b =>
-                b.Child.FirstName.Contains(searchString, StringComparison.OrdinalIgnoreCase) ||
-                b.Child.LastName.Contains(searchString, StringComparison.OrdinalIgnoreCase) ||
-                b.Activity.Name.Contains(searchString, StringComparison.OrdinalIgnoreCase));
+                b.Child.FirstName.Contains(searchString) ||
+                b.Child.LastName.Contains(searchString) ||
+                b.Activity.Name.Contains(searchString));
         }
 
         if (activityId.HasValue)
@@ -705,9 +705,9 @@ public class BookingsController : Controller
         if (!string.IsNullOrEmpty(searchString))
         {
             query = query.Where(b =>
-                b.Child.FirstName.Contains(searchString, StringComparison.OrdinalIgnoreCase) ||
-                b.Child.LastName.Contains(searchString, StringComparison.OrdinalIgnoreCase) ||
-                b.Activity.Name.Contains(searchString, StringComparison.OrdinalIgnoreCase));
+                b.Child.FirstName.Contains(searchString) ||
+                b.Child.LastName.Contains(searchString) ||
+                b.Activity.Name.Contains(searchString));
         }
 
         if (activityId.HasValue)
@@ -760,9 +760,9 @@ public class BookingsController : Controller
         if (!string.IsNullOrEmpty(searchString))
         {
             query = query.Where(b =>
-                b.Child.FirstName.Contains(searchString, StringComparison.OrdinalIgnoreCase) ||
-                b.Child.LastName.Contains(searchString, StringComparison.OrdinalIgnoreCase) ||
-                b.Activity.Name.Contains(searchString, StringComparison.OrdinalIgnoreCase));
+                b.Child.FirstName.Contains(searchString) ||
+                b.Child.LastName.Contains(searchString) ||
+                b.Activity.Name.Contains(searchString));
         }
 
         if (activityId.HasValue)

@@ -120,8 +120,8 @@ public class ChildrenController : Controller
         if (!string.IsNullOrEmpty(searchString))
         {
             query = query.Where(c =>
-                c.FirstName.Contains(searchString, StringComparison.OrdinalIgnoreCase) ||
-                c.LastName.Contains(searchString, StringComparison.OrdinalIgnoreCase) ||
+                c.FirstName.Contains(searchString) ||
+                c.LastName.Contains(searchString) ||
                 c.NationalRegisterNumber.Contains(searchString));
         }
 
@@ -167,8 +167,8 @@ public class ChildrenController : Controller
         if (!string.IsNullOrEmpty(searchString))
         {
             query = query.Where(c =>
-                c.FirstName.Contains(searchString, StringComparison.OrdinalIgnoreCase) ||
-                c.LastName.Contains(searchString, StringComparison.OrdinalIgnoreCase) ||
+                c.FirstName.Contains(searchString) ||
+                c.LastName.Contains(searchString) ||
                 c.NationalRegisterNumber.Contains(searchString));
         }
 
