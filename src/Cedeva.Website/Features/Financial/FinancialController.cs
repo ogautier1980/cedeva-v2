@@ -879,7 +879,7 @@ public class FinancialController : Controller
         return View(viewModel);
     }
 
-    private (decimal cardExpenses, decimal cashExpenses, List<ExpenseDetailViewModel> details) BuildOrganizationExpenseBreakdown(List<Expense> expenses)
+    private static (decimal cardExpenses, decimal cashExpenses, List<ExpenseDetailViewModel> details) BuildOrganizationExpenseBreakdown(List<Expense> expenses)
     {
         var orgExpenses = expenses.Where(e => !e.TeamMemberId.HasValue).ToList();
         var cardExpenses = orgExpenses.Where(e => e.OrganizationPaymentSource == OrganizationCard).Sum(e => e.Amount);

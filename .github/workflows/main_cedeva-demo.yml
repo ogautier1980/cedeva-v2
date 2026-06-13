@@ -30,8 +30,18 @@ jobs:
       - name: Build and Publish
         run: dotnet publish src/Cedeva.Website -c Release -o ./publish
 
-      - name: Run tests
-        run: dotnet test tests/Cedeva.Tests -c Release
+      - name: Run tests (with coverage gate)
+        # Total line coverage must stay >= 10% (regression floor / ratchet — raise over time).
+        # Migrations and generated Razor views are excluded from the measure.
+        run: >
+          dotnet test tests/Cedeva.Tests -c Release
+          -p:CollectCoverage=true
+          -p:CoverletOutputFormat=cobertura
+          "-p:ExcludeByFile=**/Migrations/*.cs"
+          "-p:Exclude=[*]AspNetCoreGeneratedDocument.*"
+          -p:Threshold=10
+          -p:ThresholdType=line
+          -p:ThresholdStat=total
 
       - name: Login to Azure
         uses: azure/login@v3

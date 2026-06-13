@@ -222,7 +222,7 @@ public class BankReconciliationService : IBankReconciliationService
     /// 5. Montant proche
     /// 6. Communication contient nom/prénom enfant
     /// </summary>
-    private ReconciliationSuggestionDto? CalculateReconciliationMatch(BankTransaction transaction, Booking booking)
+    private static ReconciliationSuggestionDto? CalculateReconciliationMatch(BankTransaction transaction, Booking booking)
     {
         var score = 0;
         var reasons = new List<string>();

@@ -262,7 +262,7 @@ public class ActivityManagementController : Controller
         return firstDay?.DayId;
     }
 
-    private List<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem> BuildDayDropdownOptions(Activity activity, int? selectedDayId)
+    private static List<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem> BuildDayDropdownOptions(Activity activity, int? selectedDayId)
     {
         var culture = System.Globalization.CultureInfo.CurrentCulture;
 
@@ -278,7 +278,7 @@ public class ActivityManagementController : Controller
             .ToList();
     }
 
-    private List<PresenceChildInfo> BuildChildrenList(Activity activity, int? dayId)
+    private static List<PresenceChildInfo> BuildChildrenList(Activity activity, int? dayId)
     {
         return activity.Bookings
             .Where(b => b.IsConfirmed)

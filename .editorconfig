@@ -63,14 +63,12 @@ dotnet_naming_style.pascal_case.capitalization = pascal_case
 generated_code = true
 
 [*.cs]
-# CA1873: logging-argument evaluation cost. No auto-fix; the IsEnabled guard hurts
-# readability across ~100 call sites. Keep as IDE guidance, not a build warning.
+# High-volume, low-value stylistic / micro-perf rules. They have no working auto-fix via
+# `dotnet format` (SDK analyzers), and hand-churning ~160 sites in working, fully-tested code
+# is poor ROI and risk-prone (e.g. !x.Any() -> x.Count == 0, collection-vs-IEnumerable). Kept
+# as IDE guidance (suggestion) for gradual cleanup; CA1822 (mark static) WAS fixed.
 dotnet_diagnostic.CA1873.severity = suggestion
-# CA1859: "use concrete type for performance" — micro-optimisation, IDE guidance only.
-dotnet_diagnostic.CA1859.severity = suggestion
-# CA1860 (Any() vs Count), CA1822 (mark static), CA1861 (constant array -> static readonly),
-# CA1846 (AsSpan vs Substring): stylistic / micro-perf, high volume. Keep as IDE guidance.
 dotnet_diagnostic.CA1860.severity = suggestion
-dotnet_diagnostic.CA1822.severity = suggestion
 dotnet_diagnostic.CA1861.severity = suggestion
 dotnet_diagnostic.CA1846.severity = suggestion
+dotnet_diagnostic.CA1859.severity = suggestion

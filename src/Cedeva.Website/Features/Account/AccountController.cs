@@ -64,17 +64,22 @@ public class AccountController : Controller
             model.RememberMe,
             lockoutOnFailure: true);
 
+        var remoteIp = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+
         if (result.Succeeded)
         {
+            _logger.LogInformation("Login succeeded for {Email} from {RemoteIp}", model.Email, remoteIp);
             return await RedirectToLocal(returnUrl);
         }
 
         if (result.IsLockedOut)
         {
+            _logger.LogWarning("Login locked out for {Email} from {RemoteIp}", model.Email, remoteIp);
             ModelState.AddModelError(string.Empty, _localizer["Login.AccountLockedOut"]);
             return View(model);
         }
 
+        _logger.LogWarning("Failed login attempt for {Email} from {RemoteIp}", model.Email, remoteIp);
         ModelState.AddModelError(string.Empty, _localizer["Login.InvalidCredentials"]);
         return View(model);
     }

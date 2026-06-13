@@ -103,3 +103,8 @@ src/Cedeva.Website/wwwroot/uploads/
 
 # Claude Code
 .claude/
+
+# Code coverage
+coverage.cobertura.xml
+**/coverage*.xml
+**/TestResults/

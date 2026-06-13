@@ -291,7 +291,7 @@ public class ActivitiesController : Controller
         await _context.SaveChangesAsync();
     }
 
-    private void GenerateActivityDays(Activity activity)
+    private static void GenerateActivityDays(Activity activity)
     {
         for (var date = activity.StartDate; date <= activity.EndDate; date = date.AddDays(1))
         {
