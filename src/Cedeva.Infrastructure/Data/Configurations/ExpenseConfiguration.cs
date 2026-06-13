@@ -18,10 +18,13 @@ public class ExpenseConfiguration : IEntityTypeConfiguration<Expense>
             .IsRequired()
             .HasPrecision(10, 2);
 
+        // ActivityId is required (non-nullable), so SET NULL is invalid — deleting an activity that
+        // has expenses would fail at runtime. Restrict, consistent with the other financial
+        // relationships hanging off Activity (bookings, excursions, transactions).
         builder.HasOne(e => e.Activity)
             .WithMany()
             .HasForeignKey(e => e.ActivityId)
-            .OnDelete(DeleteBehavior.SetNull);
+            .OnDelete(DeleteBehavior.Restrict);
 
         builder.HasOne(e => e.Excursion)
             .WithMany(ex => ex.Expenses)
