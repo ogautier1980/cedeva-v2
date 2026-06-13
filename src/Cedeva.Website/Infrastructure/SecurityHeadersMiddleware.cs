@@ -57,7 +57,7 @@ public class SecurityHeadersMiddleware
         "img-src 'self' data: https:",
         "font-src 'self' data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net",
         "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://code.jquery.com https://cdn.tiny.cloud",
-        "script-src 'self' 'unsafe-inline' https://code.jquery.com https://cdn.jsdelivr.net https://cdn.tiny.cloud",
+        "script-src 'self' 'unsafe-inline' https://code.jquery.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://cdn.tiny.cloud",
         "connect-src 'self' https://cdn.tiny.cloud",
         "form-action 'self'",
         $"frame-ancestors {frameAncestors}");
