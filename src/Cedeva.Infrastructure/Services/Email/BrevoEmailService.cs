@@ -1,7 +1,8 @@
 using Cedeva.Core.DTOs;
 using Cedeva.Core.Interfaces;
-using Microsoft.Extensions.Configuration;
+using Cedeva.Infrastructure.Configuration;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using System.Net.Http.Json;
 using System.Text.Json;
 using Task = System.Threading.Tasks.Task; // Resolve conflict with brevo_csharp.Model.Task
@@ -16,17 +17,20 @@ public class BrevoEmailService : IEmailService
     private readonly string _senderName;
 
     public BrevoEmailService(
-        IConfiguration configuration,
+        IOptions<BrevoOptions> options,
         IHttpClientFactory httpClientFactory,
         ILogger<BrevoEmailService> logger)
     {
         _httpClientFactory = httpClientFactory;
         _logger = logger;
 
-        _senderEmail = configuration["Brevo:SenderEmail"]
-            ?? throw new InvalidOperationException("Brevo sender email not configured");
-        _senderName = configuration["Brevo:SenderName"]
-            ?? throw new InvalidOperationException("Brevo sender name not configured");
+        var brevo = options.Value;
+        _senderEmail = !string.IsNullOrWhiteSpace(brevo.SenderEmail)
+            ? brevo.SenderEmail
+            : throw new InvalidOperationException("Brevo sender email not configured");
+        _senderName = !string.IsNullOrWhiteSpace(brevo.SenderName)
+            ? brevo.SenderName
+            : throw new InvalidOperationException("Brevo sender name not configured");
     }
 
     public async Task SendEmailAsync(string to, string subject, string htmlContent, string? attachmentPath = null)

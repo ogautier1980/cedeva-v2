@@ -2,6 +2,7 @@ using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using Cedeva.Core.Entities;
 using Cedeva.Core.Interfaces;
+using Cedeva.Infrastructure.Configuration;
 using Cedeva.Infrastructure.Data;
 using Cedeva.Infrastructure.Identity;
 using Cedeva.Infrastructure.Services;
@@ -21,6 +22,7 @@ using Microsoft.EntityFrameworkCore;
 using Serilog;
 using System.Net;
 using System.Net.Sockets;
+using System.Threading.RateLimiting;
 
 Log.Logger = new LoggerConfiguration()
     .WriteTo.Console()
@@ -35,11 +37,47 @@ try
     // Don't advertise the server implementation (removes the "Server: Kestrel" header).
     builder.WebHost.ConfigureKestrel(options => options.AddServerHeader = false);
 
-    // Configure Serilog
-    builder.Host.UseSerilog((context, services, configuration) => configuration
-        .ReadFrom.Configuration(context.Configuration)
-        .ReadFrom.Services(services)
-        .Enrich.FromLogContext());
+    // Configure Serilog: read sinks from config, enrich with runtime context, and add a
+    // Seq sink only when Seq:ServerUrl is configured (so it stays inert without a Seq server).
+    builder.Host.UseSerilog((context, services, configuration) =>
+    {
+        configuration
+            .ReadFrom.Configuration(context.Configuration)
+            .ReadFrom.Services(services)
+            .Enrich.FromLogContext()
+            .Enrich.WithMachineName()
+            .Enrich.WithEnvironmentName()
+            .Enrich.WithThreadId()
+            .Enrich.WithProcessId();
+
+        var seqUrl = context.Configuration["Seq:ServerUrl"];
+        if (!string.IsNullOrWhiteSpace(seqUrl))
+        {
+            configuration.WriteTo.Seq(seqUrl, apiKey: context.Configuration["Seq:ApiKey"]);
+        }
+    });
+
+    // Strongly-typed configuration (Options pattern)
+    builder.Services.Configure<BrevoOptions>(builder.Configuration.GetSection(BrevoOptions.SectionName));
+    builder.Services.Configure<AzureStorageOptions>(builder.Configuration.GetSection(AzureStorageOptions.SectionName));
+
+    // Rate limiting (per client IP) for sensitive anonymous endpoints: login and the public
+    // registration flow — mitigates brute-force and bot spam. Client IP is resolved from the
+    // forwarded headers configured above.
+    builder.Services.AddRateLimiter(options =>
+    {
+        options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+
+        options.AddPolicy("auth", httpContext =>
+            RateLimitPartition.GetFixedWindowLimiter(
+                httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+                _ => new FixedWindowRateLimiterOptions { PermitLimit = 10, Window = TimeSpan.FromMinutes(1) }));
+
+        options.AddPolicy("public-registration", httpContext =>
+            RateLimitPartition.GetFixedWindowLimiter(
+                httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+                _ => new FixedWindowRateLimiterOptions { PermitLimit = 30, Window = TimeSpan.FromMinutes(1) }));
+    });
 
     // Register storage service based on environment
     if (builder.Environment.IsDevelopment())
@@ -303,6 +341,7 @@ try
     app.UseSession();
     app.UseAuthentication();
     app.UseAuthorization();
+    app.UseRateLimiter();
 
     app.MapHealthChecks("/health");
 

@@ -1,7 +1,8 @@
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using Cedeva.Core.Interfaces;
-using Microsoft.Extensions.Configuration;
+using Cedeva.Infrastructure.Configuration;
+using Microsoft.Extensions.Options;
 
 namespace Cedeva.Infrastructure.Services.Storage;
 
@@ -10,13 +11,14 @@ public class AzureBlobStorageService : IStorageService
     private readonly BlobServiceClient _blobServiceClient;
     private readonly string _containerName;
 
-    public AzureBlobStorageService(IConfiguration configuration)
+    public AzureBlobStorageService(IOptions<AzureStorageOptions> options)
     {
-        var connectionString = configuration["AzureStorage:ConnectionString"]
-            ?? throw new InvalidOperationException("Azure Storage connection string not configured");
+        var storage = options.Value;
+        if (string.IsNullOrWhiteSpace(storage.ConnectionString))
+            throw new InvalidOperationException("Azure Storage connection string not configured");
 
-        _containerName = configuration["AzureStorage:ContainerName"] ?? "cedeva-files";
-        _blobServiceClient = new BlobServiceClient(connectionString);
+        _containerName = string.IsNullOrWhiteSpace(storage.ContainerName) ? "cedeva-files" : storage.ContainerName;
+        _blobServiceClient = new BlobServiceClient(storage.ConnectionString);
     }
 
     public async Task<string> UploadFileAsync(Stream fileStream, string fileName, string contentType, string containerPath)

@@ -7,12 +7,14 @@ using Cedeva.Website.Features.PublicRegistration.ViewModels;
 using Cedeva.Website.Localization;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Localization;
 using System.Text.Json;
 
 namespace Cedeva.Website.Features.PublicRegistration;
 
+[EnableRateLimiting("public-registration")]
 public class PublicRegistrationController : Controller
 {
     private const string TempDataOrganisationId = "OrganisationId";
