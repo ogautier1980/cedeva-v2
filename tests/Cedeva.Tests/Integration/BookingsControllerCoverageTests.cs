@@ -156,7 +156,7 @@ public class BookingsControllerCoverageTests
     }
 
     [Fact]
-    public async Task Details_AsDifferentOrgCoordinator_StillLoadsBooking()
+    public async Task Details_AsDifferentOrgCoordinator_ReturnsNotFound()
     {
         using var factory = new CedevaWebApplicationFactory();
         var g = SeedFullGraph(factory);
@@ -164,14 +164,35 @@ public class BookingsControllerCoverageTests
 
         var response = await client.GetAsync($"/Bookings/Details/{g.Booking.Id}");
 
-        // Documents the ACTUAL behaviour: Details is NOT tenant-isolated. The Booking entity has no
-        // multi-tenancy query filter (only Activity/Parent/Child/TeamMember/EmailTemplate do), and
-        // GetBookingViewModelAsync resolves the related Child/Parent/Activity via FindAsync, which
-        // bypasses global query filters. So a foreign-org coordinator gets 200 and sees the details.
-        // (Index, by contrast, IS isolated because it explicitly filters Activity.OrganisationId.)
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
-        var html = await response.Content.ReadAsStringAsync();
-        html.Should().Contain(g.Child.LastName);
+        // Tenant isolation: a coordinator of another organisation must not see this booking.
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
+
+    [Fact]
+    public async Task EditGet_AsDifferentOrgCoordinator_ReturnsNotFound()
+    {
+        using var factory = new CedevaWebApplicationFactory();
+        var g = SeedFullGraph(factory);
+        var client = factory.CreateClientFor("intruder", g.Org.Id + 999, Coordinator);
+
+        var response = await client.GetAsync($"/Bookings/Edit/{g.Booking.Id}");
+
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
+
+    [Fact]
+    public async Task DeletePost_AsDifferentOrgCoordinator_IsBlockedAndKeepsBooking()
+    {
+        using var factory = new CedevaWebApplicationFactory();
+        var g = SeedFullGraph(factory);
+        var client = factory.CreateClientFor("intruder", g.Org.Id + 999, Coordinator);
+
+        var response = await client.PostAsync($"/Bookings/Delete/{g.Booking.Id}",
+            new FormUrlEncodedContent(new Dictionary<string, string>()));
+
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+        await using var db = factory.NewDbContext();
+        db.Bookings.Any(b => b.Id == g.Booking.Id).Should().BeTrue();
     }
 
     // ---------------------------------------------------------------- Create GET

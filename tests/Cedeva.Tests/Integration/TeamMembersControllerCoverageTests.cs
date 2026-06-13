@@ -563,13 +563,10 @@ public class TeamMembersControllerCoverageTests
 
     // ---------------- DeleteLicense ----------------
 
-    // NOTE: DeleteLicense sets teamMember.LicenseUrl = null then SaveChangesAsync().
-    // The TeamMembers.LicenseUrl column is configured IsRequired() (NOT NULL) in
-    // TeamMemberConfiguration, so persisting null violates the constraint and the request
-    // surfaces as a 500 under the real EF schema. This asserts that genuine behaviour
-    // (and that the stored value is left intact because the save fails).
+    // DeleteLicense clears the license by storing an empty string (the LicenseUrl column is
+    // IsRequired/NOT NULL, so null cannot be persisted). The request succeeds and the value is empty.
     [Fact]
-    public async Task DeleteLicense_ExistingMember_FailsToPersist_DueToRequiredLicenseUrlColumn()
+    public async Task DeleteLicense_ExistingMember_ClearsLicenseUrl()
     {
         using var factory = new CedevaWebApplicationFactory();
         Organisation org = null!;
@@ -586,12 +583,12 @@ public class TeamMembersControllerCoverageTests
         var response = await client.PostAsync($"/TeamMembers/DeleteLicense/{tm.TeamMemberId}",
             new FormUrlEncodedContent(new Dictionary<string, string>()));
 
-        response.StatusCode.Should().Be(HttpStatusCode.InternalServerError);
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
 
         await using var db = factory.NewDbContext();
         var updated = await db.TeamMembers.IgnoreQueryFilters()
             .FirstOrDefaultAsync(t => t.TeamMemberId == tm.TeamMemberId);
-        updated!.LicenseUrl.Should().Be("/uploads/missing/no-such-file.pdf");
+        updated!.LicenseUrl.Should().BeEmpty();
     }
 
     [Fact]
