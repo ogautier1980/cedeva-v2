@@ -31,15 +31,15 @@ jobs:
         run: dotnet publish src/Cedeva.Website -c Release -o ./publish
 
       - name: Run tests (with coverage gate)
-        # Total line coverage must stay >= 10% (regression floor / ratchet — raise over time).
-        # Migrations and generated Razor views are excluded from the measure.
+        # Total line coverage must stay >= 12% (regression floor / ratchet — raise over time;
+        # actual ~14%). Migrations and generated Razor views are excluded from the measure.
         run: >
           dotnet test tests/Cedeva.Tests -c Release
           -p:CollectCoverage=true
           -p:CoverletOutputFormat=cobertura
           "-p:ExcludeByFile=**/Migrations/*.cs"
           "-p:Exclude=[*]AspNetCoreGeneratedDocument.*"
-          -p:Threshold=10
+          -p:Threshold=12
           -p:ThresholdType=line
           -p:ThresholdStat=total
 
