@@ -523,7 +523,7 @@ public class TeamMembersController : Controller
                 // Ignore errors if file doesn't exist
             }
 
-            teamMember.LicenseUrl = null;
+            teamMember.LicenseUrl = string.Empty; // column is required (NOT NULL); empty == no license
             await _unitOfWork.SaveChangesAsync();
         }
 
@@ -685,7 +685,7 @@ public class TeamMembersController : Controller
         if (viewModel.RemoveLicense && !string.IsNullOrEmpty(teamMember.LicenseUrl))
         {
             await DeleteLicenseFileAsync(teamMember.LicenseUrl);
-            teamMember.LicenseUrl = null;
+            teamMember.LicenseUrl = string.Empty; // column is required (NOT NULL); empty == no license
         }
 
         // Handle license file upload

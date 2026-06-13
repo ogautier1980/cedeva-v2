@@ -364,6 +364,11 @@ public class BookingsController : Controller
             return NotFound();
         }
 
+        if (!await CanAccessBookingAsync(id))
+        {
+            return NotFound();
+        }
+
         ViewData["ReturnUrl"] = returnUrl;
 
         if (ModelState.IsValid)
@@ -437,6 +442,11 @@ public class BookingsController : Controller
             return NotFound();
         }
 
+        if (!await CanAccessBookingAsync(id))
+        {
+            return NotFound();
+        }
+
         await _bookingRepository.DeleteAsync(booking);
         await _unitOfWork.SaveChangesAsync();
 
@@ -471,6 +481,20 @@ public class BookingsController : Controller
         }
     }
 
+    // Non-admins may only access bookings whose activity belongs to their organisation.
+    private async Task<bool> CanAccessBookingAsync(int bookingId)
+    {
+        if (_ctx.CurrentUser.IsAdmin)
+        {
+            return true;
+        }
+
+        var organisationId = _ctx.CurrentUser.OrganisationId;
+        return await _context.Bookings
+            .IgnoreQueryFilters()
+            .AnyAsync(b => b.Id == bookingId && b.Activity.OrganisationId == organisationId);
+    }
+
     // Helper method to get booking view model with all related data
     private async Task<BookingViewModel?> GetBookingViewModelAsync(int id)
     {
@@ -490,6 +514,13 @@ public class BookingsController : Controller
         var parent = child != null ? await _context.Parents.FindAsync(child.ParentId) : null;
         var activity = await _context.Activities.FindAsync(booking.ActivityId);
         var group = booking.GroupId.HasValue ? await _context.ActivityGroups.FindAsync(booking.GroupId.Value) : null;
+
+        // Tenant isolation: a non-admin may only see bookings whose activity belongs to their
+        // organisation (Booking itself has no query filter and the FindAsync calls bypass filters).
+        if (!_ctx.CurrentUser.IsAdmin && activity?.OrganisationId != _ctx.CurrentUser.OrganisationId)
+        {
+            return null;
+        }
 
         // Load questions with answers
         var questionDtos = await _bookingQuestionService.GetQuestionsWithAnswersAsync(booking.ActivityId, id);
