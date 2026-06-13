@@ -29,10 +29,4 @@ public class Payment : AuditableEntity
     /// Référence libre pour paiements sans communication structurée
     /// </summary>
     public string? Reference { get; set; }
-
-    /// <summary>
-    /// FK vers BankTransaction si le paiement provient d'un import CODA
-    /// </summary>
-    public int? BankTransactionId { get; set; }
-    public BankTransaction? BankTransaction { get; set; }
 }

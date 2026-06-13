@@ -228,7 +228,6 @@ public class PaymentsController : Controller
                 .ThenInclude(b => b.Child)
                     .ThenInclude(c => c.Parent)
             .Include(p => p.Booking.Activity)
-            .Include(p => p.BankTransaction)
             .FirstOrDefaultAsync(p => p.Id == id);
 
         if (payment == null)
@@ -262,13 +261,6 @@ public class PaymentsController : Controller
             {
                 TempData[ControllerExtensions.ErrorMessageKey] = _localizer["Error.PaymentNotFound"].Value;
                 return RedirectToAction(nameof(Index));
-            }
-
-            // Ne pas permettre l'annulation des paiements liés à une transaction bancaire
-            if (payment.BankTransactionId.HasValue)
-            {
-                TempData[ControllerExtensions.ErrorMessageKey] = _localizer["Error.CannotCancelBankPayment"].Value;
-                return RedirectToAction(nameof(Details), new { id });
             }
 
             // Marquer comme annulé

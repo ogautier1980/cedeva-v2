@@ -1,4 +1,3 @@
-using Cedeva.Core.DTOs.Banking;
 using Cedeva.Core.Entities;
 using Cedeva.Core.Interfaces;
 using Cedeva.Infrastructure.Data;
@@ -16,8 +15,6 @@ namespace Cedeva.Website.Features.Financial;
 public class FinancialController : Controller
 {
     private readonly CedevaDbContext _context;
-    private readonly ICodaParserService _codaParserService;
-    private readonly IBankReconciliationService _reconciliationService;
     private readonly IExcelExportService _excelExportService;
     private readonly IFinancialCalculationService _financialCalculationService;
     private readonly ICedevaControllerContext<FinancialController> _ctx;
@@ -30,15 +27,11 @@ public class FinancialController : Controller
 
     public FinancialController(
         CedevaDbContext context,
-        ICodaParserService codaParserService,
-        IBankReconciliationService reconciliationService,
         IExcelExportService excelExportService,
         IFinancialCalculationService financialCalculationService,
         ICedevaControllerContext<FinancialController> ctx)
     {
         _context = context;
-        _codaParserService = codaParserService;
-        _reconciliationService = reconciliationService;
         _excelExportService = excelExportService;
         _financialCalculationService = financialCalculationService;
         _ctx = ctx;
@@ -118,216 +111,6 @@ public class FinancialController : Controller
         };
 
         return View(viewModel);
-    }
-
-    // GET: Financial/ImportCoda
-    public async Task<IActionResult> ImportCoda()
-    {
-        var organisationId = _ctx.CurrentUser.OrganisationId;
-
-        // Charger la liste des fichiers CODA importés
-        var codaFiles = await _context.CodaFiles
-            .Where(cf => cf.OrganisationId == organisationId)
-            .OrderByDescending(cf => cf.ImportDate)
-            .Select(cf => new CodaFileListItemViewModel
-            {
-                Id = cf.Id,
-                FileName = cf.FileName,
-                ImportDate = cf.ImportDate,
-                StatementDate = cf.StatementDate,
-                AccountNumber = cf.AccountNumber,
-                OldBalance = cf.OldBalance,
-                NewBalance = cf.NewBalance,
-                TransactionCount = cf.TransactionCount,
-                ReconciledCount = cf.Transactions.Count(t => t.IsReconciled),
-                UnreconciledCount = cf.Transactions.Count(t => !t.IsReconciled)
-            })
-            .ToListAsync();
-
-        ViewBag.CodaFiles = codaFiles;
-
-        return View(new ImportCodaViewModel());
-    }
-
-    // POST: Financial/ImportCoda
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> ImportCoda(ImportCodaViewModel viewModel)
-    {
-        if (!ModelState.IsValid)
-        {
-            return await ImportCoda(); // Recharge la liste
-        }
-
-        if (viewModel.CodaFile == null)
-        {
-            ModelState.AddModelError(nameof(ImportCodaViewModel.CodaFile), _ctx.Localizer["Validation.FileRequired"].Value);
-            return await ImportCoda();
-        }
-
-        // Validate file size (max 10MB)
-        const long maxFileSize = 10 * 1024 * 1024; // 10MB
-        if (viewModel.CodaFile.Length > maxFileSize)
-        {
-            ModelState.AddModelError(nameof(ImportCodaViewModel.CodaFile), _ctx.Localizer["Validation.FileTooLarge", "10MB"].Value);
-            return await ImportCoda();
-        }
-
-        if (viewModel.CodaFile.Length == 0)
-        {
-            ModelState.AddModelError(nameof(ImportCodaViewModel.CodaFile), _ctx.Localizer["Validation.FileEmpty"].Value);
-            return await ImportCoda();
-        }
-
-        // Sanitize filename to prevent path traversal attacks
-        var safeFileName = Path.GetFileName(viewModel.CodaFile.FileName);
-
-        // Validate file extension
-        var extension = Path.GetExtension(safeFileName).ToLowerInvariant();
-        if (extension != ".cod" && extension != ".txt")
-        {
-            ModelState.AddModelError(nameof(ImportCodaViewModel.CodaFile), _ctx.Localizer["Validation.InvalidCodaFileExtension"].Value);
-            return await ImportCoda();
-        }
-
-        // Validate Content-Type (MIME type)
-        var allowedContentTypes = new[] { "text/plain", "application/octet-stream" };
-        if (!allowedContentTypes.Contains(viewModel.CodaFile.ContentType.ToLowerInvariant()))
-        {
-            ModelState.AddModelError(nameof(ImportCodaViewModel.CodaFile), _ctx.Localizer["Validation.InvalidFileType"].Value);
-            return await ImportCoda();
-        }
-
-        try
-        {
-            var organisationId = _ctx.CurrentUser.OrganisationId ?? throw new InvalidOperationException("Organisation ID not found");
-
-            if (!int.TryParse(_ctx.CurrentUser.UserId, out var userId))
-            {
-                throw new InvalidOperationException("User ID not found or invalid");
-            }
-
-            // Parser le fichier CODA
-            CodaFileDto codaData;
-            using (var stream = viewModel.CodaFile.OpenReadStream())
-            {
-                codaData = await _codaParserService.ParseCodaFileAsync(stream, safeFileName);
-            }
-
-            // Importer dans la base de données
-            var codaFileId = await _codaParserService.ImportCodaFileAsync(codaData, organisationId, userId);
-
-            _ctx.Logger.LogInformation("CODA file {FileName} imported successfully by user {UserId}", safeFileName, userId);
-
-            // Lancer le rapprochement automatique
-            var reconciledCount = await _reconciliationService.AutoReconcileTransactionsAsync(codaFileId);
-
-            TempData[ControllerExtensions.SuccessMessageKey] = reconciledCount > 0
-                ? _ctx.Localizer["Message.CodaFileImportedWithReconciliation", codaData.Transactions.Count, reconciledCount].Value
-                : _ctx.Localizer["Message.CodaFileImported", codaData.Transactions.Count].Value;
-
-            return RedirectToAction(nameof(CodaFileDetails), new { id = codaFileId });
-        }
-        catch (InvalidOperationException ex)
-        {
-            _ctx.Logger.LogError(ex, "Invalid operation during CODA import");
-            ModelState.AddModelError(string.Empty, _ctx.Localizer["Error.InvalidOperation"].Value);
-            return await ImportCoda();
-        }
-        catch (InvalidDataException ex)
-        {
-            _ctx.Logger.LogError(ex, "Invalid CODA file format");
-            ModelState.AddModelError(string.Empty, _ctx.Localizer["Error.InvalidCodaFormat"].Value);
-            return await ImportCoda();
-        }
-        catch (DbUpdateException ex)
-        {
-            _ctx.Logger.LogError(ex, "Database error while importing CODA file");
-            ModelState.AddModelError(string.Empty, _ctx.Localizer["Error.DatabaseError"].Value);
-            return await ImportCoda();
-        }
-        catch (Exception ex)
-        {
-            _ctx.Logger.LogError(ex, "Unexpected error importing CODA file");
-            ModelState.AddModelError(string.Empty, _ctx.Localizer["Error.CodaImportFailed", ex.Message].Value);
-            return await ImportCoda();
-        }
-    }
-
-    // GET: Financial/CodaFileDetails/5
-    public async Task<IActionResult> CodaFileDetails(int id)
-    {
-        var codaFile = await _context.CodaFiles
-            .Include(cf => cf.Transactions)
-            .FirstOrDefaultAsync(cf => cf.Id == id);
-
-        if (codaFile == null)
-        {
-            return NotFound();
-        }
-
-        return View(codaFile);
-    }
-
-    // GET: Financial/Reconciliation
-    public async Task<IActionResult> Reconciliation(int? organisationId = null)
-    {
-        // Pour les coordinateurs : utiliser leur organisation
-        // Pour les admins : utiliser l'organisation passée en paramètre ou la première disponible
-        var orgId = _ctx.CurrentUser.OrganisationId ?? organisationId;
-
-        if (!orgId.HasValue)
-        {
-            // Si l'admin n'a pas spécifié d'organisation, utiliser la première disponible
-            var firstOrg = await _context.Organisations.FirstOrDefaultAsync();
-            if (firstOrg == null)
-            {
-                TempData[ControllerExtensions.ErrorMessageKey] = _ctx.Localizer["Error.NoOrganisationAvailable"].Value;
-                return RedirectToAction("Index", "Home");
-            }
-            orgId = firstOrg.Id;
-        }
-
-        var viewModel = new ReconciliationViewModel
-        {
-            UnreconciledTransactions = await _reconciliationService.GetUnreconciledTransactionsAsync(orgId.Value),
-            UnpaidBookings = await _reconciliationService.GetUnpaidBookingsAsync(orgId.Value),
-            Suggestions = await _reconciliationService.GetReconciliationSuggestionsAsync(orgId.Value)
-        };
-
-        // Pour les admins, ajouter la liste des organisations pour pouvoir changer
-        if (_ctx.CurrentUser.IsAdmin)
-        {
-            ViewBag.Organisations = await _context.Organisations.ToListAsync();
-            ViewBag.CurrentOrganisationId = orgId.Value;
-        }
-
-        return View(viewModel);
-    }
-
-    // POST: Financial/ManualReconcile
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> ManualReconcile(ManualReconcileViewModel model)
-    {
-        if (!ModelState.IsValid)
-        {
-            TempData[ControllerExtensions.ErrorMessageKey] = _ctx.Localizer["Error.InvalidData"].Value;
-            return RedirectToAction(nameof(Reconciliation));
-        }
-
-        var success = await _reconciliationService.ManualReconcileAsync(model.TransactionId, model.BookingId);
-
-        if (success)
-        {
-            TempData[ControllerExtensions.SuccessMessageKey] = _ctx.Localizer["Message.TransactionReconciled"].Value;
-        }
-        else
-        {
-            TempData[ControllerExtensions.ErrorMessageKey] = _ctx.Localizer["Error.ReconciliationFailed"].Value;
-        }
-
-        return RedirectToAction(nameof(Reconciliation));
     }
 
     // GET: Financial/TeamSalaries

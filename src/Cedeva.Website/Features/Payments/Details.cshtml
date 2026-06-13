@@ -72,18 +72,11 @@
                             <dd class="col-sm-8"><code>@Model.StructuredCommunication</code></dd>
                         }
 
-                        @if (Model.BankTransactionId.HasValue)
-                        {
-                            <dt class="col-sm-4">@Localizer["Payments.BankTransaction"]:</dt>
-                            <dd class="col-sm-8">
-                                <span class="badge bg-info">@Localizer["Payments.LinkedToCoda"]</span>
-                            </dd>
-                        }
                     </dl>
                 </div>
             </div>
 
-            @if (Model.Status != PaymentStatus.Cancelled && !Model.BankTransactionId.HasValue)
+            @if (Model.Status != PaymentStatus.Cancelled)
             {
                 <div class="card mt-3 border-danger">
                     <div class="card-header bg-danger text-white">

@@ -25,11 +25,6 @@ public class PaymentConfiguration : IEntityTypeConfiguration<Payment>
             .HasForeignKey(p => p.BookingId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        builder.HasOne(p => p.BankTransaction)
-            .WithOne(bt => bt.Payment)
-            .HasForeignKey<Payment>(p => p.BankTransactionId)
-            .OnDelete(DeleteBehavior.Restrict);
-
         builder.HasIndex(p => p.BookingId);
     }
 }

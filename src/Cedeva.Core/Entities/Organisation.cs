@@ -33,6 +33,4 @@ public class Organisation : AuditableEntity
     public ICollection<Parent> Parents { get; set; } = new List<Parent>();
     public ICollection<TeamMember> TeamMembers { get; set; } = new List<TeamMember>();
     public ICollection<CedevaUser> Users { get; set; } = new List<CedevaUser>();
-    public ICollection<CodaFile> CodaFiles { get; set; } = new List<CodaFile>();
-    public ICollection<BankTransaction> BankTransactions { get; set; } = new List<BankTransaction>();
 }

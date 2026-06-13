@@ -36,8 +36,6 @@ public class CedevaDbContext : IdentityDbContext<CedevaUser>, IUnitOfWork
     public DbSet<EmailSent> EmailsSent => Set<EmailSent>();
     public DbSet<EmailTemplate> EmailTemplates => Set<EmailTemplate>();
     public DbSet<Payment> Payments => Set<Payment>();
-    public DbSet<CodaFile> CodaFiles => Set<CodaFile>();
-    public DbSet<BankTransaction> BankTransactions => Set<BankTransaction>();
     public DbSet<ActivityFinancialTransaction> ActivityFinancialTransactions => Set<ActivityFinancialTransaction>();
     public DbSet<Excursion> Excursions => Set<Excursion>();
     public DbSet<ExcursionRegistration> ExcursionRegistrations => Set<ExcursionRegistration>();
@@ -80,18 +78,6 @@ public class CedevaDbContext : IdentityDbContext<CedevaUser>, IUnitOfWork
             .HasQueryFilter(t => _currentUserService == null ||
                                  _currentUserService.IsAdmin ||
                                  t.OrganisationId == _currentUserService.OrganisationId);
-
-        // Filter CODA files by organisation
-        builder.Entity<CodaFile>()
-            .HasQueryFilter(cf => _currentUserService == null ||
-                                  _currentUserService.IsAdmin ||
-                                  cf.OrganisationId == _currentUserService.OrganisationId);
-
-        // Filter bank transactions by organisation
-        builder.Entity<BankTransaction>()
-            .HasQueryFilter(bt => _currentUserService == null ||
-                                  _currentUserService.IsAdmin ||
-                                  bt.OrganisationId == _currentUserService.OrganisationId);
 
         // Filter email templates by organisation
         builder.Entity<EmailTemplate>()
