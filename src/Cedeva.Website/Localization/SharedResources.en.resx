@@ -1318,9 +1318,6 @@
   <data name="Error.CannotCancelBankPayment" xml:space="preserve">
     <value>[EN] Impossible d'annuler un paiement bancaire</value>
   </data>
-  <data name="Error.CodaImportFailed" xml:space="preserve">
-    <value>[EN] Erreur lors de l'import du fichier CODA : {0}</value>
-  </data>
   <data name="Error.InvalidData" xml:space="preserve">
     <value>[EN] Données invalides</value>
   </data>
@@ -1335,9 +1332,6 @@
   </data>
   <data name="Error.PaymentNotFound" xml:space="preserve">
     <value>[EN] Paiement introuvable</value>
-  </data>
-  <data name="Error.ReconciliationFailed" xml:space="preserve">
-    <value>[EN] Échec du rapprochement</value>
   </data>
   <data name="Excel.Active" xml:space="preserve">
     <value>Active</value>
@@ -1627,9 +1621,6 @@
   <data name="Field.City" xml:space="preserve">
     <value>[EN] Ville</value>
   </data>
-  <data name="Field.CodaFile" xml:space="preserve">
-    <value>[EN] Fichier CODA</value>
-  </data>
   <data name="Field.Communication" xml:space="preserve">
     <value>[EN] Communication</value>
   </data>
@@ -1780,9 +1771,6 @@
   <data name="Field.Recipient" xml:space="preserve">
     <value>[EN] Destinataire</value>
   </data>
-  <data name="Field.Reconciled" xml:space="preserve">
-    <value>[EN] Rapproché</value>
-  </data>
   <data name="Field.Reference" xml:space="preserve">
     <value>Reference</value>
   </data>
@@ -1852,9 +1840,6 @@
   <data name="Financial.AllTransactions" xml:space="preserve">
     <value>[EN] Toutes les transactions</value>
   </data>
-  <data name="Financial.AllTransactionsReconciled" xml:space="preserve">
-    <value>[EN] Toutes les transactions rapprochées</value>
-  </data>
   <data name="Financial.AutomaticSuggestions" xml:space="preserve">
     <value>[EN] Suggestions automatiques</value>
   </data>
@@ -1864,35 +1849,17 @@
   <data name="Financial.Balance" xml:space="preserve">
     <value>[EN] Solde</value>
   </data>
-  <data name="Financial.BankReconciliation" xml:space="preserve">
-    <value>[EN] Rapprochement bancaire</value>
-  </data>
-  <data name="Financial.BankTransactions" xml:space="preserve">
-    <value>[EN] Transactions bancaires</value>
-  </data>
   <data name="Financial.BaseSalary" xml:space="preserve">
     <value>[EN] Salaire de base</value>
   </data>
   <data name="Financial.Booking(s)" xml:space="preserve">
     <value>[EN] Réservation(s)</value>
   </data>
-  <data name="Financial.CodaExplanation" xml:space="preserve">
-    <value>[EN] Explication CODA</value>
-  </data>
-  <data name="Financial.CodaFileDetails" xml:space="preserve">
-    <value>[EN] Détails du fichier CODA</value>
-  </data>
-  <data name="Financial.CodaFileHelp" xml:space="preserve">
-    <value>[EN] Importez vos fichiers CODA pour rapprocher automatiquement les paiements</value>
-  </data>
   <data name="Financial.ComprehensiveReport" xml:space="preserve">
     <value>[EN] Rapport complet</value>
   </data>
   <data name="Financial.Confidence" xml:space="preserve">
     <value>[EN] Confiance</value>
-  </data>
-  <data name="Financial.ConfirmReconciliation" xml:space="preserve">
-    <value>[EN] Confirmer le rapprochement</value>
   </data>
   <data name="Financial.Confirmed" xml:space="preserve">
     <value>[EN] confirmée(s)</value>
@@ -1957,12 +1924,6 @@
   <data name="Financial.ImportBankStatements" xml:space="preserve">
     <value>[EN] Importer des relevés bancaires</value>
   </data>
-  <data name="Financial.ImportCoda" xml:space="preserve">
-    <value>[EN] Importer CODA</value>
-  </data>
-  <data name="Financial.ImportCodaDescription" xml:space="preserve">
-    <value>[EN] Importez vos fichiers CODA pour automatiser le rapprochement</value>
-  </data>
   <data name="Financial.ImportFile" xml:space="preserve">
     <value>[EN] Importer un fichier</value>
   </data>
@@ -2005,17 +1966,11 @@
   <data name="Financial.NewBalance" xml:space="preserve">
     <value>[EN] Nouveau solde</value>
   </data>
-  <data name="Financial.NoCodaFilesImported" xml:space="preserve">
-    <value>[EN] Aucun fichier CODA importé</value>
-  </data>
   <data name="Financial.NoTeamMembers" xml:space="preserve">
     <value>[EN] Aucun membre de l'équipe</value>
   </data>
   <data name="Financial.NoTransactions" xml:space="preserve">
     <value>[EN] Aucune transaction</value>
-  </data>
-  <data name="Financial.NotReconciled" xml:space="preserve">
-    <value>[EN] Non rapproché</value>
   </data>
   <data name="Financial.OldBalance" xml:space="preserve">
     <value>[EN] Ancien solde</value>
@@ -2043,15 +1998,6 @@
   </data>
   <data name="Financial.Prestations" xml:space="preserve">
     <value>[EN] Prestations</value>
-  </data>
-  <data name="Financial.Reconciled" xml:space="preserve">
-    <value>[EN] Rapproché</value>
-  </data>
-  <data name="Financial.Reconciliation" xml:space="preserve">
-    <value>[EN] Rapprochement</value>
-  </data>
-  <data name="Financial.ReconciliationSuggestions" xml:space="preserve">
-    <value>[EN] Suggestions de rapprochement</value>
   </data>
   <data name="Financial.Reimbursement(s)" xml:space="preserve">
     <value>[EN] Remboursement(s)</value>
@@ -2146,14 +2092,8 @@
   <data name="Financial.UnreconciledTransactions" xml:space="preserve">
     <value>[EN] Transactions non rapprochées</value>
   </data>
-  <data name="Financial.UploadCodaFile" xml:space="preserve">
-    <value>[EN] Télécharger un fichier CODA</value>
-  </data>
   <data name="Financial.Validate" xml:space="preserve">
     <value>[EN] Valider</value>
-  </data>
-  <data name="Financial.WhatIsCoda" xml:space="preserve">
-    <value>[EN] Qu'est-ce que CODA ?</value>
   </data>
   <data name="FirstName" xml:space="preserve">
     <value>First name</value>
@@ -2377,12 +2317,6 @@
   <data name="Message.ChildUpdated" xml:space="preserve">
     <value>[EN] L'enfant a été modifié avec succès.</value>
   </data>
-  <data name="Message.CodaFileImported" xml:space="preserve">
-    <value>[EN] Fichier CODA importé avec succès ({0} transactions)</value>
-  </data>
-  <data name="Message.CodaFileImportedWithReconciliation" xml:space="preserve">
-    <value>[EN] Fichier CODA importé avec succès ({0} transactions, {1} rapprochées automatiquement)</value>
-  </data>
   <data name="Message.EmailSendError" xml:space="preserve">
     <value>[EN] Erreur lors de l'envoi de l'e-mail</value>
   </data>
@@ -2460,9 +2394,6 @@
   </data>
   <data name="Message.TeamMemberUpdated" xml:space="preserve">
     <value>[EN] Le membre d'équipe a été modifié avec succès.</value>
-  </data>
-  <data name="Message.TransactionReconciled" xml:space="preserve">
-    <value>[EN] Transaction rapprochée avec succès</value>
   </data>
   <data name="Message.UserCreated" xml:space="preserve">
     <value>[EN] L'utilisateur a été créé avec succès.</value>
@@ -2710,9 +2641,6 @@
   <data name="Payments.AlreadyPaid" xml:space="preserve">
     <value>[EN] Déjà payé</value>
   </data>
-  <data name="Payments.BankTransaction" xml:space="preserve">
-    <value>[EN] Transaction bancaire</value>
-  </data>
   <data name="Payments.BookingInformation" xml:space="preserve">
     <value>[EN] Informations de réservation</value>
   </data>
@@ -2742,9 +2670,6 @@
   </data>
   <data name="Payments.ForActivity" xml:space="preserve">
     <value>[EN] Pour l'activité</value>
-  </data>
-  <data name="Payments.LinkedToCoda" xml:space="preserve">
-    <value>[EN] Lié au CODA</value>
   </data>
   <data name="Payments.ManualPaymentWarning" xml:space="preserve">
     <value>[EN] Paiement manuel - soyez prudent</value>
@@ -3355,9 +3280,6 @@
   <data name="Validation.FileSizeExceeded" xml:space="preserve">
     <value>File size exceeds the limit of {0} MB</value>
   </data>
-  <data name="Validation.InvalidCodaFileExtension" xml:space="preserve">
-    <value>[EN] Extension de fichier CODA invalide</value>
-  </data>
   <data name="Validation.InvalidLandlineNumber" xml:space="preserve">
     <value>The Belgian landline phone number format is invalid. E.g.: 02 12 34 56 or 010 20 30 40</value>
   </data>
@@ -3800,5 +3722,11 @@
   </data>
   <data name="Error.InvalidOperation" xml:space="preserve">
     <value>Invalid operation</value>
+  </data>
+  <data name="PublicRegistration.PayOnline" xml:space="preserve">
+    <value>Pay online</value>
+  </data>
+  <data name="PublicRegistration.SecurePayment" xml:space="preserve">
+    <value>Secure payment by card or Bancontact.</value>
   </data>
 </root>
