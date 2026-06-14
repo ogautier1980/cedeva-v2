@@ -18,7 +18,7 @@
                 <div class="card-body">
                     <div class="alert alert-success">
                         <h4 class="alert-heading"><i class="fas fa-check me-2"></i>@Localizer["PublicRegistration.BookingSuccess"]</h4>
-                        <p class="mb-0"@Localizer["PublicRegistration.BookingSuccessMessage"] <strong>@Model.Parent.Email</strong>.</p>
+                        <p class="mb-0">@Localizer["PublicRegistration.BookingSuccessMessage"] <strong>@Model.Parent.Email</strong>.</p>
                     </div>
 
                     <hr class="my-4">
@@ -30,12 +30,12 @@
                             <div class="card h-100 bg-light">
                                 <div class="card-body">
                                     <h5 class="card-title"><i class="fas fa-clipboard-list me-2"></i>@Localizer["PublicRegistration.Activity"]</h5>
-                                    <p class="mb-1"><strong>@Localizer["PublicRegistration.Name"]/strong> @Model.Activity.Name</p>
-                                    <p class="mb-1"><strong>@Localizer["PublicRegistration.From"]/strong> @Model.Activity.StartDate.ToString("dd/MM/yyyy")</p>
-                                    <p class="mb-1"><strong>@Localizer["PublicRegistration.To"]/strong> @Model.Activity.EndDate.ToString("dd/MM/yyyy")</p>
+                                    <p class="mb-1"><strong>@Localizer["PublicRegistration.Name"]</strong> @Model.Activity.Name</p>
+                                    <p class="mb-1"><strong>@Localizer["PublicRegistration.From"]</strong> @Model.Activity.StartDate.ToString("dd/MM/yyyy")</p>
+                                    <p class="mb-1"><strong>@Localizer["PublicRegistration.To"]</strong> @Model.Activity.EndDate.ToString("dd/MM/yyyy")</p>
                                     @if (Model.Activity.PricePerDay.HasValue)
                                     {
-                                        <p class="mb-0"><strong>@Localizer["PublicRegistration.PricePerDay"]/strong> @Model.Activity.PricePerDay.Value.ToString("C")</p>
+                                        <p class="mb-0"><strong>@Localizer["PublicRegistration.PricePerDay"]</strong> @Model.Activity.PricePerDay.Value.ToString("C")</p>
                                     }
                                 </div>
                             </div>
@@ -45,9 +45,9 @@
                             <div class="card h-100 bg-light">
                                 <div class="card-body">
                                     <h5 class="card-title"><i class="fas fa-child me-2"></i>@Localizer["PublicRegistration.Child"]</h5>
-                                    <p class="mb-1"><strong>@Localizer["PublicRegistration.Name"]/strong> @Model.Child.FirstName @Model.Child.LastName</p>
-                                    <p class="mb-1"><strong>@Localizer["PublicRegistration.BirthDate"]/strong> @Model.Child.BirthDate.ToString("dd/MM/yyyy")</p>
-                                    <p class="mb-0"><strong>@Localizer["PublicRegistration.Age"]/strong> @(DateTime.Today.Year - Model.Child.BirthDate.Year - (DateTime.Today.DayOfYear < Model.Child.BirthDate.DayOfYear ? 1 : 0)) @Localizer["PublicRegistration.Years"]/p>
+                                    <p class="mb-1"><strong>@Localizer["PublicRegistration.Name"]</strong> @Model.Child.FirstName @Model.Child.LastName</p>
+                                    <p class="mb-1"><strong>@Localizer["PublicRegistration.BirthDate"]</strong> @Model.Child.BirthDate.ToString("dd/MM/yyyy")</p>
+                                    <p class="mb-0"><strong>@Localizer["PublicRegistration.Age"]</strong> @(DateTime.Today.Year - Model.Child.BirthDate.Year - (DateTime.Today.DayOfYear < Model.Child.BirthDate.DayOfYear ? 1 : 0)) @Localizer["PublicRegistration.Years"]</p>
                                 </div>
                             </div>
                         </div>
@@ -56,9 +56,9 @@
                             <div class="card bg-light">
                                 <div class="card-body">
                                     <h5 class="card-title"><i class="fas fa-user-circle me-2"></i>@Localizer["PublicRegistration.Parent"]</h5>
-                                    <p class="mb-1"><strong>@Localizer["PublicRegistration.Name"]/strong> @Model.Parent.FirstName @Model.Parent.LastName</p>
+                                    <p class="mb-1"><strong>@Localizer["PublicRegistration.Name"]</strong> @Model.Parent.FirstName @Model.Parent.LastName</p>
                                     <p class="mb-1"><strong>Email:</strong> @Model.Parent.Email</p>
-                                    <p class="mb-0"><strong>@Localizer["PublicRegistration.Mobile"]/strong> @Model.Parent.MobilePhoneNumber</p>
+                                    <p class="mb-0"><strong>@Localizer["PublicRegistration.Mobile"]</strong> @Model.Parent.MobilePhoneNumber</p>
                                 </div>
                             </div>
                         </div>

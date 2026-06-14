@@ -328,13 +328,19 @@ public class PublicRegistrationController : Controller
             .Where(d => d.ActivityId == activityId && d.IsActive)
             .ToListAsync();
 
+        var activity = await _context.Activities
+            .IgnoreQueryFilters()
+            .FirstOrDefaultAsync(a => a.Id == activityId);
+
         var booking = new Booking
         {
             ActivityId = activityId,
             ChildId = childId,
             BookingDate = DateTime.Now,
             IsConfirmed = false,
-            IsMedicalSheet = false
+            IsMedicalSheet = false,
+            // Amount due = price per day × reserved days, so online payment can be offered.
+            TotalAmount = (activity?.PricePerDay ?? 0m) * activeDays.Count
         };
         _context.Bookings.Add(booking);
         await _context.SaveChangesAsync();
@@ -667,17 +673,41 @@ public class PublicRegistrationController : Controller
 
     private async Task<int> CreateBookingWithAnswersAsync(SimpleRegistrationViewModel model, int childId)
     {
+        // Anonymous flow: bypass the tenancy filter to read the activity's price.
+        var activity = await _context.Activities
+            .IgnoreQueryFilters()
+            .FirstOrDefaultAsync(a => a.Id == model.ActivityId);
+
+        // The simple iframe registers the child for the whole activity (all active days).
+        var activeDays = await _context.ActivityDays
+            .Where(d => d.ActivityId == model.ActivityId && d.IsActive)
+            .ToListAsync();
+
         var booking = new Booking
         {
             ActivityId = model.ActivityId,
             ChildId = childId,
             BookingDate = DateTime.Now,
             IsConfirmed = false,
-            IsMedicalSheet = false
+            IsMedicalSheet = false,
+            // Compute the amount due so the public confirmation page can offer online payment.
+            TotalAmount = (activity?.PricePerDay ?? 0m) * activeDays.Count
         };
 
         _context.Bookings.Add(booking);
         await _context.SaveChangesAsync();
+
+        // Reserve the activity's active days for this booking (presence tracking + amount basis).
+        foreach (var day in activeDays)
+        {
+            _context.BookingDays.Add(new BookingDay
+            {
+                BookingId = booking.Id,
+                ActivityDayId = day.DayId,
+                IsReserved = true,
+                IsPresent = false
+            });
+        }
 
         // Save question answers
         foreach (var answer in model.QuestionAnswers.Where(a => !string.IsNullOrWhiteSpace(a.Value)))
