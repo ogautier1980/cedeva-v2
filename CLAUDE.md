@@ -16,9 +16,9 @@ Guide for Claude Code when working with the Cedeva codebase.
 
 ## Project Overview
 
-**Cedeva** — ASP.NET Core MVC (.NET 9) for managing children's vacation activity centers in Belgium. Multi-tenant SaaS (organisations scope all data). Full spec: [README.md](README.md).
+**Cedeva** — ASP.NET Core MVC (.NET 10) for managing children's vacation activity centers in Belgium. Multi-tenant SaaS (organisations scope all data). Full spec: [README.md](README.md).
 
-**Stack:** .NET 9 · SQL Server 2022 · EF Core 9 · ASP.NET Identity · Bootstrap 5 · Docker · Brevo email · ClosedXML · Azure Blob Storage
+**Stack:** .NET 10 · SQL Server 2022 · EF Core 10 · ASP.NET Identity · Bootstrap 5 · Docker · Brevo email · Stripe payments · ClosedXML · Azure Blob Storage
 
 ## Quick Reference
 
@@ -150,7 +150,7 @@ src/
 - Clean URLs (route parameters vs query strings)
 
 ## Testing (June 2026)
-- **~1130 tests, ≈89% line coverage** (branch ≈76%, method ≈95%); CI coverage gate at 85%.
+- **~1133 unit/integration tests** (+ 47 E2E browser, 8 skipped; + 3 SQL Server), **≈89% line coverage** (branch ≈76%, method ≈95%); CI coverage gate at 85%.
 - 5 levels across 3 projects: `Cedeva.Tests` (unit + service-integration SQLite + controller
   WebApplicationFactory), `Cedeva.Tests.Sql` (real SQL Server via Testcontainers), `Cedeva.Tests.E2E`
   (Playwright + Chromium). E2E and SQL run in dedicated CI workflows that do **not** gate deploy.

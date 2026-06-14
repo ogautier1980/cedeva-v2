@@ -23,10 +23,11 @@ dotnet run --project src/Cedeva.Website                       # Run (auto-seeds 
 
 | Component | Technology |
 |-----------|-----------|
-| Backend | ASP.NET Core MVC (.NET 9) |
+| Backend | ASP.NET Core MVC (.NET 10) |
 | Database | SQL Server 2022 (Docker) |
-| ORM | Entity Framework Core 9 |
+| ORM | Entity Framework Core 10 |
 | Email | Brevo SDK (C#) + HttpClientFactory |
+| Online payments | Stripe Checkout via provider-agnostic `IPaymentGateway` |
 | Excel | ClosedXML |
 | File Storage | Azure Blob Storage (Production) / Local (Development) |
 | DI Container | Autofac |
@@ -68,7 +69,7 @@ src/
 │   └── Enums/                 # All enumerations
 └── Cedeva.Infrastructure/     # Infrastructure layer
     ├── Data/                  # DbContext, migrations, seeder
-    ├── Services/              # Email, Excel, PDF, storage, CODA, reconciliation
+    ├── Services/              # Email, Excel, PDF, storage, Stripe payments
     └── Repositories/          # Generic repository + unit of work
 ```
 
@@ -93,7 +94,7 @@ src/
 | **Status** | Compensated (0), Volunteer (1) |
 | **QuestionType** | Text (0), Checkbox (1), Radio (2), Dropdown (3) |
 | **EmailRecipient** | AllParents (0), ActivityGroup (1), MedicalSheetReminder (2) |
-| **PaymentMethod** | BankTransfer (0), Cash (1), Other (2) |
+| **PaymentMethod** | BankTransfer (0), Cash (1), Other (2), Online (3) |
 | **PaymentStatus** | NotPaid (0), PartiallyPaid (1), Paid (2), Overpaid (3), Cancelled (4) |
 | **ExpenseType** | Reimbursement (0), PersonalConsumption (1) |
 | **TransactionType** | Income (0), Expense (1) |
@@ -278,43 +279,12 @@ Individual payment record for a booking.
 | PaymentDate | DateTime | |
 | PaymentMethod | PaymentMethod | BankTransfer / Cash / Other |
 | Status | PaymentStatus | |
-| StructuredCommunication | string? | For CODA matching |
-| Reference | string? | Free-text reference |
-| BankTransactionId | int? | FK → BankTransaction (set after CODA reconciliation) |
+| StructuredCommunication | string? | Belgian structured communication (payment reference) |
+| Reference | string? | Provider/free-text reference (e.g. Stripe session id for online payments) |
 | CreatedByUserId | int? | User who registered manual payment |
 
-### CodaFile
-Imported Belgian bank statement (CODA format).
-
-| Field | Type | Notes |
-|-------|------|-------|
-| Id | int | PK |
-| OrganisationId | int | FK → Organisation |
-| FileName | string | Original file name |
-| ImportDate | DateTime | When imported |
-| StatementDate | DateTime | Bank statement date |
-| AccountNumber | string | Organisation's bank account |
-| OldBalance / NewBalance | decimal | Statement balances |
-| TransactionCount | int | Number of transactions |
-| ImportedByUserId | int | User who imported |
-| Transactions | ICollection\<BankTransaction> | |
-
-### BankTransaction
-Single transaction from a CODA import. Reconciled against Payments.
-
-| Field | Type | Notes |
-|-------|------|-------|
-| Id | int | PK |
-| OrganisationId | int | FK → Organisation |
-| TransactionDate / ValueDate | DateTime | |
-| Amount | decimal | Negative for debits |
-| StructuredCommunication | string? | Used for auto-matching |
-| FreeCommunication | string? | |
-| CounterpartyName / CounterpartyAccount | string? | |
-| TransactionCode | string | CODA code (e.g. "05" = virement) |
-| CodaFileId | int | FK → CodaFile |
-| IsReconciled | bool | |
-| PaymentId | int? | FK → Payment (after reconciliation) |
+> **Note:** CODA bank-statement import and reconciliation (`CodaFile`, `BankTransaction`) were
+> **removed** and replaced by online payments (Stripe) — see [docs/adr/0010](docs/adr/0010-online-payments-provider-agnostic-stripe.md).
 
 ### Expense
 Financial expense linked to an activity. Two categories: team-member expenses and organisation expenses.
@@ -448,7 +418,7 @@ Organisation (1) ──┬── (*) Activity ──┬── (*) ActivityDay �
                    │                  ├── (*) ActivityQuestion ── (*) ActivityQuestionAnswer
                    │                  │
                    │                  ├── (*) Booking ──┬── (*) BookingDay
-                   │                  │                 ├── (*) Payment ── (0..1) BankTransaction
+                   │                  │                 ├── (*) Payment
                    │                  │                 └── (1) Child
                    │                  │
                    │                  └── (*) Expense
@@ -457,8 +427,6 @@ Organisation (1) ──┬── (*) Activity ──┬── (*) ActivityDay �
                    │
                    ├── (*) TeamMember ── (*) Expense
                    │                  └── (*) Activity  (many-to-many)
-                   │
-                   ├── (*) CodaFile ── (*) BankTransaction
                    │
                    ├── (*) EmailTemplate
                    │
@@ -511,10 +479,16 @@ Linked to an Activity; a coordinator can create excursions after the activity ha
 
 ### Financial Module
 - Unified transaction view (payments + expenses, colour-coded)
-- CODA import + automatic reconciliation by structured communication
-- Manual cash payment workflow
+- Manual payment workflow (bank transfer / cash / other)
 - Team salary calculation: prestations + reimbursements − personal consumptions
 - Excel export for salaries and financial reports
+
+### Online Payments (Stripe)
+Provider-agnostic online payment, behind `IPaymentGateway` (so the provider can be swapped):
+- **Checkout** — `OnlinePaymentController` (anonymous) redirects to Stripe Checkout (hosted page) for the booking's remaining due amount; a "Pay online" button appears on the public confirmation page when `TotalAmount − PaidAmount > 0`.
+- **Webhook** — a signed Stripe webhook applies the paid event to the booking (records a `Payment(Online)`, updates `PaidAmount`/`PaymentStatus`), idempotent on the provider reference.
+- **Config** — `Stripe:SecretKey` / `Stripe:WebhookSecret` (Azure `Stripe__*`), never committed.
+- See [docs/adr/0010](docs/adr/0010-online-payments-provider-agnostic-stripe.md).
 
 ### Presence Management
 Daily attendance at `/Presence`:
@@ -566,12 +540,28 @@ Auto-runs on startup. Seeds per organisation:
 - 4 activities with days, groups, questions
 - ~47 bookings with structured communication + payment status distribution
 - 28 payments (BankTransfer + Cash) with correct PaidAmount
-- 1 CODA file with 15–19 bank transactions in 4 states: reconciled, matchable, unmatched credits, unmatched debits
 - 20 expenses per org (reimbursements, personal consumptions, org card/cash)
 - 4 email templates (BookingConfirmation, PaymentReminder, MedicalSheetReminder, Custom)
 
 ### Multi-Tenancy
 Global query filters on all tenant-scoped entities. Admin bypasses via `IgnoreQueryFilters()`. Seeder always uses `IgnoreQueryFilters()`.
+
+---
+
+## Testing
+
+~1133 unit/integration tests (≈89% line coverage; CI gate 85%) plus 47 browser E2E (Playwright)
+and 3 SQL Server (Testcontainers) tests, across 3 projects:
+
+```bash
+dotnet test tests/Cedeva.Tests       # unit + service-integration (SQLite) + controller (WebApplicationFactory)
+dotnet test tests/Cedeva.Tests.Sql   # real SQL Server via Testcontainers (Docker) — collation/translation fidelity
+dotnet test tests/Cedeva.Tests.E2E   # Playwright + Chromium (run playwright.ps1 install chromium first)
+```
+
+`tests/Cedeva.Tests` + a coverage gate run in the deploy workflow (a red suite or coverage < 85%
+blocks deploy). E2E and SQL run in dedicated CI workflows that do **not** gate deploy. Full guide:
+[docs/test-strategy.md](docs/test-strategy.md).
 
 ---
 
@@ -594,4 +584,4 @@ _camelCase:  Private fields
 ```
 
 ### Belgian Structured Communication
-Format: `+++XXX/XXXX/XXXXX+++` — 10-digit number, last 2 digits = mod-97 checksum of first 8. Used for CODA bank reconciliation.
+Format: `+++XXX/XXXX/XXXXX+++` — 10-digit number, last 2 digits = mod-97 checksum of first 8. Used as the payment reference on Belgian bank transfers.

@@ -99,7 +99,7 @@ sequenceDiagram
 ## 4. Patterns transverses
 
 - **Multi-tenancy** : filtres de requête globaux EF Core sur `OrganisationId` (`Activity`, `Parent`,
-  `Child`, `TeamMember`, `CodaFile`, `BankTransaction`, `EmailTemplate`). L'admin contourne ;
+  `Child`, `TeamMember`, `EmailTemplate`). L'admin contourne ;
   `IgnoreQueryFilters()` pour les cas explicites. Voir [ADR 0003](adr/0003-multi-tenancy-via-ef-global-query-filters.md).
 - **Repository + Unit of Work** génériques (`IRepository<T>`, `IUnitOfWork`) coexistant avec un
   accès direct au `DbContext` dans certains controllers. Voir [ADR 0005](adr/0005-repository-and-direct-dbcontext.md).

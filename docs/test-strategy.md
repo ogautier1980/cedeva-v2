@@ -1,8 +1,9 @@
 # Stratégie de test
 
-Cedeva compte **~1130 tests** répartis sur **5 niveaux**, exécutés par **3 projets de test** et
-**3 workflows CI**. Couverture lignes ≈ **89 %** (branches ≈ 76 %, méthodes ≈ 95 %), avec un **gate
-CI à 85 %** qui bloque le déploiement en cas de régression. Ce document décrit ce que couvre chaque
+Cedeva compte **~1133 tests** unit/intégration (+ **47** E2E navigateur, dont 8 `[Skip]`, et **3**
+SQL Server) répartis sur **5 niveaux**, exécutés par **3 projets de test** et **3 workflows CI**.
+Couverture lignes ≈ **89 %** (branches ≈ 76 %, méthodes ≈ 95 %), avec un **gate CI à 85 %** qui
+bloque le déploiement en cas de régression. Ce document décrit ce que couvre chaque
 niveau, l'infrastructure, les conventions et les pièges appris — pour maintenir la discipline quand
 de nouvelles fonctionnalités arrivent.
 
@@ -146,8 +147,13 @@ La montée en couverture a fait émerger plusieurs anomalies, toutes corrigées 
 - Iframe d'inscription en 404 pour les visiteurs anonymes (filtre tenant sur le flux public).
 - Export Bookings (Excel/PDF) en 500 (repository en mémoire + `ToListAsync`).
 - Fuites multi-tenant (Bookings `Details/Edit/Delete`, `ActivityManagement` stats).
-- `TeamMembers` `DeleteLicense` en 500 (colonne `LicenseUrl` requise mise à `null`).
+- `TeamMembers` `DeleteLicense` en 500 (colonne `LicenseUrl` requise mise à `null`) ; et création
+  d'un membre sans licence en 500 (`LicenseUrl` désormais par défaut `""`).
 - FK `Expense → Activity` en `SET NULL` sur colonne non-nullable.
+- Page de confirmation publique : balises `</strong>`/`</p>` malformées (rendues en texte).
+- Paiement en ligne jamais proposé : la réservation publique avait `TotalAmount = 0` (jamais calculé)
+  → bouton « Payer » masqué ; le total = prix/jour × jours est maintenant calculé.
+- Validation téléphone de l'iframe refusant les séparateurs (`[Phone]` → regex belge tolérante).
 
 ## Hors périmètre / exclusions
 - **CODA & rapprochement bancaire** : fonctionnalité **supprimée** (remplacée par le paiement en
