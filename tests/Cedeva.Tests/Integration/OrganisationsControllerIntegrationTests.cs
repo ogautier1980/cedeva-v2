@@ -21,7 +21,9 @@ public class OrganisationsControllerIntegrationTests
         string description = "Description suffisamment longue",
         string street = "Rue de la Loi",
         string city = "Bruxelles",
-        string postalCode = "1000")
+        string postalCode = "1000",
+        string bankAccountNumber = "BE68 5390 0754 7034",
+        string bankAccountName = "Cedeva ASBL")
     {
         var fields = new Dictionary<string, string>
         {
@@ -30,7 +32,9 @@ public class OrganisationsControllerIntegrationTests
             ["Street"] = street,
             ["City"] = city,
             ["PostalCode"] = postalCode,
-            ["Country"] = "Belgium"
+            ["Country"] = "Belgium",
+            ["BankAccountNumber"] = bankAccountNumber,
+            ["BankAccountName"] = bankAccountName
         };
         if (id != null) fields["Id"] = id;
         return new FormUrlEncodedContent(fields);
@@ -190,6 +194,34 @@ public class OrganisationsControllerIntegrationTests
         var created = db.Organisations.SingleOrDefault(o => o.Name == "Org Créée");
         created.Should().NotBeNull();
         created!.Description.Should().Be("Une description bien assez longue");
+        created.BankAccountNumber.Should().Be("BE68 5390 0754 7034"); // bank fields are persisted
+        created.BankAccountName.Should().Be("Cedeva ASBL");
+    }
+
+    [Fact]
+    public async Task Edit_Post_UpdatesBankFields()
+    {
+        using var factory = new CedevaWebApplicationFactory();
+        var org = factory.Seed(ctx =>
+        {
+            var o = TestData.Organisation("Org Bank Edit");
+            o.BankAccountNumber = "BE00 0000 0000 0000";
+            o.BankAccountName = "Old name";
+            ctx.Add(o);
+            return o;
+        });
+
+        var response = await AdminClient(factory).PostAsync(
+            $"/Organisations/Edit/{org.Id}",
+            ValidForm(id: org.Id.ToString(), name: "Org Bank Edit",
+                bankAccountNumber: "BE71 0961 2345 6769", bankAccountName: "New name"));
+
+        response.StatusCode.Should().Be(HttpStatusCode.Found);
+
+        using var db = factory.NewDbContext();
+        var updated = db.Organisations.Single(o => o.Id == org.Id);
+        updated.BankAccountNumber.Should().Be("BE71 0961 2345 6769");
+        updated.BankAccountName.Should().Be("New name");
     }
 
     [Fact]

@@ -175,6 +175,8 @@ public class OrganisationsController : Controller
             Name = organisation.Name,
             Description = organisation.Description,
             LogoUrl = organisation.LogoUrl,
+            BankAccountNumber = organisation.BankAccountNumber,
+            BankAccountName = organisation.BankAccountName,
             Street = address?.Street ?? "",
             City = address?.City ?? "",
             PostalCode = address?.PostalCode ?? "",
@@ -227,6 +229,8 @@ public class OrganisationsController : Controller
             {
                 Name = viewModel.Name,
                 Description = viewModel.Description,
+                BankAccountNumber = viewModel.BankAccountNumber,
+                BankAccountName = viewModel.BankAccountName,
                 AddressId = address.Id
             };
 
@@ -260,6 +264,8 @@ public class OrganisationsController : Controller
             Name = organisation.Name,
             Description = organisation.Description,
             LogoUrl = organisation.LogoUrl,
+            BankAccountNumber = organisation.BankAccountNumber,
+            BankAccountName = organisation.BankAccountName,
             Street = address?.Street ?? "",
             City = address?.City ?? "",
             PostalCode = address?.PostalCode ?? "",
@@ -296,6 +302,8 @@ public class OrganisationsController : Controller
 
             organisation.Name = viewModel.Name;
             organisation.Description = viewModel.Description;
+            organisation.BankAccountNumber = viewModel.BankAccountNumber;
+            organisation.BankAccountName = viewModel.BankAccountName;
 
             await HandleLogoRemoval(organisation, viewModel.RemoveLogo);
             await HandleLogoUpload(organisation, viewModel.LogoFile);
@@ -514,6 +522,8 @@ public class OrganisationsController : Controller
             Name = organisation.Name,
             Description = organisation.Description,
             LogoUrl = organisation.LogoUrl,
+            BankAccountNumber = organisation.BankAccountNumber,
+            BankAccountName = organisation.BankAccountName,
             Street = address?.Street ?? "",
             City = address?.City ?? "",
             PostalCode = address?.PostalCode ?? "",

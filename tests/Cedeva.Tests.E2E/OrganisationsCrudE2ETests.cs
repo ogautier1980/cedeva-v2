@@ -8,11 +8,7 @@ namespace Cedeva.Tests.E2E;
 /// Razor forms with Chromium and asserts persisted state via a fresh DbContext (IgnoreQueryFilters
 /// because this scope carries no organisation). Every test uses a unique name to stay isolated
 /// inside the shared sequential E2E collection.
-///
-/// Note: the OrganisationsController Create/Edit POST only persists Name, Description and the
-/// Address — it never copies BankAccountNumber/BankAccountName onto the entity. The forms are
-/// filled with those fields (they exist in the view) but persistence is asserted only on the
-/// fields the controller actually saves.
+/// Create/Edit persist Name, Description, Address and the bank fields (BankAccountNumber/Name).
 /// </summary>
 [Collection("E2E")]
 public class OrganisationsCrudE2ETests
@@ -79,6 +75,8 @@ public class OrganisationsCrudE2ETests
 
         saved.Should().NotBeNull();
         saved!.Description.Should().Be(description);
+        saved.BankAccountNumber.Should().Be("BE68539007547034");
+        saved.BankAccountName.Should().Be(name);
         saved.Address.Should().NotBeNull();
         saved.Address.Street.Should().Be("Rue de Test 10");
         saved.Address.PostalCode.Should().Be("1000");
