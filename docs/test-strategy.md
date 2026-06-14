@@ -83,7 +83,14 @@ dédiés qui **ne bloquent pas** le déploiement.
   que `UseHttpsRedirection` devienne un no-op) avec SQLite, pilotée par **Chromium headless**.
   `TestAuthHandler` par header permet d'exercer les pages admin tout en gardant le flux public anonyme.
 - **Exemples :** chargement de l'iframe d'inscription (jQuery chargé, aucune violation CSP),
-  inscription complète anonyme → page de confirmation, rejet d'un NRN invalide, autocomplétion adresse.
+  inscription complète anonyme → page de confirmation, rejet d'un NRN invalide, autocomplétion adresse,
+  et les **parcours CRUD admin** authentifiés (Activités, Organisations, Parents, Enfants, Membres
+  d'équipe, Utilisateurs, modèles d'email, Excursions, affectation d'équipe).
+- **Helpers/pièges spécifiques E2E :** sélecteur de submit `:not(.btn-link):not(.dropdown-item)` (le
+  layout admin a ses propres boutons submit langue/déconnexion) ; `SelectChoicesAsync` pilote les
+  selects Choices.js par le widget (le `<select>` natif est masqué) ; saisie décimale au format fr
+  (virgule). Quelques sous-flux navigateur fragiles (éditeur Summernote, modale de suppression,
+  soumission booking via AJAX) sont en `[Fact(Skip=…)]` — leur CRUD est couvert au niveau intégration.
 - ⚠️ Installer les navigateurs : `pwsh tests/Cedeva.Tests.E2E/bin/<cfg>/net10.0/playwright.ps1 install chromium`
   (sous Windows sans `pwsh`, utiliser Windows PowerShell : `powershell -File ...`).
 
