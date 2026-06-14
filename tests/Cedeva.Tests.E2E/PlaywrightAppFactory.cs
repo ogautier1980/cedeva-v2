@@ -133,6 +133,25 @@ public sealed class PlaywrightAppFactory : WebApplicationFactory<Program>
         ActivityId = activity.Id;
     }
 
+    /// <summary>Seeds arbitrary prerequisite data (shared DB). Use unique names per test to avoid
+    /// interference. Returns the seeder's result with DB-assigned ids.</summary>
+    public T Seed<T>(Func<CedevaDbContext, T> seed)
+    {
+        using var scope = Services.CreateScope();
+        var ctx = scope.ServiceProvider.GetRequiredService<CedevaDbContext>();
+        ctx.Database.EnsureCreated();
+        var result = seed(ctx);
+        ctx.SaveChanges();
+        return result;
+    }
+
+    /// <summary>Fresh DbContext (admin/no-user scope) for asserting persisted state.</summary>
+    public CedevaDbContext NewDbContext()
+    {
+        var scope = Services.CreateScope();
+        return scope.ServiceProvider.GetRequiredService<CedevaDbContext>();
+    }
+
     protected override void Dispose(bool disposing)
     {
         base.Dispose(disposing);

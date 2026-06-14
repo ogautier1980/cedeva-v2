@@ -112,3 +112,6 @@ coverage.cobertura.xml
 # Coverage artifacts
 coverage/
 *.cobertura.xml
+
+# stray verify build outputs
+bin_verify/
