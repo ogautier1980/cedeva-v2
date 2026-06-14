@@ -46,8 +46,10 @@ public class TeamMember : AuditableEntity
 
     public decimal? DailyCompensation { get; set; }
 
+    // Required column (NOT NULL); defaults to empty so a member can be created without a license
+    // file. Set to the uploaded file path on upload, reset to "" on removal.
     [StringLength(255)]
-    public string? LicenseUrl { get; set; }
+    public string LicenseUrl { get; set; } = string.Empty;
 
     public int OrganisationId { get; set; }
     public Organisation Organisation { get; set; } = null!;

@@ -200,15 +200,11 @@ public class TeamMembersControllerIntegrationTests
 
     // ---------------- Create (POST) ----------------
 
-    // NOTE on the Create happy path:
-    // The persisted TeamMembers.LicenseUrl column is configured IsRequired() (NOT NULL) in
-    // TeamMemberConfiguration, yet TeamMembersController.CreateTeamMemberFromViewModel saves the
-    // new TeamMember (line 323) with LicenseUrl still null — BEFORE any license file is uploaded.
-    // Under the real EF schema this violates the NOT NULL constraint, so a model-valid Create
-    // surfaces as a 500 and nothing is persisted. The test asserts that genuine behaviour rather
-    // than a 302 the controller cannot actually produce in this configuration.
+    // Create happy path: a member can be created WITHOUT uploading a license file. LicenseUrl is a
+    // required (NOT NULL) column; the entity now defaults it to "" so the save succeeds (previously
+    // it saved null and 500'd). A valid model redirects and persists with an empty LicenseUrl.
     [Fact]
-    public async Task Create_ValidModel_FailsToPersist_DueToRequiredLicenseUrlColumn()
+    public async Task Create_ValidModel_RedirectsAndPersistsWithEmptyLicenseUrl()
     {
         using var factory = new CedevaWebApplicationFactory();
         Organisation org = null!;
@@ -223,12 +219,13 @@ public class TeamMembersControllerIntegrationTests
         var response = await client.PostAsync("/TeamMembers/Create",
             new FormUrlEncodedContent(ValidCreateForm(org.Id)));
 
-        response.StatusCode.Should().Be(HttpStatusCode.InternalServerError);
+        response.StatusCode.Should().Be(HttpStatusCode.Redirect);
 
         await using var db = factory.NewDbContext();
-        var exists = await db.TeamMembers.IgnoreQueryFilters()
-            .AnyAsync(t => t.Email == "nouvelle.recrue@test.be");
-        exists.Should().BeFalse();
+        var created = await db.TeamMembers.IgnoreQueryFilters()
+            .FirstOrDefaultAsync(t => t.Email == "nouvelle.recrue@test.be");
+        created.Should().NotBeNull();
+        created!.LicenseUrl.Should().BeEmpty();
     }
 
     [Fact]
