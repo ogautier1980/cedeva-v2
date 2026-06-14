@@ -3241,6 +3241,9 @@
   <data name="Validation.InvalidMobileNumber" xml:space="preserve">
     <value>Le format du numéro de téléphone mobile belge est invalide. Ex: 0478 12 34 56</value>
   </data>
+  <data name="Validation.InvalidPhoneNumber" xml:space="preserve">
+    <value>Numéro de téléphone invalide. Ex: 02/123.45.67 ou 0478/12.34.56</value>
+  </data>
   <data name="Validation.NRNFormat" xml:space="preserve">
     <value>Format du numéro de registre national invalide</value>
   </data>

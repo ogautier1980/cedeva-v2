@@ -30,12 +30,14 @@ public class SimpleRegistrationViewModel
     public string ParentEmail { get; set; } = string.Empty;
 
     [Required(ErrorMessage = "Validation.Required")]
-    [Phone]
+    // Belgian landline or mobile, allowing common separators (space . / -) and +32/0032 prefix.
+    [RegularExpression(@"^((\+32|0032)[\s./-]?|0)[\s./-]?\d([\s./-]?\d){7,8}$", ErrorMessage = "Validation.InvalidPhoneNumber")]
     [Display(Name = "Field.PhoneNumber")]
     [StringLength(20, ErrorMessage = "Validation.StringLength")]
     public string ParentPhoneNumber { get; set; } = string.Empty;
 
     [Display(Name = "Field.MobilePhoneNumber")]
+    [RegularExpression(@"^((\+32|0032)[\s./-]?|0)[\s./-]?\d([\s./-]?\d){7,8}$", ErrorMessage = "Validation.InvalidPhoneNumber")]
     [StringLength(20, ErrorMessage = "Validation.StringLength")]
     public string? ParentMobilePhoneNumber { get; set; }
 

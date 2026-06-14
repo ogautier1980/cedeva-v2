@@ -3286,6 +3286,9 @@
   <data name="Validation.InvalidMobileNumber" xml:space="preserve">
     <value>The Belgian mobile phone number format is invalid. E.g.: 0478 12 34 56</value>
   </data>
+  <data name="Validation.InvalidPhoneNumber" xml:space="preserve">
+    <value>Invalid phone number. E.g.: 02/123.45.67 or 0478/12.34.56</value>
+  </data>
   <data name="Validation.NRNFormat" xml:space="preserve">
     <value>[EN] Format du numéro de registre national invalide</value>
   </data>
