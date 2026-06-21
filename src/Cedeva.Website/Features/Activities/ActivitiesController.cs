@@ -439,6 +439,109 @@ public class ActivitiesController : Controller
         return this.RedirectToReturnUrlOrAction(returnUrl, nameof(Index));
     }
 
+    /// <summary>
+    /// AJAX day-range editor used on the Edit page: extend the range by one day before/after, or
+    /// shrink it by deactivating the edge day. Shrinking a day that still has reserved bookings
+    /// requires <paramref name="confirmed"/>=true; on confirmation those BookingDays are removed and
+    /// each affected booking's total is decremented by one PricePerDay (excursion costs preserved).
+    /// Returns the new range + day list as JSON so the page can update live.
+    /// </summary>
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> AdjustActivityDays(int id, string edge, string op, bool confirmed = false)
+    {
+        var activity = await _context.Activities
+            .Include(a => a.Days)
+            .FirstOrDefaultAsync(a => a.Id == id);
+
+        if (activity == null)
+            return NotFound();
+
+        edge = (edge ?? string.Empty).ToLowerInvariant();
+        op = (op ?? string.Empty).ToLowerInvariant();
+        if (edge is not ("start" or "end") || op is not ("extend" or "shrink"))
+            return BadRequest();
+
+        var culture = new System.Globalization.CultureInfo(CultureFrBe);
+
+        if (op == "extend")
+        {
+            var newDate = edge == "start" ? activity.StartDate.AddDays(-1) : activity.EndDate.AddDays(1);
+            var existing = activity.Days.FirstOrDefault(d => d.DayDate.Date == newDate.Date);
+            if (existing != null)
+            {
+                existing.IsActive = true;
+            }
+            else
+            {
+                activity.Days.Add(new ActivityDay
+                {
+                    Label = newDate.ToString(DateFormatFull, culture),
+                    DayDate = newDate,
+                    IsActive = true,
+                    Week = 0
+                });
+            }
+
+            if (edge == "start") activity.StartDate = newDate; else activity.EndDate = newDate;
+        }
+        else // shrink
+        {
+            var activeDays = activity.Days.Where(d => d.IsActive).OrderBy(d => d.DayDate).ToList();
+            if (activeDays.Count <= 1)
+                return Json(new { success = false, message = _localizer["Activities.CannotRemoveLastDay"].Value });
+
+            var edgeDay = edge == "start" ? activeDays[0] : activeDays[^1];
+
+            var reservedCount = await _context.BookingDays
+                .CountAsync(bd => bd.ActivityDayId == edgeDay.DayId && bd.IsReserved);
+            if (reservedCount > 0 && !confirmed)
+                return Json(new { needsConfirmation = true, reservedCount, label = edgeDay.Label });
+
+            // Remove the day from any bookings and decrement their total by one PricePerDay each
+            // (decrement, not full recompute, so excursion costs added to the total are preserved).
+            var price = activity.PricePerDay ?? 0m;
+            var bookingDays = await _context.BookingDays
+                .Include(bd => bd.Booking)
+                .Where(bd => bd.ActivityDayId == edgeDay.DayId)
+                .ToListAsync();
+
+            foreach (var bd in bookingDays.Where(bd => bd.IsReserved && bd.Booking != null))
+            {
+                bd.Booking.TotalAmount = Math.Max(0m, bd.Booking.TotalAmount - price);
+            }
+            _context.BookingDays.RemoveRange(bookingDays);
+
+            edgeDay.IsActive = false;
+
+            var remaining = activity.Days.Where(d => d.IsActive).OrderBy(d => d.DayDate).ToList();
+            activity.StartDate = remaining[0].DayDate;
+            activity.EndDate = remaining[^1].DayDate;
+        }
+
+        // Recompute week numbers against the (possibly) new start date.
+        foreach (var d in activity.Days)
+            d.Week = GetWeekNumber(d.DayDate, activity.StartDate);
+
+        await _context.SaveChangesAsync();
+
+        return Json(new
+        {
+            success = true,
+            startDate = activity.StartDate.ToString("yyyy-MM-dd"),
+            endDate = activity.EndDate.ToString("yyyy-MM-dd"),
+            activeDaysCount = activity.Days.Count(d => d.IsActive),
+            days = activity.Days.OrderBy(d => d.DayDate).Select(d => new
+            {
+                dayId = d.DayId,
+                label = d.Label,
+                date = d.DayDate.ToString("yyyy-MM-dd"),
+                isActive = d.IsActive,
+                week = d.Week
+            })
+        });
+    }
+
     private async Task UpdateExistingQuestionsAsync(ActivityViewModel viewModel, int activityId)
     {
         if (viewModel.ExistingQuestions == null || !viewModel.ExistingQuestions.Any()) return;

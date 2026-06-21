@@ -3970,4 +3970,25 @@
   <data name="EmailTemplateType.NewRegistrationNotification" xml:space="preserve">
     <value>Notification de nouvelle inscription</value>
   </data>
+  <data name="Activities.CannotRemoveLastDay" xml:space="preserve">
+    <value>Impossible de retirer le dernier jour de l'activité.</value>
+  </data>
+  <data name="Activities.AddDayBefore" xml:space="preserve">
+    <value>Ajouter un jour avant</value>
+  </data>
+  <data name="Activities.RemoveFirstDay" xml:space="preserve">
+    <value>Retirer le 1er jour</value>
+  </data>
+  <data name="Activities.RemoveLastDay" xml:space="preserve">
+    <value>Retirer le dernier jour</value>
+  </data>
+  <data name="Activities.AddDayAfter" xml:space="preserve">
+    <value>Ajouter un jour après</value>
+  </data>
+  <data name="Activities.RemoveDayConfirm" xml:space="preserve">
+    <value>{0} enfant(s) inscrit(s) le {1}. Confirmer le retrait de ce jour ?</value>
+  </data>
+  <data name="Activities.DaysUpdated" xml:space="preserve">
+    <value>Jours mis à jour</value>
+  </data>
 </root>

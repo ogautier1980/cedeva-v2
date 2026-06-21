@@ -3948,4 +3948,25 @@
   <data name="EmailTemplateType.NewRegistrationNotification" xml:space="preserve">
     <value>New registration notification</value>
   </data>
+  <data name="Activities.CannotRemoveLastDay" xml:space="preserve">
+    <value>Cannot remove the activity's last day.</value>
+  </data>
+  <data name="Activities.AddDayBefore" xml:space="preserve">
+    <value>Add day before</value>
+  </data>
+  <data name="Activities.RemoveFirstDay" xml:space="preserve">
+    <value>Remove first day</value>
+  </data>
+  <data name="Activities.RemoveLastDay" xml:space="preserve">
+    <value>Remove last day</value>
+  </data>
+  <data name="Activities.AddDayAfter" xml:space="preserve">
+    <value>Add day after</value>
+  </data>
+  <data name="Activities.RemoveDayConfirm" xml:space="preserve">
+    <value>{0} child(ren) registered on {1}. Remove this day?</value>
+  </data>
+  <data name="Activities.DaysUpdated" xml:space="preserve">
+    <value>Days updated</value>
+  </data>
 </root>
