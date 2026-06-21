@@ -3945,4 +3945,7 @@
   <data name="Organisation.EmailHelp" xml:space="preserve">
     <value>E-mailadres dat meldingen van nieuwe inschrijvingen ontvangt (anders de coördinatoren).</value>
   </data>
+  <data name="EmailTemplateType.NewRegistrationNotification" xml:space="preserve">
+    <value>Melding nieuwe inschrijving</value>
+  </data>
 </root>

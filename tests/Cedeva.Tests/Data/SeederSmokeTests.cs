@@ -113,14 +113,15 @@ public class SeederSmokeTests
 
         await using var verify = db.NewContext(FakeCurrentUserService.Admin());
 
-        // EnsureOrganisationBankAccountAsync filled the empty account.
+        // EnsureOrganisationBankAccountAsync filled the empty account + contact email.
         var seededOrg = await verify.Organisations.IgnoreQueryFilters().SingleAsync(o => o.Id == org.Id);
         seededOrg.BankAccountNumber.Should().NotBeNullOrEmpty();
         seededOrg.BankAccountName.Should().NotBeNullOrEmpty();
+        seededOrg.Email.Should().NotBeNullOrEmpty();
 
-        // A user exists, so the email-template branch executed (4 templates per org).
+        // A user exists, so the email-template branch executed (5 templates per org).
         (await verify.EmailTemplates.IgnoreQueryFilters().CountAsync(t => t.OrganisationId == org.Id))
-            .Should().Be(4);
+            .Should().Be(5);
     }
 
     [Fact]

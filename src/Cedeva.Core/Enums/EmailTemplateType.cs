@@ -31,6 +31,11 @@ public enum EmailTemplateType
     ActivityCancellation = 5,
 
     /// <summary>
+    /// Notification à l'organisation lors d'une nouvelle inscription
+    /// </summary>
+    NewRegistrationNotification = 6,
+
+    /// <summary>
     /// Template personnalisé
     /// </summary>
     Custom = 99

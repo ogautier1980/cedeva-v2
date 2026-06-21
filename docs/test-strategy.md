@@ -1,6 +1,6 @@
 # Stratégie de test
 
-Cedeva compte **~1163 tests** unit/intégration (+ **64** E2E navigateur, 0 `[Skip]`, et **3**
+Cedeva compte **~1166 tests** unit/intégration (+ **64** E2E navigateur, 0 `[Skip]`, et **3**
 SQL Server) répartis sur **5 niveaux**, exécutés par **3 projets de test** et **3 workflows CI**.
 Couverture lignes ≈ **92 %** (branches ≈ 77 %, méthodes ≈ 95 %), avec un **gate CI à 85 %** qui
 bloque le déploiement en cas de régression. Ce document décrit ce que couvre chaque

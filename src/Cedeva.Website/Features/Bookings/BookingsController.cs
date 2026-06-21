@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Cedeva.Core.Entities;
+using Cedeva.Core.Enums;
 using Cedeva.Core.Interfaces;
 using Cedeva.Website.Features.Bookings.ViewModels;
 using Cedeva.Website.Infrastructure;
@@ -30,6 +31,7 @@ public class BookingsController : Controller
     private readonly IUnitOfWork _unitOfWork;
     private readonly IExportFacadeService _exportServices;
     private readonly IEmailService _emailService;
+    private readonly IEmailFacadeService _emailServices;
     private readonly IBookingQuestionService _bookingQuestionService;
     private readonly ICedevaControllerContext<BookingsController> _ctx;
 
@@ -39,6 +41,7 @@ public class BookingsController : Controller
         IUnitOfWork unitOfWork,
         IExportFacadeService exportServices,
         IEmailService emailService,
+        IEmailFacadeService emailServices,
         IBookingQuestionService bookingQuestionService,
         ICedevaControllerContext<BookingsController> ctx)
     {
@@ -47,6 +50,7 @@ public class BookingsController : Controller
         _unitOfWork = unitOfWork;
         _exportServices = exportServices;
         _emailService = emailService;
+        _emailServices = emailServices;
         _bookingQuestionService = bookingQuestionService;
         _ctx = ctx;
     }
@@ -604,37 +608,49 @@ public class BookingsController : Controller
 
     private async Task SendBookingConfirmationEmailAsync(Booking booking)
     {
-        var child = await _context.Children
-            .Include(c => c.Parent)
-            .FirstOrDefaultAsync(c => c.Id == booking.ChildId);
+        // Load the full graph so the template variables (%prenom_enfant%, %nom_activite%, …) resolve.
+        var fullBooking = await _context.Bookings
+            .Include(b => b.Child).ThenInclude(c => c.Parent)
+            .Include(b => b.Activity)
+            .Include(b => b.Group)
+            .FirstOrDefaultAsync(b => b.Id == booking.Id);
 
-        var activity = await _context.Activities
-            .FirstOrDefaultAsync(a => a.Id == booking.ActivityId);
+        var parent = fullBooking?.Child?.Parent;
+        var activity = fullBooking?.Activity;
 
-        if (child?.Parent != null && activity != null)
+        if (fullBooking == null || parent == null || activity == null)
         {
-            try
+            TempData[ControllerExtensions.SuccessMessageKey] = _ctx.Localizer["Message.BookingUpdated"].Value;
+            return;
+        }
+
+        try
+        {
+            var organisation = await _context.Organisations.FindAsync(activity.OrganisationId);
+
+            // Prefer the org's BookingConfirmation template; fall back to the built-in message.
+            var sent = organisation != null && await _emailServices.SendBookingTemplateAsync(
+                EmailTemplateType.BookingConfirmation, activity.OrganisationId,
+                new[] { parent.Email }, fullBooking, organisation);
+
+            if (!sent)
             {
                 await _emailService.SendBookingConfirmationEmailAsync(
-                    child.Parent.Email,
-                    $"{child.Parent.FirstName} {child.Parent.LastName}",
-                    $"{child.FirstName} {child.LastName}",
+                    parent.Email,
+                    $"{parent.FirstName} {parent.LastName}",
+                    $"{fullBooking.Child!.FirstName} {fullBooking.Child.LastName}",
                     activity.Name,
                     activity.StartDate,
                     activity.EndDate);
+            }
 
-                TempData[ControllerExtensions.SuccessMessageKey] = _ctx.Localizer["Message.BookingConfirmedEmailSent"].Value;
-            }
-            catch (Exception ex)
-            {
-                _ctx.Logger.LogWarning(ex, "Failed to send booking confirmation email to {Email} for booking {BookingId}",
-                    child.Parent.Email, booking.Id);
-                TempData[ControllerExtensions.WarningMessageKey] = string.Format(_ctx.Localizer["Message.BookingConfirmedEmailFailed"].Value, ex.Message);
-            }
+            TempData[ControllerExtensions.SuccessMessageKey] = _ctx.Localizer["Message.BookingConfirmedEmailSent"].Value;
         }
-        else
+        catch (Exception ex)
         {
-            TempData[ControllerExtensions.SuccessMessageKey] = _ctx.Localizer["Message.BookingUpdated"].Value;
+            _ctx.Logger.LogWarning(ex, "Failed to send booking confirmation email to {Email} for booking {BookingId}",
+                parent.Email, booking.Id);
+            TempData[ControllerExtensions.WarningMessageKey] = string.Format(_ctx.Localizer["Message.BookingConfirmedEmailFailed"].Value, ex.Message);
         }
     }
 

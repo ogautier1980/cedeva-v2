@@ -155,12 +155,26 @@ public class TestDataSeeder
     // =========================================================================
     private async Task EnsureOrganisationBankAccountAsync(Organisation organisation)
     {
-        if (!string.IsNullOrEmpty(organisation.BankAccountNumber)) return;
+        var changed = false;
 
-        organisation.BankAccountNumber = organisation.Id == 1 ? "BE68539007547034" : "BE76539007547035";
-        organisation.BankAccountName = organisation.Id == 1 ? "Plaine de Bossière ASBL" : "Les Aventuriers ASBL";
-        await _context.SaveChangesAsync();
-        _logger.LogInformation("Updated bank account for organisation {Id}", organisation.Id);
+        if (string.IsNullOrEmpty(organisation.Email))
+        {
+            organisation.Email = organisation.Id == 1 ? "contact@plainedebossiere.be" : "contact@lesaventuriers.be";
+            changed = true;
+        }
+
+        if (string.IsNullOrEmpty(organisation.BankAccountNumber))
+        {
+            organisation.BankAccountNumber = organisation.Id == 1 ? "BE68539007547034" : "BE76539007547035";
+            organisation.BankAccountName = organisation.Id == 1 ? "Plaine de Bossière ASBL" : "Les Aventuriers ASBL";
+            changed = true;
+        }
+
+        if (changed)
+        {
+            await _context.SaveChangesAsync();
+            _logger.LogInformation("Updated contact/bank details for organisation {Id}", organisation.Id);
+        }
     }
 
     private (string PostalCode, string City) GetRandomMunicipality()
@@ -1033,11 +1047,32 @@ public class TestDataSeeder
                 IsShared = true,
                 CreatedBy = userId,
                 CreatedAt = now.AddDays(-3)
+            },
+            new EmailTemplate
+            {
+                OrganisationId = organisationId,
+                Name = "Notification nouvelle inscription",
+                TemplateType = EmailTemplateType.NewRegistrationNotification,
+                Subject = "Nouvelle inscription – %nom_complet_enfant% – %nom_activite%",
+                HtmlContent =
+                    "<h2 style=\"color:#007faf;\">Nouvelle inscription</h2>" +
+                    "<p>Une nouvelle inscription vient d'être enregistrée :</p>" +
+                    "<ul>" +
+                    "<li><strong>Enfant :</strong> %nom_complet_enfant%</li>" +
+                    "<li><strong>Parent :</strong> %nom_complet_parent% (%email_parent%, %telephone_parent%)</li>" +
+                    "<li><strong>Activité :</strong> %nom_activite%</li>" +
+                    "<li><strong>Réservation n° :</strong> %numero_reservation%</li>" +
+                    "</ul>" +
+                    "<p>Connectez-vous à Cedeva pour la traiter.</p>",
+                IsDefault = true,
+                IsShared = true,
+                CreatedBy = userId,
+                CreatedAt = now.AddDays(-2)
             }
         );
 
         await _context.SaveChangesAsync();
-        _logger.LogInformation("Successfully seeded 4 email templates for org {OrgId}", organisationId);
+        _logger.LogInformation("Successfully seeded 5 email templates for org {OrgId}", organisationId);
     }
 
     // =========================================================================

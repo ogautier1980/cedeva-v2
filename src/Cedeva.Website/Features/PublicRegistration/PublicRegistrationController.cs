@@ -26,17 +26,20 @@ public class PublicRegistrationController : Controller
 
     private readonly CedevaDbContext _context;
     private readonly IEmailService _emailService;
+    private readonly IEmailFacadeService _emailServices;
     private readonly IStringLocalizer<SharedResources> _localizer;
     private readonly ILogger<PublicRegistrationController> _logger;
 
     public PublicRegistrationController(
         CedevaDbContext context,
         IEmailService emailService,
+        IEmailFacadeService emailServices,
         IStringLocalizer<SharedResources> localizer,
         ILogger<PublicRegistrationController> logger)
     {
         _context = context;
         _emailService = emailService;
+        _emailServices = emailServices;
         _localizer = localizer;
         _logger = logger;
     }
@@ -418,11 +421,70 @@ public class PublicRegistrationController : Controller
         // down or unconfigured) — the booking is already saved. Log and continue.
         try
         {
-            await _emailService.SendEmailAsync(parent.Email, subject, body);
+            // Load full graph (anonymous flow: bypass tenancy) for template variable resolution.
+            var organisation = await _context.Organisations.IgnoreQueryFilters()
+                .FirstOrDefaultAsync(o => o.Id == activity.OrganisationId);
+            var fullBooking = await _context.Bookings.IgnoreQueryFilters()
+                .Include(b => b.Child).ThenInclude(c => c.Parent)
+                .Include(b => b.Activity)
+                .Include(b => b.Group)
+                .FirstOrDefaultAsync(b => b.Id == booking.Id);
+
+            // Prefer the org's BookingConfirmation template; fall back to the built-in message.
+            var sent = organisation != null && fullBooking != null && await _emailServices.SendBookingTemplateAsync(
+                EmailTemplateType.BookingConfirmation, activity.OrganisationId,
+                new[] { parent.Email }, fullBooking, organisation);
+
+            if (!sent)
+            {
+                await _emailService.SendEmailAsync(parent.Email, subject, body);
+            }
+
+            // Notify the organisation of the new registration (separate, also non-fatal).
+            await NotifyOrganisationOfRegistrationAsync(organisation, fullBooking);
         }
         catch (Exception ex)
         {
             _logger.LogWarning(ex, "Confirmation email could not be sent for booking {BookingId}", booking.Id);
+        }
+    }
+
+    /// <summary>
+    /// Emails the organisation when a new registration comes in. Recipients = the organisation's
+    /// contact <see cref="Organisation.Email"/> if set, otherwise its coordinators. Uses the
+    /// NewRegistrationNotification template, with a plain fallback. Best-effort (caller swallows).
+    /// </summary>
+    private async Task NotifyOrganisationOfRegistrationAsync(Organisation? organisation, Booking? fullBooking)
+    {
+        if (organisation == null || fullBooking == null)
+            return;
+
+        var recipients = new List<string>();
+        if (!string.IsNullOrWhiteSpace(organisation.Email))
+        {
+            recipients.Add(organisation.Email);
+        }
+        else
+        {
+            recipients.AddRange(await _context.Users.IgnoreQueryFilters()
+                .Where(u => u.OrganisationId == organisation.Id && u.Role == Role.Coordinator && u.Email != null)
+                .Select(u => u.Email!)
+                .ToListAsync());
+        }
+
+        if (recipients.Count == 0)
+            return;
+
+        var sent = await _emailServices.SendBookingTemplateAsync(
+            EmailTemplateType.NewRegistrationNotification, organisation.Id, recipients, fullBooking, organisation);
+
+        if (!sent)
+        {
+            var subject = $"Nouvelle inscription - {fullBooking.Activity?.Name}";
+            var body = $"<p>Une nouvelle inscription a été enregistrée pour " +
+                       $"<strong>{fullBooking.Child?.FirstName} {fullBooking.Child?.LastName}</strong> " +
+                       $"à l'activité <strong>{fullBooking.Activity?.Name}</strong> (réservation n°{fullBooking.Id}).</p>";
+            await _emailService.SendEmailAsync(recipients, subject, body);
         }
     }
 

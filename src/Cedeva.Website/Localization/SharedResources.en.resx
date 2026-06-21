@@ -3945,4 +3945,7 @@
   <data name="Organisation.EmailHelp" xml:space="preserve">
     <value>Email address that will receive new-registration notifications (otherwise the coordinators).</value>
   </data>
+  <data name="EmailTemplateType.NewRegistrationNotification" xml:space="preserve">
+    <value>New registration notification</value>
+  </data>
 </root>
