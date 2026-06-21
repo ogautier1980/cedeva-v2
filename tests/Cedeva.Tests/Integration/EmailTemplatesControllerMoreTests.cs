@@ -22,7 +22,7 @@ public class EmailTemplatesControllerMoreTests
     // ---- helpers -------------------------------------------------------------
 
     private static EmailTemplate Template(Organisation org, string name = "Modèle Test",
-        EmailTemplateType type = EmailTemplateType.Custom, bool isDefault = false, bool isShared = false) => new()
+        EmailTemplateType type = EmailTemplateType.Custom, bool isDefault = false, int? activityId = null) => new()
     {
         Organisation = org,
         Name = name,
@@ -30,7 +30,7 @@ public class EmailTemplatesControllerMoreTests
         Subject = "Sujet de test",
         HtmlContent = "<p>Bonjour</p>",
         IsDefault = isDefault,
-        IsShared = isShared
+        ActivityId = activityId
     };
 
     private static CedevaUser SeedUser(CedevaDbContext ctx, string id, int? organisationId)

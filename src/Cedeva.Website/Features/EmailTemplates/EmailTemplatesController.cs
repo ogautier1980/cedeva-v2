@@ -112,7 +112,6 @@ public class EmailTemplatesController : Controller
             Subject = viewModel.Subject,
             HtmlContent = viewModel.HtmlContent,
             IsDefault = viewModel.IsDefault,
-            IsShared = viewModel.IsShared,
             CreatedBy = user.Id,
             CreatedAt = DateTime.UtcNow
         };
@@ -141,7 +140,7 @@ public class EmailTemplatesController : Controller
             Subject = template.Subject,
             HtmlContent = template.HtmlContent,
             IsDefault = template.IsDefault,
-            IsShared = template.IsShared,
+            ActivityId = template.ActivityId,
             TemplateTypeOptions = GetTemplateTypeOptions()
         };
 
@@ -170,7 +169,6 @@ public class EmailTemplatesController : Controller
         template.Subject = viewModel.Subject;
         template.HtmlContent = viewModel.HtmlContent;
         template.IsDefault = viewModel.IsDefault;
-        template.IsShared = viewModel.IsShared;
 
         // Persistence failures bubble to the global exception handler (/Home/Error).
         await _templateService.UpdateTemplateAsync(template);
@@ -223,7 +221,6 @@ public class EmailTemplatesController : Controller
             Subject = template.Subject,
             HtmlContent = template.HtmlContent,
             IsDefault = false, // Duplicate is never default
-            IsShared = template.IsShared,
             TemplateTypeOptions = GetTemplateTypeOptions()
         };
 

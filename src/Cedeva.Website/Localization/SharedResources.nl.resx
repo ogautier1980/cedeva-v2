@@ -3774,12 +3774,6 @@
   <data name="EmailTemplate.IsDefaultHelp" xml:space="preserve">
     <value>Indien aangevinkt, wordt dit sjabloon standaard gebruikt voor dit type e-mail</value>
   </data>
-  <data name="EmailTemplate.IsShared" xml:space="preserve">
-    <value>Gedeeld</value>
-  </data>
-  <data name="EmailTemplate.IsSharedHelp" xml:space="preserve">
-    <value>Indien aangevinkt, is dit sjabloon zichtbaar voor alle coördinatoren van de organisatie</value>
-  </data>
   <data name="EmailTemplate.NoTemplates" xml:space="preserve">
     <value>Geen e-mailsjablonen gevonden</value>
   </data>

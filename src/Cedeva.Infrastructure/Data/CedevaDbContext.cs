@@ -105,6 +105,14 @@ public class CedevaDbContext : IdentityDbContext<CedevaUser>, IUnitOfWork
             .HasQueryFilter(et => _currentUserService == null ||
                                   _currentUserService.IsAdmin ||
                                   et.OrganisationId == _currentUserService.OrganisationId);
+
+        // Activity-level templates are removed when their activity is deleted; organisation-level
+        // templates (ActivityId == null) are unaffected.
+        builder.Entity<EmailTemplate>()
+            .HasOne(et => et.Activity)
+            .WithMany()
+            .HasForeignKey(et => et.ActivityId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)

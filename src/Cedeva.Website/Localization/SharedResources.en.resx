@@ -3774,12 +3774,6 @@
   <data name="EmailTemplate.IsDefaultHelp" xml:space="preserve">
     <value>If checked, this template will be used by default for this email type</value>
   </data>
-  <data name="EmailTemplate.IsShared" xml:space="preserve">
-    <value>Shared</value>
-  </data>
-  <data name="EmailTemplate.IsSharedHelp" xml:space="preserve">
-    <value>If checked, this template will be visible to all coordinators of the organisation</value>
-  </data>
   <data name="EmailTemplate.NoTemplates" xml:space="preserve">
     <value>No email templates found</value>
   </data>

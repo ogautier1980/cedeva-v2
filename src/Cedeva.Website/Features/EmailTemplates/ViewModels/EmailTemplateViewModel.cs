@@ -30,8 +30,8 @@ public class EmailTemplateViewModel
     [Display(Name = "EmailTemplate.IsDefault")]
     public bool IsDefault { get; set; }
 
-    [Display(Name = "EmailTemplate.IsShared")]
-    public bool IsShared { get; set; }
+    /// <summary>When set, the template belongs to this activity; otherwise it is organisation-level.</summary>
+    public int? ActivityId { get; set; }
 
     public List<SelectListItem> TemplateTypeOptions { get; set; } = new();
 }

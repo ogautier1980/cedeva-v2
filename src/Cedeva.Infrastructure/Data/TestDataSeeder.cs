@@ -998,7 +998,6 @@ public class TestDataSeeder
                     "<p>En cas de question, n'hésitez pas à nous contacter.</p>" +
                     "<p>Cordialement,<br><strong>%nom_organisation%</strong></p>",
                 IsDefault = true,
-                IsShared = true,
                 CreatedBy = userId,
                 CreatedAt = now.AddDays(-10)
             },
@@ -1018,7 +1017,6 @@ public class TestDataSeeder
                     "<p>Merci de procéder au paiement par virement bancaire dans les meilleurs délais.</p>" +
                     "<p>Cordialement,<br><strong>%nom_organisation%</strong></p>",
                 IsDefault = true,
-                IsShared = true,
                 CreatedBy = userId,
                 CreatedAt = now.AddDays(-8)
             },
@@ -1037,7 +1035,6 @@ public class TestDataSeeder
                     "bénéficier de tous les services proposés.</p>" +
                     "<p>Cordialement,<br><strong>%nom_organisation%</strong></p>",
                 IsDefault = true,
-                IsShared = true,
                 CreatedBy = userId,
                 CreatedAt = now.AddDays(-5)
             },
@@ -1056,7 +1053,6 @@ public class TestDataSeeder
                     "<p>N'hésitez pas à nous contacter si vous avez des questions.</p>" +
                     "<p>À bientôt !<br><strong>L'équipe de %nom_organisation%</strong></p>",
                 IsDefault = false,
-                IsShared = true,
                 CreatedBy = userId,
                 CreatedAt = now.AddDays(-3)
             },
@@ -1077,7 +1073,6 @@ public class TestDataSeeder
                     "</ul>" +
                     "<p>Connectez-vous à Cedeva pour la traiter.</p>",
                 IsDefault = true,
-                IsShared = true,
                 CreatedBy = userId,
                 CreatedAt = now.AddDays(-2)
             }

@@ -68,7 +68,6 @@ else
                             <th scope="col">@Localizer["EmailTemplate.TemplateType"]</th>
                             <th scope="col">@Localizer["Field.Subject"]</th>
                             <th scope="col">@Localizer["EmailTemplate.IsDefault"]</th>
-                            <th scope="col">@Localizer["EmailTemplate.IsShared"]</th>
                             <th scope="col">@Localizer["Field.Actions"]</th>
                         </tr>
                     </thead>
@@ -99,12 +98,6 @@ else
                                                 @Localizer["EmailTemplate.SetAsDefault"]
                                             </button>
                                         </form>
-                                    }
-                                </td>
-                                <td>
-                                    @if (template.IsShared)
-                                    {
-                                        <i class="fas fa-check text-success"></i>
                                     }
                                 </td>
                                 <td>

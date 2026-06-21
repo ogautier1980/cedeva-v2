@@ -13,29 +13,32 @@ public class EmailTemplate : AuditableEntity
     public int OrganisationId { get; set; }
     public Organisation Organisation { get; set; } = null!;
 
-    [Required(ErrorMessage = "The {0} field is required.")]
-    [StringLength(200, ErrorMessage = "The field {0} must have between {2} and {1} characters.")]
+    /// <summary>
+    /// Activity this template belongs to. <c>null</c> means an organisation-level template (the
+    /// shared library that is copied into each new activity).
+    /// </summary>
+    public int? ActivityId { get; set; }
+    public Activity? Activity { get; set; }
+
+    [Required(ErrorMessage = "Validation.Required")]
+    [StringLength(200, ErrorMessage = "Validation.StringLength")]
     public string Name { get; set; } = string.Empty;
 
     public EmailTemplateType TemplateType { get; set; }
 
-    [Required(ErrorMessage = "The {0} field is required.")]
-    [StringLength(500, ErrorMessage = "The field {0} must have between {2} and {1} characters.")]
+    [Required(ErrorMessage = "Validation.Required")]
+    [StringLength(500, ErrorMessage = "Validation.StringLength")]
     public string Subject { get; set; } = string.Empty;
 
-    [Required(ErrorMessage = "The {0} field is required.")]
-    [StringLength(10000, ErrorMessage = "The field {0} must have between {2} and {1} characters.")]
+    [Required(ErrorMessage = "Validation.Required")]
+    [StringLength(10000, ErrorMessage = "Validation.StringLength")]
     public string HtmlContent { get; set; } = string.Empty;
 
     /// <summary>
-    /// Template par défaut pour ce type dans cette organisation
+    /// Template par défaut pour ce type, dans son périmètre (activité si <see cref="ActivityId"/>
+    /// est renseigné, sinon organisation).
     /// </summary>
     public bool IsDefault { get; set; }
-
-    /// <summary>
-    /// Partagé dans toute l'organisation (visible par tous les coordinateurs)
-    /// </summary>
-    public bool IsShared { get; set; }
 
     public CedevaUser? CreatedByUser { get; set; }
 }

@@ -3314,9 +3314,6 @@
   <data name="EmailTemplate.IsDefault" xml:space="preserve">
     <value>Modèle par défaut</value>
   </data>
-  <data name="EmailTemplate.IsShared" xml:space="preserve">
-    <value>Partagé</value>
-  </data>
   <data name="EmailTemplate.Default" xml:space="preserve">
     <value>Par défaut</value>
   </data>
@@ -3337,9 +3334,6 @@
   </data>
   <data name="EmailTemplate.IsDefaultHelp" xml:space="preserve">
     <value>Si coché, ce modèle sera utilisé par défaut pour ce type d'email</value>
-  </data>
-  <data name="EmailTemplate.IsSharedHelp" xml:space="preserve">
-    <value>Si coché, ce modèle sera visible par tous les coordinateurs de l'organisation</value>
   </data>
   <data name="EmailTemplate.Variable" xml:space="preserve">
     <value>Variable</value>
