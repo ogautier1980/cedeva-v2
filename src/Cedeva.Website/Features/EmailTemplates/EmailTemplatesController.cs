@@ -97,54 +97,31 @@ public class EmailTemplatesController : Controller
             return View(viewModel);
         }
 
-        try
+        var user = await _userManager.GetUserAsync(User);
+        if (user == null)
         {
-            var user = await _userManager.GetUserAsync(User);
-            if (user == null)
-            {
-                TempData[ControllerExtensions.ErrorMessageKey] = _localizer["Error.Unauthorized"].ToString();
-                return RedirectToAction(nameof(Index));
-            }
-
-            var template = new EmailTemplate
-            {
-                OrganisationId = _currentUserService.OrganisationId ?? 0,
-                Name = viewModel.Name,
-                TemplateType = viewModel.TemplateType,
-                Subject = viewModel.Subject,
-                HtmlContent = viewModel.HtmlContent,
-                IsDefault = viewModel.IsDefault,
-                IsShared = viewModel.IsShared,
-                CreatedBy = user.Id,
-                CreatedAt = DateTime.UtcNow
-            };
-
-            await _templateService.CreateTemplateAsync(template);
-
-            TempData[ControllerExtensions.SuccessMessageKey] = _localizer["EmailTemplate.CreateSuccess"].ToString();
+            TempData[ControllerExtensions.ErrorMessageKey] = _localizer["Error.Unauthorized"].ToString();
             return RedirectToAction(nameof(Index));
         }
-        catch (InvalidOperationException ex)
+
+        var template = new EmailTemplate
         {
-            _logger.LogWarning(ex, "Invalid operation while creating email template");
-            TempData[ControllerExtensions.ErrorMessageKey] = _localizer[ErrorGeneric].ToString();
-            viewModel.TemplateTypeOptions = GetTemplateTypeOptions();
-            return View(viewModel);
-        }
-        catch (DbUpdateException ex)
-        {
-            _logger.LogError(ex, "Database error while creating email template");
-            TempData[ControllerExtensions.ErrorMessageKey] = _localizer[ErrorGeneric].ToString();
-            viewModel.TemplateTypeOptions = GetTemplateTypeOptions();
-            return View(viewModel);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Unexpected error while creating email template");
-            TempData[ControllerExtensions.ErrorMessageKey] = _localizer[ErrorGeneric].ToString();
-            viewModel.TemplateTypeOptions = GetTemplateTypeOptions();
-            return View(viewModel);
-        }
+            OrganisationId = _currentUserService.OrganisationId ?? 0,
+            Name = viewModel.Name,
+            TemplateType = viewModel.TemplateType,
+            Subject = viewModel.Subject,
+            HtmlContent = viewModel.HtmlContent,
+            IsDefault = viewModel.IsDefault,
+            IsShared = viewModel.IsShared,
+            CreatedBy = user.Id,
+            CreatedAt = DateTime.UtcNow
+        };
+
+        // Persistence failures bubble to the global exception handler (/Home/Error).
+        await _templateService.CreateTemplateAsync(template);
+
+        TempData[ControllerExtensions.SuccessMessageKey] = _localizer["EmailTemplate.CreateSuccess"].ToString();
+        return RedirectToAction(nameof(Index));
     }
 
     public async Task<IActionResult> Edit(int id)
@@ -181,75 +158,34 @@ public class EmailTemplatesController : Controller
             return View(viewModel);
         }
 
-        try
+        var template = await _templateService.GetTemplateByIdAsync(viewModel.Id);
+        if (template == null)
         {
-            var template = await _templateService.GetTemplateByIdAsync(viewModel.Id);
-            if (template == null)
-            {
-                TempData[ControllerExtensions.ErrorMessageKey] = _localizer[ErrorNotFound].ToString();
-                return RedirectToAction(nameof(Index));
-            }
-
-            template.Name = viewModel.Name;
-            template.TemplateType = viewModel.TemplateType;
-            template.Subject = viewModel.Subject;
-            template.HtmlContent = viewModel.HtmlContent;
-            template.IsDefault = viewModel.IsDefault;
-            template.IsShared = viewModel.IsShared;
-
-            await _templateService.UpdateTemplateAsync(template);
-
-            TempData[ControllerExtensions.SuccessMessageKey] = _localizer["EmailTemplate.UpdateSuccess"].ToString();
+            TempData[ControllerExtensions.ErrorMessageKey] = _localizer[ErrorNotFound].ToString();
             return RedirectToAction(nameof(Index));
         }
-        catch (InvalidOperationException ex)
-        {
-            _logger.LogWarning(ex, "Invalid operation while updating email template {TemplateId}", viewModel.Id);
-            TempData[ControllerExtensions.ErrorMessageKey] = _localizer[ErrorGeneric].ToString();
-            viewModel.TemplateTypeOptions = GetTemplateTypeOptions();
-            return View(viewModel);
-        }
-        catch (DbUpdateException ex)
-        {
-            _logger.LogError(ex, "Database error while updating email template {TemplateId}", viewModel.Id);
-            TempData[ControllerExtensions.ErrorMessageKey] = _localizer[ErrorGeneric].ToString();
-            viewModel.TemplateTypeOptions = GetTemplateTypeOptions();
-            return View(viewModel);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Unexpected error while updating email template {TemplateId}", viewModel.Id);
-            TempData[ControllerExtensions.ErrorMessageKey] = _localizer[ErrorGeneric].ToString();
-            viewModel.TemplateTypeOptions = GetTemplateTypeOptions();
-            return View(viewModel);
-        }
+
+        template.Name = viewModel.Name;
+        template.TemplateType = viewModel.TemplateType;
+        template.Subject = viewModel.Subject;
+        template.HtmlContent = viewModel.HtmlContent;
+        template.IsDefault = viewModel.IsDefault;
+        template.IsShared = viewModel.IsShared;
+
+        // Persistence failures bubble to the global exception handler (/Home/Error).
+        await _templateService.UpdateTemplateAsync(template);
+
+        TempData[ControllerExtensions.SuccessMessageKey] = _localizer["EmailTemplate.UpdateSuccess"].ToString();
+        return RedirectToAction(nameof(Index));
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(int id)
     {
-        try
-        {
-            await _templateService.DeleteTemplateAsync(id);
-            TempData[ControllerExtensions.SuccessMessageKey] = _localizer["EmailTemplate.DeleteSuccess"].ToString();
-        }
-        catch (InvalidOperationException ex)
-        {
-            _logger.LogWarning(ex, "Invalid operation while deleting email template {TemplateId}", id);
-            TempData[ControllerExtensions.ErrorMessageKey] = _localizer[ErrorGeneric].ToString();
-        }
-        catch (DbUpdateException ex)
-        {
-            _logger.LogError(ex, "Database error while deleting email template {TemplateId}", id);
-            TempData[ControllerExtensions.ErrorMessageKey] = _localizer[ErrorGeneric].ToString();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Unexpected error while deleting email template {TemplateId}", id);
-            TempData[ControllerExtensions.ErrorMessageKey] = _localizer[ErrorGeneric].ToString();
-        }
-
+        // Persistence failures bubble to the global exception handler (/Home/Error).
+        await _templateService.DeleteTemplateAsync(id);
+        TempData[ControllerExtensions.SuccessMessageKey] = _localizer["EmailTemplate.DeleteSuccess"].ToString();
         return RedirectToAction(nameof(Index));
     }
 
@@ -257,27 +193,17 @@ public class EmailTemplatesController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> SetDefault(int id, EmailTemplateType type)
     {
-        try
+        // Graceful not-found (the service throws on an unknown id); unexpected persistence
+        // failures bubble to the global exception handler (/Home/Error).
+        var template = await _templateService.GetTemplateByIdAsync(id);
+        if (template == null)
         {
-            await _templateService.SetDefaultTemplateAsync(id, type);
-            TempData[ControllerExtensions.SuccessMessageKey] = _localizer["EmailTemplate.SetDefaultSuccess"].ToString();
-        }
-        catch (InvalidOperationException ex)
-        {
-            _logger.LogWarning(ex, "Invalid operation while setting default email template {TemplateId}", id);
-            TempData[ControllerExtensions.ErrorMessageKey] = _localizer[ErrorGeneric].ToString();
-        }
-        catch (DbUpdateException ex)
-        {
-            _logger.LogError(ex, "Database error while setting default email template {TemplateId}", id);
-            TempData[ControllerExtensions.ErrorMessageKey] = _localizer[ErrorGeneric].ToString();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Unexpected error while setting default email template {TemplateId}", id);
-            TempData[ControllerExtensions.ErrorMessageKey] = _localizer[ErrorGeneric].ToString();
+            TempData[ControllerExtensions.ErrorMessageKey] = _localizer[ErrorNotFound].ToString();
+            return RedirectToAction(nameof(Index));
         }
 
+        await _templateService.SetDefaultTemplateAsync(id, type);
+        TempData[ControllerExtensions.SuccessMessageKey] = _localizer["EmailTemplate.SetDefaultSuccess"].ToString();
         return RedirectToAction(nameof(Index));
     }
 

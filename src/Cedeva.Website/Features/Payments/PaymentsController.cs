@@ -169,55 +169,35 @@ public class PaymentsController : Controller
             return View(viewModel);
         }
 
-        try
+        var booking = await _context.Bookings.FindAsync(viewModel.BookingId);
+        if (booking == null)
         {
-            var booking = await _context.Bookings.FindAsync(viewModel.BookingId);
-            if (booking == null)
-            {
-                TempData[ControllerExtensions.ErrorMessageKey] = _localizer["Error.BookingNotFound"].Value;
-                return RedirectToAction(nameof(Index));
-            }
-
-            var payment = new Payment
-            {
-                BookingId = viewModel.BookingId,
-                Amount = viewModel.Amount,
-                PaymentDate = viewModel.PaymentDate,
-                PaymentMethod = viewModel.PaymentMethod,
-                Status = PaymentStatus.Paid,
-                Reference = viewModel.Reference
-            };
-
-            _context.Payments.Add(payment);
-
-            UpdateBookingPaymentStatus(booking, viewModel.Amount);
-
-            await _context.SaveChangesAsync();
-
-            _logger.LogInformation("Manual payment created: {Amount} for booking {BookingId}", viewModel.Amount, viewModel.BookingId);
-
-            TempData[ControllerExtensions.SuccessMessageKey] = _localizer["Message.PaymentCreated"].Value;
-
-            return RedirectToAction("Details", "Bookings", new { id = viewModel.BookingId });
+            TempData[ControllerExtensions.ErrorMessageKey] = _localizer["Error.BookingNotFound"].Value;
+            return RedirectToAction(nameof(Index));
         }
-        catch (InvalidOperationException ex)
+
+        var payment = new Payment
         {
-            _logger.LogWarning(ex, "Invalid operation while creating manual payment for booking {BookingId}", viewModel.BookingId);
-            TempData[ControllerExtensions.ErrorMessageKey] = _localizer[LocalizerKeyPaymentCreationFailed].Value;
-            return RedirectToAction(nameof(Create), new { bookingId = viewModel.BookingId });
-        }
-        catch (DbUpdateException ex)
-        {
-            _logger.LogError(ex, "Database error while creating manual payment for booking {BookingId}", viewModel.BookingId);
-            TempData[ControllerExtensions.ErrorMessageKey] = _localizer[LocalizerKeyPaymentCreationFailed].Value;
-            return RedirectToAction(nameof(Create), new { bookingId = viewModel.BookingId });
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Unexpected error while creating manual payment for booking {BookingId}", viewModel.BookingId);
-            TempData[ControllerExtensions.ErrorMessageKey] = _localizer[LocalizerKeyPaymentCreationFailed].Value;
-            return RedirectToAction(nameof(Create), new { bookingId = viewModel.BookingId });
-        }
+            BookingId = viewModel.BookingId,
+            Amount = viewModel.Amount,
+            PaymentDate = viewModel.PaymentDate,
+            PaymentMethod = viewModel.PaymentMethod,
+            Status = PaymentStatus.Paid,
+            Reference = viewModel.Reference
+        };
+
+        _context.Payments.Add(payment);
+
+        UpdateBookingPaymentStatus(booking, viewModel.Amount);
+
+        // Persistence failures bubble to the global exception handler (/Home/Error).
+        await _context.SaveChangesAsync();
+
+        _logger.LogInformation("Manual payment created: {Amount} for booking {BookingId}", viewModel.Amount, viewModel.BookingId);
+
+        TempData[ControllerExtensions.SuccessMessageKey] = _localizer["Message.PaymentCreated"].Value;
+
+        return RedirectToAction("Details", "Bookings", new { id = viewModel.BookingId });
     }
 
     // GET: Payments/Details/5
@@ -251,60 +231,40 @@ public class PaymentsController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Cancel(int id)
     {
-        try
+        var payment = await _context.Payments
+            .Include(p => p.Booking)
+            .FirstOrDefaultAsync(p => p.Id == id);
+
+        if (payment == null)
         {
-            var payment = await _context.Payments
-                .Include(p => p.Booking)
-                .FirstOrDefaultAsync(p => p.Id == id);
-
-            if (payment == null)
-            {
-                TempData[ControllerExtensions.ErrorMessageKey] = _localizer["Error.PaymentNotFound"].Value;
-                return RedirectToAction(nameof(Index));
-            }
-
-            // Marquer comme annulé
-            payment.Status = PaymentStatus.Cancelled;
-
-            // Mettre à jour le montant payé de la réservation
-            payment.Booking.PaidAmount -= payment.Amount;
-
-            // Recalculer le statut de paiement
-            if (payment.Booking.PaidAmount <= 0)
-            {
-                payment.Booking.PaymentStatus = PaymentStatus.NotPaid;
-            }
-            else if (payment.Booking.PaidAmount < payment.Booking.TotalAmount)
-            {
-                payment.Booking.PaymentStatus = PaymentStatus.PartiallyPaid;
-            }
-
-            await _context.SaveChangesAsync();
-
-            _logger.LogInformation("Payment cancelled: {PaymentId}", id);
-
-            TempData[ControllerExtensions.SuccessMessageKey] = _localizer["Message.PaymentCancelled"].Value;
-
-            return RedirectToAction("Details", "Bookings", new { id = payment.BookingId });
+            TempData[ControllerExtensions.ErrorMessageKey] = _localizer["Error.PaymentNotFound"].Value;
+            return RedirectToAction(nameof(Index));
         }
-        catch (InvalidOperationException ex)
+
+        // Marquer comme annulé
+        payment.Status = PaymentStatus.Cancelled;
+
+        // Mettre à jour le montant payé de la réservation
+        payment.Booking.PaidAmount -= payment.Amount;
+
+        // Recalculer le statut de paiement
+        if (payment.Booking.PaidAmount <= 0)
         {
-            _logger.LogWarning(ex, "Invalid operation while cancelling payment {PaymentId}", id);
-            TempData[ControllerExtensions.ErrorMessageKey] = _localizer[LocalizerKeyPaymentCancellationFailed].Value;
-            return RedirectToAction(nameof(Details), new { id });
+            payment.Booking.PaymentStatus = PaymentStatus.NotPaid;
         }
-        catch (DbUpdateException ex)
+        else if (payment.Booking.PaidAmount < payment.Booking.TotalAmount)
         {
-            _logger.LogError(ex, "Database error while cancelling payment {PaymentId}", id);
-            TempData[ControllerExtensions.ErrorMessageKey] = _localizer[LocalizerKeyPaymentCancellationFailed].Value;
-            return RedirectToAction(nameof(Details), new { id });
+            payment.Booking.PaymentStatus = PaymentStatus.PartiallyPaid;
         }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Unexpected error while cancelling payment {PaymentId}", id);
-            TempData[ControllerExtensions.ErrorMessageKey] = _localizer[LocalizerKeyPaymentCancellationFailed].Value;
-            return RedirectToAction(nameof(Details), new { id });
-        }
+
+        // Persistence failures bubble to the global exception handler (/Home/Error).
+        await _context.SaveChangesAsync();
+
+        _logger.LogInformation("Payment cancelled: {PaymentId}", id);
+
+        TempData[ControllerExtensions.SuccessMessageKey] = _localizer["Message.PaymentCancelled"].Value;
+
+        return RedirectToAction("Details", "Bookings", new { id = payment.BookingId });
     }
 
     private async Task ReloadBookingInfoForViewModel(PaymentViewModel viewModel)
