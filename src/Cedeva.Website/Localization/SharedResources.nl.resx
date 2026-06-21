@@ -2086,12 +2086,6 @@
   <data name="Financial.UnpaidBookings" xml:space="preserve">
     <value>Onbetaalde boekingen</value>
   </data>
-  <data name="Financial.Unreconciled" xml:space="preserve">
-    <value>Niet afgepunt</value>
-  </data>
-  <data name="Financial.UnreconciledTransactions" xml:space="preserve">
-    <value>Niet-afgepunte transacties</value>
-  </data>
   <data name="Financial.Validate" xml:space="preserve">
     <value>Valideren</value>
   </data>

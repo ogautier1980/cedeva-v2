@@ -25,7 +25,7 @@ Performance**.
 - **Réponse :** l'app authentifiée refuse l'embarquement ; le formulaire public reste embarquable chez les partenaires.
 - **Mesure :** `X-Frame-Options: SAMEORIGIN` sur l'app, **absent** sur `/PublicRegistration` ; vérifié par tests + en prod.
 - **En place :** `SecurityHeadersMiddleware`, HSTS via ForwardedHeaders ([ADR 0008](adr/0008-cookie-identity-and-security-hardening.md)).
-- **Reste :** CSP de contenu (à tester avec TinyMCE/inline) — backlog.
+- **CSP vérifiée en navigateur (E2E)** : aucune violation sur l'iframe public ni sur les pages admin riches (éditeur Summernote, Choices.js) — `RegistrationIframeTests` + `CspE2ETests`.
 
 ## QA-3 — Résistance au brute-force / spam (Sécurité) — *priorité haute*
 - **Source :** un bot / attaquant depuis une IP.
@@ -49,7 +49,7 @@ Performance**.
 - **Stimulus :** ajouter/modifier une fonctionnalité.
 - **Artefact :** l'ensemble du code.
 - **Réponse :** changement localisé, non régressif, compréhensible.
-- **Mesure :** build **0 warning** (analyzers actifs), **~1134 tests** unit/intégration (+ 55 E2E, 3 SQL) verts, couverture lignes ≈ 89 % (gate CI 85 %), décisions documentées (ADR).
+- **Mesure :** build **0 warning** (analyzers actifs), **~1134 tests** unit/intégration (+ 59 E2E, 3 SQL) verts, couverture lignes ≈ 89 % (gate CI 85 %), décisions documentées (ADR).
 - **En place :** feature folders, DI, services extraits, analyzers, Directory.Build.props, .editorconfig, cette documentation.
 
 ## QA-6 — Performance — *priorité moyenne*
