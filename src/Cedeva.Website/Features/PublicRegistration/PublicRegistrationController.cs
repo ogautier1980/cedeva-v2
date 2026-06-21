@@ -268,7 +268,7 @@ public class PublicRegistrationController : Controller
 
         foreach (var question in missingQuestions)
         {
-            ModelState.AddModelError("", $"La question '{question.QuestionText}' est obligatoire.");
+            ModelState.AddModelError("", _localizer["Registration.CustomQuestionRequired", question.QuestionText].Value);
         }
 
         if (!ModelState.IsValid)

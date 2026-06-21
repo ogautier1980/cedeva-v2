@@ -16,18 +16,18 @@ public class ParentInformationViewModel
     public string LastName { get; set; } = string.Empty;
 
     [Required(ErrorMessage = "Validation.Required")]
-    [EmailAddress]
+    [EmailAddress(ErrorMessage = "Validation.InvalidEmail")]
     [StringLength(200, ErrorMessage = "Validation.StringLength")]
     [Display(Name = "Field.Email")]
     public string Email { get; set; } = string.Empty;
 
-    [Phone]
+    [RegularExpression(@"^((\+32|0032)[\s./-]?|0)[\s./-]?\d([\s./-]?\d){7,8}$", ErrorMessage = "Validation.InvalidPhoneNumber")]
     [StringLength(20, ErrorMessage = "Validation.StringLength")]
     [Display(Name = "Field.PhoneNumber")]
     public string? PhoneNumber { get; set; }
 
     [Required(ErrorMessage = "Validation.Required")]
-    [Phone]
+    [RegularExpression(@"^((\+32|0032)[\s./-]?|0)[\s./-]?\d([\s./-]?\d){7,8}$", ErrorMessage = "Validation.InvalidPhoneNumber")]
     [StringLength(20, ErrorMessage = "Validation.StringLength")]
     [Display(Name = "Field.MobilePhoneNumber")]
     public string MobilePhoneNumber { get; set; } = string.Empty;

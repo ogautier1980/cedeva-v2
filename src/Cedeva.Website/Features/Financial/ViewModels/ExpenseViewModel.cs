@@ -18,7 +18,7 @@ public class ExpenseViewModel
 
     [Required(ErrorMessage = "Validation.Required")]
     [Display(Name = "Field.Amount")]
-    [Range(0.01, 999999.99)]
+    [Range(0.01, 999999.99, ErrorMessage = "Validation.Range")]
     public decimal Amount { get; set; }
 
     [Display(Name = "Expense.Category")]

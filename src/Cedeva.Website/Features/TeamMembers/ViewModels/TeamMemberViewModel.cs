@@ -20,7 +20,7 @@ public class TeamMemberViewModel : AuditableViewModel
     public string LastName { get; set; } = string.Empty;
 
     [Required(ErrorMessage = "Validation.Required")]
-    [EmailAddress]
+    [EmailAddress(ErrorMessage = "Validation.InvalidEmail")]
     [StringLength(100, ErrorMessage = "Validation.StringLength")]
     [Display(Name = "Field.Email")]
     public string Email { get; set; } = string.Empty;
@@ -87,7 +87,7 @@ public class TeamMemberViewModel : AuditableViewModel
     [Display(Name = "Field.RemoveLicense")]
     public bool RemoveLicense { get; set; }
 
-    [StringLength(255)]
+    [StringLength(255, ErrorMessage = "Validation.StringLength")]
     [Display(Name = "Field.LicenseUrl")]
     public string? LicenseUrl { get; set; }
 

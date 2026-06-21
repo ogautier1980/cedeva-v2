@@ -21,7 +21,7 @@ public class ExcursionExpensesViewModel
 
     [Required(ErrorMessage = "Validation.Required")]
     [Display(Name = "Field.Amount")]
-    [Range(0.01, 9999.99)]
+    [Range(0.01, 9999.99, ErrorMessage = "Validation.Range")]
     public decimal Amount { get; set; }
 
     [StringLength(50, ErrorMessage = "Validation.StringLength")]

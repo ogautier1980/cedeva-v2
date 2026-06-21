@@ -148,7 +148,7 @@ public class UsersController : Controller
     {
         if (string.IsNullOrEmpty(viewModel.Password))
         {
-            ModelState.AddModelError(nameof(viewModel.Password), "Le mot de passe est requis.");
+            ModelState.AddModelError(nameof(viewModel.Password), _localizer["Validation.PasswordRequired"].Value);
         }
 
         if (ModelState.IsValid)

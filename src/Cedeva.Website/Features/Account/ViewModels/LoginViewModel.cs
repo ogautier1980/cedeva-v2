@@ -5,7 +5,7 @@ namespace Cedeva.Website.Features.Account.ViewModels;
 public class LoginViewModel
 {
     [Required(ErrorMessage = "Validation.Required")]
-    [EmailAddress]
+    [EmailAddress(ErrorMessage = "Validation.InvalidEmail")]
     [Display(Name = "Field.Email")]
     public string Email { get; set; } = string.Empty;
 

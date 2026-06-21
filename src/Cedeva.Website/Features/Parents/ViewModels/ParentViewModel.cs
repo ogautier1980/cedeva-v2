@@ -20,7 +20,7 @@ public class ParentViewModel : AuditableViewModel
     public string LastName { get; set; } = string.Empty;
 
     [Required(ErrorMessage = "Validation.Required")]
-    [EmailAddress]
+    [EmailAddress(ErrorMessage = "Validation.InvalidEmail")]
     [StringLength(100, ErrorMessage = "Validation.StringLength")]
     [Display(Name = "Field.Email")]
     public string Email { get; set; } = string.Empty;

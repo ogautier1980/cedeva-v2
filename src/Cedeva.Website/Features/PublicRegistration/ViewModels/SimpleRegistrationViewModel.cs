@@ -24,7 +24,7 @@ public class SimpleRegistrationViewModel
     public string ParentLastName { get; set; } = string.Empty;
 
     [Required(ErrorMessage = "Validation.Required")]
-    [EmailAddress]
+    [EmailAddress(ErrorMessage = "Validation.InvalidEmail")]
     [Display(Name = "Field.Email")]
     [StringLength(255, ErrorMessage = "Validation.StringLength")]
     public string ParentEmail { get; set; } = string.Empty;

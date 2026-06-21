@@ -15,7 +15,7 @@ public class RegisterViewModel
     public string LastName { get; set; } = string.Empty;
 
     [Required(ErrorMessage = "Validation.Required")]
-    [EmailAddress]
+    [EmailAddress(ErrorMessage = "Validation.InvalidEmail")]
     [Display(Name = "Field.Email")]
     public string Email { get; set; } = string.Empty;
 
@@ -28,7 +28,7 @@ public class RegisterViewModel
     [Required(ErrorMessage = "Validation.Required")]
     [DataType(DataType.Password)]
     [Display(Name = "Field.ConfirmPassword")]
-    [Compare("Password")]
+    [Compare("Password", ErrorMessage = "Validation.PasswordMismatch")]
     public string ConfirmPassword { get; set; } = string.Empty;
 
     [Required(ErrorMessage = "Validation.Required")]

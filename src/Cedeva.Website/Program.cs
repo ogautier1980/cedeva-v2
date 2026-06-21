@@ -15,6 +15,7 @@ using Cedeva.Infrastructure.Services.Pdf;
 using Cedeva.Infrastructure.Services.Storage;
 using Cedeva.Website.Infrastructure;
 using Cedeva.Website.Localization;
+using Cedeva.Website.Validation;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.HttpOverrides;
@@ -186,6 +187,7 @@ try
     })
     .AddEntityFrameworkStores<CedevaDbContext>()
     .AddDefaultTokenProviders()
+    .AddErrorDescriber<LocalizedIdentityErrorDescriber>()
     .AddClaimsPrincipalFactory<CedevaUserClaimsPrincipalFactory>();
 
     // Configure cookie

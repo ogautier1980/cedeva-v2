@@ -66,6 +66,8 @@ src/
 - **Feature folders:** `/Features/{Feature}/{View}.cshtml`
 - **Repository + UoW:** `IRepository<T>` with `IUnitOfWork`
 - **Localisation:** `@Localizer["Key"]` everywhere. Cookie-based FR/NL/EN. **Do NOT set ResourcesPath** (ASP.NET bug).
+  - **Validation messages:** DataAnnotations `ErrorMessage` must be a **resx key** (`Validation.*`, e.g. `Validation.Required`, `Validation.InvalidEmail`), never a literal — `AddDataAnnotationsLocalization` resolves it via SharedResources. Never leave a validation attribute without `ErrorMessage` (it falls back to the English framework default).
+  - **Identity errors** (password policy, duplicate email…) are localized by `LocalizedIdentityErrorDescriber` (keys `Identity.*`). Controller error strings go through `_localizer`, never hardcoded.
 - **TempData alerts:** Standardized keys: `SuccessMessage` / `ErrorMessage` / `WarningMessage`. Use `@await Html.PartialAsync("Shared/_AlertMessages")`.
 - **DI:** Autofac. Services registered in `Program.cs`.
 

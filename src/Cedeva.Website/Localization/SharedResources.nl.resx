@@ -3894,4 +3894,58 @@
   <data name="Total" xml:space="preserve">
     <value>Totaal</value>
   </data>
+  <data name="Validation.InvalidEmail" xml:space="preserve">
+    <value>Ongeldig e-mailadres</value>
+  </data>
+  <data name="Validation.PasswordMismatch" xml:space="preserve">
+    <value>De wachtwoorden komen niet overeen</value>
+  </data>
+  <data name="Validation.PasswordRequired" xml:space="preserve">
+    <value>Het wachtwoord is verplicht</value>
+  </data>
+  <data name="Registration.CustomQuestionRequired" xml:space="preserve">
+    <value>De vraag '{0}' is verplicht.</value>
+  </data>
+  <data name="Identity.DefaultError" xml:space="preserve">
+    <value>Er is een onbekende fout opgetreden.</value>
+  </data>
+  <data name="Identity.DuplicateUserName" xml:space="preserve">
+    <value>Gebruikersnaam '{0}' is al in gebruik.</value>
+  </data>
+  <data name="Identity.DuplicateEmail" xml:space="preserve">
+    <value>E-mailadres '{0}' is al in gebruik.</value>
+  </data>
+  <data name="Identity.InvalidUserName" xml:space="preserve">
+    <value>Gebruikersnaam '{0}' is ongeldig; mag alleen letters of cijfers bevatten.</value>
+  </data>
+  <data name="Identity.InvalidEmail" xml:space="preserve">
+    <value>E-mailadres '{0}' is ongeldig.</value>
+  </data>
+  <data name="Identity.PasswordTooShort" xml:space="preserve">
+    <value>Het wachtwoord moet minstens {0} tekens bevatten.</value>
+  </data>
+  <data name="Identity.PasswordRequiresNonAlphanumeric" xml:space="preserve">
+    <value>Het wachtwoord moet minstens één speciaal teken bevatten.</value>
+  </data>
+  <data name="Identity.PasswordRequiresDigit" xml:space="preserve">
+    <value>Het wachtwoord moet minstens één cijfer (0-9) bevatten.</value>
+  </data>
+  <data name="Identity.PasswordRequiresLower" xml:space="preserve">
+    <value>Het wachtwoord moet minstens één kleine letter (a-z) bevatten.</value>
+  </data>
+  <data name="Identity.PasswordRequiresUpper" xml:space="preserve">
+    <value>Het wachtwoord moet minstens één hoofdletter (A-Z) bevatten.</value>
+  </data>
+  <data name="Identity.PasswordRequiresUniqueChars" xml:space="preserve">
+    <value>Het wachtwoord moet minstens {0} verschillende tekens bevatten.</value>
+  </data>
+  <data name="Identity.PasswordMismatch" xml:space="preserve">
+    <value>Onjuist wachtwoord.</value>
+  </data>
+  <data name="Identity.UserAlreadyHasPassword" xml:space="preserve">
+    <value>Gebruiker heeft al een wachtwoord.</value>
+  </data>
+  <data name="Identity.DuplicateRoleName" xml:space="preserve">
+    <value>Rol '{0}' bestaat al.</value>
+  </data>
 </root>

@@ -33,7 +33,7 @@ public class EditExcursionViewModel
 
     [Required(ErrorMessage = "Validation.Required")]
     [Display(Name = "Field.ExcursionCost")]
-    [Range(0, 9999.99)]
+    [Range(0, 9999.99, ErrorMessage = "Validation.Range")]
     public decimal Cost { get; set; }
 
     [Required(ErrorMessage = "Validation.Required")]

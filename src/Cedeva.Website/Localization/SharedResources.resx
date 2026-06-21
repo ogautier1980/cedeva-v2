@@ -3916,4 +3916,58 @@
   <data name="Total" xml:space="preserve">
     <value>Total</value>
   </data>
+  <data name="Validation.InvalidEmail" xml:space="preserve">
+    <value>Adresse e-mail invalide</value>
+  </data>
+  <data name="Validation.PasswordMismatch" xml:space="preserve">
+    <value>Les mots de passe ne correspondent pas</value>
+  </data>
+  <data name="Validation.PasswordRequired" xml:space="preserve">
+    <value>Le mot de passe est requis</value>
+  </data>
+  <data name="Registration.CustomQuestionRequired" xml:space="preserve">
+    <value>La question « {0} » est obligatoire.</value>
+  </data>
+  <data name="Identity.DefaultError" xml:space="preserve">
+    <value>Une erreur inconnue s'est produite.</value>
+  </data>
+  <data name="Identity.DuplicateUserName" xml:space="preserve">
+    <value>Le nom d'utilisateur « {0} » est déjà pris.</value>
+  </data>
+  <data name="Identity.DuplicateEmail" xml:space="preserve">
+    <value>L'adresse e-mail « {0} » est déjà utilisée.</value>
+  </data>
+  <data name="Identity.InvalidUserName" xml:space="preserve">
+    <value>Le nom d'utilisateur « {0} » est invalide ; il ne peut contenir que des lettres ou des chiffres.</value>
+  </data>
+  <data name="Identity.InvalidEmail" xml:space="preserve">
+    <value>L'adresse e-mail « {0} » est invalide.</value>
+  </data>
+  <data name="Identity.PasswordTooShort" xml:space="preserve">
+    <value>Le mot de passe doit comporter au moins {0} caractères.</value>
+  </data>
+  <data name="Identity.PasswordRequiresNonAlphanumeric" xml:space="preserve">
+    <value>Le mot de passe doit contenir au moins un caractère spécial.</value>
+  </data>
+  <data name="Identity.PasswordRequiresDigit" xml:space="preserve">
+    <value>Le mot de passe doit contenir au moins un chiffre (0-9).</value>
+  </data>
+  <data name="Identity.PasswordRequiresLower" xml:space="preserve">
+    <value>Le mot de passe doit contenir au moins une minuscule (a-z).</value>
+  </data>
+  <data name="Identity.PasswordRequiresUpper" xml:space="preserve">
+    <value>Le mot de passe doit contenir au moins une majuscule (A-Z).</value>
+  </data>
+  <data name="Identity.PasswordRequiresUniqueChars" xml:space="preserve">
+    <value>Le mot de passe doit contenir au moins {0} caractères différents.</value>
+  </data>
+  <data name="Identity.PasswordMismatch" xml:space="preserve">
+    <value>Mot de passe incorrect.</value>
+  </data>
+  <data name="Identity.UserAlreadyHasPassword" xml:space="preserve">
+    <value>L'utilisateur a déjà un mot de passe.</value>
+  </data>
+  <data name="Identity.DuplicateRoleName" xml:space="preserve">
+    <value>Le rôle « {0} » existe déjà.</value>
+  </data>
 </root>
