@@ -59,59 +59,24 @@ public class CedevaDbContext : IdentityDbContext<CedevaUser>, IUnitOfWork
 
     private void ConfigureMultiTenancyFilters(ModelBuilder builder)
     {
-        // Filter activities by organisation
-        builder.Entity<Activity>()
-            .HasQueryFilter(a => _currentUserService == null ||
-                                 _currentUserService.IsAdmin ||
-                                 a.OrganisationId == _currentUserService.OrganisationId);
+        // Standard org-scoped entities (IOrganisationScoped) share the same tenant filter.
+        ApplyOrganisationFilter<Activity>(builder);
+        ApplyOrganisationFilter<Parent>(builder);
+        ApplyOrganisationFilter<TeamMember>(builder);
+        ApplyOrganisationFilter<ExpenseCategory>(builder);
+        ApplyOrganisationFilter<Contact>(builder);
+        ApplyOrganisationFilter<ContactGroup>(builder);
+        ApplyOrganisationFilter<EmailTemplate>(builder);
 
-        // Filter parents by organisation
-        builder.Entity<Parent>()
-            .HasQueryFilter(p => _currentUserService == null ||
-                                 _currentUserService.IsAdmin ||
-                                 p.OrganisationId == _currentUserService.OrganisationId);
-
-        // Filter children by organisation (via parent relationship)
+        // Entities scoped via a relationship keep their own filter expression.
         builder.Entity<Child>()
             .HasQueryFilter(c => _currentUserService == null ||
                                  _currentUserService.IsAdmin ||
                                  c.Parent.OrganisationId == _currentUserService.OrganisationId);
-
-        // Filter team members by organisation
-        builder.Entity<TeamMember>()
-            .HasQueryFilter(t => _currentUserService == null ||
-                                 _currentUserService.IsAdmin ||
-                                 t.OrganisationId == _currentUserService.OrganisationId);
-
-        // Filter expense categories by organisation
-        builder.Entity<ExpenseCategory>()
-            .HasQueryFilter(c => _currentUserService == null ||
-                                 _currentUserService.IsAdmin ||
-                                 c.OrganisationId == _currentUserService.OrganisationId);
-
-        // Filter contacts by organisation
-        builder.Entity<Contact>()
-            .HasQueryFilter(c => _currentUserService == null ||
-                                 _currentUserService.IsAdmin ||
-                                 c.OrganisationId == _currentUserService.OrganisationId);
-
-        // Filter contact groups by organisation
-        builder.Entity<ContactGroup>()
-            .HasQueryFilter(g => _currentUserService == null ||
-                                 _currentUserService.IsAdmin ||
-                                 g.OrganisationId == _currentUserService.OrganisationId);
-
-        // Filter contact-group members via their group's organisation
         builder.Entity<ContactGroupMember>()
             .HasQueryFilter(m => _currentUserService == null ||
                                  _currentUserService.IsAdmin ||
                                  m.ContactGroup.OrganisationId == _currentUserService.OrganisationId);
-
-        // Filter email templates by organisation
-        builder.Entity<EmailTemplate>()
-            .HasQueryFilter(et => _currentUserService == null ||
-                                  _currentUserService.IsAdmin ||
-                                  et.OrganisationId == _currentUserService.OrganisationId);
 
         // Activity-level templates are removed explicitly when their activity is deleted (see
         // ActivitiesController.DeleteConfirmed). The FK uses NO ACTION because a DB-level cascade
@@ -122,6 +87,16 @@ public class CedevaDbContext : IdentityDbContext<CedevaUser>, IUnitOfWork
             .WithMany()
             .HasForeignKey(et => et.ActivityId)
             .OnDelete(DeleteBehavior.NoAction);
+    }
+
+    /// <summary>Applies the standard multi-tenant filter to an org-scoped entity.</summary>
+    private void ApplyOrganisationFilter<TEntity>(ModelBuilder builder)
+        where TEntity : class, IOrganisationScoped
+    {
+        builder.Entity<TEntity>().HasQueryFilter(e =>
+            _currentUserService == null ||
+            _currentUserService.IsAdmin ||
+            e.OrganisationId == _currentUserService.OrganisationId);
     }
 
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)

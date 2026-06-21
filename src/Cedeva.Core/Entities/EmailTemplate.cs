@@ -1,12 +1,14 @@
 using System.ComponentModel.DataAnnotations;
 using Cedeva.Core.Enums;
 
+using Cedeva.Core.Interfaces;
+
 namespace Cedeva.Core.Entities;
 
 /// <summary>
 /// Reusable email template with variable support
 /// </summary>
-public class EmailTemplate : AuditableEntity
+public class EmailTemplate : AuditableEntity, IOrganisationScoped
 {
     public int Id { get; set; }
 

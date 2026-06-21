@@ -1,12 +1,14 @@
 using System.ComponentModel.DataAnnotations;
 
+using Cedeva.Core.Interfaces;
+
 namespace Cedeva.Core.Entities;
 
 /// <summary>
 /// A named, reusable group of email recipients built from an organisation's contacts (parents,
 /// team members, other contacts). Used as a recipient when sending emails.
 /// </summary>
-public class ContactGroup : AuditableEntity
+public class ContactGroup : AuditableEntity, IOrganisationScoped
 {
     public int Id { get; set; }
 

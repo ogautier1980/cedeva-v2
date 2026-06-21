@@ -1,8 +1,10 @@
 using System.ComponentModel.DataAnnotations;
 
+using Cedeva.Core.Interfaces;
+
 namespace Cedeva.Core.Entities;
 
-public class Activity : AuditableEntity
+public class Activity : AuditableEntity, IOrganisationScoped
 {
     public int Id { get; set; }
 

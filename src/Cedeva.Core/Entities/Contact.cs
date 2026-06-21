@@ -1,5 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 
+using Cedeva.Core.Interfaces;
+
 namespace Cedeva.Core.Entities;
 
 /// <summary>
@@ -7,7 +9,7 @@ namespace Cedeva.Core.Entities;
 /// is not an app user, team member or parent. Shown in the Contacts page under "Autres contacts"
 /// and selectable as an email recipient.
 /// </summary>
-public class Contact : AuditableEntity
+public class Contact : AuditableEntity, IOrganisationScoped
 {
     public int Id { get; set; }
 

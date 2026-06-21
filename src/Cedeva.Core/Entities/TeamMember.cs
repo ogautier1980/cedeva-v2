@@ -1,9 +1,11 @@
 using System.ComponentModel.DataAnnotations;
 using Cedeva.Core.Enums;
 
+using Cedeva.Core.Interfaces;
+
 namespace Cedeva.Core.Entities;
 
-public class TeamMember : AuditableEntity
+public class TeamMember : AuditableEntity, IOrganisationScoped
 {
     public int TeamMemberId { get; set; }
 

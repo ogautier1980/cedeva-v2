@@ -1,5 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 
+using Cedeva.Core.Interfaces;
+
 namespace Cedeva.Core.Entities;
 
 /// <summary>
@@ -7,7 +9,7 @@ namespace Cedeva.Core.Entities;
 /// the previous free-text category: expenses still store the category name, but the set of names is
 /// curated per organisation and offered as a dropdown (with add-on-the-fly).
 /// </summary>
-public class ExpenseCategory : AuditableEntity
+public class ExpenseCategory : AuditableEntity, IOrganisationScoped
 {
     public int Id { get; set; }
 
