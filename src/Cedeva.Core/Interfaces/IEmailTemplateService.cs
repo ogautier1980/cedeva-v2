@@ -56,6 +56,12 @@ public interface IEmailTemplateService
 
     /// <summary>Lists the activities of an organisation that have at least one template (for the import picker).</summary>
     Task<List<ActivityTemplateSummary>> GetActivitiesWithTemplatesAsync(int organisationId, int? excludeActivityId = null);
+
+    /// <summary>
+    /// Ensures an organisation has the default template library (org-level). Idempotent. Returns the
+    /// number of templates created.
+    /// </summary>
+    Task<int> EnsureOrganisationLibraryAsync(int organisationId);
 }
 
 /// <summary>An activity and how many templates it has (used by the import picker).</summary>

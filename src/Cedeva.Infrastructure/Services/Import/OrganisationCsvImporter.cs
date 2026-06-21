@@ -2,6 +2,7 @@ using Cedeva.Core.Entities;
 using Cedeva.Core.Enums;
 using Cedeva.Core.Interfaces;
 using Cedeva.Infrastructure.Data;
+using Cedeva.Infrastructure.Services.Email;
 using Microsoft.EntityFrameworkCore;
 
 namespace Cedeva.Infrastructure.Services.Import;
@@ -51,6 +52,7 @@ public class OrganisationCsvImporter : ICsvEntityImporter
         var existingNames = new HashSet<string>(
             await _context.Organisations.IgnoreQueryFilters().Select(o => o.Name).ToListAsync(ct),
             StringComparer.OrdinalIgnoreCase);
+        var created = new List<Organisation>();
 
         foreach (var row in data.Rows)
         {
@@ -75,18 +77,25 @@ public class OrganisationCsvImporter : ICsvEntityImporter
             }
 
             var email = row.Get("email");
-            _context.Organisations.Add(new Organisation
+            var organisation = new Organisation
             {
                 Name = name,
                 Description = description,
                 Email = string.IsNullOrWhiteSpace(email) ? null : email,
                 Address = new Address { Street = street, City = city, PostalCode = postalCode, Country = Country.Belgium }
-            });
+            };
+            _context.Organisations.Add(organisation);
+            created.Add(organisation);
             result.Created++;
         }
 
         if (result.Created > 0)
+        {
             await _context.SaveChangesAsync(ct);
+            // Give each new organisation the default email-template library.
+            foreach (var org in created)
+                await DefaultEmailTemplateLibrary.EnsureAsync(_context, org.Id, ct);
+        }
 
         return result;
     }

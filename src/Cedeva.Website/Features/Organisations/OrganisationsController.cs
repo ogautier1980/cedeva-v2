@@ -7,6 +7,7 @@ using Cedeva.Core.Interfaces;
 using Cedeva.Website.Features.Organisations.ViewModels;
 using Cedeva.Website.Localization;
 using Cedeva.Infrastructure.Data;
+using Cedeva.Infrastructure.Services.Email;
 using Cedeva.Website.Infrastructure;
 
 namespace Cedeva.Website.Features.Organisations;
@@ -238,6 +239,9 @@ public class OrganisationsController : Controller
 
             await _organisationRepository.AddAsync(organisation);
             await _unitOfWork.SaveChangesAsync();
+
+            // Give the new organisation the default email-template library.
+            await DefaultEmailTemplateLibrary.EnsureAsync(_context, organisation.Id);
 
             await UploadLogoFileForNewOrganisation(organisation, viewModel.LogoFile);
 

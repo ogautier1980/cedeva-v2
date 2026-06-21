@@ -26,13 +26,6 @@ public sealed class FakeEmailService : IEmailService
         return Task.CompletedTask;
     }
 
-    public Task SendBookingConfirmationEmailAsync(string parentEmail, string parentName, string childName,
-        string activityName, DateTime startDate, DateTime endDate)
-    {
-        Sent.Add(new Message(new[] { parentEmail }, $"Booking: {activityName}", childName, null));
-        return Task.CompletedTask;
-    }
-
     public Task SendWelcomeEmailAsync(string userEmail, string userName, string organisationName)
     {
         Sent.Add(new Message(new[] { userEmail }, $"Welcome: {organisationName}", userName, null));

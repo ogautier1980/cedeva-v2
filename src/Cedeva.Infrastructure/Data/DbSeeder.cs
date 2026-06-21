@@ -1,5 +1,6 @@
 using Cedeva.Core.Entities;
 using Cedeva.Core.Enums;
+using Cedeva.Infrastructure.Services.Email;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -35,6 +36,7 @@ public class DbSeeder
             await SeedBelgianMunicipalitiesAsync();
             await SeedAdminUserAsync();
             await SeedDemoOrganisationAsync();
+            await EnsureEmailTemplateLibrariesAsync();
 
             _logger.LogInformation("Database seeding completed successfully");
         }
@@ -43,6 +45,18 @@ public class DbSeeder
             _logger.LogError(ex, "An error occurred while seeding the database");
             throw new InvalidOperationException("Database seeding failed", ex);
         }
+    }
+
+    /// <summary>
+    /// Guarantees every organisation has the default email-template library (org-level). This makes
+    /// template-driven sending always resolve a default and lets the app avoid hard-coded HTML.
+    /// Idempotent and applied to pre-existing organisations too (backfill).
+    /// </summary>
+    private async Task EnsureEmailTemplateLibrariesAsync()
+    {
+        var orgIds = await _context.Organisations.Select(o => o.Id).ToListAsync();
+        foreach (var orgId in orgIds)
+            await DefaultEmailTemplateLibrary.EnsureAsync(_context, orgId);
     }
 
     private async Task SeedRolesAsync()

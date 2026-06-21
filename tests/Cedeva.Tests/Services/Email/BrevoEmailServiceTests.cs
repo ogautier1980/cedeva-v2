@@ -254,34 +254,6 @@ public class BrevoEmailServiceTests
         handler.LastRequestBody!.Should().NotContain("attachment");
     }
 
-    // -------------------- SendBookingConfirmationEmailAsync (simple overload) --------------------
-
-    [Fact]
-    public async Task SendBookingConfirmationEmailAsync_simple_builds_html_and_delegates_to_send()
-    {
-        var handler = new StubHandler(HttpStatusCode.OK);
-        var service = BuildService(handler);
-
-        await service.SendBookingConfirmationEmailAsync(
-            parentEmail: "parent@example.com",
-            parentName: "Jean Dupont",
-            childName: "Chloe Enfant",
-            activityName: "Stage Multisports",
-            startDate: new DateTime(2026, 7, 1),
-            endDate: new DateTime(2026, 7, 5));
-
-        handler.CallCount.Should().Be(1);
-        var body = handler.LastRequestBody!;
-        body.Should().Contain("parent@example.com");
-        // The apostrophe in "d'inscription" is JSON-escaped, so assert the stable substring.
-        body.Should().Contain("inscription - Stage Multisports");
-        body.Should().Contain("Jean Dupont");
-        body.Should().Contain("Chloe Enfant");
-        body.Should().Contain("Stage Multisports");
-        // Dates are rendered with dd/MM/yyyy format string; separator is culture-dependent.
-        body.Should().Contain("2026");
-    }
-
     // -------------------- SendWelcomeEmailAsync --------------------
 
     [Fact]

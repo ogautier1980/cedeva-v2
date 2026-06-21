@@ -23,24 +23,6 @@ public interface IEmailService
     Task SendEmailAsync(IEnumerable<string> to, string subject, string htmlContent, string? attachmentPath = null);
 
     /// <summary>
-    /// Sends a booking confirmation email to a parent
-    /// </summary>
-    /// <param name="parentEmail">Parent email address</param>
-    /// <param name="parentName">Parent full name</param>
-    /// <param name="childName">Child full name</param>
-    /// <param name="activityName">Activity name</param>
-    /// <param name="startDate">Activity start date</param>
-    /// <param name="endDate">Activity end date</param>
-    /// <returns>Task representing the async operation</returns>
-    Task SendBookingConfirmationEmailAsync(
-        string parentEmail,
-        string parentName,
-        string childName,
-        string activityName,
-        DateTime startDate,
-        DateTime endDate);
-
-    /// <summary>
     /// Sends a welcome email to a newly registered user
     /// </summary>
     /// <param name="userEmail">User email address</param>

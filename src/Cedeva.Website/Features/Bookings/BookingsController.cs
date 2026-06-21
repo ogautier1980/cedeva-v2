@@ -628,20 +628,13 @@ public class BookingsController : Controller
         {
             var organisation = await _context.Organisations.FindAsync(activity.OrganisationId);
 
-            // Prefer the org's BookingConfirmation template; fall back to the built-in message.
-            var sent = organisation != null && await _emailServices.SendBookingTemplateAsync(
-                EmailTemplateType.BookingConfirmation, activity.OrganisationId,
-                new[] { parent.Email }, fullBooking, organisation);
-
-            if (!sent)
+            // Send via the activity/organisation BookingConfirmation template (every organisation has
+            // a default template library, so this resolves without a hard-coded fallback).
+            if (organisation != null)
             {
-                await _emailService.SendBookingConfirmationEmailAsync(
-                    parent.Email,
-                    $"{parent.FirstName} {parent.LastName}",
-                    $"{fullBooking.Child!.FirstName} {fullBooking.Child.LastName}",
-                    activity.Name,
-                    activity.StartDate,
-                    activity.EndDate);
+                await _emailServices.SendBookingTemplateAsync(
+                    EmailTemplateType.BookingConfirmation, activity.OrganisationId,
+                    new[] { parent.Email }, fullBooking, organisation);
             }
 
             TempData[ControllerExtensions.SuccessMessageKey] = _ctx.Localizer["Message.BookingConfirmedEmailSent"].Value;

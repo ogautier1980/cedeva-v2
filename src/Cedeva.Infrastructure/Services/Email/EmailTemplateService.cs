@@ -219,6 +219,9 @@ public class EmailTemplateService : IEmailTemplateService
         return created;
     }
 
+    public Task<int> EnsureOrganisationLibraryAsync(int organisationId) =>
+        DefaultEmailTemplateLibrary.EnsureAsync(_context, organisationId);
+
     private async Task<bool> ScopeHasDefaultAsync(EmailTemplateType type, int organisationId, int? activityId) =>
         await _context.EmailTemplates.AnyAsync(t =>
             t.OrganisationId == organisationId && t.ActivityId == activityId
