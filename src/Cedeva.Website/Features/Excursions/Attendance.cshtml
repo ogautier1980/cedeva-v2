@@ -8,6 +8,11 @@
     ViewData["NavAction"] = "Attendance";
 }
 
+<style>
+    @@media print {
+        .no-print { display: none !important; }
+    }
+</style>
 
 <div class="container-fluid py-4">
     @await Html.PartialAsync("_AlertMessages")
@@ -121,12 +126,12 @@
         </div>
 
         <!-- Print Button -->
-        <div class="mt-3">
+        <div class="mt-3 no-print">
             <a asp-action="Index" asp-route-id="@Model.Activity.Id" class="btn btn-outline-secondary">
-                <i class="fas fa-arrow-left"></i> @Localizer["BackToList"]
+                <i class="fas fa-arrow-left me-2"></i>@Localizer["BackToList"]
             </a>
             <button onclick="window.print()" class="btn btn-outline-secondary">
-                <i class="fas fa-print"></i> @Localizer["Print"]
+                <i class="fas fa-print me-2"></i>@Localizer["Button.Print"]
             </button>
         </div>
     }
