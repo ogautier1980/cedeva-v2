@@ -52,7 +52,14 @@
 
                         <div class="mb-3">
                             <label for="Category" class="form-label">@Localizer["Expense.Category"]</label>
-                            <input asp-for="Category" class="form-control" id="Category" />
+                            <input asp-for="Category" class="form-control" id="Category" list="expenseCategoriesList" autocomplete="off" />
+                            <datalist id="expenseCategoriesList">
+                                @foreach (var cat in (ViewBag.ExpenseCategories as List<string>) ?? new List<string>())
+                                {
+                                    <option value="@cat"></option>
+                                }
+                            </datalist>
+                            <small class="form-text text-muted">@Localizer["Expense.CategoryHelp"]</small>
                             <span asp-validation-for="Category" class="text-danger"></span>
                         </div>
 

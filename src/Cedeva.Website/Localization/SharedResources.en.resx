@@ -4092,4 +4092,34 @@
   <data name="EmailTemplate.SaveFromEmailMissing" xml:space="preserve">
     <value>Provide a name, subject and content to save the template.</value>
   </data>
+  <data name="ExpenseCategory.Title" xml:space="preserve">
+    <value>Expense categories</value>
+  </data>
+  <data name="ExpenseCategory.AddCategory" xml:space="preserve">
+    <value>New category</value>
+  </data>
+  <data name="ExpenseCategory.EditCategory" xml:space="preserve">
+    <value>Edit category</value>
+  </data>
+  <data name="ExpenseCategory.NoCategories" xml:space="preserve">
+    <value>No expense categories yet.</value>
+  </data>
+  <data name="ExpenseCategory.Created" xml:space="preserve">
+    <value>Category created.</value>
+  </data>
+  <data name="ExpenseCategory.Updated" xml:space="preserve">
+    <value>Category updated.</value>
+  </data>
+  <data name="ExpenseCategory.Deleted" xml:space="preserve">
+    <value>Category deleted.</value>
+  </data>
+  <data name="ExpenseCategory.ConfirmDelete" xml:space="preserve">
+    <value>Delete this category?</value>
+  </data>
+  <data name="ExpenseCategory.Duplicate" xml:space="preserve">
+    <value>This category already exists.</value>
+  </data>
+  <data name="Expense.CategoryHelp" xml:space="preserve">
+    <value>Pick a category or type a new one.</value>
+  </data>
 </root>

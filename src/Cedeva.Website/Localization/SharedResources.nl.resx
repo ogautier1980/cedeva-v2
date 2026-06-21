@@ -4092,4 +4092,34 @@
   <data name="EmailTemplate.SaveFromEmailMissing" xml:space="preserve">
     <value>Vul een naam, onderwerp en inhoud in om het sjabloon op te slaan.</value>
   </data>
+  <data name="ExpenseCategory.Title" xml:space="preserve">
+    <value>Uitgavecategorieën</value>
+  </data>
+  <data name="ExpenseCategory.AddCategory" xml:space="preserve">
+    <value>Nieuwe categorie</value>
+  </data>
+  <data name="ExpenseCategory.EditCategory" xml:space="preserve">
+    <value>Categorie bewerken</value>
+  </data>
+  <data name="ExpenseCategory.NoCategories" xml:space="preserve">
+    <value>Nog geen uitgavecategorieën.</value>
+  </data>
+  <data name="ExpenseCategory.Created" xml:space="preserve">
+    <value>Categorie aangemaakt.</value>
+  </data>
+  <data name="ExpenseCategory.Updated" xml:space="preserve">
+    <value>Categorie bijgewerkt.</value>
+  </data>
+  <data name="ExpenseCategory.Deleted" xml:space="preserve">
+    <value>Categorie verwijderd.</value>
+  </data>
+  <data name="ExpenseCategory.ConfirmDelete" xml:space="preserve">
+    <value>Deze categorie verwijderen?</value>
+  </data>
+  <data name="ExpenseCategory.Duplicate" xml:space="preserve">
+    <value>Deze categorie bestaat al.</value>
+  </data>
+  <data name="Expense.CategoryHelp" xml:space="preserve">
+    <value>Kies een categorie of typ een nieuwe.</value>
+  </data>
 </root>

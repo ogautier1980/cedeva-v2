@@ -36,6 +36,7 @@ public class CedevaDbContext : IdentityDbContext<CedevaUser>, IUnitOfWork
     public DbSet<ContactGroup> ContactGroups => Set<ContactGroup>();
     public DbSet<ContactGroupMember> ContactGroupMembers => Set<ContactGroupMember>();
     public DbSet<Expense> Expenses => Set<Expense>();
+    public DbSet<ExpenseCategory> ExpenseCategories => Set<ExpenseCategory>();
     public DbSet<EmailSent> EmailsSent => Set<EmailSent>();
     public DbSet<EmailTemplate> EmailTemplates => Set<EmailTemplate>();
     public DbSet<Payment> Payments => Set<Payment>();
@@ -81,6 +82,12 @@ public class CedevaDbContext : IdentityDbContext<CedevaUser>, IUnitOfWork
             .HasQueryFilter(t => _currentUserService == null ||
                                  _currentUserService.IsAdmin ||
                                  t.OrganisationId == _currentUserService.OrganisationId);
+
+        // Filter expense categories by organisation
+        builder.Entity<ExpenseCategory>()
+            .HasQueryFilter(c => _currentUserService == null ||
+                                 _currentUserService.IsAdmin ||
+                                 c.OrganisationId == _currentUserService.OrganisationId);
 
         // Filter contacts by organisation
         builder.Entity<Contact>()

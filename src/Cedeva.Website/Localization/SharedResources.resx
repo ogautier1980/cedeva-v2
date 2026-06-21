@@ -4114,4 +4114,34 @@
   <data name="EmailTemplate.SaveFromEmailMissing" xml:space="preserve">
     <value>Renseignez un nom, un sujet et un contenu pour enregistrer le modèle.</value>
   </data>
+  <data name="ExpenseCategory.Title" xml:space="preserve">
+    <value>Catégories de dépenses</value>
+  </data>
+  <data name="ExpenseCategory.AddCategory" xml:space="preserve">
+    <value>Nouvelle catégorie</value>
+  </data>
+  <data name="ExpenseCategory.EditCategory" xml:space="preserve">
+    <value>Modifier la catégorie</value>
+  </data>
+  <data name="ExpenseCategory.NoCategories" xml:space="preserve">
+    <value>Aucune catégorie de dépense pour le moment.</value>
+  </data>
+  <data name="ExpenseCategory.Created" xml:space="preserve">
+    <value>Catégorie créée.</value>
+  </data>
+  <data name="ExpenseCategory.Updated" xml:space="preserve">
+    <value>Catégorie mise à jour.</value>
+  </data>
+  <data name="ExpenseCategory.Deleted" xml:space="preserve">
+    <value>Catégorie supprimée.</value>
+  </data>
+  <data name="ExpenseCategory.ConfirmDelete" xml:space="preserve">
+    <value>Supprimer cette catégorie ?</value>
+  </data>
+  <data name="ExpenseCategory.Duplicate" xml:space="preserve">
+    <value>Cette catégorie existe déjà.</value>
+  </data>
+  <data name="Expense.CategoryHelp" xml:space="preserve">
+    <value>Choisissez une catégorie ou saisissez-en une nouvelle.</value>
+  </data>
 </root>

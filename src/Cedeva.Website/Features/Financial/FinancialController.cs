@@ -273,12 +273,39 @@ public class FinancialController : Controller
         }
 
         await PopulateAssignedToDropdown(activityId.Value);
+        await PopulateExpenseCategoriesAsync(activityId.Value);
 
         return View(new ExpenseViewModel
         {
             ExpenseDate = DateTime.Today,
             ActivityId = activityId.Value
         });
+    }
+
+    /// <summary>Loads the organisation's expense category names for the form datalist.</summary>
+    private async Task PopulateExpenseCategoriesAsync(int activityId)
+    {
+        var orgId = await _context.Activities.Where(a => a.Id == activityId)
+            .Select(a => a.OrganisationId).FirstOrDefaultAsync();
+        ViewBag.ExpenseCategories = await _context.ExpenseCategories
+            .Where(c => c.OrganisationId == orgId)
+            .OrderBy(c => c.Name)
+            .Select(c => c.Name)
+            .ToListAsync();
+    }
+
+    /// <summary>Creates an expense category for the activity's organisation if the name is new.</summary>
+    private async Task EnsureExpenseCategoryAsync(int activityId, string? name)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+            return;
+
+        name = name.Trim();
+        var orgId = await _context.Activities.Where(a => a.Id == activityId)
+            .Select(a => a.OrganisationId).FirstOrDefaultAsync();
+        var exists = await _context.ExpenseCategories.AnyAsync(c => c.OrganisationId == orgId && c.Name == name);
+        if (!exists)
+            _context.ExpenseCategories.Add(new ExpenseCategory { OrganisationId = orgId, Name = name });
     }
 
     // POST: Financial/CreateExpense
@@ -295,15 +322,18 @@ public class FinancialController : Controller
         if (!ModelState.IsValid)
         {
             await PopulateAssignedToDropdown(activityId.Value);
+            await PopulateExpenseCategoriesAsync(activityId.Value);
             return View(viewModel);
         }
+
+        await EnsureExpenseCategoryAsync(activityId.Value, viewModel.Category);
 
         var expense = new Expense
         {
             Label = viewModel.Label,
             Description = viewModel.Description,
             Amount = viewModel.Amount,
-            Category = viewModel.Category,
+            Category = string.IsNullOrWhiteSpace(viewModel.Category) ? null : viewModel.Category.Trim(),
             ExpenseDate = viewModel.ExpenseDate,
             ActivityId = activityId.Value
         };
@@ -347,6 +377,7 @@ public class FinancialController : Controller
         }
 
         await PopulateAssignedToDropdown(expense.ActivityId);
+        await PopulateExpenseCategoriesAsync(expense.ActivityId);
 
         var viewModel = new ExpenseViewModel
         {
@@ -394,13 +425,16 @@ public class FinancialController : Controller
         if (!ModelState.IsValid)
         {
             await PopulateAssignedToDropdown(expense.ActivityId);
+            await PopulateExpenseCategoriesAsync(expense.ActivityId);
             return View(viewModel);
         }
+
+        await EnsureExpenseCategoryAsync(expense.ActivityId, viewModel.Category);
 
         expense.Label = viewModel.Label;
         expense.Description = viewModel.Description;
         expense.Amount = viewModel.Amount;
-        expense.Category = viewModel.Category;
+        expense.Category = string.IsNullOrWhiteSpace(viewModel.Category) ? null : viewModel.Category.Trim();
         expense.ExpenseDate = viewModel.ExpenseDate;
 
         // Parse AssignedTo

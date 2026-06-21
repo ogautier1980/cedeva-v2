@@ -105,6 +105,8 @@ public class SeederSmokeTests
         // A sample saved contact group (with members) is seeded.
         (await verify.ContactGroups.IgnoreQueryFilters().CountAsync()).Should().BeGreaterThan(0);
         (await verify.ContactGroupMembers.IgnoreQueryFilters().CountAsync()).Should().BeGreaterThan(0);
+        // Default expense categories are seeded.
+        (await verify.ExpenseCategories.IgnoreQueryFilters().CountAsync()).Should().BeGreaterThan(0);
     }
 
     [Fact]

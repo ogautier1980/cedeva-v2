@@ -150,6 +150,12 @@ public class TestDataSeeder
                 if (contactGroupCount == 0)
                     SeedContactGroup(organisation.Id);
 
+                // Default expense categories
+                var expenseCategoryCount = await _context.ExpenseCategories.IgnoreQueryFilters()
+                    .CountAsync(c => c.OrganisationId == organisation.Id);
+                if (expenseCategoryCount == 0)
+                    SeedExpenseCategories(organisation.Id);
+
                 await _context.SaveChangesAsync();
             }
 
@@ -1147,6 +1153,15 @@ public class TestDataSeeder
                 Email = "c.renard@commune.be", PhoneNumber = "081 22 33 44",
                 Function = "Contact communal"
             });
+    }
+
+    // =========================================================================
+    // Default expense categories
+    // =========================================================================
+    private void SeedExpenseCategories(int organisationId)
+    {
+        foreach (var name in new[] { "Alimentation", "Transport", "Matériel", "Logement", "Activités", "Divers" })
+            _context.ExpenseCategories.Add(new ExpenseCategory { OrganisationId = organisationId, Name = name });
     }
 
     // =========================================================================
