@@ -88,6 +88,28 @@ public class ActivityManagementSendEmailTests
         fake.Sent[0].To.Should().Contain("paul.parent@test.be");
     }
 
+    [Theory]
+    [MemberData(nameof(SaveFailures.Kinds), MemberType = typeof(SaveFailures))]
+    public async Task SendEmail_WhenLoggingSaveFails_IsHandledGracefully_AndNotLogged(string kind)
+    {
+        var fake = new FakeEmailService();
+        using var factory = NewFactory(fake);
+        var (org, activity) = SeedActivityWithConfirmedBooking(factory, withBooking: true);
+
+        var client = factory.CreateClientFor("u1", org.Id, "Coordinator");
+        // Sends succeed (fake), but logging the send (SaveChanges) fails -> SendEmail's catch runs.
+        factory.ThrowOnSaveChanges = SaveFailures.Make(kind);
+        var response = await client.PostAsync("/ActivityManagement/SendEmail", Form(activity.Id, perChild: true));
+
+        // The send-email failure must be caught, not surface as a 500.
+        response.StatusCode.Should().BeOneOf(HttpStatusCode.OK, HttpStatusCode.Found);
+
+        factory.ThrowOnSaveChanges = null;
+        using var db = factory.NewDbContext();
+        (await db.EmailsSent.AnyAsync(e => e.ActivityId == activity.Id))
+            .Should().BeFalse("the log write failed, so nothing should be persisted");
+    }
+
     [Fact]
     public async Task SendEmail_NoConfirmedBookings_ReturnsViewWithError_AndSendsNothing()
     {
