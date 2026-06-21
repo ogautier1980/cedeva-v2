@@ -27,6 +27,16 @@ public class CedevaWebApplicationFactory : WebApplicationFactory<Program>
         _connection.Open();
     }
 
+    /// <summary>Optional per-test service overrides on the IServiceCollection (applied last in
+    /// ConfigureTestServices). For services registered through Autofac (e.g. IEmailService), use
+    /// <see cref="ConfigureExtraTestContainer"/> instead — Autofac registrations win over these.</summary>
+    public Action<IServiceCollection>? ConfigureExtraTestServices { get; set; }
+
+    /// <summary>Optional per-test overrides on the Autofac container (applied after the app's module,
+    /// so the last registration wins). Use this to swap an Autofac-registered service such as
+    /// <c>IEmailService</c> for a fake. Set via the object initializer before first host access.</summary>
+    public Action<Autofac.ContainerBuilder>? ConfigureExtraTestContainer { get; set; }
+
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         // Development => LocalFileStorageService (no Azure Blob); disable startup seeding.
@@ -55,7 +65,20 @@ public class CedevaWebApplicationFactory : WebApplicationFactory<Program>
 
             // Bypass antiforgery so tests can POST without round-tripping a token.
             services.AddSingleton<Microsoft.AspNetCore.Antiforgery.IAntiforgery, FakeAntiforgery>();
+
+            // Per-test overrides last so they take precedence over the app's registrations.
+            ConfigureExtraTestServices?.Invoke(services);
         });
+    }
+
+    protected override IHost CreateHost(IHostBuilder builder)
+    {
+        // The app registers its Autofac container at the Host level (builder.Host.ConfigureContainer),
+        // so we add our overrides here too — they run after the app's module, and Autofac's
+        // last-registration-wins makes the test registration the resolved one.
+        if (ConfigureExtraTestContainer != null)
+            builder.ConfigureContainer<Autofac.ContainerBuilder>(b => ConfigureExtraTestContainer(b));
+        return base.CreateHost(builder);
     }
 
     /// <summary>Creates the schema (once) and seeds data. Returns the seeder's result with DB-assigned IDs.</summary>

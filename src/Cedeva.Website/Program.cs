@@ -59,6 +59,18 @@ try
         }
     });
 
+    // Application Insights (Azure-native observability: requests, dependencies, failures, live
+    // metrics) — enabled only when a connection string is configured (ApplicationInsights:
+    // ConnectionString or the APPLICATIONINSIGHTS_CONNECTION_STRING env var, e.g. an Azure app
+    // setting). Inert in dev/CI where it's unset, mirroring the Seq sink above.
+    var appInsightsConnectionString = builder.Configuration["ApplicationInsights:ConnectionString"]
+        ?? builder.Configuration["APPLICATIONINSIGHTS_CONNECTION_STRING"];
+    if (!string.IsNullOrWhiteSpace(appInsightsConnectionString))
+    {
+        builder.Services.AddApplicationInsightsTelemetry(options =>
+            options.ConnectionString = appInsightsConnectionString);
+    }
+
     // Strongly-typed configuration (Options pattern)
     builder.Services.Configure<BrevoOptions>(builder.Configuration.GetSection(BrevoOptions.SectionName));
     builder.Services.Configure<AzureStorageOptions>(builder.Configuration.GetSection(AzureStorageOptions.SectionName));

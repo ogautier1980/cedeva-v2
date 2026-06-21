@@ -72,4 +72,39 @@ public class BelgianMunicipalityServiceTests
 
         (await Sut(db).IsValidMunicipalityAsync("1000", "Gembloux")).Should().BeFalse();
     }
+
+    [Fact]
+    public async Task ImportFromCsv_AddsNewRows_SkipsDuplicatesAndMalformedLines()
+    {
+        using var db = SeedMunicipalities(); // already has 1000 Bruxelles, 5030 Gembloux/Beuzet
+        var csv =
+            "4000;Liège\n" +        // new
+            "2000;Antwerpen\n" +    // new
+            "1000;Bruxelles\n" +    // duplicate -> skipped
+            "1000;BRUXELLES\n" +    // duplicate (case-insensitive) -> skipped
+            "  ;Ville\n" +          // blank postal code -> skipped
+            "malformed-line\n" +    // not 2 columns -> skipped
+            "\n";                   // empty -> skipped
+
+        using var stream = new System.IO.MemoryStream(System.Text.Encoding.UTF8.GetBytes(csv));
+        await Sut(db).ImportMunicipalitiesFromCsvAsync(stream);
+
+        using var verify = db.NewContext();
+        verify.BelgianMunicipalities.Should().HaveCount(5, "only the 2 genuinely new municipalities are added to the original 3");
+        verify.BelgianMunicipalities.Should().Contain(m => m.PostalCode == "4000" && m.City == "Liège");
+        verify.BelgianMunicipalities.Should().Contain(m => m.PostalCode == "2000" && m.City == "Antwerpen");
+        verify.BelgianMunicipalities.Count(m => m.City.ToUpper() == "BRUXELLES").Should().Be(1, "the case-insensitive duplicate must not be inserted");
+    }
+
+    [Fact]
+    public async Task ImportFromCsv_EmptyStream_AddsNothing()
+    {
+        using var db = SeedMunicipalities();
+
+        using var stream = new System.IO.MemoryStream(System.Text.Encoding.UTF8.GetBytes(""));
+        await Sut(db).ImportMunicipalitiesFromCsvAsync(stream);
+
+        using var verify = db.NewContext();
+        verify.BelgianMunicipalities.Should().HaveCount(3, "an empty CSV leaves the table unchanged");
+    }
 }

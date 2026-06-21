@@ -7,7 +7,7 @@ Documentation technique de Cedeva, au-delà du [README](../README.md) (fonctionn
 |----------|---------|
 | [architecture.md](architecture.md) | Vue d'ensemble C4 (contexte / conteneurs / composants), stack, flux de requête |
 | [non-functional-requirements.md](non-functional-requirements.md) | Exigences non-fonctionnelles sous forme de scénarios qualité + tactiques en place |
-| [test-strategy.md](test-strategy.md) | 5 niveaux de tests (~1134 unit/intégration + 59 E2E + 3 SQL, ≈89 % couverture), infra, 3 workflows CI, gate de couverture, pièges appris |
+| [test-strategy.md](test-strategy.md) | 5 niveaux de tests (~1139 unit/intégration + 59 E2E + 3 SQL, ≈90 % couverture), infra, 3 workflows CI, gate de couverture, pièges appris |
 | [adr/](adr/) | Architecture Decision Records — le *pourquoi* des choix structurants |
 
 > Convention : ces documents décrivent l'état **réel** du code. Quand une décision change,
