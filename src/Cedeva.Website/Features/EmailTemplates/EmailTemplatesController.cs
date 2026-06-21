@@ -286,7 +286,7 @@ public class EmailTemplatesController : Controller
             return RedirectToAction("SendEmail", "ActivityManagement", new { id = activityId });
         }
 
-        var user = await _userManager.GetUserAsync(User);
+        // CreatedBy/CreatedAt are populated by the auditing SaveChangesAsync interceptor.
         await _templateService.CreateTemplateAsync(new EmailTemplate
         {
             OrganisationId = activity.OrganisationId,
@@ -295,9 +295,7 @@ public class EmailTemplatesController : Controller
             TemplateType = templateType,
             Subject = subject.Trim(),
             HtmlContent = message,
-            IsDefault = false,
-            CreatedBy = user?.Id,
-            CreatedAt = DateTime.UtcNow
+            IsDefault = false
         });
 
         TempData[ControllerExtensions.SuccessMessageKey] = _localizer["EmailTemplate.SaveFromEmailSuccess"].ToString();
