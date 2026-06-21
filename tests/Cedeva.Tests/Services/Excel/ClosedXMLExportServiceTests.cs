@@ -167,6 +167,22 @@ public class ClosedXmlExportServiceTests
     }
 
     [Fact]
+    public void ExportToExcel_PreservesAccentedText()
+    {
+        // Belgian-FR data routinely contains accents (Chloé, Camp d'été) — they must round-trip.
+        var data = new[]
+        {
+            new Row("Chloé — Camp d'été à Liège", 1, 1m, true, new DateTime(2026, 7, 1), "Préréservé")
+        };
+
+        var bytes = _sut.ExportToExcel(data, "Items", Columns());
+        var ws = OpenSheet(bytes, "Items");
+
+        ws.Cell(2, 1).GetString().Should().Be("Chloé — Camp d'été à Liège");
+        ws.Cell(2, 6).GetString().Should().Be("Préréservé");
+    }
+
+    [Fact]
     public void ExportToExcel_LeavesNullValueCellEmpty()
     {
         var data = new[]
