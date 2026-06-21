@@ -37,6 +37,10 @@ public class CedevaWebApplicationFactory : WebApplicationFactory<Program>
     /// <c>IEmailService</c> for a fake. Set via the object initializer before first host access.</summary>
     public Action<Autofac.ContainerBuilder>? ConfigureExtraTestContainer { get; set; }
 
+    /// <summary>When set, the DbContext throws this exception on the next SaveChanges — used to drive
+    /// controllers' defensive catch branches. Leave null while seeding, then set it before the POST.</summary>
+    public Exception? ThrowOnSaveChanges { get; set; }
+
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         // Development => LocalFileStorageService (no Azure Blob); disable startup seeding.
@@ -53,7 +57,9 @@ public class CedevaWebApplicationFactory : WebApplicationFactory<Program>
                  d.ServiceType.Name.Contains("DbContextOptionsConfiguration"))).ToList();
             foreach (var d in toRemove) services.Remove(d);
 
-            services.AddDbContext<CedevaDbContext>(options => options.UseSqlite(_connection));
+            services.AddDbContext<CedevaDbContext>(options => options
+                .UseSqlite(_connection)
+                .AddInterceptors(new ThrowingSaveChangesInterceptor(() => ThrowOnSaveChanges)));
 
             // Force the Test authentication scheme as the default for [Authorize].
             services.AddAuthentication(options =>
