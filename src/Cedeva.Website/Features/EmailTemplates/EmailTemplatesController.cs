@@ -266,6 +266,44 @@ public class EmailTemplatesController : Controller
         return RedirectToAction(nameof(Index), new { activityId });
     }
 
+    /// <summary>
+    /// Saves a composed email (from the activity SendEmail form) as a new activity-scoped template.
+    /// </summary>
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> SaveFromEmail(int activityId, string name, EmailTemplateType templateType, string subject, string message)
+    {
+        var activity = await _context.Activities.FirstOrDefaultAsync(a => a.Id == activityId);
+        if (activity == null)
+        {
+            TempData[ControllerExtensions.ErrorMessageKey] = _localizer[ErrorNotFound].ToString();
+            return RedirectToAction("SendEmail", "ActivityManagement", new { id = activityId });
+        }
+
+        if (string.IsNullOrWhiteSpace(name) || string.IsNullOrWhiteSpace(subject) || string.IsNullOrWhiteSpace(message))
+        {
+            TempData[ControllerExtensions.ErrorMessageKey] = _localizer["EmailTemplate.SaveFromEmailMissing"].ToString();
+            return RedirectToAction("SendEmail", "ActivityManagement", new { id = activityId });
+        }
+
+        var user = await _userManager.GetUserAsync(User);
+        await _templateService.CreateTemplateAsync(new EmailTemplate
+        {
+            OrganisationId = activity.OrganisationId,
+            ActivityId = activityId,
+            Name = name.Trim(),
+            TemplateType = templateType,
+            Subject = subject.Trim(),
+            HtmlContent = message,
+            IsDefault = false,
+            CreatedBy = user?.Id,
+            CreatedAt = DateTime.UtcNow
+        });
+
+        TempData[ControllerExtensions.SuccessMessageKey] = _localizer["EmailTemplate.SaveFromEmailSuccess"].ToString();
+        return RedirectToAction("SendEmail", "ActivityManagement", new { id = activityId });
+    }
+
     /// <summary>AJAX endpoint to get template data for loading into the SendEmail form.</summary>
     [HttpGet]
     public async Task<IActionResult> GetTemplate(int id)

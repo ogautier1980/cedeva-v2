@@ -126,6 +126,9 @@
                             <button type="submit" class="btn btn-primary">
                                 <i class="fas fa-paper-plane"></i> @Localizer["Send"]
                             </button>
+                            <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#saveTemplateModal">
+                                <i class="fas fa-save"></i> @Localizer["EmailTemplate.SaveFromEmail"]
+                            </button>
                             <a asp-action="Index" asp-route-id="@Model.ActivityId" class="btn btn-secondary">
                                 <i class="fas fa-times"></i> @Localizer["Cancel"]
                             </a>
@@ -134,6 +137,43 @@
                             </a>
                         </div>
                     </form>
+
+                    <!-- Save-as-template modal (separate form, posts the composed subject/message) -->
+                    <div class="modal fade" id="saveTemplateModal" tabindex="-1" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <form asp-controller="EmailTemplates" asp-action="SaveFromEmail" method="post">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title"><i class="fas fa-save me-2"></i>@Localizer["EmailTemplate.SaveFromEmail"]</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <p class="text-muted small">@Localizer["EmailTemplate.SaveFromEmailHelp"]</p>
+                                        <input type="hidden" name="activityId" value="@Model.ActivityId" />
+                                        <input type="hidden" name="subject" id="tplSubject" />
+                                        <input type="hidden" name="message" id="tplMessage" />
+                                        <div class="mb-3">
+                                            <label for="tplName" class="form-label">@Localizer["Field.Name"]</label>
+                                            <input name="name" id="tplName" class="form-control" required maxlength="200" />
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="tplType" class="form-label">@Localizer["EmailTemplate.TemplateType"]</label>
+                                            <select name="templateType" id="tplType" class="form-select">
+                                                @foreach (var t in Enum.GetValues<Cedeva.Core.Enums.EmailTemplateType>())
+                                                {
+                                                    <option value="@((int)t)">@Localizer[$"EmailTemplateType.{t}"]</option>
+                                                }
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">@Localizer["Cancel"]</button>
+                                        <button type="submit" class="btn btn-primary">@Localizer["Save"]</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -250,6 +290,18 @@
                     document.querySelectorAll('#contactList .contact-item').forEach(function (item) {
                         item.classList.toggle('d-none', q && item.dataset.search.indexOf(q) === -1);
                     });
+                });
+            }
+
+            // Save-as-template: copy the composed subject + message into the modal's hidden fields.
+            var saveTplForm = document.querySelector('#saveTemplateModal form');
+            if (saveTplForm) {
+                saveTplForm.addEventListener('submit', function () {
+                    document.getElementById('tplSubject').value = document.getElementById('Subject').value;
+                    var html;
+                    try { html = $('#Message').summernote('code'); }
+                    catch (e) { html = document.getElementById('Message').value; }
+                    document.getElementById('tplMessage').value = html;
                 });
             }
 

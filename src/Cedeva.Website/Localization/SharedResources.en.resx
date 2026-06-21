@@ -4080,4 +4080,16 @@
   <data name="EmailTemplate.NoSourceActivities" xml:space="preserve">
     <value>No other activity has templates to import.</value>
   </data>
+  <data name="EmailTemplate.SaveFromEmail" xml:space="preserve">
+    <value>Save as template</value>
+  </data>
+  <data name="EmailTemplate.SaveFromEmailHelp" xml:space="preserve">
+    <value>Save the current subject and content as a new template for this activity.</value>
+  </data>
+  <data name="EmailTemplate.SaveFromEmailSuccess" xml:space="preserve">
+    <value>Email saved as a template.</value>
+  </data>
+  <data name="EmailTemplate.SaveFromEmailMissing" xml:space="preserve">
+    <value>Provide a name, subject and content to save the template.</value>
+  </data>
 </root>

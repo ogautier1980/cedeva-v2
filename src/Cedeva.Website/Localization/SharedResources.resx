@@ -4102,4 +4102,16 @@
   <data name="EmailTemplate.NoSourceActivities" xml:space="preserve">
     <value>Aucune autre activité ne possède de modèles à importer.</value>
   </data>
+  <data name="EmailTemplate.SaveFromEmail" xml:space="preserve">
+    <value>Enregistrer comme modèle</value>
+  </data>
+  <data name="EmailTemplate.SaveFromEmailHelp" xml:space="preserve">
+    <value>Enregistrez le sujet et le contenu actuels comme un nouveau modèle de cette activité.</value>
+  </data>
+  <data name="EmailTemplate.SaveFromEmailSuccess" xml:space="preserve">
+    <value>E-mail enregistré comme modèle.</value>
+  </data>
+  <data name="EmailTemplate.SaveFromEmailMissing" xml:space="preserve">
+    <value>Renseignez un nom, un sujet et un contenu pour enregistrer le modèle.</value>
+  </data>
 </root>

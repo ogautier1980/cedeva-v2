@@ -149,6 +149,42 @@ public class EmailTemplatesActivityScopeTests
     }
 
     [Fact]
+    public async Task SaveFromEmail_CreatesActivityScopedTemplateFromComposedEmail()
+    {
+        using var factory = new CedevaWebApplicationFactory();
+        Organisation org = null!;
+        Activity activity = null!;
+        factory.Seed(ctx =>
+        {
+            org = TestData.Organisation();
+            activity = TestData.Activity(org);
+            ctx.AddRange(org, activity);
+            ctx.SaveChanges();
+            SeedUser(ctx, "u1", org.Id);
+            return 0;
+        });
+        var client = factory.CreateClientFor("u1", org.Id, "Coordinator");
+
+        var form = new FormUrlEncodedContent(new Dictionary<string, string>
+        {
+            ["activityId"] = activity.Id.ToString(),
+            ["name"] = "Mon modèle perso",
+            ["templateType"] = ((int)EmailTemplateType.Custom).ToString(),
+            ["subject"] = "Sujet composé",
+            ["message"] = "<p>Contenu composé</p>"
+        });
+        var response = await client.PostAsync("/EmailTemplates/SaveFromEmail", form);
+        response.StatusCode.Should().Be(HttpStatusCode.Found);
+
+        using var db = factory.NewDbContext();
+        var template = await db.EmailTemplates.IgnoreQueryFilters().FirstOrDefaultAsync(t => t.Name == "Mon modèle perso");
+        template.Should().NotBeNull();
+        template!.ActivityId.Should().Be(activity.Id);
+        template.Subject.Should().Be("Sujet composé");
+        template.HtmlContent.Should().Be("<p>Contenu composé</p>");
+    }
+
+    [Fact]
     public async Task Index_OrgScope_ShowsOnlyOrgLibrary_NotActivityTemplates()
     {
         using var factory = new CedevaWebApplicationFactory();

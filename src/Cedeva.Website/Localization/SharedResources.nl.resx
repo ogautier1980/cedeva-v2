@@ -4080,4 +4080,16 @@
   <data name="EmailTemplate.NoSourceActivities" xml:space="preserve">
     <value>Geen enkele andere activiteit heeft sjablonen om te importeren.</value>
   </data>
+  <data name="EmailTemplate.SaveFromEmail" xml:space="preserve">
+    <value>Opslaan als sjabloon</value>
+  </data>
+  <data name="EmailTemplate.SaveFromEmailHelp" xml:space="preserve">
+    <value>Bewaar het huidige onderwerp en de inhoud als een nieuw sjabloon voor deze activiteit.</value>
+  </data>
+  <data name="EmailTemplate.SaveFromEmailSuccess" xml:space="preserve">
+    <value>E-mail opgeslagen als sjabloon.</value>
+  </data>
+  <data name="EmailTemplate.SaveFromEmailMissing" xml:space="preserve">
+    <value>Vul een naam, onderwerp en inhoud in om het sjabloon op te slaan.</value>
+  </data>
 </root>
