@@ -209,9 +209,11 @@
                 sessionStorage.removeItem('importSuccessMessage');
             }
 
-            // Initialize SortableJS (only if single activity)
-            if (isSingleActivity) {
-                var sortable = Sortable.create(document.getElementById('sortableQuestions'), {
+            // Initialize SortableJS (only if single activity AND the list is rendered, i.e. there
+            // is at least one question — otherwise #sortableQuestions is absent and Sortable throws).
+            var sortableQuestionsEl = document.getElementById('sortableQuestions');
+            if (isSingleActivity && sortableQuestionsEl) {
+                var sortable = Sortable.create(sortableQuestionsEl, {
                     handle: '.drag-handle',
                     animation: 150,
                     ghostClass: 'sortable-ghost',
