@@ -1,14 +1,13 @@
 using System.Text;
-using Cedeva.Core.Entities;
-using Cedeva.Infrastructure.Services;
+using Cedeva.Infrastructure.Services.Import;
 using Cedeva.Tests.TestSupport;
 using Microsoft.EntityFrameworkCore;
 
 namespace Cedeva.Tests.Services;
 
 /// <summary>
-/// Unit/integration coverage for <see cref="ParentImportService"/> over a real EF schema (SQLite):
-/// happy path, parent de-duplication by email, child de-duplication by NRN, and per-row validation.
+/// Coverage for <see cref="ParentCsvImporter"/> over a real EF schema (SQLite): happy path, parent
+/// de-duplication by email, child de-duplication by NRN, and per-row validation.
 /// </summary>
 public class ParentImportServiceTests
 {
@@ -34,15 +33,15 @@ public class ParentImportServiceTests
         var (db, orgId) = NewDb();
         using var _d = db;
         using var ctx = db.NewContext(FakeCurrentUserService.Coordinator(orgId));
-        var sut = new ParentImportService(ctx);
+        var sut = new ParentCsvImporter(ctx);
 
         var result = await sut.ImportAsync(Csv(
             Header,
             "Marc;Dupont;marc@test.be;0470000000;;Rue Haute 1;1000;Bruxelles;Léa;Dupont;15/06/2018;",
             "Sophie;Martin;sophie@test.be;0470000001;;Av. Louise 2;1050;Ixelles;Tom;Martin;01/09/2019;"), orgId);
 
-        result.ParentsCreated.Should().Be(2);
-        result.ChildrenCreated.Should().Be(2);
+        result.Created.Should().Be(2);
+        result.Extra.GetValueOrDefault("Import.ChildrenCreated").Should().Be(2);
         result.HasErrors.Should().BeFalse();
 
         await using var verify = db.NewContext(FakeCurrentUserService.Admin());
@@ -58,16 +57,16 @@ public class ParentImportServiceTests
         var (db, orgId) = NewDb();
         using var _d = db;
         using var ctx = db.NewContext(FakeCurrentUserService.Coordinator(orgId));
-        var sut = new ParentImportService(ctx);
+        var sut = new ParentCsvImporter(ctx);
 
         var result = await sut.ImportAsync(Csv(
             Header,
             "Marc;Dupont;marc@test.be;0470000000;;Rue Haute 1;1000;Bruxelles;Léa;Dupont;15/06/2018;",
             "Marc;Dupont;marc@test.be;0470000000;;Rue Haute 1;1000;Bruxelles;Nina;Dupont;03/03/2020;"), orgId);
 
-        result.ParentsCreated.Should().Be(1);
-        result.ParentsReused.Should().Be(1);
-        result.ChildrenCreated.Should().Be(2, "two children attached to the single parent");
+        result.Created.Should().Be(1);
+        result.Extra.GetValueOrDefault("Import.ParentsReused").Should().Be(1);
+        result.Extra.GetValueOrDefault("Import.ChildrenCreated").Should().Be(2);
 
         await using var verify = db.NewContext(FakeCurrentUserService.Admin());
         (await verify.Parents.IgnoreQueryFilters().CountAsync(p => p.Email == "marc@test.be")).Should().Be(1);
@@ -79,13 +78,13 @@ public class ParentImportServiceTests
         var (db, orgId) = NewDb();
         using var _d = db;
         using var ctx = db.NewContext(FakeCurrentUserService.Coordinator(orgId));
-        var sut = new ParentImportService(ctx);
+        var sut = new ParentCsvImporter(ctx);
 
         var result = await sut.ImportAsync(Csv(
             Header,
             "Marc;Dupont;marc@test.be;0470000000;;Rue Haute 1;1000;Bruxelles;Léa;Dupont;not-a-date;"), orgId);
 
-        result.ChildrenCreated.Should().Be(0);
+        result.Extra.GetValueOrDefault("Import.ChildrenCreated").Should().Be(0);
         result.Errors.Should().ContainSingle().Which.Should().Contain("Ligne 2");
     }
 
@@ -95,13 +94,13 @@ public class ParentImportServiceTests
         var (db, orgId) = NewDb();
         using var _d = db;
         using var ctx = db.NewContext(FakeCurrentUserService.Coordinator(orgId));
-        var sut = new ParentImportService(ctx);
+        var sut = new ParentCsvImporter(ctx);
 
         var result = await sut.ImportAsync(Csv(
             Header,
             ";Dupont;marc@test.be;0470000000;;Rue Haute 1;1000;Bruxelles;Léa;Dupont;15/06/2018;"), orgId);
 
-        result.ParentsCreated.Should().Be(0);
+        result.Created.Should().Be(0);
         result.Errors.Should().ContainSingle();
     }
 
@@ -111,14 +110,13 @@ public class ParentImportServiceTests
         var (db, orgId) = NewDb();
         using var _d = db;
         using var ctx = db.NewContext(FakeCurrentUserService.Coordinator(orgId));
-        var sut = new ParentImportService(ctx);
+        var sut = new ParentCsvImporter(ctx);
 
-        // Header without the Email column.
         var result = await sut.ImportAsync(Csv(
             "ParentFirstName;ParentLastName;MobilePhone;Street;PostalCode;City;ChildFirstName;ChildLastName;ChildBirthDate",
             "Marc;Dupont;0470000000;Rue Haute 1;1000;Bruxelles;Léa;Dupont;15/06/2018"), orgId);
 
-        result.ParentsCreated.Should().Be(0);
+        result.Created.Should().Be(0);
         result.Errors.Should().ContainSingle().Which.Should().Contain("email");
     }
 
@@ -128,7 +126,7 @@ public class ParentImportServiceTests
         var (db, orgId) = NewDb();
         using var _d = db;
         using var ctx = db.NewContext(FakeCurrentUserService.Coordinator(orgId));
-        var sut = new ParentImportService(ctx);
+        var sut = new ParentCsvImporter(ctx);
 
         // 95061512309 is a valid Belgian NRN (mod-97 check passes).
         var result = await sut.ImportAsync(Csv(
@@ -136,7 +134,7 @@ public class ParentImportServiceTests
             "Marc;Dupont;marc@test.be;0470000000;;Rue Haute 1;1000;Bruxelles;Léa;Dupont;15/06/2018;95.06.15-123.09",
             "Marc;Dupont;marc@test.be;0470000000;;Rue Haute 1;1000;Bruxelles;Léa;Dupont;15/06/2018;95.06.15-123.09"), orgId);
 
-        result.ChildrenCreated.Should().Be(1);
-        result.ChildrenSkipped.Should().Be(1, "the second row repeats the same child NRN");
+        result.Extra.GetValueOrDefault("Import.ChildrenCreated").Should().Be(1);
+        result.Extra.GetValueOrDefault("Import.ChildrenSkipped").Should().Be(1);
     }
 }

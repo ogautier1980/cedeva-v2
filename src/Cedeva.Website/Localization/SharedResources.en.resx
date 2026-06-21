@@ -4176,4 +4176,46 @@
   <data name="Import.Another" xml:space="preserve">
     <value>Import another file</value>
   </data>
+  <data name="Import.GenericHelp" xml:space="preserve">
+    <value>Pick the data type and upload a CSV file. Data stays separated per organisation.</value>
+  </data>
+  <data name="Import.EntityType" xml:space="preserve">
+    <value>Data type</value>
+  </data>
+  <data name="Import.SelectType" xml:space="preserve">
+    <value>— Choose a type —</value>
+  </data>
+  <data name="Import.TargetOrganisation" xml:space="preserve">
+    <value>Target organisation</value>
+  </data>
+  <data name="Import.TargetOrganisationHelp" xml:space="preserve">
+    <value>Rows will be imported into this organisation.</value>
+  </data>
+  <data name="Import.SelectOrganisation" xml:space="preserve">
+    <value>Please select a target organisation.</value>
+  </data>
+  <data name="Import.SummaryGeneric" xml:space="preserve">
+    <value>{0} item(s) imported.</value>
+  </data>
+  <data name="Import.Created" xml:space="preserve">
+    <value>Created</value>
+  </data>
+  <data name="Import.Skipped" xml:space="preserve">
+    <value>Skipped</value>
+  </data>
+  <data name="Import.Type.Parents" xml:space="preserve">
+    <value>Parents and children</value>
+  </data>
+  <data name="Import.Type.TeamMembers" xml:space="preserve">
+    <value>Team members</value>
+  </data>
+  <data name="Import.Type.Contacts" xml:space="preserve">
+    <value>Other contacts</value>
+  </data>
+  <data name="Import.Type.Activities" xml:space="preserve">
+    <value>Activities</value>
+  </data>
+  <data name="Import.Type.Organisations" xml:space="preserve">
+    <value>Organisations</value>
+  </data>
 </root>

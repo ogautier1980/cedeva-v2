@@ -9,6 +9,7 @@ using Cedeva.Infrastructure.Services;
 using Cedeva.Infrastructure.Services.Activities;
 using Cedeva.Infrastructure.Services.Email;
 using Cedeva.Infrastructure.Services.Excel;
+using Cedeva.Infrastructure.Services.Import;
 using Cedeva.Infrastructure.Services.Financial;
 using Cedeva.Infrastructure.Services.Payments;
 using Cedeva.Infrastructure.Services.Pdf;
@@ -166,7 +167,12 @@ try
         containerBuilder.RegisterType<BookingPaymentService>().As<IBookingPaymentService>().InstancePerLifetimeScope();
         containerBuilder.RegisterType<ExcursionService>().As<IExcursionService>().InstancePerLifetimeScope();
         containerBuilder.RegisterType<ContactDirectoryService>().As<IContactDirectoryService>().InstancePerLifetimeScope();
-        containerBuilder.RegisterType<ParentImportService>().As<IParentImportService>().InstancePerLifetimeScope();
+        // CSV entity importers (resolved as a set by the generic import controller).
+        containerBuilder.RegisterType<ParentCsvImporter>().As<ICsvEntityImporter>().InstancePerLifetimeScope();
+        containerBuilder.RegisterType<TeamMemberCsvImporter>().As<ICsvEntityImporter>().InstancePerLifetimeScope();
+        containerBuilder.RegisterType<ContactCsvImporter>().As<ICsvEntityImporter>().InstancePerLifetimeScope();
+        containerBuilder.RegisterType<ActivityCsvImporter>().As<ICsvEntityImporter>().InstancePerLifetimeScope();
+        containerBuilder.RegisterType<OrganisationCsvImporter>().As<ICsvEntityImporter>().InstancePerLifetimeScope();
         containerBuilder.RegisterType<ExcursionViewModelBuilderService>().As<IExcursionViewModelBuilderService>().InstancePerLifetimeScope();
         containerBuilder.RegisterType<FinancialCalculationService>().As<IFinancialCalculationService>().InstancePerLifetimeScope();
         containerBuilder.RegisterType<SessionStateService>().As<ISessionStateService>().InstancePerLifetimeScope();

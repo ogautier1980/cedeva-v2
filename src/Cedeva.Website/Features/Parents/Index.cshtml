@@ -15,7 +15,7 @@
             <a asp-action="Create" class="btn btn-primary text-nowrap">
                 <i class="fas fa-plus me-2"></i>@Localizer["Parents.NewParent"]
             </a>
-            <a asp-action="Import" class="btn btn-outline-primary text-nowrap" title="@Localizer["Import.Title"]">
+            <a asp-controller="Import" asp-action="Index" asp-route-type="parents" class="btn btn-outline-primary text-nowrap" title="@Localizer["Import.Title"]">
                 <i class="fas fa-file-import me-2"></i>@Localizer["Import.Csv"]
             </a>
             <a asp-action="Export" asp-route-searchString="@searchString" class="btn btn-primary" title="@Localizer["ExportExcel"]">

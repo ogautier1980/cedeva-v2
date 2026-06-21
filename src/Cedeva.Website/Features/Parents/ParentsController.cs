@@ -31,7 +31,6 @@ public class ParentsController : Controller
     private readonly IStringLocalizer<SharedResources> _localizer;
     private readonly IUserDisplayService _userDisplayService;
     private readonly ISessionStateService _sessionState;
-    private readonly IParentImportService _importService;
 
     public ParentsController(
         CedevaDbContext context,
@@ -40,8 +39,7 @@ public class ParentsController : Controller
         IExportFacadeService exportServices,
         IStringLocalizer<SharedResources> localizer,
         IUserDisplayService userDisplayService,
-        ISessionStateService sessionState,
-        IParentImportService importService)
+        ISessionStateService sessionState)
     {
         _context = context;
         _currentUserService = currentUserService;
@@ -50,7 +48,6 @@ public class ParentsController : Controller
         _localizer = localizer;
         _userDisplayService = userDisplayService;
         _sessionState = sessionState;
-        _importService = importService;
     }
 
     public async Task<IActionResult> Index([FromQuery] ParentQueryParameters queryParams)
@@ -323,46 +320,6 @@ public class ParentsController : Controller
 
         TempData[ControllerExtensions.SuccessMessageKey] = _localizer["Message.ParentCreated"].Value;
         return RedirectToAction(nameof(Index));
-    }
-
-    // GET: Parents/Import
-    [HttpGet]
-    public IActionResult Import() => View();
-
-    // POST: Parents/Import
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    [RequestSizeLimit(5 * 1024 * 1024)] // 5 MB
-    public async Task<IActionResult> Import(IFormFile? csvFile, CancellationToken ct)
-    {
-        var organisationId = _currentUserService.OrganisationId;
-        if (!_currentUserService.IsAdmin && organisationId == null)
-            return Forbid();
-
-        if (csvFile == null || csvFile.Length == 0)
-        {
-            ModelState.AddModelError(string.Empty, _localizer["Import.NoFile"].Value);
-            return View();
-        }
-
-        var ext = Path.GetExtension(csvFile.FileName);
-        if (!string.Equals(ext, ".csv", StringComparison.OrdinalIgnoreCase))
-        {
-            ModelState.AddModelError(string.Empty, _localizer["Import.NotCsv"].Value);
-            return View();
-        }
-
-        await using var stream = csvFile.OpenReadStream();
-        var result = await _importService.ImportAsync(stream, organisationId ?? 0, ct);
-
-        _logger.LogInformation("Parent import by {UserId}: {Created} parents, {Children} children, {Errors} errors",
-            _currentUserService.UserId, result.ParentsCreated, result.ChildrenCreated, result.Errors.Count);
-
-        if (result.ParentsCreated > 0 || result.ChildrenCreated > 0)
-            TempData[ControllerExtensions.SuccessMessageKey] = string.Format(
-                _localizer["Import.Summary"].Value, result.ParentsCreated, result.ChildrenCreated);
-
-        return View("ImportResult", result);
     }
 
     [HttpPost]

@@ -4176,4 +4176,46 @@
   <data name="Import.Another" xml:space="preserve">
     <value>Een ander bestand importeren</value>
   </data>
+  <data name="Import.GenericHelp" xml:space="preserve">
+    <value>Selecteer het gegevenstype en upload een CSV-bestand. Gegevens blijven per organisatie gescheiden.</value>
+  </data>
+  <data name="Import.EntityType" xml:space="preserve">
+    <value>Gegevenstype</value>
+  </data>
+  <data name="Import.SelectType" xml:space="preserve">
+    <value>— Kies een type —</value>
+  </data>
+  <data name="Import.TargetOrganisation" xml:space="preserve">
+    <value>Doelorganisatie</value>
+  </data>
+  <data name="Import.TargetOrganisationHelp" xml:space="preserve">
+    <value>De rijen worden in deze organisatie geïmporteerd.</value>
+  </data>
+  <data name="Import.SelectOrganisation" xml:space="preserve">
+    <value>Selecteer een doelorganisatie.</value>
+  </data>
+  <data name="Import.SummaryGeneric" xml:space="preserve">
+    <value>{0} item(s) geïmporteerd.</value>
+  </data>
+  <data name="Import.Created" xml:space="preserve">
+    <value>Aangemaakt</value>
+  </data>
+  <data name="Import.Skipped" xml:space="preserve">
+    <value>Overgeslagen</value>
+  </data>
+  <data name="Import.Type.Parents" xml:space="preserve">
+    <value>Ouders en kinderen</value>
+  </data>
+  <data name="Import.Type.TeamMembers" xml:space="preserve">
+    <value>Teamleden</value>
+  </data>
+  <data name="Import.Type.Contacts" xml:space="preserve">
+    <value>Andere contacten</value>
+  </data>
+  <data name="Import.Type.Activities" xml:space="preserve">
+    <value>Activiteiten</value>
+  </data>
+  <data name="Import.Type.Organisations" xml:space="preserve">
+    <value>Organisaties</value>
+  </data>
 </root>
