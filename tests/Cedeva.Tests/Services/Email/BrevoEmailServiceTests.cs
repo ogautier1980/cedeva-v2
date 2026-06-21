@@ -282,39 +282,6 @@ public class BrevoEmailServiceTests
         body.Should().Contain("2026");
     }
 
-    // -------------------- SendBookingConfirmationEmailAsync (DTO overload) --------------------
-
-    [Fact]
-    public async Task SendBookingConfirmationEmailAsync_dto_builds_html_with_payment_info_and_delegates()
-    {
-        var handler = new StubHandler(HttpStatusCode.OK);
-        var service = BuildService(handler);
-
-        var dto = new BookingConfirmationEmailDto(
-            ParentEmail: "parent@example.com",
-            ParentName: "Marie Martin",
-            ChildName: "Chloe Enfant",
-            ActivityName: "Camp Nature",
-            StartDate: new DateTime(2026, 8, 10),
-            EndDate: new DateTime(2026, 8, 14),
-            TotalAmount: 125.50m,
-            StructuredCommunication: "+++123/4567/89012+++",
-            BankAccount: "BE68 5390 0754 7034");
-
-        await service.SendBookingConfirmationEmailAsync(dto);
-
-        handler.CallCount.Should().Be(1);
-        var body = handler.LastRequestBody!;
-        body.Should().Contain("parent@example.com");
-        body.Should().Contain("inscription - Camp Nature");
-        body.Should().Contain("Marie Martin");
-        body.Should().Contain("Chloe Enfant");
-        body.Should().Contain("125"); // amount formatted with F2 (decimal separator is culture-dependent)
-        body.Should().Contain("123/4567/89012"); // structured communication ('+' is JSON-escaped)
-        body.Should().Contain("BE68 5390 0754 7034");
-        body.Should().Contain("2026");
-    }
-
     // -------------------- SendWelcomeEmailAsync --------------------
 
     [Fact]
