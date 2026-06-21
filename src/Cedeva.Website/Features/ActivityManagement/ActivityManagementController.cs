@@ -25,6 +25,7 @@ public class ActivityManagementController : Controller
     private const string RecipientGroupPrefix = "group_";
     private const string RecipientExcursionPrefix = "excursion_";
     private const string RecipientCustomContacts = "custom_contacts";
+    private const string RecipientContactGroupPrefix = "contactgroup_";
 
     private readonly CedevaDbContext _context;
     private readonly ILogger<ActivityManagementController> _logger;
@@ -366,7 +367,7 @@ public class ActivityManagementController : Controller
         {
             ActivityId = activity.Id,
             ActivityName = activity.Name,
-            RecipientOptions = GetRecipientOptions(activity.Groups, excursions),
+            RecipientOptions = GetRecipientOptions(activity.Groups, excursions, await GetContactGroupsAsync(activity.OrganisationId, default)),
             DayOptions = GetDayOptions(activity.Days),
             ContactOptions = await GetContactOptionsAsync(activity.OrganisationId, default)
         };
@@ -398,9 +399,10 @@ public class ActivityManagementController : Controller
             _logger.LogInformation("Starting email sending process for activity {ActivityId}, recipient: {Recipient}",
                 model.ActivityId, model.SelectedRecipient);
 
-            // Custom ad-hoc group: send the message as-is to the hand-picked contact emails
-            // (no per-child variable replacement — these recipients have no booking context).
-            if (model.SelectedRecipient == RecipientCustomContacts)
+            // Contact recipients (ad-hoc selection or a saved group): send the message as-is to the
+            // chosen contact emails (no per-child variable replacement — no booking context).
+            var isContactGroup = model.SelectedRecipient?.StartsWith(RecipientContactGroupPrefix) == true;
+            if (model.SelectedRecipient == RecipientCustomContacts || isContactGroup)
             {
                 // Only allow emails that actually belong to this organisation's contacts, so the
                 // form can't be abused to send to arbitrary addresses.
@@ -408,7 +410,21 @@ public class ActivityManagementController : Controller
                     .Select(c => c.Email)
                     .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
-                var customEmails = (model.SelectedContactEmails ?? new List<string>())
+                IEnumerable<string> requestedEmails;
+                if (isContactGroup &&
+                    int.TryParse(model.SelectedRecipient!.Substring(RecipientContactGroupPrefix.Length), out var contactGroupId))
+                {
+                    requestedEmails = await _context.ContactGroupMembers
+                        .Where(m => m.ContactGroupId == contactGroupId && m.ContactGroup.OrganisationId == organisationId)
+                        .Select(m => m.Email)
+                        .ToListAsync(ct);
+                }
+                else
+                {
+                    requestedEmails = model.SelectedContactEmails ?? new List<string>();
+                }
+
+                var customEmails = requestedEmails
                     .Where(e => !string.IsNullOrWhiteSpace(e))
                     .Select(e => e.Trim())
                     .Where(e => allowed.Contains(e))
@@ -767,7 +783,8 @@ public class ActivityManagementController : Controller
 
     private List<SelectListItem> GetRecipientOptions(
         IEnumerable<Core.Entities.ActivityGroup> groups,
-        IEnumerable<Core.Entities.Excursion> excursions)
+        IEnumerable<Core.Entities.Excursion> excursions,
+        IEnumerable<Core.Entities.ContactGroup> contactGroups)
     {
         var generalGroup = new SelectListGroup { Name = _localizer["Email.GeneralRecipients"] };
 
@@ -812,8 +829,31 @@ public class ActivityManagementController : Controller
             }
         }
 
+        // Add saved contact groups section
+        var savedGroups = contactGroups.ToList();
+        if (savedGroups.Any())
+        {
+            var contactGroupsListGroup = new SelectListGroup { Name = _localizer["Email.ContactGroupRecipients"] };
+
+            foreach (var cg in savedGroups)
+            {
+                options.Add(new SelectListItem
+                {
+                    Value = $"{RecipientContactGroupPrefix}{cg.Id}",
+                    Text = cg.Name,
+                    Group = contactGroupsListGroup
+                });
+            }
+        }
+
         return options;
     }
+
+    private async Task<List<Core.Entities.ContactGroup>> GetContactGroupsAsync(int organisationId, CancellationToken ct) =>
+        await _context.ContactGroups
+            .Where(g => g.OrganisationId == organisationId)
+            .OrderBy(g => g.Name)
+            .ToListAsync(ct);
 
     /// <summary>
     /// Builds the selectable contacts for the custom email-group picker: every organisation contact
@@ -854,7 +894,7 @@ public class ActivityManagementController : Controller
                 .Where(e => e.ActivityId == model.ActivityId)
                 .ToListAsync(ct);
 
-            model.RecipientOptions = GetRecipientOptions(activity.Groups, excursions);
+            model.RecipientOptions = GetRecipientOptions(activity.Groups, excursions, await GetContactGroupsAsync(activity.OrganisationId, ct));
             model.DayOptions = GetDayOptions(activity.Days);
             model.ContactOptions = await GetContactOptionsAsync(activity.OrganisationId, ct);
             ViewBag.Templates = await _emailServices.Template.GetAllTemplatesAsync(activity.OrganisationId);
@@ -923,6 +963,7 @@ public class ActivityManagementController : Controller
             var r when r == RecipientAllParents => EmailRecipient.AllParents,
             var r when r == RecipientMedicalSheetReminder => EmailRecipient.MedicalSheetReminder,
             var r when r == RecipientCustomContacts => EmailRecipient.CustomContacts,
+            var r when r != null && r.StartsWith(RecipientContactGroupPrefix) => EmailRecipient.CustomContacts,
             var r when r != null && r.StartsWith(RecipientGroupPrefix) => EmailRecipient.ActivityGroup,
             _ => EmailRecipient.AllParents
         };

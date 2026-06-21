@@ -1,0 +1,68 @@
+@model Cedeva.Website.Features.Contacts.ViewModels.ContactGroupListViewModel
+@{
+    ViewData["Title"] = Localizer["ContactGroup.Title"];
+}
+
+@await Html.PartialAsync("_AlertMessages")
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="fas fa-users me-2"></i>@Localizer["ContactGroup.Title"]</h2>
+    <div>
+        <a asp-controller="Contacts" asp-action="Index" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i>@Localizer["Contacts.Title"]
+        </a>
+        <a asp-action="Create" class="btn btn-primary">
+            <i class="fas fa-plus me-2"></i>@Localizer["ContactGroup.AddGroup"]
+        </a>
+    </div>
+</div>
+
+@if (Model.Groups.Any())
+{
+    <div class="card">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th scope="col">@Localizer["Field.Name"]</th>
+                            <th scope="col">@Localizer["ContactGroup.Members"]</th>
+                            <th scope="col" class="text-end">@Localizer["Actions"]</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var group in Model.Groups)
+                        {
+                            <tr>
+                                <td class="fw-semibold">@group.Name</td>
+                                <td>
+                                    <span class="badge bg-primary me-1">@group.MemberCount</span>
+                                    <small class="text-muted">@string.Join(", ", group.MemberNames.Take(4))@(group.MemberNames.Count > 4 ? "…" : "")</small>
+                                </td>
+                                <td class="text-end text-nowrap">
+                                    <a asp-action="Edit" asp-route-id="@group.Id" class="btn btn-sm btn-outline-secondary">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <form asp-action="Delete" asp-route-id="@group.Id" method="post" class="d-inline"
+                                          onsubmit="return confirm('@Localizer["ContactGroup.ConfirmDelete"].Value');">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger"><i class="fas fa-trash"></i></button>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <div class="text-center py-5">
+        <i class="fas fa-users fa-3x text-muted mb-3"></i>
+        <p class="text-muted">@Localizer["ContactGroup.NoGroups"]</p>
+        <a asp-action="Create" class="btn btn-primary">
+            <i class="fas fa-plus me-2"></i>@Localizer["ContactGroup.AddGroup"]
+        </a>
+    </div>
+}

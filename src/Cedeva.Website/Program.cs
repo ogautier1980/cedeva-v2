@@ -165,6 +165,7 @@ try
         containerBuilder.RegisterType<StripePaymentGateway>().As<IPaymentGateway>().InstancePerLifetimeScope();
         containerBuilder.RegisterType<BookingPaymentService>().As<IBookingPaymentService>().InstancePerLifetimeScope();
         containerBuilder.RegisterType<ExcursionService>().As<IExcursionService>().InstancePerLifetimeScope();
+        containerBuilder.RegisterType<ContactDirectoryService>().As<IContactDirectoryService>().InstancePerLifetimeScope();
         containerBuilder.RegisterType<ExcursionViewModelBuilderService>().As<IExcursionViewModelBuilderService>().InstancePerLifetimeScope();
         containerBuilder.RegisterType<FinancialCalculationService>().As<IFinancialCalculationService>().InstancePerLifetimeScope();
         containerBuilder.RegisterType<SessionStateService>().As<ISessionStateService>().InstancePerLifetimeScope();

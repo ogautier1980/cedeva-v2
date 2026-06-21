@@ -1,0 +1,13 @@
+<script>
+    // Live filter for the member checkbox list.
+    (function () {
+        var filter = document.getElementById('memberFilter');
+        if (!filter) return;
+        filter.addEventListener('input', function () {
+            var q = this.value.toLowerCase();
+            document.querySelectorAll('#memberList .member-item').forEach(function (item) {
+                item.classList.toggle('d-none', q && item.dataset.search.indexOf(q) === -1);
+            });
+        });
+    })();
+</script>

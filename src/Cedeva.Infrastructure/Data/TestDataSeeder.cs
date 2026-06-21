@@ -144,6 +144,12 @@ public class TestDataSeeder
                 if (contactCount == 0)
                     SeedOtherContacts(organisation.Id);
 
+                // A sample saved contact group
+                var contactGroupCount = await _context.ContactGroups.IgnoreQueryFilters()
+                    .CountAsync(g => g.OrganisationId == organisation.Id);
+                if (contactGroupCount == 0)
+                    SeedContactGroup(organisation.Id);
+
                 await _context.SaveChangesAsync();
             }
 
@@ -1146,6 +1152,24 @@ public class TestDataSeeder
                 Email = "c.renard@commune.be", PhoneNumber = "081 22 33 44",
                 Function = "Contact communal"
             });
+    }
+
+    // =========================================================================
+    // Sample saved contact group (members snapshot the "other contacts" emails)
+    // =========================================================================
+    private void SeedContactGroup(int organisationId)
+    {
+        _context.ContactGroups.Add(new ContactGroup
+        {
+            OrganisationId = organisationId,
+            Name = "Partenaires externes",
+            Members =
+            {
+                new ContactGroupMember { Email = "dr.lemaire@cabinet-medical.be", DisplayName = "Lemaire, Sophie" },
+                new ContactGroupMember { Email = "contact@traiteur-dewitte.be", DisplayName = "Dewitte, Marc" },
+                new ContactGroupMember { Email = "c.renard@commune.be", DisplayName = "Renard, Catherine" }
+            }
+        });
     }
 
     // =========================================================================

@@ -4032,4 +4032,37 @@
   <data name="Message.NoContactsSelected" xml:space="preserve">
     <value>Selecteer minstens één contact.</value>
   </data>
+  <data name="ContactGroup.Title" xml:space="preserve">
+    <value>Contactgroepen</value>
+  </data>
+  <data name="ContactGroup.AddGroup" xml:space="preserve">
+    <value>Nieuwe groep</value>
+  </data>
+  <data name="ContactGroup.EditGroup" xml:space="preserve">
+    <value>Groep bewerken</value>
+  </data>
+  <data name="ContactGroup.Members" xml:space="preserve">
+    <value>Leden</value>
+  </data>
+  <data name="ContactGroup.NoGroups" xml:space="preserve">
+    <value>Nog geen opgeslagen groepen.</value>
+  </data>
+  <data name="ContactGroup.NoMembersSelected" xml:space="preserve">
+    <value>Selecteer minstens één contact voor de groep.</value>
+  </data>
+  <data name="ContactGroup.Created" xml:space="preserve">
+    <value>Groep aangemaakt.</value>
+  </data>
+  <data name="ContactGroup.Updated" xml:space="preserve">
+    <value>Groep bijgewerkt.</value>
+  </data>
+  <data name="ContactGroup.Deleted" xml:space="preserve">
+    <value>Groep verwijderd.</value>
+  </data>
+  <data name="ContactGroup.ConfirmDelete" xml:space="preserve">
+    <value>Deze groep verwijderen?</value>
+  </data>
+  <data name="Email.ContactGroupRecipients" xml:space="preserve">
+    <value>Contactgroepen</value>
+  </data>
 </root>

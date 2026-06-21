@@ -1,0 +1,39 @@
+@model Cedeva.Website.Features.Contacts.ViewModels.ContactGroupFormViewModel
+@using Cedeva.Core.Interfaces
+
+@{
+    var selected = new HashSet<string>(Model.SelectedEmails ?? new List<string>(), StringComparer.OrdinalIgnoreCase);
+    string SourceLabel(ContactSource s) => s switch
+    {
+        ContactSource.Parent => Localizer["Contacts.Parent"].Value,
+        ContactSource.TeamMember => Localizer["Contacts.Animator"].Value,
+        _ => Localizer["Contacts.Others"].Value
+    };
+}
+
+<label class="form-label">@Localizer["Email.SelectContacts"]</label>
+<span asp-validation-for="SelectedEmails" class="text-danger d-block"></span>
+
+@if (Model.AvailableContacts.Any())
+{
+    <input type="text" class="form-control form-control-sm mb-2" id="memberFilter" placeholder="@Localizer["Search"]" />
+    <div class="border rounded p-2" style="max-height: 280px; overflow-y: auto;" id="memberList">
+        @{ var i = 0; }
+        @foreach (var c in Model.AvailableContacts)
+        {
+            <div class="form-check member-item" data-search="@($"{c.Display} {c.Email} {SourceLabel(c.Source)}".ToLowerInvariant())">
+                <input class="form-check-input" type="checkbox" name="SelectedEmails" value="@c.Email"
+                       id="member_@i" @(selected.Contains(c.Email) ? "checked" : "") />
+                <label class="form-check-label" for="member_@i">
+                    @c.Display <small class="text-muted">— @c.Email</small>
+                    <span class="badge bg-info ms-1">@SourceLabel(c.Source)</span>
+                </label>
+            </div>
+            i++;
+        }
+    </div>
+}
+else
+{
+    <p class="text-muted">@Localizer["Email.NoContactsWithEmail"]</p>
+}

@@ -149,6 +149,44 @@ public class ActivityManagementSendEmailTests
     }
 
     [Fact]
+    public async Task SendEmail_SavedContactGroup_SendsToGroupMembers_AndLogs()
+    {
+        var fake = new FakeEmailService();
+        using var factory = NewFactory(fake);
+        Organisation org = null!;
+        Activity activity = null!;
+        ContactGroup group = null!;
+        factory.Seed(ctx =>
+        {
+            org = TestData.Organisation();
+            activity = TestData.Activity(org);
+            ctx.AddRange(org, activity);
+            ctx.Contacts.Add(new Contact { Organisation = org, FirstName = "Sophie", LastName = "Lemaire", Email = "dr.lemaire@test.be" });
+            group = new ContactGroup { Organisation = org, Name = "Partenaires", Members = { new ContactGroupMember { Email = "dr.lemaire@test.be", DisplayName = "Lemaire" } } };
+            ctx.ContactGroups.Add(group);
+            return 0;
+        });
+
+        var client = factory.CreateClientFor("u1", org.Id, "Coordinator");
+        var form = new FormUrlEncodedContent(new[]
+        {
+            new KeyValuePair<string, string>("ActivityId", activity.Id.ToString()),
+            new KeyValuePair<string, string>("SelectedRecipient", $"contactgroup_{group.Id}"),
+            new KeyValuePair<string, string>("Subject", "Réunion"),
+            new KeyValuePair<string, string>("Message", "Bonjour"),
+        });
+        var response = await client.PostAsync("/ActivityManagement/SendEmail", form);
+
+        response.StatusCode.Should().Be(HttpStatusCode.Found);
+        fake.Sent.Should().ContainSingle();
+        fake.Sent[0].To.Should().Contain("dr.lemaire@test.be");
+
+        using var db = factory.NewDbContext();
+        (await db.EmailsSent.AnyAsync(e => e.ActivityId == activity.Id
+            && e.RecipientType == Cedeva.Core.Enums.EmailRecipient.CustomContacts)).Should().BeTrue();
+    }
+
+    [Fact]
     public async Task SendEmail_CustomContacts_NoneSelected_ReturnsViewWithError_AndSendsNothing()
     {
         var fake = new FakeEmailService();

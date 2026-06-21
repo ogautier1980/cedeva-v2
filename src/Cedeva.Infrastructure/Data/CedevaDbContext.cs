@@ -33,6 +33,8 @@ public class CedevaDbContext : IdentityDbContext<CedevaUser>, IUnitOfWork
     public DbSet<Parent> Parents => Set<Parent>();
     public DbSet<TeamMember> TeamMembers => Set<TeamMember>();
     public DbSet<Contact> Contacts => Set<Contact>();
+    public DbSet<ContactGroup> ContactGroups => Set<ContactGroup>();
+    public DbSet<ContactGroupMember> ContactGroupMembers => Set<ContactGroupMember>();
     public DbSet<Expense> Expenses => Set<Expense>();
     public DbSet<EmailSent> EmailsSent => Set<EmailSent>();
     public DbSet<EmailTemplate> EmailTemplates => Set<EmailTemplate>();
@@ -85,6 +87,18 @@ public class CedevaDbContext : IdentityDbContext<CedevaUser>, IUnitOfWork
             .HasQueryFilter(c => _currentUserService == null ||
                                  _currentUserService.IsAdmin ||
                                  c.OrganisationId == _currentUserService.OrganisationId);
+
+        // Filter contact groups by organisation
+        builder.Entity<ContactGroup>()
+            .HasQueryFilter(g => _currentUserService == null ||
+                                 _currentUserService.IsAdmin ||
+                                 g.OrganisationId == _currentUserService.OrganisationId);
+
+        // Filter contact-group members via their group's organisation
+        builder.Entity<ContactGroupMember>()
+            .HasQueryFilter(m => _currentUserService == null ||
+                                 _currentUserService.IsAdmin ||
+                                 m.ContactGroup.OrganisationId == _currentUserService.OrganisationId);
 
         // Filter email templates by organisation
         builder.Entity<EmailTemplate>()

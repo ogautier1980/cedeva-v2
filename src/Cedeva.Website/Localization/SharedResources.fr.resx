@@ -4054,4 +4054,37 @@
   <data name="Message.NoContactsSelected" xml:space="preserve">
     <value>Veuillez sélectionner au moins un contact.</value>
   </data>
+  <data name="ContactGroup.Title" xml:space="preserve">
+    <value>Groupes de contacts</value>
+  </data>
+  <data name="ContactGroup.AddGroup" xml:space="preserve">
+    <value>Nouveau groupe</value>
+  </data>
+  <data name="ContactGroup.EditGroup" xml:space="preserve">
+    <value>Modifier le groupe</value>
+  </data>
+  <data name="ContactGroup.Members" xml:space="preserve">
+    <value>Membres</value>
+  </data>
+  <data name="ContactGroup.NoGroups" xml:space="preserve">
+    <value>Aucun groupe enregistré pour le moment.</value>
+  </data>
+  <data name="ContactGroup.NoMembersSelected" xml:space="preserve">
+    <value>Sélectionnez au moins un contact pour le groupe.</value>
+  </data>
+  <data name="ContactGroup.Created" xml:space="preserve">
+    <value>Groupe créé.</value>
+  </data>
+  <data name="ContactGroup.Updated" xml:space="preserve">
+    <value>Groupe mis à jour.</value>
+  </data>
+  <data name="ContactGroup.Deleted" xml:space="preserve">
+    <value>Groupe supprimé.</value>
+  </data>
+  <data name="ContactGroup.ConfirmDelete" xml:space="preserve">
+    <value>Supprimer ce groupe ?</value>
+  </data>
+  <data name="Email.ContactGroupRecipients" xml:space="preserve">
+    <value>Groupes de contacts</value>
+  </data>
 </root>

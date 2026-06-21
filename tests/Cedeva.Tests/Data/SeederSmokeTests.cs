@@ -102,6 +102,9 @@ public class SeederSmokeTests
         (await verify.EmailsSent.IgnoreQueryFilters().CountAsync()).Should().BeGreaterThan(0);
         // "Autres contacts" are seeded for the Contacts page.
         (await verify.Contacts.IgnoreQueryFilters().CountAsync()).Should().BeGreaterThan(0);
+        // A sample saved contact group (with members) is seeded.
+        (await verify.ContactGroups.IgnoreQueryFilters().CountAsync()).Should().BeGreaterThan(0);
+        (await verify.ContactGroupMembers.IgnoreQueryFilters().CountAsync()).Should().BeGreaterThan(0);
     }
 
     [Fact]
