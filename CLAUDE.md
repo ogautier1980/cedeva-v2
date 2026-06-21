@@ -56,7 +56,7 @@ src/
 ├── Cedeva.Website/        # MVC (feature folders)
 │   ├── Features/          # One folder per feature (controller + views + ViewModels)
 │   │   └── Shared/        # Reusable partials (_AlertMessages, _Pagination, _SortableColumnHeader)
-│   └── Localization/      # SharedResources.{fr,nl,en}.resx (~1282 keys each, full parity)
+│   └── Localization/      # SharedResources.{fr,nl,en}.resx (~1300 keys each, full parity)
 ├── Cedeva.Core/           # Domain (entities, interfaces, enums)
 └── Cedeva.Infrastructure/ # Data (DbContext, migrations, seeder), services
 ```
@@ -93,7 +93,7 @@ src/
 
 ### Core Features
 - **CRUD modules:** Activities, Bookings, Children, Parents, TeamMembers, Organisations, Users
-- **Localisation:** FR, NL, EN — all three fully translated (~1282 keys each, no `[NL]`/`[EN]` placeholders left; keys verified at parity across the 3 files)
+- **Localisation:** FR, NL, EN — all three fully translated (~1300 keys each, no `[NL]`/`[EN]` placeholders left; keys verified at parity across the 3 files)
 - **Multi-tenancy:** Organisation-scoped data with admin bypass
 - **Audit trail:** CreatedAt/CreatedBy/ModifiedAt/ModifiedBy on all 24 entities (auto-populated)
 

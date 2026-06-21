@@ -142,7 +142,7 @@ dotnet test tests/Cedeva.Tests.E2E
 
 ## Gate CI & couverture
 - Le workflow de déploiement exécute `dotnet test tests/Cedeva.Tests` **avant le déploiement** avec un
-  **gate de couverture** : ligne totale **≥ 85 %** (réel ≈ 89 %), migrations et vues Razor générées
+  **gate de couverture** : ligne totale **≥ 85 %** (réel ≈ 92 %), migrations et vues Razor générées
   exclues. Une suite rouge ou une couverture sous le seuil bloque la mise en prod.
 - Le seuil est un **cliquet** : on le remonte au fil du temps (12 % → 40 % → 75 % → 85 %).
 - Les workflows E2E et SQL Server tournent en parallèle mais **ne bloquent pas** le déploiement
@@ -168,4 +168,4 @@ La montée en couverture a fait émerger plusieurs anomalies, toutes corrigées 
 - **CODA & rapprochement bancaire** : fonctionnalité **supprimée** (remplacée par le paiement en
   ligne Stripe — voir [ADR 0010](adr/0010-online-payments-provider-agnostic-stripe.md)).
 - Intégrations externes réelles (Azure Blob Storage, envoi réseau réel Brevo) : mockées, pas appelées.
-- Traductions : FR/NL/EN désormais complètes et à parité (~1282 clés chacune, plus de placeholders `[NL]`/`[EN]`).
+- Traductions : FR/NL/EN désormais complètes et à parité (~1300 clés chacune, plus de placeholders `[NL]`/`[EN]`).
