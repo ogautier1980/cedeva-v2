@@ -112,7 +112,7 @@ public class BookingsPresencesE2ETests
         (await page.Locator("#ActivityId").CountAsync()).Should().Be(1);
     }
 
-    [Fact(Skip = "E2E browser-widget flakiness (Choices/Summernote/AJAX/modal); CRUD covered by controller integration tests. TODO revisit.")]
+    [Fact]
     public async Task CreateBooking_WithValidData_IsPersisted()
     {
         var seed = SeedActivityParentChild();

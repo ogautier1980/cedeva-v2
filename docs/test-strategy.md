@@ -1,6 +1,6 @@
 # Stratégie de test
 
-Cedeva compte **~1133 tests** unit/intégration (+ **47** E2E navigateur, dont 8 `[Skip]`, et **3**
+Cedeva compte **~1134 tests** unit/intégration (+ **55** E2E navigateur, 0 `[Skip]`, et **3**
 SQL Server) répartis sur **5 niveaux**, exécutés par **3 projets de test** et **3 workflows CI**.
 Couverture lignes ≈ **89 %** (branches ≈ 76 %, méthodes ≈ 95 %), avec un **gate CI à 85 %** qui
 bloque le déploiement en cas de régression. Ce document décrit ce que couvre chaque
@@ -90,8 +90,17 @@ dédiés qui **ne bloquent pas** le déploiement.
 - **Helpers/pièges spécifiques E2E :** sélecteur de submit `:not(.btn-link):not(.dropdown-item)` (le
   layout admin a ses propres boutons submit langue/déconnexion) ; `SelectChoicesAsync` pilote les
   selects Choices.js par le widget (le `<select>` natif est masqué) ; saisie décimale au format fr
-  (virgule). Quelques sous-flux navigateur fragiles (éditeur Summernote, modale de suppression,
-  soumission booking via AJAX) sont en `[Fact(Skip=…)]` — leur CRUD est couvert au niveau intégration.
+  (virgule) ; pour les modales Bootstrap on ouvre la modale via son `data-bs-target` puis on clique le
+  bouton devenu visible (le clic forcé sur un bouton `display:none` est non fiable) ; après un POST qui
+  redirige (302) vers une URL identique, on attend la **réponse** POST/GET plutôt que l'URL.
+  `PlaywrightAppFactory` seed un vrai `CedevaUser` dont l'Id correspond au `NameIdentifier` du
+  `TestAuthHandler`, pour que `UserManager.GetUserAsync(User)` (ex. `CreatedBy`) fonctionne comme en prod.
+- **Bugs réels trouvés par ces E2E (corrigés) :** suppression d'un parent → 500 (l'`Address` requise
+  était détachée avant le parent) ; formulaires `<form>` imbriqués dans Enfants/Réservations Create
+  (HTML invalide : le `</form>` interne fermait le formulaire principal → bouton submit hors formulaire,
+  création impossible en navigateur) — convertis en `<div>` + soumission AJAX par clic ; validation
+  jQuery `number`/`range` rejetant la virgule décimale en fr/nl (montants `12,50` bloqués côté client)
+  — méthodes rendues compatibles virgule dans `_ValidationScriptsPartial`.
 - ⚠️ Installer les navigateurs : `pwsh tests/Cedeva.Tests.E2E/bin/<cfg>/net10.0/playwright.ps1 install chromium`
   (sous Windows sans `pwsh`, utiliser Windows PowerShell : `powershell -File ...`).
 

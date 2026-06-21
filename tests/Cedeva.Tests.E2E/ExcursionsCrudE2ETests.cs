@@ -135,7 +135,7 @@ public class ExcursionsCrudE2ETests
         (await page.Locator("button[type=submit]:not(.btn-link):not(.dropdown-item)").CountAsync()).Should().Be(1);
     }
 
-    [Fact(Skip = "E2E browser-widget flakiness (Choices/Summernote/AJAX/modal); CRUD covered by controller integration tests. TODO revisit.")]
+    [Fact]
     public async Task Create_Post_Valid_PersistsExcursion()
     {
         var p = SeedActivityWithBooking(withBooking: false);
@@ -153,6 +153,8 @@ public class ExcursionsCrudE2ETests
         await page.CheckAsync($"#group_{p.GroupId}");
 
         await page.ClickAsync("button[type=submit]:not(.btn-link):not(.dropdown-item)");
+        await page.WaitForURLAsync(u => u.Contains("/Excursions", StringComparison.OrdinalIgnoreCase)
+                                        && !u.Contains("/Create", StringComparison.OrdinalIgnoreCase));
         await page.WaitForLoadStateAsync(LoadState.NetworkIdle);
 
         // Landing page shows the new excursion by its unique name.
@@ -205,7 +207,7 @@ public class ExcursionsCrudE2ETests
     // Edit
     // ----------------------------------------------------------------------------------------
 
-    [Fact(Skip = "E2E browser-widget flakiness (Choices/Summernote/AJAX/modal); CRUD covered by controller integration tests. TODO revisit.")]
+    [Fact]
     public async Task Edit_Post_Valid_UpdatesFields()
     {
         var p = SeedActivityWithBooking(withBooking: false);

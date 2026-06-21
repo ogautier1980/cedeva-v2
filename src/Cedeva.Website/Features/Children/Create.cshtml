@@ -65,7 +65,9 @@
                             <div class="card-body">
                                 <div id="parentFormErrors" class="alert alert-danger" style="display: none;"></div>
 
-                                <form id="parentForm">
+                                @* Not a nested <form> (invalid HTML — would close the outer Child form early
+                                   and break its submit). This is an AJAX widget submitted via JS. *@
+                                <div id="parentForm">
                                     @Html.AntiForgeryToken()
                                     <input type="hidden" name="OrganisationId" value="@ViewBag.CurrentOrganisationId" />
                                     <input type="hidden" name="Country" value="0" />
@@ -134,11 +136,11 @@
                                         <button type="button" class="btn btn-outline-secondary" id="cancelParentForm">
                                             <i class="fas fa-times me-1"></i>@Localizer["Cancel"]
                                         </button>
-                                        <button type="submit" class="btn btn-primary">
+                                        <button type="button" id="submitParentForm" class="btn btn-primary">
                                             <i class="fas fa-save me-1"></i>@Localizer["Parents.CreateParent"]
                                         </button>
                                     </div>
-                                </form>
+                                </div>
                             </div>
                         </div>
 
@@ -205,16 +207,16 @@
             $('#cancelParentForm').on('click', function () {
                 $('#parentFormContainer').slideUp(300);
                 $('#toggleParentForm').find('i').removeClass('fa-minus-circle').addClass('fa-plus-circle');
-                $('#parentForm')[0].reset();
+                resetParentForm();
                 clearParentFormErrors();
             });
 
-            // Submit parent form via AJAX
-            $('#parentForm').on('submit', function (e) {
+            // #parentForm is a <div> (not a nested <form>), so submit on button click.
+            $('#submitParentForm').on('click', function (e) {
                 e.preventDefault();
                 clearParentFormErrors();
 
-                var formData = $(this).serialize();
+                var formData = $('#parentForm').find(':input').serialize();
 
                 $.ajax({
                     url: '@Url.Action("CreateAjax", "Parents")',
@@ -234,7 +236,7 @@
                             // Hide and reset form
                             $('#parentFormContainer').slideUp(300);
                             $('#toggleParentForm').find('i').removeClass('fa-minus-circle').addClass('fa-plus-circle');
-                            $('#parentForm')[0].reset();
+                            resetParentForm();
 
                             // Show success message
                             toastr.success(response.message || '@Localizer["Message.ParentCreated"]');
@@ -275,6 +277,14 @@
             function clearParentFormErrors() {
                 $('#parentFormErrors').hide().empty();
                 $('.field-error').text('');
+            }
+
+            // Clears the user-entered parent fields (the div has no native form.reset()).
+            function resetParentForm() {
+                ['Parent_FirstName', 'Parent_LastName', 'Parent_NationalRegisterNumber',
+                 'Parent_Email', 'Parent_MobilePhoneNumber', 'Parent_PhoneNumber',
+                 'Parent_Street', 'Parent_CombinedAddress', 'Parent_PostalCode', 'Parent_City']
+                    .forEach(function (id) { $('#' + id).val(''); });
             }
         });
     </script>

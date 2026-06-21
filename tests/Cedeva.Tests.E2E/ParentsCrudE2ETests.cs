@@ -160,7 +160,7 @@ public class ParentsCrudE2ETests
         updated!.LastName.Should().Be(newLast);
     }
 
-    [Fact(Skip = "E2E browser-widget flakiness (Choices/Summernote/AJAX/modal); CRUD covered by controller integration tests. TODO revisit.")]
+    [Fact]
     public async Task Delete_RemovesParent()
     {
         var email = $"parent.{Guid.NewGuid():N}@e2e.test";
@@ -190,7 +190,6 @@ public class ParentsCrudE2ETests
 
         await using var ctx = await _fx.NewAuthedContextAsync("Coordinator", _fx.OrganisationId);
         var page = await ctx.NewPageAsync();
-
         var response = await page.GotoAsync($"{_fx.BaseUrl}/Parents/Delete/{parentId}");
         response!.Status.Should().Be(200);
 

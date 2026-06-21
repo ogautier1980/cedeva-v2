@@ -129,6 +129,27 @@ public sealed class PlaywrightAppFactory : WebApplicationFactory<Program>
             new BelgianMunicipality { PostalCode = "5030", City = "Gembloux" });
         ctx.SaveChanges();
 
+        // A real CedevaUser whose Id matches the TestAuth NameIdentifier ("e2e-user"), so server code
+        // that resolves the current user via UserManager.GetUserAsync(User) (e.g. setting CreatedBy)
+        // works exactly as it does for a logged-in coordinator.
+        ctx.Users.Add(new CedevaUser
+        {
+            Id = "e2e-user",
+            UserName = "e2e@cedeva.be",
+            NormalizedUserName = "E2E@CEDEVA.BE",
+            Email = "e2e@cedeva.be",
+            NormalizedEmail = "E2E@CEDEVA.BE",
+            EmailConfirmed = true,
+            SecurityStamp = "e2e-security-stamp",
+            ConcurrencyStamp = "e2e-concurrency-stamp",
+            FirstName = "E2E",
+            LastName = "Coordinator",
+            OrganisationId = organisation.Id,
+            Role = Role.Coordinator,
+            CreatedAt = DateTime.UtcNow
+        });
+        ctx.SaveChanges();
+
         OrganisationId = organisation.Id;
         ActivityId = activity.Id;
     }

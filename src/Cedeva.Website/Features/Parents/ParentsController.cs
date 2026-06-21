@@ -497,9 +497,17 @@ public class ParentsController : Controller
             return RedirectToAction(nameof(Index));
         }
 
-        _context.Addresses.Remove(parent.Address);
+        // Delete the dependent (Parent) first, then its Address. Removing the required Address
+        // before the Parent severs the non-nullable FK and throws (see Organisations delete).
+        var address = parent.Address;
         _context.Parents.Remove(parent);
         await _context.SaveChangesAsync();
+
+        if (address != null)
+        {
+            _context.Addresses.Remove(address);
+            await _context.SaveChangesAsync();
+        }
 
         _logger.LogInformation("Parent {Name} deleted by user {UserId}", parent.FullName, _currentUserService.UserId);
         TempData[ControllerExtensions.SuccessMessageKey] = _localizer["Message.ParentDeleted"].Value;

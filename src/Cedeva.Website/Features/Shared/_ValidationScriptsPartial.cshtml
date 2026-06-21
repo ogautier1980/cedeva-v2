@@ -6,5 +6,23 @@
     if (culture == "fr" || culture == "nl")
     {
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.20.0/localization/messages_@(culture).min.js"></script>
+        <text>
+        <script>
+            // fr/nl use a comma as the decimal separator, but jQuery-validate's default `number`/`range`
+            // methods only accept a dot — so amounts like "12,50" were rejected client-side even though
+            // the (fr-BE) server binds them correctly. Make both methods comma-aware.
+            (function ($) {
+                if (!$ || !$.validator) { return; }
+                $.validator.methods.number = function (value, element) {
+                    return this.optional(element) || /^-?\d+(?:[.,]\d+)?$/.test(value);
+                };
+                $.validator.methods.range = function (value, element, param) {
+                    if (this.optional(element)) { return true; }
+                    var n = parseFloat(String(value).replace(',', '.'));
+                    return n >= param[0] && n <= param[1];
+                };
+            })(jQuery);
+        </script>
+        </text>
     }
 }

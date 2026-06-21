@@ -31,7 +31,7 @@ public class EmailsE2ETests
             "html => { const el = document.getElementById('HtmlContent'); el.value = html; }",
             html);
 
-    [Fact(Skip = "E2E browser-widget flakiness (Choices/Summernote/AJAX/modal); CRUD covered by controller integration tests. TODO revisit.")]
+    [Fact]
     public async Task Create_RendersForm_AndPersistsValidTemplate()
     {
         await using var ctx = await CoordinatorAsync();
@@ -46,8 +46,12 @@ public class EmailsE2ETests
         await page.FillAsync("#Subject", "E2E subject line");
         await SetHtmlContentAsync(page, "<p>E2E body content</p>");
 
+        // Wait for the POST (which 302-redirects to the Index) to complete before asserting — the
+        // glob "**/EmailTemplates**" also matches the /Create URL, so it can't gate the redirect.
+        var postTask = page.WaitForResponseAsync(r => r.Request.Method == "POST");
         await page.ClickAsync("button[type=submit]:not(.btn-link):not(.dropdown-item)");
-        await page.WaitForURLAsync("**/EmailTemplates**");
+        await postTask;
+        await page.WaitForLoadStateAsync(LoadState.NetworkIdle);
 
         await using var db = _fx.Factory.NewDbContext();
         var saved = await db.Set<EmailTemplate>().IgnoreQueryFilters()
@@ -161,7 +165,7 @@ public class EmailsE2ETests
         updated.IsDefault.Should().BeTrue("the row's set-default action must flag the template");
     }
 
-    [Fact(Skip = "E2E browser-widget flakiness (Choices/Summernote/AJAX/modal); CRUD covered by controller integration tests. TODO revisit.")]
+    [Fact]
     public async Task Delete_RemovesTemplate()
     {
         var name = $"Tmpl-{Guid.NewGuid():N}";
@@ -186,13 +190,22 @@ public class EmailsE2ETests
         await page.GotoAsync($"{_fx.BaseUrl}/EmailTemplates");
         await page.WaitForLoadStateAsync(LoadState.NetworkIdle);
 
-        // Delete lives in a per-row modal. Submit the modal's Delete form directly (no need to
-        // open the Bootstrap modal UI — the form is in the DOM).
-        var deleteButton = page.Locator(
-            $"form[action*='Delete']:has(input[name='id'][value='{id}']) button[type=submit]:not(.btn-link):not(.dropdown-item)");
-        await deleteButton.WaitForAsync(new LocatorWaitForOptions { State = WaitForSelectorState.Attached, Timeout = 7000 });
-        await deleteButton.ClickAsync(new LocatorClickOptions { Force = true });
-        await page.WaitForURLAsync("**/EmailTemplates**");
+        // Delete lives in a per-row Bootstrap modal. Open it via its toggle, then click the (now
+        // visible) Delete submit button — force-clicking a display:none button is unreliable.
+        await page.ClickAsync($"button[data-bs-target='#deleteModal-{id}']");
+        var deleteButton = page.Locator($"#deleteModal-{id} button[type=submit].btn-danger");
+        await deleteButton.WaitForAsync(new LocatorWaitForOptions { State = WaitForSelectorState.Visible, Timeout = 7000 });
+
+        // The delete POST 302-redirects back to the Index; wait for that GET reload (which only
+        // happens after the server commits the delete) so the DB assert can't race it.
+        var reloadTask = page.WaitForResponseAsync(r =>
+            r.Request.Method == "GET"
+            && r.Url.Contains("/EmailTemplates", StringComparison.OrdinalIgnoreCase)
+            && !r.Url.Contains("Delete", StringComparison.OrdinalIgnoreCase)
+            && r.Status == 200);
+        await deleteButton.ClickAsync();
+        await reloadTask;
+        await page.WaitForLoadStateAsync(LoadState.NetworkIdle);
 
         await using var db = _fx.Factory.NewDbContext();
         var exists = await db.Set<EmailTemplate>().IgnoreQueryFilters()

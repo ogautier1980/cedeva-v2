@@ -67,7 +67,7 @@ public class ChildrenCrudE2ETests
         (await page.Locator("#ParentId").CountAsync()).Should().BeGreaterThan(0);
     }
 
-    [Fact(Skip = "E2E browser-widget flakiness (Choices/Summernote/AJAX/modal); CRUD covered by controller integration tests. TODO revisit.")]
+    [Fact]
     public async Task Create_WithExistingParent_PersistsChild()
     {
         var parentMarker = $"ParentExisting-{Guid.NewGuid():N}";
@@ -102,7 +102,7 @@ public class ChildrenCrudE2ETests
         child.BirthDate.Date.Should().Be(new DateTime(2016, 7, 8));
     }
 
-    [Fact(Skip = "E2E browser-widget flakiness (Choices/Summernote/AJAX/modal); CRUD covered by controller integration tests. TODO revisit.")]
+    [Fact]
     public async Task Create_Invalid_ShowsValidationError_AndDoesNotPersist()
     {
         var parentMarker = $"ParentInvalid-{Guid.NewGuid():N}";

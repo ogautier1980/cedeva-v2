@@ -345,15 +345,11 @@ public class ParentsControllerIntegrationTests
     // POST Delete
     // ----------------------------------------------------------------------------
 
-    // NOTE (real controller behaviour): DeleteConfirmed for a childless parent calls
-    // _context.Addresses.Remove(parent.Address) BEFORE removing the parent. Because the
-    // Parent -> Address relationship is required (non-nullable AddressId) and not configured
-    // for cascade delete, EF throws InvalidOperationException ("the association ... has been
-    // severed ...") the moment the Address is marked deleted. The request therefore fails
-    // (HTTP 500) and the parent is NOT removed. This is a provider-independent ChangeTracker
-    // error, so the test asserts what the source actually does today.
+    // DeleteConfirmed for a childless parent removes the parent first, then its Address, in two
+    // SaveChanges (the Parent -> Address FK is required and not cascade-configured, so removing the
+    // Address before the parent would sever it and throw). Both rows must be gone afterwards.
     [Fact]
-    public async Task DeletePost_ChildlessParent_FailsBecauseRequiredAddressIsSevered()
+    public async Task DeletePost_ChildlessParent_RemovesParentAndAddress()
     {
         using var factory = new CedevaWebApplicationFactory();
         Organisation org = null!;
@@ -365,15 +361,17 @@ public class ParentsControllerIntegrationTests
             ctx.AddRange(org, parent);
             return 0;
         });
+        var addressId = parent.AddressId;
 
         var client = factory.CreateClientFor("u1", org.Id, "Coordinator");
         var response = await client.PostAsync($"/Parents/Delete/{parent.Id}",
             new FormUrlEncodedContent(new Dictionary<string, string>()));
 
-        response.StatusCode.Should().Be(HttpStatusCode.InternalServerError);
+        response.StatusCode.Should().Be(HttpStatusCode.Found);
 
         using var db = factory.NewDbContext();
-        (await db.Parents.IgnoreQueryFilters().AnyAsync(p => p.Id == parent.Id)).Should().BeTrue();
+        (await db.Parents.IgnoreQueryFilters().AnyAsync(p => p.Id == parent.Id)).Should().BeFalse();
+        (await db.Addresses.IgnoreQueryFilters().AnyAsync(a => a.Id == addressId)).Should().BeFalse();
     }
 
     [Fact]

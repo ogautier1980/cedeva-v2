@@ -49,7 +49,7 @@ Performance**.
 - **Stimulus :** ajouter/modifier une fonctionnalité.
 - **Artefact :** l'ensemble du code.
 - **Réponse :** changement localisé, non régressif, compréhensible.
-- **Mesure :** build **0 warning** (analyzers actifs), **~1133 tests** unit/intégration (+ 47 E2E, 3 SQL) verts, couverture lignes ≈ 89 % (gate CI 85 %), décisions documentées (ADR).
+- **Mesure :** build **0 warning** (analyzers actifs), **~1134 tests** unit/intégration (+ 55 E2E, 3 SQL) verts, couverture lignes ≈ 89 % (gate CI 85 %), décisions documentées (ADR).
 - **En place :** feature folders, DI, services extraits, analyzers, Directory.Build.props, .editorconfig, cette documentation.
 
 ## QA-6 — Performance — *priorité moyenne*

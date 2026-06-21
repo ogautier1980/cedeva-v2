@@ -52,7 +52,9 @@
                             <div class="card-body">
                                 <div id="childFormErrors" class="alert alert-danger" style="display: none;"></div>
 
-                                <form id="childForm">
+                                @* Not a nested <form> (invalid HTML — closes the outer Booking form early
+                                   and breaks its submit). AJAX widget submitted via JS. *@
+                                <div id="childForm">
                                     @Html.AntiForgeryToken()
 
                                     <h6 class="mb-3 text-primary"><i class="fas fa-user me-2"></i>@Localizer["Children.PersonalInformation"]</h6>
@@ -111,7 +113,7 @@
                                         <div class="card-body">
                                             <div id="nestedParentFormErrors" class="alert alert-danger" style="display: none;"></div>
 
-                                            <form id="nestedParentForm">
+                                            <div id="nestedParentForm">
                                                 @Html.AntiForgeryToken()
                                                 <input type="hidden" name="OrganisationId" value="@ViewBag.CurrentOrganisationId" />
                                                 <input type="hidden" name="Country" value="0" />
@@ -174,11 +176,11 @@
                                                     <button type="button" class="btn btn-sm btn-outline-secondary" id="cancelNestedParentForm">
                                                         <i class="fas fa-times me-1"></i>@Localizer["Cancel"]
                                                     </button>
-                                                    <button type="submit" class="btn btn-sm btn-primary">
+                                                    <button type="button" id="submitNestedParentForm" class="btn btn-sm btn-primary">
                                                         <i class="fas fa-save me-1"></i>@Localizer["Parents.CreateParent"]
                                                     </button>
                                                 </div>
-                                            </form>
+                                            </div>
                                         </div>
                                     </div>
 
@@ -209,11 +211,11 @@
                                         <button type="button" class="btn btn-outline-secondary" id="cancelChildForm">
                                             <i class="fas fa-times me-1"></i>@Localizer["Cancel"]
                                         </button>
-                                        <button type="submit" class="btn btn-primary">
+                                        <button type="button" id="submitChildForm" class="btn btn-primary">
                                             <i class="fas fa-save me-1"></i>@Localizer["Save"]
                                         </button>
                                     </div>
-                                </form>
+                                </div>
                             </div>
                         </div>
 
@@ -303,6 +305,22 @@
             var childParentChoices = null;
             var nestedParentInitialized = false;
 
+            // childForm / nestedParentForm are <div>s (not nested <form>s, which would break the
+            // outer Booking form), so they have no native reset(). This mimics form.reset().
+            function resetWidget(id) {
+                var el = document.getElementById(id);
+                if (!el) return;
+                el.querySelectorAll('input, select, textarea').forEach(function (f) {
+                    if (f.type === 'checkbox' || f.type === 'radio') {
+                        f.checked = f.defaultChecked;
+                    } else if (f.tagName === 'SELECT') {
+                        Array.prototype.forEach.call(f.options, function (o) { o.selected = o.defaultSelected; });
+                    } else {
+                        f.value = f.defaultValue;
+                    }
+                });
+            }
+
             // Toggle child form visibility
             $('#toggleChildForm').on('click', function () {
                 $('#childFormContainer').slideToggle(300, function() {
@@ -330,19 +348,16 @@
             $('#cancelNestedParentForm').on('click', function () {
                 $('#nestedParentFormContainer').slideUp(300);
                 $('#toggleNestedParentForm').find('i').removeClass('fa-minus-circle').addClass('fa-plus-circle');
-                var nestedParentForm = document.getElementById('nestedParentForm');
-                if (nestedParentForm) {
-                    nestedParentForm.reset();
-                }
+                resetWidget('nestedParentForm');
                 clearNestedParentFormErrors();
             });
 
             // Submit nested parent form via AJAX
-            $('#nestedParentForm').on('submit', function (e) {
+            $('#submitNestedParentForm').on('click', function (e) {
                 e.preventDefault();
                 clearNestedParentFormErrors();
 
-                var formData = $(this).serialize();
+                var formData = $('#nestedParentForm').find(':input').serialize();
 
                 $.ajax({
                     url: '@Url.Action("CreateAjax", "Parents")',
@@ -371,10 +386,7 @@
                             // Hide and reset nested form
                             $('#nestedParentFormContainer').slideUp(300);
                             $('#toggleNestedParentForm').find('i').removeClass('fa-minus-circle').addClass('fa-plus-circle');
-                            var nestedParentForm = document.getElementById('nestedParentForm');
-                            if (nestedParentForm) {
-                                nestedParentForm.reset();
-                            }
+                            resetWidget('nestedParentForm');
 
                             // Show success message
                             if (typeof toastr !== 'undefined') {
@@ -425,28 +437,22 @@
                 if ($('#nestedParentFormContainer').is(':visible')) {
                     $('#nestedParentFormContainer').hide();
                     $('#toggleNestedParentForm').find('i').removeClass('fa-minus-circle').addClass('fa-plus-circle');
-                    var nestedParentForm = document.getElementById('nestedParentForm');
-                    if (nestedParentForm) {
-                        nestedParentForm.reset();
-                    }
+                    resetWidget('nestedParentForm');
                     clearNestedParentFormErrors();
                 }
 
                 $('#childFormContainer').slideUp(300);
                 $('#toggleChildForm').find('i').removeClass('fa-minus-circle').addClass('fa-plus-circle');
-                var childForm = document.getElementById('childForm');
-                if (childForm) {
-                    childForm.reset();
-                }
+                resetWidget('childForm');
                 clearChildFormErrors();
             });
 
             // Submit child form via AJAX
-            $('#childForm').on('submit', function (e) {
+            $('#submitChildForm').on('click', function (e) {
                 e.preventDefault();
                 clearChildFormErrors();
 
-                var formData = $(this).serialize();
+                var formData = $('#childForm').find(':input').serialize();
 
                 $.ajax({
                     url: '@Url.Action("CreateAjax", "Children")',
@@ -466,10 +472,7 @@
                             // Hide and reset form
                             $('#childFormContainer').slideUp(300);
                             $('#toggleChildForm').find('i').removeClass('fa-minus-circle').addClass('fa-plus-circle');
-                            var childForm = document.getElementById('childForm');
-                            if (childForm) {
-                                childForm.reset();
-                            }
+                            resetWidget('childForm');
 
                             // Show success message
                             if (typeof toastr !== 'undefined') {
