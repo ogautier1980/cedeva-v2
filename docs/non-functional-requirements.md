@@ -49,7 +49,7 @@ Performance**.
 - **Stimulus :** ajouter/modifier une fonctionnalité.
 - **Artefact :** l'ensemble du code.
 - **Réponse :** changement localisé, non régressif, compréhensible.
-- **Mesure :** build **0 warning** (analyzers actifs), **~1139 tests** unit/intégration (+ 59 E2E, 3 SQL) verts, couverture lignes ≈ 90 % (gate CI 85 %), décisions documentées (ADR).
+- **Mesure :** build **0 warning** (analyzers actifs), **~1178 tests** unit/intégration (+ 59 E2E, 3 SQL) verts, couverture lignes ≈ 92 % (gate CI 85 %), décisions documentées (ADR).
 - **En place :** feature folders, DI, services extraits, analyzers, Directory.Build.props, .editorconfig, cette documentation.
 
 ## QA-6 — Performance — *priorité moyenne*
@@ -58,7 +58,7 @@ Performance**.
 - **Artefact :** controllers + EF Core.
 - **Réponse :** page rendue rapidement.
 - **Mesure (objectif) :** P95 < 500 ms hors cold-start. *Non mesuré formellement aujourd'hui.*
-- **Instrumentation :** Serilog (+ sink Seq config-driven) et **Application Insights câblé** (actif dès qu'une connection string est fournie ; ressource Azure à créer). **Reste :** surveiller les requêtes N+1.
+- **Instrumentation :** Serilog (+ sink Seq config-driven) et **Application Insights** (ressource Azure créée + connection string en place → actif en prod). **Reste :** surveiller les requêtes N+1.
 
 ## QA-7 — Confidentialité des données / RGPD — *priorité moyenne*
 - **Source :** exploitation des logs / fuite.
