@@ -4039,4 +4039,19 @@
   <data name="Contacts.NoOtherContacts" xml:space="preserve">
     <value>Aucun autre contact.</value>
   </data>
+  <data name="Email.RecipientCustomContacts" xml:space="preserve">
+    <value>Contacts personnalisés</value>
+  </data>
+  <data name="Email.CustomContactsHelp" xml:space="preserve">
+    <value>Sélectionnez les contacts destinataires de ce message.</value>
+  </data>
+  <data name="Email.SelectContacts" xml:space="preserve">
+    <value>Sélectionner les contacts</value>
+  </data>
+  <data name="Email.NoContactsWithEmail" xml:space="preserve">
+    <value>Aucun contact avec une adresse e-mail.</value>
+  </data>
+  <data name="Message.NoContactsSelected" xml:space="preserve">
+    <value>Veuillez sélectionner au moins un contact.</value>
+  </data>
 </root>

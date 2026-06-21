@@ -4017,4 +4017,19 @@
   <data name="Contacts.NoOtherContacts" xml:space="preserve">
     <value>Geen andere contacten.</value>
   </data>
+  <data name="Email.RecipientCustomContacts" xml:space="preserve">
+    <value>Aangepaste contacten</value>
+  </data>
+  <data name="Email.CustomContactsHelp" xml:space="preserve">
+    <value>Selecteer de contacten die dit bericht ontvangen.</value>
+  </data>
+  <data name="Email.SelectContacts" xml:space="preserve">
+    <value>Contacten selecteren</value>
+  </data>
+  <data name="Email.NoContactsWithEmail" xml:space="preserve">
+    <value>Geen contact met een e-mailadres.</value>
+  </data>
+  <data name="Message.NoContactsSelected" xml:space="preserve">
+    <value>Selecteer minstens één contact.</value>
+  </data>
 </root>

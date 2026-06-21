@@ -24,6 +24,7 @@ public class ActivityManagementController : Controller
     private const string RecipientUnpaidParents = "unpaidparents";
     private const string RecipientGroupPrefix = "group_";
     private const string RecipientExcursionPrefix = "excursion_";
+    private const string RecipientCustomContacts = "custom_contacts";
 
     private readonly CedevaDbContext _context;
     private readonly ILogger<ActivityManagementController> _logger;
@@ -366,7 +367,8 @@ public class ActivityManagementController : Controller
             ActivityId = activity.Id,
             ActivityName = activity.Name,
             RecipientOptions = GetRecipientOptions(activity.Groups, excursions),
-            DayOptions = GetDayOptions(activity.Days)
+            DayOptions = GetDayOptions(activity.Days),
+            ContactOptions = await GetContactOptionsAsync(activity.OrganisationId, default)
         };
 
         return View(viewModel);
@@ -395,6 +397,38 @@ public class ActivityManagementController : Controller
 
             _logger.LogInformation("Starting email sending process for activity {ActivityId}, recipient: {Recipient}",
                 model.ActivityId, model.SelectedRecipient);
+
+            // Custom ad-hoc group: send the message as-is to the hand-picked contact emails
+            // (no per-child variable replacement — these recipients have no booking context).
+            if (model.SelectedRecipient == RecipientCustomContacts)
+            {
+                // Only allow emails that actually belong to this organisation's contacts, so the
+                // form can't be abused to send to arbitrary addresses.
+                var allowed = (await GetContactOptionsAsync(organisationId, ct))
+                    .Select(c => c.Email)
+                    .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+                var customEmails = (model.SelectedContactEmails ?? new List<string>())
+                    .Where(e => !string.IsNullOrWhiteSpace(e))
+                    .Select(e => e.Trim())
+                    .Where(e => allowed.Contains(e))
+                    .Distinct(StringComparer.OrdinalIgnoreCase)
+                    .ToList();
+
+                if (customEmails.Count == 0)
+                {
+                    ModelState.AddModelError(string.Empty, _localizer["Message.NoContactsSelected"]);
+                    await RepopulateViewModelAsync(model, ct);
+                    return View(model);
+                }
+
+                foreach (var email in customEmails)
+                    await _emailServices.Email.SendEmailAsync(new List<string> { email }, model.Subject, model.Message, attachmentFilePath);
+
+                await LogSentEmailAsync(model, null, customEmails, attachmentFileName, attachmentFilePath, ct);
+                TempData[ControllerExtensions.SuccessMessageKey] = string.Format(_localizer["Message.EmailSent"].Value, customEmails.Count);
+                return RedirectToAction(nameof(SendEmail));
+            }
 
             int emailsSentCount;
 
@@ -741,7 +775,8 @@ public class ActivityManagementController : Controller
         {
             new() { Value = RecipientAllParents, Text = _localizer["Email.RecipientAllParents"], Group = generalGroup },
             new() { Value = RecipientMedicalSheetReminder, Text = _localizer["Email.RecipientMedicalSheetReminder"], Group = generalGroup },
-            new() { Value = RecipientUnpaidParents, Text = _localizer["Email.RecipientUnpaidParents"], Group = generalGroup }
+            new() { Value = RecipientUnpaidParents, Text = _localizer["Email.RecipientUnpaidParents"], Group = generalGroup },
+            new() { Value = RecipientCustomContacts, Text = _localizer["Email.RecipientCustomContacts"], Group = generalGroup }
         };
 
         // Add groups section
@@ -780,6 +815,32 @@ public class ActivityManagementController : Controller
         return options;
     }
 
+    /// <summary>
+    /// Builds the selectable contacts for the custom email-group picker: every organisation contact
+    /// that has an email — parents, team members and "other contacts" — de-duplicated by email.
+    /// </summary>
+    private async Task<List<ContactSelectItem>> GetContactOptionsAsync(int organisationId, CancellationToken ct)
+    {
+        var parents = await _context.Parents
+            .Where(p => p.OrganisationId == organisationId && p.Email != "")
+            .Select(p => new ContactSelectItem { Email = p.Email, Display = p.LastName + ", " + p.FirstName, Category = _localizer["Contacts.Parent"].Value })
+            .ToListAsync(ct);
+        var teamMembers = await _context.TeamMembers
+            .Where(t => t.OrganisationId == organisationId && t.Email != "")
+            .Select(t => new ContactSelectItem { Email = t.Email, Display = t.LastName + ", " + t.FirstName, Category = _localizer["Contacts.Animator"].Value })
+            .ToListAsync(ct);
+        var others = await _context.Contacts
+            .Where(c => c.OrganisationId == organisationId && c.Email != null && c.Email != "")
+            .Select(c => new ContactSelectItem { Email = c.Email!, Display = c.LastName + ", " + c.FirstName, Category = _localizer["Contacts.Others"].Value })
+            .ToListAsync(ct);
+
+        return parents.Concat(teamMembers).Concat(others)
+            .GroupBy(c => c.Email, StringComparer.OrdinalIgnoreCase)
+            .Select(g => g.First())
+            .OrderBy(c => c.Category).ThenBy(c => c.Display)
+            .ToList();
+    }
+
     private async Task RepopulateViewModelAsync(SendEmailViewModel model, CancellationToken ct)
     {
         var activity = await _context.Activities
@@ -795,6 +856,7 @@ public class ActivityManagementController : Controller
 
             model.RecipientOptions = GetRecipientOptions(activity.Groups, excursions);
             model.DayOptions = GetDayOptions(activity.Days);
+            model.ContactOptions = await GetContactOptionsAsync(activity.OrganisationId, ct);
             ViewBag.Templates = await _emailServices.Template.GetAllTemplatesAsync(activity.OrganisationId);
         }
     }
@@ -860,6 +922,7 @@ public class ActivityManagementController : Controller
         {
             var r when r == RecipientAllParents => EmailRecipient.AllParents,
             var r when r == RecipientMedicalSheetReminder => EmailRecipient.MedicalSheetReminder,
+            var r when r == RecipientCustomContacts => EmailRecipient.CustomContacts,
             var r when r != null && r.StartsWith(RecipientGroupPrefix) => EmailRecipient.ActivityGroup,
             _ => EmailRecipient.AllParents
         };

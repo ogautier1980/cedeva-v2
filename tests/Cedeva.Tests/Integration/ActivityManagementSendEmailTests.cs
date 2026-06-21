@@ -111,6 +111,65 @@ public class ActivityManagementSendEmailTests
     }
 
     [Fact]
+    public async Task SendEmail_CustomContacts_SendsToSelectedContactEmails_AndLogs()
+    {
+        var fake = new FakeEmailService();
+        using var factory = NewFactory(fake);
+        Organisation org = null!;
+        Activity activity = null!;
+        factory.Seed(ctx =>
+        {
+            org = TestData.Organisation();
+            activity = TestData.Activity(org);
+            ctx.AddRange(org, activity);
+            ctx.Contacts.Add(new Contact { Organisation = org, FirstName = "Sophie", LastName = "Lemaire", Email = "dr.lemaire@test.be", Function = "Médecin" });
+            return 0;
+        });
+
+        var client = factory.CreateClientFor("u1", org.Id, "Coordinator");
+        var form = new FormUrlEncodedContent(new[]
+        {
+            new KeyValuePair<string, string>("ActivityId", activity.Id.ToString()),
+            new KeyValuePair<string, string>("SelectedRecipient", "custom_contacts"),
+            new KeyValuePair<string, string>("Subject", "Réunion"),
+            new KeyValuePair<string, string>("Message", "Bonjour"),
+            new KeyValuePair<string, string>("SelectedContactEmails", "dr.lemaire@test.be"),
+            // An address that is NOT one of the org's contacts must be ignored (no open relay).
+            new KeyValuePair<string, string>("SelectedContactEmails", "stranger@evil.be"),
+        });
+        var response = await client.PostAsync("/ActivityManagement/SendEmail", form);
+
+        response.StatusCode.Should().Be(HttpStatusCode.Found);
+        fake.Sent.Should().ContainSingle("only the known contact is emailed, the stranger is dropped");
+        fake.Sent[0].To.Should().Contain("dr.lemaire@test.be");
+
+        using var db = factory.NewDbContext();
+        (await db.EmailsSent.AnyAsync(e => e.ActivityId == activity.Id
+            && e.RecipientType == Cedeva.Core.Enums.EmailRecipient.CustomContacts)).Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task SendEmail_CustomContacts_NoneSelected_ReturnsViewWithError_AndSendsNothing()
+    {
+        var fake = new FakeEmailService();
+        using var factory = NewFactory(fake);
+        var (org, activity) = SeedActivityWithConfirmedBooking(factory, withBooking: false);
+
+        var client = factory.CreateClientFor("u1", org.Id, "Coordinator");
+        var form = new FormUrlEncodedContent(new[]
+        {
+            new KeyValuePair<string, string>("ActivityId", activity.Id.ToString()),
+            new KeyValuePair<string, string>("SelectedRecipient", "custom_contacts"),
+            new KeyValuePair<string, string>("Subject", "Sujet"),
+            new KeyValuePair<string, string>("Message", "Corps"),
+        });
+        var response = await client.PostAsync("/ActivityManagement/SendEmail", form);
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK, "no contacts selected -> re-render with error");
+        fake.Sent.Should().BeEmpty();
+    }
+
+    [Fact]
     public async Task SendEmail_NoConfirmedBookings_ReturnsViewWithError_AndSendsNothing()
     {
         var fake = new FakeEmailService();

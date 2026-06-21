@@ -33,12 +33,40 @@
                         </div>
 
                         <!-- Day filter -->
-                        <div class="mb-3">
+                        <div class="mb-3" id="dayFilterBlock">
                             <label for="SelectedDayId" class="form-label">@Localizer["Email.ScheduledForDay"]</label>
                             <select asp-for="SelectedDayId" asp-items="Model.DayOptions" class="form-select" id="SelectedDayId">
                                 <option value="">@Localizer["Email.AllDays"]</option>
                             </select>
                             <div class="form-text">@Localizer["Email.DayFilterHelp"]</div>
+                        </div>
+
+                        <!-- Custom contacts picker (shown only for the "custom contacts" recipient) -->
+                        <div class="mb-3 d-none" id="customContactsBlock">
+                            <label class="form-label">@Localizer["Email.SelectContacts"]</label>
+                            <div class="form-text mb-2">@Localizer["Email.CustomContactsHelp"]</div>
+                            @if (Model.ContactOptions.Any())
+                            {
+                                <input type="text" class="form-control form-control-sm mb-2" id="contactFilter" placeholder="@Localizer["Search"]" />
+                                <div class="border rounded p-2" style="max-height: 220px; overflow-y: auto;" id="contactList">
+                                    @{ var ci = 0; }
+                                    @foreach (var c in Model.ContactOptions)
+                                    {
+                                        <div class="form-check contact-item" data-search="@($"{c.Display} {c.Email} {c.Category}".ToLowerInvariant())">
+                                            <input class="form-check-input" type="checkbox" name="SelectedContactEmails" value="@c.Email" id="contact_@ci" />
+                                            <label class="form-check-label" for="contact_@ci">
+                                                @c.Display <small class="text-muted">— @c.Email</small>
+                                                <span class="badge bg-info ms-1">@c.Category</span>
+                                            </label>
+                                        </div>
+                                        ci++;
+                                    }
+                                </div>
+                            }
+                            else
+                            {
+                                <p class="text-muted mb-0">@Localizer["Email.NoContactsWithEmail"]</p>
+                            }
                         </div>
 
                         <!-- Template selector -->
@@ -76,7 +104,7 @@
                         </div>
 
                         <!-- Send per child checkbox -->
-                        <div class="mb-3 form-check">
+                        <div class="mb-3 form-check" id="perChildBlock">
                             <input asp-for="SendSeparateEmailPerChild" class="form-check-input" id="SendSeparateEmailPerChild" />
                             <label for="SendSeparateEmailPerChild" class="form-check-label">@Localizer["Email.PerChild"]</label>
                             <div class="form-text">
@@ -200,6 +228,30 @@
             CedevaChoices.init('#SelectedRecipient');
             CedevaChoices.init('#SelectedDayId');
             CedevaChoices.init('#templateSelect');
+
+            // Show the custom-contacts picker (and hide the day/per-child options that don't apply)
+            // when the "custom contacts" recipient is chosen.
+            function toggleCustomContacts() {
+                var isCustom = document.getElementById('SelectedRecipient').value === 'custom_contacts';
+                document.getElementById('customContactsBlock').classList.toggle('d-none', !isCustom);
+                var day = document.getElementById('dayFilterBlock');
+                var perChild = document.getElementById('perChildBlock');
+                if (day) day.classList.toggle('d-none', isCustom);
+                if (perChild) perChild.classList.toggle('d-none', isCustom);
+            }
+            document.getElementById('SelectedRecipient').addEventListener('change', toggleCustomContacts);
+            toggleCustomContacts();
+
+            // Live filter on the contact list
+            var contactFilter = document.getElementById('contactFilter');
+            if (contactFilter) {
+                contactFilter.addEventListener('input', function () {
+                    var q = this.value.toLowerCase();
+                    document.querySelectorAll('#contactList .contact-item').forEach(function (item) {
+                        item.classList.toggle('d-none', q && item.dataset.search.indexOf(q) === -1);
+                    });
+                });
+            }
 
             // Apply bold style to optgroup labels after Choices.js initialization
             setTimeout(function() {

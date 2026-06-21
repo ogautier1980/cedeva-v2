@@ -33,4 +33,21 @@ public class SendEmailViewModel
 
     public List<SelectListItem> RecipientOptions { get; set; } = new();
     public List<SelectListItem> DayOptions { get; set; } = new();
+
+    /// <summary>
+    /// Emails picked when "Custom contacts" is selected as recipient — an ad-hoc group built from
+    /// the organisation's contacts (parents, team members and other contacts).
+    /// </summary>
+    public List<string> SelectedContactEmails { get; set; } = new();
+
+    /// <summary>All selectable contacts (with an email) for the custom-group picker.</summary>
+    public List<ContactSelectItem> ContactOptions { get; set; } = new();
+}
+
+/// <summary>A selectable contact in the custom email-group picker.</summary>
+public class ContactSelectItem
+{
+    public string Email { get; set; } = string.Empty;
+    public string Display { get; set; } = string.Empty;
+    public string Category { get; set; } = string.Empty;
 }
