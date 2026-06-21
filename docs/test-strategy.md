@@ -168,4 +168,4 @@ La montée en couverture a fait émerger plusieurs anomalies, toutes corrigées 
 - **CODA & rapprochement bancaire** : fonctionnalité **supprimée** (remplacée par le paiement en
   ligne Stripe — voir [ADR 0010](adr/0010-online-payments-provider-agnostic-stripe.md)).
 - Intégrations externes réelles (Azure Blob Storage, envoi réseau réel Brevo) : mockées, pas appelées.
-- Traductions NL/EN (placeholders).
+- Traductions : FR/NL/EN désormais complètes et à parité (~1282 clés chacune, plus de placeholders `[NL]`/`[EN]`).

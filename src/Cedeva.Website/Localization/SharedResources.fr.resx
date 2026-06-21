@@ -3853,4 +3853,67 @@
   <data name="PublicRegistration.SecurePayment" xml:space="preserve">
     <value>Paiement sécurisé par carte ou Bancontact.</value>
   </data>
+  <data name="Absent" xml:space="preserve">
+    <value>Absent</value>
+  </data>
+  <data name="Assigned" xml:space="preserve">
+    <value>Assigné</value>
+  </data>
+  <data name="Bookings.CreateBooking" xml:space="preserve">
+    <value>Créer une réservation</value>
+  </data>
+  <data name="Children.CreateChild" xml:space="preserve">
+    <value>Ajouter un enfant</value>
+  </data>
+  <data name="Create" xml:space="preserve">
+    <value>Créer</value>
+  </data>
+  <data name="Email.Send" xml:space="preserve">
+    <value>Envoyer</value>
+  </data>
+  <data name="Error.UnexpectedError" xml:space="preserve">
+    <value>Une erreur inattendue s'est produite.</value>
+  </data>
+  <data name="Expense.ExpenseDate" xml:space="preserve">
+    <value>Date de la dépense</value>
+  </data>
+  <data name="Expense.Label" xml:space="preserve">
+    <value>Libellé</value>
+  </data>
+  <data name="Field.Category" xml:space="preserve">
+    <value>Catégorie</value>
+  </data>
+  <data name="Field.ExpenseDate" xml:space="preserve">
+    <value>Date de la dépense</value>
+  </data>
+  <data name="Field.ExpenseType" xml:space="preserve">
+    <value>Type de dépense</value>
+  </data>
+  <data name="Field.Filter" xml:space="preserve">
+    <value>Filtrer</value>
+  </data>
+  <data name="Field.OrganizationPaymentSource" xml:space="preserve">
+    <value>Source de paiement de l'organisation</value>
+  </data>
+  <data name="Message.ErrorOccurred" xml:space="preserve">
+    <value>Une erreur s'est produite.</value>
+  </data>
+  <data name="Payment.Reference" xml:space="preserve">
+    <value>Référence</value>
+  </data>
+  <data name="PaymentStatus" xml:space="preserve">
+    <value>Statut de paiement</value>
+  </data>
+  <data name="Required" xml:space="preserve">
+    <value>Requis</value>
+  </data>
+  <data name="Select" xml:space="preserve">
+    <value>Sélectionner</value>
+  </data>
+  <data name="TeamMembers.CreateMember" xml:space="preserve">
+    <value>Ajouter un membre d'équipe</value>
+  </data>
+  <data name="Total" xml:space="preserve">
+    <value>Total</value>
+  </data>
 </root>

@@ -56,7 +56,7 @@ src/
 ├── Cedeva.Website/        # MVC (feature folders)
 │   ├── Features/          # One folder per feature (controller + views + ViewModels)
 │   │   └── Shared/        # Reusable partials (_AlertMessages, _Pagination, _SortableColumnHeader)
-│   └── Localization/      # SharedResources.{fr,nl,en}.resx (~600 keys)
+│   └── Localization/      # SharedResources.{fr,nl,en}.resx (~1282 keys each, full parity)
 ├── Cedeva.Core/           # Domain (entities, interfaces, enums)
 └── Cedeva.Infrastructure/ # Data (DbContext, migrations, seeder), services
 ```
@@ -91,7 +91,7 @@ src/
 
 ### Core Features
 - **CRUD modules:** Activities, Bookings, Children, Parents, TeamMembers, Organisations, Users
-- **Localisation:** FR (complete), NL/EN (placeholders with `[NL]`/`[EN]` prefixes)
+- **Localisation:** FR, NL, EN — all three fully translated (~1282 keys each, no `[NL]`/`[EN]` placeholders left; keys verified at parity across the 3 files)
 - **Multi-tenancy:** Organisation-scoped data with admin bypass
 - **Audit trail:** CreatedAt/CreatedBy/ModifiedAt/ModifiedBy on all 24 entities (auto-populated)
 
@@ -190,7 +190,7 @@ src/
 
 ### Adding localization keys
 1. Add to `SharedResources.fr.resx` (primary language)
-2. Add placeholders to `.nl.resx` and `.en.resx` with `[NL]`/`[EN]` prefix
+2. Add **real** NL and EN translations to `.nl.resx` and `.en.resx` (the 3 files are at full key parity and fully translated — keep it that way; no `[NL]`/`[EN]` placeholders)
 3. Use in views: `@Localizer["Key"]`
 4. For JavaScript: Use `@Json.Serialize(Localizer["Key"].Value)` (NOT `@Html.Raw()`)
 

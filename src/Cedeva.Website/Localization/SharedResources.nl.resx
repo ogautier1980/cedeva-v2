@@ -59,97 +59,97 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="Account.AccessDenied" xml:space="preserve">
-    <value>[NL] Accès refusé</value>
+    <value>Toegang geweigerd</value>
   </data>
   <data name="Account.AccessDeniedMessage" xml:space="preserve">
-    <value>[NL] Vous n'avez pas l'autorisation d'accéder à cette ressource.</value>
+    <value>U hebt geen toestemming om deze pagina te openen.</value>
   </data>
   <data name="Account.AccountInformation" xml:space="preserve">
-    <value>[NL] Informations du compte</value>
+    <value>Accountgegevens</value>
   </data>
   <data name="Account.AlreadyHaveAccount" xml:space="preserve">
-    <value>[NL] Vous avez déjà un compte ?</value>
+    <value>Hebt u al een account?</value>
   </data>
   <data name="Account.AlreadyHaveAccountLogin" xml:space="preserve">
-    <value>[NL] Vous avez déjà un compte ? Connectez-vous</value>
+    <value>Hebt u al een account? Meld u aan</value>
   </data>
   <data name="Account.ConfirmPassword" xml:space="preserve">
-    <value>[NL] Confirmer le mot de passe</value>
+    <value>Wachtwoord bevestigen</value>
   </data>
   <data name="Account.ConfirmPasswordPlaceholder" xml:space="preserve">
-    <value>[NL] Confirmez le mot de passe</value>
+    <value>Bevestig het wachtwoord</value>
   </data>
   <data name="Account.CreateAccount" xml:space="preserve">
-    <value>[NL] Créer un compte</value>
+    <value>Account aanmaken</value>
   </data>
   <data name="Account.CreateYourAccount" xml:space="preserve">
-    <value>[NL] Créer votre compte</value>
+    <value>Maak uw account aan</value>
   </data>
   <data name="Account.EmailCannotBeModified" xml:space="preserve">
-    <value>[NL] L'adresse e-mail ne peut pas être modifiée</value>
+    <value>Het e-mailadres kan niet worden gewijzigd</value>
   </data>
   <data name="Account.EmailPlaceholder" xml:space="preserve">
-    <value>[NL] Adresse e-mail</value>
+    <value>E-mailadres</value>
   </data>
   <data name="Account.FirstNamePlaceholder" xml:space="preserve">
-    <value>[NL] Prénom</value>
+    <value>Voornaam</value>
   </data>
   <data name="Account.ForgotPassword" xml:space="preserve">
-    <value>[NL] Mot de passe oublié ?</value>
+    <value>Wachtwoord vergeten?</value>
   </data>
   <data name="Account.LastNamePlaceholder" xml:space="preserve">
-    <value>[NL] Nom</value>
+    <value>Naam</value>
   </data>
   <data name="Account.Login" xml:space="preserve">
-    <value>[NL] Connexion</value>
+    <value>Aanmelden</value>
   </data>
   <data name="Account.LoginHere" xml:space="preserve">
-    <value>[NL] Connectez-vous ici</value>
+    <value>Meld u hier aan</value>
   </data>
   <data name="Account.LoginToYourAccount" xml:space="preserve">
-    <value>[NL] Connectez-vous à votre compte</value>
+    <value>Meld u aan bij uw account</value>
   </data>
   <data name="Account.MyProfile" xml:space="preserve">
-    <value>[NL] Mon profil</value>
+    <value>Mijn profiel</value>
   </data>
   <data name="Account.NoAccount" xml:space="preserve">
-    <value>[NL] Pas encore de compte ?</value>
+    <value>Nog geen account?</value>
   </data>
   <data name="Account.NoAccountRegister" xml:space="preserve">
-    <value>[NL] Vous n'avez pas de compte ? Inscrivez-vous</value>
+    <value>Hebt u geen account? Schrijf u in</value>
   </data>
   <data name="Account.Password" xml:space="preserve">
-    <value>[NL] Mot de passe</value>
+    <value>Wachtwoord</value>
   </data>
   <data name="Account.PasswordChangeContactAdmin" xml:space="preserve">
-    <value>[NL] Pour changer votre mot de passe, contactez l'administrateur</value>
+    <value>Neem contact op met de beheerder om uw wachtwoord te wijzigen</value>
   </data>
   <data name="Account.PasswordPlaceholder" xml:space="preserve">
-    <value>[NL] Mot de passe</value>
+    <value>Wachtwoord</value>
   </data>
   <data name="Account.PersonalInformation" xml:space="preserve">
-    <value>[NL] Informations personnelles</value>
+    <value>Persoonlijke gegevens</value>
   </data>
   <data name="Account.ProfileInformation" xml:space="preserve">
-    <value>[NL] Informations du profil</value>
+    <value>Profielgegevens</value>
   </data>
   <data name="Account.Register" xml:space="preserve">
-    <value>[NL] S'inscrire</value>
+    <value>Inschrijven</value>
   </data>
   <data name="Account.RememberMe" xml:space="preserve">
-    <value>[NL] Se souvenir de moi</value>
+    <value>Mij onthouden</value>
   </data>
   <data name="Account.ReturnToHome" xml:space="preserve">
-    <value>[NL] Retour à l'accueil</value>
+    <value>Terug naar start</value>
   </data>
   <data name="Account.Security" xml:space="preserve">
-    <value>[NL] Sécurité</value>
+    <value>Beveiliging</value>
   </data>
   <data name="Account.TestAccounts" xml:space="preserve">
-    <value>[NL] Comptes de test</value>
+    <value>Testaccounts</value>
   </data>
   <data name="Account.UpdateProfile" xml:space="preserve">
-    <value>[NL] Mettre à jour le profil</value>
+    <value>Profiel bijwerken</value>
   </data>
   <data name="AccountStatus" xml:space="preserve">
     <value>Accountstatus</value>
@@ -167,7 +167,7 @@
     <value>Activiteiten</value>
   </data>
   <data name="Activities.ActivateDaysInfo" xml:space="preserve">
-    <value>[NL] Activer les jours pour cette activité</value>
+    <value>Dagen voor deze activiteit activeren</value>
   </data>
   <data name="Activities.ActiveDays" xml:space="preserve">
     <value>actieve dagen</value>
@@ -176,64 +176,64 @@
     <value>Alleen actieve</value>
   </data>
   <data name="Activities.AddDaysToBookingsQuestion" xml:space="preserve">
-    <value>[NL] Ajouter ces jours aux réservations existantes ?</value>
+    <value>Deze dagen aan bestaande boekingen toevoegen?</value>
   </data>
   <data name="Activities.All" xml:space="preserve">
     <value>Alle</value>
   </data>
   <data name="Activities.BookingCount" xml:space="preserve">
-    <value>[NL] inscription(s)</value>
+    <value>inschrijving(en)</value>
   </data>
   <data name="Activities.Bookings" xml:space="preserve">
     <value>Inschrijvingen</value>
   </data>
   <data name="Activities.CanAddGroupsLater" xml:space="preserve">
-    <value>[NL] Vous pourrez ensuite ajouter des groupes, des questions personnalisées et gérer les inscriptions.</value>
+    <value>U kunt daarna groepen en aangepaste vragen toevoegen en de inschrijvingen beheren.</value>
   </data>
   <data name="Activities.ConfirmDeletionTitle" xml:space="preserve">
-    <value>[NL] Confirmer la suppression</value>
+    <value>Verwijdering bevestigen</value>
   </data>
   <data name="Activities.ConfirmRemoveDays" xml:space="preserve">
-    <value>[NL] Êtes-vous sûr de vouloir supprimer ces jours ?</value>
+    <value>Weet u zeker dat u deze dagen wilt verwijderen?</value>
   </data>
   <data name="Activities.CreateActivity" xml:space="preserve">
     <value>Activiteit aanmaken</value>
   </data>
   <data name="Activities.CreateButton" xml:space="preserve">
-    <value>[NL] Créer l'activité</value>
+    <value>Activiteit aanmaken</value>
   </data>
   <data name="Activities.CustomQuestions" xml:space="preserve">
-    <value>[NL] Questions personnalisées</value>
+    <value>Aangepaste vragen</value>
   </data>
   <data name="Activities.Dates" xml:space="preserve">
     <value>Data</value>
   </data>
   <data name="Activities.DaysSchedule" xml:space="preserve">
-    <value>[NL] Calendrier des jours</value>
+    <value>Dagenkalender</value>
   </data>
   <data name="Activities.DaysWillBeGenerated" xml:space="preserve">
-    <value>[NL] Les jours de l'activité seront automatiquement générés en fonction des dates de début et de fin.</value>
+    <value>De dagen van de activiteit worden automatisch gegenereerd op basis van de begin- en einddatum.</value>
   </data>
   <data name="Activities.DeactivateDaysWarning" xml:space="preserve">
-    <value>[NL] La désactivation de jours peut affecter les réservations existantes</value>
+    <value>Het deactiveren van dagen kan bestaande boekingen beïnvloeden</value>
   </data>
   <data name="Activities.DeleteActivity" xml:space="preserve">
-    <value>[NL] Supprimer l'activité</value>
+    <value>Activiteit verwijderen</value>
   </data>
   <data name="Activities.DeletePermanently" xml:space="preserve">
-    <value>[NL] Supprimer définitivement</value>
+    <value>Definitief verwijderen</value>
   </data>
   <data name="Activities.DeleteWarning" xml:space="preserve">
-    <value>[NL] Êtes-vous sûr de vouloir supprimer cette activité ?</value>
+    <value>Weet u zeker dat u deze activiteit wilt verwijderen?</value>
   </data>
   <data name="Activities.Description" xml:space="preserve">
-    <value>[NL] Description</value>
+    <value>Beschrijving</value>
   </data>
   <data name="Activities.DescriptionPlaceholder" xml:space="preserve">
-    <value>[NL] Description de l'activité...</value>
+    <value>Beschrijving van de activiteit...</value>
   </data>
   <data name="Activities.EditActivity" xml:space="preserve">
-    <value>[NL] Modifier l'activité</value>
+    <value>Activiteit bewerken</value>
   </data>
   <data name="Activities.ExportExcel" xml:space="preserve">
     <value>Excel exporteren</value>
@@ -242,28 +242,28 @@
     <value>Filteren</value>
   </data>
   <data name="Activities.From" xml:space="preserve">
-    <value>[NL] Du</value>
+    <value>Van</value>
   </data>
   <data name="Activities.GeneralInformation" xml:space="preserve">
-    <value>[NL] Informations générales</value>
+    <value>Algemene gegevens</value>
   </data>
   <data name="Activities.Group" xml:space="preserve">
-    <value>[NL] Groupe</value>
+    <value>Groep</value>
   </data>
   <data name="Activities.Groups" xml:space="preserve">
-    <value>[NL] Groupes</value>
+    <value>Groepen</value>
   </data>
   <data name="Activities.HasBookingsWarning" xml:space="preserve">
-    <value>[NL] Cette activité contient des inscriptions. La suppression n'est pas possible.</value>
+    <value>Deze activiteit bevat inschrijvingen. Verwijderen is niet mogelijk.</value>
   </data>
   <data name="Activities.Inactive" xml:space="preserve">
     <value>Inactief</value>
   </data>
   <data name="Activities.Information" xml:space="preserve">
-    <value>[NL] Informations</value>
+    <value>Gegevens</value>
   </data>
   <data name="Activities.IntegrationCode" xml:space="preserve">
-    <value>[NL] Code d'intégration iframe</value>
+    <value>Iframe-integratiecode</value>
   </data>
   <data name="Activities.Manage" xml:space="preserve">
     <value>Beheren</value>
@@ -272,16 +272,16 @@
     <value>Activiteit beheren</value>
   </data>
   <data name="Activities.ManageDays" xml:space="preserve">
-    <value>[NL] Gérer les jours</value>
+    <value>Dagen beheren</value>
   </data>
   <data name="Activities.ManageDaysHelp" xml:space="preserve">
-    <value>[NL] Gérez les jours actifs pour cette activité</value>
+    <value>Beheer de actieve dagen voor deze activiteit</value>
   </data>
   <data name="Activities.ManageGroups" xml:space="preserve">
-    <value>[NL] Gérer les groupes</value>
+    <value>Groepen beheren</value>
   </data>
   <data name="Activities.ManagePresences" xml:space="preserve">
-    <value>[NL] Gérer les présences</value>
+    <value>Aanwezigheden beheren</value>
   </data>
   <data name="Activities.ManageQuestions" xml:space="preserve">
     <value>Vragen beheren</value>
@@ -290,7 +290,7 @@
     <value>Sleep om te herschikken</value>
   </data>
   <data name="Activities.NamePlaceholder" xml:space="preserve">
-    <value>[NL] Ex: Stage de Pâques 2026</value>
+    <value>Bv. Paasstage 2026</value>
   </data>
   <data name="Activities.NewActivity" xml:space="preserve">
     <value>Nieuwe activiteit</value>
@@ -302,13 +302,13 @@
     <value>Geen activiteiten gevonden</value>
   </data>
   <data name="Activities.None" xml:space="preserve">
-    <value>[NL] Aucune</value>
+    <value>Geen</value>
   </data>
   <data name="Activities.NotDefined" xml:space="preserve">
-    <value>[NL] Non défini</value>
+    <value>Niet bepaald</value>
   </data>
   <data name="Activities.Organisation" xml:space="preserve">
-    <value>[NL] Organisation</value>
+    <value>Organisatie</value>
   </data>
   <data name="Activities.Previous" xml:space="preserve">
     <value>Vorige</value>
@@ -317,7 +317,7 @@
     <value>Prijs/dag</value>
   </data>
   <data name="Activities.QuickActions" xml:space="preserve">
-    <value>[NL] Actions rapides</value>
+    <value>Snelle acties</value>
   </data>
   <data name="Activities.Reset" xml:space="preserve">
     <value>Herstellen</value>
@@ -326,115 +326,115 @@
     <value>Naam of beschrijving...</value>
   </data>
   <data name="Activities.Statistics" xml:space="preserve">
-    <value>[NL] Statistiques</value>
+    <value>Statistieken</value>
   </data>
   <data name="Activities.StatusLabel" xml:space="preserve">
-    <value>[NL] Statut</value>
+    <value>Status</value>
   </data>
   <data name="Activities.Team" xml:space="preserve">
-    <value>[NL] Équipe</value>
+    <value>Team</value>
   </data>
   <data name="Activities.ToDate" xml:space="preserve">
-    <value>[NL] au</value>
+    <value>tot</value>
   </data>
   <data name="Activities.ViewBookings" xml:space="preserve">
-    <value>[NL] Voir les inscriptions</value>
+    <value>Inschrijvingen bekijken</value>
   </data>
   <data name="Activities.AddGroup" xml:space="preserve">
-    <value>[NL] Ajouter un groupe</value>
+    <value>Groep toevoegen</value>
   </data>
   <data name="Activities.AddQuestion" xml:space="preserve">
-    <value>[NL] Ajouter une question</value>
+    <value>Vraag toevoegen</value>
   </data>
   <data name="Activities.CapacityPlaceholder" xml:space="preserve">
-    <value>[NL] Capacité (optionnel)</value>
+    <value>Capaciteit (optioneel)</value>
   </data>
   <data name="Activities.GroupLabelPlaceholder" xml:space="preserve">
-    <value>[NL] Nom du groupe (ex: Les Pingouins)</value>
+    <value>Naam van de groep (bv. De Pinguïns)</value>
   </data>
   <data name="Activities.GroupsAndQuestionsOptional" xml:space="preserve">
-    <value>[NL] Les groupes et questions personnalisées sont optionnels et peuvent également être ajoutés plus tard.</value>
+    <value>Groepen en aangepaste vragen zijn optioneel en kunnen ook later worden toegevoegd.</value>
   </data>
   <data name="Activities.GroupsHelp" xml:space="preserve">
-    <value>[NL] Les groupes permettent de diviser les enfants en sections (ex: par âge). Vous pouvez les ajouter maintenant ou plus tard.</value>
+    <value>Met groepen kunt u de kinderen in secties verdelen (bv. per leeftijd). U kunt ze nu of later toevoegen.</value>
   </data>
   <data name="Activities.OptionsHelp" xml:space="preserve">
-    <value>[NL] Séparez les options par des virgules (ex: Option1,Option2,Option3)</value>
+    <value>Scheid de opties met komma's (bv. Optie1,Optie2,Optie3)</value>
   </data>
   <data name="Activities.OptionsPlaceholder" xml:space="preserve">
-    <value>[NL] Option1,Option2,Option3</value>
+    <value>Optie1,Optie2,Optie3</value>
   </data>
   <data name="Activities.QuestionTextPlaceholder" xml:space="preserve">
-    <value>[NL] Texte de la question...</value>
+    <value>Tekst van de vraag...</value>
   </data>
   <data name="Activities.QuestionsHelp" xml:space="preserve">
-    <value>[NL] Les questions personnalisées seront posées lors de l'inscription. Vous pouvez les ajouter maintenant ou plus tard.</value>
+    <value>De aangepaste vragen worden gesteld bij de inschrijving. U kunt ze nu of later toevoegen.</value>
   </data>
   <data name="Activities.Required" xml:space="preserve">
-    <value>[NL] Requis</value>
+    <value>Verplicht</value>
   </data>
   <data name="Activities.SelectQuestionType" xml:space="preserve">
-    <value>[NL] Type de question...</value>
+    <value>Type vraag...</value>
   </data>
   <data name="Activity" xml:space="preserve">
     <value>Activiteit</value>
   </data>
   <data name="ActivityGroups.BookingsCount" xml:space="preserve">
-    <value>[NL] Inscriptions</value>
+    <value>Inschrijvingen</value>
   </data>
   <data name="ActivityGroups.CannotDeleteHasBookings" xml:space="preserve">
-    <value>[NL] Ce groupe ne peut pas être supprimé car il contient des inscriptions.</value>
+    <value>Deze groep kan niet worden verwijderd omdat hij inschrijvingen bevat.</value>
   </data>
   <data name="ActivityGroups.CapacityHelp" xml:space="preserve">
-    <value>[NL] Laissez vide pour aucune limite</value>
+    <value>Laat leeg voor geen limiet</value>
   </data>
   <data name="ActivityGroups.CapacityPlaceholder" xml:space="preserve">
-    <value>[NL] Nombre maximum d'enfants</value>
+    <value>Maximum aantal kinderen</value>
   </data>
   <data name="ActivityGroups.Children" xml:space="preserve">
-    <value>[NL] enfants</value>
+    <value>kinderen</value>
   </data>
   <data name="ActivityGroups.CreateFirst" xml:space="preserve">
-    <value>[NL] Créer le premier groupe</value>
+    <value>Eerste groep aanmaken</value>
   </data>
   <data name="ActivityGroups.CreateNew" xml:space="preserve">
-    <value>[NL] Créer un nouveau groupe</value>
+    <value>Nieuwe groep aanmaken</value>
   </data>
   <data name="ActivityGroups.CreateSuccess" xml:space="preserve">
-    <value>[NL] Groupe créé avec succès</value>
+    <value>Groep succesvol aangemaakt</value>
   </data>
   <data name="ActivityGroups.Delete" xml:space="preserve">
-    <value>[NL] Supprimer le groupe</value>
+    <value>Groep verwijderen</value>
   </data>
   <data name="ActivityGroups.DeleteErrorHasBookings" xml:space="preserve">
-    <value>[NL] Impossible de supprimer ce groupe car il contient des inscriptions.</value>
+    <value>Kan deze groep niet verwijderen omdat ze inschrijvingen bevat.</value>
   </data>
   <data name="ActivityGroups.DeleteSuccess" xml:space="preserve">
-    <value>[NL] Groupe supprimé avec succès</value>
+    <value>Groep succesvol verwijderd</value>
   </data>
   <data name="ActivityGroups.DeleteWarning" xml:space="preserve">
-    <value>[NL] Êtes-vous sûr de vouloir supprimer ce groupe ?</value>
+    <value>Weet u zeker dat u deze groep wilt verwijderen ?</value>
   </data>
   <data name="ActivityGroups.Edit" xml:space="preserve">
-    <value>[NL] Modifier le groupe</value>
+    <value>Groep bewerken</value>
   </data>
   <data name="ActivityGroups.LabelHelp" xml:space="preserve">
-    <value>[NL] Nom du groupe pour organiser les enfants</value>
+    <value>Naam van de groep om kinderen te ordenen</value>
   </data>
   <data name="ActivityGroups.LabelPlaceholder" xml:space="preserve">
-    <value>[NL] Ex: Groupe A, Les Marmottes, etc.</value>
+    <value>Bv.: Groep A, De Marmotten, enz.</value>
   </data>
   <data name="ActivityGroups.NoGroups" xml:space="preserve">
-    <value>[NL] Aucun groupe trouvé</value>
+    <value>Geen groep gevonden</value>
   </data>
   <data name="ActivityGroups.NoLimit" xml:space="preserve">
-    <value>[NL] Illimité</value>
+    <value>Onbeperkt</value>
   </data>
   <data name="ActivityGroups.Title" xml:space="preserve">
-    <value>[NL] Groupes</value>
+    <value>Groepen</value>
   </data>
   <data name="ActivityGroups.UpdateSuccess" xml:space="preserve">
-    <value>[NL] Groupe mis à jour avec succès</value>
+    <value>Groep succesvol bijgewerkt</value>
   </data>
   <data name="ActivityManagement" xml:space="preserve">
     <value>Activiteitenbeheer</value>
@@ -539,127 +539,127 @@
     <value>Fout bij het bijwerken van de aanwezigheid.</value>
   </data>
   <data name="ActivityQuestions.AnswersCount" xml:space="preserve">
-    <value>[NL] Réponses</value>
+    <value>Antwoorden</value>
   </data>
   <data name="ActivityQuestions.CannotDeleteHasAnswers" xml:space="preserve">
-    <value>[NL] Cette question ne peut pas être supprimée car elle contient des réponses.</value>
+    <value>Deze vraag kan niet worden verwijderd omdat ze antwoorden bevat.</value>
   </data>
   <data name="ActivityQuestions.CreateFirst" xml:space="preserve">
-    <value>[NL] Créer la première question</value>
+    <value>Eerste vraag aanmaken</value>
   </data>
   <data name="ActivityQuestions.CreateNew" xml:space="preserve">
-    <value>[NL] Créer une nouvelle question</value>
+    <value>Nieuwe vraag aanmaken</value>
   </data>
   <data name="ActivityQuestions.CreateSuccess" xml:space="preserve">
-    <value>[NL] Question créée avec succès</value>
+    <value>Vraag succesvol aangemaakt</value>
   </data>
   <data name="ActivityQuestions.Delete" xml:space="preserve">
-    <value>[NL] Supprimer la question</value>
+    <value>Vraag verwijderen</value>
   </data>
   <data name="ActivityQuestions.DeleteErrorHasAnswers" xml:space="preserve">
-    <value>[NL] Impossible de supprimer cette question car elle contient des réponses.</value>
+    <value>Kan deze vraag niet verwijderen omdat ze antwoorden bevat.</value>
   </data>
   <data name="ActivityQuestions.DeleteSuccess" xml:space="preserve">
-    <value>[NL] Question supprimée avec succès</value>
+    <value>Vraag succesvol verwijderd</value>
   </data>
   <data name="ActivityQuestions.DeleteWarning" xml:space="preserve">
-    <value>[NL] Êtes-vous sûr de vouloir supprimer cette question ?</value>
+    <value>Weet u zeker dat u deze vraag wilt verwijderen ?</value>
   </data>
   <data name="ActivityQuestions.Edit" xml:space="preserve">
-    <value>[NL] Modifier la question</value>
+    <value>Vraag bewerken</value>
   </data>
   <data name="ActivityQuestions.IsRequired" xml:space="preserve">
-    <value>[NL] Obligatoire</value>
+    <value>Verplicht</value>
   </data>
   <data name="ActivityQuestions.IsRequiredHelp" xml:space="preserve">
-    <value>[NL] Les parents devront répondre à cette question</value>
+    <value>Ouders moeten deze vraag beantwoorden</value>
   </data>
   <data name="ActivityQuestions.No" xml:space="preserve">
-    <value>[NL] Non</value>
+    <value>Nee</value>
   </data>
   <data name="ActivityQuestions.NoQuestions" xml:space="preserve">
-    <value>[NL] Aucune question trouvée</value>
+    <value>Geen vraag gevonden</value>
   </data>
   <data name="ActivityQuestions.Options" xml:space="preserve">
-    <value>[NL] Options</value>
+    <value>Opties</value>
   </data>
   <data name="ActivityQuestions.OptionsHelp" xml:space="preserve">
-    <value>[NL] Séparez les options par des virgules</value>
+    <value>Scheid de opties met komma's</value>
   </data>
   <data name="ActivityQuestions.OptionsPlaceholder" xml:space="preserve">
-    <value>[NL] Ex: Option1,Option2,Option3</value>
+    <value>Bv.: Optie1,Optie2,Optie3</value>
   </data>
   <data name="ActivityQuestions.OptionsRequired" xml:space="preserve">
-    <value>[NL] Les options sont requises pour les questions de type Radio et Liste déroulante</value>
+    <value>Opties zijn vereist voor vragen van het type Keuzerondje en Vervolgkeuzelijst</value>
   </data>
   <data name="ActivityQuestions.QuestionText" xml:space="preserve">
-    <value>[NL] Texte de la question</value>
+    <value>Tekst van de vraag</value>
   </data>
   <data name="ActivityQuestions.QuestionTextHelp" xml:space="preserve">
-    <value>[NL] La question qui sera posée aux parents lors de l'inscription</value>
+    <value>De vraag die aan ouders wordt gesteld bij de inschrijving</value>
   </data>
   <data name="ActivityQuestions.QuestionTextPlaceholder" xml:space="preserve">
-    <value>[NL] Ex: Votre enfant a-t-il des allergies alimentaires ?</value>
+    <value>Bv.: Heeft uw kind voedselallergieën ?</value>
   </data>
   <data name="ActivityQuestions.QuestionType" xml:space="preserve">
-    <value>[NL] Type de question</value>
+    <value>Type vraag</value>
   </data>
   <data name="ActivityQuestions.Required" xml:space="preserve">
-    <value>[NL] Obligatoire</value>
+    <value>Verplicht</value>
   </data>
   <data name="ActivityQuestions.Title" xml:space="preserve">
-    <value>[NL] Questions personnalisées</value>
+    <value>Aangepaste vragen</value>
   </data>
   <data name="ActivityQuestions.UpdateSuccess" xml:space="preserve">
-    <value>[NL] Question mise à jour avec succès</value>
+    <value>Vraag succesvol bijgewerkt</value>
   </data>
   <data name="ActivityQuestions.Yes" xml:space="preserve">
-    <value>[NL] Oui</value>
+    <value>Ja</value>
   </data>
   <data name="ActivityQuestions.Import.Button" xml:space="preserve">
-    <value>[NL] Importer depuis une activité</value>
+    <value>Importeren uit een activiteit</value>
   </data>
   <data name="ActivityQuestions.Import.Title" xml:space="preserve">
-    <value>[NL] Importer des questions</value>
+    <value>Vragen importeren</value>
   </data>
   <data name="ActivityQuestions.Import.SelectActivity" xml:space="preserve">
-    <value>[NL] Sélectionnez une activité pour importer ses questions.</value>
+    <value>Selecteer een activiteit om de vragen ervan te importeren.</value>
   </data>
   <data name="ActivityQuestions.Import.SourceActivity" xml:space="preserve">
-    <value>[NL] Activité source</value>
+    <value>Bronactiviteit</value>
   </data>
   <data name="ActivityQuestions.Import.SelectActivityPlaceholder" xml:space="preserve">
-    <value>[NL] -- Sélectionnez une activité --</value>
+    <value>-- Selecteer een activiteit --</value>
   </data>
   <data name="ActivityQuestions.Import.SelectQuestions" xml:space="preserve">
-    <value>[NL] Sélectionnez les questions à importer.</value>
+    <value>Selecteer de vragen om te importeren.</value>
   </data>
   <data name="ActivityQuestions.Import.SelectAll" xml:space="preserve">
-    <value>[NL] Tout sélectionner</value>
+    <value>Alles selecteren</value>
   </data>
   <data name="ActivityQuestions.Import.DeselectAll" xml:space="preserve">
-    <value>[NL] Tout désélectionner</value>
+    <value>Alles deselecteren</value>
   </data>
   <data name="ActivityQuestions.Import.Confirm" xml:space="preserve">
-    <value>[NL] Importer les questions</value>
+    <value>Vragen importeren</value>
   </data>
   <data name="ActivityQuestions.Import.Importing" xml:space="preserve">
-    <value>[NL] Import en cours...</value>
+    <value>Bezig met importeren...</value>
   </data>
   <data name="ActivityQuestions.Import.NoQuestionsSelected" xml:space="preserve">
-    <value>[NL] Veuillez sélectionner au moins une question à importer.</value>
+    <value>Selecteer minstens één vraag om te importeren.</value>
   </data>
   <data name="ActivityQuestions.Import.Success" xml:space="preserve">
-    <value>[NL] {0} question(s) importée(s) avec succès.</value>
+    <value>{0} vraag/vragen succesvol geïmporteerd.</value>
   </data>
   <data name="ActivityQuestions.Import.NoActivitiesWithQuestions" xml:space="preserve">
-    <value>[NL] Aucune autre activité avec des questions trouvée.</value>
+    <value>Geen andere activiteit met vragen gevonden.</value>
   </data>
   <data name="ActivityQuestions.Import.NoActiveQuestions" xml:space="preserve">
-    <value>[NL] Cette activité n'a aucune question active.</value>
+    <value>Deze activiteit heeft geen actieve vragen.</value>
   </data>
   <data name="ActivityQuestions.Import.Questions" xml:space="preserve">
-    <value>[NL] questions</value>
+    <value>vragen</value>
   </data>
   <data name="Add" xml:space="preserve">
     <value>Toevoegen</value>
@@ -671,7 +671,7 @@
     <value>Leeftijd</value>
   </data>
   <data name="AllOrganisations" xml:space="preserve">
-    <value>[NL] -- Toutes les organisations --</value>
+    <value>-- Alle organisaties --</value>
   </data>
   <data name="Back" xml:space="preserve">
     <value>Terug</value>
@@ -683,94 +683,94 @@
     <value>Terug naar lijst</value>
   </data>
   <data name="BankingInformation" xml:space="preserve">
-    <value>[NL] Informations bancaires</value>
+    <value>Bankgegevens</value>
   </data>
   <data name="BirthDate" xml:space="preserve">
     <value>Geboortedatum</value>
   </data>
   <data name="BookedDays" xml:space="preserve">
-    <value>[NL] Jours réservés</value>
+    <value>Gereserveerde dagen</value>
   </data>
   <data name="Bookings" xml:space="preserve">
     <value>Inschrijvingen</value>
   </data>
   <data name="Bookings.ActionRequired" xml:space="preserve">
-    <value>[NL] Action requise</value>
+    <value>Actie vereist</value>
   </data>
   <data name="Bookings.Answer" xml:space="preserve">
     <value>Antwoord</value>
   </data>
   <data name="Bookings.ActivityGroupHelp" xml:space="preserve">
-    <value>[NL] Groupe d'activité (si applicable)</value>
+    <value>Activiteitengroep (indien van toepassing)</value>
   </data>
   <data name="Bookings.AllStatuses" xml:space="preserve">
     <value>Alle statussen</value>
   </data>
   <data name="Bookings.BasicInformation" xml:space="preserve">
-    <value>[NL] Informations de base</value>
+    <value>Basisgegevens</value>
   </data>
   <data name="Bookings.BookingDate" xml:space="preserve">
-    <value>[NL] Date d'inscription</value>
+    <value>Inschrijvingsdatum</value>
   </data>
   <data name="Bookings.BookingDetails" xml:space="preserve">
-    <value>[NL] Détails de l'inscription</value>
+    <value>Details van de inschrijving</value>
   </data>
   <data name="Bookings.BookingInformation" xml:space="preserve">
-    <value>[NL] Informations de l'inscription</value>
+    <value>Gegevens van de inschrijving</value>
   </data>
   <data name="Bookings.ChildInformation" xml:space="preserve">
-    <value>[NL] Informations de l'enfant</value>
+    <value>Gegevens van het kind</value>
   </data>
   <data name="Bookings.ConfirmBooking" xml:space="preserve">
-    <value>[NL] Confirmer l'inscription</value>
+    <value>Inschrijving bevestigen</value>
   </data>
   <data name="Bookings.Confirmed" xml:space="preserve">
     <value>Bevestigd</value>
   </data>
   <data name="Bookings.ConfirmedHelp" xml:space="preserve">
-    <value>[NL] Cocher si l'inscription est confirmée</value>
+    <value>Aanvinken als de inschrijving bevestigd is</value>
   </data>
   <data name="Bookings.ConfirmedOnly" xml:space="preserve">
     <value>Bevestigd</value>
   </data>
   <data name="Bookings.ContactParentForMedicalSheet" xml:space="preserve">
-    <value>[NL] Contactez le parent pour demander la fiche médicale.</value>
+    <value>Neem contact op met de ouder om de medische fiche te vragen.</value>
   </data>
   <data name="Bookings.CreateNewChild" xml:space="preserve">
-    <value>[NL] Créer un nouvel enfant</value>
+    <value>Nieuw kind aanmaken</value>
   </data>
   <data name="Bookings.DaysBooked" xml:space="preserve">
-    <value>[NL] jour(s) réservé(s)</value>
+    <value>gereserveerde dag(en)</value>
   </data>
   <data name="Bookings.DeleteBooking" xml:space="preserve">
-    <value>[NL] Supprimer l'inscription</value>
+    <value>Inschrijving verwijderen</value>
   </data>
   <data name="Bookings.DeleteBookingWarning" xml:space="preserve">
-    <value>[NL] Êtes-vous sûr de vouloir supprimer cette inscription ?</value>
+    <value>Weet u zeker dat u deze inschrijving wilt verwijderen ?</value>
   </data>
   <data name="Bookings.DeleteRelatedWarning" xml:space="preserve">
-    <value>[NL] Cette inscription a {0} élément(s) associé(s) qui seront également supprimés.</value>
+    <value>Deze inschrijving heeft {0} gekoppeld(e) element(en) die ook worden verwijderd.</value>
   </data>
   <data name="Bookings.DeleteWarning" xml:space="preserve">
-    <value>[NL] Attention ! Êtes-vous sûr de vouloir supprimer cette inscription ?</value>
+    <value>Let op ! Weet u zeker dat u deze inschrijving wilt verwijderen ?</value>
   </data>
   <data name="Bookings.Details" xml:space="preserve">
-    <value>[NL] Détails de l'inscription</value>
+    <value>Details van de inschrijving</value>
   </data>
   <data name="Bookings.EditBooking" xml:space="preserve">
-    <value>[NL] Modifier l'inscription</value>
+    <value>Inschrijving bewerken</value>
   </data>
   <data name="Bookings.MedicalSheet" xml:space="preserve">
     <value>Medisch attest</value>
   </data>
   <data name="Bookings.MedicalSheetHelp" xml:space="preserve">
-    <value>[NL] Cocher si la fiche médicale a été reçue</value>
+    <value>Aanvinken als de medische fiche is ontvangen</value>
   </data>
   <data name="Bookings.MedicalSheetNotReceived" xml:space="preserve">
-    <value>[NL] La fiche médicale n'a pas été reçue.</value>
+    <value>De medische fiche is niet ontvangen.</value>
   </data>
   <data name="Bookings.MedicalSheetReceived" xml:space="preserve">
-    <value>[NL] Fiche médicale reçue</value>
+    <value>Medische fiche ontvangen</value>
   </data>
   <data name="Bookings.NewBooking" xml:space="preserve">
     <value>Nieuwe inschrijving</value>
@@ -782,22 +782,22 @@
     <value>Nog geen inschrijvingen geregistreerd. Klik op "Nieuwe inschrijving" om te beginnen.</value>
   </data>
   <data name="Bookings.NoDaysReserved" xml:space="preserve">
-    <value>[NL] Aucun jour réservé</value>
+    <value>Geen dagen gereserveerd</value>
   </data>
   <data name="Bookings.NoDaysSelected" xml:space="preserve">
-    <value>[NL] Aucun jour sélectionné</value>
+    <value>Geen dagen geselecteerd</value>
   </data>
   <data name="Bookings.NoAnswerProvided" xml:space="preserve">
     <value>Geen antwoord gegeven</value>
   </data>
   <data name="Bookings.NotYetConfirmed" xml:space="preserve">
-    <value>[NL] Cette inscription n'est pas encore confirmée.</value>
+    <value>Deze inschrijving is nog niet bevestigd.</value>
   </data>
   <data name="Bookings.Of" xml:space="preserve">
     <value>van</value>
   </data>
   <data name="Bookings.ParentInformation" xml:space="preserve">
-    <value>[NL] Informations du parent</value>
+    <value>Oudergegevens</value>
   </data>
   <data name="Bookings.Pending" xml:space="preserve">
     <value>In afwachting</value>
@@ -809,22 +809,22 @@
     <value>Aanvullende vragen</value>
   </data>
   <data name="Bookings.ReservedDays" xml:space="preserve">
-    <value>[NL] Jours réservés</value>
+    <value>Gereserveerde dagen</value>
   </data>
   <data name="Bookings.SearchPlaceholder" xml:space="preserve">
     <value>Zoeken op kind of activiteit...</value>
   </data>
   <data name="Bookings.SelectActivityFirst" xml:space="preserve">
-    <value>[NL] Veuillez d'abord sélectionner une activité</value>
+    <value>Selecteer eerst een activiteit</value>
   </data>
   <data name="Bookings.SelectDays" xml:space="preserve">
-    <value>[NL] Sélectionner les jours</value>
+    <value>Dagen selecteren</value>
   </data>
   <data name="Bookings.SelectDaysHelp" xml:space="preserve">
-    <value>[NL] Sélectionnez les jours où l'enfant sera présent</value>
+    <value>Selecteer de dagen waarop het kind aanwezig zal zijn</value>
   </data>
   <data name="Bookings.SelectedDays" xml:space="preserve">
-    <value>[NL] Jours sélectionnés</value>
+    <value>Geselecteerde dagen</value>
   </data>
   <data name="Bookings.Showing" xml:space="preserve">
     <value>Weergave van</value>
@@ -833,7 +833,7 @@
     <value>tot</value>
   </data>
   <data name="Bookings.ViewBooking" xml:space="preserve">
-    <value>[NL] Voir la réservation</value>
+    <value>Boeking bekijken</value>
   </data>
   <data name="Button.Back" xml:space="preserve">
     <value>Terug</value>
@@ -875,97 +875,97 @@
     <value>Kinderen</value>
   </data>
   <data name="Children.ActivityHistory" xml:space="preserve">
-    <value>[NL] Historique des activités</value>
+    <value>Activiteitenhistoriek</value>
   </data>
   <data name="Children.AddChild" xml:space="preserve">
-    <value>[NL] Ajouter un enfant</value>
+    <value>Kind toevoegen</value>
   </data>
   <data name="Children.AssociatedBookings" xml:space="preserve">
-    <value>[NL] Inscriptions associées</value>
+    <value>Gekoppelde inschrijvingen</value>
   </data>
   <data name="Children.ChildDetails" xml:space="preserve">
-    <value>[NL] Détails de l'enfant</value>
+    <value>Details van het kind</value>
   </data>
   <data name="Children.ChildInformation" xml:space="preserve">
-    <value>[NL] Informations de l'enfant</value>
+    <value>Gegevens van het kind</value>
   </data>
   <data name="Children.ChildrenCount" xml:space="preserve">
-    <value>[NL] enfants</value>
+    <value>kinderen</value>
   </data>
   <data name="Children.ConfirmDeletion" xml:space="preserve">
-    <value>[NL] Confirmer la suppression</value>
+    <value>Verwijdering bevestigen</value>
   </data>
   <data name="Children.CreateNewParent" xml:space="preserve">
-    <value>[NL] Créer un nouveau parent</value>
+    <value>Nieuwe ouder aanmaken</value>
   </data>
   <data name="Children.CurrentBookings" xml:space="preserve">
-    <value>[NL] Réservations en cours</value>
+    <value>Lopende boekingen</value>
   </data>
   <data name="Children.DaysPresent" xml:space="preserve">
-    <value>[NL] Jours présents</value>
+    <value>Aanwezige dagen</value>
   </data>
   <data name="Children.DaysReserved" xml:space="preserve">
-    <value>[NL] Jours réservés</value>
+    <value>Gereserveerde dagen</value>
   </data>
   <data name="Children.DeleteChild" xml:space="preserve">
-    <value>[NL] Supprimer l'enfant</value>
+    <value>Kind verwijderen</value>
   </data>
   <data name="Children.DeleteConfirmation" xml:space="preserve">
-    <value>[NL] Êtes-vous sûr de vouloir supprimer cet enfant ?</value>
+    <value>Weet u zeker dat u dit kind wilt verwijderen ?</value>
   </data>
   <data name="Children.DeleteWarning" xml:space="preserve">
-    <value>[NL] Attention !</value>
+    <value>Let op !</value>
   </data>
   <data name="Children.EditChild" xml:space="preserve">
-    <value>[NL] Modifier l'enfant</value>
+    <value>Kind bewerken</value>
   </data>
   <data name="Children.HasBookings" xml:space="preserve">
-    <value>[NL] Cet enfant a {0} inscription(s) associée(s).</value>
+    <value>Dit kind heeft {0} gekoppelde inschrijving(en).</value>
   </data>
   <data name="Children.NRNPlaceholder" xml:space="preserve">
-    <value>[NL] YY.MM.DD-XXX.XX</value>
+    <value>YY.MM.DD-XXX.XX</value>
   </data>
   <data name="Children.NationalRegisterNumber" xml:space="preserve">
-    <value>[NL] N° Registre National</value>
+    <value>Rijksregisternummer</value>
   </data>
   <data name="Children.NewBooking" xml:space="preserve">
-    <value>[NL] Nouvelle inscription</value>
+    <value>Nieuwe inschrijving</value>
   </data>
   <data name="Children.NoBookingsRegistered" xml:space="preserve">
-    <value>[NL] Aucune inscription enregistrée</value>
+    <value>Geen inschrijvingen geregistreerd</value>
   </data>
   <data name="Children.NoChildrenFound" xml:space="preserve">
-    <value>[NL] Aucun enfant trouvé pour votre recherche.</value>
+    <value>Geen kinderen gevonden voor uw zoekopdracht.</value>
   </data>
   <data name="Children.NoChildrenYet" xml:space="preserve">
-    <value>[NL] Aucun enfant enregistré. Cliquez sur "Ajouter un enfant" pour commencer.</value>
+    <value>Nog geen kinderen geregistreerd. Klik op "Kind toevoegen" om te beginnen.</value>
   </data>
   <data name="Children.NoCurrentBookings" xml:space="preserve">
-    <value>[NL] Aucune réservation en cours</value>
+    <value>Geen lopende boekingen</value>
   </data>
   <data name="Children.Of" xml:space="preserve">
-    <value>[NL] sur</value>
+    <value>van</value>
   </data>
   <data name="Children.PersonalInformation" xml:space="preserve">
-    <value>[NL] Informations personnelles</value>
+    <value>Persoonlijke gegevens</value>
   </data>
   <data name="Children.SearchPlaceholder" xml:space="preserve">
-    <value>[NL] Rechercher par nom, prénom ou numéro de registre national...</value>
+    <value>Zoeken op naam, voornaam of rijksregisternummer...</value>
   </data>
   <data name="Children.SelectParent" xml:space="preserve">
-    <value>[NL] -- Sélectionnez un parent --</value>
+    <value>-- Selecteer een ouder --</value>
   </data>
   <data name="Children.Showing" xml:space="preserve">
-    <value>[NL] Affichage de</value>
+    <value>Weergave van</value>
   </data>
   <data name="Children.SpecificInformation" xml:space="preserve">
-    <value>[NL] Informations spécifiques</value>
+    <value>Specifieke gegevens</value>
   </data>
   <data name="Children.To" xml:space="preserve">
-    <value>[NL] à</value>
+    <value>tot</value>
   </data>
   <data name="Children.YearsOld" xml:space="preserve">
-    <value>[NL] ans</value>
+    <value>jaar</value>
   </data>
   <data name="City" xml:space="preserve">
     <value>Stad</value>
@@ -983,7 +983,7 @@
     <value>Annuleren</value>
   </data>
   <data name="Compensated" xml:space="preserve">
-    <value>[NL] Rémunéré</value>
+    <value>Vergoed</value>
   </data>
   <data name="Completed" xml:space="preserve">
     <value>Voltooid</value>
@@ -992,13 +992,13 @@
     <value>Bevestigen</value>
   </data>
   <data name="Confirm.DeleteExpense" xml:space="preserve">
-    <value>[NL] Êtes-vous sûr de vouloir supprimer cette dépense ?</value>
+    <value>Weet u zeker dat u deze uitgave wilt verwijderen ?</value>
   </data>
   <data name="ConfirmDelete" xml:space="preserve">
-    <value>[NL] Confirmer la suppression</value>
+    <value>Verwijdering bevestigen</value>
   </data>
   <data name="ConfirmDeletion" xml:space="preserve">
-    <value>[NL] Confirmer la suppression</value>
+    <value>Verwijdering bevestigen</value>
   </data>
   <data name="Confirmation" xml:space="preserve">
     <value>Bevestiging</value>
@@ -1010,10 +1010,10 @@
     <value>Bevestigd</value>
   </data>
   <data name="Contact" xml:space="preserve">
-    <value>[NL] Contact</value>
+    <value>Contact</value>
   </data>
   <data name="Continue" xml:space="preserve">
-    <value>[NL] Continuer</value>
+    <value>Doorgaan</value>
   </data>
   <data name="Country" xml:space="preserve">
     <value>Land</value>
@@ -1094,7 +1094,7 @@
     <value>Verzendgeschiedenis</value>
   </data>
   <data name="Email.InsertVariable" xml:space="preserve">
-    <value>[NL] Insérer une variable</value>
+    <value>Variabele invoegen</value>
   </data>
   <data name="Email.MedicalSheetDesc" xml:space="preserve">
     <value>Verzend alleen naar ouders van wie het kind nog geen medisch attest heeft ingeleverd</value>
@@ -1124,16 +1124,16 @@
     <value>Ontvanger</value>
   </data>
   <data name="Email.RecipientAllParents" xml:space="preserve">
-    <value>[NL] Tous les parents</value>
+    <value>Alle ouders</value>
   </data>
   <data name="Email.RecipientCount" xml:space="preserve">
     <value>Aantal ontvangers</value>
   </data>
   <data name="Email.RecipientGroup" xml:space="preserve">
-    <value>[NL] Groupe</value>
+    <value>Groep</value>
   </data>
   <data name="Email.RecipientMedicalSheetReminder" xml:space="preserve">
-    <value>[NL] Rappel fiche médicale</value>
+    <value>Herinnering medische fiche</value>
   </data>
   <data name="Email.RecipientUnpaidParents" xml:space="preserve">
     <value>Ouders met achterstallige betalingen</value>
@@ -1205,49 +1205,49 @@
     <value>Onbekend</value>
   </data>
   <data name="Email.ScheduledForDay" xml:space="preserve">
-    <value>[NL] Prévu pour le jour</value>
+    <value>Gepland op</value>
   </data>
   <data name="Email.AllDays" xml:space="preserve">
-    <value>[NL] Tous les jours</value>
+    <value>Alle dagen</value>
   </data>
   <data name="Email.DayFilterHelp" xml:space="preserve">
-    <value>[NL] Optionnel : filtrer pour envoyer uniquement aux enfants présents ce jour-là</value>
+    <value>Ontvangers filteren op specifieke dag (optioneel)</value>
   </data>
   <data name="Email.MergeFields" xml:space="preserve">
-    <value>[NL] Champs de fusion</value>
+    <value>Personalisatievariabelen</value>
   </data>
   <data name="Email.MergeFieldsHelp" xml:space="preserve">
-    <value>[NL] Cliquez sur une variable pour l'insérer dans votre message</value>
+    <value>Klik op een variabele om ze in het bericht in te voegen. De variabelen worden bij verzending vervangen door de echte gegevens.</value>
   </data>
   <data name="Email.SendSeparateEmailPerChild" xml:space="preserve">
-    <value>[NL] Envoyer un email séparé par enfant</value>
+    <value>Een aparte e-mail per kind verzenden</value>
   </data>
   <data name="Email.UseTemplate" xml:space="preserve">
-    <value>[NL] Utiliser un modèle</value>
+    <value>Een sjabloon gebruiken</value>
   </data>
   <data name="Email.NoTemplate" xml:space="preserve">
-    <value>[NL] Aucun modèle</value>
+    <value>Geen sjabloon</value>
   </data>
   <data name="Email.LoadTemplate" xml:space="preserve">
-    <value>[NL] Charger le modèle</value>
+    <value>Sjabloon laden</value>
   </data>
   <data name="Email.PerChild" xml:space="preserve">
     <value>Een e-mail per kind</value>
   </data>
   <data name="Email.SaveAsTemplate" xml:space="preserve">
-    <value>[NL] Sauvegarder comme modèle</value>
+    <value>Opslaan als sjabloon</value>
   </data>
   <data name="Email.PerChildInfo" xml:space="preserve">
-    <value>[NL] Les variables (%prenom_enfant%, etc.) seront remplacées par les données de chaque enfant</value>
+    <value>De variabelen (%prenom_enfant%, enz.) worden vervangen door de gegevens van elk kind</value>
   </data>
   <data name="Email.PerParentInfo" xml:space="preserve">
-    <value>[NL] Un seul email envoyé par parent, les variables enfant ne seront pas remplacées</value>
+    <value>Eén e-mail per ouder, de kindvariabelen worden niet vervangen</value>
   </data>
   <data name="Email.SelectTemplateFirst" xml:space="preserve">
-    <value>[NL] Veuillez sélectionner un modèle avant de charger</value>
+    <value>Selecteer een sjabloon voordat u laadt</value>
   </data>
   <data name="Email.TemplateLoadError" xml:space="preserve">
-    <value>[NL] Erreur lors du chargement du modèle</value>
+    <value>Fout bij het laden van het sjabloon</value>
   </data>
   <data name="EndDate" xml:space="preserve">
     <value>Einddatum</value>
@@ -1277,22 +1277,22 @@
     <value>Opleiding</value>
   </data>
   <data name="Enum.QuestionType.Checkbox" xml:space="preserve">
-    <value>[NL] Case à cocher</value>
+    <value>Selectievakje</value>
   </data>
   <data name="Enum.QuestionType.Dropdown" xml:space="preserve">
-    <value>[NL] Liste déroulante</value>
+    <value>Vervolgkeuzelijst</value>
   </data>
   <data name="Enum.QuestionType.Radio" xml:space="preserve">
-    <value>[NL] Choix unique (boutons radio)</value>
+    <value>Eén keuze (keuzerondjes)</value>
   </data>
   <data name="Enum.QuestionType.Text" xml:space="preserve">
-    <value>[NL] Texte libre</value>
+    <value>Vrije tekst</value>
   </data>
   <data name="Enum.Role.Admin" xml:space="preserve">
-    <value>[NL] Administrateur</value>
+    <value>Beheerder</value>
   </data>
   <data name="Enum.Role.Coordinator" xml:space="preserve">
-    <value>[NL] Coordinateur</value>
+    <value>Coördinator</value>
   </data>
   <data name="Enum.Status.Compensated" xml:space="preserve">
     <value>Betaald</value>
@@ -1310,28 +1310,28 @@
     <value>Fout</value>
   </data>
   <data name="Error.ActivityNotSelected" xml:space="preserve">
-    <value>[NL] Aucune activité sélectionnée. Veuillez accéder à cette page depuis la gestion d'activité.</value>
+    <value>Geen activiteit geselecteerd. Open deze pagina via het activiteitenbeheer.</value>
   </data>
   <data name="Error.BookingNotFound" xml:space="preserve">
-    <value>[NL] Réservation introuvable</value>
+    <value>Boeking niet gevonden</value>
   </data>
   <data name="Error.CannotCancelBankPayment" xml:space="preserve">
-    <value>[NL] Impossible d'annuler un paiement bancaire</value>
+    <value>Een bankbetaling kan niet worden geannuleerd</value>
   </data>
   <data name="Error.InvalidData" xml:space="preserve">
-    <value>[NL] Données invalides</value>
+    <value>Ongeldige gegevens</value>
   </data>
   <data name="Error.NoOrganisationAvailable" xml:space="preserve">
-    <value>[NL] Aucune organisation disponible</value>
+    <value>Geen organisatie beschikbaar</value>
   </data>
   <data name="Error.PaymentCancellationFailed" xml:space="preserve">
-    <value>[NL] Échec de l'annulation du paiement</value>
+    <value>Annuleren van de betaling mislukt</value>
   </data>
   <data name="Error.PaymentCreationFailed" xml:space="preserve">
-    <value>[NL] Échec de la création du paiement</value>
+    <value>Aanmaken van de betaling mislukt</value>
   </data>
   <data name="Error.PaymentNotFound" xml:space="preserve">
-    <value>[NL] Paiement introuvable</value>
+    <value>Betaling niet gevonden</value>
   </data>
   <data name="Excel.Active" xml:space="preserve">
     <value>Actief</value>
@@ -1340,7 +1340,7 @@
     <value>Activiteiten</value>
   </data>
   <data name="Excel.ActivitiesSheet" xml:space="preserve">
-    <value>[NL] Activités</value>
+    <value>Activiteiten</value>
   </data>
   <data name="Excel.Activity" xml:space="preserve">
     <value>Activiteit</value>
@@ -1355,22 +1355,22 @@
     <value>Geboortedatum</value>
   </data>
   <data name="Excel.BookingDate" xml:space="preserve">
-    <value>[NL] Date de réservation</value>
+    <value>Boekingsdatum</value>
   </data>
   <data name="Excel.Bookings" xml:space="preserve">
     <value>Reservaties</value>
   </data>
   <data name="Excel.BookingsSheet" xml:space="preserve">
-    <value>[NL] Réservations</value>
+    <value>Boekingen</value>
   </data>
   <data name="Excel.Child" xml:space="preserve">
     <value>Kind</value>
   </data>
   <data name="Excel.ChildrenCount" xml:space="preserve">
-    <value>[NL] Nombre d'enfants</value>
+    <value>Aantal kinderen</value>
   </data>
   <data name="Excel.ChildrenSheet" xml:space="preserve">
-    <value>[NL] Enfants</value>
+    <value>Kinderen</value>
   </data>
   <data name="Excel.City" xml:space="preserve">
     <value>Stad</value>
@@ -1382,19 +1382,19 @@
     <value>Land</value>
   </data>
   <data name="Excel.DailyCompensation" xml:space="preserve">
-    <value>[NL] Défraiement journalier</value>
+    <value>Dagelijkse vergoeding</value>
   </data>
   <data name="Excel.Description" xml:space="preserve">
     <value>Beschrijving</value>
   </data>
   <data name="Excel.DisadvantagedEnvironment" xml:space="preserve">
-    <value>[NL] Milieu défavorisé</value>
+    <value>Achterstandsmilieu</value>
   </data>
   <data name="Excel.Email" xml:space="preserve">
     <value>E-mail</value>
   </data>
   <data name="Excel.EmailConfirmed" xml:space="preserve">
-    <value>[NL] E-mail confirmé</value>
+    <value>E-mail bevestigd</value>
   </data>
   <data name="Excel.EndDate" xml:space="preserve">
     <value>Einddatum</value>
@@ -1412,43 +1412,43 @@
     <value>Achternaam</value>
   </data>
   <data name="Excel.License" xml:space="preserve">
-    <value>[NL] Brevet</value>
+    <value>Brevet</value>
   </data>
   <data name="Excel.MedicalSheet" xml:space="preserve">
-    <value>[NL] Fiche médicale</value>
+    <value>Medische fiche</value>
   </data>
   <data name="Excel.MildDisability" xml:space="preserve">
-    <value>[NL] Handicap léger</value>
+    <value>Lichte handicap</value>
   </data>
   <data name="Excel.MobilePhone" xml:space="preserve">
-    <value>[NL] GSM</value>
+    <value>GSM</value>
   </data>
   <data name="Excel.Name" xml:space="preserve">
     <value>Naam</value>
   </data>
   <data name="Excel.NationalRegisterNumber" xml:space="preserve">
-    <value>[NL] Numéro de registre national</value>
+    <value>Rijksregisternummer</value>
   </data>
   <data name="Excel.Organisation" xml:space="preserve">
     <value>Organisatie</value>
   </data>
   <data name="Excel.OrganisationsSheet" xml:space="preserve">
-    <value>[NL] Organisations</value>
+    <value>Organisaties</value>
   </data>
   <data name="Excel.Parent" xml:space="preserve">
     <value>Ouder</value>
   </data>
   <data name="Excel.ParentEmail" xml:space="preserve">
-    <value>[NL] E-mail parent</value>
+    <value>E-mail ouder</value>
   </data>
   <data name="Excel.ParentPhone" xml:space="preserve">
-    <value>[NL] Téléphone parent</value>
+    <value>Telefoon ouder</value>
   </data>
   <data name="Excel.Parents" xml:space="preserve">
     <value>Ouders</value>
   </data>
   <data name="Excel.ParentsSheet" xml:space="preserve">
-    <value>[NL] Parents</value>
+    <value>Ouders</value>
   </data>
   <data name="Excel.Phone" xml:space="preserve">
     <value>Telefoon</value>
@@ -1457,13 +1457,13 @@
     <value>Postcode</value>
   </data>
   <data name="Excel.PricePerDay" xml:space="preserve">
-    <value>[NL] Prix par jour</value>
+    <value>Prijs per dag</value>
   </data>
   <data name="Excel.Role" xml:space="preserve">
-    <value>[NL] Rôle</value>
+    <value>Rol</value>
   </data>
   <data name="Excel.SevereDisability" xml:space="preserve">
-    <value>[NL] Handicap lourd</value>
+    <value>Zware handicap</value>
   </data>
   <data name="Excel.StartDate" xml:space="preserve">
     <value>Startdatum</value>
@@ -1478,70 +1478,70 @@
     <value>Team</value>
   </data>
   <data name="Excel.TeamMembersSheet" xml:space="preserve">
-    <value>[NL] Membres de l'équipe</value>
+    <value>Teamleden</value>
   </data>
   <data name="Excel.Users" xml:space="preserve">
     <value>Gebruikers</value>
   </data>
   <data name="Excel.UsersSheet" xml:space="preserve">
-    <value>[NL] Utilisateurs</value>
+    <value>Gebruikers</value>
   </data>
   <data name="Expense.AddExpense" xml:space="preserve">
-    <value>[NL] Ajouter une dépense</value>
+    <value>Uitgave toevoegen</value>
   </data>
   <data name="Expense.AssignedTo" xml:space="preserve">
-    <value>[NL] Attribué à</value>
+    <value>Toegewezen aan</value>
   </data>
   <data name="Expense.Category" xml:space="preserve">
-    <value>[NL] Catégorie</value>
+    <value>Categorie</value>
   </data>
   <data name="Expense.Date" xml:space="preserve">
-    <value>[NL] Date</value>
+    <value>Datum</value>
   </data>
   <data name="Expense.EditExpense" xml:space="preserve">
-    <value>[NL] Modifier la dépense</value>
+    <value>Uitgave bewerken</value>
   </data>
   <data name="Expense.ExpenseType" xml:space="preserve">
-    <value>[NL] Type de dépense</value>
+    <value>Type uitgave</value>
   </data>
   <data name="Expense.ExpenseTypeHelp" xml:space="preserve">
-    <value>[NL] Type de dépense (remboursement ou consommation personnelle)</value>
+    <value>Type uitgave (terugbetaling of persoonlijke consumptie)</value>
   </data>
   <data name="Expense.List" xml:space="preserve">
-    <value>[NL] Liste des dépenses</value>
+    <value>Lijst van uitgaven</value>
   </data>
   <data name="Expense.ManageExpenses" xml:space="preserve">
-    <value>[NL] Gérer les entrées et sorties</value>
+    <value>Inkomsten en uitgaven beheren</value>
   </data>
   <data name="Expense.Management" xml:space="preserve">
-    <value>[NL] Gestion des dépenses</value>
+    <value>Uitgavenbeheer</value>
   </data>
   <data name="Expense.NoExpenses" xml:space="preserve">
-    <value>[NL] Aucune dépense enregistrée pour cette activité</value>
+    <value>Geen uitgave geregistreerd voor deze activiteit</value>
   </data>
   <data name="Expense.OrganizationCard" xml:space="preserve">
-    <value>[NL] Carte organisation</value>
+    <value>Kaart organisatie</value>
   </data>
   <data name="Expense.OrganizationCash" xml:space="preserve">
-    <value>[NL] Cash organisation</value>
+    <value>Cash organisatie</value>
   </data>
   <data name="Expense.OrganizationExpenses" xml:space="preserve">
-    <value>[NL] Dépenses de l'organisation</value>
+    <value>Uitgaven van de organisatie</value>
   </data>
   <data name="Expense.SelectAssignedTo" xml:space="preserve">
-    <value>[NL] Sélectionner le membre de l'équipe</value>
+    <value>Teamlid selecteren</value>
   </data>
   <data name="Expense.SelectType" xml:space="preserve">
-    <value>[NL] Sélectionner le type</value>
+    <value>Type selecteren</value>
   </data>
   <data name="Expense.TeamMemberExpenses" xml:space="preserve">
-    <value>[NL] Dépenses animateurs</value>
+    <value>Uitgaven teamleden</value>
   </data>
   <data name="Expense.TotalExpenses" xml:space="preserve">
-    <value>[NL] Total des dépenses</value>
+    <value>Totaal uitgaven</value>
   </data>
   <data name="Expense.Type" xml:space="preserve">
-    <value>[NL] Type</value>
+    <value>Type</value>
   </data>
   <data name="ExpenseType.PersonalConsumption" xml:space="preserve">
     <value>Persoonlijk Verbruik</value>
@@ -1550,7 +1550,7 @@
     <value>Terugbetaling</value>
   </data>
   <data name="Expenses" xml:space="preserve">
-    <value>[NL] Frais</value>
+    <value>Kosten</value>
   </data>
   <data name="Export" xml:space="preserve">
     <value>Exporteren</value>
@@ -1562,7 +1562,7 @@
     <value>PDF exporteren</value>
   </data>
   <data name="Field.AccountNumber" xml:space="preserve">
-    <value>[NL] Numéro de compte</value>
+    <value>Rekeningnummer</value>
   </data>
   <data name="Field.Actions" xml:space="preserve">
     <value>Acties</value>
@@ -1571,244 +1571,244 @@
     <value>Leeftijd</value>
   </data>
   <data name="Field.ActivitiesCount" xml:space="preserve">
-    <value>[NL] Nombre d'activités</value>
+    <value>Aantal activiteiten</value>
   </data>
   <data name="Field.Activity" xml:space="preserve">
-    <value>[NL] Activité</value>
+    <value>Activiteit</value>
   </data>
   <data name="Field.ActivityGroup" xml:space="preserve">
-    <value>[NL] Groupe d'activité</value>
+    <value>Activiteitengroep</value>
   </data>
   <data name="Field.Amount" xml:space="preserve">
     <value>Bedrag</value>
   </data>
   <data name="Field.Attachment" xml:space="preserve">
-    <value>[NL] Pièce jointe</value>
+    <value>Bijlage</value>
   </data>
   <data name="Field.BankAccountName" xml:space="preserve">
-    <value>[NL] Titulaire du compte</value>
+    <value>Rekeninghouder</value>
   </data>
   <data name="Field.BankAccountNameHelp" xml:space="preserve">
-    <value>[NL] Nom du titulaire du compte bancaire</value>
+    <value>Naam van de houder van de bankrekening</value>
   </data>
   <data name="Field.BankAccountNumber" xml:space="preserve">
-    <value>[NL] Numéro de compte (IBAN)</value>
+    <value>Rekeningnummer (IBAN)</value>
   </data>
   <data name="Field.BankAccountNumberHelp" xml:space="preserve">
-    <value>[NL] IBAN du compte bancaire pour les paiements</value>
+    <value>IBAN van de bankrekening voor betalingen</value>
   </data>
   <data name="Field.BirthDate" xml:space="preserve">
-    <value>[NL] Date de naissance</value>
+    <value>Geboortedatum</value>
   </data>
   <data name="Field.Booking" xml:space="preserve">
-    <value>[NL] Réservation</value>
+    <value>Boeking</value>
   </data>
   <data name="Field.BookingDate" xml:space="preserve">
-    <value>[NL] Date de réservation</value>
+    <value>Boekingsdatum</value>
   </data>
   <data name="Field.BookingsCount" xml:space="preserve">
-    <value>[NL] Inscriptions</value>
+    <value>Inschrijvingen</value>
   </data>
   <data name="Field.Capacity" xml:space="preserve">
-    <value>[NL] Capacité</value>
+    <value>Capaciteit</value>
   </data>
   <data name="Field.Child" xml:space="preserve">
-    <value>[NL] Enfant</value>
+    <value>Kind</value>
   </data>
   <data name="Field.ChildrenCount" xml:space="preserve">
-    <value>[NL] Enfants</value>
+    <value>Kinderen</value>
   </data>
   <data name="Field.City" xml:space="preserve">
-    <value>[NL] Ville</value>
+    <value>Plaats</value>
   </data>
   <data name="Field.Communication" xml:space="preserve">
-    <value>[NL] Communication</value>
+    <value>Mededeling</value>
   </data>
   <data name="Field.ConfirmPassword" xml:space="preserve">
-    <value>[NL] Confirmer le mot de passe</value>
+    <value>Wachtwoord bevestigen</value>
   </data>
   <data name="Field.Counterparty" xml:space="preserve">
-    <value>[NL] Contrepartie</value>
+    <value>Tegenpartij</value>
   </data>
   <data name="Field.Country" xml:space="preserve">
-    <value>[NL] Pays</value>
+    <value>Land</value>
   </data>
   <data name="Field.Cost" xml:space="preserve">
     <value>Kosten</value>
   </data>
   <data name="Field.DailyCompensation" xml:space="preserve">
-    <value>[NL] Indemnité journalière</value>
+    <value>Dagvergoeding</value>
   </data>
   <data name="Field.Date" xml:space="preserve">
     <value>Datum</value>
   </data>
   <data name="Field.Day" xml:space="preserve">
-    <value>[NL] jour</value>
+    <value>dag</value>
   </data>
   <data name="Field.Description" xml:space="preserve">
-    <value>[NL] Description</value>
+    <value>Omschrijving</value>
   </data>
   <data name="Field.Details" xml:space="preserve">
     <value>Details</value>
   </data>
   <data name="Field.Email" xml:space="preserve">
-    <value>[NL] Email</value>
+    <value>E-mail</value>
   </data>
   <data name="Field.EmailConfirmed" xml:space="preserve">
-    <value>[NL] Email confirmé</value>
+    <value>E-mail bevestigd</value>
   </data>
   <data name="Field.EndDate" xml:space="preserve">
-    <value>[NL] Date de fin</value>
+    <value>Einddatum</value>
   </data>
   <data name="Field.ExpensesCount" xml:space="preserve">
-    <value>[NL] Nombre de frais</value>
+    <value>Aantal kosten</value>
   </data>
   <data name="Field.FileName" xml:space="preserve">
-    <value>[NL] Nom du fichier</value>
+    <value>Bestandsnaam</value>
   </data>
   <data name="Field.FirstName" xml:space="preserve">
-    <value>[NL] Prénom</value>
+    <value>Voornaam</value>
   </data>
   <data name="Field.FullName" xml:space="preserve">
-    <value>[NL] Nom complet</value>
+    <value>Volledige naam</value>
   </data>
   <data name="Field.Group" xml:space="preserve">
-    <value>[NL] Groupe</value>
+    <value>Groep</value>
   </data>
   <data name="Field.GroupsCount" xml:space="preserve">
-    <value>[NL] Groupes</value>
+    <value>Groepen</value>
   </data>
   <data name="Field.HouseNumber" xml:space="preserve">
-    <value>[NL] Numéro</value>
+    <value>Nummer</value>
   </data>
   <data name="Field.IsActive" xml:space="preserve">
-    <value>[NL] Active</value>
+    <value>Actief</value>
   </data>
   <data name="Field.IsConfirmed" xml:space="preserve">
-    <value>[NL] Confirmée</value>
+    <value>Bevestigd</value>
   </data>
   <data name="Field.IsDisadvantagedEnvironment" xml:space="preserve">
-    <value>[NL] Environnement défavorisé</value>
+    <value>Kansarme omgeving</value>
   </data>
   <data name="Field.IsLockedOut" xml:space="preserve">
-    <value>[NL] Compte verrouillé</value>
+    <value>Account vergrendeld</value>
   </data>
   <data name="Field.IsMedicalSheet" xml:space="preserve">
-    <value>[NL] Fiche médicale reçue</value>
+    <value>Medische fiche ontvangen</value>
   </data>
   <data name="Field.IsMildDisability" xml:space="preserve">
-    <value>[NL] Handicap léger</value>
+    <value>Lichte handicap</value>
   </data>
   <data name="Field.IsSevereDisability" xml:space="preserve">
-    <value>[NL] Handicap sévère</value>
+    <value>Zware handicap</value>
   </data>
   <data name="Field.Label" xml:space="preserve">
     <value>Label</value>
   </data>
   <data name="Field.LandlineNumber" xml:space="preserve">
-    <value>[NL] Téléphone fixe</value>
+    <value>Vaste telefoon</value>
   </data>
   <data name="Field.LastName" xml:space="preserve">
-    <value>[NL] Nom</value>
+    <value>Naam</value>
   </data>
   <data name="Field.License" xml:space="preserve">
-    <value>[NL] Brevet</value>
+    <value>Brevet</value>
   </data>
   <data name="Field.LicenseUrl" xml:space="preserve">
-    <value>[NL] URL du brevet</value>
+    <value>URL van het brevet</value>
   </data>
   <data name="Field.LogoUrl" xml:space="preserve">
-    <value>[NL] URL du logo</value>
+    <value>URL van het logo</value>
   </data>
   <data name="Field.Message" xml:space="preserve">
-    <value>[NL] Message</value>
+    <value>Bericht</value>
   </data>
   <data name="Field.MedicalSheet" xml:space="preserve">
     <value>Medisch dossier</value>
   </data>
   <data name="Field.MobilePhoneNumber" xml:space="preserve">
-    <value>[NL] GSM</value>
+    <value>Gsm</value>
   </data>
   <data name="Field.Name" xml:space="preserve">
-    <value>[NL] Nom</value>
+    <value>Naam</value>
   </data>
   <data name="Field.NationalRegisterNumber" xml:space="preserve">
-    <value>[NL] Numéro de registre national</value>
+    <value>Rijksregisternummer</value>
   </data>
   <data name="Field.Organisation" xml:space="preserve">
-    <value>[NL] Organisation</value>
+    <value>Organisatie</value>
   </data>
   <data name="Field.Parent" xml:space="preserve">
-    <value>[NL] Parent</value>
+    <value>Ouder</value>
   </data>
   <data name="Field.ParentsCount" xml:space="preserve">
-    <value>[NL] Nombre de parents</value>
+    <value>Aantal ouders</value>
   </data>
   <data name="Field.Password" xml:space="preserve">
-    <value>[NL] Mot de passe</value>
+    <value>Wachtwoord</value>
   </data>
   <data name="Field.PaymentDate" xml:space="preserve">
-    <value>[NL] Date de paiement</value>
+    <value>Betaaldatum</value>
   </data>
   <data name="Field.PaymentMethod" xml:space="preserve">
-    <value>[NL] Méthode de paiement</value>
+    <value>Betaalmethode</value>
   </data>
   <data name="Field.Period" xml:space="preserve">
-    <value>[NL] Période</value>
+    <value>Periode</value>
   </data>
   <data name="Field.PhoneNumber" xml:space="preserve">
-    <value>[NL] Téléphone</value>
+    <value>Telefoon</value>
   </data>
   <data name="Field.PostalCode" xml:space="preserve">
-    <value>[NL] Code postal</value>
+    <value>Postcode</value>
   </data>
   <data name="Field.PostalCodeCity" xml:space="preserve">
-    <value>[NL] Code postal / Ville</value>
+    <value>Postcode / Plaats</value>
   </data>
   <data name="Field.PricePerDay" xml:space="preserve">
-    <value>[NL] Prix par jour</value>
+    <value>Prijs per dag</value>
   </data>
   <data name="Field.Recipient" xml:space="preserve">
-    <value>[NL] Destinataire</value>
+    <value>Ontvanger</value>
   </data>
   <data name="Field.Reference" xml:space="preserve">
     <value>Referentie</value>
   </data>
   <data name="Field.RememberMe" xml:space="preserve">
-    <value>[NL] Se souvenir de moi</value>
+    <value>Mij onthouden</value>
   </data>
   <data name="Field.Role" xml:space="preserve">
-    <value>[NL] Rôle</value>
+    <value>Rol</value>
   </data>
   <data name="Field.SelectedGroupIds" xml:space="preserve">
     <value>Doelgroepen</value>
   </data>
   <data name="Field.StartDate" xml:space="preserve">
-    <value>[NL] Date de début</value>
+    <value>Startdatum</value>
   </data>
   <data name="Field.StatementDate" xml:space="preserve">
-    <value>[NL] Date du relevé</value>
+    <value>Datum van het uittreksel</value>
   </data>
   <data name="Field.Status" xml:space="preserve">
-    <value>[NL] Statut</value>
+    <value>Status</value>
   </data>
   <data name="Field.Street" xml:space="preserve">
-    <value>[NL] Rue</value>
+    <value>Straat</value>
   </data>
   <data name="Field.Subject" xml:space="preserve">
-    <value>[NL] Sujet</value>
+    <value>Onderwerp</value>
   </data>
   <data name="Field.TeamMember" xml:space="preserve">
-    <value>[NL] Membre de l'équipe</value>
+    <value>Teamlid</value>
   </data>
   <data name="Field.TeamMembersCount" xml:space="preserve">
-    <value>[NL] Équipe</value>
+    <value>Team</value>
   </data>
   <data name="Field.TeamRole" xml:space="preserve">
-    <value>[NL] Rôle dans l'équipe</value>
+    <value>Rol in het team</value>
   </data>
   <data name="Field.TotalAmount" xml:space="preserve">
-    <value>[NL] Montant total</value>
+    <value>Totaalbedrag</value>
   </data>
   <data name="Field.Transaction" xml:space="preserve">
     <value>Transactie</value>
@@ -1820,280 +1820,280 @@
     <value>Type</value>
   </data>
   <data name="Field.UsersCount" xml:space="preserve">
-    <value>[NL] Nombre d'utilisateurs</value>
+    <value>Aantal gebruikers</value>
   </data>
   <data name="Filter" xml:space="preserve">
     <value>Filteren</value>
   </data>
   <data name="Financial.Actions" xml:space="preserve">
-    <value>[NL] Actions</value>
+    <value>Acties</value>
   </data>
   <data name="Financial.AddTransaction" xml:space="preserve">
-    <value>[NL] Ajouter une dépense</value>
+    <value>Kost toevoegen</value>
   </data>
   <data name="Financial.AdminOrganisationSelector" xml:space="preserve">
-    <value>[NL] Sélecteur d'organisation (Admin)</value>
+    <value>Organisatiekiezer (Admin)</value>
   </data>
   <data name="Financial.AllBookingsPaid" xml:space="preserve">
-    <value>[NL] Toutes les réservations payées</value>
+    <value>Alle boekingen betaald</value>
   </data>
   <data name="Financial.AllTransactions" xml:space="preserve">
-    <value>[NL] Toutes les transactions</value>
+    <value>Alle transacties</value>
   </data>
   <data name="Financial.AutomaticSuggestions" xml:space="preserve">
-    <value>[NL] Suggestions automatiques</value>
+    <value>Automatische suggesties</value>
   </data>
   <data name="Financial.AveragePerBooking" xml:space="preserve">
-    <value>[NL] Moyenne par réservation</value>
+    <value>Gemiddelde per boeking</value>
   </data>
   <data name="Financial.Balance" xml:space="preserve">
-    <value>[NL] Solde</value>
+    <value>Saldo</value>
   </data>
   <data name="Financial.BaseSalary" xml:space="preserve">
-    <value>[NL] Salaire de base</value>
+    <value>Basisloon</value>
   </data>
   <data name="Financial.Booking(s)" xml:space="preserve">
-    <value>[NL] Réservation(s)</value>
+    <value>Boeking(en)</value>
   </data>
   <data name="Financial.ComprehensiveReport" xml:space="preserve">
-    <value>[NL] Rapport complet</value>
+    <value>Volledig rapport</value>
   </data>
   <data name="Financial.Confidence" xml:space="preserve">
-    <value>[NL] Confiance</value>
+    <value>Vertrouwen</value>
   </data>
   <data name="Financial.Confirmed" xml:space="preserve">
-    <value>[NL] confirmée(s)</value>
+    <value>bevestigd</value>
   </data>
   <data name="Financial.ConfirmedBookings" xml:space="preserve">
-    <value>[NL] Réservations confirmées</value>
+    <value>Bevestigde boekingen</value>
   </data>
   <data name="Financial.Consumption(s)" xml:space="preserve">
-    <value>[NL] Consommation(s)</value>
+    <value>Verbruik(en)</value>
   </data>
   <data name="Financial.Consumptions" xml:space="preserve">
-    <value>[NL] Consommations</value>
+    <value>Verbruiken</value>
   </data>
   <data name="Financial.ConsumptionsCount" xml:space="preserve">
-    <value>[NL] Nombre de consommations</value>
+    <value>Aantal verbruiken</value>
   </data>
   <data name="Financial.DailyCompensation" xml:space="preserve">
-    <value>[NL] Défraiement journalier</value>
+    <value>Dagelijkse onkostenvergoeding</value>
   </data>
   <data name="Financial.Dashboard" xml:space="preserve">
-    <value>[NL] Tableau de bord financier</value>
+    <value>Financieel dashboard</value>
   </data>
   <data name="Financial.DashboardInfo" xml:space="preserve">
-    <value>[NL] Informations du tableau de bord</value>
+    <value>Dashboardinformatie</value>
   </data>
   <data name="Financial.Days" xml:space="preserve">
-    <value>[NL] Jours</value>
+    <value>Dagen</value>
   </data>
   <data name="Financial.DetailedExpenses" xml:space="preserve">
-    <value>[NL] Dépenses détaillées</value>
+    <value>Gedetailleerde kosten</value>
   </data>
   <data name="Financial.Details" xml:space="preserve">
-    <value>[NL] Détails</value>
+    <value>Details</value>
   </data>
   <data name="Financial.Difference" xml:space="preserve">
-    <value>[NL] Différence</value>
+    <value>Verschil</value>
   </data>
   <data name="Financial.Estimated" xml:space="preserve">
-    <value>[NL] Estimé</value>
+    <value>Geschat</value>
   </data>
   <data name="Financial.ExecutiveSummary" xml:space="preserve">
-    <value>[NL] Résumé exécutif</value>
+    <value>Managementsamenvatting</value>
   </data>
   <data name="Financial.Expense" xml:space="preserve">
-    <value>[NL] Dépense</value>
+    <value>Kost</value>
   </data>
   <data name="Financial.ExpenseDetails" xml:space="preserve">
-    <value>[NL] Détails de la dépense</value>
+    <value>Kostendetails</value>
   </data>
   <data name="Financial.ExpensesOnly" xml:space="preserve">
-    <value>[NL] Dépenses uniquement</value>
+    <value>Alleen kosten</value>
   </data>
   <data name="Financial.FinalSummary" xml:space="preserve">
-    <value>[NL] Résumé final</value>
+    <value>Eindsamenvatting</value>
   </data>
   <data name="Financial.GeneratedOn" xml:space="preserve">
-    <value>[NL] Généré le</value>
+    <value>Gegenereerd op</value>
   </data>
   <data name="Financial.GrandTotal" xml:space="preserve">
-    <value>[NL] Total général</value>
+    <value>Algemeen totaal</value>
   </data>
   <data name="Financial.ImportBankStatements" xml:space="preserve">
-    <value>[NL] Importer des relevés bancaires</value>
+    <value>Bankuittreksels importeren</value>
   </data>
   <data name="Financial.ImportFile" xml:space="preserve">
-    <value>[NL] Importer un fichier</value>
+    <value>Bestand importeren</value>
   </data>
   <data name="Financial.ImportantNote" xml:space="preserve">
-    <value>[NL] Note importante</value>
+    <value>Belangrijke opmerking</value>
   </data>
   <data name="Financial.ImportedFiles" xml:space="preserve">
-    <value>[NL] Fichiers importés</value>
+    <value>Geïmporteerde bestanden</value>
   </data>
   <data name="Financial.ImportedOn" xml:space="preserve">
-    <value>[NL] Importé le</value>
+    <value>Geïmporteerd op</value>
   </data>
   <data name="Financial.Income" xml:space="preserve">
-    <value>[NL] Revenus</value>
+    <value>Inkomsten</value>
   </data>
   <data name="Financial.IncomeOnly" xml:space="preserve">
-    <value>[NL] Revenus uniquement</value>
+    <value>Alleen inkomsten</value>
   </data>
   <data name="Financial.Info" xml:space="preserve">
-    <value>[NL] Informations</value>
+    <value>Informatie</value>
   </data>
   <data name="Financial.Information" xml:space="preserve">
-    <value>[NL] Informations</value>
+    <value>Informatie</value>
   </data>
   <data name="Financial.Margin" xml:space="preserve">
-    <value>[NL] Marge</value>
+    <value>Marge</value>
   </data>
   <data name="Financial.MatchPayments" xml:space="preserve">
-    <value>[NL] Rapprocher les paiements</value>
+    <value>Betalingen koppelen</value>
   </data>
   <data name="Financial.MatchReasons" xml:space="preserve">
-    <value>[NL] Raisons de correspondance</value>
+    <value>Redenen voor overeenkomst</value>
   </data>
   <data name="Financial.NetBalance" xml:space="preserve">
-    <value>[NL] Solde net</value>
+    <value>Nettosaldo</value>
   </data>
   <data name="Financial.NetSalary" xml:space="preserve">
-    <value>[NL] Salaire net</value>
+    <value>Nettoloon</value>
   </data>
   <data name="Financial.NewBalance" xml:space="preserve">
-    <value>[NL] Nouveau solde</value>
+    <value>Nieuw saldo</value>
   </data>
   <data name="Financial.NoTeamMembers" xml:space="preserve">
-    <value>[NL] Aucun membre de l'équipe</value>
+    <value>Geen teamleden</value>
   </data>
   <data name="Financial.NoTransactions" xml:space="preserve">
-    <value>[NL] Aucune transaction</value>
+    <value>Geen transacties</value>
   </data>
   <data name="Financial.OldBalance" xml:space="preserve">
-    <value>[NL] Ancien solde</value>
+    <value>Oud saldo</value>
   </data>
   <data name="Financial.PaidAmount" xml:space="preserve">
-    <value>[NL] Montant payé</value>
+    <value>Betaald bedrag</value>
   </data>
   <data name="Financial.PaymentStatus" xml:space="preserve">
-    <value>[NL] Statut de paiement</value>
+    <value>Betaalstatus</value>
   </data>
   <data name="Financial.PendingAmount" xml:space="preserve">
-    <value>[NL] Montant en attente</value>
+    <value>Openstaand bedrag</value>
   </data>
   <data name="Financial.PendingBookings" xml:space="preserve">
-    <value>[NL] Réservations en attente</value>
+    <value>Boekingen in afwachting</value>
   </data>
   <data name="Financial.PendingPayments" xml:space="preserve">
-    <value>[NL] Paiements en attente</value>
+    <value>Betalingen in afwachting</value>
   </data>
   <data name="Financial.PersonalConsumptions" xml:space="preserve">
-    <value>[NL] Consommations personnelles</value>
+    <value>Persoonlijke verbruiken</value>
   </data>
   <data name="Financial.PleaseSelectTransaction" xml:space="preserve">
-    <value>[NL] Veuillez sélectionner une transaction</value>
+    <value>Selecteer een transactie</value>
   </data>
   <data name="Financial.Prestations" xml:space="preserve">
-    <value>[NL] Prestations</value>
+    <value>Prestaties</value>
   </data>
   <data name="Financial.Reimbursement(s)" xml:space="preserve">
-    <value>[NL] Remboursement(s)</value>
+    <value>Terugbetaling(en)</value>
   </data>
   <data name="Financial.Reimbursements" xml:space="preserve">
-    <value>[NL] Remboursements</value>
+    <value>Terugbetalingen</value>
   </data>
   <data name="Financial.ReimbursementsCount" xml:space="preserve">
-    <value>[NL] Nombre de remboursements</value>
+    <value>Aantal terugbetalingen</value>
   </data>
   <data name="Financial.RemainingAmount" xml:space="preserve">
-    <value>[NL] Montant restant</value>
+    <value>Resterend bedrag</value>
   </data>
   <data name="Financial.Report" xml:space="preserve">
-    <value>[NL] Rapport</value>
+    <value>Rapport</value>
   </data>
   <data name="Financial.RevenueDetails" xml:space="preserve">
-    <value>[NL] Détails des revenus</value>
+    <value>Inkomstendetails</value>
   </data>
   <data name="Financial.SalaryCalculationInfo" xml:space="preserve">
     <value>Het te betalen bedrag wordt als volgt berekend: Prestaties (Dagen × Dagvergoeding) + Terugbeteningen − Persoonlijke consumaties.</value>
   </data>
   <data name="Financial.SelectOrganisation" xml:space="preserve">
-    <value>[NL] Sélectionner une organisation</value>
+    <value>Organisatie selecteren</value>
   </data>
   <data name="Financial.StructuredCommunication" xml:space="preserve">
-    <value>[NL] Communication structurée</value>
+    <value>Gestructureerde mededeling</value>
   </data>
   <data name="Financial.Suggestions" xml:space="preserve">
-    <value>[NL] Suggestions</value>
+    <value>Suggesties</value>
   </data>
   <data name="Financial.SuggestionsDescription" xml:space="preserve">
-    <value>[NL] Description des suggestions</value>
+    <value>Beschrijving van de suggesties</value>
   </data>
   <data name="Financial.TeamMember(s)" xml:space="preserve">
-    <value>[NL] Membre(s) de l'équipe</value>
+    <value>Teamlid(leden)</value>
   </data>
   <data name="Financial.TeamMemberSalaries" xml:space="preserve">
-    <value>[NL] Salaires des membres de l'équipe</value>
+    <value>Lonen van de teamleden</value>
   </data>
   <data name="Financial.TeamMembersCount" xml:space="preserve">
-    <value>[NL] Nombre de membres de l'équipe</value>
+    <value>Aantal teamleden</value>
   </data>
   <data name="Financial.TeamSalaries" xml:space="preserve">
-    <value>[NL] Salaires de l'équipe</value>
+    <value>Teamlonen</value>
   </data>
   <data name="Financial.Total" xml:space="preserve">
-    <value>[NL] Total</value>
+    <value>Totaal</value>
   </data>
   <data name="Financial.TotalAmount" xml:space="preserve">
-    <value>[NL] Montant total</value>
+    <value>Totaalbedrag</value>
   </data>
   <data name="Financial.TotalBookings" xml:space="preserve">
-    <value>[NL] Total des réservations</value>
+    <value>Totaal boekingen</value>
   </data>
   <data name="Financial.TotalConsumptions" xml:space="preserve">
-    <value>[NL] Total des consommations</value>
+    <value>Totaal verbruik</value>
   </data>
   <data name="Financial.TotalExpenses" xml:space="preserve">
-    <value>[NL] Total des dépenses</value>
+    <value>Totaal uitgaven</value>
   </data>
   <data name="Financial.TotalIncome" xml:space="preserve">
-    <value>[NL] Total des revenus</value>
+    <value>Totaal inkomsten</value>
   </data>
   <data name="Financial.TotalPrestations" xml:space="preserve">
-    <value>[NL] Total des prestations</value>
+    <value>Totaal prestaties</value>
   </data>
   <data name="Financial.TotalReimbursements" xml:space="preserve">
-    <value>[NL] Total des remboursements</value>
+    <value>Totaal terugbetalingen</value>
   </data>
   <data name="Financial.TotalRevenue" xml:space="preserve">
-    <value>[NL] Revenus totaux</value>
+    <value>Totale opbrengst</value>
   </data>
   <data name="Financial.TotalTeamSalaries" xml:space="preserve">
-    <value>[NL] Total des salaires de l'équipe</value>
+    <value>Totaal teamlonen</value>
   </data>
   <data name="Financial.TotalToPay" xml:space="preserve">
-    <value>[NL] Total à payer</value>
+    <value>Totaal te betalen</value>
   </data>
   <data name="Financial.Transactions" xml:space="preserve">
-    <value>[NL] Transactions</value>
+    <value>Transacties</value>
   </data>
   <data name="Financial.TransactionsList" xml:space="preserve">
-    <value>[NL] Liste des transactions</value>
+    <value>Lijst van transacties</value>
   </data>
   <data name="Financial.UnpaidBookings" xml:space="preserve">
-    <value>[NL] Réservations impayées</value>
+    <value>Onbetaalde boekingen</value>
   </data>
   <data name="Financial.Unreconciled" xml:space="preserve">
-    <value>[NL] Non rapproché</value>
+    <value>Niet afgepunt</value>
   </data>
   <data name="Financial.UnreconciledTransactions" xml:space="preserve">
-    <value>[NL] Transactions non rapprochées</value>
+    <value>Niet-afgepunte transacties</value>
   </data>
   <data name="Financial.Validate" xml:space="preserve">
-    <value>[NL] Valider</value>
+    <value>Valideren</value>
   </data>
   <data name="FirstName" xml:space="preserve">
     <value>Voornaam</value>
@@ -2102,7 +2102,7 @@
     <value>Naam en Voornaam</value>
   </data>
   <data name="GeneralInformation" xml:space="preserve">
-    <value>[NL] Informations générales</value>
+    <value>Algemene informatie</value>
   </data>
   <data name="Group" xml:space="preserve">
     <value>Groep</value>
@@ -2114,70 +2114,70 @@
     <value>Home</value>
   </data>
   <data name="Home.ActiveActivities" xml:space="preserve">
-    <value>[NL] Activités actives</value>
+    <value>Actieve activiteiten</value>
   </data>
   <data name="Home.BackToHome" xml:space="preserve">
-    <value>[NL] Retour à l'accueil</value>
+    <value>Terug naar start</value>
   </data>
   <data name="Home.BookingsCount" xml:space="preserve">
-    <value>[NL] inscriptions</value>
+    <value>inschrijvingen</value>
   </data>
   <data name="Home.ChildrenParents" xml:space="preserve">
-    <value>[NL] Enfants / Parents</value>
+    <value>Kinderen / Ouders</value>
   </data>
   <data name="Home.ConfirmedBookings" xml:space="preserve">
-    <value>[NL] Inscriptions confirmées</value>
+    <value>Bevestigde inschrijvingen</value>
   </data>
   <data name="Home.Dashboard" xml:space="preserve">
-    <value>[NL] Tableau de bord</value>
+    <value>Dashboard</value>
   </data>
   <data name="Home.Error" xml:space="preserve">
-    <value>[NL] Erreur</value>
+    <value>Fout</value>
   </data>
   <data name="Home.ErrorMessage" xml:space="preserve">
-    <value>[NL] Nous sommes désolés, une erreur inattendue s'est produite.</value>
+    <value>Sorry, er is een onverwachte fout opgetreden.</value>
   </data>
   <data name="Home.ErrorTitle" xml:space="preserve">
-    <value>[NL] Une erreur s'est produite</value>
+    <value>Er is een fout opgetreden</value>
   </data>
   <data name="Home.Manage" xml:space="preserve">
     <value>Beheren</value>
   </data>
   <data name="Home.NewActivity" xml:space="preserve">
-    <value>[NL] Nouvelle activité</value>
+    <value>Nieuwe activiteit</value>
   </data>
   <data name="Home.NewBooking" xml:space="preserve">
-    <value>[NL] Nouvelle inscription</value>
+    <value>Nieuwe inschrijving</value>
   </data>
   <data name="Home.NewChild" xml:space="preserve">
-    <value>[NL] Nouvel enfant</value>
+    <value>Nieuw kind</value>
   </data>
   <data name="Home.NewParent" xml:space="preserve">
-    <value>[NL] Nouveau parent</value>
+    <value>Nieuwe ouder</value>
   </data>
   <data name="Home.NewTeamMember" xml:space="preserve">
     <value>Nieuw teamlid</value>
   </data>
   <data name="Home.NoActivities" xml:space="preserve">
-    <value>[NL] Aucune activité enregistrée.</value>
+    <value>Geen activiteiten geregistreerd.</value>
   </data>
   <data name="Home.NoBookings" xml:space="preserve">
-    <value>[NL] Aucune inscription enregistrée.</value>
+    <value>Geen inschrijvingen geregistreerd.</value>
   </data>
   <data name="Home.QuickActions" xml:space="preserve">
-    <value>[NL] Actions rapides</value>
+    <value>Snelle acties</value>
   </data>
   <data name="Home.RecentActivities" xml:space="preserve">
-    <value>[NL] Activités récentes</value>
+    <value>Recente activiteiten</value>
   </data>
   <data name="Home.RecentBookings" xml:space="preserve">
-    <value>[NL] Inscriptions récentes</value>
+    <value>Recente inschrijvingen</value>
   </data>
   <data name="Home.TeamMembers" xml:space="preserve">
-    <value>[NL] Membres d'équipe</value>
+    <value>Teamleden</value>
   </data>
   <data name="Home.ViewAll" xml:space="preserve">
-    <value>[NL] Voir tout</value>
+    <value>Alles bekijken</value>
   </data>
   <data name="Inactive" xml:space="preserve">
     <value>Inactief</value>
@@ -2189,55 +2189,55 @@
     <value>Informatie</value>
   </data>
   <data name="ItemsPerPage" xml:space="preserve">
-    <value>[NL] Éléments par page</value>
+    <value>Items per pagina</value>
   </data>
   <data name="LastName" xml:space="preserve">
     <value>Achternaam</value>
   </data>
   <data name="Layout.Activities" xml:space="preserve">
-    <value>[NL] Activités</value>
+    <value>Activiteiten</value>
   </data>
   <data name="Layout.Administration" xml:space="preserve">
-    <value>[NL] Administration</value>
+    <value>Beheer</value>
   </data>
   <data name="Layout.Bookings" xml:space="preserve">
-    <value>[NL] Inscriptions</value>
+    <value>Inschrijvingen</value>
   </data>
   <data name="Layout.Children" xml:space="preserve">
-    <value>[NL] Enfants</value>
+    <value>Kinderen</value>
   </data>
   <data name="Layout.Dashboard" xml:space="preserve">
-    <value>[NL] Tableau de bord</value>
+    <value>Dashboard</value>
   </data>
   <data name="Layout.Finance" xml:space="preserve">
-    <value>[NL] Finance</value>
+    <value>Financiën</value>
   </data>
   <data name="Layout.IframeForm" xml:space="preserve">
-    <value>[NL] Formulaire iframe</value>
+    <value>Iframe-formulier</value>
   </data>
   <data name="Layout.Logout" xml:space="preserve">
-    <value>[NL] Déconnexion</value>
+    <value>Afmelden</value>
   </data>
   <data name="Layout.Organisations" xml:space="preserve">
-    <value>[NL] Organisations</value>
+    <value>Organisaties</value>
   </data>
   <data name="Layout.Parents" xml:space="preserve">
-    <value>[NL] Parents</value>
+    <value>Ouders</value>
   </data>
   <data name="Layout.Presences" xml:space="preserve">
-    <value>[NL] Présences</value>
+    <value>Aanwezigheden</value>
   </data>
   <data name="Layout.Privacy" xml:space="preserve">
-    <value>[NL] Vie privée</value>
+    <value>Privacy</value>
   </data>
   <data name="Layout.Profile" xml:space="preserve">
-    <value>[NL] Profil</value>
+    <value>Profiel</value>
   </data>
   <data name="Layout.Team" xml:space="preserve">
-    <value>[NL] Équipe</value>
+    <value>Team</value>
   </data>
   <data name="Layout.Users" xml:space="preserve">
-    <value>[NL] Utilisateurs</value>
+    <value>Gebruikers</value>
   </data>
   <data name="License" xml:space="preserve">
     <value>Licentie</value>
@@ -2246,16 +2246,16 @@
     <value>Laden...</value>
   </data>
   <data name="LockedOut" xml:space="preserve">
-    <value>[NL] Verrouillé</value>
+    <value>Vergrendeld</value>
   </data>
   <data name="Login" xml:space="preserve">
     <value>Aanmelden</value>
   </data>
   <data name="Login.AccountLockedOut" xml:space="preserve">
-    <value>[NL] Compte verrouillé</value>
+    <value>Account vergrendeld</value>
   </data>
   <data name="Login.InvalidCredentials" xml:space="preserve">
-    <value>[NL] Identifiants invalides</value>
+    <value>Ongeldige inloggegevens</value>
   </data>
   <data name="Logout" xml:space="preserve">
     <value>Afmelden</value>
@@ -2264,73 +2264,73 @@
     <value>Beheren</value>
   </data>
   <data name="Members" xml:space="preserve">
-    <value>[NL] Membres</value>
+    <value>Leden</value>
   </data>
   <data name="Message.ActivityCreated" xml:space="preserve">
-    <value>[NL] L'activité a été créée avec succès.</value>
+    <value>De activiteit is met succes aangemaakt.</value>
   </data>
   <data name="Message.ActivityDeleted" xml:space="preserve">
-    <value>[NL] L'activité a été supprimée avec succès.</value>
+    <value>De activiteit is met succes verwijderd.</value>
   </data>
   <data name="Message.ActivityHasBookings" xml:space="preserve">
-    <value>[NL] Impossible de supprimer cette activité car elle contient des inscriptions.</value>
+    <value>Deze activiteit kan niet worden verwijderd omdat ze inschrijvingen bevat.</value>
   </data>
   <data name="Message.ActivityNotFound" xml:space="preserve">
-    <value>[NL] Activité introuvable</value>
+    <value>Activiteit niet gevonden</value>
   </data>
   <data name="Message.ActivityUpdated" xml:space="preserve">
-    <value>[NL] L'activité a été mise à jour avec succès.</value>
+    <value>De activiteit is met succes bijgewerkt.</value>
   </data>
   <data name="Message.BookingAlreadyExists" xml:space="preserve">
-    <value>[NL] Une réservation existe déjà</value>
+    <value>Er bestaat al een boeking</value>
   </data>
   <data name="Message.BookingConfirmed" xml:space="preserve">
-    <value>[NL] Inscription confirmée avec succès.</value>
+    <value>Inschrijving met succes bevestigd.</value>
   </data>
   <data name="Message.BookingConfirmedEmailFailed" xml:space="preserve">
-    <value>[NL] Échec de l'envoi de l'e-mail de confirmation</value>
+    <value>Verzenden van de bevestigingsmail mislukt</value>
   </data>
   <data name="Message.BookingConfirmedEmailSent" xml:space="preserve">
-    <value>[NL] L'inscription a été confirmée et un email a été envoyé au parent.</value>
+    <value>De inschrijving is bevestigd en er is een e-mail naar de ouder verstuurd.</value>
   </data>
   <data name="Message.BookingCreated" xml:space="preserve">
-    <value>[NL] L'inscription a été créée avec succès.</value>
+    <value>De inschrijving is met succes aangemaakt.</value>
   </data>
   <data name="Message.BookingDayNotFound" xml:space="preserve">
-    <value>[NL] Jour de réservation introuvable</value>
+    <value>Boekingsdag niet gevonden</value>
   </data>
   <data name="Message.BookingNotFound" xml:space="preserve">
     <value>Inschrijving niet gevonden</value>
   </data>
   <data name="Message.BookingDeleted" xml:space="preserve">
-    <value>[NL] L'inscription a été supprimée avec succès.</value>
+    <value>De inschrijving is met succes verwijderd.</value>
   </data>
   <data name="Message.BookingUpdated" xml:space="preserve">
-    <value>[NL] L'inscription a été modifiée avec succès.</value>
+    <value>De inschrijving is met succes gewijzigd.</value>
   </data>
   <data name="Message.ChildCreated" xml:space="preserve">
-    <value>[NL] L'enfant a été créé avec succès.</value>
+    <value>Het kind is met succes aangemaakt.</value>
   </data>
   <data name="Message.ChildDeleted" xml:space="preserve">
-    <value>[NL] L'enfant a été supprimé avec succès.</value>
+    <value>Het kind is met succes verwijderd.</value>
   </data>
   <data name="Message.ChildUpdated" xml:space="preserve">
-    <value>[NL] L'enfant a été modifié avec succès.</value>
+    <value>Het kind is met succes gewijzigd.</value>
   </data>
   <data name="Message.EmailSendError" xml:space="preserve">
-    <value>[NL] Erreur lors de l'envoi de l'e-mail</value>
+    <value>Fout bij het verzenden van de e-mail</value>
   </data>
   <data name="Message.EmailSent" xml:space="preserve">
-    <value>[NL] Email envoyé avec succès à {0} destinataire(s).</value>
+    <value>E-mail met succes verzonden naar {0} ontvanger(s).</value>
   </data>
   <data name="Message.ExpenseCreated" xml:space="preserve">
-    <value>[NL] Dépense créée avec succès</value>
+    <value>Uitgave met succes aangemaakt</value>
   </data>
   <data name="Message.ExpenseDeleted" xml:space="preserve">
-    <value>[NL] Dépense supprimée avec succès</value>
+    <value>Uitgave met succes verwijderd</value>
   </data>
   <data name="Message.ExpenseUpdated" xml:space="preserve">
-    <value>[NL] Dépense mise à jour avec succès</value>
+    <value>Uitgave met succes bijgewerkt</value>
   </data>
   <data name="Message.GroupAssigned" xml:space="preserve">
     <value>Kind succesvol toegewezen aan groep</value>
@@ -2339,73 +2339,73 @@
     <value>Groep niet gevonden</value>
   </data>
   <data name="Message.NoRecipientsFound" xml:space="preserve">
-    <value>[NL] Aucun destinataire trouvé</value>
+    <value>Geen ontvangers gevonden</value>
   </data>
   <data name="Message.OrganisationCreated" xml:space="preserve">
-    <value>[NL] L'organisation a été créée avec succès.</value>
+    <value>De organisatie is met succes aangemaakt.</value>
   </data>
   <data name="Message.OrganisationDeleted" xml:space="preserve">
-    <value>[NL] L'organisation a été supprimée avec succès.</value>
+    <value>De organisatie is met succes verwijderd.</value>
   </data>
   <data name="Message.OrganisationUpdated" xml:space="preserve">
-    <value>[NL] L'organisation a été modifiée avec succès.</value>
+    <value>De organisatie is succesvol bijgewerkt.</value>
   </data>
   <data name="Message.ParentCreated" xml:space="preserve">
-    <value>[NL] Le parent a été créé avec succès.</value>
+    <value>De ouder is succesvol aangemaakt.</value>
   </data>
   <data name="Message.ParentDeleted" xml:space="preserve">
-    <value>[NL] Le parent a été supprimé avec succès.</value>
+    <value>De ouder is succesvol verwijderd.</value>
   </data>
   <data name="Message.ParentHasChildren" xml:space="preserve">
-    <value>[NL] Impossible de supprimer ce parent car il a des enfants enregistrés.</value>
+    <value>Deze ouder kan niet worden verwijderd omdat er kinderen aan gekoppeld zijn.</value>
   </data>
   <data name="Message.ParentUpdated" xml:space="preserve">
-    <value>[NL] Le parent a été mis à jour avec succès.</value>
+    <value>De ouder is succesvol bijgewerkt.</value>
   </data>
   <data name="Message.PaymentCancelled" xml:space="preserve">
-    <value>[NL] Paiement annulé avec succès</value>
+    <value>Betaling succesvol geannuleerd</value>
   </data>
   <data name="Message.PaymentCreated" xml:space="preserve">
-    <value>[NL] Paiement créé avec succès</value>
+    <value>Betaling succesvol aangemaakt</value>
   </data>
   <data name="Message.PresencesSaved" xml:space="preserve">
-    <value>[NL] Présences enregistrées avec succès.</value>
+    <value>Aanwezigheden succesvol opgeslagen.</value>
   </data>
   <data name="Message.ProfileUpdated" xml:space="preserve">
-    <value>[NL] Profil mis à jour avec succès.</value>
+    <value>Profiel succesvol bijgewerkt.</value>
   </data>
   <data name="Message.SelectGroup" xml:space="preserve">
-    <value>[NL] Veuillez sélectionner un groupe</value>
+    <value>Selecteer een groep</value>
   </data>
   <data name="Message.TeamMemberAdded" xml:space="preserve">
-    <value>[NL] {0} {1} a été ajouté(e) à l'équipe.</value>
+    <value>{0} {1} is aan het team toegevoegd.</value>
   </data>
   <data name="Message.TeamMemberCreated" xml:space="preserve">
-    <value>[NL] Le membre d'équipe a été créé avec succès.</value>
+    <value>Het teamlid is succesvol aangemaakt.</value>
   </data>
   <data name="Message.TeamMemberDeleted" xml:space="preserve">
-    <value>[NL] Le membre d'équipe a été supprimé avec succès.</value>
+    <value>Het teamlid is succesvol verwijderd.</value>
   </data>
   <data name="Message.TeamMemberNotFound" xml:space="preserve">
-    <value>[NL] Membre de l'équipe introuvable.</value>
+    <value>Teamlid niet gevonden.</value>
   </data>
   <data name="Message.TeamMemberRemoved" xml:space="preserve">
-    <value>[NL] {0} {1} a été retiré(e) de l'équipe.</value>
+    <value>{0} {1} is uit het team verwijderd.</value>
   </data>
   <data name="Message.TeamMemberUpdated" xml:space="preserve">
-    <value>[NL] Le membre d'équipe a été modifié avec succès.</value>
+    <value>Het teamlid is succesvol bijgewerkt.</value>
   </data>
   <data name="Message.UserCreated" xml:space="preserve">
-    <value>[NL] L'utilisateur a été créé avec succès.</value>
+    <value>De gebruiker is succesvol aangemaakt.</value>
   </data>
   <data name="Message.UserDeleted" xml:space="preserve">
-    <value>[NL] L'utilisateur a été supprimé avec succès.</value>
+    <value>De gebruiker is succesvol verwijderd.</value>
   </data>
   <data name="Message.UserUpdated" xml:space="preserve">
-    <value>[NL] L'utilisateur a été modifié avec succès.</value>
+    <value>De gebruiker is succesvol bijgewerkt.</value>
   </data>
   <data name="Message.WelcomeEmailFailed" xml:space="preserve">
-    <value>[NL] Échec de l'envoi de l'e-mail de bienvenue</value>
+    <value>Verzenden van welkomstmail mislukt</value>
   </data>
   <data name="Mobile" xml:space="preserve">
     <value>GSM</value>
@@ -2414,40 +2414,40 @@
     <value>Naam</value>
   </data>
   <data name="NationalRegisterNumber" xml:space="preserve">
-    <value>[NL] Numéro de registre national</value>
+    <value>Rijksregisternummer</value>
   </data>
   <data name="Next" xml:space="preserve">
-    <value>[NL] Suivant</value>
+    <value>Volgende</value>
   </data>
   <data name="No" xml:space="preserve">
     <value>Nee</value>
   </data>
   <data name="NoGroupOptional" xml:space="preserve">
-    <value>[NL] -- Aucun groupe (optionnel) --</value>
+    <value>-- Geen groep (optioneel) --</value>
   </data>
   <data name="NoOrganisation" xml:space="preserve">
-    <value>[NL] Aucune organisation</value>
+    <value>Geen organisatie</value>
   </data>
   <data name="NoResults" xml:space="preserve">
     <value>Geen resultaten gevonden</value>
   </data>
   <data name="NotConfirmed" xml:space="preserve">
-    <value>[NL] Non confirmé</value>
+    <value>Niet bevestigd</value>
   </data>
   <data name="NotMarked" xml:space="preserve">
-    <value>[NL] Non marqué</value>
+    <value>Niet gemarkeerd</value>
   </data>
   <data name="NotReceived" xml:space="preserve">
     <value>Niet Ontvangen</value>
   </data>
   <data name="NotSpecified" xml:space="preserve">
-    <value>[NL] Non renseigné</value>
+    <value>Niet opgegeven</value>
   </data>
   <data name="Of" xml:space="preserve">
-    <value>[NL] sur</value>
+    <value>van</value>
   </data>
   <data name="On" xml:space="preserve">
-    <value>[NL] sur</value>
+    <value>op</value>
   </data>
   <data name="Organisation" xml:space="preserve">
     <value>Organisatie</value>
@@ -2456,76 +2456,76 @@
     <value>Organisaties</value>
   </data>
   <data name="Organisations.AddOrganisation" xml:space="preserve">
-    <value>[NL] Ajouter une organisation</value>
+    <value>Organisatie toevoegen</value>
   </data>
   <data name="Organisations.ConfirmDeletion" xml:space="preserve">
-    <value>[NL] Confirmer la suppression</value>
+    <value>Verwijdering bevestigen</value>
   </data>
   <data name="Organisations.DeleteCascadeWarning" xml:space="preserve">
-    <value>[NL] La suppression entraînera la suppression en cascade de toutes les données liées !</value>
+    <value>Het verwijderen verwijdert in cascade alle gekoppelde gegevens!</value>
   </data>
   <data name="Organisations.DeleteConfirmation" xml:space="preserve">
-    <value>[NL] Êtes-vous sûr de vouloir supprimer cette organisation ?</value>
+    <value>Weet u zeker dat u deze organisatie wilt verwijderen?</value>
   </data>
   <data name="Organisations.DeleteOrganisation" xml:space="preserve">
-    <value>[NL] Supprimer l'organisation</value>
+    <value>Organisatie verwijderen</value>
   </data>
   <data name="Organisations.DeleteRelatedWarning" xml:space="preserve">
-    <value>[NL] Cette organisation a {0} élément(s) associé(s).</value>
+    <value>Deze organisatie heeft {0} gekoppeld(e) item(s).</value>
   </data>
   <data name="Organisations.DeleteWarning" xml:space="preserve">
-    <value>[NL] Attention !</value>
+    <value>Let op!</value>
   </data>
   <data name="Organisations.EditOrganisation" xml:space="preserve">
-    <value>[NL] Modifier l'organisation</value>
+    <value>Organisatie bewerken</value>
   </data>
   <data name="Organisations.Logo" xml:space="preserve">
-    <value>[NL] Logo</value>
+    <value>Logo</value>
   </data>
   <data name="Organisations.LogoUrl" xml:space="preserve">
-    <value>[NL] URL du logo</value>
+    <value>Logo-URL</value>
   </data>
   <data name="Organisations.LogoUrlOptional" xml:space="preserve">
-    <value>[NL] URL du logo de l'organisation (optionnel)</value>
+    <value>Logo-URL van de organisatie (optioneel)</value>
   </data>
   <data name="Organisations.ConfirmDeleteLogo" xml:space="preserve">
-    <value>[NL] Êtes-vous sûr de vouloir supprimer ce logo ?</value>
+    <value>Weet u zeker dat u dit logo wilt verwijderen?</value>
   </data>
   <data name="Organisations.LogoDeletedSuccess" xml:space="preserve">
-    <value>[NL] Logo supprimé avec succès.</value>
+    <value>Logo succesvol verwijderd.</value>
   </data>
   <data name="Organisations.LogoDeletedError" xml:space="preserve">
-    <value>[NL] Erreur lors de la suppression du logo.</value>
+    <value>Fout bij het verwijderen van het logo.</value>
   </data>
   <data name="Organisations.NewOrganisation" xml:space="preserve">
-    <value>[NL] Nouvelle organisation</value>
+    <value>Nieuwe organisatie</value>
   </data>
   <data name="Organisations.NoOrganisationsFound" xml:space="preserve">
-    <value>[NL] Aucune organisation trouvée pour votre recherche.</value>
+    <value>Geen organisaties gevonden voor uw zoekopdracht.</value>
   </data>
   <data name="Organisations.NoOrganisationsYet" xml:space="preserve">
-    <value>[NL] Aucune organisation enregistrée. Cliquez sur "Ajouter une organisation" pour commencer.</value>
+    <value>Nog geen organisaties geregistreerd. Klik op "Organisatie toevoegen" om te beginnen.</value>
   </data>
   <data name="Organisations.OrganisationDetails" xml:space="preserve">
-    <value>[NL] Détails de l'organisation</value>
+    <value>Organisatiedetails</value>
   </data>
   <data name="Organisations.OrganisationInformation" xml:space="preserve">
-    <value>[NL] Informations de l'organisation</value>
+    <value>Organisatiegegevens</value>
   </data>
   <data name="Organisations.OrganisationsCount" xml:space="preserve">
-    <value>[NL] organisations</value>
+    <value>organisaties</value>
   </data>
   <data name="Organisations.SearchPlaceholder" xml:space="preserve">
-    <value>[NL] Rechercher par nom...</value>
+    <value>Zoeken op naam...</value>
   </data>
   <data name="Organisations.ViewActivities" xml:space="preserve">
-    <value>[NL] Voir les activités</value>
+    <value>Activiteiten bekijken</value>
   </data>
   <data name="Organisations.ViewParents" xml:space="preserve">
-    <value>[NL] Voir les parents</value>
+    <value>Ouders bekijken</value>
   </data>
   <data name="Organisations.ViewTeam" xml:space="preserve">
-    <value>[NL] Voir l'équipe</value>
+    <value>Team bekijken</value>
   </data>
   <data name="Parent" xml:space="preserve">
     <value>Ouder</value>
@@ -2534,76 +2534,76 @@
     <value>Ouders</value>
   </data>
   <data name="Parents.AddParent" xml:space="preserve">
-    <value>[NL] Ajouter un parent</value>
+    <value>Ouder toevoegen</value>
   </data>
   <data name="Parents.AssociatedChildren" xml:space="preserve">
-    <value>[NL] Enfants associés</value>
+    <value>Gekoppelde kinderen</value>
   </data>
   <data name="Parents.ConfirmDeletion" xml:space="preserve">
-    <value>[NL] Confirmer la suppression</value>
+    <value>Verwijdering bevestigen</value>
   </data>
   <data name="Parents.CreateParent" xml:space="preserve">
-    <value>[NL] Créer le parent</value>
+    <value>Ouder aanmaken</value>
   </data>
   <data name="Parents.DeleteConfirmation" xml:space="preserve">
-    <value>[NL] Êtes-vous sûr de vouloir supprimer ce parent ?</value>
+    <value>Weet u zeker dat u deze ouder wilt verwijderen?</value>
   </data>
   <data name="Parents.DeleteParent" xml:space="preserve">
-    <value>[NL] Supprimer le parent</value>
+    <value>Ouder verwijderen</value>
   </data>
   <data name="Parents.DeleteWarning" xml:space="preserve">
-    <value>[NL] Attention !</value>
+    <value>Let op!</value>
   </data>
   <data name="Parents.EditParent" xml:space="preserve">
-    <value>[NL] Modifier le parent</value>
+    <value>Ouder bewerken</value>
   </data>
   <data name="Parents.HasChildren" xml:space="preserve">
-    <value>[NL] Ce parent a {0} enfant(s) associé(s).</value>
+    <value>Deze ouder heeft {0} gekoppeld(e) kind(eren).</value>
   </data>
   <data name="Parents.MobilePlaceholder" xml:space="preserve">
-    <value>[NL] +32 4XX XX XX XX</value>
+    <value>+32 4XX XX XX XX</value>
   </data>
   <data name="Parents.NewParent" xml:space="preserve">
-    <value>[NL] Nouveau parent</value>
+    <value>Nieuwe ouder</value>
   </data>
   <data name="Parents.NoChildren" xml:space="preserve">
-    <value>[NL] Aucun enfant enregistré</value>
+    <value>Geen kinderen geregistreerd</value>
   </data>
   <data name="Parents.NoParentsFound" xml:space="preserve">
-    <value>[NL] Aucun parent trouvé</value>
+    <value>Geen ouders gevonden</value>
   </data>
   <data name="Parents.NoParentsYet" xml:space="preserve">
-    <value>[NL] Aucun parent enregistré. Cliquez sur "Ajouter un parent" pour commencer.</value>
+    <value>Nog geen ouders geregistreerd. Klik op "Ouder toevoegen" om te beginnen.</value>
   </data>
   <data name="Parents.NotSpecified" xml:space="preserve">
-    <value>[NL] Non renseigné</value>
+    <value>Niet opgegeven</value>
   </data>
   <data name="Parents.ParentDetails" xml:space="preserve">
-    <value>[NL] Détails du parent</value>
+    <value>Ouderdetails</value>
   </data>
   <data name="Parents.ParentInformation" xml:space="preserve">
-    <value>[NL] Informations du parent</value>
+    <value>Oudergegevens</value>
   </data>
   <data name="Parents.ParentsCount" xml:space="preserve">
-    <value>[NL] parents</value>
+    <value>ouders</value>
   </data>
   <data name="Parents.PhonePlaceholder" xml:space="preserve">
-    <value>[NL] +32 XX XX XX XX</value>
+    <value>+32 XX XX XX XX</value>
   </data>
   <data name="Parents.PostalCodeCityHelp" xml:space="preserve">
-    <value>[NL] Entrez le code postal ou la ville</value>
+    <value>Voer de postcode of de plaats in</value>
   </data>
   <data name="Parents.PostalCodeCityPlaceholder" xml:space="preserve">
-    <value>[NL] Code postal ou ville</value>
+    <value>Postcode of plaats</value>
   </data>
   <data name="Parents.SearchPlaceholder" xml:space="preserve">
-    <value>[NL] Rechercher par nom, email ou téléphone...</value>
+    <value>Zoeken op naam, e-mail of telefoon...</value>
   </data>
   <data name="Parents.SearchPlaceholderShort" xml:space="preserve">
-    <value>[NL] Nom, prénom ou email...</value>
+    <value>Naam, voornaam of e-mail...</value>
   </data>
   <data name="Parents.StreetPlaceholder" xml:space="preserve">
-    <value>[NL] Rue et numéro</value>
+    <value>Straat en nummer</value>
   </data>
   <data name="Password" xml:space="preserve">
     <value>Wachtwoord</value>
@@ -2633,91 +2633,91 @@
     <value>Gedeeltelijk Betaald</value>
   </data>
   <data name="Payments.AddPayment" xml:space="preserve">
-    <value>[NL] Ajouter un paiement</value>
+    <value>Betaling toevoegen</value>
   </data>
   <data name="Payments.AllBookingsPaid" xml:space="preserve">
-    <value>[NL] Toutes les réservations sont payées</value>
+    <value>Alle boekingen zijn betaald</value>
   </data>
   <data name="Payments.AlreadyPaid" xml:space="preserve">
-    <value>[NL] Déjà payé</value>
+    <value>Al betaald</value>
   </data>
   <data name="Payments.BookingInformation" xml:space="preserve">
-    <value>[NL] Informations de réservation</value>
+    <value>Boekingsgegevens</value>
   </data>
   <data name="Payments.BookingsWithOutstandingPayments" xml:space="preserve">
-    <value>[NL] Réservations avec paiements en attente</value>
+    <value>Boekingen met openstaande betalingen</value>
   </data>
   <data name="Payments.CancelPayment" xml:space="preserve">
-    <value>[NL] Annuler le paiement</value>
+    <value>Betaling annuleren</value>
   </data>
   <data name="Payments.CancelWarning" xml:space="preserve">
-    <value>[NL] Attention : cette action est irréversible</value>
+    <value>Let op: deze actie is onomkeerbaar</value>
   </data>
   <data name="Payments.ConfirmCancel" xml:space="preserve">
-    <value>[NL] Confirmer l'annulation</value>
+    <value>Annulering bevestigen</value>
   </data>
   <data name="Payments.Create" xml:space="preserve">
-    <value>[NL] Créer</value>
+    <value>Aanmaken</value>
   </data>
   <data name="Payments.CreatePayment" xml:space="preserve">
-    <value>[NL] Créer un paiement</value>
+    <value>Betaling aanmaken</value>
   </data>
   <data name="Payments.DangerZone" xml:space="preserve">
-    <value>[NL] Zone dangereuse</value>
+    <value>Gevarenzone</value>
   </data>
   <data name="Payments.Details" xml:space="preserve">
-    <value>[NL] Détails</value>
+    <value>Details</value>
   </data>
   <data name="Payments.ForActivity" xml:space="preserve">
-    <value>[NL] Pour l'activité</value>
+    <value>Voor de activiteit</value>
   </data>
   <data name="Payments.ManualPaymentWarning" xml:space="preserve">
-    <value>[NL] Paiement manuel - soyez prudent</value>
+    <value>Handmatige betaling - wees voorzichtig</value>
   </data>
   <data name="Payments.NoPayments" xml:space="preserve">
-    <value>[NL] Aucun paiement</value>
+    <value>Geen betalingen</value>
   </data>
   <data name="Payments.PaidAmount" xml:space="preserve">
-    <value>[NL] Montant payé</value>
+    <value>Betaald bedrag</value>
   </data>
   <data name="Payments.PaymentFrom" xml:space="preserve">
-    <value>[NL] Paiement de</value>
+    <value>Betaling van</value>
   </data>
   <data name="Payments.PaymentInformation" xml:space="preserve">
-    <value>[NL] Informations de paiement</value>
+    <value>Betalingsgegevens</value>
   </data>
   <data name="Payments.PaymentStatus" xml:space="preserve">
-    <value>[NL] Statut de paiement</value>
+    <value>Betalingsstatus</value>
   </data>
   <data name="Payments.RecordPayment" xml:space="preserve">
-    <value>[NL] Enregistrer un paiement</value>
+    <value>Betaling registreren</value>
   </data>
   <data name="Payments.ReferenceHelp" xml:space="preserve">
-    <value>[NL] Référence optionnelle pour ce paiement</value>
+    <value>Optionele referentie voor deze betaling</value>
   </data>
   <data name="Payments.RelatedBooking" xml:space="preserve">
-    <value>[NL] Réservation associée</value>
+    <value>Gekoppelde boeking</value>
   </data>
   <data name="Payments.RemainingAmount" xml:space="preserve">
-    <value>[NL] Montant restant</value>
+    <value>Resterend bedrag</value>
   </data>
   <data name="Payments.SelectBooking" xml:space="preserve">
-    <value>[NL] Sélectionner une réservation</value>
+    <value>Boeking selecteren</value>
   </data>
   <data name="Payments.SelectBookingHelp" xml:space="preserve">
-    <value>[NL] Choisissez la réservation pour laquelle enregistrer le paiement</value>
+    <value>Kies de boeking waarvoor u de betaling wilt registreren</value>
   </data>
   <data name="Payments.Title" xml:space="preserve">
-    <value>[NL] Paiements</value>
+    <value>Betalingen</value>
   </data>
   <data name="Payments.TotalAmount" xml:space="preserve">
-    <value>[NL] Montant total</value>
+    <value>Totaalbedrag</value>
   </data>
   <data name="Pending" xml:space="preserve">
     <value>In afwachting</value>
   </data>
   <data name="PersonalInformation" xml:space="preserve">
-    <value>[NL] Informations personnelles</value>
+    <value>Persoonlijke gegevens</value>
   </data>
   <data name="Phone" xml:space="preserve">
     <value>Telefoon</value>
@@ -2810,7 +2810,7 @@
     <value>Aanwezig</value>
   </data>
   <data name="Previous" xml:space="preserve">
-    <value>[NL] Précédent</value>
+    <value>Vorige</value>
   </data>
   <data name="PricePerDay" xml:space="preserve">
     <value>Prijs/dag</value>
@@ -2822,28 +2822,28 @@
     <value>Profiel</value>
   </data>
   <data name="PublicLayout.AllRightsReserved" xml:space="preserve">
-    <value>[NL] Tous droits réservés</value>
+    <value>Alle rechten voorbehouden</value>
   </data>
   <data name="PublicLayout.Tagline" xml:space="preserve">
-    <value>[NL] Plateforme de gestion de centres de vacances</value>
+    <value>Beheerplatform voor vakantiecentra</value>
   </data>
   <data name="PublicRegistration.Activity" xml:space="preserve">
-    <value>[NL] Activité</value>
+    <value>Activiteit</value>
   </data>
   <data name="PublicRegistration.ActivityQuestionsLead" xml:space="preserve">
-    <value>[NL] Veuillez répondre aux questions suivantes concernant l'activité.</value>
+    <value>Beantwoord de volgende vragen over de activiteit.</value>
   </data>
   <data name="PublicRegistration.AdditionalQuestions" xml:space="preserve">
-    <value>[NL] Questions supplémentaires</value>
+    <value>Aanvullende vragen</value>
   </data>
   <data name="PublicRegistration.Address" xml:space="preserve">
-    <value>[NL] Adresse</value>
+    <value>Adres</value>
   </data>
   <data name="PublicRegistration.Age" xml:space="preserve">
-    <value>[NL] Âge:</value>
+    <value>Leeftijd:</value>
   </data>
   <data name="PublicRegistration.BackgroundColor" xml:space="preserve">
-    <value>[NL] Couleur de fond</value>
+    <value>Achtergrondkleur</value>
   </data>
   <data name="PublicRegistration.ButtonColor" xml:space="preserve">
     <value>Kleur van de knoppen</value>
@@ -2852,73 +2852,73 @@
     <value>Kies de kleur van de formulierknoppen</value>
   </data>
   <data name="PublicRegistration.BirthDate" xml:space="preserve">
-    <value>[NL] Date de naissance:</value>
+    <value>Geboortedatum:</value>
   </data>
   <data name="PublicRegistration.BookingConfirmation" xml:space="preserve">
-    <value>[NL] Confirmation d'inscription</value>
+    <value>Inschrijvingsbevestiging</value>
   </data>
   <data name="PublicRegistration.BookingNumber" xml:space="preserve">
-    <value>[NL] Numéro de réservation:</value>
+    <value>Boekingsnummer:</value>
   </data>
   <data name="PublicRegistration.BookingSuccess" xml:space="preserve">
-    <value>[NL] Inscription réussie!</value>
+    <value>Inschrijving geslaagd!</value>
   </data>
   <data name="PublicRegistration.BookingSuccessMessage" xml:space="preserve">
-    <value>[NL] Nous avons bien reçu votre demande d'inscription. Un email de confirmation a été envoyé à</value>
+    <value>We hebben uw inschrijvingsaanvraag goed ontvangen. Er is een bevestigingsmail verstuurd naar </value>
   </data>
   <data name="PublicRegistration.BookingSummary" xml:space="preserve">
-    <value>[NL] Récapitulatif de votre inscription</value>
+    <value>Overzicht van uw inschrijving</value>
   </data>
   <data name="PublicRegistration.Bookings" xml:space="preserve">
-    <value>[NL] Inscriptions:</value>
+    <value>Inschrijvingen:</value>
   </data>
   <data name="PublicRegistration.Child" xml:space="preserve">
-    <value>[NL] Enfant</value>
+    <value>Kind</value>
   </data>
   <data name="PublicRegistration.ChildInformation" xml:space="preserve">
-    <value>[NL] Informations enfant</value>
+    <value>Gegevens kind</value>
   </data>
   <data name="PublicRegistration.ChildInformationLead" xml:space="preserve">
-    <value>[NL] Veuillez renseigner les informations de votre enfant.</value>
+    <value>Vul de gegevens van uw kind in.</value>
   </data>
   <data name="PublicRegistration.ChooseColor" xml:space="preserve">
-    <value>[NL] Choisir une couleur</value>
+    <value>Kies een kleur</value>
   </data>
   <data name="PublicRegistration.ColorHelp" xml:space="preserve">
-    <value>[NL] Couleur de fond de l'iframe (code hexadécimal sans #)</value>
+    <value>Achtergrondkleur van de iframe (hexadecimale code zonder #)</value>
   </data>
   <data name="PublicRegistration.Continue" xml:space="preserve">
-    <value>[NL] Continuer</value>
+    <value>Doorgaan</value>
   </data>
   <data name="PublicRegistration.Copy" xml:space="preserve">
-    <value>[NL] Copier</value>
+    <value>Kopiëren</value>
   </data>
   <data name="PublicRegistration.CopyError" xml:space="preserve">
-    <value>[NL] Erreur lors de la copie:</value>
+    <value>Fout bij het kopiëren:</value>
   </data>
   <data name="PublicRegistration.CopySuccess" xml:space="preserve">
-    <value>[NL] Code copié dans le presse-papiers!</value>
+    <value>Code gekopieerd naar het klembord!</value>
   </data>
   <data name="PublicRegistration.Customization" xml:space="preserve">
-    <value>[NL] Personnalisation</value>
+    <value>Personalisatie</value>
   </data>
   <data name="PublicRegistration.DirectLink" xml:space="preserve">
-    <value>[NL] Lien direct</value>
+    <value>Directe link</value>
   </data>
   <data name="PublicRegistration.EmbedCode" xml:space="preserve">
-    <value>[NL] Code d'intégration iframe</value>
+    <value>Iframe-integratiecode</value>
   </data>
   <data name="PublicRegistration.EmbedInstructions" xml:space="preserve">
-    <value>[NL] Copiez et collez ce code HTML sur votre site web pour intégrer le formulaire d'inscription:</value>
+    <value>Kopieer en plak deze HTML-code op uw website om het inschrijvingsformulier te integreren:</value>
   </data>
   <data name="PublicRegistration.FinalizeBooking" xml:space="preserve">
-    <value>[NL] Finaliser l'inscription</value>
+    <value>Inschrijving afronden</value>
   </data>
   <data name="PublicRegistration.FinalizeRegistration" xml:space="preserve">
-    <value>[NL] Finaliser l'inscription</value>
+    <value>Inschrijving afronden</value>
   </data>
   <data name="PublicRegistration.From" xml:space="preserve">
-    <value>[NL] Du:</value>
+    <value>Van:</value>
   </data>
   <data name="PublicRegistration.Width" xml:space="preserve">
     <value>Breedte</value>
@@ -2927,121 +2927,121 @@
     <value>Hoogte</value>
   </data>
   <data name="PublicRegistration.Instruction1" xml:space="preserve">
-    <value>[NL] Copiez le code HTML ci-dessus</value>
+    <value>Kopieer de HTML-code hierboven</value>
   </data>
   <data name="PublicRegistration.Instruction2" xml:space="preserve">
-    <value>[NL] Collez-le dans le code source de votre page web à l'endroit où vous souhaitez afficher le formulaire</value>
+    <value>Plak het in de broncode van uw webpagina op de plaats waar u het formulier wilt tonen</value>
   </data>
   <data name="PublicRegistration.Instruction3" xml:space="preserve">
-    <value>[NL] Le formulaire s'affichera automatiquement avec vos activités disponibles</value>
+    <value>Het formulier verschijnt automatisch met uw beschikbare activiteiten</value>
   </data>
   <data name="PublicRegistration.Instruction4" xml:space="preserve">
-    <value>[NL] Les inscriptions seront automatiquement enregistrées dans votre tableau de bord Cedeva</value>
+    <value>De inschrijvingen worden automatisch opgeslagen in uw Cedeva-dashboard</value>
   </data>
   <data name="PublicRegistration.Instructions" xml:space="preserve">
-    <value>[NL] Instructions</value>
+    <value>Instructies</value>
   </data>
   <data name="PublicRegistration.IntegrationCode" xml:space="preserve">
-    <value>[NL] Code d'intégration</value>
+    <value>Integratiecode</value>
   </data>
   <data name="PublicRegistration.KeepNumber" xml:space="preserve">
-    <value>[NL] Conservez ce numéro pour toute correspondance</value>
+    <value>Bewaar dit nummer voor alle correspondentie</value>
   </data>
   <data name="PublicRegistration.MedicalSocialInfo" xml:space="preserve">
-    <value>[NL] Informations médicales et sociales</value>
+    <value>Medische en sociale gegevens</value>
   </data>
   <data name="PublicRegistration.MedicalSocialInfoHelp" xml:space="preserve">
-    <value>[NL] Ces informations nous permettent de mieux prendre en charge votre enfant.</value>
+    <value>Met deze gegevens kunnen wij uw kind beter opvangen.</value>
   </data>
   <data name="PublicRegistration.Mobile" xml:space="preserve">
-    <value>[NL] GSM:</value>
+    <value>GSM:</value>
   </data>
   <data name="PublicRegistration.Name" xml:space="preserve">
-    <value>[NL] Nom:</value>
+    <value>Naam:</value>
   </data>
   <data name="PublicRegistration.NextStep1" xml:space="preserve">
-    <value>[NL] Vous recevrez un email de confirmation à l'adresse</value>
+    <value>U ontvangt een bevestigingsmail op het adres</value>
   </data>
   <data name="PublicRegistration.NextStep2" xml:space="preserve">
-    <value>[NL] Notre équipe vérifiera votre inscription dans les prochains jours</value>
+    <value>Ons team controleert uw inschrijving in de komende dagen</value>
   </data>
   <data name="PublicRegistration.NextStep3" xml:space="preserve">
-    <value>[NL] Vous recevrez un email de confirmation finale une fois votre inscription validée</value>
+    <value>U ontvangt een definitieve bevestigingsmail zodra uw inschrijving is gevalideerd</value>
   </data>
   <data name="PublicRegistration.NextStep4" xml:space="preserve">
-    <value>[NL] N'oubliez pas de nous faire parvenir la fiche médicale de votre enfant</value>
+    <value>Vergeet niet om ons de medische fiche van uw kind te bezorgen</value>
   </data>
   <data name="PublicRegistration.NextSteps" xml:space="preserve">
-    <value>[NL] Prochaines étapes</value>
+    <value>Volgende stappen</value>
   </data>
   <data name="PublicRegistration.NoActivitiesAvailable" xml:space="preserve">
-    <value>[NL] Aucune activité disponible pour le moment.</value>
+    <value>Momenteel geen activiteit beschikbaar.</value>
   </data>
   <data name="PublicRegistration.NoQuestionsRequired" xml:space="preserve">
-    <value>[NL] Aucune question n'est requise pour cette activité.</value>
+    <value>Voor deze activiteit zijn geen vragen vereist.</value>
   </data>
   <data name="PublicRegistration.Parent" xml:space="preserve">
-    <value>[NL] Parent</value>
+    <value>Ouder</value>
   </data>
   <data name="PublicRegistration.ParentInformation" xml:space="preserve">
-    <value>[NL] Informations parent</value>
+    <value>Gegevens ouder</value>
   </data>
   <data name="PublicRegistration.ParentInformationLead" xml:space="preserve">
-    <value>[NL] Veuillez renseigner vos informations personnelles.</value>
+    <value>Vul uw persoonlijke gegevens in.</value>
   </data>
   <data name="PublicRegistration.Preview" xml:space="preserve">
-    <value>[NL] Aperçu</value>
+    <value>Voorbeeld</value>
   </data>
   <data name="PublicRegistration.PreviewFrame" xml:space="preserve">
-    <value>[NL] Aperçu du formulaire</value>
+    <value>Voorbeeld van het formulier</value>
   </data>
   <data name="PublicRegistration.PricePerDay" xml:space="preserve">
-    <value>[NL] Prix par jour:</value>
+    <value>Prijs per dag:</value>
   </data>
   <data name="PublicRegistration.QuestionRequired" xml:space="preserve">
-    <value>[NL] Cette question est obligatoire</value>
+    <value>Deze vraag is verplicht</value>
   </data>
   <data name="PublicRegistration.Questions" xml:space="preserve">
-    <value>[NL] Questions</value>
+    <value>Vragen</value>
   </data>
   <data name="PublicRegistration.QuestionsLead" xml:space="preserve">
-    <value>[NL] Veuillez répondre aux questions suivantes concernant l'activité.</value>
+    <value>Beantwoord de volgende vragen over de activiteit.</value>
   </data>
   <data name="PublicRegistration.Registration" xml:space="preserve">
-    <value>[NL] Inscription</value>
+    <value>Inschrijving</value>
   </data>
   <data name="PublicRegistration.SelectActivity" xml:space="preserve">
-    <value>[NL] Sélectionner une activité</value>
+    <value>Activiteit selecteren</value>
   </data>
   <data name="PublicRegistration.SelectActivityLead" xml:space="preserve">
-    <value>[NL] Veuillez sélectionner l'activité pour laquelle vous souhaitez inscrire votre enfant.</value>
+    <value>Selecteer de activiteit waarvoor u uw kind wilt inschrijven.</value>
   </data>
   <data name="PublicRegistration.SelectOption" xml:space="preserve">
-    <value>[NL] -- Sélectionnez --</value>
+    <value>-- Selecteer --</value>
   </data>
   <data name="PublicRegistration.ShareLinkText" xml:space="preserve">
-    <value>[NL] Vous pouvez également partager directement le lien suivant:</value>
+    <value>U kunt ook rechtstreeks de volgende link delen:</value>
   </data>
   <data name="PublicRegistration.Submit" xml:space="preserve">
-    <value>[NL] Envoyer l'inscription</value>
+    <value>Inschrijving verzenden</value>
   </data>
   <data name="PublicRegistration.Tip" xml:space="preserve">
-    <value>[NL] Astuce:</value>
+    <value>Tip:</value>
   </data>
   <data name="PublicRegistration.To" xml:space="preserve">
-    <value>[NL] Au:</value>
+    <value>Tot:</value>
   </data>
   <data name="PublicRegistration.UpdateCode" xml:space="preserve">
-    <value>[NL] Actualiser le code</value>
+    <value>Code vernieuwen</value>
   </data>
   <data name="PublicRegistration.Years" xml:space="preserve">
-    <value>[NL] ans</value>
+    <value>jaar</value>
   </data>
   <data name="QuestionAnswers" xml:space="preserve">
-    <value>[NL] Réponses aux questions</value>
+    <value>Antwoorden op de vragen</value>
   </data>
   <data name="QuickActions" xml:space="preserve">
-    <value>[NL] Actions rapides</value>
+    <value>Snelle acties</value>
   </data>
   <data name="Received" xml:space="preserve">
     <value>Ontvangen</value>
@@ -3050,7 +3050,7 @@
     <value>Registreren</value>
   </data>
   <data name="RelatedItems" xml:space="preserve">
-    <value>[NL] Éléments associés</value>
+    <value>Gerelateerde items</value>
   </data>
   <data name="RememberMe" xml:space="preserve">
     <value>Onthoud mij</value>
@@ -3080,34 +3080,34 @@
     <value>Zoeken</value>
   </data>
   <data name="SelectActivity" xml:space="preserve">
-    <value>[NL] -- Sélectionnez une activité --</value>
+    <value>-- Selecteer een activiteit --</value>
   </data>
   <data name="SelectChild" xml:space="preserve">
-    <value>[NL] -- Sélectionnez un enfant --</value>
+    <value>-- Selecteer een kind --</value>
   </data>
   <data name="SelectOption" xml:space="preserve">
-    <value>[NL] Sélectionnez une option</value>
+    <value>Selecteer een optie</value>
   </data>
   <data name="SelectOrganisation" xml:space="preserve">
-    <value>[NL] Sélectionnez une organisation</value>
+    <value>-- Selecteer een organisatie --</value>
   </data>
   <data name="SelectOrganisationOptional" xml:space="preserve">
-    <value>[NL] -- Sélectionnez une organisation (optionnel) --</value>
+    <value>-- Selecteer een organisatie (optioneel) --</value>
   </data>
   <data name="SelectType" xml:space="preserve">
-    <value>[NL] Sélectionnez un type</value>
+    <value>Selecteer een type</value>
   </data>
   <data name="Send" xml:space="preserve">
     <value>Verzenden</value>
   </data>
   <data name="Showing" xml:space="preserve">
-    <value>[NL] Affichage de</value>
+    <value>Weergave van</value>
   </data>
   <data name="StartDate" xml:space="preserve">
     <value>Startdatum</value>
   </data>
   <data name="Statistics" xml:space="preserve">
-    <value>[NL] Statistiques</value>
+    <value>Statistieken</value>
   </data>
   <data name="Status" xml:space="preserve">
     <value>Status</value>
@@ -3119,160 +3119,160 @@
     <value>Succes</value>
   </data>
   <data name="Team" xml:space="preserve">
-    <value>[NL] Équipe</value>
+    <value>Team</value>
   </data>
   <data name="TeamMembers" xml:space="preserve">
     <value>Team</value>
   </data>
   <data name="TeamMembers.AddMember" xml:space="preserve">
-    <value>[NL] Ajouter un membre</value>
+    <value>Lid toevoegen</value>
   </data>
   <data name="TeamMembers.ConfirmDeletion" xml:space="preserve">
-    <value>[NL] Confirmer la suppression</value>
+    <value>Verwijdering bevestigen</value>
   </data>
   <data name="TeamMembers.DailyCompensation" xml:space="preserve">
-    <value>[NL] Indemnité/jour</value>
+    <value>Vergoeding/dag</value>
   </data>
   <data name="TeamMembers.DailyCompensationHelp" xml:space="preserve">
-    <value>[NL] Indemnité journalière (optionnel)</value>
+    <value>Dagvergoeding (optioneel)</value>
   </data>
   <data name="TeamMembers.DeleteConfirmation" xml:space="preserve">
-    <value>[NL] Êtes-vous sûr de vouloir supprimer ce membre d'équipe ?</value>
+    <value>Weet u zeker dat u dit teamlid wilt verwijderen?</value>
   </data>
   <data name="TeamMembers.DeleteMember" xml:space="preserve">
-    <value>[NL] Supprimer le membre</value>
+    <value>Lid verwijderen</value>
   </data>
   <data name="TeamMembers.DeleteWarning" xml:space="preserve">
-    <value>[NL] Attention !</value>
+    <value>Let op!</value>
   </data>
   <data name="TeamMembers.EditMember" xml:space="preserve">
-    <value>[NL] Modifier le membre</value>
+    <value>Lid bewerken</value>
   </data>
   <data name="TeamMembers.HasRelatedItems" xml:space="preserve">
-    <value>[NL] Ce membre a {0} élément(s) associé(s).</value>
+    <value>Dit lid heeft {0} gerelateerd(e) item(s).</value>
   </data>
   <data name="TeamMembers.LicenseUrlHelp" xml:space="preserve">
-    <value>[NL] URL du document de brevet scanné</value>
+    <value>URL van het gescande brevetdocument</value>
   </data>
   <data name="TeamMembers.MemberDetails" xml:space="preserve">
-    <value>[NL] Détails du membre</value>
+    <value>Details van het lid</value>
   </data>
   <data name="TeamMembers.MemberInformation" xml:space="preserve">
-    <value>[NL] Informations du membre</value>
+    <value>Informatie over het lid</value>
   </data>
   <data name="TeamMembers.MembersCount" xml:space="preserve">
-    <value>[NL] membres</value>
+    <value>leden</value>
   </data>
   <data name="TeamMembers.NewMember" xml:space="preserve">
-    <value>[NL] Nouveau membre</value>
+    <value>Nieuw lid</value>
   </data>
   <data name="TeamMembers.NoMembersFound" xml:space="preserve">
-    <value>[NL] Aucun membre trouvé pour votre recherche.</value>
+    <value>Geen leden gevonden voor uw zoekopdracht.</value>
   </data>
   <data name="TeamMembers.NoMembersYet" xml:space="preserve">
-    <value>[NL] Aucun membre enregistré. Cliquez sur "Ajouter un membre" pour commencer.</value>
+    <value>Nog geen leden geregistreerd. Klik op "Lid toevoegen" om te beginnen.</value>
   </data>
   <data name="TeamMembers.ProfessionalInformation" xml:space="preserve">
-    <value>[NL] Informations professionnelles</value>
+    <value>Professionele informatie</value>
   </data>
   <data name="TeamMembers.RelatedItems" xml:space="preserve">
-    <value>[NL] Éléments associés</value>
+    <value>Gerelateerde items</value>
   </data>
   <data name="TeamMembers.SearchPlaceholder" xml:space="preserve">
-    <value>[NL] Rechercher par nom, prénom ou email...</value>
+    <value>Zoeken op naam, voornaam of e-mail...</value>
   </data>
   <data name="TeamMembers.SelectLicense" xml:space="preserve">
-    <value>[NL] -- Sélectionnez un brevet --</value>
+    <value>-- Selecteer een brevet --</value>
   </data>
   <data name="TeamMembers.SelectRole" xml:space="preserve">
-    <value>[NL] -- Sélectionnez un rôle --</value>
+    <value>-- Selecteer een rol --</value>
   </data>
   <data name="TeamMembers.SelectStatus" xml:space="preserve">
-    <value>[NL] -- Sélectionnez un statut --</value>
+    <value>-- Selecteer een status --</value>
   </data>
   <data name="To" xml:space="preserve">
-    <value>[NL] à</value>
+    <value>tot</value>
   </data>
   <data name="Today" xml:space="preserve">
-    <value>[NL] Aujourd'hui</value>
+    <value>Vandaag</value>
   </data>
   <data name="Users" xml:space="preserve">
     <value>Gebruikers</value>
   </data>
   <data name="Users.AddUser" xml:space="preserve">
-    <value>[NL] Ajouter un utilisateur</value>
+    <value>Gebruiker toevoegen</value>
   </data>
   <data name="Users.ConfirmDeletion" xml:space="preserve">
-    <value>[NL] Confirmer la suppression</value>
+    <value>Verwijdering bevestigen</value>
   </data>
   <data name="Users.CreateUser" xml:space="preserve">
-    <value>[NL] Créer l'utilisateur</value>
+    <value>Gebruiker aanmaken</value>
   </data>
   <data name="Users.DeleteConfirmation" xml:space="preserve">
-    <value>[NL] Êtes-vous sûr de vouloir supprimer cet utilisateur ?</value>
+    <value>Weet u zeker dat u deze gebruiker wilt verwijderen?</value>
   </data>
   <data name="Users.DeleteUser" xml:space="preserve">
-    <value>[NL] Supprimer l'utilisateur</value>
+    <value>Gebruiker verwijderen</value>
   </data>
   <data name="Users.DeleteWarning" xml:space="preserve">
-    <value>[NL] Attention !</value>
+    <value>Let op!</value>
   </data>
   <data name="Users.EditUser" xml:space="preserve">
-    <value>[NL] Modifier l'utilisateur</value>
+    <value>Gebruiker bewerken</value>
   </data>
   <data name="Users.EmailConfirmedHelpText" xml:space="preserve">
-    <value>[NL] L'utilisateur a confirmé son adresse e-mail</value>
+    <value>De gebruiker heeft zijn e-mailadres bevestigd</value>
   </data>
   <data name="Users.LeavePasswordFieldsEmptyToKeep" xml:space="preserve">
-    <value>[NL] Laissez les champs de mot de passe vides pour conserver l'actuel</value>
+    <value>Laat de wachtwoordvelden leeg om het huidige te behouden</value>
   </data>
   <data name="Users.MinimumCharacters" xml:space="preserve">
-    <value>[NL] Minimum {0} caractères</value>
+    <value>Minimum {0} tekens</value>
   </data>
   <data name="Users.NewPasswordOptional" xml:space="preserve">
-    <value>[NL] Nouveau mot de passe (optionnel)</value>
+    <value>Nieuw wachtwoord (optioneel)</value>
   </data>
   <data name="Users.NewUser" xml:space="preserve">
-    <value>[NL] Nouvel utilisateur</value>
+    <value>Nieuwe gebruiker</value>
   </data>
   <data name="Users.NoUsersFound" xml:space="preserve">
-    <value>[NL] Aucun utilisateur trouvé pour votre recherche.</value>
+    <value>Geen gebruikers gevonden voor uw zoekopdracht.</value>
   </data>
   <data name="Users.NoUsersYet" xml:space="preserve">
-    <value>[NL] Aucun utilisateur enregistré. Cliquez sur "Ajouter un utilisateur" pour commencer.</value>
+    <value>Nog geen gebruikers geregistreerd. Klik op "Gebruiker toevoegen" om te beginnen.</value>
   </data>
   <data name="Users.SaveChanges" xml:space="preserve">
-    <value>[NL] Enregistrer les modifications</value>
+    <value>Wijzigingen opslaan</value>
   </data>
   <data name="Users.SearchPlaceholder" xml:space="preserve">
-    <value>[NL] Rechercher par nom ou email...</value>
+    <value>Zoeken op naam of e-mail...</value>
   </data>
   <data name="Users.SelectOrganisation" xml:space="preserve">
-    <value>[NL] -- Sélectionnez une organisation --</value>
+    <value>-- Selecteer een organisatie --</value>
   </data>
   <data name="Users.SelectRole" xml:space="preserve">
-    <value>[NL] -- Sélectionnez un rôle --</value>
+    <value>-- Selecteer een rol --</value>
   </data>
   <data name="Users.UserDetails" xml:space="preserve">
-    <value>[NL] Détails de l'utilisateur</value>
+    <value>Gebruikersdetails</value>
   </data>
   <data name="Users.UserInformation" xml:space="preserve">
-    <value>[NL] Informations de l'utilisateur</value>
+    <value>Gebruikersinformatie</value>
   </data>
   <data name="Users.UsersCount" xml:space="preserve">
-    <value>[NL] utilisateurs</value>
+    <value>gebruikers</value>
   </data>
   <data name="Validation.AmountRange" xml:space="preserve">
-    <value>[NL] Le montant doit être supérieur à 0</value>
+    <value>Het bedrag moet groter zijn dan 0</value>
   </data>
   <data name="Validation.EmailFormat" xml:space="preserve">
-    <value>[NL] Format d'email invalide</value>
+    <value>Ongeldig e-mailformaat</value>
   </data>
   <data name="Validation.EndDateAfterStartDate" xml:space="preserve">
-    <value>[NL] La date de fin doit être après la date de début</value>
+    <value>De einddatum moet na de begindatum liggen</value>
   </data>
   <data name="Validation.FileRequired" xml:space="preserve">
-    <value>[NL] Le fichier est requis</value>
+    <value>Het bestand is vereist</value>
   </data>
   <data name="Validation.FileExtensionNotAllowed" xml:space="preserve">
     <value>Bestandsextensie niet toegestaan. Toegestane extensies: {0}</value>
@@ -3290,43 +3290,43 @@
     <value>Ongeldig telefoonnummer. Vb: 02/123.45.67 of 0478/12.34.56</value>
   </data>
   <data name="Validation.NRNFormat" xml:space="preserve">
-    <value>[NL] Format du numéro de registre national invalide</value>
+    <value>Ongeldig formaat van rijksregisternummer</value>
   </data>
   <data name="Validation.NRNInvalid" xml:space="preserve">
     <value>Ongeldig rijksregisternummer</value>
   </data>
   <data name="Validation.TimeFormat" xml:space="preserve">
-    <value>[NL] Format invalide (HH:mm)</value>
+    <value>Ongeldig formaat (HH:mm)</value>
   </data>
   <data name="Validation.OrganisationRequired" xml:space="preserve">
-    <value>[NL] L'organisation est requise</value>
+    <value>De organisatie is vereist</value>
   </data>
   <data name="Validation.PasswordLength" xml:space="preserve">
-    <value>[NL] Le mot de passe doit contenir au moins {1} caractères</value>
+    <value>Het wachtwoord moet minstens {1} tekens bevatten</value>
   </data>
   <data name="Validation.PasswordsMatch" xml:space="preserve">
-    <value>[NL] Les mots de passe ne correspondent pas</value>
+    <value>De wachtwoorden komen niet overeen</value>
   </data>
   <data name="Validation.PhoneFormat" xml:space="preserve">
-    <value>[NL] Format de téléphone invalide</value>
+    <value>Ongeldig telefoonformaat</value>
   </data>
   <data name="Validation.Number" xml:space="preserve">
-    <value>[NL] Veuillez entrer un nombre valide</value>
+    <value>Voer een geldig getal in</value>
   </data>
   <data name="Validation.Range" xml:space="preserve">
-    <value>[NL] La valeur doit être comprise entre {1} et {2}</value>
+    <value>De waarde moet tussen {1} en {2} liggen</value>
   </data>
   <data name="Validation.Required" xml:space="preserve">
-    <value>[NL] Le champ {0} est obligatoire</value>
+    <value>Het veld {0} is verplicht</value>
   </data>
   <data name="Validation.StringLength" xml:space="preserve">
-    <value>[NL] Le champ {0} doit contenir entre {2} et {1} caractères</value>
+    <value>Het veld {0} moet tussen {2} en {1} tekens bevatten</value>
   </data>
   <data name="ViewDocument" xml:space="preserve">
-    <value>[NL] Voir le document</value>
+    <value>Document bekijken</value>
   </data>
   <data name="Volunteer" xml:space="preserve">
-    <value>[NL] Bénévole</value>
+    <value>Vrijwilliger</value>
   </data>
   <data name="Warning" xml:space="preserve">
     <value>Waarschuwing</value>
@@ -3342,267 +3342,267 @@
   </data>
   <!-- Excursions (Phase 7-12) -->
   <data name="Enum.ExcursionType.Pool" xml:space="preserve">
-    <value>[NL] Piscine</value>
+    <value>Zwembad</value>
   </data>
   <data name="Enum.ExcursionType.AmusementPark" xml:space="preserve">
-    <value>[NL] Parc d'attractions</value>
+    <value>Pretpark</value>
   </data>
   <data name="Enum.ExcursionType.CulturalVisit" xml:space="preserve">
-    <value>[NL] Visite culturelle</value>
+    <value>Cultureel bezoek</value>
   </data>
   <data name="Enum.ExcursionType.Nature" xml:space="preserve">
-    <value>[NL] Nature</value>
+    <value>Natuur</value>
   </data>
   <data name="Enum.ExcursionType.Sports" xml:space="preserve">
-    <value>[NL] Sports</value>
+    <value>Sport</value>
   </data>
   <data name="Enum.ExcursionType.Other" xml:space="preserve">
-    <value>[NL] Autre</value>
+    <value>Andere</value>
   </data>
   <data name="Field.ExcursionName" xml:space="preserve">
-    <value>[NL] Nom de l'excursion</value>
+    <value>Naam van de uitstap</value>
   </data>
   <data name="Field.ExcursionDate" xml:space="preserve">
-    <value>[NL] Date de l'excursion</value>
+    <value>Datum van de uitstap</value>
   </data>
   <data name="Field.ExcursionCost" xml:space="preserve">
-    <value>[NL] Coût par enfant</value>
+    <value>Kost per kind</value>
   </data>
   <data name="Field.ExcursionType" xml:space="preserve">
-    <value>[NL] Type d'excursion</value>
+    <value>Type uitstap</value>
   </data>
   <data name="Field.TargetGroups" xml:space="preserve">
-    <value>[NL] Groupes ciblés</value>
+    <value>Doelgroepen</value>
   </data>
   <data name="Field.RegistrationCount" xml:space="preserve">
-    <value>[NL] Nombre d'inscriptions</value>
+    <value>Aantal inschrijvingen</value>
   </data>
   <data name="Field.StartTime" xml:space="preserve">
-    <value>[NL] Heure de début</value>
+    <value>Starttijd</value>
   </data>
   <data name="Field.EndTime" xml:space="preserve">
-    <value>[NL] Heure de fin</value>
+    <value>Eindtijd</value>
   </data>
   <data name="Field.PaymentSource" xml:space="preserve">
-    <value>[NL] Source de paiement</value>
+    <value>Betaalbron</value>
   </data>
   <data name="Message.ExcursionCreated" xml:space="preserve">
-    <value>[NL] Excursion créée avec succès</value>
+    <value>Uitstap met succes aangemaakt</value>
   </data>
   <data name="Message.ExcursionUpdated" xml:space="preserve">
-    <value>[NL] Excursion modifiée avec succès</value>
+    <value>Uitstap met succes gewijzigd</value>
   </data>
   <data name="Message.ExcursionDeleted" xml:space="preserve">
-    <value>[NL] Excursion supprimée avec succès</value>
+    <value>Uitstap met succes verwijderd</value>
   </data>
   <data name="Message.ChildRegistered" xml:space="preserve">
-    <value>[NL] Enfant inscrit à l'excursion</value>
+    <value>Kind ingeschreven voor de uitstap</value>
   </data>
   <data name="Message.ChildUnregistered" xml:space="preserve">
-    <value>[NL] Enfant désinscrit de l'excursion</value>
+    <value>Kind uitgeschreven van de uitstap</value>
   </data>
   <data name="Message.AttendanceUpdated" xml:space="preserve">
-    <value>[NL] Présence mise à jour</value>
+    <value>Aanwezigheid bijgewerkt</value>
   </data>
   <data name="Message.ExcursionDateInvalid" xml:space="preserve">
-    <value>[NL] La date doit être dans la période de l'activité</value>
+    <value>De datum moet binnen de periode van de activiteit vallen</value>
   </data>
   <data name="Message.CannotDeleteExcursionWithRegistrations" xml:space="preserve">
-    <value>[NL] Impossible de supprimer une excursion avec des inscriptions</value>
+    <value>Een uitstap met inschrijvingen kan niet worden verwijderd</value>
   </data>
   <data name="Message.ChildNotEligible" xml:space="preserve">
-    <value>[NL] L'enfant n'est pas dans un groupe ciblé</value>
+    <value>Het kind zit niet in een doelgroep</value>
   </data>
   <data name="Message.AlreadyRegistered" xml:space="preserve">
-    <value>[NL] L'enfant est déjà inscrit</value>
+    <value>Het kind is al ingeschreven</value>
   </data>
   <data name="Message.ExpenseAdded" xml:space="preserve">
-    <value>[NL] Dépense ajoutée avec succès</value>
+    <value>Uitgave met succes toegevoegd</value>
   </data>
   <data name="Excursion.ManageExcursions" xml:space="preserve">
-    <value>[NL] Gérer les excursions</value>
+    <value>Uitstappen beheren</value>
   </data>
   <data name="Excursion.CreateNew" xml:space="preserve">
-    <value>[NL] Créer une excursion</value>
+    <value>Uitstap aanmaken</value>
   </data>
   <data name="Excursion.Edit" xml:space="preserve">
-    <value>[NL] Modifier l'excursion</value>
+    <value>Uitstap bewerken</value>
   </data>
   <data name="Excursion.Delete" xml:space="preserve">
-    <value>[NL] Supprimer l'excursion</value>
+    <value>Uitstap verwijderen</value>
   </data>
   <data name="Excursion.Details" xml:space="preserve">
-    <value>[NL] Détails de l'excursion</value>
+    <value>Details van de uitstap</value>
   </data>
   <data name="Excursion.NoExcursions" xml:space="preserve">
-    <value>[NL] Aucune excursion créée pour cette activité</value>
+    <value>Geen uitstap aangemaakt voor deze activiteit</value>
   </data>
   <data name="Excursion.Registrations" xml:space="preserve">
-    <value>[NL] Inscriptions</value>
+    <value>Inschrijvingen</value>
   </data>
   <data name="Excursion.ManageRegistrations" xml:space="preserve">
-    <value>[NL] Gérer les inscriptions</value>
+    <value>Inschrijvingen beheren</value>
   </data>
   <data name="Excursion.Expenses" xml:space="preserve">
-    <value>[NL] Dépenses</value>
+    <value>Uitgaven</value>
   </data>
   <data name="Excursion.Attendance" xml:space="preserve">
-    <value>[NL] Présences excursion</value>
+    <value>Aanwezigheden uitstap</value>
   </data>
   <data name="Excursion.SelectTargetGroupsHelp" xml:space="preserve">
-    <value>[NL] Sélectionnez les groupes d'enfants pouvant s'inscrire à cette excursion</value>
+    <value>Selecteer de groepen kinderen die zich voor deze uitstap mogen inschrijven</value>
   </data>
   <data name="Excursion.NoActiveGroups" xml:space="preserve">
-    <value>[NL] Aucun groupe actif disponible pour cette activité</value>
+    <value>Geen actieve groep beschikbaar voor deze activiteit</value>
   </data>
   <data name="Excursion.NoEligibleChildren" xml:space="preserve">
-    <value>[NL] Aucun enfant éligible pour cette excursion</value>
+    <value>Geen kind komt in aanmerking voor deze uitstap</value>
   </data>
   <data name="Excursion.RegistrationsHelp" xml:space="preserve">
-    <value>[NL] Cochez les cases pour inscrire les enfants à l'excursion. Le coût sera ajouté au total de la réservation.</value>
+    <value>Vink de vakjes aan om kinderen voor de uitstap in te schrijven. De kost wordt toegevoegd aan het boekingstotaal.</value>
   </data>
   <data name="Excursion.Registered" xml:space="preserve">
-    <value>[NL] inscrits</value>
+    <value>ingeschreven</value>
   </data>
   <data name="Excursion.TotalRegistrations" xml:space="preserve">
-    <value>[NL] Total inscriptions</value>
+    <value>Totaal inschrijvingen</value>
   </data>
   <data name="Excursion.ExpectedRevenue" xml:space="preserve">
-    <value>[NL] Revenus prévus</value>
+    <value>Verwachte inkomsten</value>
   </data>
   <data name="Excursion.PresentCount" xml:space="preserve">
-    <value>[NL] Présents</value>
+    <value>Aanwezig</value>
   </data>
   <data name="Excursion.AbsentCount" xml:space="preserve">
-    <value>[NL] Absents</value>
+    <value>Afwezig</value>
   </data>
   <data name="Excursion.NoRegistrations" xml:space="preserve">
-    <value>[NL] Aucune inscription pour cette excursion</value>
+    <value>Geen inschrijving voor deze uitstap</value>
   </data>
   <data name="Excursion.AttendanceHelp" xml:space="preserve">
-    <value>[NL] Cochez les cases pour marquer les enfants présents à l'excursion</value>
+    <value>Vink de vakjes aan om kinderen als aanwezig op de uitstap te markeren</value>
   </data>
   <data name="Excursion.StartTimeHelp" xml:space="preserve">
-    <value>[NL] Optionnel (ex: 09:00)</value>
+    <value>Optioneel (bv. 09:00)</value>
   </data>
   <data name="Excursion.EndTimeHelp" xml:space="preserve">
-    <value>[NL] Optionnel (ex: 12:00)</value>
+    <value>Optioneel (bv. 12:00)</value>
   </data>
   <data name="Excursion.TimeSlot" xml:space="preserve">
-    <value>[NL] Horaire</value>
+    <value>Tijdstip</value>
   </data>
   <data name="Excursion.AllRegistered" xml:space="preserve">
-    <value>[NL] Tous les inscrits</value>
+    <value>Alle ingeschrevenen</value>
   </data>
   <data name="Excursion.RegisteredOnly" xml:space="preserve">
-    <value>[NL] Inscrits uniquement</value>
+    <value>Enkel ingeschrevenen</value>
   </data>
   <data name="Excursion.SendEmailToParents" xml:space="preserve">
-    <value>[NL] Envoyer un email aux parents</value>
+    <value>E-mail naar ouders sturen</value>
   </data>
   <data name="Excursion.RecipientHelp" xml:space="preserve">
-    <value>[NL] Choisissez qui recevra l'email (tous les inscrits ou un groupe spécifique)</value>
+    <value>Kies wie de e-mail ontvangt (alle ingeschrevenen of een specifieke groep)</value>
   </data>
   <data name="Excursion.MergeVariablesHelp" xml:space="preserve">
-    <value>[NL] Variables disponibles pour personnaliser le message:</value>
+    <value>Beschikbare variabelen om het bericht te personaliseren:</value>
   </data>
   <data name="Excursion.TotalRevenue" xml:space="preserve">
-    <value>[NL] Revenus totaux</value>
+    <value>Totale inkomsten</value>
   </data>
   <data name="Excursion.TotalExpenses" xml:space="preserve">
-    <value>[NL] Dépenses totales</value>
+    <value>Totale uitgaven</value>
   </data>
   <data name="Excursion.NetBalance" xml:space="preserve">
-    <value>[NL] Solde net</value>
+    <value>Nettosaldo</value>
   </data>
   <data name="Excursion.AddExpense" xml:space="preserve">
-    <value>[NL] Ajouter une dépense</value>
+    <value>Uitgave toevoegen</value>
   </data>
   <data name="Excursion.FinancialSummary" xml:space="preserve">
-    <value>[NL] Résumé financier</value>
+    <value>Financieel overzicht</value>
   </data>
   <data name="Excursion.ExpenseItems" xml:space="preserve">
-    <value>[NL] dépenses</value>
+    <value>uitgaven</value>
   </data>
   <data name="Excursion.ExpensesList" xml:space="preserve">
-    <value>[NL] Liste des dépenses</value>
+    <value>Lijst van uitgaven</value>
   </data>
   <data name="Excursion.NoExpensesYet" xml:space="preserve">
-    <value>[NL] Aucune dépense enregistrée pour cette excursion</value>
+    <value>Geen uitgave geregistreerd voor deze uitstap</value>
   </data>
   <data name="Excursion.GeneralInfo" xml:space="preserve">
-    <value>[NL] Informations générales</value>
+    <value>Algemene informatie</value>
   </data>
   <data name="Excursion.Statistics" xml:space="preserve">
-    <value>[NL] Statistiques</value>
+    <value>Statistieken</value>
   </data>
   <data name="Excursion.Presence" xml:space="preserve">
-    <value>[NL] Présence</value>
+    <value>Aanwezigheid</value>
   </data>
   <data name="Excursion.TeamMembers" xml:space="preserve">
-    <value>[NL] Membres de l'équipe</value>
+    <value>Teamleden</value>
   </data>
   <data name="Excursion.ConfirmDelete" xml:space="preserve">
-    <value>[NL] Confirmer la suppression</value>
+    <value>Verwijdering bevestigen</value>
   </data>
   <data name="Excursion.DeleteWarning" xml:space="preserve">
-    <value>[NL] Cette action est irréversible. L'excursion sera désactivée.</value>
+    <value>Deze actie is onomkeerbaar. De uitstap wordt gedeactiveerd.</value>
   </data>
   <data name="Excursion.CannotDeleteRegistrations" xml:space="preserve">
-    <value>[NL] Impossible de supprimer cette excursion : des enfants sont inscrits</value>
+    <value>Deze uitstap kan niet worden verwijderd: er zijn kinderen ingeschreven</value>
   </data>
   <data name="Excursion.DeleteConfirm" xml:space="preserve">
-    <value>[NL] Supprimer définitivement</value>
+    <value>Definitief verwijderen</value>
   </data>
   <data name="Excursion.ExpenseCategory.Transport" xml:space="preserve">
-    <value>[NL] Transport</value>
+    <value>Vervoer</value>
   </data>
   <data name="Excursion.ExpenseCategory.Tickets" xml:space="preserve">
-    <value>[NL] Billets d'entrée</value>
+    <value>Toegangstickets</value>
   </data>
   <data name="Excursion.ExpenseCategory.Food" xml:space="preserve">
-    <value>[NL] Nourriture</value>
+    <value>Voeding</value>
   </data>
   <data name="Excursion.ExpenseCategory.Materials" xml:space="preserve">
-    <value>[NL] Matériel</value>
+    <value>Materiaal</value>
   </data>
   <data name="Expense.Category.Transport" xml:space="preserve">
-    <value>[NL] Transport</value>
+    <value>Vervoer</value>
   </data>
   <data name="Expense.Category.Tickets" xml:space="preserve">
-    <value>[NL] Billets</value>
+    <value>Tickets</value>
   </data>
   <data name="Expense.Category.Meals" xml:space="preserve">
-    <value>[NL] Repas</value>
+    <value>Maaltijden</value>
   </data>
   <data name="Expense.Category.Equipment" xml:space="preserve">
-    <value>[NL] Matériel</value>
+    <value>Materiaal</value>
   </data>
   <data name="Expense.Category.Other" xml:space="preserve">
-    <value>[NL] Autre</value>
+    <value>Andere</value>
   </data>
   <data name="Expense.LabelPlaceholder" xml:space="preserve">
-    <value>[NL] Ex: Location bus, Billets Walibi, Sandwiches...</value>
+    <value>Bv. Busverhuur, Tickets Walibi, Sandwiches...</value>
   </data>
   <data name="Expense.DescriptionPlaceholder" xml:space="preserve">
-    <value>[NL] Détails supplémentaires (optionnel)</value>
+    <value>Bijkomende details (optioneel)</value>
   </data>
   <data name="Payment.OrganizationCard" xml:space="preserve">
-    <value>[NL] Carte organisation</value>
+    <value>Organisatiekaart</value>
   </data>
   <data name="Payment.OrganizationCash" xml:space="preserve">
-    <value>[NL] Caisse organisation</value>
+    <value>Organisatiekas</value>
   </data>
   <data name="Validation.AtLeastOneGroupRequired" xml:space="preserve">
-    <value>[NL] Veuillez sélectionner au moins un groupe</value>
+    <value>Selecteer ten minste één groep</value>
   </data>
   <data name="Validation.ExcursionDateMustBeActiveDay" xml:space="preserve">
-    <value>[NL] La date de l'excursion doit correspondre à un jour actif de l'activité</value>
+    <value>De datum van de uitstap moet overeenkomen met een actieve dag van de activiteit</value>
   </data>
   <data name="Error.RegistrationNotFound" xml:space="preserve">
-    <value>[NL] Inscription introuvable</value>
+    <value>Inschrijving niet gevonden</value>
   </data>
-<data name="Excursion.TeamManagementHelp" xml:space="preserve">    <value>[NL] Cochez les cases pour assigner des membres à cette excursion</value>  </data>  <data name="Excursion.NoTeamMembers" xml:space="preserve">    <value>[NL] Aucun membre assigné à cette activité</value>  </data>  <data name="Excursion.Assigned" xml:space="preserve">    <value>[NL] assignés</value>  </data>  <data name="Message.TeamMemberAssigned" xml:space="preserve">    <value>[NL] Membre assigné à l'excursion</value>  </data>  <data name="Message.TeamMemberUnassigned" xml:space="preserve">    <value>[NL] Membre retiré de l'excursion</value>  </data>
+<data name="Excursion.TeamManagementHelp" xml:space="preserve">    <value>Vink de vakjes aan om teamleden aan deze uitstap toe te wijzen</value>  </data>  <data name="Excursion.NoTeamMembers" xml:space="preserve">    <value>Geen teamleden toegewezen aan deze activiteit</value>  </data>  <data name="Excursion.Assigned" xml:space="preserve">    <value>toegewezen</value>  </data>  <data name="Message.TeamMemberAssigned" xml:space="preserve">    <value>Teamlid toegewezen aan de uitstap</value>  </data>  <data name="Message.TeamMemberUnassigned" xml:space="preserve">    <value>Teamlid verwijderd van de uitstap</value>  </data>
 
   <!-- DataAnnotations validation message templates -->
   <data name="The {0} field is required." xml:space="preserve">
@@ -3643,61 +3643,61 @@
     <value>Een waarde voor de eigenschap '{0}' is verplicht.</value>
   </data>
   <data name="EmailTemplate.HtmlHelp" xml:space="preserve">
-    <value>[NL] Vous pouvez utiliser du HTML et cliquer sur les variables à droite pour les insérer.</value>
+    <value>U kunt HTML gebruiken en op de variabelen rechts klikken om ze in te voegen.</value>
   </data>
   <data name="Activities.PostalCodeRestrictions" xml:space="preserve">
-    <value>[NL] Restrictions géographiques (codes postaux)</value>
+    <value>Geografische beperkingen (postcodes)</value>
   </data>
   <data name="Activities.IncludedPostalCodes" xml:space="preserve">
-    <value>[NL] Codes postaux autorisés</value>
+    <value>Toegestane postcodes</value>
   </data>
   <data name="Activities.IncludedPostalCodesHelp" xml:space="preserve">
-    <value>[NL] Liste des codes postaux autorisés (séparés par des virgules). Si vide, tous les codes sont autorisés sauf les exclus.</value>
+    <value>Lijst van toegestane postcodes (gescheiden door komma's). Indien leeg zijn alle codes toegestaan, behalve de uitgesloten codes.</value>
   </data>
   <data name="Activities.ExcludedPostalCodes" xml:space="preserve">
-    <value>[NL] Codes postaux exclus</value>
+    <value>Uitgesloten postcodes</value>
   </data>
   <data name="Activities.ExcludedPostalCodesHelp" xml:space="preserve">
-    <value>[NL] Liste des codes postaux interdits (séparés par des virgules).</value>
+    <value>Lijst van verboden postcodes (gescheiden door komma's).</value>
   </data>
   <data name="Registration.PostalCodeNotAllowed" xml:space="preserve">
-    <value>[NL] Désolé, les inscriptions pour cette activité ne sont pas ouvertes aux habitants de votre code postal.</value>
+    <value>Sorry, inschrijvingen voor deze activiteit staan niet open voor inwoners van uw postcode.</value>
   </data>
   <data name="Registration.PostalCodeExcluded" xml:space="preserve">
-    <value>[NL] Désolé, votre code postal n'est pas autorisé pour cette activité.</value>
+    <value>Sorry, uw postcode is niet toegestaan voor deze activiteit.</value>
   </data>
   <data name="Field.Logo" xml:space="preserve">
-    <value>[NL] Logo</value>
+    <value>Logo</value>
   </data>
   <data name="Field.LicenseFile" xml:space="preserve">
-    <value>[NL] Brevet/Certificat</value>
+    <value>Brevet/Certificaat</value>
   </data>
   <data name="Validation.LogoFileHelp" xml:space="preserve">
-    <value>[NL] Formats acceptés : JPG, PNG, GIF, SVG. Taille max : 5 MB.</value>
+    <value>Toegestane formaten: JPG, PNG, GIF, SVG. Max. grootte: 5 MB.</value>
   </data>
   <data name="Validation.LicenseFileHelp" xml:space="preserve">
-    <value>[NL] Formats acceptés : JPG, PNG, GIF, PDF. Taille max : 10 MB.</value>
+    <value>Toegestane formaten: JPG, PNG, GIF, PDF. Max. grootte: 10 MB.</value>
   </data>
   <data name="TeamMembers.ViewLicense" xml:space="preserve">
-    <value>[NL] Voir le brevet</value>
+    <value>Brevet bekijken</value>
   </data>
   <data name="TeamMembers.NoLicense" xml:space="preserve">
-    <value>[NL] Aucun brevet téléversé</value>
+    <value>Geen brevet geüpload</value>
   </data>
   <data name="TeamMembers.ConfirmDeleteLicense" xml:space="preserve">
-    <value>[NL] Êtes-vous sûr de vouloir supprimer ce brevet ?</value>
+    <value>Weet u zeker dat u dit brevet wilt verwijderen?</value>
   </data>
   <data name="TeamMembers.LicenseDeletedSuccess" xml:space="preserve">
-    <value>[NL] Brevet supprimé avec succès.</value>
+    <value>Brevet succesvol verwijderd.</value>
   </data>
   <data name="TeamMembers.LicenseDeletedError" xml:space="preserve">
-    <value>[NL] Erreur lors de la suppression du brevet.</value>
+    <value>Fout bij het verwijderen van het brevet.</value>
   </data>
   <data name="Field.RemoveLogo" xml:space="preserve">
-    <value>[NL] Supprimer le logo</value>
+    <value>Logo verwijderen</value>
   </data>
   <data name="Field.RemoveLicense" xml:space="preserve">
-    <value>[NL] Supprimer le brevet</value>
+    <value>Brevet verwijderen</value>
   </data>
   <data name="Audit.CreatedBy" xml:space="preserve">
     <value>Aangemaakt door</value>
@@ -3734,5 +3734,164 @@
   </data>
   <data name="PublicRegistration.SecurePayment" xml:space="preserve">
     <value>Veilige betaling met kaart of Bancontact.</value>
+  </data>
+  <data name="ActivityManagement.EmailTemplates" xml:space="preserve">
+    <value>E-mailsjablonen</value>
+  </data>
+  <data name="Common.SelectOption" xml:space="preserve">
+    <value>-- Selecteren --</value>
+  </data>
+  <data name="EmailTemplate.AllTypes" xml:space="preserve">
+    <value>Alle types</value>
+  </data>
+  <data name="EmailTemplate.ConfirmDelete" xml:space="preserve">
+    <value>Verwijderen bevestigen</value>
+  </data>
+  <data name="EmailTemplate.CreateNew" xml:space="preserve">
+    <value>Nieuw sjabloon</value>
+  </data>
+  <data name="EmailTemplate.CreateSuccess" xml:space="preserve">
+    <value>Sjabloon succesvol aangemaakt</value>
+  </data>
+  <data name="EmailTemplate.Default" xml:space="preserve">
+    <value>Standaard</value>
+  </data>
+  <data name="EmailTemplate.DeleteConfirmMessage" xml:space="preserve">
+    <value>Weet u zeker dat u het sjabloon "{0}" wilt verwijderen?</value>
+  </data>
+  <data name="EmailTemplate.DeleteSuccess" xml:space="preserve">
+    <value>Sjabloon succesvol verwijderd</value>
+  </data>
+  <data name="EmailTemplate.Description" xml:space="preserve">
+    <value>Beschrijving</value>
+  </data>
+  <data name="EmailTemplate.Duplicate" xml:space="preserve">
+    <value>Dupliceren</value>
+  </data>
+  <data name="EmailTemplate.Edit" xml:space="preserve">
+    <value>Sjabloon bewerken</value>
+  </data>
+  <data name="EmailTemplate.HtmlContent" xml:space="preserve">
+    <value>HTML-inhoud</value>
+  </data>
+  <data name="EmailTemplate.IsDefault" xml:space="preserve">
+    <value>Standaardsjabloon</value>
+  </data>
+  <data name="EmailTemplate.IsDefaultHelp" xml:space="preserve">
+    <value>Indien aangevinkt, wordt dit sjabloon standaard gebruikt voor dit type e-mail</value>
+  </data>
+  <data name="EmailTemplate.IsShared" xml:space="preserve">
+    <value>Gedeeld</value>
+  </data>
+  <data name="EmailTemplate.IsSharedHelp" xml:space="preserve">
+    <value>Indien aangevinkt, is dit sjabloon zichtbaar voor alle coördinatoren van de organisatie</value>
+  </data>
+  <data name="EmailTemplate.NoTemplates" xml:space="preserve">
+    <value>Geen e-mailsjablonen gevonden</value>
+  </data>
+  <data name="EmailTemplate.SetAsDefault" xml:space="preserve">
+    <value>Als standaard instellen</value>
+  </data>
+  <data name="EmailTemplate.SetDefaultSuccess" xml:space="preserve">
+    <value>Sjabloon succesvol als standaard ingesteld</value>
+  </data>
+  <data name="EmailTemplate.SubjectHelp" xml:space="preserve">
+    <value>U kunt variabelen zoals %prenom_enfant% in het onderwerp gebruiken</value>
+  </data>
+  <data name="EmailTemplate.TemplateType" xml:space="preserve">
+    <value>Sjabloontype</value>
+  </data>
+  <data name="EmailTemplate.Title" xml:space="preserve">
+    <value>E-mailsjablonen</value>
+  </data>
+  <data name="EmailTemplate.UpdateSuccess" xml:space="preserve">
+    <value>Sjabloon succesvol bijgewerkt</value>
+  </data>
+  <data name="EmailTemplate.Variable" xml:space="preserve">
+    <value>Variabele</value>
+  </data>
+  <data name="EmailTemplateType.ActivityCancellation" xml:space="preserve">
+    <value>Annulering dag/activiteit</value>
+  </data>
+  <data name="EmailTemplateType.BookingConfirmation" xml:space="preserve">
+    <value>Boekingsbevestiging</value>
+  </data>
+  <data name="EmailTemplateType.Custom" xml:space="preserve">
+    <value>Aangepast</value>
+  </data>
+  <data name="EmailTemplateType.MedicalSheetReminder" xml:space="preserve">
+    <value>Herinnering medische fiche</value>
+  </data>
+  <data name="EmailTemplateType.PaymentReminder" xml:space="preserve">
+    <value>Betalingsherinnering</value>
+  </data>
+  <data name="EmailTemplateType.WelcomeEmail" xml:space="preserve">
+    <value>Welkomstmail</value>
+  </data>
+  <data name="Error.UpdateFailed" xml:space="preserve">
+    <value>Bijwerken mislukt</value>
+  </data>
+  <data name="Absent" xml:space="preserve">
+    <value>Afwezig</value>
+  </data>
+  <data name="Assigned" xml:space="preserve">
+    <value>Toegewezen</value>
+  </data>
+  <data name="Bookings.CreateBooking" xml:space="preserve">
+    <value>Boeking aanmaken</value>
+  </data>
+  <data name="Children.CreateChild" xml:space="preserve">
+    <value>Kind toevoegen</value>
+  </data>
+  <data name="Create" xml:space="preserve">
+    <value>Aanmaken</value>
+  </data>
+  <data name="Email.Send" xml:space="preserve">
+    <value>Versturen</value>
+  </data>
+  <data name="Error.UnexpectedError" xml:space="preserve">
+    <value>Er is een onverwachte fout opgetreden.</value>
+  </data>
+  <data name="Expense.ExpenseDate" xml:space="preserve">
+    <value>Datum van de uitgave</value>
+  </data>
+  <data name="Expense.Label" xml:space="preserve">
+    <value>Omschrijving</value>
+  </data>
+  <data name="Field.Category" xml:space="preserve">
+    <value>Categorie</value>
+  </data>
+  <data name="Field.ExpenseDate" xml:space="preserve">
+    <value>Datum van de uitgave</value>
+  </data>
+  <data name="Field.ExpenseType" xml:space="preserve">
+    <value>Type uitgave</value>
+  </data>
+  <data name="Field.Filter" xml:space="preserve">
+    <value>Filteren</value>
+  </data>
+  <data name="Field.OrganizationPaymentSource" xml:space="preserve">
+    <value>Betaalbron van de organisatie</value>
+  </data>
+  <data name="Message.ErrorOccurred" xml:space="preserve">
+    <value>Er is een fout opgetreden.</value>
+  </data>
+  <data name="Payment.Reference" xml:space="preserve">
+    <value>Referentie</value>
+  </data>
+  <data name="PaymentStatus" xml:space="preserve">
+    <value>Betaalstatus</value>
+  </data>
+  <data name="Required" xml:space="preserve">
+    <value>Verplicht</value>
+  </data>
+  <data name="Select" xml:space="preserve">
+    <value>Selecteren</value>
+  </data>
+  <data name="TeamMembers.CreateMember" xml:space="preserve">
+    <value>Teamlid toevoegen</value>
+  </data>
+  <data name="Total" xml:space="preserve">
+    <value>Totaal</value>
   </data>
 </root>
