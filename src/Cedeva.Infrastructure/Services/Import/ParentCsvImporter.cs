@@ -1,7 +1,4 @@
-using System.Globalization;
 using Cedeva.Core.Entities;
-using Cedeva.Core.Enums;
-using Cedeva.Core.Helpers;
 using Cedeva.Core.Interfaces;
 using Cedeva.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
@@ -37,16 +34,13 @@ public class ParentCsvImporter : ICsvEntityImporter
         ["childnrn"] = new[] { "childnrn", "nrnenfant", "registrenationalenfant" }
     };
 
-    private static readonly string[] DateFormats =
-        { "dd/MM/yyyy", "d/M/yyyy", "yyyy-MM-dd", "dd-MM-yyyy", "dd.MM.yyyy" };
-
     public async Task<CsvImportResult> ImportAsync(Stream csvStream, int organisationId, CancellationToken ct = default)
     {
         var result = new CsvImportResult();
         var data = await CsvImportHelper.ReadAsync(csvStream, Aliases, ct);
         if (data.IsEmpty)
         {
-            result.Errors.Add("Le fichier est vide ou ne contient pas de données.");
+            result.Errors.Add(CsvImportHelper.EmptyFileMessage);
             return result;
         }
 
@@ -57,7 +51,7 @@ public class ParentCsvImporter : ICsvEntityImporter
         });
         if (missing.Count > 0)
         {
-            result.Errors.Add($"Colonnes manquantes dans l'en-tête : {string.Join(", ", missing)}.");
+            result.Errors.Add(CsvImportHelper.MissingColumnsMessage(missing));
             return result;
         }
 
@@ -81,32 +75,28 @@ public class ParentCsvImporter : ICsvEntityImporter
             var city = row.Get("city");
             var childFirst = row.Get("childfirstname");
             var childLast = row.Get("childlastname");
-            var birthRaw = row.Get("childbirthdate");
 
             if (new[] { parentFirst, parentLast, email, mobile, street, postalCode, city, childFirst, childLast }
                 .Any(string.IsNullOrWhiteSpace))
             {
-                result.Errors.Add($"Ligne {row.LineNumber} : champ obligatoire manquant.");
+                result.Errors.Add(CsvImportHelper.RowError(row.LineNumber, "champ obligatoire manquant."));
                 continue;
             }
 
-            if (!DateTime.TryParseExact(birthRaw, DateFormats, CultureInfo.InvariantCulture, DateTimeStyles.None, out var birthDate))
+            if (!CsvImportHelper.TryParseDate(row.Get("childbirthdate"), out var birthDate))
             {
-                result.Errors.Add($"Ligne {row.LineNumber} : date de naissance invalide « {birthRaw} » (attendu jj/mm/aaaa).");
+                result.Errors.Add(CsvImportHelper.RowError(row.LineNumber, $"date de naissance invalide « {row.Get("childbirthdate")} » (attendu jj/mm/aaaa)."));
                 continue;
             }
 
-            var parentNrn = NationalRegisterNumberHelper.StripFormatting(row.Get("parentnrn"));
-            if (parentNrn.Length > 0 && !NationalRegisterNumberHelper.IsValid(parentNrn))
+            if (!CsvImportHelper.TryGetValidNrn(row, "parentnrn", out var parentNrn))
             {
-                result.Errors.Add($"Ligne {row.LineNumber} : numéro de registre national du parent invalide.");
+                result.Errors.Add(CsvImportHelper.RowError(row.LineNumber, "numéro de registre national du parent invalide."));
                 continue;
             }
-
-            var childNrn = NationalRegisterNumberHelper.StripFormatting(row.Get("childnrn"));
-            if (childNrn.Length > 0 && !NationalRegisterNumberHelper.IsValid(childNrn))
+            if (!CsvImportHelper.TryGetValidNrn(row, "childnrn", out var childNrn))
             {
-                result.Errors.Add($"Ligne {row.LineNumber} : numéro de registre national de l'enfant invalide.");
+                result.Errors.Add(CsvImportHelper.RowError(row.LineNumber, "numéro de registre national de l'enfant invalide."));
                 continue;
             }
 
@@ -121,7 +111,7 @@ public class ParentCsvImporter : ICsvEntityImporter
                     MobilePhoneNumber = mobile,
                     NationalRegisterNumber = parentNrn,
                     OrganisationId = organisationId,
-                    Address = new Address { Street = street, City = city, PostalCode = postalCode, Country = Country.Belgium }
+                    Address = CsvImportHelper.BelgiumAddress(street, postalCode, city)
                 };
                 _context.Parents.Add(parent);
                 parentsByEmail[emailKey] = parent;

@@ -18,10 +18,6 @@ public class TeamMembersController : Controller
 {
     private const string SortOrderDescending = "desc";
     private const string SortOrderAscending = "asc";
-    private const string SessionKeyTeamMembersSearchString = "TeamMembers_SearchString";
-    private const string SessionKeyTeamMembersSortBy = "TeamMembers_SortBy";
-    private const string SessionKeyTeamMembersSortOrder = "TeamMembers_SortOrder";
-    private const string SessionKeyTeamMembersPageNumber = "TeamMembers_PageNumber";
 
     private readonly IRepository<TeamMember> _teamMemberRepository;
     private readonly IRepository<Address> _addressRepository;
@@ -52,50 +48,10 @@ public class TeamMembersController : Controller
     // GET: TeamMembers
     public async Task<IActionResult> Index([FromQuery] TeamMemberQueryParameters queryParams)
     {
-        // Check if any query parameters were provided in the actual HTTP request
-        bool hasQueryParams = Request.Query.Count > 0;
-
-        // If query params provided, store them and redirect to clean URL
-        if (hasQueryParams)
-        {
-            if (!string.IsNullOrWhiteSpace(queryParams.SearchString))
-                _ctx.Session.Set(SessionKeyTeamMembersSearchString, queryParams.SearchString, persistToCookie: false);
-
-            if (!string.IsNullOrWhiteSpace(queryParams.SortBy))
-                _ctx.Session.Set(SessionKeyTeamMembersSortBy, queryParams.SortBy, persistToCookie: false);
-
-            if (!string.IsNullOrWhiteSpace(queryParams.SortOrder))
-                _ctx.Session.Set(SessionKeyTeamMembersSortOrder, queryParams.SortOrder, persistToCookie: false);
-
-            if (queryParams.PageNumber > 1)
-                _ctx.Session.Set(SessionKeyTeamMembersPageNumber, queryParams.PageNumber.ToString(), persistToCookie: false);
-
-            // Mark that filters should be kept for the next request (after redirect)
-            TempData[ControllerExtensions.KeepFiltersKey] = true;
-
-            // Redirect to clean URL
+        // Persist filters to session + redirect to a clean URL, then reload them.
+        if (_ctx.Session.TryPersistFiltersForRedirect(this, "TeamMembers", queryParams))
             return RedirectToAction(nameof(Index));
-        }
-
-        // If not keeping filters (no redirect, just navigation/F5), clear them
-        if (TempData[ControllerExtensions.KeepFiltersKey] == null)
-        {
-            _ctx.Session.Clear(SessionKeyTeamMembersSearchString);
-            _ctx.Session.Clear(SessionKeyTeamMembersSortBy);
-            _ctx.Session.Clear(SessionKeyTeamMembersSortOrder);
-            _ctx.Session.Clear(SessionKeyTeamMembersPageNumber);
-        }
-
-        // Load filters from state (will be empty if just cleared)
-        queryParams.SearchString = _ctx.Session.Get(SessionKeyTeamMembersSearchString);
-        queryParams.SortBy = _ctx.Session.Get(SessionKeyTeamMembersSortBy);
-        queryParams.SortOrder = _ctx.Session.Get(SessionKeyTeamMembersSortOrder);
-
-        var pageNumberStr = _ctx.Session.Get(SessionKeyTeamMembersPageNumber);
-        if (!string.IsNullOrEmpty(pageNumberStr) && int.TryParse(pageNumberStr, out var pageNum))
-        {
-            queryParams.PageNumber = pageNum;
-        }
+        _ctx.Session.ApplyStoredFilters(this, "TeamMembers", queryParams);
 
         var query = _context.TeamMembers.AsQueryable();
 

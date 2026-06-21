@@ -1,4 +1,8 @@
+using System.Globalization;
 using System.Text;
+using Cedeva.Core.Entities;
+using Cedeva.Core.Enums;
+using Cedeva.Core.Helpers;
 
 namespace Cedeva.Infrastructure.Services.Import;
 
@@ -31,6 +35,41 @@ public static class CsvImportHelper
             rows.Add(new CsvDataRow(i + 1, SplitLine(lines[i], delimiter), map));
 
         return new CsvData(map, rows);
+    }
+
+    // ----- Shared import building blocks (used by every entity importer) -----
+
+    /// <summary>Date formats accepted in imported CSV files.</summary>
+    public static readonly string[] DateFormats =
+        { "dd/MM/yyyy", "d/M/yyyy", "yyyy-MM-dd", "dd-MM-yyyy", "dd.MM.yyyy" };
+
+    /// <summary>French message for an empty/header-only file.</summary>
+    public const string EmptyFileMessage = "Le fichier est vide ou ne contient pas de données.";
+
+    /// <summary>French message listing the required header columns that are missing.</summary>
+    public static string MissingColumnsMessage(IEnumerable<string> missing) =>
+        $"Colonnes manquantes dans l'en-tête : {string.Join(", ", missing)}.";
+
+    /// <summary>Formats a per-row error as "Ligne N : message".</summary>
+    public static string RowError(int lineNumber, string message) => $"Ligne {lineNumber} : {message}";
+
+    public static bool TryParseDate(string raw, out DateTime date) =>
+        DateTime.TryParseExact(raw, DateFormats, CultureInfo.InvariantCulture, DateTimeStyles.None, out date);
+
+    public static string? EmptyToNull(string? value) => string.IsNullOrWhiteSpace(value) ? null : value;
+
+    /// <summary>A Belgian address from CSV street/postal/city columns.</summary>
+    public static Address BelgiumAddress(string street, string postalCode, string city) =>
+        new() { Street = street, PostalCode = postalCode, City = city, Country = Country.Belgium };
+
+    /// <summary>
+    /// Reads + strips a national register number column. Returns false only when a value is present
+    /// but invalid (an absent value yields nrn = "" and true). Lets callers report a row error.
+    /// </summary>
+    public static bool TryGetValidNrn(CsvDataRow row, string column, out string nrn)
+    {
+        nrn = NationalRegisterNumberHelper.StripFormatting(row.Get(column));
+        return nrn.Length == 0 || NationalRegisterNumberHelper.IsValid(nrn);
     }
 
     internal static string Normalise(string header)

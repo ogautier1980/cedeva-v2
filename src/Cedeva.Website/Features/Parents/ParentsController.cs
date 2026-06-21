@@ -19,10 +19,6 @@ public class ParentsController : Controller
 {
     private const string SortOrderDescending = "desc";
     private const string SortOrderAscending = "asc";
-    private const string SessionKeyParentsSearchString = "Parents_SearchString";
-    private const string SessionKeyParentsSortBy = "Parents_SortBy";
-    private const string SessionKeyParentsSortOrder = "Parents_SortOrder";
-    private const string SessionKeyParentsPageNumber = "Parents_PageNumber";
 
     private readonly CedevaDbContext _context;
     private readonly ICurrentUserService _currentUserService;
@@ -52,50 +48,10 @@ public class ParentsController : Controller
 
     public async Task<IActionResult> Index([FromQuery] ParentQueryParameters queryParams)
     {
-        // Check if any query parameters were provided in the actual HTTP request
-        bool hasQueryParams = Request.Query.Count > 0;
-
-        // If query params provided, store them and redirect to clean URL
-        if (hasQueryParams)
-        {
-            if (!string.IsNullOrWhiteSpace(queryParams.SearchString))
-                _sessionState.Set(SessionKeyParentsSearchString, queryParams.SearchString, persistToCookie: false);
-
-            if (!string.IsNullOrWhiteSpace(queryParams.SortBy))
-                _sessionState.Set(SessionKeyParentsSortBy, queryParams.SortBy, persistToCookie: false);
-
-            if (!string.IsNullOrWhiteSpace(queryParams.SortOrder))
-                _sessionState.Set(SessionKeyParentsSortOrder, queryParams.SortOrder, persistToCookie: false);
-
-            if (queryParams.PageNumber > 1)
-                _sessionState.Set(SessionKeyParentsPageNumber, queryParams.PageNumber.ToString(), persistToCookie: false);
-
-            // Mark that filters should be kept for the next request (after redirect)
-            TempData[ControllerExtensions.KeepFiltersKey] = true;
-
-            // Redirect to clean URL
+        // Persist filters to session + redirect to a clean URL, then reload them.
+        if (_sessionState.TryPersistFiltersForRedirect(this, "Parents", queryParams))
             return RedirectToAction(nameof(Index));
-        }
-
-        // If not keeping filters (no redirect, just navigation/F5), clear them
-        if (TempData[ControllerExtensions.KeepFiltersKey] == null)
-        {
-            _sessionState.Clear(SessionKeyParentsSearchString);
-            _sessionState.Clear(SessionKeyParentsSortBy);
-            _sessionState.Clear(SessionKeyParentsSortOrder);
-            _sessionState.Clear(SessionKeyParentsPageNumber);
-        }
-
-        // Load filters from state (will be empty if just cleared)
-        queryParams.SearchString = _sessionState.Get(SessionKeyParentsSearchString);
-        queryParams.SortBy = _sessionState.Get(SessionKeyParentsSortBy);
-        queryParams.SortOrder = _sessionState.Get(SessionKeyParentsSortOrder);
-
-        var pageNumberStr = _sessionState.Get(SessionKeyParentsPageNumber);
-        if (!string.IsNullOrEmpty(pageNumberStr) && int.TryParse(pageNumberStr, out var pageNum))
-        {
-            queryParams.PageNumber = pageNum;
-        }
+        _sessionState.ApplyStoredFilters(this, "Parents", queryParams);
 
         var query = _context.Parents
             .Include(p => p.Address)

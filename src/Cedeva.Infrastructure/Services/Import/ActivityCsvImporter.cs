@@ -36,23 +36,20 @@ public class ActivityCsvImporter : ICsvEntityImporter
         ["isactive"] = new[] { "isactive", "active", "actif" }
     };
 
-    private static readonly string[] DateFormats =
-        { "dd/MM/yyyy", "d/M/yyyy", "yyyy-MM-dd", "dd-MM-yyyy", "dd.MM.yyyy" };
-
     public async Task<CsvImportResult> ImportAsync(Stream csvStream, int organisationId, CancellationToken ct = default)
     {
         var result = new CsvImportResult();
         var data = await CsvImportHelper.ReadAsync(csvStream, Aliases, ct);
         if (data.IsEmpty)
         {
-            result.Errors.Add("Le fichier est vide ou ne contient pas de données.");
+            result.Errors.Add(CsvImportHelper.EmptyFileMessage);
             return result;
         }
 
         var missing = data.MissingColumns(new[] { "name", "startdate", "enddate" });
         if (missing.Count > 0)
         {
-            result.Errors.Add($"Colonnes manquantes dans l'en-tête : {string.Join(", ", missing)}.");
+            result.Errors.Add(CsvImportHelper.MissingColumnsMessage(missing));
             return result;
         }
 
@@ -70,18 +67,18 @@ public class ActivityCsvImporter : ICsvEntityImporter
             var name = row.Get("name");
             if (string.IsNullOrWhiteSpace(name))
             {
-                result.Errors.Add($"Ligne {row.LineNumber} : nom obligatoire.");
+                result.Errors.Add(CsvImportHelper.RowError(row.LineNumber, "nom obligatoire."));
                 continue;
             }
 
-            if (!TryParseDate(row.Get("startdate"), out var start) || !TryParseDate(row.Get("enddate"), out var end))
+            if (!CsvImportHelper.TryParseDate(row.Get("startdate"), out var start) || !CsvImportHelper.TryParseDate(row.Get("enddate"), out var end))
             {
-                result.Errors.Add($"Ligne {row.LineNumber} : date de début ou de fin invalide.");
+                result.Errors.Add(CsvImportHelper.RowError(row.LineNumber, "date de début ou de fin invalide."));
                 continue;
             }
             if (end < start)
             {
-                result.Errors.Add($"Ligne {row.LineNumber} : la date de fin précède la date de début.");
+                result.Errors.Add(CsvImportHelper.RowError(row.LineNumber, "la date de fin précède la date de début."));
                 continue;
             }
 
@@ -120,9 +117,6 @@ public class ActivityCsvImporter : ICsvEntityImporter
 
         return result;
     }
-
-    private static bool TryParseDate(string raw, out DateTime date) =>
-        DateTime.TryParseExact(raw, DateFormats, CultureInfo.InvariantCulture, DateTimeStyles.None, out date);
 
     private static bool ParseBool(string raw, bool defaultValue)
     {

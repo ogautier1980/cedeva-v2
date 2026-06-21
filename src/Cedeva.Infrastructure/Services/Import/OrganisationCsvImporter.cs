@@ -38,14 +38,14 @@ public class OrganisationCsvImporter : ICsvEntityImporter
         var data = await CsvImportHelper.ReadAsync(csvStream, Aliases, ct);
         if (data.IsEmpty)
         {
-            result.Errors.Add("Le fichier est vide ou ne contient pas de données.");
+            result.Errors.Add(CsvImportHelper.EmptyFileMessage);
             return result;
         }
 
         var missing = data.MissingColumns(new[] { "name", "description", "street", "postalcode", "city" });
         if (missing.Count > 0)
         {
-            result.Errors.Add($"Colonnes manquantes dans l'en-tête : {string.Join(", ", missing)}.");
+            result.Errors.Add(CsvImportHelper.MissingColumnsMessage(missing));
             return result;
         }
 
@@ -66,7 +66,7 @@ public class OrganisationCsvImporter : ICsvEntityImporter
 
             if (new[] { name, description, street, postalCode, city }.Any(string.IsNullOrWhiteSpace))
             {
-                result.Errors.Add($"Ligne {row.LineNumber} : champ obligatoire manquant.");
+                result.Errors.Add(CsvImportHelper.RowError(row.LineNumber, "champ obligatoire manquant."));
                 continue;
             }
 
@@ -76,13 +76,12 @@ public class OrganisationCsvImporter : ICsvEntityImporter
                 continue;
             }
 
-            var email = row.Get("email");
             var organisation = new Organisation
             {
                 Name = name,
                 Description = description,
-                Email = string.IsNullOrWhiteSpace(email) ? null : email,
-                Address = new Address { Street = street, City = city, PostalCode = postalCode, Country = Country.Belgium }
+                Email = CsvImportHelper.EmptyToNull(row.Get("email")),
+                Address = CsvImportHelper.BelgiumAddress(street, postalCode, city)
             };
             _context.Organisations.Add(organisation);
             created.Add(organisation);

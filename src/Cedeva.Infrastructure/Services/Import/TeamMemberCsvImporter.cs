@@ -1,7 +1,5 @@
-using System.Globalization;
 using Cedeva.Core.Entities;
 using Cedeva.Core.Enums;
-using Cedeva.Core.Helpers;
 using Cedeva.Core.Interfaces;
 using Cedeva.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
@@ -35,16 +33,13 @@ public class TeamMemberCsvImporter : ICsvEntityImporter
         ["role"] = new[] { "role", "teamrole", "fonction" }
     };
 
-    private static readonly string[] DateFormats =
-        { "dd/MM/yyyy", "d/M/yyyy", "yyyy-MM-dd", "dd-MM-yyyy", "dd.MM.yyyy" };
-
     public async Task<CsvImportResult> ImportAsync(Stream csvStream, int organisationId, CancellationToken ct = default)
     {
         var result = new CsvImportResult();
         var data = await CsvImportHelper.ReadAsync(csvStream, Aliases, ct);
         if (data.IsEmpty)
         {
-            result.Errors.Add("Le fichier est vide ou ne contient pas de données.");
+            result.Errors.Add(CsvImportHelper.EmptyFileMessage);
             return result;
         }
 
@@ -52,7 +47,7 @@ public class TeamMemberCsvImporter : ICsvEntityImporter
         { "firstname", "lastname", "email", "birthdate", "mobilephone", "nrn", "street", "postalcode", "city" });
         if (missing.Count > 0)
         {
-            result.Errors.Add($"Colonnes manquantes dans l'en-tête : {string.Join(", ", missing)}.");
+            result.Errors.Add(CsvImportHelper.MissingColumnsMessage(missing));
             return result;
         }
 
@@ -68,7 +63,6 @@ public class TeamMemberCsvImporter : ICsvEntityImporter
             var firstName = row.Get("firstname");
             var lastName = row.Get("lastname");
             var email = row.Get("email");
-            var birthRaw = row.Get("birthdate");
             var mobile = row.Get("mobilephone");
             var street = row.Get("street");
             var postalCode = row.Get("postalcode");
@@ -76,20 +70,19 @@ public class TeamMemberCsvImporter : ICsvEntityImporter
 
             if (new[] { firstName, lastName, email, mobile, street, postalCode, city }.Any(string.IsNullOrWhiteSpace))
             {
-                result.Errors.Add($"Ligne {row.LineNumber} : champ obligatoire manquant.");
+                result.Errors.Add(CsvImportHelper.RowError(row.LineNumber, "champ obligatoire manquant."));
                 continue;
             }
 
-            if (!DateTime.TryParseExact(birthRaw, DateFormats, CultureInfo.InvariantCulture, DateTimeStyles.None, out var birthDate))
+            if (!CsvImportHelper.TryParseDate(row.Get("birthdate"), out var birthDate))
             {
-                result.Errors.Add($"Ligne {row.LineNumber} : date de naissance invalide « {birthRaw} ».");
+                result.Errors.Add(CsvImportHelper.RowError(row.LineNumber, $"date de naissance invalide « {row.Get("birthdate")} »."));
                 continue;
             }
 
-            var nrn = NationalRegisterNumberHelper.StripFormatting(row.Get("nrn"));
-            if (nrn.Length > 0 && !NationalRegisterNumberHelper.IsValid(nrn))
+            if (!CsvImportHelper.TryGetValidNrn(row, "nrn", out var nrn))
             {
-                result.Errors.Add($"Ligne {row.LineNumber} : numéro de registre national invalide.");
+                result.Errors.Add(CsvImportHelper.RowError(row.LineNumber, "numéro de registre national invalide."));
                 continue;
             }
 
@@ -109,7 +102,7 @@ public class TeamMemberCsvImporter : ICsvEntityImporter
                 NationalRegisterNumber = nrn,
                 TeamRole = ParseRole(row.Get("role")),
                 OrganisationId = organisationId,
-                Address = new Address { Street = street, City = city, PostalCode = postalCode, Country = Country.Belgium }
+                Address = CsvImportHelper.BelgiumAddress(street, postalCode, city)
             });
             result.Created++;
         }

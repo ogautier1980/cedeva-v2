@@ -32,14 +32,14 @@ public class ContactCsvImporter : ICsvEntityImporter
         var data = await CsvImportHelper.ReadAsync(csvStream, Aliases, ct);
         if (data.IsEmpty)
         {
-            result.Errors.Add("Le fichier est vide ou ne contient pas de données.");
+            result.Errors.Add(CsvImportHelper.EmptyFileMessage);
             return result;
         }
 
         var missing = data.MissingColumns(new[] { "firstname", "lastname" });
         if (missing.Count > 0)
         {
-            result.Errors.Add($"Colonnes manquantes dans l'en-tête : {string.Join(", ", missing)}.");
+            result.Errors.Add(CsvImportHelper.MissingColumnsMessage(missing));
             return result;
         }
 
@@ -58,7 +58,7 @@ public class ContactCsvImporter : ICsvEntityImporter
 
             if (string.IsNullOrWhiteSpace(firstName) || string.IsNullOrWhiteSpace(lastName))
             {
-                result.Errors.Add($"Ligne {row.LineNumber} : nom et prénom obligatoires.");
+                result.Errors.Add(CsvImportHelper.RowError(row.LineNumber, "nom et prénom obligatoires."));
                 continue;
             }
 
@@ -73,9 +73,9 @@ public class ContactCsvImporter : ICsvEntityImporter
                 OrganisationId = organisationId,
                 FirstName = firstName,
                 LastName = lastName,
-                Email = string.IsNullOrWhiteSpace(email) ? null : email,
-                PhoneNumber = EmptyToNull(row.Get("phone")),
-                Function = EmptyToNull(row.Get("function"))
+                Email = CsvImportHelper.EmptyToNull(email),
+                PhoneNumber = CsvImportHelper.EmptyToNull(row.Get("phone")),
+                Function = CsvImportHelper.EmptyToNull(row.Get("function"))
             });
             result.Created++;
         }
@@ -85,6 +85,4 @@ public class ContactCsvImporter : ICsvEntityImporter
 
         return result;
     }
-
-    private static string? EmptyToNull(string value) => string.IsNullOrWhiteSpace(value) ? null : value;
 }
