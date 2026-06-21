@@ -324,7 +324,10 @@ try
                 using var scope = app.Services.CreateScope();
                 await scope.ServiceProvider.GetRequiredService<DbSeeder>().SeedAsync();
 
-                if (app.Environment.IsDevelopment())
+                // Rich demo/test data: on by default in Development, and toggleable elsewhere via
+                // the SeedDemoData flag (e.g. set SeedDemoData=true on the Azure demo site, false in
+                // real production). Absent config falls back to the environment.
+                if (app.Configuration.GetValue("SeedDemoData", app.Environment.IsDevelopment()))
                 {
                     await scope.ServiceProvider.GetRequiredService<TestDataSeeder>().SeedTestDataAsync();
                 }

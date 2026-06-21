@@ -38,6 +38,11 @@ docker-compose up -d
 | Coordinator (Org 1) | coordinator@cedeva.be | Coord@123456 |
 | Coordinator (Org 2) | coordinator.liege@cedeva.be | Coord@123456 |
 
+**Seeding:** `DbSeeder` always runs (roles, admin, 2 orgs + coordinators, Belgian municipalities).
+`TestDataSeeder` (rich, idempotent, realistic Belgian-FR demo data across all tables) runs when
+`SeedDemoData=true` — defaults to on in Development, off elsewhere. Set `SeedDemoData=true` as an
+Azure app setting to populate the demo site. Disable all startup seeding with `RunStartupSeeding=false`.
+
 ### Key Files
 | File | Purpose |
 |------|---------|

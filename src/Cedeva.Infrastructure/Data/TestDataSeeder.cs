@@ -132,6 +132,12 @@ public class TestDataSeeder
                 if (templateCount == 0)
                     await SeedEmailTemplatesAsync(organisation.Id);
 
+                // Sent-email history (so the SentEmails view is populated)
+                var sentEmailCount = await _context.EmailsSent.IgnoreQueryFilters()
+                    .CountAsync(e => e.Activity != null && e.Activity.OrganisationId == organisation.Id);
+                if (sentEmailCount == 0)
+                    await SeedSentEmailsAsync(organisation.Id);
+
                 await _context.SaveChangesAsync();
             }
 
@@ -1070,6 +1076,48 @@ public class TestDataSeeder
         var month = _random.Next(1, 13);
         var day = _random.Next(1, DateTime.DaysInMonth(year, month) + 1);
         return new DateTime(year, month, day, 0, 0, 0, DateTimeKind.Unspecified);
+    }
+
+    // =========================================================================
+    // Sent-email history (EmailSent log)
+    // =========================================================================
+    private async Task SeedSentEmailsAsync(int organisationId)
+    {
+        // Log a couple of "already sent" emails on the first activities that have confirmed
+        // bookings, so the SentEmails history view shows realistic data.
+        var activities = await _context.Activities.IgnoreQueryFilters()
+            .Where(a => a.OrganisationId == organisationId)
+            .OrderBy(a => a.Id)
+            .Take(2)
+            .ToListAsync();
+
+        foreach (var activity in activities)
+        {
+            var recipientEmails = await _context.Bookings.IgnoreQueryFilters()
+                .Where(b => b.ActivityId == activity.Id && b.IsConfirmed)
+                .Select(b => b.Child.Parent.Email)
+                .Distinct()
+                .ToListAsync();
+
+            if (recipientEmails.Count == 0)
+                continue;
+
+            _context.EmailsSent.Add(new EmailSent
+            {
+                ActivityId = activity.Id,
+                RecipientType = EmailRecipient.AllParents,
+                RecipientEmails = string.Join("; ", recipientEmails),
+                Subject = $"Informations pratiques — {activity.Name}",
+                Message = EmailGreetingParent +
+                    "<p>Voici quelques informations pratiques avant le début du stage : " +
+                    "horaires, lieu de rendez-vous et matériel à prévoir.</p>" +
+                    "<p>Au plaisir d'accueillir votre enfant !</p>",
+                SendSeparateEmailPerChild = false,
+                SentDate = DateTime.Now.AddDays(-3)
+            });
+        }
+
+        await _context.SaveChangesAsync();
     }
 
     private string GenerateNationalRegisterNumber(DateTime birthDate, bool isFemale)

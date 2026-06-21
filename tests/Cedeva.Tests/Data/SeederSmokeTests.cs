@@ -98,6 +98,8 @@ public class SeederSmokeTests
         (await verify.ExcursionRegistrations.IgnoreQueryFilters().CountAsync()).Should().BeGreaterThan(0);
         (await verify.ExcursionGroups.IgnoreQueryFilters().CountAsync()).Should().BeGreaterThan(0);
         (await verify.ActivityFinancialTransactions.IgnoreQueryFilters().CountAsync()).Should().BeGreaterThan(0);
+        // Sent-email history is seeded so the SentEmails view is not empty.
+        (await verify.EmailsSent.IgnoreQueryFilters().CountAsync()).Should().BeGreaterThan(0);
     }
 
     [Fact]
