@@ -93,7 +93,7 @@ public class BelgianMunicipalityServiceTests
         verify.BelgianMunicipalities.Should().HaveCount(5, "only the 2 genuinely new municipalities are added to the original 3");
         verify.BelgianMunicipalities.Should().Contain(m => m.PostalCode == "4000" && m.City == "Liège");
         verify.BelgianMunicipalities.Should().Contain(m => m.PostalCode == "2000" && m.City == "Antwerpen");
-        verify.BelgianMunicipalities.Count(m => m.City.ToUpper() == "BRUXELLES").Should().Be(1, "the case-insensitive duplicate must not be inserted");
+        verify.BelgianMunicipalities.Count(m => m.PostalCode == "1000").Should().Be(1, "the case-insensitive duplicate (1000 BRUXELLES) must not be inserted");
     }
 
     [Fact]
