@@ -4122,4 +4122,58 @@
   <data name="Expense.CategoryHelp" xml:space="preserve">
     <value>Pick a category or type a new one.</value>
   </data>
+  <data name="Import.Csv" xml:space="preserve">
+    <value>Import CSV</value>
+  </data>
+  <data name="Import.Title" xml:space="preserve">
+    <value>Import parents and children</value>
+  </data>
+  <data name="Import.ResultTitle" xml:space="preserve">
+    <value>Import result</value>
+  </data>
+  <data name="Import.Help" xml:space="preserve">
+    <value>Bulk-import parents and their children from a CSV file (one child per row).</value>
+  </data>
+  <data name="Import.ColumnsHelp" xml:space="preserve">
+    <value>Expected columns (separated by semicolons or commas; ParentNRN and ChildNRN are optional):</value>
+  </data>
+  <data name="Import.File" xml:space="preserve">
+    <value>CSV file</value>
+  </data>
+  <data name="Import.FileHelp" xml:space="preserve">
+    <value>.csv format, UTF-8 encoding, first row = headers.</value>
+  </data>
+  <data name="Import.Submit" xml:space="preserve">
+    <value>Import</value>
+  </data>
+  <data name="Import.NoFile" xml:space="preserve">
+    <value>Please select a file.</value>
+  </data>
+  <data name="Import.NotCsv" xml:space="preserve">
+    <value>The file must be a .csv file.</value>
+  </data>
+  <data name="Import.Summary" xml:space="preserve">
+    <value>{0} parent(s) and {1} child(ren) imported.</value>
+  </data>
+  <data name="Import.ParentsCreated" xml:space="preserve">
+    <value>Parents created</value>
+  </data>
+  <data name="Import.ChildrenCreated" xml:space="preserve">
+    <value>Children created</value>
+  </data>
+  <data name="Import.ParentsReused" xml:space="preserve">
+    <value>Existing parents</value>
+  </data>
+  <data name="Import.ChildrenSkipped" xml:space="preserve">
+    <value>Children skipped</value>
+  </data>
+  <data name="Import.RowsProcessed" xml:space="preserve">
+    <value>Rows processed</value>
+  </data>
+  <data name="Import.Errors" xml:space="preserve">
+    <value>Errors</value>
+  </data>
+  <data name="Import.Another" xml:space="preserve">
+    <value>Import another file</value>
+  </data>
 </root>
