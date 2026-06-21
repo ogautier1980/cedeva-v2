@@ -550,7 +550,7 @@ Global query filters on all tenant-scoped entities. Admin bypasses via `IgnoreQu
 
 ## Testing
 
-~1163 unit/integration tests (≈92% line coverage; CI gate 85%) plus 59 browser E2E (Playwright)
+~1163 unit/integration tests (≈92% line coverage; CI gate 85%) plus 64 browser E2E (Playwright)
 and 3 SQL Server (Testcontainers) tests, across 3 projects:
 
 ```bash
