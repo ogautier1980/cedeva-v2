@@ -3964,4 +3964,7 @@
   <data name="Identity.DuplicateRoleName" xml:space="preserve">
     <value>Le rôle « {0} » existe déjà.</value>
   </data>
+  <data name="Organisation.EmailHelp" xml:space="preserve">
+    <value>Adresse e-mail qui recevra les notifications de nouvelles inscriptions (à défaut, les coordinateurs).</value>
+  </data>
 </root>

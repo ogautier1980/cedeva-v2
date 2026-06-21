@@ -3942,4 +3942,7 @@
   <data name="Identity.DuplicateRoleName" xml:space="preserve">
     <value>Rol '{0}' bestaat al.</value>
   </data>
+  <data name="Organisation.EmailHelp" xml:space="preserve">
+    <value>E-mailadres dat meldingen van nieuwe inschrijvingen ontvangt (anders de coördinatoren).</value>
+  </data>
 </root>

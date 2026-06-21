@@ -175,6 +175,7 @@ public class OrganisationsController : Controller
             Name = organisation.Name,
             Description = organisation.Description,
             LogoUrl = organisation.LogoUrl,
+            Email = organisation.Email,
             BankAccountNumber = organisation.BankAccountNumber,
             BankAccountName = organisation.BankAccountName,
             Street = address?.Street ?? "",
@@ -229,6 +230,7 @@ public class OrganisationsController : Controller
             {
                 Name = viewModel.Name,
                 Description = viewModel.Description,
+                Email = viewModel.Email,
                 BankAccountNumber = viewModel.BankAccountNumber,
                 BankAccountName = viewModel.BankAccountName,
                 AddressId = address.Id
@@ -264,6 +266,7 @@ public class OrganisationsController : Controller
             Name = organisation.Name,
             Description = organisation.Description,
             LogoUrl = organisation.LogoUrl,
+            Email = organisation.Email,
             BankAccountNumber = organisation.BankAccountNumber,
             BankAccountName = organisation.BankAccountName,
             Street = address?.Street ?? "",
@@ -302,6 +305,7 @@ public class OrganisationsController : Controller
 
             organisation.Name = viewModel.Name;
             organisation.Description = viewModel.Description;
+            organisation.Email = viewModel.Email;
             organisation.BankAccountNumber = viewModel.BankAccountNumber;
             organisation.BankAccountName = viewModel.BankAccountName;
 
@@ -522,6 +526,7 @@ public class OrganisationsController : Controller
             Name = organisation.Name,
             Description = organisation.Description,
             LogoUrl = organisation.LogoUrl,
+            Email = organisation.Email,
             BankAccountNumber = organisation.BankAccountNumber,
             BankAccountName = organisation.BankAccountName,
             Street = address?.Street ?? "",

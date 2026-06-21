@@ -29,6 +29,13 @@
                         </div>
 
                         <div class="mb-3">
+                            <label for="Email" class="form-label">@Localizer["Field.Email"]</label>
+                            <input asp-for="Email" type="email" class="form-control" id="Email" />
+                            <span asp-validation-for="Email" class="text-danger"></span>
+                            <small class="form-text text-muted">@Localizer["Organisation.EmailHelp"]</small>
+                        </div>
+
+                        <div class="mb-3">
                             <label for="LogoFile" class="form-label">@Localizer["Field.Logo"]</label>
                             <input asp-for="LogoFile" type="file" class="form-control" id="LogoFile" accept="image/*" />
                             <span asp-validation-for="LogoFile" class="text-danger"></span>

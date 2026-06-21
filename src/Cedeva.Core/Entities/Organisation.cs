@@ -20,6 +20,14 @@ public class Organisation : AuditableEntity
     public string? LogoUrl { get; set; }
 
     /// <summary>
+    /// Adresse e-mail de contact de l'organisation (notifications de nouvelles inscriptions).
+    /// Si vide, les notifications sont envoyées aux coordinateurs de l'organisation.
+    /// </summary>
+    [EmailAddress(ErrorMessage = "Validation.InvalidEmail")]
+    [StringLength(200, ErrorMessage = "Validation.StringLength")]
+    public string? Email { get; set; }
+
+    /// <summary>
     /// Numéro de compte bancaire (IBAN) pour les paiements
     /// </summary>
     public string? BankAccountNumber { get; set; }

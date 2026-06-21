@@ -34,6 +34,9 @@
 
                         <dt class="col-sm-4">@Localizer["Description"]</dt>
                         <dd class="col-sm-8">@Model.Description</dd>
+
+                        <dt class="col-sm-4">@Localizer["Field.Email"]</dt>
+                        <dd class="col-sm-8">@(string.IsNullOrEmpty(Model.Email) ? "—" : Model.Email)</dd>
                     </dl>
 
                     <hr />

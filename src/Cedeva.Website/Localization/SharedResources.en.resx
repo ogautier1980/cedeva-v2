@@ -3942,4 +3942,7 @@
   <data name="Identity.DuplicateRoleName" xml:space="preserve">
     <value>Role name '{0}' is already taken.</value>
   </data>
+  <data name="Organisation.EmailHelp" xml:space="preserve">
+    <value>Email address that will receive new-registration notifications (otherwise the coordinators).</value>
+  </data>
 </root>
