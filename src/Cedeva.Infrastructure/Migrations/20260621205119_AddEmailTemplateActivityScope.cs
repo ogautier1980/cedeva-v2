@@ -31,7 +31,7 @@ namespace Cedeva.Infrastructure.Migrations
                 column: "ActivityId",
                 principalTable: "Activities",
                 principalColumn: "Id",
-                onDelete: ReferentialAction.Cascade);
+                onDelete: ReferentialAction.NoAction);
         }
 
         /// <inheritdoc />

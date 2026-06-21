@@ -1814,7 +1814,7 @@ namespace Cedeva.Infrastructure.Migrations
                     b.HasOne("Cedeva.Core.Entities.Activity", "Activity")
                         .WithMany()
                         .HasForeignKey("ActivityId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.NoAction);
 
                     b.HasOne("Cedeva.Core.Entities.CedevaUser", "CreatedByUser")
                         .WithMany()

@@ -106,13 +106,15 @@ public class CedevaDbContext : IdentityDbContext<CedevaUser>, IUnitOfWork
                                   _currentUserService.IsAdmin ||
                                   et.OrganisationId == _currentUserService.OrganisationId);
 
-        // Activity-level templates are removed when their activity is deleted; organisation-level
-        // templates (ActivityId == null) are unaffected.
+        // Activity-level templates are removed explicitly when their activity is deleted (see
+        // ActivitiesController.DeleteConfirmed). The FK uses NO ACTION because a DB-level cascade
+        // here would create multiple cascade paths to EmailTemplates (Organisation -> EmailTemplates
+        // directly and Organisation -> Activity -> EmailTemplates), which SQL Server forbids.
         builder.Entity<EmailTemplate>()
             .HasOne(et => et.Activity)
             .WithMany()
             .HasForeignKey(et => et.ActivityId)
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.NoAction);
     }
 
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)

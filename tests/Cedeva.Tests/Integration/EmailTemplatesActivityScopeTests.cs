@@ -185,6 +185,39 @@ public class EmailTemplatesActivityScopeTests
     }
 
     [Fact]
+    public async Task DeleteActivity_RemovesItsTemplates_ButKeepsOrgLibrary()
+    {
+        using var factory = new CedevaWebApplicationFactory();
+        Organisation org = null!;
+        Activity activity = null!;
+        factory.Seed(ctx =>
+        {
+            org = TestData.Organisation();
+            activity = TestData.Activity(org);
+            ctx.AddRange(org, activity);
+            return 0;
+        });
+        factory.Seed(ctx =>
+        {
+            ctx.EmailTemplates.AddRange(
+                new EmailTemplate { OrganisationId = org.Id, ActivityId = null, TemplateType = EmailTemplateType.Custom, Name = "OrgKeep", Subject = "s", HtmlContent = "<p>x</p>", IsDefault = true },
+                new EmailTemplate { OrganisationId = org.Id, ActivityId = activity.Id, TemplateType = EmailTemplateType.Custom, Name = "ActivityGone", Subject = "s", HtmlContent = "<p>x</p>", IsDefault = true });
+            return 0;
+        });
+        var client = factory.CreateClientFor("u1", org.Id, "Coordinator");
+
+        var response = await client.PostAsync($"/Activities/Delete/{activity.Id}",
+            new FormUrlEncodedContent(new Dictionary<string, string> { ["id"] = activity.Id.ToString() }));
+        response.StatusCode.Should().Be(HttpStatusCode.Found);
+
+        using var db = factory.NewDbContext();
+        (await db.EmailTemplates.IgnoreQueryFilters().AnyAsync(t => t.Name == "ActivityGone"))
+            .Should().BeFalse("the activity's templates are removed with it");
+        (await db.EmailTemplates.IgnoreQueryFilters().AnyAsync(t => t.Name == "OrgKeep"))
+            .Should().BeTrue("the organisation library is untouched");
+    }
+
+    [Fact]
     public async Task Index_OrgScope_ShowsOnlyOrgLibrary_NotActivityTemplates()
     {
         using var factory = new CedevaWebApplicationFactory();

@@ -633,6 +633,12 @@ public class ActivitiesController : Controller
             return RedirectToAction(nameof(Index));
         }
 
+        // The Activity -> EmailTemplate FK is NO ACTION (to avoid multiple cascade paths on SQL
+        // Server), so remove the activity's templates explicitly before deleting it.
+        var activityTemplates = await _context.EmailTemplates.Where(t => t.ActivityId == id).ToListAsync();
+        if (activityTemplates.Count > 0)
+            _context.EmailTemplates.RemoveRange(activityTemplates);
+
         _context.Activities.Remove(activity);
         await _context.SaveChangesAsync();
 
