@@ -138,6 +138,12 @@ public class TestDataSeeder
                 if (sentEmailCount == 0)
                     await SeedSentEmailsAsync(organisation.Id);
 
+                // "Autres contacts" (non-user contacts)
+                var contactCount = await _context.Contacts.IgnoreQueryFilters()
+                    .CountAsync(c => c.OrganisationId == organisation.Id);
+                if (contactCount == 0)
+                    SeedOtherContacts(organisation.Id);
+
                 await _context.SaveChangesAsync();
             }
 
@@ -1111,6 +1117,35 @@ public class TestDataSeeder
         var month = _random.Next(1, 13);
         var day = _random.Next(1, DateTime.DaysInMonth(year, month) + 1);
         return new DateTime(year, month, day, 0, 0, 0, DateTimeKind.Unspecified);
+    }
+
+    // =========================================================================
+    // "Autres contacts" (non-user contacts)
+    // =========================================================================
+    private void SeedOtherContacts(int organisationId)
+    {
+        _context.Contacts.AddRange(
+            new Contact
+            {
+                OrganisationId = organisationId,
+                FirstName = "Sophie", LastName = "Lemaire",
+                Email = "dr.lemaire@cabinet-medical.be", PhoneNumber = "02 511 22 33",
+                Function = "Médecin référent"
+            },
+            new Contact
+            {
+                OrganisationId = organisationId,
+                FirstName = "Marc", LastName = "Dewitte",
+                Email = "contact@traiteur-dewitte.be", PhoneNumber = "0478 12 34 56",
+                Function = "Traiteur"
+            },
+            new Contact
+            {
+                OrganisationId = organisationId,
+                FirstName = "Catherine", LastName = "Renard",
+                Email = "c.renard@commune.be", PhoneNumber = "081 22 33 44",
+                Function = "Contact communal"
+            });
     }
 
     // =========================================================================

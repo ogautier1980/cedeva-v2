@@ -1,0 +1,53 @@
+@model Cedeva.Website.Features.Contacts.ViewModels.ContactCategoryViewModel
+
+@if (Model.Rows.Any() || Model.Editable)
+{
+    <div class="card mb-3">
+        <div class="card-header bg-primary text-white">
+            <h6 class="mb-0"><i class="fas @Model.Icon me-2"></i>@Model.Title <span class="badge bg-light text-dark ms-2">@Model.Rows.Count</span></h6>
+        </div>
+        <div class="card-body p-0">
+            @if (Model.Rows.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover table-sm mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th scope="col">@Localizer["Field.Name"]</th>
+                                <th scope="col">@Localizer["Field.Email"]</th>
+                                <th scope="col">@Localizer["Contacts.Function"]</th>
+                                @if (Model.Editable) { <th scope="col" class="text-end">@Localizer["Actions"]</th> }
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var row in Model.Rows)
+                            {
+                                <tr>
+                                    <td>@row.FullName</td>
+                                    <td>@(string.IsNullOrEmpty(row.Email) ? "—" : row.Email)</td>
+                                    <td>@(string.IsNullOrEmpty(row.Function) ? "—" : row.Function)</td>
+                                    @if (Model.Editable && row.ContactId.HasValue)
+                                    {
+                                        <td class="text-end text-nowrap">
+                                            <a asp-action="Edit" asp-route-id="@row.ContactId" class="btn btn-sm btn-outline-secondary">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <form asp-action="Delete" asp-route-id="@row.ContactId" method="post" class="d-inline"
+                                                  onsubmit="return confirm('@Localizer["Contacts.ConfirmDelete"].Value');">
+                                                <button type="submit" class="btn btn-sm btn-outline-danger"><i class="fas fa-trash"></i></button>
+                                            </form>
+                                        </td>
+                                    }
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <p class="text-muted p-3 mb-0">@Localizer["Contacts.NoOtherContacts"]</p>
+            }
+        </div>
+    </div>
+}

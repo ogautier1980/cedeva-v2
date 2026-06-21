@@ -157,7 +157,7 @@ src/
 - Clean URLs (route parameters vs query strings)
 
 ## Testing (June 2026)
-- **~1170 unit/integration tests** (+ 65 E2E browser, 0 skipped; + 3 SQL Server), **≈92% line coverage** (branch ≈77%, method ≈95%); CI coverage gate at 85%.
+- **~1173 unit/integration tests** (+ 65 E2E browser, 0 skipped; + 3 SQL Server), **≈92% line coverage** (branch ≈77%, method ≈95%); CI coverage gate at 85%.
 - 5 levels across 3 projects: `Cedeva.Tests` (unit + service-integration SQLite + controller
   WebApplicationFactory), `Cedeva.Tests.Sql` (real SQL Server via Testcontainers), `Cedeva.Tests.E2E`
   (Playwright + Chromium). E2E and SQL run in dedicated CI workflows that do **not** gate deploy.

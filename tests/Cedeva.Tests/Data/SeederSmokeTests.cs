@@ -100,6 +100,8 @@ public class SeederSmokeTests
         (await verify.ActivityFinancialTransactions.IgnoreQueryFilters().CountAsync()).Should().BeGreaterThan(0);
         // Sent-email history is seeded so the SentEmails view is not empty.
         (await verify.EmailsSent.IgnoreQueryFilters().CountAsync()).Should().BeGreaterThan(0);
+        // "Autres contacts" are seeded for the Contacts page.
+        (await verify.Contacts.IgnoreQueryFilters().CountAsync()).Should().BeGreaterThan(0);
     }
 
     [Fact]

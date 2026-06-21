@@ -3969,4 +3969,52 @@
   <data name="Activities.DaysUpdated" xml:space="preserve">
     <value>Dagen bijgewerkt</value>
   </data>
+  <data name="Contacts" xml:space="preserve">
+    <value>Contacten</value>
+  </data>
+  <data name="Contacts.Title" xml:space="preserve">
+    <value>Contacten</value>
+  </data>
+  <data name="Contacts.Admin" xml:space="preserve">
+    <value>Beheerder</value>
+  </data>
+  <data name="Contacts.Coordinator" xml:space="preserve">
+    <value>Coördinator</value>
+  </data>
+  <data name="Contacts.Animator" xml:space="preserve">
+    <value>Animator</value>
+  </data>
+  <data name="Contacts.Parent" xml:space="preserve">
+    <value>Ouder</value>
+  </data>
+  <data name="Contacts.Others" xml:space="preserve">
+    <value>Andere contacten</value>
+  </data>
+  <data name="Contacts.Function" xml:space="preserve">
+    <value>Functie</value>
+  </data>
+  <data name="Contacts.FunctionPlaceholder" xml:space="preserve">
+    <value>Bv.: dokter, traiteur…</value>
+  </data>
+  <data name="Contacts.AddContact" xml:space="preserve">
+    <value>Contact toevoegen</value>
+  </data>
+  <data name="Contacts.EditContact" xml:space="preserve">
+    <value>Contact bewerken</value>
+  </data>
+  <data name="Contacts.Created" xml:space="preserve">
+    <value>Contact toegevoegd.</value>
+  </data>
+  <data name="Contacts.Updated" xml:space="preserve">
+    <value>Contact bijgewerkt.</value>
+  </data>
+  <data name="Contacts.Deleted" xml:space="preserve">
+    <value>Contact verwijderd.</value>
+  </data>
+  <data name="Contacts.ConfirmDelete" xml:space="preserve">
+    <value>Dit contact verwijderen?</value>
+  </data>
+  <data name="Contacts.NoOtherContacts" xml:space="preserve">
+    <value>Geen andere contacten.</value>
+  </data>
 </root>

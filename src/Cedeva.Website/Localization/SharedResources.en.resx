@@ -3969,4 +3969,52 @@
   <data name="Activities.DaysUpdated" xml:space="preserve">
     <value>Days updated</value>
   </data>
+  <data name="Contacts" xml:space="preserve">
+    <value>Contacts</value>
+  </data>
+  <data name="Contacts.Title" xml:space="preserve">
+    <value>Contacts</value>
+  </data>
+  <data name="Contacts.Admin" xml:space="preserve">
+    <value>Administrator</value>
+  </data>
+  <data name="Contacts.Coordinator" xml:space="preserve">
+    <value>Coordinator</value>
+  </data>
+  <data name="Contacts.Animator" xml:space="preserve">
+    <value>Activity leader</value>
+  </data>
+  <data name="Contacts.Parent" xml:space="preserve">
+    <value>Parent</value>
+  </data>
+  <data name="Contacts.Others" xml:space="preserve">
+    <value>Other contacts</value>
+  </data>
+  <data name="Contacts.Function" xml:space="preserve">
+    <value>Role</value>
+  </data>
+  <data name="Contacts.FunctionPlaceholder" xml:space="preserve">
+    <value>e.g. doctor, caterer…</value>
+  </data>
+  <data name="Contacts.AddContact" xml:space="preserve">
+    <value>Add contact</value>
+  </data>
+  <data name="Contacts.EditContact" xml:space="preserve">
+    <value>Edit contact</value>
+  </data>
+  <data name="Contacts.Created" xml:space="preserve">
+    <value>Contact added.</value>
+  </data>
+  <data name="Contacts.Updated" xml:space="preserve">
+    <value>Contact updated.</value>
+  </data>
+  <data name="Contacts.Deleted" xml:space="preserve">
+    <value>Contact deleted.</value>
+  </data>
+  <data name="Contacts.ConfirmDelete" xml:space="preserve">
+    <value>Delete this contact?</value>
+  </data>
+  <data name="Contacts.NoOtherContacts" xml:space="preserve">
+    <value>No other contacts.</value>
+  </data>
 </root>

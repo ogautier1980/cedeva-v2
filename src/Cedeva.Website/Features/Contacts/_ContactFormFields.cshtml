@@ -1,0 +1,35 @@
+@model Cedeva.Website.Features.Contacts.ViewModels.ContactViewModel
+
+<input type="hidden" asp-for="Id" />
+
+<div class="row">
+    <div class="col-md-6 mb-3">
+        <label for="FirstName" class="form-label">@Localizer["Field.FirstName"]</label>
+        <input asp-for="FirstName" class="form-control" id="FirstName" />
+        <span asp-validation-for="FirstName" class="text-danger"></span>
+    </div>
+    <div class="col-md-6 mb-3">
+        <label for="LastName" class="form-label">@Localizer["Field.LastName"]</label>
+        <input asp-for="LastName" class="form-control" id="LastName" />
+        <span asp-validation-for="LastName" class="text-danger"></span>
+    </div>
+</div>
+
+<div class="mb-3">
+    <label for="Email" class="form-label">@Localizer["Field.Email"]</label>
+    <input asp-for="Email" type="email" class="form-control" id="Email" />
+    <span asp-validation-for="Email" class="text-danger"></span>
+</div>
+
+<div class="row">
+    <div class="col-md-6 mb-3">
+        <label for="PhoneNumber" class="form-label">@Localizer["Field.PhoneNumber"]</label>
+        <input asp-for="PhoneNumber" class="form-control" id="PhoneNumber" />
+        <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+    </div>
+    <div class="col-md-6 mb-3">
+        <label for="Function" class="form-label">@Localizer["Contacts.Function"]</label>
+        <input asp-for="Function" class="form-control" id="Function" placeholder="@Localizer["Contacts.FunctionPlaceholder"]" />
+        <span asp-validation-for="Function" class="text-danger"></span>
+    </div>
+</div>

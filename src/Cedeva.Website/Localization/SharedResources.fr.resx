@@ -3991,4 +3991,52 @@
   <data name="Activities.DaysUpdated" xml:space="preserve">
     <value>Jours mis à jour</value>
   </data>
+  <data name="Contacts" xml:space="preserve">
+    <value>Contacts</value>
+  </data>
+  <data name="Contacts.Title" xml:space="preserve">
+    <value>Contacts</value>
+  </data>
+  <data name="Contacts.Admin" xml:space="preserve">
+    <value>Administrateur</value>
+  </data>
+  <data name="Contacts.Coordinator" xml:space="preserve">
+    <value>Coordinateur</value>
+  </data>
+  <data name="Contacts.Animator" xml:space="preserve">
+    <value>Animateur</value>
+  </data>
+  <data name="Contacts.Parent" xml:space="preserve">
+    <value>Parent</value>
+  </data>
+  <data name="Contacts.Others" xml:space="preserve">
+    <value>Autres contacts</value>
+  </data>
+  <data name="Contacts.Function" xml:space="preserve">
+    <value>Fonction</value>
+  </data>
+  <data name="Contacts.FunctionPlaceholder" xml:space="preserve">
+    <value>Ex. : médecin, traiteur…</value>
+  </data>
+  <data name="Contacts.AddContact" xml:space="preserve">
+    <value>Ajouter un contact</value>
+  </data>
+  <data name="Contacts.EditContact" xml:space="preserve">
+    <value>Modifier le contact</value>
+  </data>
+  <data name="Contacts.Created" xml:space="preserve">
+    <value>Contact ajouté.</value>
+  </data>
+  <data name="Contacts.Updated" xml:space="preserve">
+    <value>Contact mis à jour.</value>
+  </data>
+  <data name="Contacts.Deleted" xml:space="preserve">
+    <value>Contact supprimé.</value>
+  </data>
+  <data name="Contacts.ConfirmDelete" xml:space="preserve">
+    <value>Supprimer ce contact ?</value>
+  </data>
+  <data name="Contacts.NoOtherContacts" xml:space="preserve">
+    <value>Aucun autre contact.</value>
+  </data>
 </root>

@@ -1,0 +1,20 @@
+@model Cedeva.Website.Features.Contacts.ViewModels.ContactsIndexViewModel
+@using Cedeva.Website.Features.Contacts.ViewModels
+@{
+    ViewData["Title"] = Localizer["Contacts.Title"];
+}
+
+@await Html.PartialAsync("_AlertMessages")
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="fas fa-address-book me-2"></i>@Localizer["Contacts.Title"]</h2>
+    <a asp-action="Create" class="btn btn-primary">
+        <i class="fas fa-plus me-2"></i>@Localizer["Contacts.AddContact"]
+    </a>
+</div>
+
+@await Html.PartialAsync("_ContactCategory", new ContactCategoryViewModel { Title = Localizer["Contacts.Admin"].Value, Icon = "fa-user-shield", Rows = Model.Admins })
+@await Html.PartialAsync("_ContactCategory", new ContactCategoryViewModel { Title = Localizer["Contacts.Coordinator"].Value, Icon = "fa-user-tie", Rows = Model.Coordinators })
+@await Html.PartialAsync("_ContactCategory", new ContactCategoryViewModel { Title = Localizer["Contacts.Animator"].Value, Icon = "fa-people-group", Rows = Model.TeamMembers })
+@await Html.PartialAsync("_ContactCategory", new ContactCategoryViewModel { Title = Localizer["Contacts.Parent"].Value, Icon = "fa-user-friends", Rows = Model.Parents })
+@await Html.PartialAsync("_ContactCategory", new ContactCategoryViewModel { Title = Localizer["Contacts.Others"].Value, Icon = "fa-address-card", Rows = Model.Others, Editable = true })
