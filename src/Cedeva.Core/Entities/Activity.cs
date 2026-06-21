@@ -6,24 +6,24 @@ public class Activity : AuditableEntity
 {
     public int Id { get; set; }
 
-    [Required(ErrorMessage = "The {0} field is required.")]
-    [StringLength(100, ErrorMessage = "The field {0} must have between {2} and {1} characters.")]
+    [Required(ErrorMessage = "Validation.Required")]
+    [StringLength(100, ErrorMessage = "Validation.StringLength")]
     public string Name { get; set; } = string.Empty;
 
-    [Required(ErrorMessage = "The {0} field is required.")]
-    [StringLength(500, ErrorMessage = "The field {0} must have between {2} and {1} characters.")]
+    [Required(ErrorMessage = "Validation.Required")]
+    [StringLength(500, ErrorMessage = "Validation.StringLength")]
     public string Description { get; set; } = string.Empty;
 
-    [Required(ErrorMessage = "The {0} field is required.")]
+    [Required(ErrorMessage = "Validation.Required")]
     public bool IsActive { get; set; }
 
     public decimal? PricePerDay { get; set; }
 
-    [Required(ErrorMessage = "The {0} field is required.")]
+    [Required(ErrorMessage = "Validation.Required")]
     [DataType(DataType.Date)]
     public DateTime StartDate { get; set; }
 
-    [Required(ErrorMessage = "The {0} field is required.")]
+    [Required(ErrorMessage = "Validation.Required")]
     [DataType(DataType.Date)]
     public DateTime EndDate { get; set; }
 
@@ -31,14 +31,14 @@ public class Activity : AuditableEntity
     /// Comma-separated list of allowed postal codes (e.g., "1000,1050,1060").
     /// If empty/null, all postal codes are allowed (unless excluded).
     /// </summary>
-    [StringLength(500, ErrorMessage = "The field {0} must have between {2} and {1} characters.")]
+    [StringLength(500, ErrorMessage = "Validation.StringLength")]
     public string? IncludedPostalCodes { get; set; }
 
     /// <summary>
     /// Comma-separated list of excluded postal codes (e.g., "9000,9999").
     /// If empty/null, no postal codes are excluded.
     /// </summary>
-    [StringLength(500, ErrorMessage = "The field {0} must have between {2} and {1} characters.")]
+    [StringLength(500, ErrorMessage = "Validation.StringLength")]
     public string? ExcludedPostalCodes { get; set; }
 
     public int OrganisationId { get; set; }

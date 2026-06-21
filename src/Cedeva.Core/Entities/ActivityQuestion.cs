@@ -10,8 +10,8 @@ public class ActivityQuestion : AuditableEntity
     public int ActivityId { get; set; }
     public Activity Activity { get; set; } = null!;
 
-    [Required(ErrorMessage = "The {0} field is required.")]
-    [StringLength(500, ErrorMessage = "The field {0} must have between {2} and {1} characters.")]
+    [Required(ErrorMessage = "Validation.Required")]
+    [StringLength(500, ErrorMessage = "Validation.StringLength")]
     public string QuestionText { get; set; } = string.Empty;
 
     public QuestionType QuestionType { get; set; }

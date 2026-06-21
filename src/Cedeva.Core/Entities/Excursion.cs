@@ -10,14 +10,14 @@ public class Excursion : AuditableEntity
 {
     public int Id { get; set; }
 
-    [Required(ErrorMessage = "The {0} field is required.")]
-    [StringLength(100, ErrorMessage = "The field {0} must have between {2} and {1} characters.")]
+    [Required(ErrorMessage = "Validation.Required")]
+    [StringLength(100, ErrorMessage = "Validation.StringLength")]
     public string Name { get; set; } = string.Empty;
 
-    [StringLength(500, ErrorMessage = "The field {0} must have between {2} and {1} characters.")]
+    [StringLength(500, ErrorMessage = "Validation.StringLength")]
     public string? Description { get; set; }
 
-    [Required(ErrorMessage = "The {0} field is required.")]
+    [Required(ErrorMessage = "Validation.Required")]
     public DateTime ExcursionDate { get; set; }
 
     /// <summary>
@@ -33,17 +33,17 @@ public class Excursion : AuditableEntity
     /// <summary>
     /// Coût par enfant
     /// </summary>
-    [Required(ErrorMessage = "The {0} field is required.")]
+    [Required(ErrorMessage = "Validation.Required")]
     public decimal Cost { get; set; }
 
-    [Required(ErrorMessage = "The {0} field is required.")]
+    [Required(ErrorMessage = "Validation.Required")]
     public ExcursionType Type { get; set; }
 
-    [Required(ErrorMessage = "The {0} field is required.")]
+    [Required(ErrorMessage = "Validation.Required")]
     public bool IsActive { get; set; } = true;
 
     // Relationships
-    [Required(ErrorMessage = "The {0} field is required.")]
+    [Required(ErrorMessage = "Validation.Required")]
     public int ActivityId { get; set; }
     public Activity Activity { get; set; } = null!;
 

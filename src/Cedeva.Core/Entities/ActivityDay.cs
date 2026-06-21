@@ -6,17 +6,17 @@ public class ActivityDay : AuditableEntity
 {
     public int DayId { get; set; }
 
-    [Required(ErrorMessage = "The {0} field is required.")]
-    [StringLength(100, ErrorMessage = "The field {0} must have between {2} and {1} characters.")]
+    [Required(ErrorMessage = "Validation.Required")]
+    [StringLength(100, ErrorMessage = "Validation.StringLength")]
     public string Label { get; set; } = string.Empty;
 
-    [Required(ErrorMessage = "The {0} field is required.")]
+    [Required(ErrorMessage = "Validation.Required")]
     [DataType(DataType.Date)]
     public DateTime DayDate { get; set; }
 
     public int? Week { get; set; }
 
-    [Required(ErrorMessage = "The {0} field is required.")]
+    [Required(ErrorMessage = "Validation.Required")]
     public bool IsActive { get; set; }
 
     public int ActivityId { get; set; }

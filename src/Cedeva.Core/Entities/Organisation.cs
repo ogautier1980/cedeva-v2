@@ -6,12 +6,12 @@ public class Organisation : AuditableEntity
 {
     public int Id { get; set; }
 
-    [Required(ErrorMessage = "The {0} field is required.")]
-    [StringLength(100, ErrorMessage = "The field {0} must have between {2} and {1} characters.")]
+    [Required(ErrorMessage = "Validation.Required")]
+    [StringLength(100, ErrorMessage = "Validation.StringLength")]
     public string Name { get; set; } = string.Empty;
 
-    [Required(ErrorMessage = "The {0} field is required.")]
-    [StringLength(500, ErrorMessage = "The field {0} must have between {2} and {1} characters.")]
+    [Required(ErrorMessage = "Validation.Required")]
+    [StringLength(500, ErrorMessage = "Validation.StringLength")]
     public string Description { get; set; } = string.Empty;
 
     public int AddressId { get; set; }

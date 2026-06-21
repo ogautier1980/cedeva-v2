@@ -10,21 +10,21 @@ public class Booking : AuditableEntity
     [DataType(DataType.Date)]
     public DateTime BookingDate { get; set; }
 
-    [Required(ErrorMessage = "The {0} field is required.")]
+    [Required(ErrorMessage = "Validation.Required")]
     public int ChildId { get; set; }
     public Child Child { get; set; } = null!;
 
-    [Required(ErrorMessage = "The {0} field is required.")]
+    [Required(ErrorMessage = "Validation.Required")]
     public int ActivityId { get; set; }
     public Activity Activity { get; set; } = null!;
 
     public int? GroupId { get; set; }
     public ActivityGroup? Group { get; set; }
 
-    [Required(ErrorMessage = "The {0} field is required.")]
+    [Required(ErrorMessage = "Validation.Required")]
     public bool IsConfirmed { get; set; }
 
-    [Required(ErrorMessage = "The {0} field is required.")]
+    [Required(ErrorMessage = "Validation.Required")]
     public bool IsMedicalSheet { get; set; }
 
     /// <summary>

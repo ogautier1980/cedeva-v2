@@ -7,41 +7,41 @@ public class TeamMember : AuditableEntity
 {
     public int TeamMemberId { get; set; }
 
-    [Required(ErrorMessage = "The {0} field is required.")]
-    [StringLength(100, ErrorMessage = "The field {0} must have between {2} and {1} characters.")]
+    [Required(ErrorMessage = "Validation.Required")]
+    [StringLength(100, ErrorMessage = "Validation.StringLength")]
     public string FirstName { get; set; } = string.Empty;
 
-    [Required(ErrorMessage = "The {0} field is required.")]
-    [StringLength(100, ErrorMessage = "The field {0} must have between {2} and {1} characters.")]
+    [Required(ErrorMessage = "Validation.Required")]
+    [StringLength(100, ErrorMessage = "Validation.StringLength")]
     public string LastName { get; set; } = string.Empty;
 
-    [Required(ErrorMessage = "The {0} field is required.")]
-    [StringLength(100, ErrorMessage = "The field {0} must have between {2} and {1} characters.")]
+    [Required(ErrorMessage = "Validation.Required")]
+    [StringLength(100, ErrorMessage = "Validation.StringLength")]
     [EmailAddress]
     public string Email { get; set; } = string.Empty;
 
-    [Required(ErrorMessage = "The {0} field is required.")]
+    [Required(ErrorMessage = "Validation.Required")]
     [DataType(DataType.Date)]
     public DateTime BirthDate { get; set; }
 
     public int AddressId { get; set; }
     public Address Address { get; set; } = null!;
 
-    [Required(ErrorMessage = "The {0} field is required.")]
-    [StringLength(100, ErrorMessage = "The field {0} must have between {2} and {1} characters.")]
+    [Required(ErrorMessage = "Validation.Required")]
+    [StringLength(100, ErrorMessage = "Validation.StringLength")]
     public string MobilePhoneNumber { get; set; } = string.Empty;
 
-    [Required(ErrorMessage = "The {0} field is required.")]
-    [StringLength(15, MinimumLength = 11, ErrorMessage = "The field {0} must have between {2} and {1} characters.")]
+    [Required(ErrorMessage = "Validation.Required")]
+    [StringLength(15, MinimumLength = 11, ErrorMessage = "Validation.StringLength")]
     public string NationalRegisterNumber { get; set; } = string.Empty;
 
-    [Required(ErrorMessage = "The {0} field is required.")]
+    [Required(ErrorMessage = "Validation.Required")]
     public TeamRole TeamRole { get; set; }
 
-    [Required(ErrorMessage = "The {0} field is required.")]
+    [Required(ErrorMessage = "Validation.Required")]
     public License License { get; set; }
 
-    [Required(ErrorMessage = "The {0} field is required.")]
+    [Required(ErrorMessage = "Validation.Required")]
     public Status Status { get; set; }
 
     public decimal? DailyCompensation { get; set; }

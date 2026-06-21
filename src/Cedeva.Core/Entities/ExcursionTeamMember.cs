@@ -9,29 +9,29 @@ public class ExcursionTeamMember : AuditableEntity
 {
     public int Id { get; set; }
 
-    [Required(ErrorMessage = "The {0} field is required.")]
+    [Required(ErrorMessage = "Validation.Required")]
     public int ExcursionId { get; set; }
     public Excursion Excursion { get; set; } = null!;
 
-    [Required(ErrorMessage = "The {0} field is required.")]
+    [Required(ErrorMessage = "Validation.Required")]
     public int TeamMemberId { get; set; }
     public TeamMember TeamMember { get; set; } = null!;
 
     /// <summary>
     /// Prévu pour accompagner l'excursion
     /// </summary>
-    [Required(ErrorMessage = "The {0} field is required.")]
+    [Required(ErrorMessage = "Validation.Required")]
     public bool IsAssigned { get; set; } = true;
 
     /// <summary>
     /// Présent effectivement à l'excursion
     /// </summary>
-    [Required(ErrorMessage = "The {0} field is required.")]
+    [Required(ErrorMessage = "Validation.Required")]
     public bool IsPresent { get; set; } = false;
 
     /// <summary>
     /// Notes spécifiques (rôle, responsabilités, etc.)
     /// </summary>
-    [StringLength(500, ErrorMessage = "The field {0} must have between {2} and {1} characters.")]
+    [StringLength(500, ErrorMessage = "Validation.StringLength")]
     public string? Notes { get; set; }
 }

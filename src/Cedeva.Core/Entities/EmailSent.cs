@@ -10,7 +10,7 @@ public class EmailSent : AuditableEntity
     public int? ActivityId { get; set; }
     public Activity? Activity { get; set; }
 
-    [Required(ErrorMessage = "The {0} field is required.")]
+    [Required(ErrorMessage = "Validation.Required")]
     public EmailRecipient RecipientType { get; set; }
 
     public int? RecipientGroupId { get; set; }
@@ -21,19 +21,19 @@ public class EmailSent : AuditableEntity
     public int? ScheduledDayId { get; set; }
     public ActivityDay? ScheduledDay { get; set; }
 
-    [Required(ErrorMessage = "The {0} field is required.")]
+    [Required(ErrorMessage = "Validation.Required")]
     public string RecipientEmails { get; set; } = string.Empty;
 
-    [Required(ErrorMessage = "The {0} field is required.")]
-    [StringLength(255, ErrorMessage = "The field {0} must have between {2} and {1} characters.")]
+    [Required(ErrorMessage = "Validation.Required")]
+    [StringLength(255, ErrorMessage = "Validation.StringLength")]
     public string Subject { get; set; } = string.Empty;
 
     /// <summary>
     /// Email template content (may contain variables like %prenom_enfant%)
     /// Increased from 1024 to 5000 to accommodate HTML content
     /// </summary>
-    [Required(ErrorMessage = "The {0} field is required.")]
-    [StringLength(5000, ErrorMessage = "The field {0} must have between {2} and {1} characters.")]
+    [Required(ErrorMessage = "Validation.Required")]
+    [StringLength(5000, ErrorMessage = "Validation.StringLength")]
     public string Message { get; set; } = string.Empty;
 
     /// <summary>
@@ -41,12 +41,12 @@ public class EmailSent : AuditableEntity
     /// </summary>
     public bool SendSeparateEmailPerChild { get; set; } = true;
 
-    [StringLength(255, ErrorMessage = "The field {0} must have between {2} and {1} characters.")]
+    [StringLength(255, ErrorMessage = "Validation.StringLength")]
     public string? AttachmentFileName { get; set; }
 
-    [StringLength(500, ErrorMessage = "The field {0} must have between {2} and {1} characters.")]
+    [StringLength(500, ErrorMessage = "Validation.StringLength")]
     public string? AttachmentFilePath { get; set; }
 
-    [Required(ErrorMessage = "The {0} field is required.")]
+    [Required(ErrorMessage = "Validation.Required")]
     public DateTime SentDate { get; set; }
 }
