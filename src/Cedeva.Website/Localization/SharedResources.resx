@@ -4240,4 +4240,16 @@
   <data name="Import.Type.Organisations" xml:space="preserve">
     <value>Organisations</value>
   </data>
+  <data name="Validation.EndDateBeforeStart" xml:space="preserve">
+    <value>La date de fin ne peut pas précéder la date de début.</value>
+  </data>
+  <data name="Help.NationalRegisterNumber" xml:space="preserve">
+    <value>Format : AA.MM.JJ-XXX.CC (11 chiffres). La clé de contrôle est vérifiée automatiquement.</value>
+  </data>
+  <data name="Help.ActivityDates" xml:space="preserve">
+    <value>Un jour est généré pour chaque date de la période ; les week-ends sont créés inactifs. Vous pourrez ajuster les jours ensuite.</value>
+  </data>
+  <data name="Help.PricePerDay" xml:space="preserve">
+    <value>Tarif facturé par jour réservé. Le total d'une réservation = prix/jour × jours réservés (+ excursions).</value>
+  </data>
 </root>

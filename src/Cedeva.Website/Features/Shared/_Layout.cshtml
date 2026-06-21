@@ -369,6 +369,11 @@
             const isToggled = wrapper?.classList.contains("toggled");
             localStorage.setItem("sidebarToggled", isToggled ? "true" : "false");
         });
+
+        // Enable Bootstrap tooltips everywhere (used by the "informations" help icons).
+        document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(function (el) {
+            new bootstrap.Tooltip(el);
+        });
     </script>
 
     @await RenderSectionAsync("Scripts", required: false)

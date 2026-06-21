@@ -4218,4 +4218,16 @@
   <data name="Import.Type.Organisations" xml:space="preserve">
     <value>Organisations</value>
   </data>
+  <data name="Validation.EndDateBeforeStart" xml:space="preserve">
+    <value>The end date cannot be before the start date.</value>
+  </data>
+  <data name="Help.NationalRegisterNumber" xml:space="preserve">
+    <value>Format: YY.MM.DD-XXX.CC (11 digits). The check digit is verified automatically.</value>
+  </data>
+  <data name="Help.ActivityDates" xml:space="preserve">
+    <value>One day is generated per date in the range; weekends are created inactive. You can adjust the days afterwards.</value>
+  </data>
+  <data name="Help.PricePerDay" xml:space="preserve">
+    <value>Price charged per reserved day. A booking total = price/day × reserved days (+ excursions).</value>
+  </data>
 </root>

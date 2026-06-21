@@ -45,7 +45,7 @@
                         </div>
 
                         <div class="mb-3">
-                            <label for="NationalRegisterNumber" class="form-label">@Localizer["Field.NationalRegisterNumber"]</label>
+                            <label for="NationalRegisterNumber" class="form-label">@Localizer["Field.NationalRegisterNumber"]@await Html.PartialAsync("_InfoTooltip", Localizer["Help.NationalRegisterNumber"].Value)</label>
                             <input asp-for="NationalRegisterNumber" class="form-control" placeholder="@Localizer["Children.NRNPlaceholder"]" id="NationalRegisterNumber" />
                             <span asp-validation-for="NationalRegisterNumber" class="text-danger"></span>
                         </div>

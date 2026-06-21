@@ -205,6 +205,22 @@ public class ActivitiesControllerIntegrationTests
     }
 
     [Fact]
+    public async Task CreatePost_EndDateBeforeStartDate_ReRendersWithoutCreating()
+    {
+        using var factory = new CedevaWebApplicationFactory();
+        Organisation org = null!;
+        factory.Seed(ctx => { org = TestData.Organisation(); ctx.Add(org); return 0; });
+
+        var client = factory.CreateClientFor("u1", org.Id, "Coordinator");
+        var response = await client.PostAsync("/Activities/Create",
+            ValidActivityForm(name: "StageDatesKO", startDate: "2026-07-10", endDate: "2026-07-01"));
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK, "the FluentValidation cross-field rule rejects the dates");
+        using var db = factory.NewDbContext();
+        (await db.Activities.IgnoreQueryFilters().AnyAsync(a => a.Name == "StageDatesKO")).Should().BeFalse();
+    }
+
+    [Fact]
     public async Task CreatePost_GeneratesActivityDaysForDateRange()
     {
         using var factory = new CedevaWebApplicationFactory();

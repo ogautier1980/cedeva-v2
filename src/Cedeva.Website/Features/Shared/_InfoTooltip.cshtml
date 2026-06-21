@@ -1,0 +1,7 @@
+@model string
+@* Reusable "information" help icon. Usage: @await Html.PartialAsync("_InfoTooltip", Localizer["Some.Help"].Value) *@
+@if (!string.IsNullOrWhiteSpace(Model))
+{
+    <i class="fas fa-circle-info text-muted ms-1" role="img" tabindex="0"
+       data-bs-toggle="tooltip" data-bs-placement="top" title="@Model"></i>
+}
