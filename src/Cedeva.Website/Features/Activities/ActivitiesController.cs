@@ -31,6 +31,7 @@ public class ActivitiesController : Controller
     private readonly IStringLocalizer<SharedResources> _localizer;
     private readonly IUserDisplayService _userDisplayService;
     private readonly ISessionStateService _sessionState;
+    private readonly IEmailTemplateService _templateService;
 
     public ActivitiesController(
         CedevaDbContext context,
@@ -39,7 +40,8 @@ public class ActivitiesController : Controller
         IExportFacadeService exportServices,
         IStringLocalizer<SharedResources> localizer,
         IUserDisplayService userDisplayService,
-        ISessionStateService sessionState)
+        ISessionStateService sessionState,
+        IEmailTemplateService templateService)
     {
         _context = context;
         _currentUserService = currentUserService;
@@ -48,6 +50,7 @@ public class ActivitiesController : Controller
         _localizer = localizer;
         _userDisplayService = userDisplayService;
         _sessionState = sessionState;
+        _templateService = templateService;
     }
 
     public async Task<IActionResult> Index([FromQuery] ActivityQueryParameters queryParams)
@@ -228,6 +231,9 @@ public class ActivitiesController : Controller
 
         _context.Activities.Add(activity);
         await _context.SaveChangesAsync();
+
+        // Seed the new activity with a copy of the organisation's template library.
+        await _templateService.CopyOrganisationTemplatesToActivityAsync(activity.OrganisationId, activity.Id);
 
         await CreateActivityGroupsAsync(activity.Id, viewModel.NewGroups);
         await CreateActivityQuestionsAsync(activity.Id, viewModel.NewQuestions);

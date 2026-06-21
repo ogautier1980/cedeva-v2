@@ -92,6 +92,9 @@
                 <a href="/Contacts" class="list-group-item list-group-item-action bg-primary text-white border-0">
                     <i class="fas fa-address-book me-2"></i>@Localizer["Contacts"]
                 </a>
+                <a href="/EmailTemplates" class="list-group-item list-group-item-action bg-primary text-white border-0">
+                    <i class="fas fa-file-alt me-2"></i>@Localizer["EmailTemplate.LibraryMenu"]
+                </a>
                 <div class="border-top border-white border-opacity-25 my-2"></div>
                 @{
                     var currentUser = User;
@@ -202,7 +205,7 @@
                                     </li>
                                     <li>
                                         <a class="dropdown-item @(navAction == "EmailTemplates" ? "active" : "")"
-                                           asp-action="Index" asp-controller="EmailTemplates" asp-route-id="@activityId">
+                                           asp-action="Index" asp-controller="EmailTemplates" asp-route-activityId="@activityId">
                                             <i class="fas fa-file-alt"></i> @Localizer["ActivityManagement.EmailTemplates"]
                                         </a>
                                     </li>

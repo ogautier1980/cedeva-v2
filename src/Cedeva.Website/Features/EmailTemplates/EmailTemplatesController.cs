@@ -24,8 +24,6 @@ public class EmailTemplatesController : Controller
     private readonly CedevaDbContext _context;
     private readonly ILogger<EmailTemplatesController> _logger;
 
-    private const string SessionKeyActivityId = "EmailTemplates_ActivityId";
-    private const string ErrorGeneric = "Error.Generic";
     private const string ErrorNotFound = "Error.NotFound";
 
     public EmailTemplatesController(
@@ -44,47 +42,47 @@ public class EmailTemplatesController : Controller
         _logger = logger;
     }
 
-    public async Task<IActionResult> Index(EmailTemplateType? type = null, int? id = null)
+    /// <summary>
+    /// Lists templates for a scope: an activity's templates when <paramref name="activityId"/> is
+    /// given, otherwise the organisation-level library.
+    /// </summary>
+    public async Task<IActionResult> Index(int? activityId = null, EmailTemplateType? type = null)
     {
-        if (id.HasValue)
-            HttpContext.Session.SetInt32(SessionKeyActivityId, id.Value);
-
-        var activityId = HttpContext.Session.GetInt32(SessionKeyActivityId);
-        int? organisationId = _currentUserService.OrganisationId;
+        var orgId = _currentUserService.OrganisationId ?? 0;
 
         if (activityId.HasValue)
         {
             var activity = await _context.Activities.FirstOrDefaultAsync(a => a.Id == activityId.Value);
-            if (activity != null)
+            if (activity == null)
             {
-                this.SetActivityViewData(activity.Id, activity.Name);
-                // Use the activity's organisation for template filtering
-                organisationId = activity.OrganisationId;
+                TempData[ControllerExtensions.ErrorMessageKey] = _localizer[ErrorNotFound].ToString();
+                return RedirectToAction(nameof(Index));
             }
+            orgId = activity.OrganisationId;
+            this.SetActivityViewData(activity.Id, activity.Name);
+            ViewData["NavSection"] = "Emails";
+            ViewData["NavAction"] = "EmailTemplates";
+            ViewBag.ActivityName = activity.Name;
         }
-        ViewData["NavSection"] = "Emails";
-        ViewData["NavAction"] = "EmailTemplates";
 
-        var orgId = organisationId ?? 0;
-
-        var templates = type.HasValue
-            ? await _templateService.GetTemplatesByTypeAsync(type.Value, orgId)
-            : await _templateService.GetAllTemplatesAsync(orgId);
-
+        ViewBag.ActivityId = activityId;
         ViewBag.SelectedType = type;
         ViewBag.TypeOptions = GetTemplateTypeOptions();
+
+        var templates = type.HasValue
+            ? await _templateService.GetTemplatesByTypeAsync(type.Value, orgId, activityId)
+            : await _templateService.GetAllTemplatesAsync(orgId, activityId);
 
         return View(templates);
     }
 
-    public IActionResult Create()
+    public IActionResult Create(int? activityId = null)
     {
-        var viewModel = new EmailTemplateViewModel
+        return View(new EmailTemplateViewModel
         {
+            ActivityId = activityId,
             TemplateTypeOptions = GetTemplateTypeOptions()
-        };
-
-        return View(viewModel);
+        });
     }
 
     [HttpPost]
@@ -101,12 +99,13 @@ public class EmailTemplatesController : Controller
         if (user == null)
         {
             TempData[ControllerExtensions.ErrorMessageKey] = _localizer["Error.Unauthorized"].ToString();
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction(nameof(Index), new { activityId = viewModel.ActivityId });
         }
 
         var template = new EmailTemplate
         {
             OrganisationId = _currentUserService.OrganisationId ?? 0,
+            ActivityId = viewModel.ActivityId,
             Name = viewModel.Name,
             TemplateType = viewModel.TemplateType,
             Subject = viewModel.Subject,
@@ -116,11 +115,10 @@ public class EmailTemplatesController : Controller
             CreatedAt = DateTime.UtcNow
         };
 
-        // Persistence failures bubble to the global exception handler (/Home/Error).
         await _templateService.CreateTemplateAsync(template);
 
         TempData[ControllerExtensions.SuccessMessageKey] = _localizer["EmailTemplate.CreateSuccess"].ToString();
-        return RedirectToAction(nameof(Index));
+        return RedirectToAction(nameof(Index), new { activityId = viewModel.ActivityId });
     }
 
     public async Task<IActionResult> Edit(int id)
@@ -170,29 +168,28 @@ public class EmailTemplatesController : Controller
         template.HtmlContent = viewModel.HtmlContent;
         template.IsDefault = viewModel.IsDefault;
 
-        // Persistence failures bubble to the global exception handler (/Home/Error).
         await _templateService.UpdateTemplateAsync(template);
 
         TempData[ControllerExtensions.SuccessMessageKey] = _localizer["EmailTemplate.UpdateSuccess"].ToString();
-        return RedirectToAction(nameof(Index));
+        return RedirectToAction(nameof(Index), new { activityId = template.ActivityId });
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(int id)
     {
-        // Persistence failures bubble to the global exception handler (/Home/Error).
+        var template = await _templateService.GetTemplateByIdAsync(id);
+        var activityId = template?.ActivityId;
+
         await _templateService.DeleteTemplateAsync(id);
         TempData[ControllerExtensions.SuccessMessageKey] = _localizer["EmailTemplate.DeleteSuccess"].ToString();
-        return RedirectToAction(nameof(Index));
+        return RedirectToAction(nameof(Index), new { activityId });
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> SetDefault(int id, EmailTemplateType type)
     {
-        // Graceful not-found (the service throws on an unknown id); unexpected persistence
-        // failures bubble to the global exception handler (/Home/Error).
         var template = await _templateService.GetTemplateByIdAsync(id);
         if (template == null)
         {
@@ -202,7 +199,7 @@ public class EmailTemplatesController : Controller
 
         await _templateService.SetDefaultTemplateAsync(id, type);
         TempData[ControllerExtensions.SuccessMessageKey] = _localizer["EmailTemplate.SetDefaultSuccess"].ToString();
-        return RedirectToAction(nameof(Index));
+        return RedirectToAction(nameof(Index), new { activityId = template.ActivityId });
     }
 
     public async Task<IActionResult> Duplicate(int id)
@@ -221,23 +218,61 @@ public class EmailTemplatesController : Controller
             Subject = template.Subject,
             HtmlContent = template.HtmlContent,
             IsDefault = false, // Duplicate is never default
+            ActivityId = template.ActivityId,
             TemplateTypeOptions = GetTemplateTypeOptions()
         };
 
         return View("Create", viewModel);
     }
 
-    /// <summary>
-    /// AJAX endpoint to get template data for loading into SendEmail form
-    /// </summary>
+    /// <summary>Picker to import another activity's templates into this one.</summary>
+    [HttpGet]
+    public async Task<IActionResult> Import(int activityId)
+    {
+        var activity = await _context.Activities.FirstOrDefaultAsync(a => a.Id == activityId);
+        if (activity == null)
+        {
+            TempData[ControllerExtensions.ErrorMessageKey] = _localizer[ErrorNotFound].ToString();
+            return RedirectToAction(nameof(Index));
+        }
+
+        var sources = await _templateService.GetActivitiesWithTemplatesAsync(activity.OrganisationId, excludeActivityId: activityId);
+
+        return View(new ImportTemplatesViewModel
+        {
+            ActivityId = activityId,
+            ActivityName = activity.Name,
+            Sources = sources.Select(s => new SelectListItem
+            {
+                Value = s.ActivityId.ToString(),
+                Text = $"{s.ActivityName} ({s.TemplateCount})"
+            }).ToList()
+        });
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Import(int activityId, int sourceActivityId)
+    {
+        var activity = await _context.Activities.FirstOrDefaultAsync(a => a.Id == activityId);
+        if (activity == null)
+        {
+            TempData[ControllerExtensions.ErrorMessageKey] = _localizer[ErrorNotFound].ToString();
+            return RedirectToAction(nameof(Index));
+        }
+
+        var count = await _templateService.ImportTemplatesFromActivityAsync(activity.OrganisationId, sourceActivityId, activityId);
+        TempData[ControllerExtensions.SuccessMessageKey] = string.Format(_localizer["EmailTemplate.ImportSuccess"].Value, count);
+        return RedirectToAction(nameof(Index), new { activityId });
+    }
+
+    /// <summary>AJAX endpoint to get template data for loading into the SendEmail form.</summary>
     [HttpGet]
     public async Task<IActionResult> GetTemplate(int id)
     {
         var template = await _templateService.GetTemplateByIdAsync(id);
         if (template == null)
-        {
             return NotFound();
-        }
 
         return Json(new
         {

@@ -4059,4 +4059,25 @@
   <data name="Email.ContactGroupRecipients" xml:space="preserve">
     <value>Contact groups</value>
   </data>
+  <data name="EmailTemplate.LibraryMenu" xml:space="preserve">
+    <value>Email templates</value>
+  </data>
+  <data name="EmailTemplate.OrgLibrary" xml:space="preserve">
+    <value>Organisation library</value>
+  </data>
+  <data name="EmailTemplate.Import" xml:space="preserve">
+    <value>Import templates</value>
+  </data>
+  <data name="EmailTemplate.ImportHelp" xml:space="preserve">
+    <value>Copy another activity's templates into this one. Types already present are not overwritten.</value>
+  </data>
+  <data name="EmailTemplate.ImportSource" xml:space="preserve">
+    <value>Source activity</value>
+  </data>
+  <data name="EmailTemplate.ImportSuccess" xml:space="preserve">
+    <value>{0} template(s) imported.</value>
+  </data>
+  <data name="EmailTemplate.NoSourceActivities" xml:space="preserve">
+    <value>No other activity has templates to import.</value>
+  </data>
 </root>

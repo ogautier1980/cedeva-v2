@@ -29,15 +29,36 @@ public class EmailTemplateServiceTests
         int organisationId,
         EmailTemplateType type,
         string name,
-        bool isDefault = false) => new()
+        bool isDefault = false,
+        int? activityId = null) => new()
     {
         OrganisationId = organisationId,
         TemplateType = type,
         Name = name,
         Subject = "Subject " + name,
         HtmlContent = "<p>" + name + "</p>",
-        IsDefault = isDefault
+        IsDefault = isDefault,
+        ActivityId = activityId
     };
+
+    /// <summary>Adds an activity (FK target for activity-scoped templates) and returns its id.</summary>
+    private static int SeedActivity(SqliteTestContext db, int organisationId, string name = "Stage")
+    {
+        using var seed = db.NewContext(FakeCurrentUserService.Admin());
+        var activity = new Activity
+        {
+            Name = name,
+            Description = "x",
+            IsActive = true,
+            PricePerDay = 20m,
+            StartDate = new DateTime(2026, 7, 1),
+            EndDate = new DateTime(2026, 7, 5),
+            OrganisationId = organisationId
+        };
+        seed.Activities.Add(activity);
+        seed.SaveChanges();
+        return activity.Id;
+    }
 
     /// <summary>Adds templates via an admin context (bypasses tenant filter) over the same db.</summary>
     private static void SeedTemplates(SqliteTestContext db, params EmailTemplate[] templates)
@@ -412,5 +433,147 @@ public class EmailTemplateServiceTests
         var sut = new EmailTemplateService(coordCtx);
 
         (await sut.GetTemplateByIdAsync(other.Id)).Should().BeNull();
+    }
+
+    // ----- Activity scope: defaults, fallback, listing -----------------------
+
+    [Fact]
+    public async Task GetDefaultTemplate_WithActivity_PrefersActivityDefault()
+    {
+        var (db, orgA, _) = NewDb();
+        using var _d = db;
+        var activityId = SeedActivity(db, orgA);
+        SeedTemplates(db,
+            Template(orgA, EmailTemplateType.BookingConfirmation, "OrgDefault", isDefault: true),
+            Template(orgA, EmailTemplateType.BookingConfirmation, "ActivityDefault", isDefault: true, activityId: activityId));
+        var sut = new EmailTemplateService(db.Context);
+
+        var result = await sut.GetDefaultTemplateAsync(EmailTemplateType.BookingConfirmation, orgA, activityId);
+
+        result!.Name.Should().Be("ActivityDefault");
+    }
+
+    [Fact]
+    public async Task GetDefaultTemplate_WithActivity_FallsBackToOrgDefault()
+    {
+        var (db, orgA, _) = NewDb();
+        using var _d = db;
+        var activityId = SeedActivity(db, orgA);
+        SeedTemplates(db, Template(orgA, EmailTemplateType.BookingConfirmation, "OrgDefault", isDefault: true));
+        var sut = new EmailTemplateService(db.Context);
+
+        var result = await sut.GetDefaultTemplateAsync(EmailTemplateType.BookingConfirmation, orgA, activityId);
+
+        result!.Name.Should().Be("OrgDefault", "no activity default exists, so the org default applies");
+    }
+
+    [Fact]
+    public async Task GetAllTemplates_ScopeSeparatesOrgLevelFromActivityLevel()
+    {
+        var (db, orgA, _) = NewDb();
+        using var _d = db;
+        var activityId = SeedActivity(db, orgA);
+        SeedTemplates(db,
+            Template(orgA, EmailTemplateType.Custom, "OrgLevel"),
+            Template(orgA, EmailTemplateType.Custom, "ActivityLevel", activityId: activityId));
+        var sut = new EmailTemplateService(db.Context);
+
+        (await sut.GetAllTemplatesAsync(orgA)).Select(t => t.Name).Should().BeEquivalentTo(new[] { "OrgLevel" });
+        (await sut.GetAllTemplatesAsync(orgA, activityId)).Select(t => t.Name).Should().BeEquivalentTo(new[] { "ActivityLevel" });
+    }
+
+    // ----- Mandatory default per (scope, type) ------------------------------
+
+    [Fact]
+    public async Task Create_FirstOfTypeInScope_BecomesDefaultEvenIfNotRequested()
+    {
+        var (db, orgA, _) = NewDb();
+        using var _d = db;
+        var sut = new EmailTemplateService(db.Context);
+
+        var created = await sut.CreateTemplateAsync(
+            Template(orgA, EmailTemplateType.PaymentReminder, "First", isDefault: false));
+
+        created.IsDefault.Should().BeTrue("the first template of a type in a scope is the mandatory default");
+    }
+
+    [Fact]
+    public async Task Delete_Default_PromotesAnotherTemplateOfSameType()
+    {
+        var (db, orgA, _) = NewDb();
+        using var _d = db;
+        var theDefault = Template(orgA, EmailTemplateType.BookingConfirmation, "Default", isDefault: true);
+        var other = Template(orgA, EmailTemplateType.BookingConfirmation, "Other", isDefault: false);
+        SeedTemplates(db, theDefault, other);
+        var sut = new EmailTemplateService(db.Context);
+
+        await sut.DeleteTemplateAsync(theDefault.Id);
+
+        await using var verify = db.NewContext();
+        (await verify.EmailTemplates.SingleAsync(t => t.Id == other.Id))
+            .IsDefault.Should().BeTrue("deleting the default promotes the remaining template");
+    }
+
+    // ----- Copy / import -----------------------------------------------------
+
+    [Fact]
+    public async Task CopyOrganisationTemplatesToActivity_CopiesLibrary_SkippingExistingTypes()
+    {
+        var (db, orgA, _) = NewDb();
+        using var _d = db;
+        var activityId = SeedActivity(db, orgA);
+        SeedTemplates(db,
+            Template(orgA, EmailTemplateType.BookingConfirmation, "OrgBC", isDefault: true),
+            Template(orgA, EmailTemplateType.PaymentReminder, "OrgPR", isDefault: true),
+            // Activity already has a BookingConfirmation -> that type must be skipped.
+            Template(orgA, EmailTemplateType.BookingConfirmation, "ExistingBC", isDefault: true, activityId: activityId));
+        var sut = new EmailTemplateService(db.Context);
+
+        var created = await sut.CopyOrganisationTemplatesToActivityAsync(orgA, activityId);
+
+        created.Should().Be(1, "only PaymentReminder is missing on the activity");
+        var activityTemplates = await sut.GetAllTemplatesAsync(orgA, activityId);
+        activityTemplates.Select(t => t.Name).Should().BeEquivalentTo(new[] { "ExistingBC", "OrgPR" });
+    }
+
+    [Fact]
+    public async Task ImportTemplatesFromActivity_CopiesIntoTarget_SkippingExistingTypes()
+    {
+        var (db, orgA, _) = NewDb();
+        using var _d = db;
+        var source = SeedActivity(db, orgA, "Source");
+        var target = SeedActivity(db, orgA, "Target");
+        SeedTemplates(db,
+            Template(orgA, EmailTemplateType.BookingConfirmation, "SrcBC", isDefault: true, activityId: source),
+            Template(orgA, EmailTemplateType.PaymentReminder, "SrcPR", isDefault: true, activityId: source),
+            Template(orgA, EmailTemplateType.PaymentReminder, "TgtPR", isDefault: true, activityId: target));
+        var sut = new EmailTemplateService(db.Context);
+
+        var created = await sut.ImportTemplatesFromActivityAsync(orgA, source, target);
+
+        created.Should().Be(1);
+        (await sut.GetAllTemplatesAsync(orgA, target)).Select(t => t.Name)
+            .Should().BeEquivalentTo(new[] { "TgtPR", "SrcBC" });
+    }
+
+    [Fact]
+    public async Task GetActivitiesWithTemplates_ListsActivitiesAndCounts_ExcludingTarget()
+    {
+        var (db, orgA, _) = NewDb();
+        using var _d = db;
+        var a1 = SeedActivity(db, orgA, "Alpha");
+        var a2 = SeedActivity(db, orgA, "Beta");
+        SeedTemplates(db,
+            Template(orgA, EmailTemplateType.Custom, "A1a", activityId: a1),
+            Template(orgA, EmailTemplateType.PaymentReminder, "A1b", activityId: a1),
+            Template(orgA, EmailTemplateType.Custom, "A2a", activityId: a2));
+        var sut = new EmailTemplateService(db.Context);
+
+        var result = await sut.GetActivitiesWithTemplatesAsync(orgA, excludeActivityId: a2);
+
+        result.Should().ContainSingle();
+        result[0].ActivityId.Should().Be(a1);
+        result[0].ActivityName.Should().Be("Alpha");
+        result[0].TemplateCount.Should().Be(2);
     }
 }

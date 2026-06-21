@@ -361,7 +361,7 @@ public class ActivityManagementController : Controller
             .Where(e => e.ActivityId == id)
             .ToListAsync();
 
-        ViewBag.Templates = await _emailServices.Template.GetAllTemplatesAsync(activity.OrganisationId);
+        ViewBag.Templates = await _emailServices.Template.GetAllTemplatesAsync(activity.OrganisationId, activity.Id);
 
         var viewModel = new SendEmailViewModel
         {
@@ -897,7 +897,7 @@ public class ActivityManagementController : Controller
             model.RecipientOptions = GetRecipientOptions(activity.Groups, excursions, await GetContactGroupsAsync(activity.OrganisationId, ct));
             model.DayOptions = GetDayOptions(activity.Days);
             model.ContactOptions = await GetContactOptionsAsync(activity.OrganisationId, ct);
-            ViewBag.Templates = await _emailServices.Template.GetAllTemplatesAsync(activity.OrganisationId);
+            ViewBag.Templates = await _emailServices.Template.GetAllTemplatesAsync(activity.OrganisationId, activity.Id);
         }
     }
 

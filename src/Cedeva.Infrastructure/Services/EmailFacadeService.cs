@@ -35,7 +35,8 @@ public class EmailFacadeService : IEmailFacadeService
         EmailTemplateType type, int organisationId, IEnumerable<string> recipients,
         Booking booking, Organisation organisation)
     {
-        var template = await Template.GetDefaultTemplateAsync(type, organisationId);
+        // Prefer the activity's own default template, falling back to the organisation-level one.
+        var template = await Template.GetDefaultTemplateAsync(type, organisationId, booking.ActivityId);
         if (template == null)
             return false;
 

@@ -19,6 +19,7 @@
             <div class="card-body">
                 <form asp-action="Edit" method="post">
                     <input type="hidden" asp-for="Id" />
+                    <input type="hidden" asp-for="ActivityId" />
 
                     <div class="mb-3">
                         <label for="Name" class="form-label">@Localizer["Field.Name"]</label>

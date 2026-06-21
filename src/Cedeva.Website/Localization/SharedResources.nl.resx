@@ -4059,4 +4059,25 @@
   <data name="Email.ContactGroupRecipients" xml:space="preserve">
     <value>Contactgroepen</value>
   </data>
+  <data name="EmailTemplate.LibraryMenu" xml:space="preserve">
+    <value>E-mailsjablonen</value>
+  </data>
+  <data name="EmailTemplate.OrgLibrary" xml:space="preserve">
+    <value>Bibliotheek van de organisatie</value>
+  </data>
+  <data name="EmailTemplate.Import" xml:space="preserve">
+    <value>Sjablonen importeren</value>
+  </data>
+  <data name="EmailTemplate.ImportHelp" xml:space="preserve">
+    <value>Kopieer de sjablonen van een andere activiteit naar deze activiteit. Bestaande types worden niet overschreven.</value>
+  </data>
+  <data name="EmailTemplate.ImportSource" xml:space="preserve">
+    <value>Bronactiviteit</value>
+  </data>
+  <data name="EmailTemplate.ImportSuccess" xml:space="preserve">
+    <value>{0} sjabloon(en) geïmporteerd.</value>
+  </data>
+  <data name="EmailTemplate.NoSourceActivities" xml:space="preserve">
+    <value>Geen enkele andere activiteit heeft sjablonen om te importeren.</value>
+  </data>
 </root>
