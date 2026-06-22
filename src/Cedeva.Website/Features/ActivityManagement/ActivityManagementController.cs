@@ -19,17 +19,11 @@ public class ActivityManagementController : Controller
     private const string SessionKeyActivityId = "ActivityId";
     private const string DefaultGroupLabel = "Sans groupe";
     private const string LocalizerKeyErrorOccurred = "Message.ErrorOccurred";
-    private const string RecipientAllParents = "allparents";
-    private const string RecipientMedicalSheetReminder = "medicalsheetreminder";
-    private const string RecipientUnpaidParents = "unpaidparents";
-    private const string RecipientGroupPrefix = "group_";
-    private const string RecipientExcursionPrefix = "excursion_";
-    private const string RecipientCustomContacts = "custom_contacts";
-    private const string RecipientContactGroupPrefix = "contactgroup_";
 
     private readonly CedevaDbContext _context;
     private readonly ILogger<ActivityManagementController> _logger;
     private readonly IEmailFacadeService _emailServices;
+    private readonly IActivityEmailService _activityEmailService;
     private readonly ISessionStateService _sessionState;
     private readonly IStringLocalizer<SharedResources> _localizer;
 
@@ -37,12 +31,14 @@ public class ActivityManagementController : Controller
         CedevaDbContext context,
         ILogger<ActivityManagementController> logger,
         IEmailFacadeService emailServices,
+        IActivityEmailService activityEmailService,
         ISessionStateService sessionState,
         IStringLocalizer<SharedResources> localizer)
     {
         _context = context;
         _logger = logger;
         _emailServices = emailServices;
+        _activityEmailService = activityEmailService;
         _sessionState = sessionState;
         _localizer = localizer;
     }
@@ -385,96 +381,32 @@ public class ActivityManagementController : Controller
             return View(model);
         }
 
-        var recipientGroupId = ExtractRecipientGroupId(model.SelectedRecipient);
         var (attachmentFileName, attachmentFilePath) = await SaveAttachmentAsync(model.AttachmentFile, ct);
 
         try
         {
-            var organisationId = await _context.Activities
-                .Where(a => a.Id == model.ActivityId)
-                .Select(a => a.OrganisationId)
-                .FirstOrDefaultAsync(ct);
-            var organisation = await _context.Organisations.FirstOrDefaultAsync(o => o.Id == organisationId, ct);
+            var result = await _activityEmailService.SendAsync(new ActivityEmailRequest(
+                model.ActivityId, model.SelectedRecipient, model.SelectedDayId,
+                model.Subject, model.Message, model.SendSeparateEmailPerChild,
+                model.SelectedContactEmails ?? new List<string>(),
+                attachmentFileName, attachmentFilePath), ct);
 
-            _logger.LogInformation("Starting email sending process for activity {ActivityId}, recipient: {Recipient}",
-                model.ActivityId, model.SelectedRecipient);
-
-            // Contact recipients (ad-hoc selection or a saved group): send the message as-is to the
-            // chosen contact emails (no per-child variable replacement — no booking context).
-            var isContactGroup = model.SelectedRecipient?.StartsWith(RecipientContactGroupPrefix) == true;
-            if (model.SelectedRecipient == RecipientCustomContacts || isContactGroup)
+            switch (result.Outcome)
             {
-                // Only allow emails that actually belong to this organisation's contacts, so the
-                // form can't be abused to send to arbitrary addresses.
-                var allowed = (await GetContactOptionsAsync(organisationId, ct))
-                    .Select(c => c.Email)
-                    .ToHashSet(StringComparer.OrdinalIgnoreCase);
-
-                IEnumerable<string> requestedEmails;
-                if (isContactGroup &&
-                    int.TryParse(model.SelectedRecipient!.Substring(RecipientContactGroupPrefix.Length), out var contactGroupId))
-                {
-                    requestedEmails = await _context.ContactGroupMembers
-                        .Where(m => m.ContactGroupId == contactGroupId && m.ContactGroup.OrganisationId == organisationId)
-                        .Select(m => m.Email)
-                        .ToListAsync(ct);
-                }
-                else
-                {
-                    requestedEmails = model.SelectedContactEmails ?? new List<string>();
-                }
-
-                var customEmails = requestedEmails
-                    .Where(e => !string.IsNullOrWhiteSpace(e))
-                    .Select(e => e.Trim())
-                    .Where(e => allowed.Contains(e))
-                    .Distinct(StringComparer.OrdinalIgnoreCase)
-                    .ToList();
-
-                if (customEmails.Count == 0)
-                {
+                case ActivityEmailOutcome.NoContactsSelected:
                     ModelState.AddModelError(string.Empty, _localizer["Message.NoContactsSelected"]);
                     await RepopulateViewModelAsync(model, ct);
                     return View(model);
-                }
 
-                foreach (var email in customEmails)
-                    await _emailServices.Email.SendEmailAsync(new List<string> { email }, model.Subject, model.Message, attachmentFilePath);
+                case ActivityEmailOutcome.NoRecipients:
+                    ModelState.AddModelError(string.Empty, _localizer["Message.NoRecipientsFound"]);
+                    await RepopulateViewModelAsync(model, ct);
+                    return View(model);
 
-                await LogSentEmailAsync(model, null, customEmails, attachmentFileName, attachmentFilePath, ct);
-                TempData[ControllerExtensions.SuccessMessageKey] = string.Format(_localizer["Message.EmailSent"].Value, customEmails.Count);
-                return RedirectToAction(nameof(SendEmail));
+                default:
+                    TempData[ControllerExtensions.SuccessMessageKey] = string.Format(_localizer["Message.EmailSent"].Value, result.SentCount);
+                    return RedirectToAction(nameof(SendEmail));
             }
-
-            int emailsSentCount;
-
-            if (model.SendSeparateEmailPerChild)
-            {
-                _logger.LogInformation("Sending separate email per child");
-                // 1 email per child: replace variables per booking
-                emailsSentCount = await SendPerChildAsync(model, recipientGroupId, organisation!, attachmentFilePath, ct);
-            }
-            else
-            {
-                _logger.LogInformation("Sending email per parent");
-                // 1 email per parent: send same message to unique parent emails
-                emailsSentCount = await SendPerParentAsync(model, recipientGroupId, attachmentFilePath, ct);
-            }
-
-            if (emailsSentCount == 0)
-            {
-                ModelState.AddModelError(string.Empty, _localizer["Message.NoRecipientsFound"]);
-                await RepopulateViewModelAsync(model, ct);
-                return View(model);
-            }
-
-            // Log the sent email
-            var allEmails = await _emailServices.Recipient.GetRecipientEmailsAsync(
-                model.ActivityId, model.SelectedRecipient!, recipientGroupId, model.SelectedDayId, ct);
-            await LogSentEmailAsync(model, recipientGroupId, allEmails, attachmentFileName, attachmentFilePath, ct);
-
-            TempData[ControllerExtensions.SuccessMessageKey] = string.Format(_localizer["Message.EmailSent"].Value, emailsSentCount);
-            return RedirectToAction(nameof(SendEmail));
         }
         catch (InvalidOperationException ex)
         {
@@ -490,119 +422,6 @@ public class ActivityManagementController : Controller
             await RepopulateViewModelAsync(model, ct);
             return View(model);
         }
-    }
-
-    /// <summary>
-    /// Sends one personalized email per child booking, replacing variables with booking-specific data
-    /// </summary>
-    private async Task<int> SendPerChildAsync(
-        SendEmailViewModel model,
-        int? recipientGroupId,
-        Organisation organisation,
-        string? attachmentFilePath,
-        CancellationToken ct)
-    {
-        var bookings = await GetFilteredBookingsAsync(model.ActivityId, model.SelectedRecipient, recipientGroupId, model.SelectedDayId, ct);
-
-        int count = 0;
-        foreach (var booking in bookings)
-        {
-            var personalizedSubject = _emailServices.VariableReplacement.ReplaceVariables(model.Subject, booking, organisation);
-            var personalizedMessage = _emailServices.VariableReplacement.ReplaceVariables(model.Message, booking, organisation);
-
-            await _emailServices.Email.SendEmailAsync(
-                new List<string> { booking.Child.Parent.Email },
-                personalizedSubject,
-                personalizedMessage,
-                attachmentFilePath);
-            count++;
-        }
-
-        return count;
-    }
-
-    /// <summary>
-    /// Sends one email per unique parent (no variable replacement, or uses first child's data)
-    /// </summary>
-    private async Task<int> SendPerParentAsync(
-        SendEmailViewModel model,
-        int? recipientGroupId,
-        string? attachmentFilePath,
-        CancellationToken ct)
-    {
-        var recipientEmails = await _emailServices.Recipient.GetRecipientEmailsAsync(
-            model.ActivityId, model.SelectedRecipient!, recipientGroupId, model.SelectedDayId, ct);
-
-        if (!recipientEmails.Any())
-            return 0;
-
-        // Send same message to all unique parent emails (HTML content used as-is from TinyMCE)
-        foreach (var email in recipientEmails)
-        {
-            await _emailServices.Email.SendEmailAsync(
-                new List<string> { email },
-                model.Subject,
-                model.Message,
-                attachmentFilePath);
-        }
-
-        return recipientEmails.Count;
-    }
-
-    /// <summary>
-    /// Gets bookings matching the filters, with navigation properties loaded for variable replacement
-    /// </summary>
-    private async Task<List<Booking>> GetFilteredBookingsAsync(
-        int activityId,
-        string? selectedRecipient,
-        int? recipientGroupId,
-        int? scheduledDayId,
-        CancellationToken ct)
-    {
-        var query = _context.Bookings
-            .Include(b => b.Child)
-                .ThenInclude(c => c.Parent)
-            .Include(b => b.Activity)
-            .Include(b => b.Group)
-            .Include(b => b.Days)
-            .Where(b => b.ActivityId == activityId && b.IsConfirmed);
-
-        // Apply day filter
-        if (scheduledDayId.HasValue)
-        {
-            query = query.Where(b => b.Days.Any(bd => bd.ActivityDayId == scheduledDayId.Value && bd.IsReserved));
-        }
-
-        // Apply recipient type filter
-        if (selectedRecipient == RecipientMedicalSheetReminder)
-        {
-            query = query.Where(b => !b.IsMedicalSheet);
-        }
-        else if (selectedRecipient == RecipientUnpaidParents)
-        {
-            // Filter bookings where PaidAmount < TotalAmount (unpaid balance)
-            query = query.Where(b => b.PaidAmount < b.TotalAmount);
-        }
-        else if (!string.IsNullOrEmpty(selectedRecipient) && selectedRecipient.StartsWith(RecipientGroupPrefix) && recipientGroupId.HasValue)
-        {
-            query = query.Where(b => b.GroupId == recipientGroupId);
-        }
-        else if (!string.IsNullOrEmpty(selectedRecipient) && selectedRecipient.StartsWith(RecipientExcursionPrefix))
-        {
-            // Extract excursion ID and filter bookings registered to that excursion
-            var excursionIdStr = selectedRecipient.Substring(RecipientExcursionPrefix.Length);
-            if (int.TryParse(excursionIdStr, out var excursionId))
-            {
-                var registeredBookingIds = await _context.ExcursionRegistrations
-                    .Where(er => er.ExcursionId == excursionId)
-                    .Select(er => er.BookingId)
-                    .ToListAsync(ct);
-
-                query = query.Where(b => registeredBookingIds.Contains(b.Id));
-            }
-        }
-
-        return await query.ToListAsync(ct);
     }
 
     [HttpPost]
@@ -790,10 +609,10 @@ public class ActivityManagementController : Controller
 
         var options = new List<SelectListItem>
         {
-            new() { Value = RecipientAllParents, Text = _localizer["Email.RecipientAllParents"], Group = generalGroup },
-            new() { Value = RecipientMedicalSheetReminder, Text = _localizer["Email.RecipientMedicalSheetReminder"], Group = generalGroup },
-            new() { Value = RecipientUnpaidParents, Text = _localizer["Email.RecipientUnpaidParents"], Group = generalGroup },
-            new() { Value = RecipientCustomContacts, Text = _localizer["Email.RecipientCustomContacts"], Group = generalGroup }
+            new() { Value = EmailRecipientKeys.AllParents, Text = _localizer["Email.RecipientAllParents"], Group = generalGroup },
+            new() { Value = EmailRecipientKeys.MedicalSheetReminder, Text = _localizer["Email.RecipientMedicalSheetReminder"], Group = generalGroup },
+            new() { Value = EmailRecipientKeys.UnpaidParents, Text = _localizer["Email.RecipientUnpaidParents"], Group = generalGroup },
+            new() { Value = EmailRecipientKeys.CustomContacts, Text = _localizer["Email.RecipientCustomContacts"], Group = generalGroup }
         };
 
         // Add groups section
@@ -805,7 +624,7 @@ public class ActivityManagementController : Controller
             {
                 options.Add(new SelectListItem
                 {
-                    Value = $"{RecipientGroupPrefix}{group.Id}",
+                    Value = $"{EmailRecipientKeys.GroupPrefix}{group.Id}",
                     Text = group.Label,
                     Group = groupsListGroup
                 });
@@ -822,7 +641,7 @@ public class ActivityManagementController : Controller
             {
                 options.Add(new SelectListItem
                 {
-                    Value = $"{RecipientExcursionPrefix}{excursion.Id}",
+                    Value = $"{EmailRecipientKeys.ExcursionPrefix}{excursion.Id}",
                     Text = excursion.Name,
                     Group = excursionsListGroup
                 });
@@ -839,7 +658,7 @@ public class ActivityManagementController : Controller
             {
                 options.Add(new SelectListItem
                 {
-                    Value = $"{RecipientContactGroupPrefix}{cg.Id}",
+                    Value = $"{EmailRecipientKeys.ContactGroupPrefix}{cg.Id}",
                     Text = cg.Name,
                     Group = contactGroupsListGroup
                 });
@@ -914,17 +733,6 @@ public class ActivityManagementController : Controller
             .ToList();
     }
 
-    private static int? ExtractRecipientGroupId(string? selectedRecipient)
-    {
-        if (!string.IsNullOrEmpty(selectedRecipient) &&
-            selectedRecipient.StartsWith(RecipientGroupPrefix) &&
-            int.TryParse(selectedRecipient.Substring(RecipientGroupPrefix.Length), out var groupId))
-        {
-            return groupId;
-        }
-        return null;
-    }
-
     private static async Task<(string? fileName, string? filePath)> SaveAttachmentAsync(IFormFile? attachmentFile, CancellationToken ct)
     {
         if (attachmentFile == null || attachmentFile.Length == 0)
@@ -948,43 +756,6 @@ public class ActivityManagementController : Controller
         }
 
         return (fileName, filePath);
-    }
-
-    private async Task LogSentEmailAsync(
-        SendEmailViewModel model,
-        int? recipientGroupId,
-        IEnumerable<string> recipientEmails,
-        string? attachmentFileName,
-        string? attachmentFilePath,
-        CancellationToken ct)
-    {
-        var recipientType = model.SelectedRecipient switch
-        {
-            var r when r == RecipientAllParents => EmailRecipient.AllParents,
-            var r when r == RecipientMedicalSheetReminder => EmailRecipient.MedicalSheetReminder,
-            var r when r == RecipientCustomContacts => EmailRecipient.CustomContacts,
-            var r when r != null && r.StartsWith(RecipientContactGroupPrefix) => EmailRecipient.CustomContacts,
-            var r when r != null && r.StartsWith(RecipientGroupPrefix) => EmailRecipient.ActivityGroup,
-            _ => EmailRecipient.AllParents
-        };
-
-        var emailSent = new EmailSent
-        {
-            ActivityId = model.ActivityId,
-            RecipientType = recipientType,
-            RecipientGroupId = recipientGroupId,
-            ScheduledDayId = model.SelectedDayId,
-            RecipientEmails = string.Join("; ", recipientEmails),
-            Subject = model.Subject,
-            Message = model.Message,
-            SendSeparateEmailPerChild = model.SendSeparateEmailPerChild,
-            AttachmentFileName = attachmentFileName,
-            AttachmentFilePath = attachmentFilePath,
-            SentDate = DateTime.Now
-        };
-
-        _context.EmailsSent.Add(emailSent);
-        await _context.SaveChangesAsync(ct);
     }
 
     // GET: ActivityManagement/Print
