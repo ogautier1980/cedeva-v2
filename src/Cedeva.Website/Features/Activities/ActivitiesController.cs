@@ -1,4 +1,5 @@
 using Cedeva.Core.Entities;
+using Cedeva.Core.Helpers;
 using Cedeva.Core.Interfaces;
 using Cedeva.Infrastructure.Data;
 using Cedeva.Website.Features.Activities.ViewModels;
@@ -297,19 +298,7 @@ public class ActivitiesController : Controller
         await _context.SaveChangesAsync();
     }
 
-    private static void GenerateActivityDays(Activity activity)
-    {
-        for (var date = activity.StartDate; date <= activity.EndDate; date = date.AddDays(1))
-        {
-            activity.Days.Add(new ActivityDay
-            {
-                Label = date.ToString(DateFormatFull, new System.Globalization.CultureInfo(CultureFrBe)),
-                DayDate = date,
-                Week = GetWeekNumber(date, activity.StartDate),
-                IsActive = !IsWeekend(date)
-            });
-        }
-    }
+    private static void GenerateActivityDays(Activity activity) => ActivityDayGenerator.GenerateDays(activity);
 
     public async Task<IActionResult> Edit(int id, string? returnUrl = null)
     {
@@ -740,31 +729,10 @@ public class ActivitiesController : Controller
     }
 
 
-    private static int GetWeekNumber(DateTime date, DateTime startDate)
-    {
-        // Find the first Sunday on or after startDate
-        var firstSunday = startDate;
-        while (firstSunday.DayOfWeek != DayOfWeek.Sunday)
-        {
-            firstSunday = firstSunday.AddDays(1);
-        }
+    private static int GetWeekNumber(DateTime date, DateTime startDate) =>
+        ActivityDayGenerator.GetWeekNumber(date, startDate);
 
-        // If date is before or on first Sunday, it's week 1
-        if (date <= firstSunday)
-        {
-            return 1;
-        }
-
-        // Calculate weeks from first Monday (day after first Sunday)
-        var firstMonday = firstSunday.AddDays(1);
-        var daysSinceFirstMonday = (date - firstMonday).Days;
-        return (daysSinceFirstMonday / 7) + 2; // +2 because week 1 already happened
-    }
-
-    private static bool IsWeekend(DateTime date)
-    {
-        return date.DayOfWeek == DayOfWeek.Saturday || date.DayOfWeek == DayOfWeek.Sunday;
-    }
+    private static bool IsWeekend(DateTime date) => ActivityDayGenerator.IsWeekend(date);
 
     /// <summary>
     /// Ensures all days between activity StartDate and EndDate exist in database.

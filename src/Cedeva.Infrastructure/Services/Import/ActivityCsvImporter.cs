@@ -1,5 +1,6 @@
 using System.Globalization;
 using Cedeva.Core.Entities;
+using Cedeva.Core.Helpers;
 using Cedeva.Core.Interfaces;
 using Cedeva.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
@@ -103,7 +104,7 @@ public class ActivityCsvImporter : ICsvEntityImporter
                 IsActive = ParseBool(row.Get("isactive"), defaultValue: true),
                 OrganisationId = organisationId
             };
-            GenerateDays(activity);
+            ActivityDayGenerator.GenerateDays(activity);
 
             _context.Activities.Add(activity);
             await _context.SaveChangesAsync(ct);
@@ -123,30 +124,5 @@ public class ActivityCsvImporter : ICsvEntityImporter
         var n = CsvImportHelper.Normalise(raw);
         if (n.Length == 0) return defaultValue;
         return n is "1" or "true" or "oui" or "yes" or "vrai" or "ja";
-    }
-
-    private static void GenerateDays(Activity activity)
-    {
-        var culture = new CultureInfo("fr-BE");
-        for (var date = activity.StartDate; date <= activity.EndDate; date = date.AddDays(1))
-        {
-            activity.Days.Add(new ActivityDay
-            {
-                Label = date.ToString("dddd d MMMM", culture),
-                DayDate = date,
-                Week = GetWeekNumber(date, activity.StartDate),
-                IsActive = date.DayOfWeek is not (DayOfWeek.Saturday or DayOfWeek.Sunday)
-            });
-        }
-    }
-
-    private static int GetWeekNumber(DateTime date, DateTime startDate)
-    {
-        var firstSunday = startDate;
-        while (firstSunday.DayOfWeek != DayOfWeek.Sunday)
-            firstSunday = firstSunday.AddDays(1);
-        if (date <= firstSunday) return 1;
-        var firstMonday = firstSunday.AddDays(1);
-        return ((date - firstMonday).Days / 7) + 2;
     }
 }
