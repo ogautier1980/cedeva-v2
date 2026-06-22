@@ -298,8 +298,7 @@ public class UsersController : Controller
 
         if (result.Succeeded)
         {
-            TempData[ControllerExtensions.SuccessMessageKey] = _localizer["Message.UserDeleted"].Value;
-            return RedirectToAction(nameof(Index));
+            return this.RedirectToIndexWithSuccess(_localizer["Message.UserDeleted"].Value);
         }
 
         foreach (var error in result.Errors)

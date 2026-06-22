@@ -537,8 +537,7 @@ public class TeamMembersController : Controller
             await _unitOfWork.SaveChangesAsync();
         }
 
-        TempData[ControllerExtensions.SuccessMessageKey] = _ctx.Localizer["Message.TeamMemberDeleted"].Value;
-        return RedirectToAction(nameof(Index));
+        return this.RedirectToIndexWithSuccess(_ctx.Localizer["Message.TeamMemberDeleted"].Value);
     }
 
     // Helper method to get team member view model with all related data

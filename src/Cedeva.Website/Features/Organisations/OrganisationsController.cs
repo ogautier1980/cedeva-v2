@@ -371,8 +371,7 @@ public class OrganisationsController : Controller
             await _unitOfWork.SaveChangesAsync();
         }
 
-        TempData[ControllerExtensions.SuccessMessageKey] = _ctx.Localizer["Message.OrganisationDeleted"].Value;
-        return RedirectToAction(nameof(Index));
+        return this.RedirectToIndexWithSuccess(_ctx.Localizer["Message.OrganisationDeleted"].Value);
     }
 
     private async Task UpdateAddressFromViewModel(int addressId, OrganisationViewModel viewModel)

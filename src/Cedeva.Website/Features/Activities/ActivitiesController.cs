@@ -242,8 +242,7 @@ public class ActivitiesController : Controller
         _logger.LogInformation("Activity {Name} created by user {UserId} with {GroupCount} groups and {QuestionCount} questions",
             activity.Name, _currentUserService.UserId, viewModel.NewGroups?.Count ?? 0, viewModel.NewQuestions?.Count ?? 0);
 
-        TempData[ControllerExtensions.SuccessMessageKey] = _localizer["Message.ActivityCreated"].Value;
-        return RedirectToAction(nameof(Index));
+        return this.RedirectToIndexWithSuccess(_localizer["Message.ActivityCreated"].Value);
     }
 
     private async Task ReloadOrganisationsForAdmin()
@@ -632,9 +631,7 @@ public class ActivitiesController : Controller
         await _context.SaveChangesAsync();
 
         _logger.LogInformation("Activity {Name} deleted by user {UserId}", activity.Name, _currentUserService.UserId);
-        TempData[ControllerExtensions.SuccessMessageKey] = _localizer["Message.ActivityDeleted"].Value;
-
-        return RedirectToAction(nameof(Index));
+        return this.RedirectToIndexWithSuccess(_localizer["Message.ActivityDeleted"].Value);
     }
 
     private async Task<bool> ActivityExists(int id)

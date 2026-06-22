@@ -454,8 +454,7 @@ public class BookingsController : Controller
         await _bookingRepository.DeleteAsync(booking);
         await _unitOfWork.SaveChangesAsync();
 
-        TempData[ControllerExtensions.SuccessMessageKey] = _ctx.Localizer["Message.BookingDeleted"].Value;
-        return RedirectToAction(nameof(Index));
+        return this.RedirectToIndexWithSuccess(_ctx.Localizer["Message.BookingDeleted"].Value);
     }
 
     private void UpdateBookingDays(Booking booking, List<int>? selectedActivityDayIds)

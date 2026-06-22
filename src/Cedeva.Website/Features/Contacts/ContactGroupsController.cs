@@ -88,8 +88,7 @@ public class ContactGroupsController : Controller
         _context.ContactGroups.Add(group);
         await _context.SaveChangesAsync();
 
-        TempData[ControllerExtensions.SuccessMessageKey] = _localizer["ContactGroup.Created"].Value;
-        return RedirectToAction(nameof(Index));
+        return this.RedirectToIndexWithSuccess(_localizer["ContactGroup.Created"].Value);
     }
 
     [HttpGet]
@@ -133,8 +132,7 @@ public class ContactGroupsController : Controller
         group.Members = members;
         await _context.SaveChangesAsync();
 
-        TempData[ControllerExtensions.SuccessMessageKey] = _localizer["ContactGroup.Updated"].Value;
-        return RedirectToAction(nameof(Index));
+        return this.RedirectToIndexWithSuccess(_localizer["ContactGroup.Updated"].Value);
     }
 
     [HttpPost]

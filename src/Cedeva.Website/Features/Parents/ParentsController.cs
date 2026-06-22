@@ -274,8 +274,7 @@ public class ParentsController : Controller
 
         _logger.LogInformation("Parent {Name} created by user {UserId}", parent.FullName, _currentUserService.UserId);
 
-        TempData[ControllerExtensions.SuccessMessageKey] = _localizer["Message.ParentCreated"].Value;
-        return RedirectToAction(nameof(Index));
+        return this.RedirectToIndexWithSuccess(_localizer["Message.ParentCreated"].Value);
     }
 
     [HttpPost]
@@ -466,9 +465,7 @@ public class ParentsController : Controller
         }
 
         _logger.LogInformation("Parent {Name} deleted by user {UserId}", parent.FullName, _currentUserService.UserId);
-        TempData[ControllerExtensions.SuccessMessageKey] = _localizer["Message.ParentDeleted"].Value;
-
-        return RedirectToAction(nameof(Index));
+        return this.RedirectToIndexWithSuccess(_localizer["Message.ParentDeleted"].Value);
     }
 
     private async Task PopulateOrganisationsDropdown(int? selectedOrganisationId = null)

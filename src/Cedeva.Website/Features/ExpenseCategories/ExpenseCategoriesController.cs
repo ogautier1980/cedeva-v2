@@ -57,8 +57,7 @@ public class ExpenseCategoriesController : Controller
         _context.ExpenseCategories.Add(new ExpenseCategory { OrganisationId = orgId, Name = name });
         await _context.SaveChangesAsync();
 
-        TempData[ControllerExtensions.SuccessMessageKey] = _localizer["ExpenseCategory.Created"].Value;
-        return RedirectToAction(nameof(Index));
+        return this.RedirectToIndexWithSuccess(_localizer["ExpenseCategory.Created"].Value);
     }
 
     [HttpGet]
@@ -104,8 +103,7 @@ public class ExpenseCategoriesController : Controller
 
         await _context.SaveChangesAsync();
 
-        TempData[ControllerExtensions.SuccessMessageKey] = _localizer["ExpenseCategory.Updated"].Value;
-        return RedirectToAction(nameof(Index));
+        return this.RedirectToIndexWithSuccess(_localizer["ExpenseCategory.Updated"].Value);
     }
 
     [HttpPost]

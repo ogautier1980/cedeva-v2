@@ -103,8 +103,7 @@ public class ContactsController : Controller
         _context.Contacts.Add(contact);
         await _context.SaveChangesAsync();
 
-        TempData[ControllerExtensions.SuccessMessageKey] = _localizer["Contacts.Created"].Value;
-        return RedirectToAction(nameof(Index));
+        return this.RedirectToIndexWithSuccess(_localizer["Contacts.Created"].Value);
     }
 
     [HttpGet]
@@ -143,8 +142,7 @@ public class ContactsController : Controller
         contact.Function = viewModel.Function;
         await _context.SaveChangesAsync();
 
-        TempData[ControllerExtensions.SuccessMessageKey] = _localizer["Contacts.Updated"].Value;
-        return RedirectToAction(nameof(Index));
+        return this.RedirectToIndexWithSuccess(_localizer["Contacts.Updated"].Value);
     }
 
     [HttpPost]

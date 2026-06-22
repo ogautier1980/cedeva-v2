@@ -400,8 +400,7 @@ public class ChildrenController : Controller
         await _childRepository.DeleteAsync(child);
         await _unitOfWork.SaveChangesAsync();
 
-        TempData[ControllerExtensions.SuccessMessageKey] = _ctx.Localizer["Message.ChildDeleted"].Value;
-        return RedirectToAction(nameof(Index));
+        return this.RedirectToIndexWithSuccess(_ctx.Localizer["Message.ChildDeleted"].Value);
     }
 
     // Helper method to get child view model with all related data
