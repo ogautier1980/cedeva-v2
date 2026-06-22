@@ -127,13 +127,13 @@
             }
             else
             {
-                <div class="text-center py-5">
-                    <i class="fas fa-users-cog fa-3x text-muted mb-3"></i>
-                    <p class="text-muted">@Localizer["Users.NoUsersFound"]</p>
-                    <a asp-action="Create" class="btn btn-primary">
-                        <i class="fas fa-plus me-2"></i>@Localizer["Users.NewUser"]
-                    </a>
-                </div>
+                @await Html.PartialAsync("_EmptyState", new EmptyStateModel
+                {
+                    Icon = "fa-users-cog",
+                    Message = Localizer["Users.NoUsersFound"].Value,
+                    CreateUrl = Url.Action("Create"),
+                    CreateText = Localizer["Users.NewUser"].Value
+                })
             }
         </div>
     </div>

@@ -103,20 +103,14 @@
             }
             else
             {
-                <div class="text-center py-5">
-                    <i class="fas fa-child fa-3x text-muted mb-3"></i>
-                    @if (!string.IsNullOrEmpty(searchString) || parentId.HasValue)
-                    {
-                        <p class="text-muted">@Localizer["Children.NoChildrenFound"]</p>
-                    }
-                    else
-                    {
-                        <p class="text-muted">@Localizer["Children.NoChildrenYet"]</p>
-                        <a asp-action="Create" class="btn btn-primary">
-                            <i class="fas fa-plus me-2"></i>@Localizer["Children.CreateChild"]
-                        </a>
-                    }
-                </div>
+                @await Html.PartialAsync("_EmptyState", new EmptyStateModel
+                {
+                    Icon = "fa-child",
+                    Message = (!string.IsNullOrEmpty(searchString) || parentId.HasValue)
+                        ? Localizer["Children.NoChildrenFound"].Value : Localizer["Children.NoChildrenYet"].Value,
+                    CreateUrl = (!string.IsNullOrEmpty(searchString) || parentId.HasValue) ? null : Url.Action("Create"),
+                    CreateText = Localizer["Children.CreateChild"].Value
+                })
             }
         </div>
     </div>
