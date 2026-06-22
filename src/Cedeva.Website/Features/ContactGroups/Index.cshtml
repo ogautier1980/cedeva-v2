@@ -43,10 +43,7 @@
                                     <a asp-action="Edit" asp-route-id="@group.Id" class="btn btn-sm btn-outline-secondary">
                                         <i class="fas fa-edit"></i>
                                     </a>
-                                    <form asp-action="Delete" asp-route-id="@group.Id" method="post" class="d-inline"
-                                          onsubmit="return confirm('@Localizer["ContactGroup.ConfirmDelete"].Value');">
-                                        <button type="submit" class="btn btn-sm btn-outline-danger"><i class="fas fa-trash"></i></button>
-                                    </form>
+                                    @await Html.PartialAsync("_DeleteButton", new DeleteButtonModel { Id = group.Id, ConfirmMessage = Localizer["ContactGroup.ConfirmDelete"].Value })
                                 </td>
                             </tr>
                         }
@@ -58,11 +55,11 @@
 }
 else
 {
-    <div class="text-center py-5">
-        <i class="fas fa-users fa-3x text-muted mb-3"></i>
-        <p class="text-muted">@Localizer["ContactGroup.NoGroups"]</p>
-        <a asp-action="Create" class="btn btn-primary">
-            <i class="fas fa-plus me-2"></i>@Localizer["ContactGroup.AddGroup"]
-        </a>
-    </div>
+    @await Html.PartialAsync("_EmptyState", new EmptyStateModel
+    {
+        Icon = "fa-users",
+        Message = Localizer["ContactGroup.NoGroups"].Value,
+        CreateUrl = Url.Action("Create"),
+        CreateText = Localizer["ContactGroup.AddGroup"].Value
+    })
 }

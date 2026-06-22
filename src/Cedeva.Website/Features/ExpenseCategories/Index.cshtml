@@ -33,10 +33,7 @@
                                     <a asp-action="Edit" asp-route-id="@category.Id" class="btn btn-sm btn-outline-secondary">
                                         <i class="fas fa-edit"></i>
                                     </a>
-                                    <form asp-action="Delete" asp-route-id="@category.Id" method="post" class="d-inline"
-                                          onsubmit="return confirm('@Localizer["ExpenseCategory.ConfirmDelete"].Value');">
-                                        <button type="submit" class="btn btn-sm btn-outline-danger"><i class="fas fa-trash"></i></button>
-                                    </form>
+                                    @await Html.PartialAsync("_DeleteButton", new DeleteButtonModel { Id = category.Id, ConfirmMessage = Localizer["ExpenseCategory.ConfirmDelete"].Value })
                                 </td>
                             </tr>
                         }
@@ -48,11 +45,11 @@
 }
 else
 {
-    <div class="text-center py-5">
-        <i class="fas fa-tags fa-3x text-muted mb-3"></i>
-        <p class="text-muted">@Localizer["ExpenseCategory.NoCategories"]</p>
-        <a asp-action="Create" class="btn btn-primary">
-            <i class="fas fa-plus me-2"></i>@Localizer["ExpenseCategory.AddCategory"]
-        </a>
-    </div>
+    @await Html.PartialAsync("_EmptyState", new EmptyStateModel
+    {
+        Icon = "fa-tags",
+        Message = Localizer["ExpenseCategory.NoCategories"].Value,
+        CreateUrl = Url.Action("Create"),
+        CreateText = Localizer["ExpenseCategory.AddCategory"].Value
+    })
 }

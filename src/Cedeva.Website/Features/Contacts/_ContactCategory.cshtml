@@ -32,10 +32,7 @@
                                             <a asp-action="Edit" asp-route-id="@row.ContactId" class="btn btn-sm btn-outline-secondary">
                                                 <i class="fas fa-edit"></i>
                                             </a>
-                                            <form asp-action="Delete" asp-route-id="@row.ContactId" method="post" class="d-inline"
-                                                  onsubmit="return confirm('@Localizer["Contacts.ConfirmDelete"].Value');">
-                                                <button type="submit" class="btn btn-sm btn-outline-danger"><i class="fas fa-trash"></i></button>
-                                            </form>
+                                            @await Html.PartialAsync("_DeleteButton", new DeleteButtonModel { Id = row.ContactId!.Value, ConfirmMessage = Localizer["Contacts.ConfirmDelete"].Value })
                                         </td>
                                     }
                                 </tr>

@@ -1,0 +1,12 @@
+@model Cedeva.Website.Features.Shared.ViewModels.EmptyStateModel
+@* Standard empty-state block. Never use an alert for empty states (UI standard). *@
+<div class="text-center py-5">
+    <i class="fas @Model.Icon fa-3x text-muted mb-3"></i>
+    <p class="text-muted">@Model.Message</p>
+    @if (!string.IsNullOrEmpty(Model.CreateUrl))
+    {
+        <a href="@Model.CreateUrl" class="btn btn-primary">
+            <i class="fas fa-plus me-2"></i>@Model.CreateText
+        </a>
+    }
+</div>

@@ -1,0 +1,8 @@
+@model Cedeva.Website.Features.Shared.ViewModels.DeleteButtonModel
+@* Inline delete form with a JS confirm. Antiforgery token is added by the tag-helper form. *@
+<form asp-action="@Model.Action" asp-controller="@Model.Controller" asp-route-id="@Model.Id" method="post"
+      class="d-inline" onsubmit="return confirm('@Model.ConfirmMessage');">
+    <button type="submit" class="btn @(Model.Small ? "btn-sm " : "")btn-outline-danger" title="@Model.ConfirmMessage">
+        <i class="fas fa-trash"></i>
+    </button>
+</form>
