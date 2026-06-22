@@ -168,6 +168,7 @@ try
         containerBuilder.RegisterType<ExcursionService>().As<IExcursionService>().InstancePerLifetimeScope();
         containerBuilder.RegisterType<ContactDirectoryService>().As<IContactDirectoryService>().InstancePerLifetimeScope();
         containerBuilder.RegisterType<ActivityEmailService>().As<IActivityEmailService>().InstancePerLifetimeScope();
+        containerBuilder.RegisterType<ActivityDayService>().As<IActivityDayService>().InstancePerLifetimeScope();
         // CSV entity importers (resolved as a set by the generic import controller).
         containerBuilder.RegisterType<ParentCsvImporter>().As<ICsvEntityImporter>().InstancePerLifetimeScope();
         containerBuilder.RegisterType<TeamMemberCsvImporter>().As<ICsvEntityImporter>().InstancePerLifetimeScope();

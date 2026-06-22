@@ -30,6 +30,65 @@ public static class ActivityDayGenerator
 
     public static string FormatLabel(DateTime date) => date.ToString(DayLabelFormat, Culture);
 
+    /// <summary>Adds any missing days for the current range as inactive (used when opening the editor).</summary>
+    public static void EnsureAllDaysExist(Activity activity)
+    {
+        var existingDates = activity.Days.Select(d => d.DayDate.Date).ToHashSet();
+        for (var date = activity.StartDate; date <= activity.EndDate; date = date.AddDays(1))
+        {
+            if (!existingDates.Contains(date.Date))
+            {
+                activity.Days.Add(new ActivityDay
+                {
+                    Label = FormatLabel(date),
+                    DayDate = date,
+                    Week = GetWeekNumber(date, activity.StartDate),
+                    IsActive = false
+                });
+            }
+        }
+    }
+
+    /// <summary>
+    /// Reconciles the day list after a date-range change: adds missing days at the (extended) edges,
+    /// deactivates days now out of range, and recomputes week numbers. Does not touch bookings.
+    /// </summary>
+    public static void HandleDateRangeChanges(Activity activity, DateTime newStartDate, DateTime newEndDate, DateTime oldStartDate, DateTime oldEndDate)
+    {
+        var existingDates = activity.Days.Select(d => d.DayDate.Date).ToHashSet();
+
+        if (newStartDate < oldStartDate)
+        {
+            for (var date = newStartDate; date < oldStartDate; date = date.AddDays(1))
+                AddDayIfMissing(activity, existingDates, date, newStartDate);
+        }
+
+        if (newEndDate > oldEndDate)
+        {
+            for (var date = oldEndDate.AddDays(1); date <= newEndDate; date = date.AddDays(1))
+                AddDayIfMissing(activity, existingDates, date, newStartDate);
+        }
+
+        foreach (var day in activity.Days.Where(d => d.DayDate < newStartDate || d.DayDate > newEndDate))
+            day.IsActive = false;
+
+        foreach (var day in activity.Days)
+            day.Week = GetWeekNumber(day.DayDate, newStartDate);
+    }
+
+    private static void AddDayIfMissing(Activity activity, HashSet<DateTime> existingDates, DateTime date, DateTime weekStart)
+    {
+        if (existingDates.Contains(date.Date))
+            return;
+        activity.Days.Add(new ActivityDay
+        {
+            Label = FormatLabel(date),
+            DayDate = date,
+            Week = GetWeekNumber(date, weekStart),
+            IsActive = !IsWeekend(date)
+        });
+    }
+
     public static bool IsWeekend(DateTime date) =>
         date.DayOfWeek is DayOfWeek.Saturday or DayOfWeek.Sunday;
 

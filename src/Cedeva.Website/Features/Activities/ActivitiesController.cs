@@ -17,8 +17,6 @@ public class ActivitiesController : Controller
 {
     private const string SortOrderDescending = "desc";
     private const string SortOrderAscending = "asc";
-    private const string DateFormatFull = "dddd d MMMM";
-    private const string CultureFrBe = "fr-BE";
     private const string SessionKeyActivitiesSearchString = "Activities_SearchString";
     private const string SessionKeyActivitiesShowActiveOnly = "Activities_ShowActiveOnly";
     private const string SessionKeyActivitiesSortBy = "Activities_SortBy";
@@ -33,6 +31,7 @@ public class ActivitiesController : Controller
     private readonly IUserDisplayService _userDisplayService;
     private readonly ISessionStateService _sessionState;
     private readonly IEmailTemplateService _templateService;
+    private readonly IActivityDayService _activityDayService;
 
     public ActivitiesController(
         CedevaDbContext context,
@@ -42,7 +41,8 @@ public class ActivitiesController : Controller
         IStringLocalizer<SharedResources> localizer,
         IUserDisplayService userDisplayService,
         ISessionStateService sessionState,
-        IEmailTemplateService templateService)
+        IEmailTemplateService templateService,
+        IActivityDayService activityDayService)
     {
         _context = context;
         _currentUserService = currentUserService;
@@ -52,6 +52,7 @@ public class ActivitiesController : Controller
         _userDisplayService = userDisplayService;
         _sessionState = sessionState;
         _templateService = templateService;
+        _activityDayService = activityDayService;
     }
 
     public async Task<IActionResult> Index([FromQuery] ActivityQueryParameters queryParams)
@@ -312,7 +313,7 @@ public class ActivitiesController : Controller
         }
 
         // Ensure all days between StartDate and EndDate exist in DB (create missing days as inactive)
-        EnsureAllDaysExist(activity);
+        ActivityDayGenerator.EnsureAllDaysExist(activity);
         await _context.SaveChangesAsync();
 
         ViewData["ReturnUrl"] = returnUrl;
@@ -396,18 +397,30 @@ public class ActivitiesController : Controller
         var datesChanged = viewModel.StartDate != oldStartDate || viewModel.EndDate != oldEndDate;
         if (datesChanged)
         {
-            HandleDateRangeChanges(activity, viewModel.StartDate, viewModel.EndDate, oldStartDate, oldEndDate);
+            ActivityDayGenerator.HandleDateRangeChanges(activity, viewModel.StartDate, viewModel.EndDate, oldStartDate, oldEndDate);
         }
 
-        // Handle day activation/deactivation changes
+        // Handle day activation/deactivation changes (booking-aware; may need confirmation/info)
         if (ActiveDayIds != null)
         {
             viewModel = MapToViewModel(activity);
-            var result = await HandleDayActivationChangesAsync(
-                activity, ActiveDayIds, addDaysToBookings, removeDaysConfirmed, viewModel);
-            if (result != null)
+            var dayResult = await _activityDayService.ApplyDayActivationChangesAsync(
+                activity, ActiveDayIds, addDaysToBookings == "true", removeDaysConfirmed == "true");
+
+            if (dayResult.Outcome == DayActivationOutcome.NeedsRemoveConfirmation)
             {
-                return result;
+                TempData[ControllerExtensions.WarningMessageKey] = string.Format(
+                    _localizer["Activities.DeactivateDaysWarning"].Value,
+                    dayResult.AffectedBookings, string.Join(", ", dayResult.DayLabels!));
+                TempData["ActiveDaysAfterDeactivation"] = string.Join(",", dayResult.RemainingActiveDayIds!);
+                return View(viewModel);
+            }
+            if (dayResult.Outcome == DayActivationOutcome.NeedsActivateInfo)
+            {
+                TempData[ControllerExtensions.InfoMessageKey] = string.Format(
+                    _localizer["Activities.ActivateDaysInfo"].Value, string.Join(", ", dayResult.DayLabels!));
+                TempData["ActivatedDays"] = string.Join(",", dayResult.ActivatedDayIds!);
+                return View(viewModel);
             }
         }
 
@@ -444,96 +457,25 @@ public class ActivitiesController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> AdjustActivityDays(int id, string edge, string op, bool confirmed = false)
     {
-        var activity = await _context.Activities
-            .Include(a => a.Days)
-            .FirstOrDefaultAsync(a => a.Id == id);
+        var result = await _activityDayService.AdjustAsync(id, edge, op, confirmed);
 
-        if (activity == null)
-            return NotFound();
-
-        edge = (edge ?? string.Empty).ToLowerInvariant();
-        op = (op ?? string.Empty).ToLowerInvariant();
-        if (edge is not ("start" or "end") || op is not ("extend" or "shrink"))
-            return BadRequest();
-
-        var culture = new System.Globalization.CultureInfo(CultureFrBe);
-
-        if (op == "extend")
+        return result.Outcome switch
         {
-            var newDate = edge == "start" ? activity.StartDate.AddDays(-1) : activity.EndDate.AddDays(1);
-            var existing = activity.Days.FirstOrDefault(d => d.DayDate.Date == newDate.Date);
-            if (existing != null)
+            AdjustDaysOutcome.NotFound => NotFound(),
+            AdjustDaysOutcome.BadRequest => BadRequest(),
+            AdjustDaysOutcome.CannotRemoveLastDay =>
+                Json(new { success = false, message = _localizer["Activities.CannotRemoveLastDay"].Value }),
+            AdjustDaysOutcome.NeedsConfirmation =>
+                Json(new { needsConfirmation = true, reservedCount = result.ReservedCount, label = result.Label }),
+            _ => Json(new
             {
-                existing.IsActive = true;
-            }
-            else
-            {
-                activity.Days.Add(new ActivityDay
-                {
-                    Label = newDate.ToString(DateFormatFull, culture),
-                    DayDate = newDate,
-                    IsActive = true,
-                    Week = 0
-                });
-            }
-
-            if (edge == "start") activity.StartDate = newDate; else activity.EndDate = newDate;
-        }
-        else // shrink
-        {
-            var activeDays = activity.Days.Where(d => d.IsActive).OrderBy(d => d.DayDate).ToList();
-            if (activeDays.Count <= 1)
-                return Json(new { success = false, message = _localizer["Activities.CannotRemoveLastDay"].Value });
-
-            var edgeDay = edge == "start" ? activeDays[0] : activeDays[^1];
-
-            var reservedCount = await _context.BookingDays
-                .CountAsync(bd => bd.ActivityDayId == edgeDay.DayId && bd.IsReserved);
-            if (reservedCount > 0 && !confirmed)
-                return Json(new { needsConfirmation = true, reservedCount, label = edgeDay.Label });
-
-            // Remove the day from any bookings and decrement their total by one PricePerDay each
-            // (decrement, not full recompute, so excursion costs added to the total are preserved).
-            var price = activity.PricePerDay ?? 0m;
-            var bookingDays = await _context.BookingDays
-                .Include(bd => bd.Booking)
-                .Where(bd => bd.ActivityDayId == edgeDay.DayId)
-                .ToListAsync();
-
-            foreach (var bd in bookingDays.Where(bd => bd.IsReserved && bd.Booking != null))
-            {
-                bd.Booking.TotalAmount = Math.Max(0m, bd.Booking.TotalAmount - price);
-            }
-            _context.BookingDays.RemoveRange(bookingDays);
-
-            edgeDay.IsActive = false;
-
-            var remaining = activity.Days.Where(d => d.IsActive).OrderBy(d => d.DayDate).ToList();
-            activity.StartDate = remaining[0].DayDate;
-            activity.EndDate = remaining[^1].DayDate;
-        }
-
-        // Recompute week numbers against the (possibly) new start date.
-        foreach (var d in activity.Days)
-            d.Week = GetWeekNumber(d.DayDate, activity.StartDate);
-
-        await _context.SaveChangesAsync();
-
-        return Json(new
-        {
-            success = true,
-            startDate = activity.StartDate.ToString("yyyy-MM-dd"),
-            endDate = activity.EndDate.ToString("yyyy-MM-dd"),
-            activeDaysCount = activity.Days.Count(d => d.IsActive),
-            days = activity.Days.OrderBy(d => d.DayDate).Select(d => new
-            {
-                dayId = d.DayId,
-                label = d.Label,
-                date = d.DayDate.ToString("yyyy-MM-dd"),
-                isActive = d.IsActive,
-                week = d.Week
+                success = true,
+                startDate = result.StartDate,
+                endDate = result.EndDate,
+                activeDaysCount = result.ActiveDaysCount,
+                days = result.Days!.Select(d => new { dayId = d.DayId, label = d.Label, date = d.Date, isActive = d.IsActive, week = d.Week })
             })
-        });
+        };
     }
 
     private async Task UpdateExistingQuestionsAsync(ActivityViewModel viewModel, int activityId)
@@ -725,252 +667,6 @@ public class ActivitiesController : Controller
         }
     }
 
-
-    private static int GetWeekNumber(DateTime date, DateTime startDate) =>
-        ActivityDayGenerator.GetWeekNumber(date, startDate);
-
-    private static bool IsWeekend(DateTime date) => ActivityDayGenerator.IsWeekend(date);
-
-    /// <summary>
-    /// Ensures all days between activity StartDate and EndDate exist in database.
-    /// Missing days are created as inactive.
-    /// </summary>
-    private static void EnsureAllDaysExist(Activity activity)
-    {
-        var existingDates = activity.Days.Select(d => d.DayDate.Date).ToHashSet();
-
-        for (var date = activity.StartDate; date <= activity.EndDate; date = date.AddDays(1))
-        {
-            if (!existingDates.Contains(date.Date))
-            {
-                activity.Days.Add(new ActivityDay
-                {
-                    Label = date.ToString(DateFormatFull, new System.Globalization.CultureInfo(CultureFrBe)),
-                    DayDate = date,
-                    Week = GetWeekNumber(date, activity.StartDate),
-                    IsActive = false // Create as inactive by default
-                });
-            }
-        }
-    }
-
-    /// <summary>
-    /// Handles date range changes by adding missing days, deactivating out-of-range days, and recalculating week numbers.
-    /// </summary>
-    private static void HandleDateRangeChanges(
-        Activity activity,
-        DateTime newStartDate,
-        DateTime newEndDate,
-        DateTime oldStartDate,
-        DateTime oldEndDate)
-    {
-        var existingDates = activity.Days.Select(d => d.DayDate.Date).ToHashSet();
-
-        // Add missing days before old start date
-        if (newStartDate < oldStartDate)
-        {
-            for (var date = newStartDate; date < oldStartDate; date = date.AddDays(1))
-            {
-                if (!existingDates.Contains(date.Date))
-                {
-                    activity.Days.Add(new ActivityDay
-                    {
-                        Label = date.ToString(DateFormatFull, new System.Globalization.CultureInfo(CultureFrBe)),
-                        DayDate = date,
-                        Week = GetWeekNumber(date, newStartDate),
-                        IsActive = !IsWeekend(date)
-                    });
-                }
-            }
-        }
-
-        // Add missing days after old end date
-        if (newEndDate > oldEndDate)
-        {
-            for (var date = oldEndDate.AddDays(1); date <= newEndDate; date = date.AddDays(1))
-            {
-                if (!existingDates.Contains(date.Date))
-                {
-                    activity.Days.Add(new ActivityDay
-                    {
-                        Label = date.ToString(DateFormatFull, new System.Globalization.CultureInfo(CultureFrBe)),
-                        DayDate = date,
-                        Week = GetWeekNumber(date, newStartDate),
-                        IsActive = !IsWeekend(date)
-                    });
-                }
-            }
-        }
-
-        // Deactivate days that are now outside the new date range
-        foreach (var day in activity.Days.Where(d => d.DayDate < newStartDate || d.DayDate > newEndDate))
-        {
-            day.IsActive = false;
-        }
-
-        // Recalculate week numbers for all days
-        foreach (var day in activity.Days)
-        {
-            day.Week = GetWeekNumber(day.DayDate, newStartDate);
-        }
-    }
-
-    /// <summary>
-    /// Handles activation and deactivation of activity days, including booking day updates.
-    /// Returns an IActionResult if user confirmation is needed, otherwise null to continue processing.
-    /// </summary>
-    private async Task<IActionResult?> HandleDayActivationChangesAsync(
-        Activity activity,
-        List<int> activeDayIds,
-        string? addDaysToBookings,
-        string? removeDaysConfirmed,
-        ActivityViewModel viewModel)
-    {
-        var currentlyActiveDayIds = activity.Days.Where(d => d.IsActive).Select(d => d.DayId).ToList();
-
-        // Days being activated (were inactive, now active)
-        var daysBeingActivated = activeDayIds.Except(currentlyActiveDayIds).ToList();
-
-        // Days being deactivated (were active, now inactive)
-        var daysBeingDeactivated = currentlyActiveDayIds.Except(activeDayIds).ToList();
-
-        // Handle deactivation
-        var deactivationResult = await HandleDayDeactivationAsync(
-            activity, daysBeingDeactivated, removeDaysConfirmed, viewModel);
-        if (deactivationResult != null)
-        {
-            return deactivationResult;
-        }
-
-        // Handle activation
-        var activationResult = HandleDayActivation(
-            activity, daysBeingActivated, addDaysToBookings, viewModel);
-        if (activationResult != null)
-        {
-            return activationResult;
-        }
-
-        return null;
-    }
-
-    /// <summary>
-    /// Handles deactivation of activity days, checking for booking conflicts.
-    /// Returns an IActionResult if confirmation is needed, otherwise null.
-    /// </summary>
-    private async Task<IActionResult?> HandleDayDeactivationAsync(
-        Activity activity,
-        List<int> daysBeingDeactivated,
-        string? removeDaysConfirmed,
-        ActivityViewModel viewModel)
-    {
-        if (!daysBeingDeactivated.Any())
-        {
-            return null;
-        }
-
-        var bookingsWithDeactivatedDays = await _context.BookingDays
-            .Where(bd => daysBeingDeactivated.Contains(bd.ActivityDayId) && bd.IsReserved)
-            .CountAsync();
-
-        if (bookingsWithDeactivatedDays > 0 && removeDaysConfirmed != "true")
-        {
-            var deactivatedDaysLabels = activity.Days
-                .Where(d => daysBeingDeactivated.Contains(d.DayId))
-                .Select(d => d.Label)
-                .ToList();
-
-            TempData[ControllerExtensions.WarningMessageKey] = string.Format(
-                _localizer["Activities.DeactivateDaysWarning"].Value,
-                bookingsWithDeactivatedDays,
-                string.Join(", ", deactivatedDaysLabels));
-            TempData["ActiveDaysAfterDeactivation"] = string.Join(",", activity.Days
-                .Where(d => d.IsActive && !daysBeingDeactivated.Contains(d.DayId))
-                .Select(d => d.DayId));
-
-            return View(viewModel);
-        }
-
-        // User confirmed or no bookings, proceed with deactivation
-        foreach (var dayId in daysBeingDeactivated)
-        {
-            var day = activity.Days.FirstOrDefault(d => d.DayId == dayId);
-            if (day != null)
-            {
-                day.IsActive = false;
-
-                // Remove from all bookings
-                var bookingDaysToRemove = await _context.BookingDays
-                    .Where(bd => bd.ActivityDayId == dayId)
-                    .ToListAsync();
-
-                _context.BookingDays.RemoveRange(bookingDaysToRemove);
-            }
-        }
-
-        return null;
-    }
-
-    /// <summary>
-    /// Handles activation of activity days, optionally adding them to existing bookings.
-    /// Returns an IActionResult if confirmation is needed, otherwise null.
-    /// </summary>
-    private IActionResult? HandleDayActivation(
-        Activity activity,
-        List<int> daysBeingActivated,
-        string? addDaysToBookings,
-        ActivityViewModel viewModel)
-    {
-        if (!daysBeingActivated.Any())
-        {
-            return null;
-        }
-
-        // Activate days
-        foreach (var dayId in daysBeingActivated)
-        {
-            var day = activity.Days.FirstOrDefault(d => d.DayId == dayId);
-            if (day != null)
-            {
-                day.IsActive = true;
-
-                // If user confirmed, add to all existing bookings
-                if (addDaysToBookings == "true")
-                {
-                    var bookingsNeedingDay = activity.Bookings
-                        .Where(booking => !booking.Days.Any(bd => bd.ActivityDayId == dayId));
-
-                    foreach (var booking in bookingsNeedingDay)
-                    {
-                        booking.Days.Add(new BookingDay
-                        {
-                            BookingId = booking.Id,
-                            ActivityDayId = dayId,
-                            IsReserved = true,
-                            IsPresent = false
-                        });
-                    }
-                }
-            }
-        }
-
-        // Show info message if days were activated
-        if (addDaysToBookings != "true" && activity.Bookings.Any())
-        {
-            var activatedDaysLabels = activity.Days
-                .Where(d => daysBeingActivated.Contains(d.DayId))
-                .Select(d => d.Label)
-                .ToList();
-
-            TempData[ControllerExtensions.InfoMessageKey] = string.Format(
-                _localizer["Activities.ActivateDaysInfo"].Value,
-                string.Join(", ", activatedDaysLabels));
-            TempData["ActivatedDays"] = string.Join(",", daysBeingActivated);
-
-            return View(viewModel);
-        }
-
-        return null;
-    }
 
     // GET: Activities/Export
     public async Task<IActionResult> Export(string? searchTerm, bool? showActiveOnly)
