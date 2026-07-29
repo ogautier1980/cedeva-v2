@@ -11,6 +11,11 @@ updates:
         patterns:
           - "Microsoft.*"
           - "System.*"
+    ignore:
+      # FluentAssertions 8+ requires a paid commercial license (Xceed); v7 stays fully
+      # open-source. Cedeva is commercial, so block the jump past the last free major.
+      - dependency-name: "FluentAssertions"
+        versions: [">=8"]
 
   - package-ecosystem: "github-actions"
     directory: "/"
