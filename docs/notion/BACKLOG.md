@@ -13,6 +13,7 @@ Ce document restructure le retour brut du client (écran par écran, en vrac) en
 3. **Envoi de mail depuis un modèle** — le client ne trouve pas ce parcours dans l'UI actuelle ; à vérifier si la feature existe et est juste mal exposée, ou si elle manque.
 4. **Attestations fiscales ONE** — par activité (actuel) ou regroupées par association ?
 5. **⚠️ Conflit potentiel avec le Lot 4 déjà livré** (voir mémoire `cedeva-roadmap-2026-06`) : `EmailTemplate.ActivityId` (nullable) a été introduit pour distinguer bibliothèque org vs templates copiés par activité, avec copie automatique à la création de l'activité. Le retour Notion (Lot E ci-dessous) demande au contraire que les 3 modèles génériques restent **uniques et partagés par toutes les activités**, sans duplication. Ces deux visions sont contradictoires — à clarifier avec le client avant de toucher au Lot E.
+6. **Menu hamburger (barre latérale globale)** — le client veut le sortir des pages internes pour ne le garder qu'en page d'accueil. Contrairement au menu du haut (scope = pages d'une activité, déjà simplifié), le hamburger est la nav principale de **toute l'app** (Dashboard, Activities, Bookings, Children, Parents, TeamMembers, Contacts, EmailTemplates, ExpenseCategories, Import…). Le retirer des pages internes prive l'utilisateur de tout accès à ces écrans depuis l'intérieur d'une activité — à clarifier : où ces liens doivent-ils vivre à la place (un menu secondaire ? uniquement accessible en revenant à l'accueil) ?
 
 ---
 
@@ -23,24 +24,24 @@ Tout le reste s'appuie sur cette navigation ; à faire en premier.
 - ✅ **Fait (2026-07-29)** — Tableau de bord d'activité : logique inversée dans `Home/Index.cshtml` — clic sur le **titre** de l'activité → `ActivityManagement/Index` (les 7 gros boutons) ; clic sur le bouton (renommé **« Paramètres »**, resx `Home.Manage`, FR/EN/NL) → `/Activities/Details` (paramètres de l'activité).
 - Page d'accueil réduite à la seule liste des stages (retirer le superflu du menu hamburger). — **pas encore fait**, nécessite de redéfinir ce qu'est la « page d'accueil la plus simple » (`Home/Index` actuel est un dashboard avec stats, pas juste une liste de stages).
 - Clic sur un stage → écran détail/tableau de bord de l'activité. — déjà le cas via le changement ci-dessus.
-- Menu hamburger : contenu retiré des pages internes, conservé uniquement en page d'accueil.
-- Menu du haut (dans une activité) : ne garder que « Tableau de bord » + retour aux 7 boutons ; y ajouter un sous-menu pour pages spéciales (liste des groupes imprimable, total présences journalières — voir Lot C).
+- ✅ **Fait (2026-07-29)** — Menu du haut (dans une activité) : `_Layout.cshtml` ne garde plus que **« Tableau de bord »** (retour aux 7 boutons) + un dropdown **« Pages spéciales »** (Liste des groupes, Total des présences). Les anciens raccourcis directs (Inscriptions, Présences, Comptes, E-mails, Excursions, Équipe, ONE) ont été retirés du haut — ils restent accessibles via les 7 boutons ; pour Comptes/E-mails dont les sous-pages (Transactions/TeamSalaries/Report, SentEmails/EmailTemplates) n'étaient QUE dans ce dropdown, des liens de remplacement ont été ajoutés en page (Financial/Index avait déjà ces liens ; ajoutés sur `SendEmail.cshtml`).
+- ⏸️ **Non traité** — Menu hamburger (barre latérale globale : Dashboard/Activities/Bookings/Children/Parents/TeamMembers/Contacts/…) : le retrait envisagé par le client ("uniquement en page d'accueil") a une portée bien plus large que le menu du haut — il s'agit de la navigation principale de **toute l'application**, pas seulement des pages d'activité. Non fait par prudence : à clarifier avant d'y toucher (question ouverte n°6 ci-dessous).
 
 ## Lot B — Confirmation des inscriptions
 
-- N'afficher que les inscriptions **« À confirmer »** (filtrer le reste).
-- Clic sur le bouton, le nom de l'enfant, ou la ligne entière → détail des choix de l'enfant.
-- Le coordinateur encode le montant à payer → déclenche un mail au parent (récap + lien de paiement).
+- N'afficher que les inscriptions **« À confirmer »** — déjà le cas (`UnconfirmedBookings.cshtml` ne liste que `!IsConfirmed`).
+- ✅ **Fait (2026-07-29)** — Clic sur le nom de l'enfant (UnconfirmedBookings, ManageBookings, Présences) → `Bookings/Details` (fiche enrichie, voir Lot C).
+- Le coordinateur encode le montant à payer → déclenche un mail au parent (récap + lien de paiement). — **pas encore fait** (sensible : touche facturation + Stripe, mis de côté volontairement cette session).
 
 ## Lot C — Présences
 
-- Clic sur un enfant dans la liste de présence → fiche d'inscription pour ce stage (adresse éditable, parent, groupe, réception fiche médicale, historique paiements). — **pas encore fait**, nécessite une nouvelle page de détail.
+- ✅ **Fait (2026-07-29)** — Clic sur un enfant dans la liste de présence → fiche `Bookings/Details`, enrichie avec : adresse + email + téléphone du parent (lecture + lien « Modifier les coordonnées » vers `Parents/Edit`), groupe (déjà présent), fiche médicale (déjà présente), **historique des paiements** (liste `Booking.Payments` + bouton « Ajouter un paiement »). Pas de migration nécessaire (toutes les données existaient déjà en base).
 - Vérifier que le filtre jour (par défaut « aujourd'hui ») liste bien les enfants inscrits à **cette activité précise**. — confirmé dans le code (`BuildChildrenList`/`SelectDefaultActivityDay`, `ActivityManagementController.cs:248-301`) : filtre déjà scopé à l'activité + jour sélectionné.
 - ✅ **Fait (2026-07-29)** — Colonne **« Payé »** (✓ vert / ✗ rouge + solde restant) ajoutée dans `Presences.cshtml`, alimentée par `Booking.TotalAmount`/`PaidAmount` (déjà existants, aucune migration nécessaire).
-- Dépend de la question ouverte n°1 (paiement manuel/forcé, échelonnement, CPAS).
-- Pages spéciales (accessibles depuis le menu du Lot A) :
-  - Liste des groupes, imprimable, filtrable par groupe et par jour.
-  - Total des présences journalières.
+- Dépend de la question ouverte n°1 (paiement manuel/forcé, échelonnement, CPAS) pour la partie « forcer une inscription non payée » — non traité.
+- ✅ **Fait (2026-07-29)** — Pages spéciales (accessibles depuis le dropdown « Pages spéciales » du menu du Lot A) :
+  - **Liste des groupes** (`ActivityManagement/Groups` + `PrintGroups`), filtrable par groupe et par jour, imprimable (même gabarit que la fiche de présence existante).
+  - **Total des présences journalières** (`ActivityManagement/PresenceSummary`) : réservés/présents agrégés par jour.
 
 ## Lot D — Comptes / Finances
 
