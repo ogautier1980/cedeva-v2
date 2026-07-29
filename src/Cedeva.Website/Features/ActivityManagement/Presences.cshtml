@@ -72,6 +72,7 @@
                                     <th scope="col">@Localizer["Activities.Group"]</th>
                                     <th scope="col" class="text-center">@Localizer["Reserved"]</th>
                                     <th scope="col" class="text-center">@Localizer["Present"]</th>
+                                    <th scope="col" class="text-center">@Localizer["PaymentStatus.Paid"]</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -105,6 +106,17 @@
                                             else
                                             {
                                                 <span class="text-muted">N/A</span>
+                                            }
+                                        </td>
+                                        <td class="text-center">
+                                            @if (child.IsFullyPaid)
+                                            {
+                                                <i class="fas fa-check text-success" title="@Localizer["PaymentStatus.Paid"]"></i>
+                                            }
+                                            else
+                                            {
+                                                <i class="fas fa-times text-danger" title="@Localizer["Financial.Balance"]: @child.Balance.ToString("C", new System.Globalization.CultureInfo("fr-BE"))"></i>
+                                                <br /><small class="text-danger">@child.Balance.ToString("C", new System.Globalization.CultureInfo("fr-BE"))</small>
                                             }
                                         </td>
                                     </tr>

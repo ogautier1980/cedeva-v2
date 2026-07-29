@@ -2135,7 +2135,7 @@
     <value>An error occurred</value>
   </data>
   <data name="Home.Manage" xml:space="preserve">
-    <value>Manage</value>
+    <value>Settings</value>
   </data>
   <data name="Home.NewActivity" xml:space="preserve">
     <value>New activity</value>

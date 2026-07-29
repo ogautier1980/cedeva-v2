@@ -292,7 +292,9 @@ public class ActivityManagementController : Controller
                     IsReserved = bookingDay?.IsReserved ?? false,
                     IsPresent = bookingDay?.IsPresent ?? false,
                     BookingDayId = bookingDay?.Id,
-                    ActivityGroupName = b.Group?.Label
+                    ActivityGroupName = b.Group?.Label,
+                    TotalAmount = b.TotalAmount,
+                    PaidAmount = b.PaidAmount
                 };
             })
             .OrderBy(c => c.ChildLastName)

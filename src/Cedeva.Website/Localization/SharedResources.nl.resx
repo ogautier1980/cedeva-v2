@@ -2135,7 +2135,7 @@
     <value>Er is een fout opgetreden</value>
   </data>
   <data name="Home.Manage" xml:space="preserve">
-    <value>Beheren</value>
+    <value>Instellingen</value>
   </data>
   <data name="Home.NewActivity" xml:space="preserve">
     <value>Nieuwe activiteit</value>

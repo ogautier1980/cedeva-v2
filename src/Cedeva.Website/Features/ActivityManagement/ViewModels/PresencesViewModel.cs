@@ -25,6 +25,10 @@ public class PresenceChildInfo
     public bool IsPresent { get; set; }
     public int? BookingDayId { get; set; }
     public string? ActivityGroupName { get; set; }
+    public decimal TotalAmount { get; set; }
+    public decimal PaidAmount { get; set; }
+    public bool IsFullyPaid => PaidAmount >= TotalAmount;
+    public decimal Balance => TotalAmount - PaidAmount;
 }
 
 public class PrintPresencesViewModel

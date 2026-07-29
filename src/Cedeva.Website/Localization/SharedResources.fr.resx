@@ -2090,7 +2090,7 @@
     <value>Une erreur s'est produite</value>
   </data>
   <data name="Home.Manage" xml:space="preserve">
-    <value>Gérer</value>
+    <value>Paramètres</value>
   </data>
   <data name="Home.NewActivity" xml:space="preserve">
     <value>Nouvelle activité</value>
