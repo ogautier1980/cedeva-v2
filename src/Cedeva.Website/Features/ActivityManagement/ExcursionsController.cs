@@ -31,6 +31,7 @@ public class ExcursionsController : Controller
     private readonly ILogger<ExcursionsController> _logger;
     private readonly IStringLocalizer<SharedResources> _localizer;
     private readonly IUserDisplayService _userDisplayService;
+    private readonly IEmailFacadeService _emailServices;
 
     public ExcursionsController(
         CedevaDbContext context,
@@ -39,7 +40,8 @@ public class ExcursionsController : Controller
         ISessionStateService sessionState,
         ILogger<ExcursionsController> logger,
         IStringLocalizer<SharedResources> localizer,
-        IUserDisplayService userDisplayService)
+        IUserDisplayService userDisplayService,
+        IEmailFacadeService emailServices)
     {
         _context = context;
         _excursionService = excursionService;
@@ -48,6 +50,7 @@ public class ExcursionsController : Controller
         _logger = logger;
         _localizer = localizer;
         _userDisplayService = userDisplayService;
+        _emailServices = emailServices;
     }
 
     [HttpGet]
@@ -602,7 +605,7 @@ public class ExcursionsController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> SendEmail(SendExcursionEmailViewModel model)
+    public async Task<IActionResult> SendEmail(SendExcursionEmailViewModel model, CancellationToken ct)
     {
         if (!ModelState.IsValid)
         {
@@ -619,7 +622,7 @@ public class ExcursionsController : Controller
             .Include(er => er.Booking)
                 .ThenInclude(b => b.Group)
             .Where(er => er.ExcursionId == model.ExcursionId)
-            .ToListAsync();
+            .ToListAsync(ct);
 
         if (recipientGroupId.HasValue)
         {
@@ -633,10 +636,69 @@ public class ExcursionsController : Controller
             return View(model);
         }
 
-        var emailCount = registrations.Select(r => r.Booking.Child.Parent.Email).Distinct().Count();
+        var activityId = await _context.Excursions
+            .Where(e => e.Id == model.ExcursionId)
+            .Select(e => e.ActivityId)
+            .FirstOrDefaultAsync(ct);
+        var organisationId = await _context.Activities
+            .Where(a => a.Id == activityId)
+            .Select(a => a.OrganisationId)
+            .FirstOrDefaultAsync(ct);
+        var organisation = await _context.Organisations.FirstOrDefaultAsync(o => o.Id == organisationId, ct);
 
-        TempData[ControllerExtensions.SuccessMessageKey] = string.Format(_localizer["Message.EmailSent"].Value, emailCount);
-        return RedirectToAction(nameof(Index), new { id = model.Excursion?.ActivityId ?? model.ExcursionId });
+        var (attachmentFileName, attachmentFilePath) = await SaveAttachmentAsync(model.AttachmentFile, ct);
+
+        int sentCount;
+        if (model.SendSeparateEmailPerChild)
+        {
+            sentCount = 0;
+            foreach (var registration in registrations)
+            {
+                var subject = _emailServices.VariableReplacement.ReplaceVariables(model.Subject, registration.Booking, organisation!);
+                var message = _emailServices.VariableReplacement.ReplaceVariables(model.Message, registration.Booking, organisation!);
+                await _emailServices.Email.SendEmailAsync(new List<string> { registration.Booking.Child.Parent.Email }, subject, message, attachmentFilePath);
+                sentCount++;
+            }
+        }
+        else
+        {
+            var recipientEmails = registrations.Select(r => r.Booking.Child.Parent.Email).Distinct().ToList();
+            foreach (var emailAddress in recipientEmails)
+            {
+                await _emailServices.Email.SendEmailAsync(new List<string> { emailAddress }, model.Subject, model.Message, attachmentFilePath);
+            }
+            sentCount = recipientEmails.Count;
+        }
+
+        _logger.LogInformation("Sent {SentCount} excursion emails for excursion {ExcursionId}", sentCount, model.ExcursionId);
+
+        TempData[ControllerExtensions.SuccessMessageKey] = string.Format(_localizer["Message.EmailSent"].Value, sentCount);
+        return RedirectToAction(nameof(Index), new { id = activityId });
+    }
+
+    private static async Task<(string? fileName, string? filePath)> SaveAttachmentAsync(IFormFile? attachmentFile, CancellationToken ct)
+    {
+        if (attachmentFile == null || attachmentFile.Length == 0)
+        {
+            return (null, null);
+        }
+
+        var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", "attachments");
+        if (!Directory.Exists(uploadsFolder))
+        {
+            Directory.CreateDirectory(uploadsFolder);
+        }
+
+        var fileName = Path.GetFileName(attachmentFile.FileName);
+        var uniqueFileName = $"{Guid.NewGuid()}_{fileName}";
+        var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+        await using (var fileStream = new FileStream(filePath, FileMode.Create))
+        {
+            await attachmentFile.CopyToAsync(fileStream, ct);
+        }
+
+        return (fileName, filePath);
     }
 
     private async Task ReloadExcursionForViewModel(SendExcursionEmailViewModel model)

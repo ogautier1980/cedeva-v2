@@ -1945,6 +1945,9 @@
   <data name="Financial.GrandTotal" xml:space="preserve">
     <value>Algemeen totaal</value>
   </data>
+  <data name="Financial.HideAmounts" xml:space="preserve">
+    <value>Bedragen verbergen</value>
+  </data>
   <data name="Financial.ImportBankStatements" xml:space="preserve">
     <value>Bankuittreksels importeren</value>
   </data>
@@ -2043,6 +2046,12 @@
   </data>
   <data name="Financial.SalaryCalculationInfo" xml:space="preserve">
     <value>Het te betalen bedrag wordt als volgt berekend: Prestaties (Dagen × Dagvergoeding) + Terugbeteningen − Persoonlijke consumaties.</value>
+  </data>
+  <data name="Financial.ShowAmounts" xml:space="preserve">
+    <value>Bedragen tonen</value>
+  </data>
+  <data name="Financial.SeeTeamSalariesForDetail" xml:space="preserve">
+    <value>Zie "Teamsalarissen" voor het volledige detail (prestaties, terugbetalingen, consumpties).</value>
   </data>
   <data name="Financial.SelectOrganisation" xml:space="preserve">
     <value>Organisatie selecteren</value>
@@ -2466,6 +2475,51 @@
   </data>
   <data name="On" xml:space="preserve">
     <value>op</value>
+  </data>
+  <data name="ONE.ReportTitle" xml:space="preserve">
+    <value>ONE-rapport</value>
+  </data>
+  <data name="ONE.NameAndFirstName" xml:space="preserve">
+    <value>Naam en voornaam</value>
+  </data>
+  <data name="ONE.ArrivalDate" xml:space="preserve">
+    <value>Aankomstdatum</value>
+  </data>
+  <data name="ONE.DepartureDate" xml:space="preserve">
+    <value>Vertrekdatum</value>
+  </data>
+  <data name="ONE.DaysCount" xml:space="preserve">
+    <value>Aantal dagen</value>
+  </data>
+  <data name="ONE.AmountPaid" xml:space="preserve">
+    <value>Betaald bedrag</value>
+  </data>
+  <data name="ONE.DisadvantagedEnvironment" xml:space="preserve">
+    <value>Kansarme achtergrond</value>
+  </data>
+  <data name="ONE.MildDisability" xml:space="preserve">
+    <value>Lichte handicap</value>
+  </data>
+  <data name="ONE.SevereDisability" xml:space="preserve">
+    <value>Zware handicap</value>
+  </data>
+  <data name="ONE.Under6Title" xml:space="preserve">
+    <value>Lijst kinderen van 2 tot 5 jaar</value>
+  </data>
+  <data name="ONE.Over6Title" xml:space="preserve">
+    <value>Lijst kinderen van 6 jaar en ouder</value>
+  </data>
+  <data name="ONE.PresencesUnder6Title" xml:space="preserve">
+    <value>Aanwezigheden kinderen van 2 tot 5 jaar</value>
+  </data>
+  <data name="ONE.PresencesOver6Title" xml:space="preserve">
+    <value>Aanwezigheden kinderen van 6 jaar en ouder</value>
+  </data>
+  <data name="ONE.WeekNumber" xml:space="preserve">
+    <value>Week {0}</value>
+  </data>
+  <data name="ONE.PresentCount" xml:space="preserve">
+    <value>Aanwezig</value>
   </data>
   <data name="Organisation" xml:space="preserve">
     <value>Organisatie</value>
@@ -3720,6 +3774,27 @@
   <data name="Field.RemoveLicense" xml:space="preserve">
     <value>Brevet verwijderen</value>
   </data>
+  <data name="Field.CriminalRecordFile" xml:space="preserve">
+    <value>Uittreksel strafregister</value>
+  </data>
+  <data name="Field.RemoveCriminalRecord" xml:space="preserve">
+    <value>Uittreksel strafregister verwijderen</value>
+  </data>
+  <data name="Field.CriminalRecordUrl" xml:space="preserve">
+    <value>Uittreksel strafregister</value>
+  </data>
+  <data name="TeamMembers.ViewCriminalRecord" xml:space="preserve">
+    <value>Uittreksel strafregister bekijken</value>
+  </data>
+  <data name="TeamMembers.NoCriminalRecord" xml:space="preserve">
+    <value>Geen uittreksel strafregister geüpload</value>
+  </data>
+  <data name="TeamMembers.ConfirmDeleteCriminalRecord" xml:space="preserve">
+    <value>Weet je zeker dat je dit uittreksel strafregister wilt verwijderen?</value>
+  </data>
+  <data name="TeamMembers.CriminalRecordDeletedError" xml:space="preserve">
+    <value>Fout bij het verwijderen van het uittreksel strafregister.</value>
+  </data>
   <data name="Audit.CreatedBy" xml:space="preserve">
     <value>Aangemaakt door</value>
   </data>
@@ -4145,6 +4220,15 @@
   </data>
   <data name="ExpenseCategory.Duplicate" xml:space="preserve">
     <value>Deze categorie bestaat al.</value>
+  </data>
+  <data name="ExpenseCategory.IsIncome" xml:space="preserve">
+    <value>Inkomsten of uitgave</value>
+  </data>
+  <data name="ExpenseCategory.Budget" xml:space="preserve">
+    <value>Budget</value>
+  </data>
+  <data name="ExpenseCategory.BudgetHelp" xml:space="preserve">
+    <value>Optioneel — gepland bedrag voor deze categorie.</value>
   </data>
   <data name="Expense.CategoryHelp" xml:space="preserve">
     <value>Kies een categorie of typ een nieuwe.</value>

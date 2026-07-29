@@ -53,6 +53,10 @@ public class TeamMember : AuditableEntity, IOrganisationScoped
     [StringLength(255)]
     public string LicenseUrl { get; set; } = string.Empty;
 
+    // Same convention as LicenseUrl: required column, empty string means no file uploaded.
+    [StringLength(255)]
+    public string CriminalRecordUrl { get; set; } = string.Empty;
+
     public int OrganisationId { get; set; }
     public Organisation Organisation { get; set; } = null!;
 

@@ -233,6 +233,7 @@ public class TeamMembersController : Controller
             var address = await CreateAddressFromViewModel(viewModel);
             var teamMember = await CreateTeamMemberFromViewModel(viewModel, address.Id, organisationId);
             await UploadLicenseFileIfProvided(viewModel, teamMember, organisationId);
+            await UploadCriminalRecordFileIfProvided(viewModel, teamMember, organisationId);
 
             TempData[ControllerExtensions.SuccessMessageKey] = _ctx.Localizer["Message.TeamMemberCreated"].Value;
             return RedirectToAction(nameof(Details), new { id = teamMember.TeamMemberId });
@@ -296,6 +297,22 @@ public class TeamMembersController : Controller
         }
     }
 
+    private async Task UploadCriminalRecordFileIfProvided(TeamMemberViewModel viewModel, TeamMember teamMember, int organisationId)
+    {
+        if (viewModel.CriminalRecordFile != null)
+        {
+            var fileName = $"{Guid.NewGuid()}_{Path.GetFileName(viewModel.CriminalRecordFile.FileName)}";
+            var filePath = await _storage.Storage.UploadFileAsync(
+                viewModel.CriminalRecordFile.OpenReadStream(),
+                fileName,
+                viewModel.CriminalRecordFile.ContentType,
+                $"{organisationId}/team-member-criminal-records"
+            );
+            teamMember.CriminalRecordUrl = filePath;
+            await _unitOfWork.SaveChangesAsync();
+        }
+    }
+
     private async Task PopulateOrganisationsDropdown(int? selectedOrganisationId = null)
     {
         if (_ctx.CurrentUser.IsAdmin)
@@ -338,6 +355,7 @@ public class TeamMembersController : Controller
             Status = teamMember.Status,
             DailyCompensation = teamMember.DailyCompensation,
             LicenseUrl = teamMember.LicenseUrl,
+            CriminalRecordUrl = teamMember.CriminalRecordUrl,
             AddressId = teamMember.AddressId,
             OrganisationId = teamMember.OrganisationId
         };
@@ -372,6 +390,7 @@ public class TeamMembersController : Controller
             await UpdateTeamMemberAddressAsync(teamMember.AddressId, viewModel);
             UpdateTeamMemberProperties(teamMember, viewModel);
             await HandleLicenseFileChangesAsync(teamMember, viewModel);
+            await HandleCriminalRecordFileChangesAsync(teamMember, viewModel);
 
             await _teamMemberRepository.UpdateAsync(teamMember);
             await _unitOfWork.SaveChangesAsync();
@@ -486,6 +505,107 @@ public class TeamMembersController : Controller
         return Ok();
     }
 
+    // GET: TeamMembers/ViewCriminalRecord/5
+    [HttpGet]
+    public async Task<IActionResult> ViewCriminalRecord(int id)
+    {
+        // Bypass query filters to check multi-tenancy explicitly
+        var teamMember = await _context.TeamMembers
+            .IgnoreQueryFilters()
+            .FirstOrDefaultAsync(tm => tm.TeamMemberId == id);
+
+        if (teamMember == null)
+        {
+            return NotFound();
+        }
+
+        // Multi-tenancy check
+        if (!_ctx.CurrentUser.IsAdmin)
+        {
+            var userOrgId = _ctx.CurrentUser.OrganisationId;
+            if (teamMember.OrganisationId != userOrgId)
+            {
+                return Forbid();
+            }
+        }
+
+        if (string.IsNullOrEmpty(teamMember.CriminalRecordUrl))
+        {
+            return NotFound();
+        }
+
+        // If local storage, return PhysicalFile
+        if (teamMember.CriminalRecordUrl.StartsWith("/uploads/"))
+        {
+            var filePath = Path.Combine(_storage.WebHost.WebRootPath, teamMember.CriminalRecordUrl.TrimStart('/'));
+
+            if (!System.IO.File.Exists(filePath))
+            {
+                return NotFound();
+            }
+
+            var contentType = Path.GetExtension(filePath).ToLowerInvariant() switch
+            {
+                ".pdf" => "application/pdf",
+                ".jpg" or ".jpeg" => "image/jpeg",
+                ".png" => "image/png",
+                ".gif" => "image/gif",
+                _ => "application/octet-stream"
+            };
+
+            return PhysicalFile(filePath, contentType);
+        }
+        else
+        {
+            // Azure Blob URL - redirect
+            return Redirect(teamMember.CriminalRecordUrl);
+        }
+    }
+
+    // POST: TeamMembers/DeleteCriminalRecord/5
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> DeleteCriminalRecord(int id)
+    {
+        // Bypass query filters to check multi-tenancy explicitly
+        var teamMember = await _context.TeamMembers
+            .IgnoreQueryFilters()
+            .FirstOrDefaultAsync(tm => tm.TeamMemberId == id);
+
+        if (teamMember == null)
+        {
+            return NotFound();
+        }
+
+        // Multi-tenancy check
+        if (!_ctx.CurrentUser.IsAdmin)
+        {
+            var userOrgId = _ctx.CurrentUser.OrganisationId;
+            if (teamMember.OrganisationId != userOrgId)
+            {
+                return Forbid();
+            }
+        }
+
+        // Delete criminal record file if exists
+        if (!string.IsNullOrEmpty(teamMember.CriminalRecordUrl))
+        {
+            try
+            {
+                await _storage.Storage.DeleteFileAsync(teamMember.CriminalRecordUrl);
+            }
+            catch
+            {
+                // Ignore errors if file doesn't exist
+            }
+
+            teamMember.CriminalRecordUrl = string.Empty; // column is required (NOT NULL); empty == no file
+            await _unitOfWork.SaveChangesAsync();
+        }
+
+        return Ok();
+    }
+
     // GET: TeamMembers/Delete/5
     public async Task<IActionResult> Delete(int id)
     {
@@ -518,6 +638,19 @@ public class TeamMembersController : Controller
             try
             {
                 await _storage.Storage.DeleteFileAsync(teamMember.LicenseUrl);
+            }
+            catch
+            {
+                // Ignore errors if file doesn't exist
+            }
+        }
+
+        // Delete criminal record file if exists
+        if (!string.IsNullOrEmpty(teamMember.CriminalRecordUrl))
+        {
+            try
+            {
+                await _storage.Storage.DeleteFileAsync(teamMember.CriminalRecordUrl);
             }
             catch
             {
@@ -570,6 +703,7 @@ public class TeamMembersController : Controller
             Status = teamMember.Status,
             DailyCompensation = teamMember.DailyCompensation,
             LicenseUrl = teamMember.LicenseUrl,
+            CriminalRecordUrl = teamMember.CriminalRecordUrl,
             AddressId = teamMember.AddressId,
             OrganisationId = teamMember.OrganisationId,
             ActivitiesCount = teamMember.Activities.Count,
@@ -676,6 +810,35 @@ public class TeamMembersController : Controller
         catch
         {
             // Ignore errors if file doesn't exist
+        }
+    }
+
+    /// <summary>
+    /// Handles criminal record file removal and upload operations.
+    /// </summary>
+    private async Task HandleCriminalRecordFileChangesAsync(TeamMember teamMember, TeamMemberViewModel viewModel)
+    {
+        if (viewModel.RemoveCriminalRecord && !string.IsNullOrEmpty(teamMember.CriminalRecordUrl))
+        {
+            await DeleteLicenseFileAsync(teamMember.CriminalRecordUrl);
+            teamMember.CriminalRecordUrl = string.Empty; // column is required (NOT NULL); empty == no file
+        }
+
+        if (viewModel.CriminalRecordFile != null)
+        {
+            if (!string.IsNullOrEmpty(teamMember.CriminalRecordUrl))
+            {
+                await DeleteLicenseFileAsync(teamMember.CriminalRecordUrl);
+            }
+
+            var fileName = $"{Guid.NewGuid()}_{Path.GetFileName(viewModel.CriminalRecordFile.FileName)}";
+            var filePath = await _storage.Storage.UploadFileAsync(
+                viewModel.CriminalRecordFile.OpenReadStream(),
+                fileName,
+                viewModel.CriminalRecordFile.ContentType,
+                $"{teamMember.OrganisationId}/team-member-criminal-records"
+            );
+            teamMember.CriminalRecordUrl = filePath;
         }
     }
 }

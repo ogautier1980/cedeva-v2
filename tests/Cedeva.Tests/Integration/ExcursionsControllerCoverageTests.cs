@@ -1,6 +1,8 @@
 using System.Net;
+using Autofac;
 using Cedeva.Core.Entities;
 using Cedeva.Core.Enums;
+using Cedeva.Core.Interfaces;
 using Cedeva.Tests.TestSupport;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
@@ -683,7 +685,11 @@ public class ExcursionsControllerCoverageTests
     [Fact]
     public async Task SendEmail_Post_WithRecipients_Redirects()
     {
-        using var factory = new CedevaWebApplicationFactory();
+        var fake = new FakeEmailService();
+        using var factory = new CedevaWebApplicationFactory
+        {
+            ConfigureExtraTestContainer = b => b.RegisterInstance(fake).As<IEmailService>()
+        };
         var s = SeedFull(factory);
         var client = factory.CreateClientFor("u1", s.OrgId, "Coordinator");
 
@@ -699,6 +705,8 @@ public class ExcursionsControllerCoverageTests
         }));
 
         response.StatusCode.Should().Be(HttpStatusCode.Redirect);
+        fake.Sent.Should().ContainSingle("the excursion email must actually be sent, not just counted");
+        fake.Sent[0].To.Should().Contain("paul.parent@test.be");
     }
 
     [Fact]

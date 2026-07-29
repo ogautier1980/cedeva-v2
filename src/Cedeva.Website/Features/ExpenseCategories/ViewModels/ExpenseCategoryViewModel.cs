@@ -11,4 +11,11 @@ public class ExpenseCategoryViewModel
     [StringLength(50, ErrorMessage = "Validation.StringLength")]
     [Display(Name = "Field.Name")]
     public string Name { get; set; } = string.Empty;
+
+    [Display(Name = "ExpenseCategory.IsIncome")]
+    public bool IsIncome { get; set; }
+
+    [Display(Name = "ExpenseCategory.Budget")]
+    [Range(0, 1000000, ErrorMessage = "Validation.Range")]
+    public decimal? Budget { get; set; }
 }

@@ -81,18 +81,19 @@
         </div>
     </div>
 
-    <!-- Revenue Section -->
+    <!-- Entrées / Sorties (side by side, matching the Transactions page convention) -->
     <div class="row mb-4">
-        <div class="col-12">
-            <div class="card shadow">
+        <!-- Entrées -->
+        <div class="col-lg-6 mb-4 mb-lg-0">
+            <div class="card shadow h-100">
                 <div class="card-header bg-success text-white">
-                    <h5 class="mb-0"><i class="fas fa-euro-sign me-2"></i>@Localizer["Financial.RevenueDetails"]</h5>
+                    <h5 class="mb-0"><i class="fas fa-arrow-down me-2"></i>@Localizer["Financial.Income"] — @Localizer["Financial.RevenueDetails"]</h5>
                 </div>
                 <div class="card-body">
                     <table class="table table-bordered">
                         <tbody>
                             <tr>
-                                <th scope="col" style="width: 50%">@Localizer["Financial.TotalBookings"]</th>
+                                <th scope="col" style="width: 60%">@Localizer["Financial.TotalBookings"]</th>
                                 <td class="text-end">@Model.TotalBookings</td>
                             </tr>
                             <tr>
@@ -103,7 +104,7 @@
                                 <th scope="col">@Localizer["Financial.PendingBookings"]</th>
                                 <td class="text-end">@Model.PendingBookings</td>
                             </tr>
-                            <tr>
+                            <tr class="table-success">
                                 <th scope="col">@Localizer["Financial.TotalRevenue"]</th>
                                 <td class="text-end"><strong>@Model.TotalRevenue.ToString("N2") €</strong></td>
                             </tr>
@@ -120,38 +121,32 @@
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- Organization Expenses Section -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card shadow">
-                <div class="card-header bg-warning">
-                    <h5 class="mb-0 text-white"><i class="fas fa-building me-2"></i>@Localizer["Expense.OrganizationExpenses"]</h5>
+        <!-- Sorties -->
+        <div class="col-lg-6">
+            <div class="card shadow h-100">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="mb-0"><i class="fas fa-arrow-up me-2"></i>@Localizer["Financial.Expense"] — @Localizer["Expense.OrganizationExpenses"] &amp; @Localizer["Financial.TeamSalaries"]</h5>
                 </div>
                 <div class="card-body">
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <table class="table table-sm table-bordered">
-                                <tr>
-                                    <th scope="col">@Localizer["Expense.OrganizationCard"]</th>
-                                    <td class="text-end">@Model.OrganizationCardExpenses.ToString("N2") €</td>
-                                </tr>
-                                <tr>
-                                    <th scope="col">@Localizer["Expense.OrganizationCash"]</th>
-                                    <td class="text-end">@Model.OrganizationCashExpenses.ToString("N2") €</td>
-                                </tr>
-                                <tr class="table-warning">
-                                    <th scope="col">@Localizer["Financial.Total"]</th>
-                                    <td class="text-end"><strong>@Model.TotalOrganizationExpenses.ToString("N2") €</strong></td>
-                                </tr>
-                            </table>
-                        </div>
-                    </div>
+                    <h6 class="text-danger"><i class="fas fa-building me-2"></i>@Localizer["Expense.OrganizationExpenses"]</h6>
+                    <table class="table table-sm table-bordered">
+                        <tr>
+                            <th scope="col">@Localizer["Expense.OrganizationCard"]</th>
+                            <td class="text-end">@Model.OrganizationCardExpenses.ToString("N2") €</td>
+                        </tr>
+                        <tr>
+                            <th scope="col">@Localizer["Expense.OrganizationCash"]</th>
+                            <td class="text-end">@Model.OrganizationCashExpenses.ToString("N2") €</td>
+                        </tr>
+                        <tr class="table-danger">
+                            <th scope="col">@Localizer["Financial.Total"]</th>
+                            <td class="text-end"><strong>@Model.TotalOrganizationExpenses.ToString("N2") €</strong></td>
+                        </tr>
+                    </table>
 
                     @if (Model.OrganizationExpenseDetails.Any())
                     {
-                        <h6>@Localizer["Financial.DetailedExpenses"]</h6>
                         <table class="table table-sm table-hover">
                             <thead class="table-light">
                                 <tr>
@@ -174,59 +169,45 @@
                             </tbody>
                         </table>
                     }
-                </div>
-            </div>
-        </div>
-    </div>
 
-    <!-- Team Salaries Section -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card shadow">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0"><i class="fas fa-users me-2"></i>@Localizer["Financial.TeamSalaries"]</h5>
-                </div>
-                <div class="card-body">
-                    <p class="mb-3">
-                        <strong>@Localizer["Financial.TeamMembersCount"]:</strong> @Model.TeamMembersCount<br />
+                    <hr />
+
+                    <h6 class="text-danger"><i class="fas fa-users me-2"></i>@Localizer["Financial.TeamSalaries"]</h6>
+                    <p class="mb-2">
+                        <strong>@Localizer["Financial.TeamMembersCount"]:</strong> @Model.TeamMembersCount —
                         <strong>@Localizer["Financial.TotalTeamSalaries"]:</strong> @Model.TotalTeamSalaries.ToString("N2") €
                     </p>
 
-                    <table class="table table-sm table-bordered">
-                        <thead class="table-light">
-                            <tr>
-                                <th scope="col">@Localizer["Field.Name"]</th>
-                                <th scope="col">@Localizer["Field.Role"]</th>
-                                <th scope="col" class="text-end">@Localizer["Financial.Days"]</th>
-                                <th scope="col" class="text-end">@Localizer["Financial.DailyCompensation"]</th>
-                                <th scope="col" class="text-end">@Localizer["Financial.BaseSalary"]</th>
-                                <th scope="col" class="text-end">@Localizer["Financial.Reimbursements"]</th>
-                                <th scope="col" class="text-end">@Localizer["Financial.Consumptions"]</th>
-                                <th scope="col" class="text-end">@Localizer["Financial.NetSalary"]</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var tm in Model.TeamMemberSalaryDetails)
-                            {
+                    <div class="table-responsive">
+                        <table class="table table-sm table-bordered">
+                            <thead class="table-light">
                                 <tr>
-                                    <td>@tm.Name</td>
-                                    <td>@tm.Role</td>
-                                    <td class="text-end">@tm.DaysWorked</td>
-                                    <td class="text-end">@tm.DailyCompensation.ToString("N2") €</td>
-                                    <td class="text-end">@tm.BaseSalary.ToString("N2") €</td>
-                                    <td class="text-end text-success">+@tm.Reimbursements.ToString("N2") €</td>
-                                    <td class="text-end text-danger">-@tm.PersonalConsumptions.ToString("N2") €</td>
-                                    <td class="text-end"><strong>@tm.NetSalary.ToString("N2") €</strong></td>
+                                    <th scope="col">@Localizer["Field.Name"]</th>
+                                    <th scope="col">@Localizer["Field.Role"]</th>
+                                    <th scope="col" class="text-end">@Localizer["Financial.Days"]</th>
+                                    <th scope="col" class="text-end">@Localizer["Financial.NetSalary"]</th>
                                 </tr>
-                            }
-                        </tbody>
-                        <tfoot>
-                            <tr class="table-primary">
-                                <th scope="col" colspan="7">@Localizer["Financial.Total"]</th>
-                                <th scope="col" class="text-end">@Model.TotalTeamSalaries.ToString("N2") €</th>
-                            </tr>
-                        </tfoot>
-                    </table>
+                            </thead>
+                            <tbody>
+                                @foreach (var tm in Model.TeamMemberSalaryDetails)
+                                {
+                                    <tr>
+                                        <td>@tm.Name</td>
+                                        <td>@tm.Role</td>
+                                        <td class="text-end">@tm.DaysWorked</td>
+                                        <td class="text-end"><strong>@tm.NetSalary.ToString("N2") €</strong></td>
+                                    </tr>
+                                }
+                            </tbody>
+                            <tfoot>
+                                <tr class="table-danger">
+                                    <th scope="col" colspan="3">@Localizer["Financial.Total"]</th>
+                                    <th scope="col" class="text-end">@Model.TotalTeamSalaries.ToString("N2") €</th>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                    <p class="small text-muted mb-0">@Localizer["Financial.SeeTeamSalariesForDetail"]</p>
                 </div>
             </div>
         </div>

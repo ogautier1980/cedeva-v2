@@ -21,6 +21,8 @@
                     <thead class="table-light">
                         <tr>
                             <th scope="col">@Localizer["Field.Name"]</th>
+                            <th scope="col">@Localizer["Field.Type"]</th>
+                            <th scope="col" class="text-end">@Localizer["ExpenseCategory.Budget"]</th>
                             <th scope="col" class="text-end">@Localizer["Actions"]</th>
                         </tr>
                     </thead>
@@ -29,6 +31,17 @@
                         {
                             <tr>
                                 <td>@category.Name</td>
+                                <td>
+                                    @if (category.IsIncome)
+                                    {
+                                        <span class="badge bg-success"><i class="fas fa-arrow-down me-1"></i>@Localizer["Financial.Income"]</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-danger"><i class="fas fa-arrow-up me-1"></i>@Localizer["Financial.Expense"]</span>
+                                    }
+                                </td>
+                                <td class="text-end">@(category.Budget.HasValue ? category.Budget.Value.ToString("N2") + " €" : "-")</td>
                                 <td class="text-end text-nowrap">
                                     <a asp-action="Edit" asp-route-id="@category.Id" class="btn btn-sm btn-outline-secondary">
                                         <i class="fas fa-edit"></i>

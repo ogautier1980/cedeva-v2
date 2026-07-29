@@ -1,0 +1,191 @@
+@model Cedeva.Website.Features.ActivityManagement.ViewModels.OneReportViewModel
+@{
+    Layout = null;
+    var culture = new System.Globalization.CultureInfo("fr-BE");
+}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@Localizer["ONE.ReportTitle"] - @Model.Activity.Name</title>
+    <style>
+        @@page {
+            size: A4;
+            margin: 1.5cm;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 10.5pt;
+            line-height: 1.4;
+        }
+
+        h1 {
+            font-size: 16pt;
+            margin: 0 0 15px 0;
+        }
+
+        .section {
+            margin-bottom: 30px;
+            page-break-after: always;
+        }
+
+        .section:last-child {
+            page-break-after: avoid;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        table th {
+            background-color: #333;
+            color: white;
+            padding: 6px 5px;
+            text-align: left;
+            font-weight: bold;
+            border: 1px solid #333;
+            font-size: 9pt;
+        }
+
+        table td {
+            padding: 5px;
+            border: 1px solid #ddd;
+            font-size: 9.5pt;
+        }
+
+        table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .presence-table {
+            width: 300px;
+        }
+
+        @@media print {
+            .no-print {
+                display: none;
+            }
+
+            body {
+                print-color-adjust: exact;
+                -webkit-print-color-adjust: exact;
+            }
+        }
+
+        .print-button {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14pt;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+    </style>
+</head>
+<body>
+    <button onclick="window.print()" class="print-button no-print">
+        🖨️ @Localizer["Print"]
+    </button>
+
+    @{
+        async Task RenderListing(string title, List<Cedeva.Website.Features.ActivityManagement.ViewModels.OneChildListingRow> rows)
+        {
+            <div class="section">
+                <h1>@title</h1>
+                @if (!rows.Any())
+                {
+                    <p><em>@Localizer["Presence.NoBookings"]</em></p>
+                }
+                else
+                {
+                    <table>
+                        <thead>
+                            <tr>
+                                <th style="width: 30px">N°</th>
+                                <th>@Localizer["ONE.NameAndFirstName"]</th>
+                                <th style="width: 40px">@Localizer["Age"]</th>
+                                <th style="width: 80px">@Localizer["ONE.ArrivalDate"]</th>
+                                <th style="width: 80px">@Localizer["ONE.DepartureDate"]</th>
+                                <th style="width: 50px">@Localizer["ONE.DaysCount"]</th>
+                                <th style="width: 70px">@Localizer["ONE.AmountPaid"]</th>
+                                <th style="width: 60px">@Localizer["ONE.DisadvantagedEnvironment"]</th>
+                                <th style="width: 60px">@Localizer["ONE.MildDisability"]</th>
+                                <th style="width: 60px">@Localizer["ONE.SevereDisability"]</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var row in rows)
+                            {
+                                <tr>
+                                    <td>@row.Number</td>
+                                    <td>@row.FullName</td>
+                                    <td class="text-center">@row.Age</td>
+                                    <td>@(row.FirstDay?.ToString("dd/MM/yyyy") ?? "-")</td>
+                                    <td>@(row.LastDay?.ToString("dd/MM/yyyy") ?? "-")</td>
+                                    <td class="text-center">@row.DaysCount</td>
+                                    <td class="text-center">@row.AmountPaid.ToString("N2", culture) €</td>
+                                    <td class="text-center">@(row.IsDisadvantagedEnvironment ? "X" : "")</td>
+                                    <td class="text-center">@(row.IsMildDisability ? "X" : "")</td>
+                                    <td class="text-center">@(row.IsSevereDisability ? "X" : "")</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+            </div>
+        }
+
+        async Task RenderPresences(string title, List<Cedeva.Website.Features.ActivityManagement.ViewModels.OneWeekPresence> weeks)
+        {
+            <div class="section">
+                <h1>@title</h1>
+                @if (!weeks.Any())
+                {
+                    <p><em>@Localizer["Presence.NoBookings"]</em></p>
+                }
+                else
+                {
+                    foreach (var week in weeks)
+                    {
+                        <table class="presence-table">
+                            <thead>
+                                <tr>
+                                    <th>@string.Format(Localizer["ONE.WeekNumber"].Value, week.WeekNumber)</th>
+                                    <th class="text-center">@Localizer["ONE.PresentCount"]</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var day in week.Days)
+                                {
+                                    <tr>
+                                        <td>@day.DayDate.ToString("dd/MM/yyyy")</td>
+                                        <td class="text-center">@day.PresentCount</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    }
+                }
+            </div>
+        }
+    }
+
+    @{ await RenderListing(Localizer["ONE.Under6Title"].Value, Model.Under6Listing); }
+    @{ await RenderListing(Localizer["ONE.Over6Title"].Value, Model.Over6Listing); }
+    @{ await RenderPresences(Localizer["ONE.PresencesUnder6Title"].Value, Model.Under6Presences); }
+    @{ await RenderPresences(Localizer["ONE.PresencesOver6Title"].Value, Model.Over6Presences); }
+</body>
+</html>

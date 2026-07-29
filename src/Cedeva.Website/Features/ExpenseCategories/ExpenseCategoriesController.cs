@@ -34,7 +34,10 @@ public class ExpenseCategoriesController : Controller
 
     public async Task<IActionResult> Index()
     {
-        var categories = await _context.ExpenseCategories.OrderBy(c => c.Name).ToListAsync();
+        var categories = await _context.ExpenseCategories
+            .OrderByDescending(c => c.IsIncome)
+            .ThenBy(c => c.Name)
+            .ToListAsync();
         return View(categories);
     }
 
@@ -54,7 +57,13 @@ public class ExpenseCategoriesController : Controller
         if (!ModelState.IsValid)
             return View(viewModel);
 
-        _context.ExpenseCategories.Add(new ExpenseCategory { OrganisationId = orgId, Name = name });
+        _context.ExpenseCategories.Add(new ExpenseCategory
+        {
+            OrganisationId = orgId,
+            Name = name,
+            IsIncome = viewModel.IsIncome,
+            Budget = viewModel.Budget
+        });
         await _context.SaveChangesAsync();
 
         return this.RedirectToIndexWithSuccess(_localizer["ExpenseCategory.Created"].Value);
@@ -67,7 +76,13 @@ public class ExpenseCategoriesController : Controller
         if (category == null)
             return NotFound();
 
-        return View(new ExpenseCategoryViewModel { Id = category.Id, Name = category.Name });
+        return View(new ExpenseCategoryViewModel
+        {
+            Id = category.Id,
+            Name = category.Name,
+            IsIncome = category.IsIncome,
+            Budget = category.Budget
+        });
     }
 
     [HttpPost]
@@ -90,6 +105,8 @@ public class ExpenseCategoriesController : Controller
 
         var oldName = category.Name;
         category.Name = newName;
+        category.IsIncome = viewModel.IsIncome;
+        category.Budget = viewModel.Budget;
 
         // Keep existing expenses consistent with the renamed category.
         if (!string.Equals(oldName, newName, StringComparison.Ordinal))

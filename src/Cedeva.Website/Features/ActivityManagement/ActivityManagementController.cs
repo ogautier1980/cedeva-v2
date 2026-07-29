@@ -987,6 +987,103 @@ public class ActivityManagementController : Controller
         return View(viewModel);
     }
 
+    // GET: ActivityManagement/OneReport
+    [HttpGet]
+    public async Task<IActionResult> OneReport(int? id)
+    {
+        id ??= _sessionState.Get<int>(SessionKeyActivityId);
+
+        if (id is null)
+            return NotFound();
+
+        var activity = await _context.Activities
+            .Include(a => a.Days)
+            .Include(a => a.Bookings)
+                .ThenInclude(b => b.Child)
+            .Include(a => a.Bookings)
+                .ThenInclude(b => b.Days)
+                    .ThenInclude(bd => bd.ActivityDay)
+            .FirstOrDefaultAsync(a => a.Id == id);
+
+        if (activity == null)
+            return NotFound();
+
+        _sessionState.Set<int>(SessionKeyActivityId, id.Value);
+
+        var confirmedBookings = activity.Bookings.Where(b => b.IsConfirmed).ToList();
+
+        var under6Bookings = confirmedBookings
+            .Where(b => ComputeAgeAt(b.Child.BirthDate, activity.StartDate) < 6)
+            .OrderBy(b => b.Child.LastName).ThenBy(b => b.Child.FirstName)
+            .ToList();
+        var over6Bookings = confirmedBookings
+            .Where(b => ComputeAgeAt(b.Child.BirthDate, activity.StartDate) >= 6)
+            .OrderBy(b => b.Child.LastName).ThenBy(b => b.Child.FirstName)
+            .ToList();
+
+        var viewModel = new OneReportViewModel
+        {
+            Activity = activity,
+            Under6Listing = under6Bookings.Select((b, i) => BuildOneListingRow(b, i + 1, activity.StartDate)).ToList(),
+            Over6Listing = over6Bookings.Select((b, i) => BuildOneListingRow(b, i + 1, activity.StartDate)).ToList(),
+            Under6Presences = BuildOneWeeklyPresence(activity, under6Bookings),
+            Over6Presences = BuildOneWeeklyPresence(activity, over6Bookings)
+        };
+
+        return View(viewModel);
+    }
+
+    private static int ComputeAgeAt(DateTime birthDate, DateTime referenceDate) =>
+        referenceDate.Year - birthDate.Year - (referenceDate.DayOfYear < birthDate.DayOfYear ? 1 : 0);
+
+    private static OneChildListingRow BuildOneListingRow(Booking booking, int number, DateTime ageReferenceDate)
+    {
+        var reservedDays = booking.Days
+            .Where(d => d.IsReserved && d.ActivityDay != null)
+            .OrderBy(d => d.ActivityDay.DayDate)
+            .ToList();
+
+        return new OneChildListingRow
+        {
+            Number = number,
+            FullName = $"{booking.Child.LastName} {booking.Child.FirstName}",
+            Age = ComputeAgeAt(booking.Child.BirthDate, ageReferenceDate),
+            FirstDay = reservedDays.FirstOrDefault()?.ActivityDay.DayDate,
+            LastDay = reservedDays.LastOrDefault()?.ActivityDay.DayDate,
+            DaysCount = reservedDays.Count,
+            AmountPaid = booking.PaidAmount,
+            IsDisadvantagedEnvironment = booking.Child.IsDisadvantagedEnvironment,
+            IsMildDisability = booking.Child.IsMildDisability,
+            IsSevereDisability = booking.Child.IsSevereDisability
+        };
+    }
+
+    private static List<OneWeekPresence> BuildOneWeeklyPresence(Activity activity, List<Booking> bucketBookings)
+    {
+        var presentCountByDayId = bucketBookings
+            .SelectMany(b => b.Days)
+            .Where(d => d.IsPresent)
+            .GroupBy(d => d.ActivityDayId)
+            .ToDictionary(g => g.Key, g => g.Count());
+
+        return activity.Days
+            .Where(d => d.IsActive)
+            .GroupBy(d => d.Week ?? 1)
+            .OrderBy(g => g.Key)
+            .Select(g => new OneWeekPresence
+            {
+                WeekNumber = g.Key,
+                Days = g.OrderBy(d => d.DayDate)
+                    .Select(d => new OneDayPresence
+                    {
+                        DayDate = d.DayDate,
+                        PresentCount = presentCountByDayId.TryGetValue(d.DayId, out var count) ? count : 0
+                    })
+                    .ToList()
+            })
+            .ToList();
+    }
+
     /// <summary>
     /// Sets the selected activity ID in both session and persistent cookie
     /// </summary>

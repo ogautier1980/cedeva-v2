@@ -91,6 +91,18 @@ public class TeamMemberViewModel : AuditableViewModel
     [Display(Name = "Field.LicenseUrl")]
     public string? LicenseUrl { get; set; }
 
+    [Display(Name = "Field.CriminalRecordFile")]
+    [AllowedExtensions(".jpg", ".jpeg", ".png", ".gif", ".pdf")]
+    [MaxFileSize(10 * 1024 * 1024)]
+    public IFormFile? CriminalRecordFile { get; set; }
+
+    [Display(Name = "Field.RemoveCriminalRecord")]
+    public bool RemoveCriminalRecord { get; set; }
+
+    [StringLength(255, ErrorMessage = "Validation.StringLength")]
+    [Display(Name = "Field.CriminalRecordUrl")]
+    public string? CriminalRecordUrl { get; set; }
+
     public int? AddressId { get; set; }
     public int OrganisationId { get; set; }
 

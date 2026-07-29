@@ -1945,6 +1945,9 @@
   <data name="Financial.GrandTotal" xml:space="preserve">
     <value>Grand total</value>
   </data>
+  <data name="Financial.HideAmounts" xml:space="preserve">
+    <value>Hide amounts</value>
+  </data>
   <data name="Financial.ImportBankStatements" xml:space="preserve">
     <value>Import bank statements</value>
   </data>
@@ -2043,6 +2046,12 @@
   </data>
   <data name="Financial.SalaryCalculationInfo" xml:space="preserve">
     <value>The amount to pay is calculated as follows: Prestations (Days × Daily compensation) + Reimbursements − Personal consumptions.</value>
+  </data>
+  <data name="Financial.ShowAmounts" xml:space="preserve">
+    <value>Show amounts</value>
+  </data>
+  <data name="Financial.SeeTeamSalariesForDetail" xml:space="preserve">
+    <value>See "Team salaries" for the full breakdown (prestations, reimbursements, consumptions).</value>
   </data>
   <data name="Financial.SelectOrganisation" xml:space="preserve">
     <value>Select organisation</value>
@@ -2466,6 +2475,51 @@
   </data>
   <data name="On" xml:space="preserve">
     <value>on</value>
+  </data>
+  <data name="ONE.ReportTitle" xml:space="preserve">
+    <value>ONE Report</value>
+  </data>
+  <data name="ONE.NameAndFirstName" xml:space="preserve">
+    <value>Last and first name</value>
+  </data>
+  <data name="ONE.ArrivalDate" xml:space="preserve">
+    <value>Arrival date</value>
+  </data>
+  <data name="ONE.DepartureDate" xml:space="preserve">
+    <value>Departure date</value>
+  </data>
+  <data name="ONE.DaysCount" xml:space="preserve">
+    <value>Days</value>
+  </data>
+  <data name="ONE.AmountPaid" xml:space="preserve">
+    <value>Amount paid</value>
+  </data>
+  <data name="ONE.DisadvantagedEnvironment" xml:space="preserve">
+    <value>Disadvantaged background</value>
+  </data>
+  <data name="ONE.MildDisability" xml:space="preserve">
+    <value>Mild disability</value>
+  </data>
+  <data name="ONE.SevereDisability" xml:space="preserve">
+    <value>Severe disability</value>
+  </data>
+  <data name="ONE.Under6Title" xml:space="preserve">
+    <value>Children list, ages 2 to 5</value>
+  </data>
+  <data name="ONE.Over6Title" xml:space="preserve">
+    <value>Children list, age 6 and over</value>
+  </data>
+  <data name="ONE.PresencesUnder6Title" xml:space="preserve">
+    <value>Attendance, ages 2 to 5</value>
+  </data>
+  <data name="ONE.PresencesOver6Title" xml:space="preserve">
+    <value>Attendance, age 6 and over</value>
+  </data>
+  <data name="ONE.WeekNumber" xml:space="preserve">
+    <value>Week {0}</value>
+  </data>
+  <data name="ONE.PresentCount" xml:space="preserve">
+    <value>Present</value>
   </data>
   <data name="Organisation" xml:space="preserve">
     <value>Organization</value>
@@ -3720,6 +3774,27 @@
   <data name="Field.RemoveLicense" xml:space="preserve">
     <value>Remove license</value>
   </data>
+  <data name="Field.CriminalRecordFile" xml:space="preserve">
+    <value>Criminal record extract</value>
+  </data>
+  <data name="Field.RemoveCriminalRecord" xml:space="preserve">
+    <value>Remove criminal record extract</value>
+  </data>
+  <data name="Field.CriminalRecordUrl" xml:space="preserve">
+    <value>Criminal record extract</value>
+  </data>
+  <data name="TeamMembers.ViewCriminalRecord" xml:space="preserve">
+    <value>View criminal record extract</value>
+  </data>
+  <data name="TeamMembers.NoCriminalRecord" xml:space="preserve">
+    <value>No criminal record extract uploaded</value>
+  </data>
+  <data name="TeamMembers.ConfirmDeleteCriminalRecord" xml:space="preserve">
+    <value>Are you sure you want to remove this criminal record extract?</value>
+  </data>
+  <data name="TeamMembers.CriminalRecordDeletedError" xml:space="preserve">
+    <value>Error while removing the criminal record extract.</value>
+  </data>
   <data name="Audit.CreatedBy" xml:space="preserve">
     <value>Created by</value>
   </data>
@@ -4145,6 +4220,15 @@
   </data>
   <data name="ExpenseCategory.Duplicate" xml:space="preserve">
     <value>This category already exists.</value>
+  </data>
+  <data name="ExpenseCategory.IsIncome" xml:space="preserve">
+    <value>Income or expense</value>
+  </data>
+  <data name="ExpenseCategory.Budget" xml:space="preserve">
+    <value>Budget</value>
+  </data>
+  <data name="ExpenseCategory.BudgetHelp" xml:space="preserve">
+    <value>Optional — planned amount for this category.</value>
   </data>
   <data name="Expense.CategoryHelp" xml:space="preserve">
     <value>Pick a category or type a new one.</value>

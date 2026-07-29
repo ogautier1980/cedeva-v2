@@ -29,6 +29,9 @@
                     <a asp-action="Index" class="btn btn-outline-secondary me-2">
                         <i class="fas fa-arrow-left me-1"></i>@Localizer["Button.Back"]
                     </a>
+                    <button type="button" id="toggleAmountsBtn" class="btn btn-outline-secondary me-2">
+                        <i class="fas fa-eye-slash me-1"></i>@Localizer["Financial.HideAmounts"]
+                    </button>
                     <div class="btn-group">
                         <a asp-controller="Payments" asp-action="SelectBooking" class="btn btn-success">
                             <i class="fas fa-plus me-1"></i>@Localizer["Payments.AddPayment"]
@@ -54,7 +57,7 @@
                                 @Localizer["Financial.TotalIncome"]
                             </div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800">
-                                @Model.TotalIncome.ToString("N2") €
+                                <span class="financial-amount">@Model.TotalIncome.ToString("N2") €</span>
                             </div>
                         </div>
                         <div class="col-auto">
@@ -74,7 +77,7 @@
                                 @Localizer["Financial.TotalExpenses"]
                             </div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800">
-                                @Model.TotalExpenses.ToString("N2") €
+                                <span class="financial-amount">@Model.TotalExpenses.ToString("N2") €</span>
                             </div>
                         </div>
                         <div class="col-auto">
@@ -94,7 +97,7 @@
                                 @Localizer["Financial.NetBalance"]
                             </div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800">
-                                @Model.NetBalance.ToString("N2") €
+                                <span class="financial-amount">@Model.NetBalance.ToString("N2") €</span>
                             </div>
                         </div>
                         <div class="col-auto">
@@ -202,14 +205,16 @@
                                         }
                                     </td>
                                     <td class="text-end">
-                                        @if (transaction.IsIncome)
-                                        {
-                                            <strong class="text-success">+@transaction.Amount.ToString("N2") €</strong>
-                                        }
-                                        else
-                                        {
-                                            <strong class="text-danger">-@transaction.Amount.ToString("N2") €</strong>
-                                        }
+                                        <span class="financial-amount">
+                                            @if (transaction.IsIncome)
+                                            {
+                                                <strong class="text-success">+@transaction.Amount.ToString("N2") €</strong>
+                                            }
+                                            else
+                                            {
+                                                <strong class="text-danger">-@transaction.Amount.ToString("N2") €</strong>
+                                            }
+                                        </span>
                                     </td>
                                 </tr>
                             }
@@ -218,9 +223,11 @@
                             <tr class="table-secondary">
                                 <th scope="col" colspan="4" class="text-end">@Localizer["Financial.NetBalance"]:</th>
                                 <th scope="col" class="text-end">
-                                    <strong class="@(Model.NetBalance >= 0 ? "text-success" : "text-danger")">
-                                        @(Model.NetBalance >= 0 ? "+" : "")@Model.NetBalance.ToString("N2") €
-                                    </strong>
+                                    <span class="financial-amount">
+                                        <strong class="@(Model.NetBalance >= 0 ? "text-success" : "text-danger")">
+                                            @(Model.NetBalance >= 0 ? "+" : "")@Model.NetBalance.ToString("N2") €
+                                        </strong>
+                                    </span>
                                 </th>
                             </tr>
                         </tfoot>
@@ -230,3 +237,36 @@
         </div>
     </div>
 </div>
+
+<style>
+    .financial-amount.masked {
+        filter: blur(6px);
+        user-select: none;
+    }
+</style>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            const storageKey = 'cedeva_hideAmounts';
+            const button = document.getElementById('toggleAmountsBtn');
+            const amounts = document.querySelectorAll('.financial-amount');
+
+            function applyState(hidden) {
+                amounts.forEach(el => el.classList.toggle('masked', hidden));
+                button.innerHTML = hidden
+                    ? '<i class="fas fa-eye me-1"></i>@Localizer["Financial.ShowAmounts"]'
+                    : '<i class="fas fa-eye-slash me-1"></i>@Localizer["Financial.HideAmounts"]';
+            }
+
+            applyState(localStorage.getItem(storageKey) === 'true');
+
+            button.addEventListener('click', function () {
+                const isHidden = amounts[0]?.classList.contains('masked') ?? false;
+                const next = !isHidden;
+                localStorage.setItem(storageKey, next);
+                applyState(next);
+            });
+        });
+    </script>
+}

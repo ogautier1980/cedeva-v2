@@ -19,4 +19,10 @@ public class ExpenseCategory : AuditableEntity, IOrganisationScoped
     [Required(ErrorMessage = "Validation.Required")]
     [StringLength(50, ErrorMessage = "Validation.StringLength")]
     public string Name { get; set; } = string.Empty;
+
+    /// <summary>True = Entrée (income category), false = Sortie (expense category, the historical default).</summary>
+    public bool IsIncome { get; set; }
+
+    /// <summary>Optional planning budget for this category; null means no budget has been set.</summary>
+    public decimal? Budget { get; set; }
 }

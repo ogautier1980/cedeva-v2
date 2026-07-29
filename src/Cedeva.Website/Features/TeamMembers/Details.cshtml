@@ -103,6 +103,20 @@
                             }
                         </dd>
 
+                        <dt class="col-sm-4">@Localizer["Field.CriminalRecordFile"]</dt>
+                        <dd class="col-sm-8">
+                            @if (!string.IsNullOrEmpty(Model.CriminalRecordUrl))
+                            {
+                                <a asp-action="ViewCriminalRecord" asp-route-id="@Model.TeamMemberId" target="_blank" class="btn btn-sm btn-primary">
+                                    <i class="fas fa-file-alt me-1"></i>@Localizer["TeamMembers.ViewCriminalRecord"]
+                                </a>
+                            }
+                            else
+                            {
+                                <p class="text-muted mb-0">@Localizer["TeamMembers.NoCriminalRecord"]</p>
+                            }
+                        </dd>
+
                         <dt class="col-sm-4">@Localizer["Status"]</dt>
                         <dd class="col-sm-8">
                             <span class="badge @(Model.Status == Cedeva.Core.Enums.Status.Compensated ? "bg-primary" : "bg-secondary")">

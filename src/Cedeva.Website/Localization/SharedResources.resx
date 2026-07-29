@@ -1900,6 +1900,9 @@
   <data name="Financial.GrandTotal" xml:space="preserve">
     <value>Total général</value>
   </data>
+  <data name="Financial.HideAmounts" xml:space="preserve">
+    <value>Masquer les montants</value>
+  </data>
   <data name="Financial.ImportBankStatements" xml:space="preserve">
     <value>Importer des relevés bancaires</value>
   </data>
@@ -1998,6 +2001,12 @@
   </data>
   <data name="Financial.SalaryCalculationInfo" xml:space="preserve">
     <value>Le montant à verser est calculé comme suit : Prestations (Jours × Indemnité journalière) + Remboursements − Consommations personnelles.</value>
+  </data>
+  <data name="Financial.ShowAmounts" xml:space="preserve">
+    <value>Afficher les montants</value>
+  </data>
+  <data name="Financial.SeeTeamSalariesForDetail" xml:space="preserve">
+    <value>Voir « Salaires équipe » pour le détail complet (prestations, remboursements, consommations).</value>
   </data>
   <data name="Financial.SelectOrganisation" xml:space="preserve">
     <value>Sélectionner une organisation</value>
@@ -2421,6 +2430,51 @@
   </data>
   <data name="On" xml:space="preserve">
     <value>sur</value>
+  </data>
+  <data name="ONE.ReportTitle" xml:space="preserve">
+    <value>Rapport ONE</value>
+  </data>
+  <data name="ONE.NameAndFirstName" xml:space="preserve">
+    <value>Nom et prénom</value>
+  </data>
+  <data name="ONE.ArrivalDate" xml:space="preserve">
+    <value>Date arrivée</value>
+  </data>
+  <data name="ONE.DepartureDate" xml:space="preserve">
+    <value>Date départ</value>
+  </data>
+  <data name="ONE.DaysCount" xml:space="preserve">
+    <value>Nbr. jours</value>
+  </data>
+  <data name="ONE.AmountPaid" xml:space="preserve">
+    <value>Prix payé</value>
+  </data>
+  <data name="ONE.DisadvantagedEnvironment" xml:space="preserve">
+    <value>Milieu défavorisé</value>
+  </data>
+  <data name="ONE.MildDisability" xml:space="preserve">
+    <value>Handicap léger</value>
+  </data>
+  <data name="ONE.SevereDisability" xml:space="preserve">
+    <value>Handicap lourd</value>
+  </data>
+  <data name="ONE.Under6Title" xml:space="preserve">
+    <value>Liste enfants de 2 à 5 ans</value>
+  </data>
+  <data name="ONE.Over6Title" xml:space="preserve">
+    <value>Liste enfants de 6 ans et plus</value>
+  </data>
+  <data name="ONE.PresencesUnder6Title" xml:space="preserve">
+    <value>Présences enfants de 2 à 5 ans</value>
+  </data>
+  <data name="ONE.PresencesOver6Title" xml:space="preserve">
+    <value>Présences enfants de 6 ans et plus</value>
+  </data>
+  <data name="ONE.WeekNumber" xml:space="preserve">
+    <value>Semaine {0}</value>
+  </data>
+  <data name="ONE.PresentCount" xml:space="preserve">
+    <value>Présents</value>
   </data>
   <data name="Organisation" xml:space="preserve">
     <value>Organisation</value>
@@ -3832,6 +3886,27 @@
   <data name="Field.RemoveLicense" xml:space="preserve">
     <value>Supprimer le brevet</value>
   </data>
+  <data name="Field.CriminalRecordFile" xml:space="preserve">
+    <value>Extrait de casier judiciaire</value>
+  </data>
+  <data name="Field.RemoveCriminalRecord" xml:space="preserve">
+    <value>Supprimer l'extrait de casier judiciaire</value>
+  </data>
+  <data name="Field.CriminalRecordUrl" xml:space="preserve">
+    <value>Extrait de casier judiciaire</value>
+  </data>
+  <data name="TeamMembers.ViewCriminalRecord" xml:space="preserve">
+    <value>Voir l'extrait de casier judiciaire</value>
+  </data>
+  <data name="TeamMembers.NoCriminalRecord" xml:space="preserve">
+    <value>Aucun extrait de casier judiciaire téléversé</value>
+  </data>
+  <data name="TeamMembers.ConfirmDeleteCriminalRecord" xml:space="preserve">
+    <value>Êtes-vous sûr de vouloir supprimer cet extrait de casier judiciaire ?</value>
+  </data>
+  <data name="TeamMembers.CriminalRecordDeletedError" xml:space="preserve">
+    <value>Erreur lors de la suppression de l'extrait de casier judiciaire.</value>
+  </data>
   <data name="Audit.CreatedBy" xml:space="preserve">
     <value>Créé par</value>
   </data>
@@ -4167,6 +4242,15 @@
   </data>
   <data name="ExpenseCategory.Duplicate" xml:space="preserve">
     <value>Cette catégorie existe déjà.</value>
+  </data>
+  <data name="ExpenseCategory.IsIncome" xml:space="preserve">
+    <value>Entrée ou sortie</value>
+  </data>
+  <data name="ExpenseCategory.Budget" xml:space="preserve">
+    <value>Budget</value>
+  </data>
+  <data name="ExpenseCategory.BudgetHelp" xml:space="preserve">
+    <value>Optionnel — montant prévisionnel pour cette catégorie.</value>
   </data>
   <data name="Expense.CategoryHelp" xml:space="preserve">
     <value>Choisissez une catégorie ou saisissez-en une nouvelle.</value>

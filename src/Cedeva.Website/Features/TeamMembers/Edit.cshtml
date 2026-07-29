@@ -140,6 +140,29 @@
                             </div>
                         </div>
 
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="CriminalRecordFile" class="form-label">@Localizer["Field.CriminalRecordFile"]</label>
+
+                                @if (!string.IsNullOrEmpty(Model.CriminalRecordUrl))
+                                {
+                                    <div class="mb-2" id="criminalRecordPreview">
+                                        <a asp-action="ViewCriminalRecord" asp-route-id="@Model.TeamMemberId" target="_blank" class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-file-alt me-1"></i>@Localizer["TeamMembers.ViewCriminalRecord"]
+                                        </a>
+                                        <button type="button" class="btn btn-danger btn-sm" id="removeCriminalRecordBtn" title="@Localizer["Field.RemoveCriminalRecord"]">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </div>
+                                }
+                                <input asp-for="RemoveCriminalRecord" type="hidden" id="RemoveCriminalRecord" />
+
+                                <input asp-for="CriminalRecordFile" type="file" class="form-control" id="CriminalRecordFile" accept="image/*,.pdf" />
+                                <span asp-validation-for="CriminalRecordFile" class="text-danger"></span>
+                            </div>
+                            <input type="hidden" asp-for="CriminalRecordUrl" />
+                        </div>
+
                         <input type="hidden" asp-for="Country" />
 
                         @if (User.IsInRole("Admin") && ViewBag.Organisations != null)
@@ -265,6 +288,25 @@
                             $('#LicenseFile').val('');
                         });
                     }
+                }
+            });
+
+            // Handle criminal record removal with AJAX
+            $('#removeCriminalRecordBtn').on('click', function() {
+                if (confirm(@Json.Serialize(Localizer["TeamMembers.ConfirmDeleteCriminalRecord"].Value))) {
+                    var token = $('input[name="__RequestVerificationToken"]').val();
+                    $.post('@Url.Action("DeleteCriminalRecord", "TeamMembers")',
+                        {
+                            id: @Model.TeamMemberId,
+                            __RequestVerificationToken: token
+                        },
+                        function() {
+                            $('#criminalRecordPreview').fadeOut(300, function() {
+                                $(this).remove();
+                            });
+                        }).fail(function() {
+                            alert(@Json.Serialize(Localizer["TeamMembers.CriminalRecordDeletedError"].Value));
+                        });
                 }
             });
         });
