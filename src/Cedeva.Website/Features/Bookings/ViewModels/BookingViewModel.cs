@@ -38,10 +38,19 @@ public class BookingViewModel : AuditableViewModel
     // Navigation properties for display
     public string? ChildFullName { get; set; }
     public string? ParentFullName { get; set; }
+    public int? ParentId { get; set; }
+    public string? ParentEmail { get; set; }
+    public string? ParentPhone { get; set; }
+    public string? AddressStreet { get; set; }
+    public string? AddressCity { get; set; }
+    public string? AddressPostalCode { get; set; }
     public string? ActivityName { get; set; }
     public DateTime? ActivityStartDate { get; set; }
     public DateTime? ActivityEndDate { get; set; }
     public string? GroupLabel { get; set; }
+
+    // Payment history (for Details view)
+    public List<BookingPaymentViewModel> Payments { get; set; } = new();
 
     // Summary counts
     public int DaysCount { get; set; }
@@ -70,4 +79,13 @@ public class BookingQuestionViewModel
     public string? Options { get; set; }
     public int DisplayOrder { get; set; }
     public string? AnswerText { get; set; }
+}
+
+public class BookingPaymentViewModel
+{
+    public int Id { get; set; }
+    public DateTime PaymentDate { get; set; }
+    public decimal Amount { get; set; }
+    public PaymentMethod PaymentMethod { get; set; }
+    public PaymentStatus Status { get; set; }
 }

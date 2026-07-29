@@ -36,6 +36,27 @@
                         <dt class="col-sm-4">@Localizer["Parent"]</dt>
                         <dd class="col-sm-8">
                             <i class="fas fa-user me-1"></i>@Model.ParentFullName
+                            @if (!string.IsNullOrEmpty(Model.ParentEmail))
+                            {
+                                <br /><small class="text-muted"><i class="fas fa-envelope me-1"></i>@Model.ParentEmail</small>
+                            }
+                            @if (!string.IsNullOrEmpty(Model.ParentPhone))
+                            {
+                                <br /><small class="text-muted"><i class="fas fa-phone me-1"></i>@Model.ParentPhone</small>
+                            }
+                            @if (!string.IsNullOrEmpty(Model.AddressStreet))
+                            {
+                                <br /><small class="text-muted"><i class="fas fa-home me-1"></i>@Model.AddressStreet, @Model.AddressPostalCode @Model.AddressCity</small>
+                            }
+                            @if (Model.ParentId.HasValue)
+                            {
+                                <br />
+                                <a asp-controller="Parents" asp-action="Edit" asp-route-id="@Model.ParentId"
+                                   asp-route-returnUrl="@Url.Action("Details", "Bookings", new { id = Model.Id })"
+                                   class="btn btn-sm btn-outline-secondary mt-1">
+                                    <i class="fas fa-edit me-1"></i>@Localizer["Bookings.EditParentAddress"]
+                                </a>
+                            }
                         </dd>
 
                         <dt class="col-sm-4">@Localizer["Activity"]</dt>
@@ -132,6 +153,50 @@
                             <span class="badge @statusBadge">@statusText</span>
                         </dd>
                     </dl>
+
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="mb-0 text-primary"><i class="fas fa-receipt me-2"></i>@Localizer["Bookings.PaymentHistory"]</h6>
+                        <a asp-controller="Payments" asp-action="Create" asp-route-bookingId="@Model.Id" class="btn btn-sm btn-outline-primary">
+                            <i class="fas fa-plus me-1"></i>@Localizer["Payments.AddPayment"]
+                        </a>
+                    </div>
+
+                    @if (Model.Payments.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-sm table-hover">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th scope="col">@Localizer["Field.Date"]</th>
+                                        <th scope="col">@Localizer["Field.Amount"]</th>
+                                        <th scope="col">@Localizer["Field.PaymentMethod"]</th>
+                                        <th scope="col"></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var payment in Model.Payments)
+                                    {
+                                        <tr>
+                                            <td>@payment.PaymentDate.ToString("dd/MM/yyyy")</td>
+                                            <td><strong class="text-success">@payment.Amount.ToString("C2", new System.Globalization.CultureInfo("fr-BE"))</strong></td>
+                                            <td>@Localizer[$"PaymentMethod.{payment.PaymentMethod}"]</td>
+                                            <td class="text-end">
+                                                <a asp-controller="Payments" asp-action="Details" asp-route-id="@payment.Id" class="btn btn-sm btn-outline-secondary">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-info py-2">
+                            <i class="fas fa-info-circle me-2"></i>@Localizer["Bookings.NoPaymentsYet"]
+                        </div>
+                    }
 
                     <hr />
 

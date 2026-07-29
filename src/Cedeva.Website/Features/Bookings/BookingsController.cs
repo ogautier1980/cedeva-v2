@@ -506,6 +506,7 @@ public class BookingsController : Controller
                 .ThenInclude(d => d.ActivityDay)
             .Include(b => b.QuestionAnswers)
                 .ThenInclude(qa => qa.ActivityQuestion)
+            .Include(b => b.Payments)
             .FirstOrDefaultAsync(b => b.Id == id);
 
         if (booking == null)
@@ -514,7 +515,9 @@ public class BookingsController : Controller
         }
 
         var child = await _context.Children.FindAsync(booking.ChildId);
-        var parent = child != null ? await _context.Parents.FindAsync(child.ParentId) : null;
+        var parent = child != null
+            ? await _context.Parents.Include(p => p.Address).FirstOrDefaultAsync(p => p.Id == child.ParentId)
+            : null;
         var activity = await _context.Activities.FindAsync(booking.ActivityId);
         var group = booking.GroupId.HasValue ? await _context.ActivityGroups.FindAsync(booking.GroupId.Value) : null;
 
@@ -578,6 +581,12 @@ public class BookingsController : Controller
             PaymentStatus = booking.PaymentStatus,
             ChildFullName = child != null ? $"{child.FirstName} {child.LastName}" : "",
             ParentFullName = parent != null ? $"{parent.FirstName} {parent.LastName}" : "",
+            ParentId = parent?.Id,
+            ParentEmail = parent?.Email,
+            ParentPhone = parent != null ? (parent.MobilePhoneNumber != "" ? parent.MobilePhoneNumber : parent.PhoneNumber) : null,
+            AddressStreet = parent?.Address?.Street,
+            AddressCity = parent?.Address?.City,
+            AddressPostalCode = parent?.Address?.PostalCode,
             ActivityName = activity?.Name ?? "",
             ActivityStartDate = activity?.StartDate,
             ActivityEndDate = activity?.EndDate,
@@ -586,6 +595,17 @@ public class BookingsController : Controller
             QuestionAnswersCount = booking.QuestionAnswers.Count,
             WeeklyDays = weeklyDays,
             Questions = questions,
+            Payments = booking.Payments
+                .OrderByDescending(p => p.PaymentDate)
+                .Select(p => new BookingPaymentViewModel
+                {
+                    Id = p.Id,
+                    PaymentDate = p.PaymentDate,
+                    Amount = p.Amount,
+                    PaymentMethod = p.PaymentMethod,
+                    Status = p.Status
+                })
+                .ToList(),
 
             // Audit fields
             CreatedAt = booking.CreatedAt,

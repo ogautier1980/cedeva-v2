@@ -1,0 +1,119 @@
+@model Cedeva.Website.Features.ActivityManagement.ViewModels.GroupsRosterViewModel
+
+@{
+    ViewData["Title"] = Localizer["ActivityManagement.GroupsList"] + " - " + Model.Activity.Name;
+    ViewData["ActivityId"] = Model.Activity.Id;
+    ViewData["ActivityName"] = Model.Activity.Name;
+    ViewData["NavSection"] = "Groups";
+}
+
+<div class="container-fluid py-4">
+    @await Html.PartialAsync("_AlertMessages")
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <form asp-action="Groups" method="get" class="row g-3 align-items-end">
+                <input type="hidden" name="id" value="@Model.Activity.Id" />
+                <div class="col-md-4">
+                    <label for="groupId" class="form-label fw-bold">@Localizer["Activities.Group"]</label>
+                    <select name="groupId" id="groupId" class="form-select">
+                        <option value="">@Localizer["ActivityManagement.AllGroups"]</option>
+                        @foreach (var option in Model.GroupOptions)
+                        {
+                            <option value="@option.Value" selected="@(option.Value == Model.SelectedGroupId?.ToString())">@option.Text</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label for="dayId" class="form-label fw-bold">@Localizer["ActivityManagement.SelectDay"]</label>
+                    <select name="dayId" id="dayId" class="form-select">
+                        @foreach (var option in Model.ActivityDayOptions)
+                        {
+                            <option value="@option.Value" selected="@option.Selected">@option.Text</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-4 text-end">
+                    <a asp-action="PrintGroups" asp-route-activityId="@Model.Activity.Id"
+                       asp-route-groupId="@Model.SelectedGroupId" asp-route-dayId="@Model.SelectedActivityDayId"
+                       class="btn btn-outline-secondary" target="_blank">
+                        <i class="fas fa-print me-2"></i>@Localizer["Button.Print"]
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    @if (!Model.Children.Any())
+    {
+        <div class="alert alert-info">
+            <i class="fas fa-info-circle"></i> @Localizer["ActivityManagement.NoConfirmedBookings"]
+        </div>
+    }
+    else
+    {
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-layer-group"></i> @Localizer["ActivityManagement.GroupsList"]
+                    <span class="badge bg-light text-dark ms-2">@Model.Children.Count @Localizer["ActivityManagement.ChildrenCount"]</span>
+                </h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th scope="col">@Localizer["Activities.Group"]</th>
+                                <th scope="col">@Localizer["LastName"]</th>
+                                <th scope="col">@Localizer["FirstName"]</th>
+                                <th scope="col">@Localizer["Parent"]</th>
+                                <th scope="col">@Localizer["Phone"]</th>
+                                @if (Model.SelectedActivityDayId.HasValue)
+                                {
+                                    <th scope="col" class="text-center">@Localizer["Present"]</th>
+                                }
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var child in Model.Children)
+                            {
+                                <tr>
+                                    <td><span class="badge bg-secondary">@child.ActivityGroupName</span></td>
+                                    <td>
+                                        <a asp-controller="Bookings" asp-action="Details" asp-route-id="@child.BookingId">@child.ChildLastName</a>
+                                    </td>
+                                    <td>@child.ChildFirstName</td>
+                                    <td>@child.ParentName</td>
+                                    <td>@child.ParentPhone</td>
+                                    @if (Model.SelectedActivityDayId.HasValue)
+                                    {
+                                        <td class="text-center">
+                                            @if (child.IsPresent)
+                                            {
+                                                <i class="fas fa-check text-success"></i>
+                                            }
+                                            else
+                                            {
+                                                <i class="fas fa-times text-danger"></i>
+                                            }
+                                        </td>
+                                    }
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            CedevaChoices.initWithAutoSubmit('#groupId');
+            CedevaChoices.initWithAutoSubmit('#dayId');
+        });
+    </script>
+}

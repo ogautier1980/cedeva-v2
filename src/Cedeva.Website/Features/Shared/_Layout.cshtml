@@ -6,7 +6,6 @@
     // ActivityManagement navigation variables
     int activityId = ViewData.ContainsKey("ActivityId") ? Convert.ToInt32(ViewData["ActivityId"]) : 0;
     string navSection = ViewData.ContainsKey("NavSection") ? ViewData["NavSection"]?.ToString() ?? "" : "";
-    string navAction = ViewData.ContainsKey("NavAction") ? ViewData["NavAction"]?.ToString() ?? "" : "";
     string activityName = ViewData.ContainsKey("ActivityName") ? ViewData["ActivityName"]?.ToString() ?? "" : "";
 }
 
@@ -140,105 +139,34 @@
                         </div>
 
                         <ul class="navbar-nav me-auto activity-nav-compact">
-                            <!-- Gestion des inscriptions -->
+                            <!-- Tableau de bord (retour aux 7 gros boutons) -->
                             <li class="nav-item">
-                                <a class="nav-link @(navSection == "ManageBookings" ? "active" : "")"
-                                   asp-action="ManageBookings" asp-controller="ActivityManagement" asp-route-id="@activityId">
-                                    <i class="fas fa-list-check"></i> @Localizer["ActivityManagement.ManageBookings"]
+                                <a class="nav-link @(navSection == "" || navSection == null ? "active" : "")"
+                                   asp-action="Index" asp-controller="ActivityManagement" asp-route-id="@activityId">
+                                    <i class="fas fa-th-large"></i> @Localizer["Home.Dashboard"]
                                 </a>
                             </li>
 
-                            <!-- Présences -->
-                            <li class="nav-item">
-                                <a class="nav-link @(navSection == "Presences" ? "active" : "")"
-                                   asp-action="Presences" asp-controller="ActivityManagement" asp-route-id="@activityId">
-                                    <i class="fas fa-clipboard-check"></i> @Localizer["Presences"]
-                                </a>
-                            </li>
-
-                            <!-- Comptes (dropdown avec sous-actions) -->
+                            <!-- Pages spéciales (dropdown) -->
                             <li class="nav-item dropdown">
-                                <button class="nav-link dropdown-toggle @(navSection == "Financial" ? "active" : "") btn btn-link"
+                                <button class="nav-link dropdown-toggle @((navSection == "Groups" || navSection == "PresenceSummary") ? "active" : "") btn btn-link"
                                         type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <i class="far fa-money-bill-1"></i> @Localizer["ActivityManagement.Accounts"]
+                                    <i class="fas fa-layer-group"></i> @Localizer["ActivityManagement.SpecialPages"]
                                 </button>
                                 <ul class="dropdown-menu">
                                     <li>
-                                        <a class="dropdown-item @(navAction == "Index" ? "active" : "")"
-                                           asp-action="Index" asp-controller="Financial" asp-route-id="@activityId">
-                                            <i class="fas fa-chart-line"></i> @Localizer["Financial.Dashboard"]
+                                        <a class="dropdown-item @(navSection == "Groups" ? "active" : "")"
+                                           asp-action="Groups" asp-controller="ActivityManagement" asp-route-id="@activityId">
+                                            <i class="fas fa-layer-group"></i> @Localizer["ActivityManagement.GroupsList"]
                                         </a>
                                     </li>
                                     <li>
-                                        <a class="dropdown-item @(navAction == "Transactions" ? "active" : "")"
-                                           asp-action="Transactions" asp-controller="Financial" asp-route-id="@activityId">
-                                            <i class="fas fa-exchange-alt"></i> @Localizer["Financial.Transactions"]
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a class="dropdown-item @(navAction == "TeamSalaries" ? "active" : "")"
-                                           asp-action="TeamSalaries" asp-controller="Financial" asp-route-id="@activityId">
-                                            <i class="fas fa-money-bill-wave"></i> @Localizer["Financial.TeamSalaries"]
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a class="dropdown-item @(navAction == "Report" ? "active" : "")"
-                                           asp-action="Report" asp-controller="Financial" asp-route-id="@activityId">
-                                            <i class="fas fa-file-pdf"></i> @Localizer["Financial.Report"]
+                                        <a class="dropdown-item @(navSection == "PresenceSummary" ? "active" : "")"
+                                           asp-action="PresenceSummary" asp-controller="ActivityManagement" asp-route-id="@activityId">
+                                            <i class="fas fa-chart-bar"></i> @Localizer["ActivityManagement.PresenceSummary"]
                                         </a>
                                     </li>
                                 </ul>
-                            </li>
-
-                            <!-- E-mails (dropdown avec sous-actions) -->
-                            <li class="nav-item dropdown">
-                                <button class="nav-link dropdown-toggle @(navSection == "Emails" ? "active" : "") btn btn-link"
-                                        type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <i class="fas fa-envelope"></i> @Localizer["ActivityManagement.Emails"]
-                                </button>
-                                <ul class="dropdown-menu">
-                                    <li>
-                                        <a class="dropdown-item @(navAction == "SendEmail" ? "active" : "")"
-                                           asp-action="SendEmail" asp-controller="ActivityManagement" asp-route-id="@activityId">
-                                            <i class="fas fa-paper-plane"></i> @Localizer["Email.SendTargeted"]
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a class="dropdown-item @(navAction == "SentEmails" ? "active" : "")"
-                                           asp-action="SentEmails" asp-controller="ActivityManagement" asp-route-id="@activityId">
-                                            <i class="fas fa-history"></i> @Localizer["Email.SentHistory"]
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a class="dropdown-item @(navAction == "EmailTemplates" ? "active" : "")"
-                                           asp-action="Index" asp-controller="EmailTemplates" asp-route-activityId="@activityId">
-                                            <i class="fas fa-file-alt"></i> @Localizer["ActivityManagement.EmailTemplates"]
-                                        </a>
-                                    </li>
-                                </ul>
-                            </li>
-
-                            <!-- Excursions -->
-                            <li class="nav-item">
-                                <a class="nav-link @(navSection == "Excursions" ? "active" : "")"
-                                   asp-action="Index" asp-controller="Excursions" asp-route-id="@activityId">
-                                    <i class="fas fa-train"></i> @Localizer["ActivityManagement.Excursions"]
-                                </a>
-                            </li>
-
-                            <!-- Équipe -->
-                            <li class="nav-item">
-                                <a class="nav-link @(navSection == "Team" ? "active" : "")"
-                                   asp-action="TeamMembers" asp-controller="ActivityManagement" asp-route-id="@activityId">
-                                    <i class="fas fa-people-group"></i> @Localizer["ActivityManagement.Team"]
-                                </a>
-                            </li>
-
-                            <!-- ONE (placeholder) -->
-                            <li class="nav-item">
-                                <a class="nav-link disabled" aria-disabled="true">
-                                    ONE
-                                </a>
                             </li>
                         </ul>
                     }

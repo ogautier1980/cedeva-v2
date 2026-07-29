@@ -819,6 +819,174 @@ public class ActivityManagementController : Controller
         return View(viewModel);
     }
 
+    // GET: ActivityManagement/Groups
+    [HttpGet]
+    public async Task<IActionResult> Groups(int? id, int? groupId, int? dayId)
+    {
+        id ??= _sessionState.Get<int>(SessionKeyActivityId);
+
+        if (id is null)
+            return NotFound();
+
+        var activity = await _context.Activities
+            .Include(a => a.Days)
+            .Include(a => a.Groups)
+            .Include(a => a.Bookings)
+                .ThenInclude(b => b.Child)
+                    .ThenInclude(c => c.Parent)
+            .Include(a => a.Bookings)
+                .ThenInclude(b => b.Group)
+            .Include(a => a.Bookings)
+                .ThenInclude(b => b.Days)
+            .FirstOrDefaultAsync(a => a.Id == id);
+
+        if (activity == null)
+            return NotFound();
+
+        _sessionState.Set<int>(SessionKeyActivityId, id.Value);
+
+        var dayOptions = BuildDayDropdownOptions(activity, dayId);
+        dayOptions.Insert(0, new SelectListItem
+        {
+            Value = "",
+            Text = _localizer["ActivityManagement.AllDays"].Value,
+            Selected = !dayId.HasValue
+        });
+
+        var viewModel = new GroupsRosterViewModel
+        {
+            Activity = activity,
+            SelectedGroupId = groupId,
+            SelectedActivityDayId = dayId,
+            GroupOptions = activity.Groups.Select(g => new SelectListItem
+            {
+                Value = g.Id.ToString(),
+                Text = g.Label
+            }).ToList(),
+            ActivityDayOptions = dayOptions,
+            Children = BuildGroupsRoster(activity, groupId, dayId)
+        };
+
+        return View(viewModel);
+    }
+
+    // GET: ActivityManagement/PrintGroups
+    public async Task<IActionResult> PrintGroups(int activityId, int? groupId, int? dayId)
+    {
+        var activity = await _context.Activities
+            .Include(a => a.Groups)
+            .FirstOrDefaultAsync(a => a.Id == activityId);
+
+        if (activity == null)
+            return NotFound();
+
+        ActivityDay? activityDay = null;
+        if (dayId.HasValue)
+        {
+            activityDay = await _context.ActivityDays.FirstOrDefaultAsync(d => d.DayId == dayId);
+            if (activityDay == null)
+                return NotFound();
+        }
+
+        var activityWithBookings = await _context.Activities
+            .Include(a => a.Bookings)
+                .ThenInclude(b => b.Child)
+                    .ThenInclude(c => c.Parent)
+            .Include(a => a.Bookings)
+                .ThenInclude(b => b.Group)
+            .Include(a => a.Bookings)
+                .ThenInclude(b => b.Days)
+            .FirstAsync(a => a.Id == activityId);
+
+        var viewModel = new PrintGroupsViewModel
+        {
+            Activity = activity,
+            Group = groupId.HasValue ? activity.Groups.FirstOrDefault(g => g.Id == groupId) : null,
+            ActivityDay = activityDay,
+            Children = BuildGroupsRoster(activityWithBookings, groupId, dayId)
+        };
+
+        return View(viewModel);
+    }
+
+    private static List<PresenceChildInfo> BuildGroupsRoster(Activity activity, int? groupId, int? dayId)
+    {
+        return activity.Bookings
+            .Where(b => b.IsConfirmed)
+            .Where(b => groupId == null || b.GroupId == groupId)
+            .Select(b =>
+            {
+                var bookingDay = dayId.HasValue ? b.Days.FirstOrDefault(bd => bd.ActivityDayId == dayId) : null;
+                return new PresenceChildInfo
+                {
+                    BookingId = b.Id,
+                    ChildId = b.ChildId,
+                    ChildFirstName = b.Child.FirstName,
+                    ChildLastName = b.Child.LastName,
+                    ChildBirthDate = b.Child.BirthDate,
+                    ParentName = $"{b.Child.Parent.FirstName} {b.Child.Parent.LastName}",
+                    ParentPhone = b.Child.Parent.MobilePhoneNumber ?? b.Child.Parent.PhoneNumber ?? "",
+                    IsReserved = !dayId.HasValue || (bookingDay?.IsReserved ?? false),
+                    IsPresent = bookingDay?.IsPresent ?? false,
+                    BookingDayId = bookingDay?.Id,
+                    ActivityGroupName = b.Group?.Label,
+                    TotalAmount = b.TotalAmount,
+                    PaidAmount = b.PaidAmount
+                };
+            })
+            .Where(c => !dayId.HasValue || c.IsReserved)
+            .OrderBy(c => c.ActivityGroupName)
+            .ThenBy(c => c.ChildLastName)
+            .ThenBy(c => c.ChildFirstName)
+            .ToList();
+    }
+
+    // GET: ActivityManagement/PresenceSummary
+    [HttpGet]
+    public async Task<IActionResult> PresenceSummary(int? id)
+    {
+        id ??= _sessionState.Get<int>(SessionKeyActivityId);
+
+        if (id is null)
+            return NotFound();
+
+        var activity = await _context.Activities
+            .Include(a => a.Days)
+            .Include(a => a.Bookings)
+                .ThenInclude(b => b.Days)
+            .FirstOrDefaultAsync(a => a.Id == id);
+
+        if (activity == null)
+            return NotFound();
+
+        _sessionState.Set<int>(SessionKeyActivityId, id.Value);
+
+        var confirmedBookingDays = activity.Bookings
+            .Where(b => b.IsConfirmed)
+            .SelectMany(b => b.Days)
+            .ToList();
+
+        var days = activity.Days
+            .Where(d => d.IsActive)
+            .OrderBy(d => d.DayDate)
+            .Select(d => new DayPresenceSummary
+            {
+                DayDate = d.DayDate,
+                Label = d.Label,
+                ReservedCount = confirmedBookingDays.Count(bd => bd.ActivityDayId == d.DayId && bd.IsReserved),
+                PresentCount = confirmedBookingDays.Count(bd => bd.ActivityDayId == d.DayId && bd.IsPresent)
+            })
+            .ToList();
+
+        var viewModel = new PresenceSummaryViewModel
+        {
+            Activity = activity,
+            Days = days
+        };
+
+        return View(viewModel);
+    }
+
     /// <summary>
     /// Sets the selected activity ID in both session and persistent cookie
     /// </summary>

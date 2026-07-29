@@ -79,7 +79,9 @@
                                 @foreach (var child in Model.Children)
                                 {
                                     <tr class="@(child.IsPresent ? "table-success" : "")">
-                                        <td>@child.ChildLastName</td>
+                                        <td>
+                                            <a asp-controller="Bookings" asp-action="Details" asp-route-id="@child.BookingId">@child.ChildLastName</a>
+                                        </td>
                                         <td>@child.ChildFirstName</td>
                                         <td><span class="badge bg-secondary">@child.ActivityGroupName</span></td>
                                         <td class="text-center">

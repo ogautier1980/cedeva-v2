@@ -36,7 +36,9 @@
                         {
                             <tr>
                                 <td>
-                                    <strong>@booking.Child?.FirstName @booking.Child?.LastName</strong>
+                                    <a asp-controller="Bookings" asp-action="Details" asp-route-id="@booking.Id">
+                                        <strong>@booking.Child?.FirstName @booking.Child?.LastName</strong>
+                                    </a>
                                     @if (booking.Child?.BirthDate != null)
                                     {
                                         <br><small class="text-muted">@Localizer["ActivityManagement.BornOn"] @booking.Child.BirthDate.ToString("dd/MM/yyyy")</small>

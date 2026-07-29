@@ -442,6 +442,12 @@
   <data name="ActivityManagement.Accounts" xml:space="preserve">
     <value>Comptes</value>
   </data>
+  <data name="ActivityManagement.AllDays" xml:space="preserve">
+    <value>Tous les jours</value>
+  </data>
+  <data name="ActivityManagement.AllGroups" xml:space="preserve">
+    <value>Tous les groupes</value>
+  </data>
   <data name="ActivityManagement.AllChildrenAssigned" xml:space="preserve">
     <value>Tous les enfants sont déjà assignés à un groupe.</value>
   </data>
@@ -481,6 +487,9 @@
   <data name="ActivityManagement.GroupAssignment" xml:space="preserve">
     <value>Sélection de groupe</value>
   </data>
+  <data name="ActivityManagement.GroupsList" xml:space="preserve">
+    <value>Liste des groupes</value>
+  </data>
   <data name="ActivityManagement.ManageActivity" xml:space="preserve">
     <value>Gérer l'activité</value>
   </data>
@@ -511,6 +520,9 @@
   <data name="ActivityManagement.Period" xml:space="preserve">
     <value>Du {0} au {1}</value>
   </data>
+  <data name="ActivityManagement.PresenceSummary" xml:space="preserve">
+    <value>Total des présences</value>
+  </data>
   <data name="ActivityManagement.RegistrationDate" xml:space="preserve">
     <value>Date d'inscription</value>
   </data>
@@ -528,6 +540,9 @@
   </data>
   <data name="ActivityManagement.Settings" xml:space="preserve">
     <value>Paramètres de l'activité</value>
+  </data>
+  <data name="ActivityManagement.SpecialPages" xml:space="preserve">
+    <value>Pages spéciales</value>
   </data>
   <data name="ActivityManagement.Team" xml:space="preserve">
     <value>Équipe</value>
@@ -763,6 +778,9 @@
   <data name="Bookings.EditBooking" xml:space="preserve">
     <value>Modifier l'inscription</value>
   </data>
+  <data name="Bookings.EditParentAddress" xml:space="preserve">
+    <value>Modifier les coordonnées</value>
+  </data>
   <data name="Bookings.MedicalSheet" xml:space="preserve">
     <value>Fiche médicale</value>
   </data>
@@ -793,6 +811,9 @@
   <data name="Bookings.NoAnswerProvided" xml:space="preserve">
     <value>Aucune réponse fournie</value>
   </data>
+  <data name="Bookings.NoPaymentsYet" xml:space="preserve">
+    <value>Aucun paiement enregistré pour cette inscription.</value>
+  </data>
   <data name="Bookings.NotYetConfirmed" xml:space="preserve">
     <value>Cette inscription n'est pas encore confirmée.</value>
   </data>
@@ -801,6 +822,9 @@
   </data>
   <data name="Bookings.ParentInformation" xml:space="preserve">
     <value>Informations du parent</value>
+  </data>
+  <data name="Bookings.PaymentHistory" xml:space="preserve">
+    <value>Historique des paiements</value>
   </data>
   <data name="Bookings.Pending" xml:space="preserve">
     <value>En attente</value>
@@ -2562,6 +2586,9 @@
   </data>
   <data name="PaymentMethod.Cash" xml:space="preserve">
     <value>Espèces</value>
+  </data>
+  <data name="PaymentMethod.Online" xml:space="preserve">
+    <value>En ligne</value>
   </data>
   <data name="PaymentMethod.Other" xml:space="preserve">
     <value>Autre</value>

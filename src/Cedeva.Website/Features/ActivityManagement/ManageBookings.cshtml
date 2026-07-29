@@ -75,8 +75,8 @@ else
                                 data-firstname="@item.FirstName.ToLower()"
                                 data-lastname="@item.LastName.ToLower()"
                                 data-age="@item.Age">
-                                <td>@item.FirstName</td>
-                                <td>@item.LastName</td>
+                                <td><a asp-controller="Bookings" asp-action="Details" asp-route-id="@item.BookingId">@item.FirstName</a></td>
+                                <td><a asp-controller="Bookings" asp-action="Details" asp-route-id="@item.BookingId">@item.LastName</a></td>
                                 <td>@item.Age</td>
                                 <td>
                                     <select class="form-select form-select-sm group-selector"

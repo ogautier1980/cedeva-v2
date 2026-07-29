@@ -37,3 +37,35 @@ public class PrintPresencesViewModel
     public ActivityDay ActivityDay { get; set; } = null!;
     public List<PresenceChildInfo> PresenceItems { get; set; } = new();
 }
+
+public class GroupsRosterViewModel
+{
+    public Activity Activity { get; set; } = null!;
+    public int? SelectedGroupId { get; set; }
+    public int? SelectedActivityDayId { get; set; }
+    public List<SelectListItem> GroupOptions { get; set; } = new();
+    public List<SelectListItem> ActivityDayOptions { get; set; } = new();
+    public List<PresenceChildInfo> Children { get; set; } = new();
+}
+
+public class PrintGroupsViewModel
+{
+    public Activity Activity { get; set; } = null!;
+    public ActivityGroup? Group { get; set; }
+    public ActivityDay? ActivityDay { get; set; }
+    public List<PresenceChildInfo> Children { get; set; } = new();
+}
+
+public class PresenceSummaryViewModel
+{
+    public Activity Activity { get; set; } = null!;
+    public List<DayPresenceSummary> Days { get; set; } = new();
+}
+
+public class DayPresenceSummary
+{
+    public DateTime DayDate { get; set; }
+    public string Label { get; set; } = string.Empty;
+    public int ReservedCount { get; set; }
+    public int PresentCount { get; set; }
+}

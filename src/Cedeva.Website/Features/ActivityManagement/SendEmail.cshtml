@@ -14,6 +14,14 @@
 
 <div class="container-fluid py-4">
     @await Html.PartialAsync("_AlertMessages")
+    <div class="d-flex justify-content-end gap-2 mb-3">
+        <a asp-action="SentEmails" asp-route-id="@Model.ActivityId" class="btn btn-outline-secondary btn-sm">
+            <i class="fas fa-history me-1"></i>@Localizer["Email.SentHistory"]
+        </a>
+        <a asp-controller="EmailTemplates" asp-action="Index" asp-route-activityId="@Model.ActivityId" class="btn btn-outline-secondary btn-sm">
+            <i class="fas fa-file-alt me-1"></i>@Localizer["ActivityManagement.EmailTemplates"]
+        </a>
+    </div>
     <div class="row">
         <div class="col-lg-7">
             <div class="card">
@@ -131,9 +139,6 @@
                             </button>
                             <a asp-action="Index" asp-route-id="@Model.ActivityId" class="btn btn-secondary">
                                 <i class="fas fa-times"></i> @Localizer["Cancel"]
-                            </a>
-                            <a asp-action="SentEmails" asp-route-id="@Model.ActivityId" class="btn btn-outline-info ms-auto">
-                                <i class="fas fa-history"></i> @Localizer["Email.SentHistory"]
                             </a>
                         </div>
                     </form>

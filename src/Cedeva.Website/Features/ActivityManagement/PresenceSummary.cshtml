@@ -1,0 +1,64 @@
+@model Cedeva.Website.Features.ActivityManagement.ViewModels.PresenceSummaryViewModel
+@{
+    ViewData["Title"] = Localizer["ActivityManagement.PresenceSummary"] + " - " + Model.Activity.Name;
+    ViewData["ActivityId"] = Model.Activity.Id;
+    ViewData["ActivityName"] = Model.Activity.Name;
+    ViewData["NavSection"] = "PresenceSummary";
+}
+
+<div class="container-fluid py-4">
+    @await Html.PartialAsync("_AlertMessages")
+
+    @if (!Model.Days.Any())
+    {
+        <div class="alert alert-info">
+            <i class="fas fa-info-circle"></i> @Localizer["ActivityManagement.NoActiveDay"]
+        </div>
+    }
+    else
+    {
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-chart-bar"></i> @Localizer["ActivityManagement.PresenceSummary"]
+                </h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th scope="col">@Localizer["Field.Date"]</th>
+                                <th scope="col" class="text-center">@Localizer["Reserved"]</th>
+                                <th scope="col" class="text-center">@Localizer["Present"]</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var day in Model.Days)
+                            {
+                                <tr>
+                                    <td>
+                                        @day.DayDate.ToString("dddd dd/MM/yyyy", new System.Globalization.CultureInfo("fr-FR"))
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge bg-secondary">@day.ReservedCount</span>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge bg-success">@day.PresentCount</span>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                        <tfoot class="table-light">
+                            <tr>
+                                <th scope="row">@Localizer["Total"]</th>
+                                <th class="text-center">@Model.Days.Sum(d => d.ReservedCount)</th>
+                                <th class="text-center">@Model.Days.Sum(d => d.PresentCount)</th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+    }
+</div>
