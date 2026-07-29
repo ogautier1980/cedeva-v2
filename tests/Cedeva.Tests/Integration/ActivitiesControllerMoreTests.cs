@@ -267,7 +267,7 @@ public class ActivitiesControllerMoreTests
         factory.Seed(ctx =>
         {
             org = TestData.Organisation();
-            activity = TestData.Activity(org, "StageEtendu"); // 2026-07-01 .. 2026-07-05
+            activity = TestData.Activity(org, "StageEtendu");
             for (var date = activity.StartDate; date <= activity.EndDate; date = date.AddDays(1))
             {
                 activity.Days.Add(new ActivityDay { Label = date.ToString("yyyy-MM-dd"), DayDate = date, IsActive = true });
@@ -277,9 +277,11 @@ public class ActivitiesControllerMoreTests
         });
 
         var client = factory.CreateClientFor("u1", org.Id, "Coordinator");
-        // Extend EndDate by two days (to 2026-07-07): HandleDateRangeChanges must add them.
+        // Extend EndDate by two days: HandleDateRangeChanges must add them.
         var fields = BaseActivityFields(
-            name: "StageEtendu", startDate: "2026-07-01", endDate: "2026-07-07",
+            name: "StageEtendu",
+            startDate: activity.StartDate.ToString("yyyy-MM-dd"),
+            endDate: activity.EndDate.AddDays(2).ToString("yyyy-MM-dd"),
             organisationId: org.Id, id: activity.Id);
 
         var response = await client.PostAsync($"/Activities/Edit/{activity.Id}", new FormUrlEncodedContent(fields));
@@ -444,7 +446,11 @@ public class ActivitiesControllerMoreTests
         }
 
         var client = factory.CreateClientFor("u1", org.Id, "Coordinator");
-        var fields = BaseActivityFields(name: "StageJourConfirme", organisationId: org.Id, id: activity.Id);
+        var fields = BaseActivityFields(
+            name: "StageJourConfirme",
+            startDate: activity.StartDate.ToString("yyyy-MM-dd"),
+            endDate: activity.EndDate.ToString("yyyy-MM-dd"),
+            organisationId: org.Id, id: activity.Id);
         var keep = allDayIds.Where(dayId => dayId != firstDayId).ToList();
         var content = new List<KeyValuePair<string, string>>(
             fields.Select(kv => new KeyValuePair<string, string>(kv.Key, kv.Value)));

@@ -27,7 +27,7 @@ public class PublicRegistrationControllerIntegrationTests
         var activity = factory.Seed(ctx =>
         {
             var org = TestData.Organisation();
-            var a = TestData.Activity(org, "Stage Public Ete"); // StartDate 2026-07-01 (future)
+            var a = TestData.Activity(org, "Stage Public Ete"); // default StartDate is always ~1 month out
             ctx.AddRange(org, a);
             return a;
         });
@@ -82,7 +82,7 @@ public class PublicRegistrationControllerIntegrationTests
         var org = factory.Seed(ctx =>
         {
             var o = TestData.Organisation();
-            var future = TestData.Activity(o, "Stage Futur");        // 2026-07-01
+            var future = TestData.Activity(o, "Stage Futur");        // default StartDate is always ~1 month out
             var past = TestData.Activity(o, "Stage Passe");
             past.StartDate = new DateTime(2000, 1, 1);
             past.EndDate = new DateTime(2000, 1, 5);

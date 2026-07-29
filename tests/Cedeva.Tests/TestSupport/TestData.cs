@@ -52,8 +52,10 @@ public static class TestData
         Description = "Activité de test",
         IsActive = true,
         PricePerDay = 20m,
-        StartDate = new DateTime(2026, 7, 1),
-        EndDate = new DateTime(2026, 7, 5),
+        // Relative to today so this stays a "future" activity no matter when the suite runs
+        // (a hardcoded date here previously broke PublicRegistration tests once it lapsed into the past).
+        StartDate = DateTime.Today.AddMonths(1),
+        EndDate = DateTime.Today.AddMonths(1).AddDays(4),
         Organisation = organisation
     };
 
