@@ -35,9 +35,10 @@ public class CreateExcursionViewModel
     [Range(0, 9999.99, ErrorMessage = "Validation.Range")]
     public decimal Cost { get; set; }
 
-    [Required(ErrorMessage = "Validation.Required")]
+    // No longer chosen at creation (hidden field, see Create.cshtml) — defaults to "Autre"
+    // since the actual type isn't known at this point.
     [Display(Name = "Field.ExcursionType")]
-    public ExcursionType Type { get; set; }
+    public ExcursionType Type { get; set; } = ExcursionType.Other;
 
     [Required(ErrorMessage = "Validation.Required")]
     [Display(Name = "Field.TargetGroups")]

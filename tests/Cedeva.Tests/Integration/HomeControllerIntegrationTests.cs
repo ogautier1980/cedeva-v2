@@ -10,7 +10,7 @@ namespace Cedeva.Tests.Integration;
 
 /// <summary>
 /// Integration tests for <c>HomeController</c>:
-/// - GET / (Index dashboard) requires auth and renders organisation-scoped stats,
+/// - GET / (Index dashboard) requires auth and renders the organisation-scoped recent-activities list,
 /// - POST /Home/SetLanguage ([AllowAnonymous]) sets the culture cookie and local-redirects,
 /// - GET /Home/Error ([AllowAnonymous]) renders the error view.
 /// </summary>
@@ -52,8 +52,8 @@ public class HomeControllerIntegrationTests
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         var html = await response.Content.ReadAsStringAsync();
-        // The dashboard view always renders the quick-actions card with this link.
-        html.Should().Contain("/Activities/Create");
+        // The simplified dashboard is just the recent-activities list with a link to the full index.
+        html.Should().Contain("/Activities");
     }
 
     [Fact]
@@ -77,9 +77,8 @@ public class HomeControllerIntegrationTests
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         var html = await response.Content.ReadAsStringAsync();
-        // Recent activities / bookings sections surface the seeded data.
+        // Recent activities section surfaces the seeded data.
         html.Should().Contain("Stage Accueil");
-        html.Should().Contain("Enfant"); // child last name in recent bookings (FirstName is HTML-encoded)
     }
 
     [Fact]

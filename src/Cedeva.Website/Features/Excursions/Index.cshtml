@@ -41,13 +41,8 @@
                             <tr>
                                 <th scope="col">@Localizer["Field.ExcursionName"]</th>
                                 <th scope="col">@Localizer["Field.ExcursionDate"]</th>
-                                <th scope="col">@Localizer["Field.ExcursionType"]</th>
                                 <th scope="col">@Localizer["Field.TargetGroups"]</th>
                                 <th scope="col">@Localizer["Excursion.Registrations"]</th>
-                                <th scope="col">@Localizer["Field.ExcursionCost"]</th>
-                                <th scope="col">@Localizer["Excursion.TotalRevenue"]</th>
-                                <th scope="col">@Localizer["Excursion.TotalExpenses"]</th>
-                                <th scope="col">@Localizer["Excursion.NetBalance"]</th>
                                 <th scope="col" class="text-end">@Localizer["Actions"]</th>
                             </tr>
                         </thead>
@@ -58,9 +53,6 @@
                                     <td><a asp-action="Details" asp-route-id="@excursion.Id" class="fw-bold">@excursion.Name</a></td>
                                     <td>@excursion.ExcursionDate.ToString("dd/MM/yyyy")</td>
                                     <td>
-                                        <span class="badge bg-info">@excursion.Type</span>
-                                    </td>
-                                    <td>
                                         @foreach (var groupName in excursion.TargetGroupNames)
                                         {
                                             <span class="badge bg-secondary me-1">@groupName</span>
@@ -68,16 +60,6 @@
                                     </td>
                                     <td>
                                         <span class="badge bg-primary">@excursion.RegistrationCount</span>
-                                    </td>
-                                    <td>@excursion.Cost.ToString("C")</td>
-                                    <td class="text-success">
-                                        <strong>@excursion.TotalRevenue.ToString("C")</strong>
-                                    </td>
-                                    <td class="text-danger">
-                                        @excursion.TotalExpenses.ToString("C")
-                                    </td>
-                                    <td class="@(excursion.NetBalance >= 0 ? "text-success" : "text-danger")">
-                                        <strong>@excursion.NetBalance.ToString("C")</strong>
                                     </td>
                                     <td class="text-end">
                                         <nav class="btn-group" aria-label="@Localizer["Field.Actions"]">

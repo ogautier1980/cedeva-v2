@@ -10,135 +10,136 @@
 
 <div class="container-fluid py-4">
     @await Html.PartialAsync("_AlertMessages")
-    <div class="row">
-        <!-- Assigned Team Members -->
-        <div class="col-md-7">
-            <div class="card">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0"><i class="fas fa-users"></i> @Localizer["ActivityManagement.AssignedTeam"] (@Model.AssignedTeamMembers.Count())</h5>
-                </div>
-                <div class="card-body">
-                    @if (!Model.AssignedTeamMembers.Any())
-                    {
-                        <div class="alert alert-info">
-                            <i class="fas fa-info-circle"></i> @Localizer["ActivityManagement.NoAssignedMembers"]
-                        </div>
-                    }
-                    else
-                    {
-                        <div class="table-responsive">
-                            <table class="table table-hover">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th scope="col">@Localizer["Name"]</th>
-                                        <th scope="col">@Localizer["Role"]</th>
-                                        <th scope="col">@Localizer["License"]</th>
-                                        <th scope="col">@Localizer["Status"]</th>
-                                        <th scope="col" class="text-end">@Localizer["Actions"]</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach (var member in Model.AssignedTeamMembers.OrderBy(m => m.LastName))
-                                    {
-                                        <tr>
-                                            <td>
-                                                <strong>@member.FirstName @member.LastName</strong>
-                                                @if (!string.IsNullOrEmpty(member.Email))
-                                                {
-                                                    <br />
-                                                    <small class="text-muted">
-                                                        <i class="fas fa-envelope"></i> @member.Email
-                                                    </small>
-                                                }
-                                            </td>
-                                            <td>
-                                                <span class="badge bg-primary">
-                                                    @Localizer.GetLocalizedEnum(member.TeamRole)
-                                                </span>
-                                            </td>
-                                            <td>
-                                                @if (member.License != License.NoLicense)
-                                                {
-                                                    <span class="badge bg-success">
-                                                        @Localizer.GetLocalizedEnum(member.License)
-                                                    </span>
-                                                }
-                                                else
-                                                {
-                                                    <span class="text-muted">-</span>
-                                                }
-                                            </td>
-                                            <td>
-                                                <span class="badge @(member.Status == Status.Compensated ? "bg-success" : "bg-primary")">
-                                                    @Localizer.GetLocalizedEnum(member.Status)
-                                                </span>
-                                            </td>
-                                            <td class="text-end">
-                                                <form asp-action="RemoveTeamMember" method="post" style="display: inline;">
-                                                    @Html.AntiForgeryToken()
-                                                    <input type="hidden" name="id" value="@Model.Activity.Id" />
-                                                    <input type="hidden" name="teamMemberId" value="@member.TeamMemberId" />
-                                                    <button type="submit" class="btn btn-sm btn-outline-danger"
-                                                            onclick="return confirm('@string.Format(Localizer["ActivityManagement.RemoveConfirm"].Value, member.FirstName + " " + member.LastName)');">
-                                                        <i class="fas fa-user-minus"></i> @Localizer["Remove"]
-                                                    </button>
-                                                </form>
-                                            </td>
-                                        </tr>
-                                    }
-                                </tbody>
-                            </table>
-                        </div>
-                    }
-                </div>
-            </div>
-        </div>
 
-        <!-- Available Team Members -->
-        <div class="col-md-5">
-            <div class="card">
-                <div class="card-header bg-secondary text-white">
-                    <h5 class="mb-0"><i class="fas fa-user-plus"></i> @Localizer["ActivityManagement.AvailableMembers"] (@Model.AvailableTeamMembers.Count())</h5>
+    <!-- Assigned Team Members -->
+    <div class="card mb-3">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0"><i class="fas fa-users"></i> @Localizer["ActivityManagement.AssignedTeam"] (@Model.AssignedTeamMembers.Count())</h5>
+        </div>
+        <div class="card-body">
+            @if (!Model.AssignedTeamMembers.Any())
+            {
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i> @Localizer["ActivityManagement.NoAssignedMembers"]
                 </div>
-                <div class="card-body">
-                    @if (!Model.AvailableTeamMembers.Any())
-                    {
-                        <div class="alert alert-info">
-                            <i class="fas fa-info-circle"></i> @Localizer["ActivityManagement.AllMembersAssigned"]
-                        </div>
-                    }
-                    else
-                    {
-                        <div class="list-group">
-                            @foreach (var member in Model.AvailableTeamMembers.OrderBy(m => m.LastName))
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th scope="col">@Localizer["Name"]</th>
+                                <th scope="col">@Localizer["Role"]</th>
+                                <th scope="col">@Localizer["License"]</th>
+                                <th scope="col">@Localizer["Status"]</th>
+                                <th scope="col" class="text-end">@Localizer["Actions"]</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var member in Model.AssignedTeamMembers.OrderBy(m => m.LastName))
                             {
-                                <div class="list-group-item d-flex justify-content-between align-items-center">
-                                    <div>
+                                <tr>
+                                    <td>
                                         <strong>@member.FirstName @member.LastName</strong>
-                                        <br />
-                                        <small class="text-muted">
-                                            <i class="fas fa-tag"></i> @Localizer.GetLocalizedEnum(member.TeamRole)
-                                            @if (member.License != License.NoLicense)
-                                            {
-                                                <span class="ms-2">
-                                                    <i class="fas fa-certificate"></i> @Localizer.GetLocalizedEnum(member.License)
-                                                </span>
-                                            }
-                                        </small>
-                                    </div>
-                                    <form asp-action="AddTeamMember" method="post">
-                                        @Html.AntiForgeryToken()
-                                        <input type="hidden" name="id" value="@Model.Activity.Id" />
-                                        <input type="hidden" name="teamMemberId" value="@member.TeamMemberId" />
-                                        <button type="submit" class="btn btn-sm btn-outline-primary">
-                                            <i class="fas fa-user-plus"></i> @Localizer["Add"]
-                                        </button>
-                                    </form>
-                                </div>
+                                        @if (!string.IsNullOrEmpty(member.Email))
+                                        {
+                                            <br />
+                                            <small class="text-muted">
+                                                <i class="fas fa-envelope"></i> @member.Email
+                                            </small>
+                                        }
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-primary">
+                                            @Localizer.GetLocalizedEnum(member.TeamRole)
+                                        </span>
+                                    </td>
+                                    <td>
+                                        @if (member.License != License.NoLicense)
+                                        {
+                                            <span class="badge bg-success">
+                                                @Localizer.GetLocalizedEnum(member.License)
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">-</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        <span class="badge @(member.Status == Status.Compensated ? "bg-success" : "bg-primary")">
+                                            @Localizer.GetLocalizedEnum(member.Status)
+                                        </span>
+                                    </td>
+                                    <td class="text-end">
+                                        <form asp-action="RemoveTeamMember" method="post" style="display: inline;">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="id" value="@Model.Activity.Id" />
+                                            <input type="hidden" name="teamMemberId" value="@member.TeamMemberId" />
+                                            <button type="submit" class="btn btn-sm btn-outline-danger"
+                                                    onclick="return confirm('@string.Format(Localizer["ActivityManagement.RemoveConfirm"].Value, member.FirstName + " " + member.LastName)');">
+                                                <i class="fas fa-user-minus"></i> @Localizer["Remove"]
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
                             }
-                        </div>
-                    }
+                        </tbody>
+                    </table>
                 </div>
+            }
+        </div>
+    </div>
+
+    <!-- Available Team Members — de-emphasized below the main list, collapsed by default -->
+    <div class="card">
+        <div class="card-header bg-light">
+            <button class="btn btn-link text-decoration-none p-0 w-100 text-start d-flex justify-content-between align-items-center"
+                    type="button" data-bs-toggle="collapse" data-bs-target="#availableMembersPanel">
+                <span><i class="fas fa-user-plus me-1"></i> @Localizer["ActivityManagement.AvailableMembers"] (@Model.AvailableTeamMembers.Count())</span>
+                <i class="fas fa-chevron-down"></i>
+            </button>
+        </div>
+        <div class="collapse" id="availableMembersPanel">
+            <div class="card-body">
+                @if (!Model.AvailableTeamMembers.Any())
+                {
+                    <div class="alert alert-info mb-0">
+                        <i class="fas fa-info-circle"></i> @Localizer["ActivityManagement.AllMembersAssigned"]
+                    </div>
+                }
+                else
+                {
+                    <div class="list-group">
+                        @foreach (var member in Model.AvailableTeamMembers.OrderBy(m => m.LastName))
+                        {
+                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong>@member.FirstName @member.LastName</strong>
+                                    <br />
+                                    <small class="text-muted">
+                                        <i class="fas fa-tag"></i> @Localizer.GetLocalizedEnum(member.TeamRole)
+                                        @if (member.License != License.NoLicense)
+                                        {
+                                            <span class="ms-2">
+                                                <i class="fas fa-certificate"></i> @Localizer.GetLocalizedEnum(member.License)
+                                            </span>
+                                        }
+                                    </small>
+                                </div>
+                                <form asp-action="AddTeamMember" method="post">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@Model.Activity.Id" />
+                                    <input type="hidden" name="teamMemberId" value="@member.TeamMemberId" />
+                                    <button type="submit" class="btn btn-sm btn-outline-primary">
+                                        <i class="fas fa-user-plus"></i> @Localizer["Add"]
+                                    </button>
+                                </form>
+                            </div>
+                        }
+                    </div>
+                }
             </div>
         </div>
     </div>
