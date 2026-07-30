@@ -2,17 +2,20 @@
 
 Source : export Notion [`CEDEVA 2 0 ....md`](CEDEVA%202%200%2035545c93462a801cae9dd5fc2c518849.md) + captures d'écran du même dossier + exemple [`17.pdf`](17.pdf) (listing ONE).
 
-Ce document restructure le retour brut de Thomas (écran par écran, en vrac) en lots exploitables. Aucun développement n'a démarré — c'est un plan de travail à valider avant d'attaquer.
+Ce document restructure le retour brut de Thomas (écran par écran, en vrac) en lots exploitables. **Mise à jour 2026-07-30** : plusieurs lots ont déjà été traités (voir les statuts ✅/⏸️ dans chaque lot ci-dessous) ; ce qui reste est presque entièrement bloqué par une des questions ouvertes ou nécessite une décision produit de Thomas — voir la liste juste en dessous.
 
 ---
 
 ## ⚠️ Questions ouvertes à trancher avant de commencer
 
 1. **Paiements partiels / CPAS / facture** — le coordinateur doit-il pouvoir forcer une inscription non payée et encoder un paiement manuel ? Quelles règles (échéancier, tiers payant) ?
-2. **`+Ajouter un paiement` / `+Ajouter une dépense`** — Thomas demande d'abord une explication du fonctionnement actuel avant de fusionner les deux écrans.
-3. **Envoi de mail depuis un modèle** — Thomas ne trouve pas ce parcours dans l'UI actuelle ; à vérifier si la feature existe et est juste mal exposée, ou si elle manque.
+2. **✅ Répondu (2026-07-30) — `+Ajouter un paiement` / `+Ajouter une dépense`** : ce sont deux écrans structurellement différents, pas juste deux variantes d'un même formulaire.
+   - **Ajouter un paiement** (`PaymentsController.Create`) est toujours rattaché à une **réservation précise** (`Payment.BookingId` obligatoire) : enfant, parent, activité, montant déjà payé sont affichés en lecture seule. À la validation, il met à jour `Booking.PaidAmount`/`PaymentStatus`. Champs : Montant, Date, Moyen de paiement (Cash/Autre), Référence.
+   - **Ajouter une dépense** (`FinancialController.CreateExpense`) est rattaché à une **activité entière** (`Expense.ActivityId` obligatoire), jamais à un enfant/une réservation. Champs : Libellé (obligatoire), Description, Montant, Date, Catégorie (texte libre avec suggestions), Assigné à (membre d'équipe ou "caisse/carte organisation" — avec un type Remboursement/Consommation perso qui n'existe pas côté paiement).
+   - **Conclusion** : les deux entités n'ont ni la même clé obligatoire (réservation vs activité), ni le même jeu de champs (`Payment` a Moyen de paiement/Statut, `Expense` a Libellé/Catégorie/Assigné à) — les fusionner en un seul écran est possible techniquement (bouton bascule Entrée/Sortie) mais ferait cohabiter deux formulaires largement indépendants derrière un même écran, pas un vrai formulaire unique. **Décision à prendre avec Thomas** : garder les deux écrans séparés (mais améliorer leurs points d'entrée/labels), ou construire cet écran à bascule malgré la duplication de champs qu'il implique.
+3. **✅ Répondu (2026-07-30) — Envoi de mail depuis un modèle** : la fonctionnalité **existe déjà entièrement**, mais uniquement à l'intérieur de l'écran d'envoi (`ActivityManagement/SendEmail`) : un menu déroulant + bouton « Charger le modèle » y remplit automatiquement Objet et Message par AJAX. **Ce qui manque** : aucun raccourci dans l'autre sens — la liste des modèles (`EmailTemplates/Index`) n'a pas de bouton « Envoyer »/« Utiliser ce modèle » qui ramènerait vers l'écran d'envoi avec le modèle pré-sélectionné ; c'est très probablement pour ça que Thomas ne l'a pas trouvé. Correctif simple si souhaité : ajouter ce bouton sur `EmailTemplates/Index.cshtml`.
 4. **Attestations fiscales ONE** — par activité (actuel) ou regroupées par association ?
-5. **⚠️ Conflit potentiel avec le Lot 4 déjà livré** (voir mémoire `cedeva-roadmap-2026-06`) : `EmailTemplate.ActivityId` (nullable) a été introduit pour distinguer bibliothèque org vs templates copiés par activité, avec copie automatique à la création de l'activité. Le retour Notion (Lot E ci-dessous) demande au contraire que les 3 modèles génériques restent **uniques et partagés par toutes les activités**, sans duplication. Ces deux visions sont contradictoires — à clarifier avec Thomas avant de toucher au Lot E.
+5. **✅ Décision (2026-07-30) — Conflit avec le Lot 4 déjà livré** : le Lot 4 (voir mémoire `cedeva-roadmap-2026-06`) a introduit `EmailTemplate.ActivityId` (nullable) pour distinguer bibliothèque org vs templates copiés par activité, avec copie automatique à la création de l'activité. Ça contredit la demande de Thomas (Lot E) que les 3 modèles génériques restent **uniques et partagés par toutes les activités**, sans duplication. **On tranche en faveur de la demande de Thomas, pas de l'architecture déjà livrée** : le Lot 4 devra être adapté quand on attaquera le Lot E — au minimum, les 3 types verrouillés (Confirmation d'inscription, Rappel fiche médicale, Rappel paiement) doivent redevenir des modèles uniques au niveau organisation, sans copie par activité ni possibilité de duplication ; les modèles **Excursion** restent libres et peuvent continuer à fonctionner par activité comme aujourd'hui. Le détail de l'implémentation (retirer la copie automatique pour ces 3 types, migrer les copies existantes déjà créées en base) reste à faire lors du Lot E.
 6. **Menu hamburger (barre latérale globale)** — Thomas veut le sortir des pages internes pour ne le garder qu'en page d'accueil. Contrairement au menu du haut (scope = pages d'une activité, déjà simplifié), le hamburger est la nav principale de **toute l'app** (Dashboard, Activities, Bookings, Children, Parents, TeamMembers, Contacts, EmailTemplates, ExpenseCategories, Import…). Le retirer des pages internes prive l'utilisateur de tout accès à ces écrans depuis l'intérieur d'une activité — à clarifier : où ces liens doivent-ils vivre à la place (un menu secondaire ? uniquement accessible en revenant à l'accueil) ?
 
 ---
@@ -57,13 +60,13 @@ Tout le reste s'appuie sur cette navigation ; à faire en premier.
 
 ## Lot E — E-mails
 
-*(à démarrer seulement après résolution du conflit noté en question ouverte n°5)*
+*(débloqué — voir décision en question ouverte n°5 : on suit la demande de Thomas, le Lot 4 sera adapté en conséquence)*
 
 - Épurer l'UI de la page d'envoi de mail.
-- Ne garder que **3 modèles génériques verrouillés** : Confirmation d'inscription, Rappel fiche médicale, Rappel paiement — modifiables mais **non remplaçables/dupliquables** (éviter les doublons type « Confirmation de réservation »).
+- Ne garder que **3 modèles génériques verrouillés** : Confirmation d'inscription, Rappel fiche médicale, Rappel paiement — modifiables mais **non remplaçables/dupliquables** (éviter les doublons type « Confirmation de réservation »). Nécessite d'adapter le Lot 4 (retirer la copie par activité pour ces 3 types précis, voir question n°5).
 - Modèles génériques disponibles **dans toutes les activités**, sans duplication par activité.
-- Modèles **Excursion** : libres — création/modification/suppression sans restriction.
-- Retrouver ou documenter le parcours d'envoi d'un mail à partir d'un modèle (question ouverte n°3).
+- Modèles **Excursion** : libres — création/modification/suppression sans restriction (déjà le cas, compatible avec le Lot 4 existant).
+- ✅ **Répondu (2026-07-30, question n°3)** — le parcours existe déjà (menu déroulant + auto-remplissage dans `SendEmail.cshtml`) ; il manque juste un raccourci « Envoyer » depuis `EmailTemplates/Index` vers cet écran.
 
 ## Lot F — Excursions
 
@@ -100,7 +103,7 @@ Tout le reste s'appuie sur cette navigation ; à faire en premier.
 2. **Lot C** (présences) + **Lot B** (confirmation inscriptions) — cœur du quotidien coordinateur, forte valeur perçue.
 3. **Lot D** (comptes) — gros morceau, à découper en sous-lots si besoin (D1 liste/tickets, D2 catégories/budget, D3 auto-calcul Équipe/PAF, D4 rapport).
 4. **Lot G** (équipe) et **Lot F** (excursions) — périmètre plus contenu.
-5. **Lot E** (e-mails) — après clarification du conflit avec le Lot 4 existant.
+5. **Lot E** (e-mails) — débloqué (décision prise, question n°5) ; implique d'adapter le Lot 4 existant.
 6. **Lot H** (ONE) — dépend d'une décision externe (attestations), peut être traité en parallèle sur les tableaux seuls.
 
 Chaque lot doit démarrer par une session de clarification des questions ouvertes qui le concernent, avant tout code.
