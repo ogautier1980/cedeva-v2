@@ -16,6 +16,10 @@ Source : export Notion [`CEDEVA 2 0 ....md`](CEDEVA%202%200%2035545c93462a801cae
 
 *(Résolues et retirées de cette liste — détail dans le lot concerné : explication paiement/dépense → Lot D ; envoi depuis un modèle et conflit Lot 4 → Lot E ; attestations fiscales, présences équipe, richesse des groupes, impression groupée, ventilation ONE → voir Lots C/G/H ci-dessous.)*
 
+## 📌 TO-DO (hors backlog UX)
+
+- Passer à OVH (VPS-2) et Molly.
+
 ---
 
 ## Lot A — Accueil & Navigation
