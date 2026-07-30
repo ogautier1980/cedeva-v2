@@ -1808,7 +1808,7 @@
     <value>Actions</value>
   </data>
   <data name="Financial.AddTransaction" xml:space="preserve">
-    <value>Ajouter une dépense</value>
+    <value>Ajouter une transaction</value>
   </data>
   <data name="Financial.AdminOrganisationSelector" xml:space="preserve">
     <value>Sélecteur d'organisation (Admin)</value>

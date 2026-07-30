@@ -21,7 +21,7 @@ public class PaymentsController : Controller
     private readonly ILogger<PaymentsController> _logger;
     private readonly IUserDisplayService _userDisplayService;
 
-    private const string SessionKeyFinancialActivityId = "FinancialActivityId";
+    private const string SessionKeyFinancialActivityId = "Financial_ActivityId";
     private const string LocalizerKeyPaymentCreationFailed = "Error.PaymentCreationFailed";
     private const string LocalizerKeyPaymentCancellationFailed = "Error.PaymentCancellationFailed";
 

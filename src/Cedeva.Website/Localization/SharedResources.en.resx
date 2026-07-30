@@ -1853,7 +1853,7 @@
     <value>Actions</value>
   </data>
   <data name="Financial.AddTransaction" xml:space="preserve">
-    <value>Add expense</value>
+    <value>Add transaction</value>
   </data>
   <data name="Financial.AdminOrganisationSelector" xml:space="preserve">
     <value>Organisation selector (Admin)</value>

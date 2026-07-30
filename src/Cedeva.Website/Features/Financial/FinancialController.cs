@@ -48,7 +48,8 @@ public class FinancialController : Controller
         }
 
         HttpContext.Session.SetInt32(SessionKeyActivityId, id);
-        return RedirectToAction(nameof(Index));
+        // Skip the intermediate financial dashboard: "Comptes" goes straight to the transaction list.
+        return RedirectToAction(nameof(Transactions));
     }
 
     // GET: Financial/Index
@@ -260,6 +261,60 @@ public class FinancialController : Controller
 
         var fileName = $"Salaires_Equipe_{activity.Name.Replace(" ", "_")}_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx";
         return File(excelData, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
+    }
+
+    // GET: Financial/AddTransaction
+    // Unified entry point hosting both the "Paiement" and "Dépense" forms behind a tab toggle
+    // (Payment is keyed by Booking, Expense is keyed by Activity — they can't share one literal form).
+    public async Task<IActionResult> AddTransaction()
+    {
+        var activityId = HttpContext.Session.GetInt32(SessionKeyActivityId);
+        if (!activityId.HasValue)
+        {
+            return RedirectToAction(ActionIndex, ControllerActivities);
+        }
+
+        var activity = await _context.Activities.FindAsync(activityId.Value);
+        if (activity == null)
+        {
+            return NotFound();
+        }
+
+        await PopulateAssignedToDropdown(activityId.Value);
+        await PopulateExpenseCategoriesAsync(activityId.Value);
+
+        var outstandingBookings = await _context.Bookings
+            .Include(b => b.Child)
+                .ThenInclude(c => c.Parent)
+            .Where(b => b.ActivityId == activityId.Value &&
+                        (b.PaymentStatus == Core.Enums.PaymentStatus.NotPaid || b.PaymentStatus == Core.Enums.PaymentStatus.PartiallyPaid))
+            .OrderBy(b => b.Child.LastName)
+            .ThenBy(b => b.Child.FirstName)
+            .Select(b => new OutstandingBookingViewModel
+            {
+                Id = b.Id,
+                ChildName = b.Child.FirstName + " " + b.Child.LastName,
+                ParentName = b.Child.Parent.FirstName + " " + b.Child.Parent.LastName,
+                TotalAmount = b.TotalAmount,
+                PaidAmount = b.PaidAmount,
+                RemainingAmount = b.TotalAmount - b.PaidAmount,
+                PaymentStatus = b.PaymentStatus
+            })
+            .ToListAsync();
+
+        var viewModel = new AddTransactionViewModel
+        {
+            ActivityId = activity.Id,
+            ActivityName = activity.Name,
+            OutstandingBookings = outstandingBookings,
+            Expense = new ExpenseViewModel
+            {
+                ExpenseDate = DateTime.Today,
+                ActivityId = activityId.Value
+            }
+        };
+
+        return View(viewModel);
     }
 
     // GET: Financial/Expenses

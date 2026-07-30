@@ -127,7 +127,7 @@ public class FinancialControllerCoverageTests
     // ---------------------------------------------------------------------
 
     [Fact]
-    public async Task BeginFinancial_SetsSessionAndRedirectsToIndex()
+    public async Task BeginFinancial_SetsSessionAndRedirectsToTransactions()
     {
         using var factory = new CedevaWebApplicationFactory();
         var g = SeedFullGraph(factory);
@@ -137,14 +137,15 @@ public class FinancialControllerCoverageTests
             new FormUrlEncodedContent(new Dictionary<string, string> { ["id"] = g.ActivityId.ToString() }));
 
         response.StatusCode.Should().Be(HttpStatusCode.Found);
-        // RedirectToAction(nameof(Index)) on the Financial controller => "/Financial".
-        response.Headers.Location!.ToString().Should().Be("/Financial");
+        // RedirectToAction(nameof(Transactions)) on the Financial controller: "Comptes" skips the
+        // intermediate dashboard and lands straight on the transaction list.
+        response.Headers.Location!.ToString().Should().Be("/Financial/Transactions");
 
         // Following the redirect on the same client (session cookie carries the activity id)
-        // must render the dashboard, proving the session was set.
-        var dashboard = await client.GetAsync("/Financial");
-        dashboard.StatusCode.Should().Be(HttpStatusCode.OK);
-        (await dashboard.Content.ReadAsStringAsync()).Should().Contain("Stage Coverage");
+        // must render the transaction list, proving the session was set.
+        var transactions = await client.GetAsync("/Financial/Transactions");
+        transactions.StatusCode.Should().Be(HttpStatusCode.OK);
+        (await transactions.Content.ReadAsStringAsync()).Should().Contain("Stage Coverage");
     }
 
     [Fact]
@@ -360,6 +361,66 @@ public class FinancialControllerCoverageTests
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         (await response.Content.ReadAsStringAsync()).Should().Contain("Stage Coverage");
+    }
+
+    // ---------------------------------------------------------------------
+    // AddTransaction (GET) – merged Paiement/Dépense screen
+    // ---------------------------------------------------------------------
+
+    [Fact]
+    public async Task AddTransaction_WithoutSelectedActivity_RedirectsToActivities()
+    {
+        using var factory = new CedevaWebApplicationFactory();
+        factory.Seed(_ => 0);
+        var client = factory.CreateClientFor("u1", 1, "Coordinator");
+
+        var response = await client.GetAsync("/Financial/AddTransaction");
+
+        response.StatusCode.Should().Be(HttpStatusCode.Found);
+        response.Headers.Location!.ToString().Should().Contain("Activities");
+    }
+
+    [Fact]
+    public async Task AddTransaction_WithSelectedActivity_RendersBothTabs()
+    {
+        using var factory = new CedevaWebApplicationFactory();
+        var g = SeedFullGraph(factory);
+        var client = await ClientWithActivitySelected(factory, g.OrgId, g.ActivityId);
+
+        var response = await client.GetAsync("/Financial/AddTransaction");
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var html = await response.Content.ReadAsStringAsync();
+        // Paiement tab: booking already fully paid in SeedFullGraph, so the empty state shows.
+        html.Should().Contain("payment-pane");
+        html.Should().Contain("expense-pane");
+    }
+
+    [Fact]
+    public async Task AddTransaction_ListsOutstandingBookingForSelectedActivityOnly()
+    {
+        using var factory = new CedevaWebApplicationFactory();
+        var g = SeedFullGraph(factory);
+
+        // Add a second activity in the same org with an outstanding booking.
+        int otherActivityId = factory.Seed(ctx =>
+        {
+            var org = ctx.Organisations.IgnoreQueryFilters().Single(o => o.Id == g.OrgId);
+            var otherActivity = TestData.Activity(org, "Autre Stage");
+            var parent = TestData.Parent(org);
+            var child = TestData.Child(parent);
+            child.LastName = "OutstandingMarker";
+            var booking = TestData.Booking(child, otherActivity, group: null, totalAmount: 80m, paidAmount: 0m);
+            ctx.Add(booking);
+            return otherActivity;
+        }).Id;
+
+        var client = await ClientWithActivitySelected(factory, g.OrgId, otherActivityId);
+
+        var response = await client.GetAsync("/Financial/AddTransaction");
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        (await response.Content.ReadAsStringAsync()).Should().Contain("OutstandingMarker");
     }
 
     // ---------------------------------------------------------------------

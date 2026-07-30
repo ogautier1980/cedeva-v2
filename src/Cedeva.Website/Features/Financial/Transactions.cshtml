@@ -32,14 +32,9 @@
                     <button type="button" id="toggleAmountsBtn" class="btn btn-outline-secondary me-2">
                         <i class="fas fa-eye-slash me-1"></i>@Localizer["Financial.HideAmounts"]
                     </button>
-                    <div class="btn-group">
-                        <a asp-controller="Payments" asp-action="SelectBooking" class="btn btn-success">
-                            <i class="fas fa-plus me-1"></i>@Localizer["Payments.AddPayment"]
-                        </a>
-                        <a asp-action="CreateExpense" class="btn btn-danger">
-                            <i class="fas fa-plus me-1"></i>@Localizer["Expense.AddExpense"]
-                        </a>
-                    </div>
+                    <a asp-action="AddTransaction" class="btn btn-primary">
+                        <i class="fas fa-plus me-1"></i>@Localizer["Financial.AddTransaction"]
+                    </a>
                 </div>
             </div>
         </div>

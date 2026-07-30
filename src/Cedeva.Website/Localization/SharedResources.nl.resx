@@ -1853,7 +1853,7 @@
     <value>Acties</value>
   </data>
   <data name="Financial.AddTransaction" xml:space="preserve">
-    <value>Kost toevoegen</value>
+    <value>Transactie toevoegen</value>
   </data>
   <data name="Financial.AdminOrganisationSelector" xml:space="preserve">
     <value>Organisatiekiezer (Admin)</value>
