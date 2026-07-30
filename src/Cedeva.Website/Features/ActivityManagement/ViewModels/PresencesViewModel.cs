@@ -75,4 +75,10 @@ public class DayPresenceSummary
     public string Label { get; set; } = string.Empty;
     public int ReservedCount { get; set; }
     public int PresentCount { get; set; }
+    public int ReservedDisadvantagedCount { get; set; }
+    public int PresentDisadvantagedCount { get; set; }
+    public int ReservedMildDisabilityCount { get; set; }
+    public int PresentMildDisabilityCount { get; set; }
+    public int ReservedSevereDisabilityCount { get; set; }
+    public int PresentSevereDisabilityCount { get; set; }
 }

@@ -1049,6 +1049,8 @@ public class ActivityManagementController : Controller
         var activity = await _context.Activities
             .Include(a => a.Days)
             .Include(a => a.Bookings)
+                .ThenInclude(b => b.Child)
+            .Include(a => a.Bookings)
                 .ThenInclude(b => b.Days)
             .FirstOrDefaultAsync(a => a.Id == id);
 
@@ -1059,18 +1061,28 @@ public class ActivityManagementController : Controller
 
         var confirmedBookingDays = activity.Bookings
             .Where(b => b.IsConfirmed)
-            .SelectMany(b => b.Days)
+            .SelectMany(b => b.Days.Select(bd => (BookingDay: bd, b.Child)))
             .ToList();
 
         var days = activity.Days
             .Where(d => d.IsActive)
             .OrderBy(d => d.DayDate)
-            .Select(d => new DayPresenceSummary
+            .Select(d =>
             {
-                DayDate = d.DayDate,
-                Label = d.Label,
-                ReservedCount = confirmedBookingDays.Count(bd => bd.ActivityDayId == d.DayId && bd.IsReserved),
-                PresentCount = confirmedBookingDays.Count(bd => bd.ActivityDayId == d.DayId && bd.IsPresent)
+                var dayEntries = confirmedBookingDays.Where(e => e.BookingDay.ActivityDayId == d.DayId).ToList();
+                return new DayPresenceSummary
+                {
+                    DayDate = d.DayDate,
+                    Label = d.Label,
+                    ReservedCount = dayEntries.Count(e => e.BookingDay.IsReserved),
+                    PresentCount = dayEntries.Count(e => e.BookingDay.IsPresent),
+                    ReservedDisadvantagedCount = dayEntries.Count(e => e.BookingDay.IsReserved && e.Child.IsDisadvantagedEnvironment),
+                    PresentDisadvantagedCount = dayEntries.Count(e => e.BookingDay.IsPresent && e.Child.IsDisadvantagedEnvironment),
+                    ReservedMildDisabilityCount = dayEntries.Count(e => e.BookingDay.IsReserved && e.Child.IsMildDisability),
+                    PresentMildDisabilityCount = dayEntries.Count(e => e.BookingDay.IsPresent && e.Child.IsMildDisability),
+                    ReservedSevereDisabilityCount = dayEntries.Count(e => e.BookingDay.IsReserved && e.Child.IsSevereDisability),
+                    PresentSevereDisabilityCount = dayEntries.Count(e => e.BookingDay.IsPresent && e.Child.IsSevereDisability)
+                };
             })
             .ToList();
 
