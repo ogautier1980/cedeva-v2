@@ -153,6 +153,20 @@ public class EmailTemplateServiceTests
         (await sut.GetTemplatesByTypeAsync(EmailTemplateType.Custom, orgA)).Should().BeEmpty();
     }
 
+    [Fact]
+    public async Task GetTemplatesByType_LockedTypeWithActivity_FallsBackToOrgLevelRow()
+    {
+        var (db, orgA, _) = NewDb();
+        using var _d = db;
+        var activityId = SeedActivity(db, orgA);
+        SeedTemplates(db, Template(orgA, EmailTemplateType.BookingConfirmation, "OrgBC", isDefault: true));
+        var sut = new EmailTemplateService(db.Context);
+
+        var result = await sut.GetTemplatesByTypeAsync(EmailTemplateType.BookingConfirmation, orgA, activityId);
+
+        result.Select(t => t.Name).Should().BeEquivalentTo(new[] { "OrgBC" });
+    }
+
     // ----- GetAllTemplatesAsync --------------------------------------------
 
     [Fact]
@@ -581,8 +595,29 @@ public class EmailTemplateServiceTests
 
         var created = await sut.CopyOrganisationTemplatesToActivityAsync(orgA, activityId);
 
-        created.Should().Be(0);
-        (await sut.GetAllTemplatesAsync(orgA, activityId)).Should().BeEmpty();
+        created.Should().Be(0, "locked types never get their own activity-scoped row");
+        (await db.Context.EmailTemplates.CountAsync(t => t.ActivityId == activityId))
+            .Should().Be(0, "nothing was actually copied into the activity");
+    }
+
+    [Fact]
+    public async Task GetAllTemplates_WithActivity_AlsoSurfacesOrgLevelLockedTypes()
+    {
+        // Locked types live only at the organisation level (never copied per activity) but still
+        // apply to every activity via GetDefaultTemplateAsync's fallback, so an activity's template
+        // list must still show them — otherwise the page looks empty even though they're in effect.
+        var (db, orgA, _) = NewDb();
+        using var _d = db;
+        var activityId = SeedActivity(db, orgA);
+        SeedTemplates(db,
+            Template(orgA, EmailTemplateType.BookingConfirmation, "OrgBC", isDefault: true),
+            Template(orgA, EmailTemplateType.Custom, "OrgCustom", isDefault: true), // not locked -> excluded
+            Template(orgA, EmailTemplateType.Custom, "ActivityCustom", isDefault: true, activityId: activityId));
+        var sut = new EmailTemplateService(db.Context);
+
+        var result = await sut.GetAllTemplatesAsync(orgA, activityId);
+
+        result.Select(t => t.Name).Should().BeEquivalentTo(new[] { "OrgBC", "ActivityCustom" });
     }
 
     [Fact]

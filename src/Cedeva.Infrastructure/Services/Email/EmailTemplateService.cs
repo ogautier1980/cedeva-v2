@@ -40,8 +40,12 @@ public class EmailTemplateService : IEmailTemplateService
 
     public async Task<List<EmailTemplate>> GetTemplatesByTypeAsync(EmailTemplateType type, int organisationId, int? activityId = null)
     {
+        // Locked types are unique per organisation and never copied into an activity (Lot E,
+        // 2026-07-30), so an activity scope must fall back to the org-level row to show them at all.
+        var scopeActivityId = activityId.HasValue && type.IsLocked() ? null : activityId;
+
         return await _context.EmailTemplates
-            .Where(t => t.OrganisationId == organisationId && t.ActivityId == activityId && t.TemplateType == type)
+            .Where(t => t.OrganisationId == organisationId && t.ActivityId == scopeActivityId && t.TemplateType == type)
             .OrderByDescending(t => t.IsDefault)
             .ThenBy(t => t.Name)
             .ToListAsync();
@@ -49,12 +53,32 @@ public class EmailTemplateService : IEmailTemplateService
 
     public async Task<List<EmailTemplate>> GetAllTemplatesAsync(int organisationId, int? activityId = null)
     {
-        return await _context.EmailTemplates
+        var scoped = await _context.EmailTemplates
             .Where(t => t.OrganisationId == organisationId && t.ActivityId == activityId)
+            .ToListAsync();
+
+        if (!activityId.HasValue)
+        {
+            return scoped
+                .OrderBy(t => t.TemplateType)
+                .ThenByDescending(t => t.IsDefault)
+                .ThenBy(t => t.Name)
+                .ToList();
+        }
+
+        // Locked types live only at the organisation level but still apply to every activity
+        // (fallback used by GetDefaultTemplateAsync/SendEmail) - surface them here too, otherwise an
+        // activity's template page looks empty even though those 3 templates are in effect for it.
+        var lockedOrgTemplates = await _context.EmailTemplates
+            .Where(t => t.OrganisationId == organisationId && t.ActivityId == null)
+            .ToListAsync();
+
+        return scoped
+            .Concat(lockedOrgTemplates.Where(t => t.TemplateType.IsLocked()))
             .OrderBy(t => t.TemplateType)
             .ThenByDescending(t => t.IsDefault)
             .ThenBy(t => t.Name)
-            .ToListAsync();
+            .ToList();
     }
 
     public async Task<EmailTemplate?> GetTemplateByIdAsync(int id)

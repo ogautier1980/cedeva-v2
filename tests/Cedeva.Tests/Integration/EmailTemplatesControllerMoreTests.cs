@@ -139,6 +139,42 @@ public class EmailTemplatesControllerMoreTests
     }
 
     [Fact]
+    public async Task Index_WithActivityId_StillShowsOrgLevelLockedTemplates()
+    {
+        // Regression: locked types (BookingConfirmation/MedicalSheetReminder/PaymentReminder) live
+        // only at the organisation level (never copied per activity, Lot E 2026-07-30). Before the
+        // fix, an activity's page filtered strictly on ActivityId == activityId and so showed nothing
+        // at all once the per-activity copies were cleaned up, even though those templates are still
+        // in effect for every activity via the org-level fallback.
+        using var factory = new CedevaWebApplicationFactory();
+        int activityId = 0;
+        int orgId = 0;
+        factory.Seed(ctx =>
+        {
+            var org = TestData.Organisation();
+            ctx.Add(org);
+            ctx.SaveChanges();
+            orgId = org.Id;
+
+            var activity = TestData.Activity(org, "Stage Activite");
+            ctx.Add(activity);
+            ctx.SaveChanges();
+            activityId = activity.Id;
+
+            // Org-level only — no activity-scoped copy exists.
+            ctx.Add(Template(org, "ConfirmationOrgLevel", EmailTemplateType.BookingConfirmation, isDefault: true));
+            return 0;
+        });
+
+        var client = factory.CreateClientFor("u1", organisationId: orgId, role: "Coordinator");
+        var response = await client.GetAsync($"/EmailTemplates?activityId={activityId}");
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var html = await response.Content.ReadAsStringAsync();
+        html.Should().Contain("ConfirmationOrgLevel");
+    }
+
+    [Fact]
     public async Task Index_WithUnknownActivityId_DoesNotThrow()
     {
         using var factory = new CedevaWebApplicationFactory();
