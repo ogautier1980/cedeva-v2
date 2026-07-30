@@ -15,6 +15,9 @@
 <div class="container-fluid py-4">
     @await Html.PartialAsync("_AlertMessages")
     <div class="d-flex justify-content-end gap-2 mb-3">
+        <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#saveTemplateModal">
+            <i class="fas fa-save me-1"></i>@Localizer["EmailTemplate.SaveFromEmail"]
+        </button>
         <a asp-action="SentEmails" asp-route-id="@Model.ActivityId" class="btn btn-outline-secondary btn-sm">
             <i class="fas fa-history me-1"></i>@Localizer["Email.SentHistory"]
         </a>
@@ -111,14 +114,14 @@
                             <span asp-validation-for="Message" class="text-danger"></span>
                         </div>
 
-                        <!-- Send per child checkbox -->
-                        <div class="mb-3 form-check" id="perChildBlock">
+                        <!-- Send per child checkbox — compact single line -->
+                        <div class="mb-3 form-check form-switch small" id="perChildBlock">
                             <input asp-for="SendSeparateEmailPerChild" class="form-check-input" id="SendSeparateEmailPerChild" />
-                            <label for="SendSeparateEmailPerChild" class="form-check-label">@Localizer["Email.PerChild"]</label>
-                            <div class="form-text">
-                                <span id="perChildInfo" class="text-muted">@Localizer["Email.PerChildInfo"]</span>
-                                <span id="perParentInfo" class="text-muted d-none">@Localizer["Email.PerParentInfo"]</span>
-                            </div>
+                            <label for="SendSeparateEmailPerChild" class="form-check-label text-muted">
+                                @Localizer["Email.PerChild"] —
+                                <span id="perChildInfo">@Localizer["Email.PerChildInfo"]</span>
+                                <span id="perParentInfo" class="d-none">@Localizer["Email.PerParentInfo"]</span>
+                            </label>
                         </div>
 
                         <!-- Attachment -->
@@ -133,9 +136,6 @@
                         <div class="d-flex gap-2">
                             <button type="submit" class="btn btn-primary">
                                 <i class="fas fa-paper-plane"></i> @Localizer["Send"]
-                            </button>
-                            <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#saveTemplateModal">
-                                <i class="fas fa-save"></i> @Localizer["EmailTemplate.SaveFromEmail"]
                             </button>
                             <a asp-action="Index" asp-route-id="@Model.ActivityId" class="btn btn-secondary">
                                 <i class="fas fa-times"></i> @Localizer["Cancel"]
@@ -183,59 +183,37 @@
             </div>
         </div>
 
-        <!-- Right column: Variable legend -->
+        <!-- Right column: Variable legend — collapsed by default (also insertable via the Summernote "Variables" toolbar button) -->
         <div class="col-lg-5">
             <div class="card border-success">
                 <div class="card-header bg-success text-white">
-                    <h5 class="mb-0">
-                        <i class="fas fa-code me-2"></i>@Localizer["Email.MergeFields"]
-                    </h5>
+                    <button class="btn btn-link text-white text-decoration-none p-0 w-100 text-start d-flex justify-content-between align-items-center"
+                            type="button" data-bs-toggle="collapse" data-bs-target="#mergeFieldsPanel">
+                        <span><i class="fas fa-code me-2"></i>@Localizer["Email.MergeFields"]</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
                 </div>
-                <div class="card-body" style="max-height: 500px; overflow-y: auto;">
-                    <p class="small text-muted">@Localizer["Email.MergeFieldsHelp"]</p>
-                    <table class="table table-sm table-hover">
-                        <thead class="table-light">
-                            <tr>
-                                <th scope="col" class="small">@Localizer["EmailTemplate.Variable"]</th>
-                                <th scope="col" class="small">@Localizer["EmailTemplate.Description"]</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var variable in availableVariables)
-                            {
-                                <tr class="variable-row" style="cursor: pointer;" data-variable="@variable.Key">
-                                    <td><code class="text-success">@variable.Key</code></td>
-                                    <td><small>@variable.Value</small></td>
+                <div class="collapse" id="mergeFieldsPanel">
+                    <div class="card-body" style="max-height: 500px; overflow-y: auto;">
+                        <p class="small text-muted">@Localizer["Email.MergeFieldsHelp"]</p>
+                        <table class="table table-sm table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th scope="col" class="small">@Localizer["EmailTemplate.Variable"]</th>
+                                    <th scope="col" class="small">@Localizer["EmailTemplate.Description"]</th>
                                 </tr>
-                            }
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- Info card -->
-            <div class="card bg-light mt-3">
-                <div class="card-header bg-primary text-white">
-                    <i class="fas fa-info-circle"></i> @Localizer["Information"]
-                </div>
-                <div class="card-body">
-                    <h6 class="fw-bold">@Localizer["Email.RecipientOptions"]</h6>
-                    <p class="small text-muted mb-2">@Localizer["Email.RecipientOptionsHelp"]</p>
-                    <ul class="small mb-3">
-                        <li><strong>@Localizer["Email.RecipientAllParents"]</strong></li>
-                        <li><strong>@Localizer["Email.RecipientMedicalSheetReminder"]</strong></li>
-                        <li><strong>@Localizer["Email.RecipientUnpaidParents"]</strong></li>
-                        <li><strong>@Localizer["Email.GroupRecipients"]</strong> : @Localizer["Email.GroupRecipientsDesc"]</li>
-                        <li><strong>@Localizer["Email.ExcursionRecipients"]</strong> : @Localizer["Email.ExcursionRecipientsDesc"]</li>
-                    </ul>
-
-                    <h6 class="fw-bold">@Localizer["Email.Tips"]</h6>
-                    <ul class="mb-0">
-                        <li>@Localizer["Email.Tip1"]</li>
-                        <li>@Localizer["Email.Tip2"]</li>
-                        <li>@Localizer["Email.Tip3"]</li>
-                        <li>@Localizer["Email.Tip4"]</li>
-                    </ul>
+                            </thead>
+                            <tbody>
+                                @foreach (var variable in availableVariables)
+                                {
+                                    <tr class="variable-row" style="cursor: pointer;" data-variable="@variable.Key">
+                                        <td><code class="text-success">@variable.Key</code></td>
+                                        <td><small>@variable.Value</small></td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
