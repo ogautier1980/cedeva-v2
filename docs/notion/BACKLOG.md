@@ -42,10 +42,10 @@ Source : export Notion [`CEDEVA 2 0 ....md`](CEDEVA%202%200%2035545c93462a801cae
 - ✅ Confirmé dans le code : le filtre jour est déjà scopé à l'activité + jour sélectionné.
 - ✅ **Fait** — Colonne « Payé » (✓/✗ + solde) dans `Presences.cshtml`.
 - ⏸️ La partie « forcer une inscription non payée » dépend de la question n°1.
-- ✅ **Fait, mais à enrichir (confirmé par Thomas)** — Pages spéciales :
-  - **Liste des groupes imprimable** (`Groups`/`PrintGroups`) : Thomas confirme vouloir le niveau de richesse de la référence — ⚠️ précision reçue : les libellés « 3-4, 5-6, 7-8… » sur la capture `18.43.17` ne sont **pas une notion de tranche d'âge** à ajouter au modèle, ce sont simplement les **groupes créés pour cette activité-là** dans l'ancien système (comme nos « Groupe Rouge/Bleu/Vert » aujourd'hui) — rien à changer côté structure des groupes. Ce qui reste à ajouter : **sélection multiple** de groupes (au lieu d'un seul à la fois), des **options à cocher** Prévus/Présent/Signature pour choisir les colonnes affichées, une **colonne Signature** vide (émargement papier), et un **export PDF et un export Excel** (en plus de l'impression navigateur actuelle).
-  - **Confirmé — « Imprimer tous les groupes du jour »** en un clic (action groupée distincte de l'impression groupe par groupe actuelle).
-  - **Confirmé — Total des présences journalières** (`PresenceSummary`) : à décomposer par indicateur ONE (Milieu défavorisé / Handicap léger / Handicap lourd) en plus du total brut réservé/présent (réf. capture `18.48.14`).
+- ✅ **Fait** — Pages spéciales, enrichies au niveau demandé par Thomas :
+  - **Liste des groupes imprimable** (`Groups`/`PrintGroups`) : sélection **multiple** de groupes (au lieu d'un seul à la fois, `<select multiple>`), options à cocher **Prévus/Présent/Signature** pour choisir les colonnes affichées, colonne **Signature** vide (émargement papier), **export PDF** et **export Excel** (`ExportGroupsPdf`/`ExportGroupsExcel`, réutilisent `IExportFacadeService` déjà utilisé ailleurs) en plus de l'impression navigateur existante. Rappel : les libellés « 3-4, 5-6, 7-8… » des captures sont juste les groupes de l'activité (comme nos « Groupe Rouge/Bleu/Vert »), pas une tranche d'âge — rien changé côté structure des groupes.
+  - **Fait — « Imprimer tous les groupes du jour »** en un clic : bouton dédié sur `Groups.cshtml` (visible seulement si l'activité a un jour programmé aujourd'hui), distinct de l'impression filtrée groupe par groupe.
+  - ⏸️ **Confirmé, pas encore fait** — Total des présences journalières (`PresenceSummary`) : à décomposer par indicateur ONE (Milieu défavorisé / Handicap léger / Handicap lourd) en plus du total brut réservé/présent (réf. capture `18.48.14`).
 
 ## Lot D — Comptes / Finances
 
