@@ -3858,6 +3858,15 @@
   <data name="EmailTemplate.DeleteSuccess" xml:space="preserve">
     <value>Sjabloon succesvol verwijderd</value>
   </data>
+  <data name="EmailTemplate.LockedTypeCannotBeCreated" xml:space="preserve">
+    <value>Dit sjabloontype is vergrendeld: er bestaat al precies één exemplaar voor de organisatie en het kan niet opnieuw worden aangemaakt.</value>
+  </data>
+  <data name="EmailTemplate.LockedTypeCannotBeDeleted" xml:space="preserve">
+    <value>Dit sjabloontype is vergrendeld en kan niet worden verwijderd (het kan wel worden bewerkt).</value>
+  </data>
+  <data name="EmailTemplate.LockedTypeCannotBeDuplicated" xml:space="preserve">
+    <value>Dit sjabloontype is vergrendeld en kan niet worden gedupliceerd.</value>
+  </data>
   <data name="EmailTemplate.Description" xml:space="preserve">
     <value>Beschrijving</value>
   </data>
@@ -3904,7 +3913,7 @@
     <value>Annulering dag/activiteit</value>
   </data>
   <data name="EmailTemplateType.BookingConfirmation" xml:space="preserve">
-    <value>Boekingsbevestiging</value>
+    <value>Inschrijvingsbevestiging</value>
   </data>
   <data name="EmailTemplateType.Custom" xml:space="preserve">
     <value>Aangepast</value>

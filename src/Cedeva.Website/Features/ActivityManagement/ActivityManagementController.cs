@@ -336,7 +336,7 @@ public class ActivityManagementController : Controller
     }
 
     [HttpGet]
-    public async Task<IActionResult> SendEmail(int? id)
+    public async Task<IActionResult> SendEmail(int? id, int? templateId)
     {
         id ??= _sessionState.Get<int>(SessionKeyActivityId);
 
@@ -367,7 +367,8 @@ public class ActivityManagementController : Controller
             ActivityName = activity.Name,
             RecipientOptions = GetRecipientOptions(activity.Groups, excursions, await GetContactGroupsAsync(activity.OrganisationId, default)),
             DayOptions = GetDayOptions(activity.Days),
-            ContactOptions = await GetContactOptionsAsync(activity.OrganisationId, default)
+            ContactOptions = await GetContactOptionsAsync(activity.OrganisationId, default),
+            PreselectedTemplateId = templateId
         };
 
         return View(viewModel);

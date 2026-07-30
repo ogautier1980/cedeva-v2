@@ -3431,12 +3431,21 @@
   <data name="EmailTemplate.DeleteSuccess" xml:space="preserve">
     <value>Modèle supprimé avec succès</value>
   </data>
+  <data name="EmailTemplate.LockedTypeCannotBeCreated" xml:space="preserve">
+    <value>Ce type de modèle est verrouillé : il existe déjà en un seul exemplaire pour l'organisation et ne peut pas être recréé.</value>
+  </data>
+  <data name="EmailTemplate.LockedTypeCannotBeDeleted" xml:space="preserve">
+    <value>Ce type de modèle est verrouillé et ne peut pas être supprimé (il peut être modifié).</value>
+  </data>
+  <data name="EmailTemplate.LockedTypeCannotBeDuplicated" xml:space="preserve">
+    <value>Ce type de modèle est verrouillé et ne peut pas être dupliqué.</value>
+  </data>
   <data name="EmailTemplate.SetDefaultSuccess" xml:space="preserve">
     <value>Modèle défini comme défaut avec succès</value>
   </data>
   <!-- EmailTemplateType Enum -->
   <data name="EmailTemplateType.BookingConfirmation" xml:space="preserve">
-    <value>Confirmation de réservation</value>
+    <value>Confirmation d'inscription</value>
   </data>
   <data name="EmailTemplateType.WelcomeEmail" xml:space="preserve">
     <value>Email de bienvenue</value>

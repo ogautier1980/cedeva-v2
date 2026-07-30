@@ -81,7 +81,7 @@ public class EmailTemplatesController : Controller
         return View(new EmailTemplateViewModel
         {
             ActivityId = activityId,
-            TemplateTypeOptions = GetTemplateTypeOptions()
+            TemplateTypeOptions = GetTemplateTypeOptions(excludeLocked: true)
         });
     }
 
@@ -89,9 +89,12 @@ public class EmailTemplatesController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(EmailTemplateViewModel viewModel)
     {
-        if (!ModelState.IsValid)
+        if (!ModelState.IsValid || viewModel.TemplateType.IsLocked())
         {
-            viewModel.TemplateTypeOptions = GetTemplateTypeOptions();
+            if (viewModel.TemplateType.IsLocked())
+                TempData[ControllerExtensions.ErrorMessageKey] = _localizer["EmailTemplate.LockedTypeCannotBeCreated"].ToString();
+
+            viewModel.TemplateTypeOptions = GetTemplateTypeOptions(excludeLocked: true);
             return View(viewModel);
         }
 
@@ -181,6 +184,12 @@ public class EmailTemplatesController : Controller
         var template = await _templateService.GetTemplateByIdAsync(id);
         var activityId = template?.ActivityId;
 
+        if (template != null && template.TemplateType.IsLocked())
+        {
+            TempData[ControllerExtensions.ErrorMessageKey] = _localizer["EmailTemplate.LockedTypeCannotBeDeleted"].ToString();
+            return RedirectToAction(nameof(Index), new { activityId });
+        }
+
         await _templateService.DeleteTemplateAsync(id);
         TempData[ControllerExtensions.SuccessMessageKey] = _localizer["EmailTemplate.DeleteSuccess"].ToString();
         return RedirectToAction(nameof(Index), new { activityId });
@@ -211,6 +220,12 @@ public class EmailTemplatesController : Controller
             return RedirectToAction(nameof(Index));
         }
 
+        if (template.TemplateType.IsLocked())
+        {
+            TempData[ControllerExtensions.ErrorMessageKey] = _localizer["EmailTemplate.LockedTypeCannotBeDuplicated"].ToString();
+            return RedirectToAction(nameof(Index), new { activityId = template.ActivityId });
+        }
+
         var viewModel = new EmailTemplateViewModel
         {
             Name = template.Name + " (Copy)",
@@ -219,7 +234,7 @@ public class EmailTemplatesController : Controller
             HtmlContent = template.HtmlContent,
             IsDefault = false, // Duplicate is never default
             ActivityId = template.ActivityId,
-            TemplateTypeOptions = GetTemplateTypeOptions()
+            TemplateTypeOptions = GetTemplateTypeOptions(excludeLocked: true)
         };
 
         return View("Create", viewModel);
@@ -286,6 +301,12 @@ public class EmailTemplatesController : Controller
             return RedirectToAction("SendEmail", "ActivityManagement", new { id = activityId });
         }
 
+        if (templateType.IsLocked())
+        {
+            TempData[ControllerExtensions.ErrorMessageKey] = _localizer["EmailTemplate.LockedTypeCannotBeCreated"].ToString();
+            return RedirectToAction("SendEmail", "ActivityManagement", new { id = activityId });
+        }
+
         // CreatedBy/CreatedAt are populated by the auditing SaveChangesAsync interceptor.
         await _templateService.CreateTemplateAsync(new EmailTemplate
         {
@@ -319,9 +340,10 @@ public class EmailTemplatesController : Controller
         });
     }
 
-    private List<SelectListItem> GetTemplateTypeOptions()
+    private List<SelectListItem> GetTemplateTypeOptions(bool excludeLocked = false)
     {
         return Enum.GetValues<EmailTemplateType>()
+            .Where(t => !excludeLocked || !t.IsLocked())
             .Select(t => new SelectListItem
             {
                 Value = ((int)t).ToString(),

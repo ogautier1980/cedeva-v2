@@ -87,7 +87,7 @@
                                         <option value="">@Localizer["Email.NoTemplate"]</option>
                                         @foreach (dynamic tmpl in ViewBag.Templates)
                                         {
-                                            <option value="@tmpl.Id">@tmpl.Name@(tmpl.IsDefault ? " ★" : "")</option>
+                                            <option value="@tmpl.Id" selected="@(Model.PreselectedTemplateId.HasValue && tmpl.Id == Model.PreselectedTemplateId.Value)">@tmpl.Name@(tmpl.IsDefault ? " ★" : "")</option>
                                         }
                                     </select>
                                     <button type="button" class="btn btn-outline-primary" id="loadTemplateBtn">
@@ -164,7 +164,7 @@
                                         <div class="mb-3">
                                             <label for="tplType" class="form-label">@Localizer["EmailTemplate.TemplateType"]</label>
                                             <select name="templateType" id="tplType" class="form-select">
-                                                @foreach (var t in Enum.GetValues<Cedeva.Core.Enums.EmailTemplateType>())
+                                                @foreach (var t in Enum.GetValues<Cedeva.Core.Enums.EmailTemplateType>().Where(t => !t.IsLocked()))
                                                 {
                                                     <option value="@((int)t)">@Localizer[$"EmailTemplateType.{t}"]</option>
                                                 }
@@ -423,6 +423,14 @@
                         alert('@Localizer["Email.TemplateLoadError"]');
                     });
             });
+
+            @if (Model.PreselectedTemplateId.HasValue)
+            {
+                <text>
+                // Arrived from "Envoyer" on the templates list — auto-load the pre-selected template.
+                $('#loadTemplateBtn').trigger('click');
+                </text>
+            }
 
             // Toggle per-child / per-parent info text
             $('#SendSeparateEmailPerChild').on('change', function () {

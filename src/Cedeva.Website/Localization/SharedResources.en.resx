@@ -3858,6 +3858,15 @@
   <data name="EmailTemplate.DeleteSuccess" xml:space="preserve">
     <value>Template deleted successfully</value>
   </data>
+  <data name="EmailTemplate.LockedTypeCannotBeCreated" xml:space="preserve">
+    <value>This template type is locked: exactly one already exists for the organisation and it cannot be recreated.</value>
+  </data>
+  <data name="EmailTemplate.LockedTypeCannotBeDeleted" xml:space="preserve">
+    <value>This template type is locked and cannot be deleted (it can still be edited).</value>
+  </data>
+  <data name="EmailTemplate.LockedTypeCannotBeDuplicated" xml:space="preserve">
+    <value>This template type is locked and cannot be duplicated.</value>
+  </data>
   <data name="EmailTemplate.Description" xml:space="preserve">
     <value>Description</value>
   </data>
@@ -3904,7 +3913,7 @@
     <value>Day/activity cancellation</value>
   </data>
   <data name="EmailTemplateType.BookingConfirmation" xml:space="preserve">
-    <value>Booking confirmation</value>
+    <value>Registration confirmation</value>
   </data>
   <data name="EmailTemplateType.Custom" xml:space="preserve">
     <value>Custom</value>

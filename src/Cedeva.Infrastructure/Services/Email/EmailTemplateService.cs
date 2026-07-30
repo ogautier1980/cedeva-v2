@@ -67,6 +67,11 @@ public class EmailTemplateService : IEmailTemplateService
 
     public async Task<EmailTemplate> CreateTemplateAsync(EmailTemplate template)
     {
+        // Locked types are seeded once per organisation (DefaultEmailTemplateLibrary) and can never
+        // be recreated/duplicated — only edited. Defense in depth behind the controller-side guard.
+        if (template.TemplateType.IsLocked())
+            throw new InvalidOperationException($"EmailTemplateType.{template.TemplateType} is locked and cannot be created.");
+
         template.CreatedAt = DateTime.UtcNow;
 
         // The first template of a type in its scope must be the default.
@@ -110,6 +115,9 @@ public class EmailTemplateService : IEmailTemplateService
         var template = await _context.EmailTemplates.FindAsync(id);
         if (template == null)
             return;
+
+        if (template.TemplateType.IsLocked())
+            throw new InvalidOperationException($"EmailTemplateType.{template.TemplateType} is locked and cannot be deleted.");
 
         var wasDefault = template.IsDefault;
         _context.EmailTemplates.Remove(template);
@@ -195,6 +203,11 @@ public class EmailTemplateService : IEmailTemplateService
         var created = 0;
         foreach (var t in source)
         {
+            // Locked types (Confirmation d'inscription, Rappel fiche médicale, Rappel paiement) stay
+            // unique at the organisation level — never copied/imported into an activity.
+            if (t.TemplateType.IsLocked())
+                continue;
+
             // Skip if the target already has a template of this type (don't clobber existing work).
             if (existingTypes.Contains(t.TemplateType))
                 continue;

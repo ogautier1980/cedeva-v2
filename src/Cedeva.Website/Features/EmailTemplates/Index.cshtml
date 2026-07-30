@@ -100,6 +100,12 @@ else
                                     {
                                         <span class="badge bg-primary ms-2">@Localizer["EmailTemplate.Default"]</span>
                                     }
+                                    @if (template.TemplateType.IsLocked())
+                                    {
+                                        <span class="badge bg-secondary ms-2" title="@Localizer["EmailTemplate.LockedTypeCannotBeDeleted"]">
+                                            <i class="fas fa-lock"></i>
+                                        </span>
+                                    }
                                 </td>
                                 <td>@Localizer[$"EmailTemplateType.{template.TemplateType}"]</td>
                                 <td>@template.Subject</td>
@@ -121,38 +127,50 @@ else
                                 </td>
                                 <td>
                                     <nav class="btn-group" aria-label="@Localizer["Field.Actions"]">
+                                        @if (activityId.HasValue)
+                                        {
+                                            <a asp-controller="ActivityManagement" asp-action="SendEmail" asp-route-id="@activityId" asp-route-templateId="@template.Id" class="btn btn-sm btn-outline-success" title="@Localizer["Send"]">
+                                                <i class="fas fa-paper-plane"></i>
+                                            </a>
+                                        }
                                         <a asp-action="Edit" asp-route-id="@template.Id" class="btn btn-sm btn-outline-primary" title="@Localizer["Button.Edit"]">
                                             <i class="fas fa-edit"></i>
                                         </a>
-                                        <a asp-action="Duplicate" asp-route-id="@template.Id" class="btn btn-sm btn-outline-secondary" title="@Localizer["EmailTemplate.Duplicate"]">
-                                            <i class="fas fa-copy"></i>
-                                        </a>
-                                        <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal-@template.Id" title="@Localizer["Button.Delete"]">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
+                                        @if (!template.TemplateType.IsLocked())
+                                        {
+                                            <a asp-action="Duplicate" asp-route-id="@template.Id" class="btn btn-sm btn-outline-secondary" title="@Localizer["EmailTemplate.Duplicate"]">
+                                                <i class="fas fa-copy"></i>
+                                            </a>
+                                            <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal-@template.Id" title="@Localizer["Button.Delete"]">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        }
                                     </nav>
 
-                                    <!-- Delete Confirmation Modal -->
-                                    <div class="modal fade" id="deleteModal-@template.Id" tabindex="-1">
-                                        <div class="modal-dialog">
-                                            <div class="modal-content">
-                                                <div class="modal-header">
-                                                    <h5 class="modal-title">@Localizer["EmailTemplate.ConfirmDelete"]</h5>
-                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                </div>
-                                                <div class="modal-body">
-                                                    @Localizer["EmailTemplate.DeleteConfirmMessage", template.Name]
-                                                </div>
-                                                <div class="modal-footer">
-                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">@Localizer["Button.Cancel"]</button>
-                                                    <form asp-action="Delete" method="post" style="display:inline;">
-                                                        <input type="hidden" name="id" value="@template.Id" />
-                                                        <button type="submit" class="btn btn-danger">@Localizer["Button.Delete"]</button>
-                                                    </form>
+                                    @if (!template.TemplateType.IsLocked())
+                                    {
+                                        <!-- Delete Confirmation Modal -->
+                                        <div class="modal fade" id="deleteModal-@template.Id" tabindex="-1">
+                                            <div class="modal-dialog">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title">@Localizer["EmailTemplate.ConfirmDelete"]</h5>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        @Localizer["EmailTemplate.DeleteConfirmMessage", template.Name]
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">@Localizer["Button.Cancel"]</button>
+                                                        <form asp-action="Delete" method="post" style="display:inline;">
+                                                            <input type="hidden" name="id" value="@template.Id" />
+                                                            <button type="submit" class="btn btn-danger">@Localizer["Button.Delete"]</button>
+                                                        </form>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
+                                    }
                                 </td>
                             </tr>
                         }

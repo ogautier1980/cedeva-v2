@@ -237,15 +237,15 @@ public class EmailTemplateServiceTests
     {
         var (db, orgA, _) = NewDb();
         using var _d = db;
-        SeedTemplates(db, Template(orgA, EmailTemplateType.BookingConfirmation, "OldDefault", isDefault: true));
+        SeedTemplates(db, Template(orgA, EmailTemplateType.ActivityCancellation, "OldDefault", isDefault: true));
         var sut = new EmailTemplateService(db.Context);
 
         await sut.CreateTemplateAsync(
-            Template(orgA, EmailTemplateType.BookingConfirmation, "NewDefault", isDefault: true));
+            Template(orgA, EmailTemplateType.ActivityCancellation, "NewDefault", isDefault: true));
 
         await using var verify = db.NewContext();
         var templates = await verify.EmailTemplates
-            .Where(t => t.OrganisationId == orgA && t.TemplateType == EmailTemplateType.BookingConfirmation)
+            .Where(t => t.OrganisationId == orgA && t.TemplateType == EmailTemplateType.ActivityCancellation)
             .ToListAsync();
         templates.Should().HaveCount(2);
         templates.Where(t => t.IsDefault).Should().ContainSingle()
@@ -257,13 +257,13 @@ public class EmailTemplateServiceTests
     {
         var (db, orgA, orgB) = NewDb();
         using var _d = db;
-        var otherType = Template(orgA, EmailTemplateType.PaymentReminder, "OtherTypeDefault", isDefault: true);
-        var otherOrg = Template(orgB, EmailTemplateType.BookingConfirmation, "OtherOrgDefault", isDefault: true);
+        var otherType = Template(orgA, EmailTemplateType.Custom, "OtherTypeDefault", isDefault: true);
+        var otherOrg = Template(orgB, EmailTemplateType.ActivityCancellation, "OtherOrgDefault", isDefault: true);
         SeedTemplates(db, otherType, otherOrg);
         var sut = new EmailTemplateService(db.Context);
 
         await sut.CreateTemplateAsync(
-            Template(orgA, EmailTemplateType.BookingConfirmation, "NewDefault", isDefault: true));
+            Template(orgA, EmailTemplateType.ActivityCancellation, "NewDefault", isDefault: true));
 
         await using var verify = db.NewContext();
         (await verify.EmailTemplates.IgnoreQueryFilters().SingleAsync(t => t.Id == otherType.Id))
@@ -277,16 +277,29 @@ public class EmailTemplateServiceTests
     {
         var (db, orgA, _) = NewDb();
         using var _d = db;
-        var existing = Template(orgA, EmailTemplateType.BookingConfirmation, "Default", isDefault: true);
+        var existing = Template(orgA, EmailTemplateType.ActivityCancellation, "Default", isDefault: true);
         SeedTemplates(db, existing);
         var sut = new EmailTemplateService(db.Context);
 
         await sut.CreateTemplateAsync(
-            Template(orgA, EmailTemplateType.BookingConfirmation, "Extra", isDefault: false));
+            Template(orgA, EmailTemplateType.ActivityCancellation, "Extra", isDefault: false));
 
         await using var verify = db.NewContext();
         (await verify.EmailTemplates.SingleAsync(t => t.Id == existing.Id))
             .IsDefault.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task Create_LockedType_Throws()
+    {
+        var (db, orgA, _) = NewDb();
+        using var _d = db;
+        var sut = new EmailTemplateService(db.Context);
+
+        var act = async () => await sut.CreateTemplateAsync(
+            Template(orgA, EmailTemplateType.BookingConfirmation, "New"));
+
+        await act.Should().ThrowAsync<InvalidOperationException>();
     }
 
     // ----- UpdateTemplateAsync ---------------------------------------------
@@ -363,6 +376,22 @@ public class EmailTemplateServiceTests
         await act.Should().NotThrowAsync();
         await using var verify = db.NewContext();
         (await verify.EmailTemplates.CountAsync()).Should().Be(1);
+    }
+
+    [Fact]
+    public async Task Delete_LockedType_Throws()
+    {
+        var (db, orgA, _) = NewDb();
+        using var _d = db;
+        var template = Template(orgA, EmailTemplateType.PaymentReminder, "Locked");
+        SeedTemplates(db, template);
+        var sut = new EmailTemplateService(db.Context);
+
+        var act = async () => await sut.DeleteTemplateAsync(template.Id);
+
+        await act.Should().ThrowAsync<InvalidOperationException>();
+        await using var verify = db.NewContext();
+        (await verify.EmailTemplates.AnyAsync(t => t.Id == template.Id)).Should().BeTrue("delete must be a no-op when it throws");
     }
 
     // ----- SetDefaultTemplateAsync -----------------------------------------
@@ -492,7 +521,7 @@ public class EmailTemplateServiceTests
         var sut = new EmailTemplateService(db.Context);
 
         var created = await sut.CreateTemplateAsync(
-            Template(orgA, EmailTemplateType.PaymentReminder, "First", isDefault: false));
+            Template(orgA, EmailTemplateType.ActivityCancellation, "First", isDefault: false));
 
         created.IsDefault.Should().BeTrue("the first template of a type in a scope is the mandatory default");
     }
@@ -502,8 +531,8 @@ public class EmailTemplateServiceTests
     {
         var (db, orgA, _) = NewDb();
         using var _d = db;
-        var theDefault = Template(orgA, EmailTemplateType.BookingConfirmation, "Default", isDefault: true);
-        var other = Template(orgA, EmailTemplateType.BookingConfirmation, "Other", isDefault: false);
+        var theDefault = Template(orgA, EmailTemplateType.ActivityCancellation, "Default", isDefault: true);
+        var other = Template(orgA, EmailTemplateType.ActivityCancellation, "Other", isDefault: false);
         SeedTemplates(db, theDefault, other);
         var sut = new EmailTemplateService(db.Context);
 
@@ -523,17 +552,37 @@ public class EmailTemplateServiceTests
         using var _d = db;
         var activityId = SeedActivity(db, orgA);
         SeedTemplates(db,
-            Template(orgA, EmailTemplateType.BookingConfirmation, "OrgBC", isDefault: true),
-            Template(orgA, EmailTemplateType.PaymentReminder, "OrgPR", isDefault: true),
-            // Activity already has a BookingConfirmation -> that type must be skipped.
-            Template(orgA, EmailTemplateType.BookingConfirmation, "ExistingBC", isDefault: true, activityId: activityId));
+            Template(orgA, EmailTemplateType.ActivityCancellation, "OrgAC", isDefault: true),
+            Template(orgA, EmailTemplateType.Custom, "OrgCustom", isDefault: true),
+            // Activity already has an ActivityCancellation -> that type must be skipped.
+            Template(orgA, EmailTemplateType.ActivityCancellation, "ExistingAC", isDefault: true, activityId: activityId));
         var sut = new EmailTemplateService(db.Context);
 
         var created = await sut.CopyOrganisationTemplatesToActivityAsync(orgA, activityId);
 
-        created.Should().Be(1, "only PaymentReminder is missing on the activity");
+        created.Should().Be(1, "only Custom is missing on the activity");
         var activityTemplates = await sut.GetAllTemplatesAsync(orgA, activityId);
-        activityTemplates.Select(t => t.Name).Should().BeEquivalentTo(new[] { "ExistingBC", "OrgPR" });
+        activityTemplates.Select(t => t.Name).Should().BeEquivalentTo(new[] { "ExistingAC", "OrgCustom" });
+    }
+
+    [Fact]
+    public async Task CopyOrganisationTemplatesToActivity_NeverCopiesLockedTypes()
+    {
+        // Locked types (BookingConfirmation/MedicalSheetReminder/PaymentReminder) stay unique at the
+        // organisation level — decision 2026-07-30 (Lot E) — even when the activity has none yet.
+        var (db, orgA, _) = NewDb();
+        using var _d = db;
+        var activityId = SeedActivity(db, orgA);
+        SeedTemplates(db,
+            Template(orgA, EmailTemplateType.BookingConfirmation, "OrgBC", isDefault: true),
+            Template(orgA, EmailTemplateType.MedicalSheetReminder, "OrgMSR", isDefault: true),
+            Template(orgA, EmailTemplateType.PaymentReminder, "OrgPR", isDefault: true));
+        var sut = new EmailTemplateService(db.Context);
+
+        var created = await sut.CopyOrganisationTemplatesToActivityAsync(orgA, activityId);
+
+        created.Should().Be(0);
+        (await sut.GetAllTemplatesAsync(orgA, activityId)).Should().BeEmpty();
     }
 
     [Fact]
@@ -544,16 +593,34 @@ public class EmailTemplateServiceTests
         var source = SeedActivity(db, orgA, "Source");
         var target = SeedActivity(db, orgA, "Target");
         SeedTemplates(db,
-            Template(orgA, EmailTemplateType.BookingConfirmation, "SrcBC", isDefault: true, activityId: source),
-            Template(orgA, EmailTemplateType.PaymentReminder, "SrcPR", isDefault: true, activityId: source),
-            Template(orgA, EmailTemplateType.PaymentReminder, "TgtPR", isDefault: true, activityId: target));
+            Template(orgA, EmailTemplateType.ActivityCancellation, "SrcAC", isDefault: true, activityId: source),
+            Template(orgA, EmailTemplateType.Custom, "SrcCustom", isDefault: true, activityId: source),
+            Template(orgA, EmailTemplateType.Custom, "TgtCustom", isDefault: true, activityId: target));
         var sut = new EmailTemplateService(db.Context);
 
         var created = await sut.ImportTemplatesFromActivityAsync(orgA, source, target);
 
         created.Should().Be(1);
         (await sut.GetAllTemplatesAsync(orgA, target)).Select(t => t.Name)
-            .Should().BeEquivalentTo(new[] { "TgtPR", "SrcBC" });
+            .Should().BeEquivalentTo(new[] { "TgtCustom", "SrcAC" });
+    }
+
+    [Fact]
+    public async Task ImportTemplatesFromActivity_NeverImportsLockedTypes()
+    {
+        var (db, orgA, _) = NewDb();
+        using var _d = db;
+        var source = SeedActivity(db, orgA, "Source");
+        var target = SeedActivity(db, orgA, "Target");
+        SeedTemplates(db,
+            Template(orgA, EmailTemplateType.BookingConfirmation, "SrcBC", isDefault: true, activityId: source),
+            Template(orgA, EmailTemplateType.PaymentReminder, "SrcPR", isDefault: true, activityId: source));
+        var sut = new EmailTemplateService(db.Context);
+
+        var created = await sut.ImportTemplatesFromActivityAsync(orgA, source, target);
+
+        created.Should().Be(0);
+        (await sut.GetAllTemplatesAsync(orgA, target)).Should().BeEmpty();
     }
 
     [Fact]

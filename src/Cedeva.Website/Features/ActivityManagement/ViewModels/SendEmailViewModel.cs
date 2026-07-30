@@ -34,6 +34,9 @@ public class SendEmailViewModel
     public List<SelectListItem> RecipientOptions { get; set; } = new();
     public List<SelectListItem> DayOptions { get; set; } = new();
 
+    /// <summary>When arriving from "Envoyer" on the EmailTemplates list, pre-selects and auto-loads this template.</summary>
+    public int? PreselectedTemplateId { get; set; }
+
     /// <summary>
     /// Emails picked when "Custom contacts" is selected as recipient — an ad-hoc group built from
     /// the organisation's contacts (parents, team members and other contacts).
