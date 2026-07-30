@@ -21,6 +21,7 @@ Source : export Notion [`CEDEVA 2 0 ....md`](CEDEVA%202%200%2035545c93462a801cae
 
 - **Passer à OVH (VPS-2)** — migration d'hébergement (actuellement Azure). Implique une **migration vers PostgreSQL** (actuellement SQL Server).
 - **Passer à Molly** — remplace Stripe comme solution de paiement en ligne (actuellement `StripePaymentGateway`, voir [ADR 0010](../adr/0010-online-payments-provider-agnostic-stripe.md)).
+- **Créer un compte Brevo dédié pour Cedeva** — la config existe (`Brevo:ApiKey`/`SenderEmail: noreply@cedeva.be`/`SenderName: Cedeva` dans `appsettings.json`) mais la clé API est vide : il faut créer le compte Brevo propre à Cedeva et renseigner sa clé (`Brevo__ApiKey` en config Azure) pour que l'envoi d'emails (confirmations, rappels, SendEmail...) fonctionne réellement en production.
 
 ---
 
@@ -96,4 +97,4 @@ Lots C, D (sauf numéro de ticket/Hors bilan/Rapport détaillé), E et G sont li
 3. **Lot F** — auto-proposition mail Excursion (question n°5).
 4. **Lot H** — attestations fiscales par association : bloqué en attente d'un exemple de Thomas (question n°6).
 
-La majorité du backlog restant est maintenant confirmée et codable sans attendre Thomas ; seules les questions 1 à 5 ci-dessus bloquent encore quelque chose.
+Tout ce qui reste dans ces 4 points dépend d'une réponse de Thomas (questions 2 à 6) ; rien d'autre n'est codable sans attendre.
