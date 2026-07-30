@@ -2,7 +2,7 @@
 
 Source : export Notion [`CEDEVA 2 0 ....md`](CEDEVA%202%200%2035545c93462a801cae9dd5fc2c518849.md) + captures d'écran du même dossier (certaines annotées par Thomas en rouge/vert) + exemple [`17.pdf`](17.pdf) (listing ONE).
 
-**Mise à jour 2026-07-30** — 5 des 10 questions posées après la relecture complète ont été tranchées par le user : attestations fiscales (par association), présences équipe (confirmé), richesse de la liste des groupes (confirmé, avec une précision), impression groupée des groupes (confirmé), ventilation ONE des présences (confirmé). Il ne reste que 5 questions réellement ouvertes.
+**Mise à jour 2026-07-30** — 5 des 10 questions posées après la relecture complète ont été tranchées par le user : attestations fiscales (par association), présences équipe (confirmé), richesse de la liste des groupes (confirmé, avec une précision), impression groupée des groupes (confirmé), ventilation ONE des présences (confirmé). Les items confirmés et codables sans blocage ont été livrés (Lots C, D, E). Une nouvelle question est apparue en construisant Lot H (besoin d'un exemple réel d'attestation fiscale) : il reste 6 questions ouvertes pour Thomas.
 
 ---
 
@@ -13,6 +13,7 @@ Source : export Notion [`CEDEVA 2 0 ....md`](CEDEVA%202%200%2035545c93462a801cae
 3. **Numéro de ticket** (Lot D) — quel schéma de numérotation ? (par activité, par organisation, remise à zéro annuelle ou jamais). La référence (capture `19.02.39`) suggère un compteur global jamais remis à zéro.
 4. **« Hors bilan »** (Lot D) — au-delà du principe (3e valeur du champ Type, confirmé par la référence), quelles transactions concrètes doivent y aller précisément ?
 5. **Auto-proposition mail Excursion** (Lot F) — Thomas veut annoncer une nouvelle excursion aux familles éligibles **avant même qu'elles soient inscrites** ; ça n'existe pas dans le système de destinataires actuel (qui ne cible que des enfants déjà inscrits). Un nouveau type de destinataire est à concevoir avec Thomas.
+6. **Attestations fiscales** (Lot H) — besoin d'un exemple réel (mise en page, mentions légales obligatoires, montant déductible, période couverte…), comme `17.pdf` l'a été pour le rapport ONE. Sans ça, le risque est de construire un document non valable fiscalement.
 
 *(Résolues et retirées de cette liste — détail dans le lot concerné : explication paiement/dépense → Lot D ; envoi depuis un modèle et conflit Lot 4 → Lot E ; attestations fiscales, présences équipe, richesse des groupes, impression groupée, ventilation ONE → voir Lots C/G/H ci-dessous.)*
 
@@ -82,7 +83,7 @@ Source : export Notion [`CEDEVA 2 0 ....md`](CEDEVA%202%200%2035545c93462a801cae
 ## Lot H — ONE (organisme officiel)
 
 - ✅ **Fait** — 4 tableaux par activité (`ActivityManagement/OneReport`) : listings 2-5 ans / 6 ans et plus (N°, nom, âge, dates, jours, prix payé, indicateurs) + présences hebdomadaires par tranche d'âge. Format calqué sur [`17.pdf`](17.pdf). Aucune migration nécessaire, testé (`OneReportTests.cs`). **Ce rapport reste par activité** (c'est un rapport officiel envoyé à l'ONE, distinct de l'attestation fiscale ci-dessous — à ne pas confondre).
-- ⏸️ **Confirmé par Thomas, pas encore fait** — Attestations fiscales : **regroupées par association**, pas par activité (confirmation du texte original — l'attestation fiscale donnée au parent est un document différent du rapport ONE par activité ci-dessus). Aucune attestation fiscale n'existe encore dans le code — à construire.
+- ⏸️ **Bloqué — en attente d'un exemple de Thomas** — Attestations fiscales : **regroupées par association**, pas par activité (confirmation du texte original — l'attestation fiscale donnée au parent est un document différent du rapport ONE par activité ci-dessus). Aucune attestation fiscale n'existe encore dans le code. Contrairement au rapport ONE (qui avait `17.pdf` comme référence exacte), on n'a **aucun exemple de mise en page/contenu réel** pour ce document officiel (mentions légales, montant déductible, période, etc.) — **à demander à Thomas avant de coder**, pour éviter de produire un document qui ne serait pas valable fiscalement.
 
 ---
 
