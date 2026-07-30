@@ -62,6 +62,7 @@ public class TeamMember : AuditableEntity, IOrganisationScoped
 
     public ICollection<Activity> Activities { get; set; } = new List<Activity>();
     public ICollection<Expense> Expenses { get; set; } = new List<Expense>();
+    public ICollection<TeamMemberDay> Days { get; set; } = new List<TeamMemberDay>();
 
     public string FullName => $"{LastName}, {FirstName}";
 }

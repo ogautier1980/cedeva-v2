@@ -1,5 +1,6 @@
 using System.Net;
 using Cedeva.Core.Entities;
+using Cedeva.Core.Enums;
 using Cedeva.Tests.TestSupport;
 using Microsoft.EntityFrameworkCore;
 
@@ -144,5 +145,78 @@ public class ActivitiesDayEditTests
         using var db = factory.NewDbContext();
         (await db.Activities.IgnoreQueryFilters().Include(a => a.Days).FirstAsync(a => a.Id == s.ActivityId))
             .Days.Count(d => d.IsActive).Should().Be(1, "the last remaining day is kept");
+    }
+
+    // ---------------------------------------------------------------------
+    // TeamMemberDay reconciliation (Lot G): extending/shrinking the range must keep
+    // already-assigned team members' presence rows in sync with the active days.
+    // ---------------------------------------------------------------------
+
+    private static TeamMember TeamMember(Organisation org) => new()
+    {
+        FirstName = "Tina",
+        LastName = "Trainer",
+        Email = "tina.trainer@test.be",
+        BirthDate = new DateTime(1991, 2, 2),
+        Address = TestData.Address(),
+        MobilePhoneNumber = "0471111111",
+        NationalRegisterNumber = "91020212345",
+        TeamRole = TeamRole.Animator,
+        License = License.License,
+        Status = Status.Volunteer,
+        LicenseUrl = "https://example.test/license.pdf",
+        Organisation = org
+    };
+
+    [Fact]
+    public async Task Extend_End_CreatesPresentTeamMemberDayForAssignedMember()
+    {
+        using var factory = new CedevaWebApplicationFactory();
+        var s = Seed(factory, withBooking: false);
+        int teamMemberId = factory.Seed(ctx =>
+        {
+            var activity = ctx.Activities.IgnoreQueryFilters().Include(a => a.TeamMembers).First(a => a.Id == s.ActivityId);
+            var org = ctx.Organisations.IgnoreQueryFilters().First(o => o.Id == s.OrgId);
+            var tm = TeamMember(org);
+            activity.TeamMembers.Add(tm);
+            return tm;
+        }).TeamMemberId;
+
+        var client = factory.CreateClientFor("u1", s.OrgId, "Coordinator");
+        var response = await client.PostAsync("/Activities/AdjustActivityDays", Form(s.ActivityId, "end", "extend"));
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        using var db = factory.NewDbContext();
+        var newDay = await db.ActivityDays.IgnoreQueryFilters().FirstAsync(d => d.DayDate == new DateTime(2026, 7, 8));
+        var teamMemberDay = await db.TeamMemberDays.IgnoreQueryFilters()
+            .FirstOrDefaultAsync(d => d.ActivityDayId == newDay.DayId && d.TeamMemberId == teamMemberId);
+        teamMemberDay.Should().NotBeNull("the newly active day gets a present-by-default row for the assigned member");
+        teamMemberDay!.IsPresent.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task Shrink_End_NoReservation_RemovesTeamMemberDayForDeactivatedDay()
+    {
+        using var factory = new CedevaWebApplicationFactory();
+        var s = Seed(factory, withBooking: false);
+        factory.Seed(ctx =>
+        {
+            var activity = ctx.Activities.IgnoreQueryFilters().Include(a => a.TeamMembers).First(a => a.Id == s.ActivityId);
+            var org = ctx.Organisations.IgnoreQueryFilters().First(o => o.Id == s.OrgId);
+            var tm = TeamMember(org);
+            activity.TeamMembers.Add(tm);
+            ctx.Add(tm);
+            ctx.SaveChanges();
+            ctx.TeamMemberDays.Add(new TeamMemberDay { ActivityDayId = s.LastDayId, TeamMemberId = tm.TeamMemberId, IsPresent = true });
+            return 0;
+        });
+
+        var client = factory.CreateClientFor("u1", s.OrgId, "Coordinator");
+        var response = await client.PostAsync("/Activities/AdjustActivityDays", Form(s.ActivityId, "end", "shrink"));
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        using var db = factory.NewDbContext();
+        (await db.TeamMemberDays.IgnoreQueryFilters().AnyAsync(d => d.ActivityDayId == s.LastDayId))
+            .Should().BeFalse("the deactivated edge day's presence row is removed");
     }
 }

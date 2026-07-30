@@ -66,6 +66,7 @@ public class FinancialController : Controller
 
         var activity = await _context.Activities
             .Include(a => a.Days)
+                .ThenInclude(d => d.TeamMemberDays)
             .Include(a => a.TeamMembers)
             .Include(a => a.Bookings)
                 .ThenInclude(b => b.Payments)
@@ -125,6 +126,7 @@ public class FinancialController : Controller
 
         var activity = await _context.Activities
             .Include(a => a.Days)
+                .ThenInclude(d => d.TeamMemberDays)
             .Include(a => a.TeamMembers)
             .FirstOrDefaultAsync(a => a.Id == activityId.Value);
 
@@ -133,10 +135,12 @@ public class FinancialController : Controller
             return NotFound();
         }
 
-        var daysCount = activity.Days.Count;
         var teamSalaries = new List<TeamSalaryViewModel>();
         foreach (var teamMember in activity.TeamMembers)
-            teamSalaries.Add(await BuildTeamSalaryViewModelAsync(teamMember, daysCount, activityId.Value));
+        {
+            var presentDaysCount = _financialCalculationService.CalculateTeamMemberPresentDaysCount(activity, teamMember.TeamMemberId);
+            teamSalaries.Add(await BuildTeamSalaryViewModelAsync(teamMember, presentDaysCount, activityId.Value));
+        }
 
         var viewModel = new TeamSalariesViewModel
         {
@@ -144,7 +148,7 @@ public class FinancialController : Controller
             ActivityName = activity.Name,
             StartDate = activity.StartDate,
             EndDate = activity.EndDate,
-            TotalDays = daysCount,
+            TotalDays = activity.Days.Count,
             TeamSalaries = teamSalaries,
             TotalPrestations = teamSalaries.Sum(s => s.Prestations),
             TotalReimbursements = teamSalaries.Sum(s => s.Reimbursements),
@@ -155,13 +159,13 @@ public class FinancialController : Controller
         return View(viewModel);
     }
 
-    private async Task<TeamSalaryViewModel> BuildTeamSalaryViewModelAsync(TeamMember teamMember, int daysCount, int activityId)
+    private async Task<TeamSalaryViewModel> BuildTeamSalaryViewModelAsync(TeamMember teamMember, int presentDaysCount, int activityId)
     {
         var expenses = await _context.Expenses
             .Where(e => e.TeamMemberId == teamMember.TeamMemberId && e.ActivityId == activityId)
             .ToListAsync();
 
-        var totalToPay = _financialCalculationService.CalculateTeamMemberSalary(teamMember, daysCount, expenses);
+        var totalToPay = _financialCalculationService.CalculateTeamMemberSalary(teamMember, presentDaysCount, expenses);
         var reimbursements = expenses.Where(e => e.ExpenseType == Core.Enums.ExpenseType.Reimbursement).ToList();
         var personalConsumptions = expenses.Where(e => e.ExpenseType == Core.Enums.ExpenseType.PersonalConsumption).ToList();
 
@@ -171,9 +175,9 @@ public class FinancialController : Controller
             TeamMemberName = teamMember.FullName,
             Email = teamMember.Email,
             TeamRole = teamMember.TeamRole.ToString(),
-            DaysCount = daysCount,
+            DaysCount = presentDaysCount,
             DailyCompensation = teamMember.DailyCompensation ?? 0,
-            Prestations = daysCount * (teamMember.DailyCompensation ?? 0),
+            Prestations = presentDaysCount * (teamMember.DailyCompensation ?? 0),
             Reimbursements = reimbursements.Sum(e => e.Amount),
             ReimbursementsCount = reimbursements.Count,
             PersonalConsumptions = personalConsumptions.Sum(e => e.Amount),
@@ -195,6 +199,7 @@ public class FinancialController : Controller
 
         var activity = await _context.Activities
             .Include(a => a.Days)
+                .ThenInclude(d => d.TeamMemberDays)
             .Include(a => a.TeamMembers)
             .FirstOrDefaultAsync(a => a.Id == activityId.Value);
 
@@ -204,7 +209,6 @@ public class FinancialController : Controller
         }
 
         var teamSalaries = new List<TeamSalaryViewModel>();
-        var daysCount = activity.Days.Count;
 
         foreach (var teamMember in activity.TeamMembers)
         {
@@ -217,7 +221,8 @@ public class FinancialController : Controller
 
             var reimbursementsTotal = reimbursements.Sum(e => e.Amount);
             var personalConsumptionsTotal = personalConsumptions.Sum(e => e.Amount);
-            var prestations = daysCount * (teamMember.DailyCompensation ?? 0);
+            var presentDaysCount = _financialCalculationService.CalculateTeamMemberPresentDaysCount(activity, teamMember.TeamMemberId);
+            var prestations = presentDaysCount * (teamMember.DailyCompensation ?? 0);
             var totalToPay = prestations + reimbursementsTotal - personalConsumptionsTotal;
 
             teamSalaries.Add(new TeamSalaryViewModel
@@ -226,7 +231,7 @@ public class FinancialController : Controller
                 TeamMemberName = teamMember.FullName,
                 Email = teamMember.Email,
                 TeamRole = teamMember.TeamRole.ToString(),
-                DaysCount = daysCount,
+                DaysCount = presentDaysCount,
                 DailyCompensation = teamMember.DailyCompensation ?? 0,
                 Prestations = prestations,
                 Reimbursements = reimbursementsTotal,
@@ -694,6 +699,7 @@ public class FinancialController : Controller
 
         var activity = await _context.Activities
             .Include(a => a.Days)
+                .ThenInclude(d => d.TeamMemberDays)
             .Include(a => a.TeamMembers)
             .Include(a => a.Bookings)
                 .ThenInclude(b => b.Payments)
@@ -771,14 +777,14 @@ public class FinancialController : Controller
 
     private List<TeamMemberSalaryDetailViewModel> BuildTeamMemberSalaryDetails(Activity activity, List<Expense> expenses)
     {
-        var daysCount = activity.Days.Count;
         var teamSalaryDetails = new List<TeamMemberSalaryDetailViewModel>();
 
         foreach (var tm in activity.TeamMembers)
         {
             var tmExpenses = expenses.Where(e => e.TeamMemberId == tm.TeamMemberId);
-            var netSalary = _financialCalculationService.CalculateTeamMemberSalary(tm, daysCount, tmExpenses);
-            var baseSalary = daysCount * (tm.DailyCompensation ?? 0);
+            var presentDaysCount = _financialCalculationService.CalculateTeamMemberPresentDaysCount(activity, tm.TeamMemberId);
+            var netSalary = _financialCalculationService.CalculateTeamMemberSalary(tm, presentDaysCount, tmExpenses);
+            var baseSalary = presentDaysCount * (tm.DailyCompensation ?? 0);
             var reimbursements = tmExpenses.Where(e => e.ExpenseType == Core.Enums.ExpenseType.Reimbursement).Sum(e => e.Amount);
             var consumptions = tmExpenses.Where(e => e.ExpenseType == Core.Enums.ExpenseType.PersonalConsumption).Sum(e => e.Amount);
 
@@ -786,7 +792,7 @@ public class FinancialController : Controller
             {
                 Name = tm.FullName,
                 Role = _ctx.Localizer[$"TeamRole.{tm.TeamRole}"].Value,
-                DaysWorked = daysCount,
+                DaysWorked = presentDaysCount,
                 DailyCompensation = tm.DailyCompensation ?? 0,
                 BaseSalary = baseSalary,
                 Reimbursements = reimbursements,

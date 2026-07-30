@@ -339,6 +339,85 @@ public class ActivityManagementController : Controller
     }
 
     [HttpGet]
+    public async Task<IActionResult> TeamPresences(int? id, int? dayId)
+    {
+        id ??= _sessionState.Get<int>(SessionKeyActivityId);
+
+        if (id is null)
+            return NotFound();
+
+        var activity = await _context.Activities
+            .Include(a => a.Days)
+            .Include(a => a.TeamMembers)
+            .FirstOrDefaultAsync(a => a.Id == id);
+
+        if (activity == null)
+            return NotFound();
+
+        _sessionState.Set<int>(SessionKeyActivityId, id.Value);
+
+        dayId = SelectDefaultActivityDay(activity, dayId);
+        var selectedDay = activity.Days.FirstOrDefault(d => d.DayId == dayId);
+        var dayOptions = BuildDayDropdownOptions(activity, dayId);
+        var teamMembers = await BuildTeamMemberPresenceListAsync(activity, dayId);
+
+        var viewModel = new TeamPresencesViewModel
+        {
+            Activity = activity,
+            SelectedActivityDayId = dayId,
+            SelectedActivityDay = selectedDay,
+            ActivityDayOptions = dayOptions,
+            TeamMembers = teamMembers
+        };
+
+        return View(viewModel);
+    }
+
+    private async Task<List<TeamMemberPresenceInfo>> BuildTeamMemberPresenceListAsync(Activity activity, int? dayId)
+    {
+        var teamMemberDays = dayId.HasValue
+            ? await _context.TeamMemberDays.Where(d => d.ActivityDayId == dayId).ToListAsync()
+            : new List<TeamMemberDay>();
+
+        return activity.TeamMembers
+            .OrderBy(tm => tm.LastName)
+            .ThenBy(tm => tm.FirstName)
+            .Select(tm =>
+            {
+                var teamMemberDay = teamMemberDays.FirstOrDefault(d => d.TeamMemberId == tm.TeamMemberId);
+                return new TeamMemberPresenceInfo
+                {
+                    TeamMemberId = tm.TeamMemberId,
+                    FirstName = tm.FirstName,
+                    LastName = tm.LastName,
+                    TeamRole = tm.TeamRole.ToString(),
+                    IsPresent = teamMemberDay?.IsPresent ?? false,
+                    TeamMemberDayId = teamMemberDay?.Id
+                };
+            })
+            .ToList();
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> UpdateTeamMemberPresence(int teamMemberDayId, bool isPresent)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
+        var teamMemberDay = await _context.TeamMemberDays.FindAsync(teamMemberDayId);
+
+        if (teamMemberDay == null)
+            return Json(new { success = false, message = _localizer["Message.TeamMemberDayNotFound"].Value });
+
+        teamMemberDay.IsPresent = isPresent;
+        await _context.SaveChangesAsync();
+
+        return Json(new { success = true });
+    }
+
+    [HttpGet]
     public async Task<IActionResult> SendEmail(int? id, int? templateId)
     {
         id ??= _sessionState.Get<int>(SessionKeyActivityId);
@@ -553,6 +632,7 @@ public class ActivityManagementController : Controller
 
         var activity = await _context.Activities
             .Include(a => a.TeamMembers)
+            .Include(a => a.Days)
             .FirstOrDefaultAsync(a => a.Id == id);
 
         if (activity == null)
@@ -571,6 +651,19 @@ public class ActivityManagementController : Controller
         if (!activity.TeamMembers.Any(tm => tm.TeamMemberId == teamMemberId))
         {
             activity.TeamMembers.Add(teamMember);
+
+            // A newly assigned member starts expected-present on every existing day; the
+            // coordinator unchecks a specific day only once that member is actually absent.
+            foreach (var day in activity.Days)
+            {
+                _context.TeamMemberDays.Add(new TeamMemberDay
+                {
+                    ActivityDayId = day.DayId,
+                    TeamMemberId = teamMember.TeamMemberId,
+                    IsPresent = true
+                });
+            }
+
             await _context.SaveChangesAsync();
             TempData[ControllerExtensions.SuccessMessageKey] = string.Format(_localizer["Message.TeamMemberAdded"].Value, teamMember.FirstName, teamMember.LastName);
         }
@@ -599,6 +692,12 @@ public class ActivityManagementController : Controller
         if (teamMember != null)
         {
             activity.TeamMembers.Remove(teamMember);
+
+            var days = await _context.TeamMemberDays
+                .Where(d => d.TeamMemberId == teamMemberId && d.ActivityDay.ActivityId == id)
+                .ToListAsync();
+            _context.TeamMemberDays.RemoveRange(days);
+
             await _context.SaveChangesAsync();
             TempData[ControllerExtensions.SuccessMessageKey] = string.Format(_localizer["Message.TeamMemberRemoved"].Value, teamMember.FirstName, teamMember.LastName);
         }

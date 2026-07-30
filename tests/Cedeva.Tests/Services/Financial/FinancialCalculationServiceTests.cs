@@ -83,10 +83,18 @@ public class FinancialCalculationServiceTests
     public void CalculateTeamMemberSalaries_SumsPerMemberAndScopesExpensesByMember()
     {
         var activity = new Activity();
-        activity.Days.Add(new ActivityDay());
-        activity.Days.Add(new ActivityDay()); // 2 days
+        var day1 = new ActivityDay();
+        var day2 = new ActivityDay();
+        activity.Days.Add(day1);
+        activity.Days.Add(day2); // 2 days
         activity.TeamMembers.Add(new TeamMember { TeamMemberId = 1, DailyCompensation = 10m });
         activity.TeamMembers.Add(new TeamMember { TeamMemberId = 2, DailyCompensation = 20m });
+
+        // Both members present both days.
+        day1.TeamMemberDays.Add(new TeamMemberDay { TeamMemberId = 1, IsPresent = true });
+        day1.TeamMemberDays.Add(new TeamMemberDay { TeamMemberId = 2, IsPresent = true });
+        day2.TeamMemberDays.Add(new TeamMemberDay { TeamMemberId = 1, IsPresent = true });
+        day2.TeamMemberDays.Add(new TeamMemberDay { TeamMemberId = 2, IsPresent = true });
 
         var expenses = new List<Expense>
         {
@@ -100,11 +108,49 @@ public class FinancialCalculationServiceTests
     }
 
     [Fact]
+    public void CalculateTeamMemberSalaries_OnlyCountsDaysMarkedPresent()
+    {
+        var activity = new Activity();
+        var day1 = new ActivityDay();
+        var day2 = new ActivityDay();
+        activity.Days.Add(day1);
+        activity.Days.Add(day2);
+        activity.TeamMembers.Add(new TeamMember { TeamMemberId = 1, DailyCompensation = 10m });
+
+        // Present day1, absent day2 -> only 1 day counts, not activity.Days.Count (2).
+        day1.TeamMemberDays.Add(new TeamMemberDay { TeamMemberId = 1, IsPresent = true });
+        day2.TeamMemberDays.Add(new TeamMemberDay { TeamMemberId = 1, IsPresent = false });
+
+        _sut.CalculateTeamMemberSalaries(activity, Enumerable.Empty<Expense>()).Should().Be(10m);
+    }
+
+    [Fact]
+    public void CalculateTeamMemberPresentDaysCount_CountsOnlyThatMembersPresentDays()
+    {
+        var activity = new Activity();
+        var day1 = new ActivityDay();
+        var day2 = new ActivityDay();
+        activity.Days.Add(day1);
+        activity.Days.Add(day2);
+
+        day1.TeamMemberDays.Add(new TeamMemberDay { TeamMemberId = 1, IsPresent = true });
+        day1.TeamMemberDays.Add(new TeamMemberDay { TeamMemberId = 2, IsPresent = false });
+        day2.TeamMemberDays.Add(new TeamMemberDay { TeamMemberId = 1, IsPresent = false });
+        day2.TeamMemberDays.Add(new TeamMemberDay { TeamMemberId = 2, IsPresent = true });
+
+        _sut.CalculateTeamMemberPresentDaysCount(activity, teamMemberId: 1).Should().Be(1);
+        _sut.CalculateTeamMemberPresentDaysCount(activity, teamMemberId: 2).Should().Be(1);
+        _sut.CalculateTeamMemberPresentDaysCount(activity, teamMemberId: 999).Should().Be(0);
+    }
+
+    [Fact]
     public void CalculateTotalExpenses_CombinesOrgAndTeamMember()
     {
         var activity = new Activity();
-        activity.Days.Add(new ActivityDay());
+        var day = new ActivityDay();
+        activity.Days.Add(day);
         activity.TeamMembers.Add(new TeamMember { TeamMemberId = 1, DailyCompensation = 10m });
+        day.TeamMemberDays.Add(new TeamMemberDay { TeamMemberId = 1, IsPresent = true });
 
         var expenses = new List<Expense>
         {
@@ -132,8 +178,10 @@ public class FinancialCalculationServiceTests
     public void CalculateNetProfit_IsRevenueMinusTotalExpenses()
     {
         var activity = new Activity();
-        activity.Days.Add(new ActivityDay());
+        var day = new ActivityDay();
+        activity.Days.Add(day);
         activity.TeamMembers.Add(new TeamMember { TeamMemberId = 1, DailyCompensation = 10m });
+        day.TeamMemberDays.Add(new TeamMemberDay { TeamMemberId = 1, IsPresent = true });
         activity.Bookings.Add(BookingWithPayments((200m, PaymentStatus.Paid)));
 
         var expenses = new List<Expense>

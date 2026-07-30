@@ -63,6 +63,25 @@ public class PrintGroupsViewModel
     public bool ShowSignature { get; set; }
 }
 
+public class TeamPresencesViewModel
+{
+    public Activity Activity { get; set; } = null!;
+    public int? SelectedActivityDayId { get; set; }
+    public ActivityDay? SelectedActivityDay { get; set; }
+    public List<SelectListItem> ActivityDayOptions { get; set; } = new();
+    public List<TeamMemberPresenceInfo> TeamMembers { get; set; } = new();
+}
+
+public class TeamMemberPresenceInfo
+{
+    public int TeamMemberId { get; set; }
+    public string FirstName { get; set; } = string.Empty;
+    public string LastName { get; set; } = string.Empty;
+    public string TeamRole { get; set; } = string.Empty;
+    public bool IsPresent { get; set; }
+    public int? TeamMemberDayId { get; set; }
+}
+
 public class PresenceSummaryViewModel
 {
     public Activity Activity { get; set; } = null!;

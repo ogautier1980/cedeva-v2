@@ -487,6 +487,15 @@
   <data name="ActivityManagement.ChildrenCount" xml:space="preserve">
     <value>kind(eren)</value>
   </data>
+  <data name="ActivityManagement.TeamPresences" xml:space="preserve">
+    <value>Teamaanwezigheden</value>
+  </data>
+  <data name="ActivityManagement.TeamMembersCount" xml:space="preserve">
+    <value>lid(leden)</value>
+  </data>
+  <data name="ActivityManagement.NoTeamMembersAssigned" xml:space="preserve">
+    <value>Geen teamleden toegewezen aan deze activiteit.</value>
+  </data>
   <data name="ActivityManagement.Emails" xml:space="preserve">
     <value>E-mails</value>
   </data>
@@ -2340,6 +2349,9 @@
   </data>
   <data name="Message.BookingDayNotFound" xml:space="preserve">
     <value>Boekingsdag niet gevonden</value>
+  </data>
+  <data name="Message.TeamMemberDayNotFound" xml:space="preserve">
+    <value>Teamaanwezigheidsdag niet gevonden</value>
   </data>
   <data name="Message.BookingNotFound" xml:space="preserve">
     <value>Inschrijving niet gevonden</value>

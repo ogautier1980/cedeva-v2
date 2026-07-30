@@ -364,6 +364,170 @@ public class ActivityManagementControllerIntegrationTests
         activity.TeamMembers.Should().BeEmpty();
     }
 
+    [Fact]
+    public async Task AddTeamMember_CreatesPresentTeamMemberDayForEveryActivityDay()
+    {
+        using var factory = new CedevaWebApplicationFactory();
+        int activityId = 0;
+        int teamMemberId = 0;
+        factory.Seed(ctx =>
+        {
+            var org = TestData.Organisation();
+            var activity = TestData.Activity(org);
+            activity.Days.Add(new ActivityDay { Label = "Jour 1", DayDate = activity.StartDate, IsActive = true });
+            activity.Days.Add(new ActivityDay { Label = "Jour 2", DayDate = activity.StartDate.AddDays(1), IsActive = true });
+            var tm = TeamMember(org);
+            ctx.AddRange(org, activity, tm);
+            ctx.SaveChanges();
+            activityId = activity.Id;
+            teamMemberId = tm.TeamMemberId;
+            return 0;
+        });
+
+        var client = factory.CreateClientFor("u1", organisationId: 1, role: "Coordinator");
+        var content = new FormUrlEncodedContent(new Dictionary<string, string>
+        {
+            ["id"] = activityId.ToString(),
+            ["teamMemberId"] = teamMemberId.ToString()
+        });
+
+        var response = await client.PostAsync("/ActivityManagement/AddTeamMember", content);
+        response.StatusCode.Should().Be(HttpStatusCode.Found);
+
+        using var db = factory.NewDbContext();
+        var teamMemberDays = await db.TeamMemberDays.IgnoreQueryFilters()
+            .Where(d => d.TeamMemberId == teamMemberId).ToListAsync();
+        teamMemberDays.Should().HaveCount(2);
+        teamMemberDays.Should().OnlyContain(d => d.IsPresent);
+    }
+
+    [Fact]
+    public async Task RemoveTeamMember_DeletesTeamMemberDaysForThatActivity()
+    {
+        using var factory = new CedevaWebApplicationFactory();
+        int activityId = 0;
+        int teamMemberId = 0;
+        factory.Seed(ctx =>
+        {
+            var org = TestData.Organisation();
+            var activity = TestData.Activity(org);
+            var day = new ActivityDay { Label = "Jour 1", DayDate = activity.StartDate, IsActive = true, Activity = activity };
+            var tm = TeamMember(org);
+            activity.TeamMembers.Add(tm);
+            ctx.AddRange(org, activity, day, tm);
+            ctx.SaveChanges();
+            ctx.TeamMemberDays.Add(new TeamMemberDay { ActivityDayId = day.DayId, TeamMemberId = tm.TeamMemberId, IsPresent = true });
+            ctx.SaveChanges();
+            activityId = activity.Id;
+            teamMemberId = tm.TeamMemberId;
+            return 0;
+        });
+
+        var client = factory.CreateClientFor("u1", organisationId: 1, role: "Coordinator");
+        var content = new FormUrlEncodedContent(new Dictionary<string, string>
+        {
+            ["id"] = activityId.ToString(),
+            ["teamMemberId"] = teamMemberId.ToString()
+        });
+
+        var response = await client.PostAsync("/ActivityManagement/RemoveTeamMember", content);
+        response.StatusCode.Should().Be(HttpStatusCode.Found);
+
+        using var db = factory.NewDbContext();
+        (await db.TeamMemberDays.IgnoreQueryFilters().AnyAsync(d => d.TeamMemberId == teamMemberId))
+            .Should().BeFalse();
+    }
+
+    // ---------------------------------------------------------------------
+    // GET/POST TeamPresences
+    // ---------------------------------------------------------------------
+
+    [Fact]
+    public async Task TeamPresences_Get_RendersAssignedMemberForSelectedDay()
+    {
+        using var factory = new CedevaWebApplicationFactory();
+        Organisation org = null!;
+        Activity activity = null!;
+        ActivityDay day = null!;
+        TeamMember tm = null!;
+        factory.Seed(ctx =>
+        {
+            org = TestData.Organisation();
+            activity = TestData.Activity(org);
+            day = new ActivityDay { Label = "Jour 1", DayDate = DateTime.Today, IsActive = true, Activity = activity };
+            tm = TeamMember(org);
+            activity.TeamMembers.Add(tm);
+            ctx.AddRange(org, activity, day, tm);
+            ctx.SaveChanges();
+            ctx.TeamMemberDays.Add(new TeamMemberDay { ActivityDayId = day.DayId, TeamMemberId = tm.TeamMemberId, IsPresent = true });
+            ctx.SaveChanges();
+            return 0;
+        });
+
+        var client = factory.CreateClientFor("u1", org.Id, "Coordinator");
+        var response = await client.GetAsync($"/ActivityManagement/TeamPresences?id={activity.Id}&dayId={day.DayId}");
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        (await response.Content.ReadAsStringAsync()).Should().Contain("Teamer");
+    }
+
+    [Fact]
+    public async Task UpdateTeamMemberPresence_WithValidTeamMemberDay_PersistsPresence()
+    {
+        using var factory = new CedevaWebApplicationFactory();
+        int teamMemberDayId = 0;
+        factory.Seed(ctx =>
+        {
+            var org = TestData.Organisation();
+            var activity = TestData.Activity(org);
+            var day = new ActivityDay { Label = "Jour 1", DayDate = activity.StartDate, IsActive = true, Activity = activity };
+            var tm = TeamMember(org);
+            activity.TeamMembers.Add(tm);
+            ctx.AddRange(org, activity, day, tm);
+            ctx.SaveChanges();
+            var tmDay = new TeamMemberDay { ActivityDayId = day.DayId, TeamMemberId = tm.TeamMemberId, IsPresent = true };
+            ctx.TeamMemberDays.Add(tmDay);
+            ctx.SaveChanges();
+            teamMemberDayId = tmDay.Id;
+            return 0;
+        });
+
+        var client = factory.CreateClientFor("u1", organisationId: 1, role: "Coordinator");
+        var content = new FormUrlEncodedContent(new Dictionary<string, string>
+        {
+            ["teamMemberDayId"] = teamMemberDayId.ToString(),
+            ["isPresent"] = "false"
+        });
+
+        var response = await client.PostAsync("/ActivityManagement/UpdateTeamMemberPresence", content);
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        (await response.Content.ReadAsStringAsync()).Should().Contain("\"success\":true");
+
+        using var db = factory.NewDbContext();
+        var saved = await db.TeamMemberDays.IgnoreQueryFilters().FirstAsync(d => d.Id == teamMemberDayId);
+        saved.IsPresent.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task UpdateTeamMemberPresence_WithUnknownId_ReturnsFailureJson()
+    {
+        using var factory = new CedevaWebApplicationFactory();
+        factory.Seed(_ => 0);
+
+        var client = factory.CreateClientFor("u1", organisationId: 1, role: "Coordinator");
+        var content = new FormUrlEncodedContent(new Dictionary<string, string>
+        {
+            ["teamMemberDayId"] = "999999",
+            ["isPresent"] = "true"
+        });
+
+        var response = await client.PostAsync("/ActivityManagement/UpdateTeamMemberPresence", content);
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        (await response.Content.ReadAsStringAsync()).Should().Contain("\"success\":false");
+    }
+
     // ---------------------------------------------------------------------
     // POST UpdatePresence (JSON result)
     // ---------------------------------------------------------------------

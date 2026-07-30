@@ -149,7 +149,7 @@
 
                             <!-- Pages spéciales (dropdown) -->
                             <li class="nav-item dropdown">
-                                <button class="nav-link dropdown-toggle @((navSection == "Groups" || navSection == "PresenceSummary") ? "active" : "") btn btn-link"
+                                <button class="nav-link dropdown-toggle @((navSection == "Groups" || navSection == "PresenceSummary" || navSection == "TeamPresences") ? "active" : "") btn btn-link"
                                         type="button" data-bs-toggle="dropdown" aria-expanded="false">
                                     <i class="fas fa-layer-group"></i> @Localizer["ActivityManagement.SpecialPages"]
                                 </button>
@@ -164,6 +164,12 @@
                                         <a class="dropdown-item @(navSection == "PresenceSummary" ? "active" : "")"
                                            asp-action="PresenceSummary" asp-controller="ActivityManagement" asp-route-id="@activityId">
                                             <i class="fas fa-chart-bar"></i> @Localizer["ActivityManagement.PresenceSummary"]
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item @(navSection == "TeamPresences" ? "active" : "")"
+                                           asp-action="TeamPresences" asp-controller="ActivityManagement" asp-route-id="@activityId">
+                                            <i class="fas fa-user-check"></i> @Localizer["ActivityManagement.TeamPresences"]
                                         </a>
                                     </li>
                                 </ul>

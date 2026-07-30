@@ -23,4 +23,5 @@ public class ActivityDay : AuditableEntity
     public Activity Activity { get; set; } = null!;
 
     public ICollection<BookingDay> BookingDays { get; set; } = new List<BookingDay>();
+    public ICollection<TeamMemberDay> TeamMemberDays { get; set; } = new List<TeamMemberDay>();
 }

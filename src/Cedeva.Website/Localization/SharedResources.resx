@@ -487,6 +487,15 @@
   <data name="ActivityManagement.ChildrenCount" xml:space="preserve">
     <value>enfant(s)</value>
   </data>
+  <data name="ActivityManagement.TeamPresences" xml:space="preserve">
+    <value>Présences équipe</value>
+  </data>
+  <data name="ActivityManagement.TeamMembersCount" xml:space="preserve">
+    <value>membre(s)</value>
+  </data>
+  <data name="ActivityManagement.NoTeamMembersAssigned" xml:space="preserve">
+    <value>Aucun membre de l'équipe assigné à cette activité.</value>
+  </data>
   <data name="ActivityManagement.Emails" xml:space="preserve">
     <value>E-mails</value>
   </data>
@@ -2295,6 +2304,9 @@
   </data>
   <data name="Message.BookingDayNotFound" xml:space="preserve">
     <value>Jour de réservation introuvable</value>
+  </data>
+  <data name="Message.TeamMemberDayNotFound" xml:space="preserve">
+    <value>Jour de présence équipe introuvable</value>
   </data>
   <data name="Message.BookingNotFound" xml:space="preserve">
     <value>Inscription introuvable</value>

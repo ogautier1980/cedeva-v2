@@ -62,4 +62,12 @@ public interface IActivityDayService
 
     /// <summary>Extends/shrinks the activity's date range by one edge day; persists its own changes.</summary>
     Task<AdjustDaysResult> AdjustAsync(int activityId, string edge, string op, bool confirmed, CancellationToken ct = default);
+
+    /// <summary>
+    /// Backfills TeamMemberDay rows (present by default) for every currently active day and assigned
+    /// team member. Idempotent; call after any mutation that can add/activate ActivityDay rows outside
+    /// <see cref="ApplyDayActivationChangesAsync"/>/<see cref="AdjustAsync"/> (e.g. date-range edits via
+    /// ActivityDayGenerator). Does not call SaveChanges.
+    /// </summary>
+    Task ReconcileTeamMemberDaysAsync(Activity activity, CancellationToken ct = default);
 }

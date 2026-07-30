@@ -209,6 +209,33 @@ public class FinancialControllerCoverageTests
         (await response.Content.ReadAsStringAsync()).Should().Contain("Animatrice");
     }
 
+    [Fact]
+    public async Task TeamSalaries_OnlyPaysForDaysMarkedPresent()
+    {
+        using var factory = new CedevaWebApplicationFactory();
+        var g = SeedFullGraph(factory); // 2 ActivityDays, Anna Animatrice @ 50/day, no presence marked yet
+
+        // Mark present on day 1 only, absent on day 2 -> expect 1*50 = 50 in Prestations, not 2*50 = 100.
+        factory.Seed(ctx =>
+        {
+            var days = ctx.ActivityDays.IgnoreQueryFilters()
+                .Where(d => d.ActivityId == g.ActivityId).OrderBy(d => d.DayDate).ToList();
+            ctx.TeamMemberDays.Add(new TeamMemberDay { ActivityDayId = days[0].DayId, TeamMemberId = g.TeamMemberId, IsPresent = true });
+            ctx.TeamMemberDays.Add(new TeamMemberDay { ActivityDayId = days[1].DayId, TeamMemberId = g.TeamMemberId, IsPresent = false });
+            return 0;
+        });
+
+        var client = await ClientWithActivitySelected(factory, g.OrgId, g.ActivityId);
+
+        var response = await client.GetAsync("/Financial/TeamSalaries");
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var html = await response.Content.ReadAsStringAsync();
+        // Prestations = 1 present day * 50 = 50,00 (not 100,00 for both days).
+        html.Should().Contain("50,00");
+        html.Should().NotContain("100,00");
+    }
+
     // ---------------------------------------------------------------------
     // ExportTeamSalaries (GET) – Excel
     // ---------------------------------------------------------------------

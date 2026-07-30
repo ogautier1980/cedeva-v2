@@ -34,12 +34,23 @@ public class FinancialCalculationService : IFinancialCalculationService
         ArgumentNullException.ThrowIfNull(activity);
         ArgumentNullException.ThrowIfNull(expenses);
 
-        var daysCount = activity.Days.Count;
         var expensesList = expenses.ToList();
 
         return activity.TeamMembers.Sum(tm =>
-            CalculateTeamMemberSalary(tm, daysCount, expensesList.Where(e => e.TeamMemberId == tm.TeamMemberId))
+            CalculateTeamMemberSalary(
+                tm,
+                CalculateTeamMemberPresentDaysCount(activity, tm.TeamMemberId),
+                expensesList.Where(e => e.TeamMemberId == tm.TeamMemberId))
         );
+    }
+
+    public int CalculateTeamMemberPresentDaysCount(Activity activity, int teamMemberId)
+    {
+        ArgumentNullException.ThrowIfNull(activity);
+
+        return activity.Days
+            .SelectMany(d => d.TeamMemberDays)
+            .Count(tmd => tmd.TeamMemberId == teamMemberId && tmd.IsPresent);
     }
 
     public decimal CalculateTeamMemberSalary(TeamMember teamMember, int daysCount, IEnumerable<Expense> memberExpenses)

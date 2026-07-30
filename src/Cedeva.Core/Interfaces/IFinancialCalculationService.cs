@@ -44,4 +44,11 @@ public interface IFinancialCalculationService
     /// Formula: (days × daily compensation) + reimbursements - personal consumptions
     /// </summary>
     decimal CalculateTeamMemberSalary(TeamMember teamMember, int daysCount, IEnumerable<Expense> memberExpenses);
+
+    /// <summary>
+    /// Counts the days this team member was actually marked present for the activity
+    /// (TeamMemberDay.IsPresent), the basis for their salary's "days" factor. Requires
+    /// Activity.Days to be loaded with TeamMemberDays included.
+    /// </summary>
+    int CalculateTeamMemberPresentDaysCount(Activity activity, int teamMemberId);
 }

@@ -42,6 +42,8 @@ public class ActivityDayService : IActivityDayService
                 day.IsActive = false;
                 var bookingDays = await _context.BookingDays.Where(bd => bd.ActivityDayId == dayId).ToListAsync(ct);
                 _context.BookingDays.RemoveRange(bookingDays);
+                var teamMemberDays = await _context.TeamMemberDays.Where(d => d.ActivityDayId == dayId).ToListAsync(ct);
+                _context.TeamMemberDays.RemoveRange(teamMemberDays);
             }
         }
 
@@ -76,12 +78,16 @@ public class ActivityDayService : IActivityDayService
             }
         }
 
+        // Team members work every active day (no partial-week concept like bookings), so any newly
+        // (re)activated day starts expected-present for everyone already assigned.
+        await ReconcileTeamMemberDaysAsync(activity, ct);
+
         return new DayActivationResult(DayActivationOutcome.Applied);
     }
 
     public async Task<AdjustDaysResult> AdjustAsync(int activityId, string edge, string op, bool confirmed, CancellationToken ct = default)
     {
-        var activity = await _context.Activities.Include(a => a.Days).FirstOrDefaultAsync(a => a.Id == activityId, ct);
+        var activity = await _context.Activities.Include(a => a.Days).Include(a => a.TeamMembers).FirstOrDefaultAsync(a => a.Id == activityId, ct);
         if (activity == null)
             return new AdjustDaysResult(AdjustDaysOutcome.NotFound);
 
@@ -125,6 +131,9 @@ public class ActivityDayService : IActivityDayService
                 bd.Booking.TotalAmount = Math.Max(0m, bd.Booking.TotalAmount - price);
             _context.BookingDays.RemoveRange(bookingDays);
 
+            var teamMemberDays = await _context.TeamMemberDays.Where(d => d.ActivityDayId == edgeDay.DayId).ToListAsync(ct);
+            _context.TeamMemberDays.RemoveRange(teamMemberDays);
+
             edgeDay.IsActive = false;
 
             var remaining = activity.Days.Where(d => d.IsActive).OrderBy(d => d.DayDate).ToList();
@@ -134,6 +143,8 @@ public class ActivityDayService : IActivityDayService
 
         foreach (var d in activity.Days)
             d.Week = ActivityDayGenerator.GetWeekNumber(d.DayDate, activity.StartDate);
+
+        await ReconcileTeamMemberDaysAsync(activity, ct);
 
         await _context.SaveChangesAsync(ct);
 
@@ -147,5 +158,49 @@ public class ActivityDayService : IActivityDayService
             EndDate: activity.EndDate.ToString("yyyy-MM-dd"),
             ActiveDaysCount: activity.Days.Count(d => d.IsActive),
             Days: days);
+    }
+
+    /// <summary>
+    /// Backfills TeamMemberDay rows for every currently active day of the activity, for every
+    /// currently assigned team member. Covers day-creation paths that don't go through
+    /// <see cref="ApplyDayActivationChangesAsync"/> or <see cref="AdjustAsync"/> (e.g. ActivityDayGenerator
+    /// directly activating new weekday days when an activity's date range is edited). Idempotent and
+    /// safe to call unconditionally after any day/team-member mutation; does not call SaveChanges.
+    /// </summary>
+    public async Task ReconcileTeamMemberDaysAsync(Activity activity, CancellationToken ct = default)
+    {
+        if (activity.TeamMembers.Count == 0)
+            return;
+
+        foreach (var day in activity.Days.Where(d => d.IsActive))
+        {
+            await EnsureTeamMemberDaysForActivatedDayAsync(activity, day, ct);
+        }
+    }
+
+    /// <summary>
+    /// Gives every team member already assigned to the activity a TeamMemberDay row for a day that
+    /// just became active, defaulting to present (mirrors how a reactivated day starts "reserved" for
+    /// bookings). Safe to call for a brand-new, not-yet-saved <paramref name="day"/> (FK fixup happens
+    /// via the ActivityDay navigation at SaveChanges) or an already-persisted one being reactivated.
+    /// </summary>
+    private async Task EnsureTeamMemberDaysForActivatedDayAsync(Activity activity, ActivityDay day, CancellationToken ct)
+    {
+        var existingMemberIds = day.DayId == 0
+            ? new List<int>()
+            : await _context.TeamMemberDays.Where(d => d.ActivityDayId == day.DayId).Select(d => d.TeamMemberId).ToListAsync(ct);
+
+        foreach (var teamMember in activity.TeamMembers)
+        {
+            if (existingMemberIds.Contains(teamMember.TeamMemberId))
+                continue;
+
+            _context.TeamMemberDays.Add(new TeamMemberDay
+            {
+                ActivityDay = day,
+                TeamMemberId = teamMember.TeamMemberId,
+                IsPresent = true
+            });
+        }
     }
 }

@@ -427,6 +427,10 @@ public class ActivitiesController : Controller
         await UpdateExistingQuestionsAsync(viewModel, id);
         await AddNewQuestionsAsync(viewModel, id);
 
+        // Covers day-creation paths that bypass ApplyDayActivationChangesAsync, e.g.
+        // HandleDateRangeChanges directly activating new weekday days on a date-range edit.
+        await _activityDayService.ReconcileTeamMemberDaysAsync(activity);
+
         try
         {
             await _context.SaveChangesAsync();

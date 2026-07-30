@@ -32,6 +32,7 @@ public class CedevaDbContext : IdentityDbContext<CedevaUser>, IUnitOfWork
     public DbSet<Child> Children => Set<Child>();
     public DbSet<Parent> Parents => Set<Parent>();
     public DbSet<TeamMember> TeamMembers => Set<TeamMember>();
+    public DbSet<TeamMemberDay> TeamMemberDays => Set<TeamMemberDay>();
     public DbSet<Contact> Contacts => Set<Contact>();
     public DbSet<ContactGroup> ContactGroups => Set<ContactGroup>();
     public DbSet<ContactGroupMember> ContactGroupMembers => Set<ContactGroupMember>();
