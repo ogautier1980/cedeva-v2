@@ -127,9 +127,9 @@
     <div class="header">
         <h1>@Localizer["ActivityManagement.GroupsList"]</h1>
         <p><strong>@Model.Activity.Name</strong></p>
-        @if (Model.Group != null)
+        @if (Model.Groups.Any())
         {
-            <p>@Localizer["Activities.Group"]: <strong>@Model.Group.Label</strong></p>
+            <p>@Localizer["Activities.Group"]: <strong>@string.Join(", ", Model.Groups.Select(g => g.Label))</strong></p>
         }
         @if (Model.ActivityDay != null)
         {
@@ -158,6 +158,18 @@
                     <th scope="col" style="width: 100px">@Localizer["Presence.BirthDateShort"]</th>
                     <th scope="col">@Localizer["Parent"]</th>
                     <th scope="col" style="width: 110px">@Localizer["Phone"]</th>
+                    @if (Model.ActivityDay != null && Model.ShowReserved)
+                    {
+                        <th scope="col" style="width: 70px" class="text-center">@Localizer["ActivityManagement.Expected"]</th>
+                    }
+                    @if (Model.ActivityDay != null && Model.ShowPresent)
+                    {
+                        <th scope="col" style="width: 70px" class="text-center">@Localizer["Present"]</th>
+                    }
+                    @if (Model.ShowSignature)
+                    {
+                        <th scope="col" style="width: 140px">@Localizer["ActivityManagement.Signature"]</th>
+                    }
                 </tr>
             </thead>
             <tbody>
@@ -175,6 +187,18 @@
                         </td>
                         <td>@item.ParentName</td>
                         <td>@item.ParentPhone</td>
+                        @if (Model.ActivityDay != null && Model.ShowReserved)
+                        {
+                            <td class="text-center">@(item.IsReserved ? "X" : "")</td>
+                        }
+                        @if (Model.ActivityDay != null && Model.ShowPresent)
+                        {
+                            <td class="text-center">@(item.IsPresent ? "X" : "")</td>
+                        }
+                        @if (Model.ShowSignature)
+                        {
+                            <td>&nbsp;</td>
+                        }
                     </tr>
                 }
             </tbody>

@@ -41,19 +41,26 @@ public class PrintPresencesViewModel
 public class GroupsRosterViewModel
 {
     public Activity Activity { get; set; } = null!;
-    public int? SelectedGroupId { get; set; }
+    public List<int> SelectedGroupIds { get; set; } = new();
     public int? SelectedActivityDayId { get; set; }
+    public int? TodayActivityDayId { get; set; }
     public List<SelectListItem> GroupOptions { get; set; } = new();
     public List<SelectListItem> ActivityDayOptions { get; set; } = new();
     public List<PresenceChildInfo> Children { get; set; } = new();
+    public bool ShowReserved { get; set; } = true;
+    public bool ShowPresent { get; set; } = true;
+    public bool ShowSignature { get; set; }
 }
 
 public class PrintGroupsViewModel
 {
     public Activity Activity { get; set; } = null!;
-    public ActivityGroup? Group { get; set; }
+    public List<ActivityGroup> Groups { get; set; } = new();
     public ActivityDay? ActivityDay { get; set; }
     public List<PresenceChildInfo> Children { get; set; } = new();
+    public bool ShowReserved { get; set; } = true;
+    public bool ShowPresent { get; set; } = true;
+    public bool ShowSignature { get; set; }
 }
 
 public class PresenceSummaryViewModel

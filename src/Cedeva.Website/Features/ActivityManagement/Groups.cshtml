@@ -14,15 +14,16 @@
         <div class="card-body">
             <form asp-action="Groups" method="get" class="row g-3 align-items-end">
                 <input type="hidden" name="id" value="@Model.Activity.Id" />
+                <input type="hidden" name="activityId" value="@Model.Activity.Id" />
                 <div class="col-md-4">
-                    <label for="groupId" class="form-label fw-bold">@Localizer["Activities.Group"]</label>
-                    <select name="groupId" id="groupId" class="form-select">
-                        <option value="">@Localizer["ActivityManagement.AllGroups"]</option>
+                    <label for="groupIds" class="form-label fw-bold">@Localizer["Activities.Group"]</label>
+                    <select name="groupIds" id="groupIds" class="form-select" multiple>
                         @foreach (var option in Model.GroupOptions)
                         {
-                            <option value="@option.Value" selected="@(option.Value == Model.SelectedGroupId?.ToString())">@option.Text</option>
+                            <option value="@option.Value" selected="@option.Selected">@option.Text</option>
                         }
                     </select>
+                    <small class="form-text text-muted">@Localizer["ActivityManagement.MultiSelectGroupsHint"]</small>
                 </div>
                 <div class="col-md-4">
                     <label for="dayId" class="form-label fw-bold">@Localizer["ActivityManagement.SelectDay"]</label>
@@ -33,12 +34,45 @@
                         }
                     </select>
                 </div>
-                <div class="col-md-4 text-end">
-                    <a asp-action="PrintGroups" asp-route-activityId="@Model.Activity.Id"
-                       asp-route-groupId="@Model.SelectedGroupId" asp-route-dayId="@Model.SelectedActivityDayId"
-                       class="btn btn-outline-secondary" target="_blank">
+                <div class="col-md-4">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-filter me-2"></i>@Localizer["Button.Filter"]
+                    </button>
+                </div>
+
+                <div class="col-12">
+                    <label class="form-label fw-bold d-block">@Localizer["ActivityManagement.PrintableColumns"]</label>
+                    <div class="form-check form-check-inline">
+                        <input type="checkbox" asp-for="ShowReserved" class="form-check-input" />
+                        <label asp-for="ShowReserved" class="form-check-label">@Localizer["ActivityManagement.Expected"]</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input type="checkbox" asp-for="ShowPresent" class="form-check-input" />
+                        <label asp-for="ShowPresent" class="form-check-label">@Localizer["Present"]</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input type="checkbox" asp-for="ShowSignature" class="form-check-input" />
+                        <label asp-for="ShowSignature" class="form-check-label">@Localizer["ActivityManagement.Signature"]</label>
+                    </div>
+                </div>
+
+                <div class="col-12 d-flex flex-wrap gap-2">
+                    <button type="submit" formaction="@Url.Action("PrintGroups")" formtarget="_blank" class="btn btn-outline-secondary">
                         <i class="fas fa-print me-2"></i>@Localizer["Button.Print"]
-                    </a>
+                    </button>
+                    <button type="submit" formaction="@Url.Action("ExportGroupsPdf")" class="btn btn-outline-secondary">
+                        <i class="fas fa-file-pdf me-2"></i>@Localizer["ExportPdf"]
+                    </button>
+                    <button type="submit" formaction="@Url.Action("ExportGroupsExcel")" class="btn btn-outline-secondary">
+                        <i class="fas fa-file-excel me-2"></i>@Localizer["ExportExcel"]
+                    </button>
+                    @if (Model.TodayActivityDayId.HasValue)
+                    {
+                        <a asp-action="PrintGroups" asp-route-activityId="@Model.Activity.Id" asp-route-dayId="@Model.TodayActivityDayId"
+                           class="btn btn-success" target="_blank">
+                            <i class="fas fa-calendar-day me-2"></i>@Localizer["ActivityManagement.PrintAllGroupsToday"]
+                        </a>
+                    }
                 </div>
             </form>
         </div>
@@ -112,7 +146,7 @@
 @section Scripts {
     <script>
         $(document).ready(function () {
-            CedevaChoices.initWithAutoSubmit('#groupId');
+            CedevaChoices.init('#groupIds');
             CedevaChoices.initWithAutoSubmit('#dayId');
         });
     </script>

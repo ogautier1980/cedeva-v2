@@ -448,6 +448,21 @@
   <data name="ActivityManagement.AllGroups" xml:space="preserve">
     <value>Tous les groupes</value>
   </data>
+  <data name="ActivityManagement.Expected" xml:space="preserve">
+    <value>Prévus</value>
+  </data>
+  <data name="ActivityManagement.Signature" xml:space="preserve">
+    <value>Signature</value>
+  </data>
+  <data name="ActivityManagement.PrintAllGroupsToday" xml:space="preserve">
+    <value>Imprimer tous les groupes du jour</value>
+  </data>
+  <data name="ActivityManagement.MultiSelectGroupsHint" xml:space="preserve">
+    <value>Laissez vide pour tous les groupes, ou sélectionnez-en plusieurs.</value>
+  </data>
+  <data name="ActivityManagement.PrintableColumns" xml:space="preserve">
+    <value>Colonnes de la liste imprimable</value>
+  </data>
   <data name="ActivityManagement.AllChildrenAssigned" xml:space="preserve">
     <value>Tous les enfants sont déjà assignés à un groupe.</value>
   </data>

@@ -448,6 +448,21 @@
   <data name="ActivityManagement.AllGroups" xml:space="preserve">
     <value>Alle groepen</value>
   </data>
+  <data name="ActivityManagement.Expected" xml:space="preserve">
+    <value>Verwacht</value>
+  </data>
+  <data name="ActivityManagement.Signature" xml:space="preserve">
+    <value>Handtekening</value>
+  </data>
+  <data name="ActivityManagement.PrintAllGroupsToday" xml:space="preserve">
+    <value>Alle groepen van vandaag afdrukken</value>
+  </data>
+  <data name="ActivityManagement.MultiSelectGroupsHint" xml:space="preserve">
+    <value>Laat leeg voor alle groepen, of selecteer er meerdere.</value>
+  </data>
+  <data name="ActivityManagement.PrintableColumns" xml:space="preserve">
+    <value>Kolommen van de afdrukbare lijst</value>
+  </data>
   <data name="ActivityManagement.AllChildrenAssigned" xml:space="preserve">
     <value>Alle kinderen zijn al aan een groep toegewezen.</value>
   </data>

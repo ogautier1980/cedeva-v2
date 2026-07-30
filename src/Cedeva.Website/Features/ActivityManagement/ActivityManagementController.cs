@@ -26,6 +26,7 @@ public class ActivityManagementController : Controller
     private readonly IActivityEmailService _activityEmailService;
     private readonly ISessionStateService _sessionState;
     private readonly IStringLocalizer<SharedResources> _localizer;
+    private readonly IExportFacadeService _exportServices;
 
     public ActivityManagementController(
         CedevaDbContext context,
@@ -33,7 +34,8 @@ public class ActivityManagementController : Controller
         IEmailFacadeService emailServices,
         IActivityEmailService activityEmailService,
         ISessionStateService sessionState,
-        IStringLocalizer<SharedResources> localizer)
+        IStringLocalizer<SharedResources> localizer,
+        IExportFacadeService exportServices)
     {
         _context = context;
         _logger = logger;
@@ -41,6 +43,7 @@ public class ActivityManagementController : Controller
         _activityEmailService = activityEmailService;
         _sessionState = sessionState;
         _localizer = localizer;
+        _exportServices = exportServices;
     }
 
     [HttpGet]
@@ -822,7 +825,8 @@ public class ActivityManagementController : Controller
 
     // GET: ActivityManagement/Groups
     [HttpGet]
-    public async Task<IActionResult> Groups(int? id, int? groupId, int? dayId)
+    public async Task<IActionResult> Groups(int? id, List<int>? groupIds, int? dayId,
+        bool showReserved = true, bool showPresent = true, bool showSignature = false)
     {
         id ??= _sessionState.Get<int>(SessionKeyActivityId);
 
@@ -846,6 +850,8 @@ public class ActivityManagementController : Controller
 
         _sessionState.Set<int>(SessionKeyActivityId, id.Value);
 
+        groupIds ??= new List<int>();
+
         var dayOptions = BuildDayDropdownOptions(activity, dayId);
         dayOptions.Insert(0, new SelectListItem
         {
@@ -857,22 +863,28 @@ public class ActivityManagementController : Controller
         var viewModel = new GroupsRosterViewModel
         {
             Activity = activity,
-            SelectedGroupId = groupId,
+            SelectedGroupIds = groupIds,
             SelectedActivityDayId = dayId,
+            TodayActivityDayId = activity.Days.FirstOrDefault(d => d.IsActive && d.DayDate.Date == DateTime.Today)?.DayId,
             GroupOptions = activity.Groups.Select(g => new SelectListItem
             {
                 Value = g.Id.ToString(),
-                Text = g.Label
+                Text = g.Label,
+                Selected = groupIds.Contains(g.Id)
             }).ToList(),
             ActivityDayOptions = dayOptions,
-            Children = BuildGroupsRoster(activity, groupId, dayId)
+            Children = BuildGroupsRoster(activity, groupIds, dayId),
+            ShowReserved = showReserved,
+            ShowPresent = showPresent,
+            ShowSignature = showSignature
         };
 
         return View(viewModel);
     }
 
     // GET: ActivityManagement/PrintGroups
-    public async Task<IActionResult> PrintGroups(int activityId, int? groupId, int? dayId)
+    public async Task<IActionResult> PrintGroups(int activityId, List<int>? groupIds, int? dayId,
+        bool showReserved = true, bool showPresent = true, bool showSignature = false)
     {
         var activity = await _context.Activities
             .Include(a => a.Groups)
@@ -899,22 +911,105 @@ public class ActivityManagementController : Controller
                 .ThenInclude(b => b.Days)
             .FirstAsync(a => a.Id == activityId);
 
+        groupIds ??= new List<int>();
+
         var viewModel = new PrintGroupsViewModel
         {
             Activity = activity,
-            Group = groupId.HasValue ? activity.Groups.FirstOrDefault(g => g.Id == groupId) : null,
+            Groups = groupIds.Count > 0 ? activity.Groups.Where(g => groupIds.Contains(g.Id)).ToList() : new List<ActivityGroup>(),
             ActivityDay = activityDay,
-            Children = BuildGroupsRoster(activityWithBookings, groupId, dayId)
+            Children = BuildGroupsRoster(activityWithBookings, groupIds, dayId),
+            ShowReserved = showReserved,
+            ShowPresent = showPresent,
+            ShowSignature = showSignature
         };
 
         return View(viewModel);
     }
 
-    private static List<PresenceChildInfo> BuildGroupsRoster(Activity activity, int? groupId, int? dayId)
+    // GET: ActivityManagement/ExportGroupsExcel
+    public async Task<IActionResult> ExportGroupsExcel(int activityId, List<int>? groupIds, int? dayId,
+        bool showReserved = true, bool showPresent = true, bool showSignature = false)
+    {
+        var activityWithBookings = await _context.Activities
+            .Include(a => a.Bookings)
+                .ThenInclude(b => b.Child)
+                    .ThenInclude(c => c.Parent)
+            .Include(a => a.Bookings)
+                .ThenInclude(b => b.Group)
+            .Include(a => a.Bookings)
+                .ThenInclude(b => b.Days)
+            .FirstOrDefaultAsync(a => a.Id == activityId);
+
+        if (activityWithBookings == null)
+            return NotFound();
+
+        var roster = BuildGroupsRoster(activityWithBookings, groupIds ?? new List<int>(), dayId);
+        var columns = BuildGroupsExportColumns(dayId, showReserved, showPresent, showSignature);
+
+        var sheetName = _localizer["ActivityManagement.GroupsList"].Value;
+        var excelData = _exportServices.Excel.ExportToExcel(roster, sheetName, columns);
+        var fileName = $"{sheetName}_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx";
+
+        return File(excelData, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
+    }
+
+    // GET: ActivityManagement/ExportGroupsPdf
+    public async Task<IActionResult> ExportGroupsPdf(int activityId, List<int>? groupIds, int? dayId,
+        bool showReserved = true, bool showPresent = true, bool showSignature = false)
+    {
+        var activityWithBookings = await _context.Activities
+            .Include(a => a.Bookings)
+                .ThenInclude(b => b.Child)
+                    .ThenInclude(c => c.Parent)
+            .Include(a => a.Bookings)
+                .ThenInclude(b => b.Group)
+            .Include(a => a.Bookings)
+                .ThenInclude(b => b.Days)
+            .FirstOrDefaultAsync(a => a.Id == activityId);
+
+        if (activityWithBookings == null)
+            return NotFound();
+
+        var roster = BuildGroupsRoster(activityWithBookings, groupIds ?? new List<int>(), dayId);
+        var columns = BuildGroupsExportColumns(dayId, showReserved, showPresent, showSignature);
+
+        var title = _localizer["ActivityManagement.GroupsList"].Value;
+        var pdfData = _exportServices.Pdf.ExportToPdf(roster, title, columns);
+        var fileName = $"{title}_{DateTime.Now:yyyyMMdd_HHmmss}.pdf";
+
+        return File(pdfData, "application/pdf", fileName);
+    }
+
+    private Dictionary<string, Func<PresenceChildInfo, object>> BuildGroupsExportColumns(
+        int? dayId, bool showReserved, bool showPresent, bool showSignature)
+    {
+        var columns = new Dictionary<string, Func<PresenceChildInfo, object>>
+        {
+            { _localizer["Activities.Group"].Value, c => c.ActivityGroupName ?? _localizer["Presence.None"].Value },
+            { _localizer["LastName"].Value, c => c.ChildLastName },
+            { _localizer["FirstName"].Value, c => c.ChildFirstName },
+            { _localizer["Parent"].Value, c => c.ParentName },
+            { _localizer["Phone"].Value, c => c.ParentPhone }
+        };
+
+        if (dayId.HasValue && showReserved)
+            columns[_localizer["ActivityManagement.Expected"].Value] = c => c.IsReserved;
+
+        if (dayId.HasValue && showPresent)
+            columns[_localizer["Present"].Value] = c => c.IsPresent;
+
+        if (showSignature)
+            columns[_localizer["ActivityManagement.Signature"].Value] = c => string.Empty;
+
+        return columns;
+    }
+
+    private static List<PresenceChildInfo> BuildGroupsRoster(Activity activity, List<int> groupIds, int? dayId)
     {
         return activity.Bookings
             .Where(b => b.IsConfirmed)
-            .Where(b => groupId == null || b.GroupId == groupId)
+            .Where(b => groupIds.Count == 0 || (b.GroupId.HasValue && groupIds.Contains(b.GroupId.Value)))
             .Select(b =>
             {
                 var bookingDay = dayId.HasValue ? b.Days.FirstOrDefault(bd => bd.ActivityDayId == dayId) : null;
