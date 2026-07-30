@@ -60,13 +60,10 @@ Tout le reste s'appuie sur cette navigation ; à faire en premier.
 
 ## Lot E — E-mails
 
-*(débloqué — voir décision en question ouverte n°5 : on suit la demande de Thomas, le Lot 4 sera adapté en conséquence)*
-
-- Épurer l'UI de la page d'envoi de mail.
-- Ne garder que **3 modèles génériques verrouillés** : Confirmation d'inscription, Rappel fiche médicale, Rappel paiement — modifiables mais **non remplaçables/dupliquables** (éviter les doublons type « Confirmation de réservation »). Nécessite d'adapter le Lot 4 (retirer la copie par activité pour ces 3 types précis, voir question n°5).
-- Modèles génériques disponibles **dans toutes les activités**, sans duplication par activité.
-- Modèles **Excursion** : libres — création/modification/suppression sans restriction (déjà le cas, compatible avec le Lot 4 existant).
-- ✅ **Répondu (2026-07-30, question n°3)** — le parcours existe déjà (menu déroulant + auto-remplissage dans `SendEmail.cshtml`) ; il manque juste un raccourci « Envoyer » depuis `EmailTemplates/Index` vers cet écran.
+- Épurer l'UI de la page d'envoi de mail. — non traité, pas assez cadré (quoi épurer précisément).
+- ✅ **Fait (2026-07-30)** — **3 modèles verrouillés** : Confirmation d'inscription (`BookingConfirmation`), Rappel fiche médicale (`MedicalSheetReminder`), Rappel paiement (`PaymentReminder`) sont maintenant uniques au niveau organisation — modifiables mais **non créables, non supprimables, non duplicables** (`EmailTemplateTypeExtensions.IsLocked()`, garde-fous dans `EmailTemplateService`/`EmailTemplatesController`). Le Lot 4 (copie automatique par activité) a été adapté : ces 3 types ne sont plus jamais copiés/importés dans une activité ; migration `CleanupLockedEmailTemplateActivityCopies` supprime les copies déjà existantes en base (décision : on perd les personnalisations par activité déjà faites, cf. question n°5). Au passage, le libellé `BookingConfirmation` corrigé de « Confirmation de réservation » → « Confirmation d'inscription » (4 langues) pour matcher le vocabulaire métier.
+- Modèles **Excursion** : libres — création/modification/suppression sans restriction (déjà le cas, inchangé par ce qui précède).
+- ✅ **Répondu (2026-07-30, question n°3)** — le parcours d'envoi depuis un modèle existe déjà (menu déroulant + auto-remplissage dans `SendEmail.cshtml`). ✅ **Fait (2026-07-30)** — ajout du raccourci manquant : bouton « Envoyer » sur `EmailTemplates/Index` qui ouvre `SendEmail` avec le modèle déjà chargé (nouveau paramètre `templateId`), visible uniquement en contexte d'activité (la bibliothèque org n'a pas d'activité cible évidente).
 
 ## Lot F — Excursions
 
@@ -103,7 +100,7 @@ Tout le reste s'appuie sur cette navigation ; à faire en premier.
 2. **Lot C** (présences) + **Lot B** (confirmation inscriptions) — cœur du quotidien coordinateur, forte valeur perçue.
 3. **Lot D** (comptes) — gros morceau, à découper en sous-lots si besoin (D1 liste/tickets, D2 catégories/budget, D3 auto-calcul Équipe/PAF, D4 rapport).
 4. **Lot G** (équipe) et **Lot F** (excursions) — périmètre plus contenu.
-5. **Lot E** (e-mails) — débloqué (décision prise, question n°5) ; implique d'adapter le Lot 4 existant.
+5. **Lot E** (e-mails) — cœur fait (3 modèles verrouillés + raccourci d'envoi) ; reste seulement « épurer l'UI », pas cadré.
 6. **Lot H** (ONE) — dépend d'une décision externe (attestations), peut être traité en parallèle sur les tableaux seuls.
 
 Chaque lot doit démarrer par une session de clarification des questions ouvertes qui le concernent, avant tout code.
