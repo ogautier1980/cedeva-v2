@@ -76,7 +76,7 @@ Source : export Notion [`CEDEVA 2 0 ....md`](CEDEVA%202%200%2035545c93462a801cae
 ## Lot G — Équipe
 
 - ✅ **Fait** — Panneau « Membres disponibles » déplacé sous « Équipe assignée », replié par défaut.
-- ⏸️ **Confirmé par Thomas, pas encore fait** — Présences équipe jour/jour (miroir du système enfants). Reste un gros morceau technique : nouvelle entité + migration + UI, **et** ça change le calcul salarial actuel qui suppose aujourd'hui une présence à 100% de tous les jours de l'activité — le calcul devra utiliser les présences réelles une fois cochées.
+- ✅ **Fait** — Présences équipe jour/jour (miroir du système enfants) : nouvelle entité `TeamMemberDay` (+ migration avec backfill des assignations existantes en présent, pour ne rien changer rétroactivement aux salaires déjà calculés), page `TeamPresences` (sélecteur de jour + case à cocher par membre, même mécanisme AJAX que `Presences`), dans le dropdown « Pages spéciales ». Les lignes de présence sont créées/supprimées automatiquement à l'assignation/retrait d'un membre et à l'activation/désactivation d'un jour (formulaire d'édition, éditeur AJAX +/- jour, changement de plage de dates). Le calcul salarial (`FinancialCalculationService`, `FinancialController` Index/TeamSalaries/ExportTeamSalaries/Report) utilise désormais le nombre réel de jours cochés « présent » par membre au lieu de supposer 100% des jours de l'activité.
 - ✅ Déjà satisfait, vérifié : compléments/dépenses par membre (`Expense.TeamMemberId`), décompte total par personne (`TeamSalaries.cshtml`).
 - ✅ **Fait** — Stockage de l'extrait de casier judiciaire (`TeamMember.CriminalRecordUrl`).
 
@@ -89,12 +89,11 @@ Source : export Notion [`CEDEVA 2 0 ....md`](CEDEVA%202%200%2035545c93462a801cae
 
 ## Ordre proposé
 
-1. **Lot A** — reste : cadrer le hamburger (question n°2).
-2. **Lot C** — enrichir les pages spéciales (groupes multi-sélection + export PDF/Excel + signature, impression groupée, ventilation ONE des présences) : tout est confirmé, codable directement.
-3. **Lot D** — le plus gros morceau restant : simplification Comptes→Transactions (codable directement), puis fusion paiement/dépense, numéro de ticket (n°3), Hors bilan (n°4), Rapport détaillé.
-4. **Lot G** — présences équipe : confirmé mais gros morceau (impact calcul salarial), codable mais à planifier avec soin.
-5. **Lot F** — auto-proposition mail Excursion (question n°5).
-6. **Lot E** — reste : épurer l'UI de SendEmail (codable directement).
-7. **Lot H** — attestations fiscales par association : confirmé, à construire (aucune base existante).
+Lots C, D (sauf numéro de ticket/Hors bilan/Rapport détaillé), E et G sont livrés. Reste :
+
+1. **Lot A** — cadrer le hamburger (question n°2).
+2. **Lot D** — numéro de ticket (question n°3), Hors bilan (question n°4), rapport détaillé par catégorie.
+3. **Lot F** — auto-proposition mail Excursion (question n°5).
+4. **Lot H** — attestations fiscales par association : bloqué en attente d'un exemple de Thomas (question n°6).
 
 La majorité du backlog restant est maintenant confirmée et codable sans attendre Thomas ; seules les questions 1 à 5 ci-dessus bloquent encore quelque chose.
