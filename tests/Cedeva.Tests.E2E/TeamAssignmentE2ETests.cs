@@ -83,7 +83,9 @@ public class TeamAssignmentE2ETests
         var response = await page.GotoAsync($"{_fx.BaseUrl}/ActivityManagement/TeamMembers?id={seeded.ActivityId}");
 
         response!.Status.Should().Be(200);
-        // The unassigned member shows up in the "Available" panel.
+        // The "Available" panel is collapsed by default — expand it before checking its content.
+        await page.Locator("[data-bs-target='#availableMembersPanel']").ClickAsync();
+        await page.Locator("#availableMembersPanel.show").WaitForAsync();
         (await page.InnerTextAsync("body")).Should().Contain(seeded.MarkerLastName);
     }
 
@@ -96,6 +98,10 @@ public class TeamAssignmentE2ETests
         var page = await ctx.NewPageAsync();
 
         await page.GotoAsync($"{_fx.BaseUrl}/ActivityManagement/TeamMembers?id={seeded.ActivityId}");
+
+        // The "Available" panel is collapsed by default — expand it before interacting with it.
+        await page.Locator("[data-bs-target='#availableMembersPanel']").ClickAsync();
+        await page.Locator("#availableMembersPanel.show").WaitForAsync();
 
         // The "Add" submit button lives in the available-member list-group-item that shows the name.
         var addButton = page.Locator($".list-group-item:has-text(\"{seeded.MarkerLastName}\") button[type=submit]:not(.btn-link):not(.dropdown-item)");
