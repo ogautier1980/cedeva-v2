@@ -17,9 +17,7 @@ services:
       start_period: 30s
 
   cedeva-web:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: ghcr.io/ogautier1980/cedeva-v2:latest
     container_name: cedeva-web
     restart: unless-stopped
     env_file: .env

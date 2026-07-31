@@ -1,7 +1,4 @@
-# Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
-# More GitHub Actions for Azure: https://github.com/Azure/actions
-
-name: Build and deploy ASP.Net Core app to Azure Web App - cedeva-demo
+name: Build and deploy to OVH VPS - Cedeva
 
 on:
   push:
@@ -16,8 +13,8 @@ jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     permissions:
-      id-token: write
       contents: read
+      packages: write
 
     steps:
       - uses: actions/checkout@v7
@@ -26,9 +23,6 @@ jobs:
         uses: actions/setup-dotnet@v6
         with:
           dotnet-version: '10.x'
-
-      - name: Build and Publish
-        run: dotnet publish src/Cedeva.Website -c Release -o ./publish
 
       - name: Run tests (with coverage gate)
         # Total line coverage must stay >= 85% (regression floor / ratchet — raise over time;
@@ -43,39 +37,39 @@ jobs:
           -p:ThresholdType=line
           -p:ThresholdStat=total
 
-      - name: Login to Azure
-        uses: azure/login@v3
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
         with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_4E9FCBF69E6643D0B0AC7CE0A07E4B83 }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_ED3D3FB0BE4B462C91A50A77FB7983D8 }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_93863144889F4BBEB663A80F5DEEBD6D }}
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Install EF Core tools
-        run: dotnet tool install --global dotnet-ef
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/cedeva-v2:latest
+            ghcr.io/${{ github.repository_owner }}/cedeva-v2:${{ github.sha }}
 
-      - name: Apply database migrations
-        run: |
-          dotnet ef database update \
-            --project src/Cedeva.Infrastructure \
-            --startup-project src/Cedeva.Website \
-            --connection "${{ secrets.AZURE_SQL_CONNECTION_STRING }}"
-
-      - name: Deploy to Azure Web App
-        run: |
-          cd ./publish
-          zip -r ../deploy.zip .
-          cd ..
-          az webapp deploy \
-            --resource-group cedeva-rg \
-            --name cedeva-demo \
-            --src-path deploy.zip \
-            --type zip \
-            --async false
+      - name: Deploy to VPS over SSH
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_PRIVATE_KEY }}
+          script: |
+            set -e
+            echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+            cd /opt/cedeva
+            docker compose -f docker-compose.prod.yml pull cedeva-web
+            docker compose -f docker-compose.prod.yml up -d --remove-orphans
 
       - name: Verify deployment (health endpoint)
         run: |
           echo "Probing /health endpoint..."
-          HEALTH_URL="https://cedeva-demo-bhf0f0h3c9gtg8ar.francecentral-01.azurewebsites.net/health"
+          HEALTH_URL="https://new.cedeva.be/health"
           for i in {1..18}; do
             CODE=$(curl -s -o /dev/null -w "%{http_code}" --max-time 15 "$HEALTH_URL" || echo "000")
             if [ "$CODE" = "200" ]; then
