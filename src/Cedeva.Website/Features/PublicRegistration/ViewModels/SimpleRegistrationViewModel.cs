@@ -11,6 +11,11 @@ public class SimpleRegistrationViewModel
     public DateTime? ActivityStartDate { get; set; }
     public DateTime? ActivityEndDate { get; set; }
     public decimal? PricePerDay { get; set; }
+    public string? RegulationLinkUrl { get; set; }
+    public string? RegulationAcceptanceText { get; set; }
+
+    [Display(Name = "Field.AcceptRegulation")]
+    public bool AcceptRegulation { get; set; }
 
     // Parent Information
     [Required(ErrorMessage = "Validation.Required")]

@@ -396,6 +396,289 @@ public class PublicRegistrationControllerCoverageTests
     }
 
     // ---------------------------------------------------------------------
+    // Register GET: publication window (PublicationStartDate/PublicationEndDate).
+    // ---------------------------------------------------------------------
+
+    [Fact]
+    public async Task Register_Get_BeforePublicationWindow_ShowsUnavailableMessage()
+    {
+        using var factory = new CedevaWebApplicationFactory();
+        var activity = factory.Seed(ctx =>
+        {
+            var org = TestData.Organisation();
+            var a = TestData.Activity(org, "Stage Pas Encore Publie");
+            a.PublicationStartDate = DateTime.Today.AddDays(10);
+            a.NoActiveFormMessage = "Revenez plus tard !";
+            ctx.AddRange(org, a);
+            return a;
+        });
+
+        var client = Anonymous(factory);
+        var response = await client.GetAsync($"/PublicRegistration/Register?activityId={activity.Id}");
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var html = await response.Content.ReadAsStringAsync();
+        html.Should().Contain("Revenez plus tard !");
+        html.Should().NotContain("name=\"ParentFirstName\"");
+    }
+
+    [Fact]
+    public async Task Register_Get_AfterPublicationWindow_ShowsDefaultUnavailableMessage()
+    {
+        using var factory = new CedevaWebApplicationFactory();
+        var activity = factory.Seed(ctx =>
+        {
+            var org = TestData.Organisation();
+            var a = TestData.Activity(org, "Stage Fenetre Fermee");
+            a.PublicationEndDate = DateTime.Today.AddDays(-1);
+            ctx.AddRange(org, a);
+            return a;
+        });
+
+        var client = Anonymous(factory);
+        var response = await client.GetAsync($"/PublicRegistration/Register?activityId={activity.Id}");
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var html = await response.Content.ReadAsStringAsync();
+        html.Should().NotContain("name=\"ParentFirstName\"");
+    }
+
+    // ---------------------------------------------------------------------
+    // Register GET/POST: MaxChildrenPerDay capacity cap.
+    // ---------------------------------------------------------------------
+
+    [Fact]
+    public async Task Register_Get_ActivityFull_ShowsFullMessage()
+    {
+        using var factory = new CedevaWebApplicationFactory();
+        var activity = factory.Seed(ctx =>
+        {
+            var org = TestData.Organisation();
+            var a = TestData.Activity(org, "Stage Complet");
+            a.MaxChildrenPerDay = 1;
+            a.FullMessage = "COMPLET, plus de places disponibles.";
+            var parent = TestData.Parent(org);
+            var c = TestData.Child(parent);
+            var existing = TestData.Booking(c, a, group: null, totalAmount: 0m, paidAmount: 0m);
+            ctx.AddRange(org, a, parent, c, existing);
+            return a;
+        });
+
+        var client = Anonymous(factory);
+        var response = await client.GetAsync($"/PublicRegistration/Register?activityId={activity.Id}");
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var html = await response.Content.ReadAsStringAsync();
+        html.Should().Contain("COMPLET, plus de places disponibles.");
+    }
+
+    [Fact]
+    public async Task Register_Post_ActivityFull_ReturnsOkAndCreatesNoBooking()
+    {
+        using var factory = new CedevaWebApplicationFactory();
+        Activity activity = null!;
+        factory.Seed(ctx =>
+        {
+            var org = TestData.Organisation();
+            activity = TestData.Activity(org, "Stage Complet Post");
+            activity.MaxChildrenPerDay = 1;
+            var parent = TestData.Parent(org);
+            var c = TestData.Child(parent);
+            var existing = TestData.Booking(c, activity, group: null, totalAmount: 0m, paidAmount: 0m);
+            ctx.AddRange(org, activity, parent, c, existing);
+            return 0;
+        });
+
+        var client = Anonymous(factory);
+        var form = new FormUrlEncodedContent(new Dictionary<string, string>
+        {
+            ["ActivityId"] = activity.Id.ToString(),
+            ["ParentFirstName"] = "Paul",
+            ["ParentLastName"] = "Parent",
+            ["ParentEmail"] = "complet.parent@test.be",
+            ["ParentPhoneNumber"] = "021234567",
+            ["ParentNationalRegisterNumber"] = "85.06.15-133.80",
+            ["ParentStreet"] = "Rue Complet 1",
+            ["ParentPostalCode"] = "1000",
+            ["ParentCity"] = "Bruxelles",
+            ["ChildFirstName"] = "Enzo",
+            ["ChildLastName"] = "Enfant",
+            ["ChildBirthDate"] = "2016-07-08",
+            ["ChildNationalRegisterNumber"] = "16.07.08-164.10",
+        });
+
+        var response = await client.PostAsync("/PublicRegistration/Register", form);
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        using var db = factory.NewDbContext();
+        db.Bookings.IgnoreQueryFilters()
+            .Count(b => b.ActivityId == activity.Id)
+            .Should().Be(1);
+    }
+
+    // ---------------------------------------------------------------------
+    // Register POST: règlement acceptance is required when RegulationLinkUrl is set.
+    // ---------------------------------------------------------------------
+
+    [Fact]
+    public async Task Register_Post_RegulationRequiredButNotAccepted_ReturnsOkAndCreatesNoBooking()
+    {
+        using var factory = new CedevaWebApplicationFactory();
+        Activity activity = null!;
+        factory.Seed(ctx =>
+        {
+            var org = TestData.Organisation();
+            activity = TestData.Activity(org, "Stage Reglement");
+            activity.RegulationLinkUrl = "https://example.org/reglement.pdf";
+            activity.RegulationAcceptanceText = "J'ai lu le règlement";
+            ctx.AddRange(org, activity);
+            return 0;
+        });
+
+        var client = Anonymous(factory);
+        var form = new FormUrlEncodedContent(new Dictionary<string, string>
+        {
+            ["ActivityId"] = activity.Id.ToString(),
+            ["ParentFirstName"] = "Paul",
+            ["ParentLastName"] = "Parent",
+            ["ParentEmail"] = "reglement.parent@test.be",
+            ["ParentPhoneNumber"] = "021234567",
+            ["ParentNationalRegisterNumber"] = "85.06.15-133.80",
+            ["ParentStreet"] = "Rue Reglement 1",
+            ["ParentPostalCode"] = "1000",
+            ["ParentCity"] = "Bruxelles",
+            ["ChildFirstName"] = "Enzo",
+            ["ChildLastName"] = "Enfant",
+            ["ChildBirthDate"] = "2016-07-08",
+            ["ChildNationalRegisterNumber"] = "16.07.08-164.10",
+            // AcceptRegulation intentionally omitted (unchecked checkbox = absent from the post).
+        });
+
+        var response = await client.PostAsync("/PublicRegistration/Register", form);
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        using var db = factory.NewDbContext();
+        db.Bookings.IgnoreQueryFilters()
+            .Any(b => b.ActivityId == activity.Id)
+            .Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task Register_Post_RegulationAccepted_CreatesBooking()
+    {
+        using var factory = new CedevaWebApplicationFactory();
+        Activity activity = null!;
+        factory.Seed(ctx =>
+        {
+            var org = TestData.Organisation();
+            activity = TestData.Activity(org, "Stage Reglement Accepte");
+            activity.RegulationLinkUrl = "https://example.org/reglement.pdf";
+            ctx.AddRange(org, activity);
+            return 0;
+        });
+
+        var client = Anonymous(factory);
+        var form = new FormUrlEncodedContent(new Dictionary<string, string>
+        {
+            ["ActivityId"] = activity.Id.ToString(),
+            ["ParentFirstName"] = "Paul",
+            ["ParentLastName"] = "Parent",
+            ["ParentEmail"] = "reglement.ok.parent@test.be",
+            ["ParentPhoneNumber"] = "021234567",
+            ["ParentNationalRegisterNumber"] = "85.06.15-133.80",
+            ["ParentStreet"] = "Rue Reglement 2",
+            ["ParentPostalCode"] = "1000",
+            ["ParentCity"] = "Bruxelles",
+            ["ChildFirstName"] = "Enzo",
+            ["ChildLastName"] = "Enfant",
+            ["ChildBirthDate"] = "2016-07-08",
+            ["ChildNationalRegisterNumber"] = "16.07.08-164.10",
+            ["AcceptRegulation"] = "true",
+        });
+
+        var response = await client.PostAsync("/PublicRegistration/Register", form);
+
+        response.StatusCode.Should().Be(HttpStatusCode.Found);
+
+        using var db = factory.NewDbContext();
+        db.Bookings.IgnoreQueryFilters()
+            .Any(b => b.ActivityId == activity.Id)
+            .Should().BeTrue();
+    }
+
+    // ---------------------------------------------------------------------
+    // Register POST: RedirectUrlAfterSubmit overrides the default Confirmation redirect.
+    // ---------------------------------------------------------------------
+
+    [Fact]
+    public async Task Register_Post_WithRedirectUrlAfterSubmit_RedirectsThereInsteadOfConfirmation()
+    {
+        using var factory = new CedevaWebApplicationFactory();
+        Activity activity = null!;
+        factory.Seed(ctx =>
+        {
+            var org = TestData.Organisation();
+            activity = TestData.Activity(org, "Stage Redirection");
+            activity.RedirectUrlAfterSubmit = "https://example.org/merci";
+            ctx.AddRange(org, activity);
+            return 0;
+        });
+
+        var client = Anonymous(factory);
+        var form = new FormUrlEncodedContent(new Dictionary<string, string>
+        {
+            ["ActivityId"] = activity.Id.ToString(),
+            ["ParentFirstName"] = "Paul",
+            ["ParentLastName"] = "Parent",
+            ["ParentEmail"] = "redirection.parent@test.be",
+            ["ParentPhoneNumber"] = "021234567",
+            ["ParentNationalRegisterNumber"] = "85.06.15-133.80",
+            ["ParentStreet"] = "Rue Redirection 1",
+            ["ParentPostalCode"] = "1000",
+            ["ParentCity"] = "Bruxelles",
+            ["ChildFirstName"] = "Enzo",
+            ["ChildLastName"] = "Enfant",
+            ["ChildBirthDate"] = "2016-07-08",
+            ["ChildNationalRegisterNumber"] = "16.07.08-164.10",
+        });
+
+        var response = await client.PostAsync("/PublicRegistration/Register", form);
+
+        response.StatusCode.Should().Be(HttpStatusCode.Found);
+        response.Headers.Location!.ToString().Should().Be("https://example.org/merci");
+    }
+
+    // ---------------------------------------------------------------------
+    // SelectActivity GET: publication window filters the multi-step flow's activity list.
+    // ---------------------------------------------------------------------
+
+    [Fact]
+    public async Task SelectActivity_Get_ExcludesActivityOutsidePublicationWindow()
+    {
+        using var factory = new CedevaWebApplicationFactory();
+        Organisation org = null!;
+        factory.Seed(ctx =>
+        {
+            org = TestData.Organisation();
+            var visible = TestData.Activity(org, "Stage Visible");
+            var hidden = TestData.Activity(org, "Stage Cache");
+            hidden.PublicationStartDate = DateTime.Today.AddDays(10);
+            ctx.AddRange(org, visible, hidden);
+            return 0;
+        });
+
+        var client = Anonymous(factory);
+        var response = await client.GetAsync($"/PublicRegistration/SelectActivity?orgId={org.Id}");
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var html = await response.Content.ReadAsStringAsync();
+        html.Should().Contain("Stage Visible");
+        html.Should().NotContain("Stage Cache");
+    }
+
+    // ---------------------------------------------------------------------
     // EmbedCode: authorisation edge cases.
     // ---------------------------------------------------------------------
 

@@ -296,14 +296,10 @@
                                                     <label class="form-check-label small" for="existing_required_@i">@Localizer["Required"]</label>
                                                 </div>
                                             </div>
-                                            <div class="col-md-2">
-                                                <div class="form-check form-switch">
-                                                    <input type="checkbox" name="ExistingQuestions[@i].IsActive" value="true"
-                                                           class="form-check-input" id="existing_active_@i" checked="@question.IsActive" />
-                                                    <input type="hidden" name="ExistingQuestions[@i].IsActive" value="false" />
-                                                    <label class="form-check-label small" for="existing_active_@i">@Localizer["Active"]</label>
-                                                </div>
-                                            </div>
+                                            @* IsActive n'a plus de toggle dédié depuis le wizard de création (Lot I) — une question
+                                               posée pour l'activité est active par défaut. La valeur existante est simplement
+                                               préservée telle quelle. *@
+                                            <input type="hidden" name="ExistingQuestions[@i].IsActive" value="@question.IsActive.ToString().ToLowerInvariant()" />
                                             <div class="col-12 question-options-container-edit" id="existing_options_@i"
                                                  style="display: @(question.QuestionType == QuestionType.Radio || question.QuestionType == QuestionType.Dropdown ? "block" : "none");">
                                                 <input type="text" name="ExistingQuestions[@i].Options" value="@question.Options"

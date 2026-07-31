@@ -1,0 +1,58 @@
+@model Cedeva.Website.Features.Activities.ViewModels.WizardStep6ViewModel
+@{
+    ViewData["Title"] = Localizer["ActivityWizard.Step6Title"];
+}
+
+<div class="container-fluid">
+    @await Html.PartialAsync("_WizardProgress", 6)
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card shadow">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-eye me-2"></i>@Model.ActivityName — @Localizer["ActivityWizard.Step6Title"]</h5>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Step6" method="post">
+                        <input type="hidden" asp-for="ActivityId" />
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="PublicationStartDate" class="form-label">@Localizer["Activity.PublicationStartDate"]</label>
+                                <input asp-for="PublicationStartDate" type="date" class="form-control" id="PublicationStartDate" />
+                                <span asp-validation-for="PublicationStartDate" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="PublicationEndDate" class="form-label">@Localizer["Activity.PublicationEndDate"]</label>
+                                <input asp-for="PublicationEndDate" type="date" class="form-control" id="PublicationEndDate" />
+                                <span asp-validation-for="PublicationEndDate" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="NoActiveFormMessage" class="form-label">@Localizer["Activity.NoActiveFormMessage"]</label>
+                            <input asp-for="NoActiveFormMessage" class="form-control" id="NoActiveFormMessage" />
+                            <span asp-validation-for="NoActiveFormMessage" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="RedirectUrlAfterSubmit" class="form-label">@Localizer["Activity.RedirectUrlAfterSubmit"]</label>
+                            <input asp-for="RedirectUrlAfterSubmit" class="form-control" id="RedirectUrlAfterSubmit" placeholder="https://..." />
+                            <span asp-validation-for="RedirectUrlAfterSubmit" class="text-danger"></span>
+                        </div>
+
+                        <div class="d-flex gap-2 mt-4">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-1"></i>@Localizer["ActivityWizard.SaveAndContinue"]
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

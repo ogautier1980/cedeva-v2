@@ -1597,6 +1597,9 @@
   <data name="Field.BankAccountNameHelp" xml:space="preserve">
     <value>Nom du titulaire du compte bancaire</value>
   </data>
+  <data name="Field.AcceptRegulation" xml:space="preserve">
+    <value>J'accepte le règlement d'ordre intérieur</value>
+  </data>
   <data name="Field.BankAccountNumber" xml:space="preserve">
     <value>Numéro de compte (IBAN)</value>
   </data>
@@ -2917,6 +2920,9 @@
   <data name="PublicRegistration.Activity" xml:space="preserve">
     <value>Activité</value>
   </data>
+  <data name="PublicRegistration.ActivityFull" xml:space="preserve">
+    <value>Cette activité est complète.</value>
+  </data>
   <data name="PublicRegistration.ActivityQuestionsLead" xml:space="preserve">
     <value>Veuillez répondre aux questions suivantes concernant l'activité.</value>
   </data>
@@ -3006,6 +3012,9 @@
   </data>
   <data name="PublicRegistration.From" xml:space="preserve">
     <value>Du:</value>
+  </data>
+  <data name="PublicRegistration.FormNotActive" xml:space="preserve">
+    <value>Le formulaire d'inscription n'est pas disponible actuellement.</value>
   </data>
   <data name="PublicRegistration.Width" xml:space="preserve">
     <value>Largeur</value>
@@ -3906,6 +3915,69 @@
   </data>
   <data name="Activities.IncludedPostalCodes" xml:space="preserve">
     <value>Codes postaux autorisés</value>
+  </data>
+  <data name="Activity.RegulationLinkUrl" xml:space="preserve">
+    <value>Lien vers le règlement d'ordre intérieur</value>
+  </data>
+  <data name="Activity.RegulationAcceptanceText" xml:space="preserve">
+    <value>Texte de la case à cocher</value>
+  </data>
+  <data name="Activity.PostalCodeErrorMessage" xml:space="preserve">
+    <value>Message d'erreur (codes postaux)</value>
+  </data>
+  <data name="Activity.MaxChildrenPerDay" xml:space="preserve">
+    <value>Nombre maximum d'enfants par jour</value>
+  </data>
+  <data name="Activity.FullMessage" xml:space="preserve">
+    <value>Message si complet</value>
+  </data>
+  <data name="Activity.PublicationStartDate" xml:space="preserve">
+    <value>Formulaire affiché du</value>
+  </data>
+  <data name="Activity.PublicationEndDate" xml:space="preserve">
+    <value>Formulaire affiché au</value>
+  </data>
+  <data name="Activity.NoActiveFormMessage" xml:space="preserve">
+    <value>Message si aucun formulaire actif</value>
+  </data>
+  <data name="Activity.RedirectUrlAfterSubmit" xml:space="preserve">
+    <value>Page de redirection après l'envoi</value>
+  </data>
+  <data name="ActivityWizard.NewActivity" xml:space="preserve">
+    <value>Nouvelle activité</value>
+  </data>
+  <data name="ActivityWizard.Step1Title" xml:space="preserve">
+    <value>Titre et dates</value>
+  </data>
+  <data name="ActivityWizard.Step2Title" xml:space="preserve">
+    <value>Paramétrage des dates</value>
+  </data>
+  <data name="ActivityWizard.Step3Title" xml:space="preserve">
+    <value>Règlement</value>
+  </data>
+  <data name="ActivityWizard.Step4Title" xml:space="preserve">
+    <value>Limitations</value>
+  </data>
+  <data name="ActivityWizard.Step5Title" xml:space="preserve">
+    <value>Autres questions</value>
+  </data>
+  <data name="ActivityWizard.Step6Title" xml:space="preserve">
+    <value>Affichage</value>
+  </data>
+  <data name="ActivityWizard.Step7Title" xml:space="preserve">
+    <value>Finalisation</value>
+  </data>
+  <data name="ActivityWizard.SaveAndContinue" xml:space="preserve">
+    <value>Enregistrer et passer à l'étape suivante</value>
+  </data>
+  <data name="ActivityWizard.AddDate" xml:space="preserve">
+    <value>Ajouter une date</value>
+  </data>
+  <data name="ActivityWizard.GroupByWeek" xml:space="preserve">
+    <value>Regrouper par semaine</value>
+  </data>
+  <data name="ActivityWizard.CreateNewActivity" xml:space="preserve">
+    <value>Créer une nouvelle activité</value>
   </data>
   <data name="Activities.IncludedPostalCodesHelp" xml:space="preserve">
     <value>Liste des codes postaux autorisés (séparés par des virgules). Si vide, tous les codes sont autorisés sauf les exclus.</value>

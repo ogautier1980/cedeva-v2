@@ -114,6 +114,22 @@
                                 }
                             </div>
 
+                            @if (!string.IsNullOrWhiteSpace(Model.RegulationLinkUrl))
+                            {
+                                <div class="mb-3 mt-4">
+                                    <div class="form-check">
+                                        <input asp-for="AcceptRegulation" class="form-check-input" id="AcceptRegulation" />
+                                        <label class="form-check-label" for="AcceptRegulation">
+                                            @(string.IsNullOrWhiteSpace(Model.RegulationAcceptanceText) ? Localizer["Field.AcceptRegulation"].Value : Model.RegulationAcceptanceText)
+                                            <a href="@Model.RegulationLinkUrl" target="_blank" rel="noopener noreferrer">
+                                                <i class="fas fa-external-link-alt ms-1"></i>
+                                            </a>
+                                        </label>
+                                        <span asp-validation-for="AcceptRegulation" class="text-danger d-block"></span>
+                                    </div>
+                                </div>
+                            }
+
                             <div class="d-grid gap-2 mt-4">
                                 <button type="submit" class="btn btn-primary btn-lg">
                                     <i class="fas fa-check me-2"></i>@Localizer["PublicRegistration.FinalizeBooking"]
@@ -122,9 +138,32 @@
                         }
                         else
                         {
-                            <div class="alert alert-info">
-                                <i class="fas fa-info-circle me-2"></i>@Localizer["PublicRegistration.NoQuestionsRequired"]
-                            </div>
+                            @if (!string.IsNullOrWhiteSpace(Model.RegulationLinkUrl))
+                            {
+                                <div class="mb-3">
+                                    <div class="form-check">
+                                        <input asp-for="AcceptRegulation" class="form-check-input" id="AcceptRegulation" />
+                                        <label class="form-check-label" for="AcceptRegulation">
+                                            @(string.IsNullOrWhiteSpace(Model.RegulationAcceptanceText) ? Localizer["Field.AcceptRegulation"].Value : Model.RegulationAcceptanceText)
+                                            <a href="@Model.RegulationLinkUrl" target="_blank" rel="noopener noreferrer">
+                                                <i class="fas fa-external-link-alt ms-1"></i>
+                                            </a>
+                                        </label>
+                                        <span asp-validation-for="AcceptRegulation" class="text-danger d-block"></span>
+                                    </div>
+                                </div>
+                                <div class="d-grid gap-2">
+                                    <button type="submit" class="btn btn-primary btn-lg">
+                                        <i class="fas fa-check me-2"></i>@Localizer["PublicRegistration.FinalizeBooking"]
+                                    </button>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="alert alert-info">
+                                    <i class="fas fa-info-circle me-2"></i>@Localizer["PublicRegistration.NoQuestionsRequired"]
+                                </div>
+                            }
                         }
                     </form>
                 </div>

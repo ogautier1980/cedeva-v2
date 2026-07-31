@@ -10,4 +10,8 @@ public class ActivityQuestionsViewModel
 
     public List<ActivityQuestion> Questions { get; set; } = new();
     public Dictionary<int, string> Answers { get; set; } = new();
+
+    public string? RegulationLinkUrl { get; set; }
+    public string? RegulationAcceptanceText { get; set; }
+    public bool AcceptRegulation { get; set; }
 }

@@ -113,18 +113,20 @@ Migration complète menée en une session, en 5 phases séquentielles (chaque ph
 - ✅ **Fait** — 4 tableaux par activité (`ActivityManagement/OneReport`) : listings 2-5 ans / 6 ans et plus (N°, nom, âge, dates, jours, prix payé, indicateurs) + présences hebdomadaires par tranche d'âge. Format calqué sur [`17.pdf`](17.pdf). Aucune migration nécessaire, testé (`OneReportTests.cs`). **Ce rapport reste par activité** (c'est un rapport officiel envoyé à l'ONE, distinct de l'attestation fiscale ci-dessous — à ne pas confondre).
 - ⏸️ **Bloqué — en attente d'un exemple de Thomas (question n°1)** — Attestations fiscales : **regroupées par association**, pas par activité (confirmation du texte original — l'attestation fiscale donnée au parent est un document différent du rapport ONE par activité ci-dessus). Aucune attestation fiscale n'existe encore dans le code. Contrairement au rapport ONE (qui avait `17.pdf` comme référence exacte), on n'a **aucun exemple de mise en page/contenu réel** pour ce document officiel (mentions légales, montant déductible, période, etc.) — **à demander à Thomas avant de coder**, pour éviter de produire un document qui ne serait pas valable fiscalement.
 
-## Lot I — Création d'une activité (refonte wizard, nouveau 2026-07-31)
+## Lot I — Création d'une activité (refonte wizard) — ✅ Fait le 2026-08-01
 
-Demande de refonte du formulaire de création d'activité : actuellement un formulaire plat unique (Titre/Du/Au), Thomas veut un **assistant multi-étapes avec jauge de progression** (maquette générique `10.21.29`, pastilles 1-2-3-4). Détail des 7 étapes :
+Demande de refonte du formulaire de création d'activité : actuellement un formulaire plat unique (Titre/Du/Au), Thomas veut un **assistant multi-étapes avec jauge de progression** (maquette générique `10.21.29`, pastilles 1-2-3-4). Livré : nouveau `ActivityWizardController` (`Features/ActivityWizard/`), jauge `_WizardProgress.cshtml`, 9 nouveaux champs nullable sur `Activity` (migration `AddActivityWizardFields`). Détail des 7 étapes :
 
-- ⏸️ **Pas fait** — **Écran d'entrée** : page « Sélectionnez votre activité » avec gros boutons par stage + « Créer une nouvelle activité » (vert) + « Déconnexion » (rouge) — réutilise le même écran que « Page d'accueil générale organisation ».
-- ⏸️ **Pas fait** — **Étape 1** : Titre + Dates (inchangé dans le principe, juste repositionné dans le wizard).
-- ⏸️ **Pas fait** — **Étape 2 — Paramétrage des dates** : supporter 2 modes d'inscription, « au jour le jour » et « à la semaine » (le lundi représente visuellement toute la semaine groupée). **À supprimer** (annoté en rouge, capture `10.25.06` — correction 2026-07-31 : ce n'est pas `09.19.42`, qui est une simple capture N&B sans annotation) : boutons « Ajouter un jour avant/après », « Retirer le 1er/dernier jour », bandeau « Gérez les jours actifs ». **À la place** : un bouton « Ajouter une date » ouvrant un calendrier, en gardant la suppression ligne par ligne (case à cocher + icône poubelle déjà présentes par ligne, pas de crayon, même capture `10.25.06`).
-- ✅ **Jugé conforme tel quel** — **Étape 3 — Règlement (R.O.I.)** : upload PDF + texte de case à cocher (capture `09.31.41`), juste à intégrer dans le wizard.
-- ✅ **Jugé conforme tel quel** — **Étape 4 — Limitations** : codes postaux autorisés/refusés (vide = tous), nombre max d'enfants/jour + message « COMPLET » personnalisable (capture `aa8a0a57`), juste à intégrer dans le wizard.
-- ⏸️ **Bloqué par la question n°2** — **Étape 5 — Autres questions** : reprend les questions personnalisées par activité, avec la question du modèle org→activité (n°2). **À supprimer** (annoté en rouge, capture `09.49.21`) : le toggle « Actif » du formulaire de question (« si on pose la question pour l'activité, c'est que c'est actif »).
-- ✅ **Jugé conforme tel quel** — **Étape 6 — Affichage** : dates d'affichage du formulaire, message si aucun formulaire actif, page de redirection après envoi (capture `09.50.34`), juste à intégrer dans le wizard.
-- ✅ **Jugé « super » tel quel** — **Étape 7 — Final** : couleurs (fond/boutons), URL directe, code d'intégration iframe avec aperçu (capture `09.54.00`). 🐛 Bug du téléchargement (fichier 0 ko sur Mac) — ✅ résolu, voir TO-DO.
+- ✅ **Fait** — **Écran d'entrée** : bouton vert « Créer une nouvelle activité » bien visible sur `Activities/Index`, pointe vers l'étape 1 du wizard (formulaire plat `Create` conservé mais plus mis en avant). Déconnexion déjà présente globalement dans le layout.
+- ✅ **Fait** — **Étape 1** : Titre + Dates — crée l'`Activity` au clic sur Enregistrer, puis redirige vers l'étape 2.
+- ✅ **Fait** — **Étape 2 — Paramétrage des dates** : boutons « Ajouter un jour avant/après », « Retirer le 1er/dernier jour » et bandeau info supprimés. Remplacés par un bouton « Ajouter une date » (calendrier) + un toggle « Regrouper par semaine » (JS pur, non persisté, coche/décoche les jours ouvrés d'une semaine via une case maîtresse).
+- ✅ **Fait** — **Étape 3 — Règlement (R.O.I.)** : capture `09.31.41` relue plus précisément en cours d'implémentation — c'est un **champ URL** (lien vers le PDF hébergé ailleurs) + texte de case à cocher, **pas un upload de fichier**. `RegulationLinkUrl`/`RegulationAcceptanceText`, branchés jusque sur le formulaire public (case à cocher requise avant inscription si renseigné).
+- ✅ **Fait** — **Étape 4 — Limitations** : codes postaux autorisés/refusés (existant) + nouveaux `PostalCodeErrorMessage`, `MaxChildrenPerDay`, `FullMessage`. Le plafond est appliqué côté formulaire public comme un cap sur le nombre total d'inscriptions actives de l'activité (pas un vrai comptage par jour calendaire — approximation pragmatique, à affiner si Thomas la juge insuffisante).
+- ✅ **Fait** — **Étape 5 — Autres questions** : éditeur de questions réutilisé, toggle « Actif » retiré du formulaire (round-trippé via un champ caché — les nouvelles questions restent actives par défaut). La question n°2 (modèle de questions org→activité) reste hors scope, comme convenu.
+- ✅ **Fait** — **Étape 6 — Affichage** : `PublicationStartDate`/`PublicationEndDate`/`NoActiveFormMessage`/`RedirectUrlAfterSubmit`, branchés sur le formulaire public (fenêtre de publication, redirection personnalisée après envoi).
+- ✅ **Fait** — **Étape 7 — Final** : redirige vers l'écran de personnalisation iframe existant (`PublicRegistration/EmbedCode`, pas `Activities/Details` comme supposé initialement), inchangé.
+
+Les 4 groupes de champs neufs (Règlement, Limitations, Affichage, redirection) sont branchés à la fois sur le flux d'inscription simple (`Register`, celui réellement utilisé par le code d'intégration iframe généré) et sur le flux multi-étapes (`SelectActivity`/`ActivityQuestions`/`CreateBooking`). Vérifié par 8 nouveaux tests d'intégration + parcours navigateur complet des 7 étapes (Playwright). 🐛 Bug trouvé et corrigé en cours de route : les vues du wizard avaient été placées sous `Features/Activities/` au lieu de `Features/ActivityWizard/` (la convention feature-folder de l'app associe le dossier de vues au nom du contrôleur), ce qui cassait chaque étape avec une 500.
 
 ## Lot J — Paramètres (nouveau 2026-07-31, sans maquette)
 
@@ -139,9 +141,9 @@ Page listée dans l'export mais sans capture d'écran associée — juste une li
 
 ## Ordre proposé
 
-L'essentiel des Lots A à G est livré. Toutes les questions 1 à 5 d'origine étant tranchées par
+L'essentiel des Lots A à I est livré. Toutes les questions 1 à 5 d'origine étant tranchées par
 Olivier, **plus aucun item n'est bloqué en attente d'une réponse** sauf Lot H (attestations
-fiscales) et l'étape 5 du Lot I (modèle de questions). Reste à coder, par priorité :
+fiscales) et Lot J (maquette manquante). Reste à coder, par priorité :
 
 1. **Petits restes** — tous livrés le 2026-07-31 sauf Lot F (mis de côté) :
    - ✅ Lot D — simplifier le parcours Comptes → Transactions (cartes stats + onglets de filtre retirés de `Transactions.cshtml`, liste nue).
@@ -149,9 +151,8 @@ fiscales) et l'étape 5 du Lot I (modèle de questions). Reste à coder, par pri
    - ✅ Lot C — ligne « Dont excursions » sur `Bookings/Details`.
    - ⏸️ Lot F — la vraie « auto-proposition » du mail Excursion (suggestion automatique à la création/programmation) ; seul le nouveau destinataire manuel existe. **Explicitement mis de côté pour l'instant.**
 2. **Lot H** — attestations fiscales par association : bloqué en attente d'un exemple de Thomas (question n°1).
-3. **Lot I** — wizard de création d'activité : étapes 1/2/3/4/6/7 codables directement (réagencement + retrait des boutons de dates + nouveau bouton calendrier), étape 5 bloquée par la question n°2 (modèle de questions). Bug Mac (fichier 0 ko) résolu depuis la migration OVH. **Gros morceau — mérite son propre cadrage avant de commencer** (voir note ci-dessous).
+3. ✅ **Lot I** — wizard de création d'activité en 7 étapes, livré le 2026-08-01 (voir détail ci-dessus).
 4. **Lot J** — Paramètres : à maquetter avec Thomas avant de coder (aucune capture fournie).
 
-Codable sans attendre Thomas : le point 1 en entier, et Lot I sauf l'étape 5. Bloqué par Thomas :
-Lot H (question n°1), l'étape 5 de Lot I (question n°2), et Lot J (maquette manquante). À confirmer
-avec Thomas (non bloquant, cosmétique) : la nuance sur les 2 raccourcis « Actions rapides » (Lot A).
+Bloqué par Thomas : Lot H (question n°1) et Lot J (maquette manquante). À confirmer avec Thomas
+(non bloquant, cosmétique) : la nuance sur les 2 raccourcis « Actions rapides » (Lot A).

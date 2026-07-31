@@ -1642,6 +1642,9 @@
   <data name="Field.BankAccountNameHelp" xml:space="preserve">
     <value>Name of the bank account holder</value>
   </data>
+  <data name="Field.AcceptRegulation" xml:space="preserve">
+    <value>I accept the internal regulations</value>
+  </data>
   <data name="Field.BankAccountNumber" xml:space="preserve">
     <value>Account number (IBAN)</value>
   </data>
@@ -2962,6 +2965,9 @@
   <data name="PublicRegistration.Activity" xml:space="preserve">
     <value>Activity</value>
   </data>
+  <data name="PublicRegistration.ActivityFull" xml:space="preserve">
+    <value>This activity is full.</value>
+  </data>
   <data name="PublicRegistration.ActivityQuestionsLead" xml:space="preserve">
     <value>Please answer the following questions about the activity.</value>
   </data>
@@ -3051,6 +3057,9 @@
   </data>
   <data name="PublicRegistration.From" xml:space="preserve">
     <value>From:</value>
+  </data>
+  <data name="PublicRegistration.FormNotActive" xml:space="preserve">
+    <value>The registration form is not currently available.</value>
   </data>
   <data name="PublicRegistration.Width" xml:space="preserve">
     <value>Width</value>
@@ -3785,6 +3794,69 @@
   </data>
   <data name="Activities.IncludedPostalCodes" xml:space="preserve">
     <value>Included postal codes</value>
+  </data>
+  <data name="Activity.RegulationLinkUrl" xml:space="preserve">
+    <value>Link to the internal regulations</value>
+  </data>
+  <data name="Activity.RegulationAcceptanceText" xml:space="preserve">
+    <value>Checkbox text</value>
+  </data>
+  <data name="Activity.PostalCodeErrorMessage" xml:space="preserve">
+    <value>Error message (postal codes)</value>
+  </data>
+  <data name="Activity.MaxChildrenPerDay" xml:space="preserve">
+    <value>Maximum number of children per day</value>
+  </data>
+  <data name="Activity.FullMessage" xml:space="preserve">
+    <value>Message when full</value>
+  </data>
+  <data name="Activity.PublicationStartDate" xml:space="preserve">
+    <value>Form displayed from</value>
+  </data>
+  <data name="Activity.PublicationEndDate" xml:space="preserve">
+    <value>Form displayed until</value>
+  </data>
+  <data name="Activity.NoActiveFormMessage" xml:space="preserve">
+    <value>Message when no active form</value>
+  </data>
+  <data name="Activity.RedirectUrlAfterSubmit" xml:space="preserve">
+    <value>Redirect page after submission</value>
+  </data>
+  <data name="ActivityWizard.NewActivity" xml:space="preserve">
+    <value>New activity</value>
+  </data>
+  <data name="ActivityWizard.Step1Title" xml:space="preserve">
+    <value>Title and dates</value>
+  </data>
+  <data name="ActivityWizard.Step2Title" xml:space="preserve">
+    <value>Date settings</value>
+  </data>
+  <data name="ActivityWizard.Step3Title" xml:space="preserve">
+    <value>Regulations</value>
+  </data>
+  <data name="ActivityWizard.Step4Title" xml:space="preserve">
+    <value>Limitations</value>
+  </data>
+  <data name="ActivityWizard.Step5Title" xml:space="preserve">
+    <value>Additional questions</value>
+  </data>
+  <data name="ActivityWizard.Step6Title" xml:space="preserve">
+    <value>Display</value>
+  </data>
+  <data name="ActivityWizard.Step7Title" xml:space="preserve">
+    <value>Finalization</value>
+  </data>
+  <data name="ActivityWizard.SaveAndContinue" xml:space="preserve">
+    <value>Save and continue to next step</value>
+  </data>
+  <data name="ActivityWizard.AddDate" xml:space="preserve">
+    <value>Add a date</value>
+  </data>
+  <data name="ActivityWizard.GroupByWeek" xml:space="preserve">
+    <value>Group by week</value>
+  </data>
+  <data name="ActivityWizard.CreateNewActivity" xml:space="preserve">
+    <value>Create a new activity</value>
   </data>
   <data name="Activities.IncludedPostalCodesHelp" xml:space="preserve">
     <value>List of allowed postal codes (comma-separated). If empty, all codes are allowed except the excluded ones.</value>

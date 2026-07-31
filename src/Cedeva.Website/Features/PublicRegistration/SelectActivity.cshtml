@@ -15,6 +15,13 @@
                 <div class="card-body">
                     <p class="lead mb-4">@Localizer["PublicRegistration.SelectActivityLead"]</p>
 
+                    @if (TempData["ErrorMessage"] != null)
+                    {
+                        <div class="alert alert-warning">
+                            <i class="fas fa-exclamation-triangle me-2"></i>@TempData["ErrorMessage"]
+                        </div>
+                    }
+
                     <form asp-action="SelectActivity" method="post">
                         @if (!Model.AvailableActivities.Any())
                         {

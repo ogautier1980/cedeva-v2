@@ -1,0 +1,118 @@
+@model Cedeva.Website.Features.Activities.ViewModels.WizardStep2ViewModel
+@{
+    ViewData["Title"] = Localizer["ActivityWizard.Step2Title"];
+}
+
+<div class="container-fluid">
+    @await Html.PartialAsync("_WizardProgress", 2)
+    <div class="row">
+        <div class="col-lg-10">
+            <div class="card shadow">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-calendar-week me-2"></i>@Model.ActivityName — @Localizer["ActivityWizard.Step2Title"]</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex flex-wrap align-items-end gap-3 mb-3">
+                        <form asp-action="AddDate" asp-route-id="@Model.ActivityId" method="post" class="d-flex align-items-end gap-2">
+                            @Html.AntiForgeryToken()
+                            <div>
+                                <label for="date" class="form-label mb-1">@Localizer["ActivityWizard.AddDate"]</label>
+                                <input type="date" name="date" id="date" class="form-control form-control-sm" required />
+                            </div>
+                            <button type="submit" class="btn btn-outline-primary btn-sm">
+                                <i class="fas fa-calendar-plus me-1"></i>@Localizer["ActivityWizard.AddDate"]
+                            </button>
+                        </form>
+
+                        <div class="form-check form-switch ms-auto">
+                            <input class="form-check-input" type="checkbox" id="groupByWeekToggle">
+                            <label class="form-check-label" for="groupByWeekToggle">@Localizer["ActivityWizard.GroupByWeek"]</label>
+                        </div>
+                    </div>
+
+                    <form asp-action="Step2Next" asp-route-id="@Model.ActivityId" method="post">
+                        @Html.AntiForgeryToken()
+                        <div class="row g-3" id="weeksContainer">
+                            @foreach (var week in Model.Weeks)
+                            {
+                                var weekdayIds = week.Days.Where(d => !d.IsWeekend).Select(d => d.DayId).ToList();
+                                <div class="col-md-6 col-lg-4">
+                                    <div class="card h-100">
+                                        <div class="card-header bg-light">
+                                            <i class="fas fa-calendar me-2"></i>Semaine @week.WeekNumber
+                                        </div>
+                                        <div class="card-body p-0">
+                                            <div class="list-group list-group-flush">
+                                                <div class="list-group-item py-2 week-master-row d-none" data-weekday-ids="@string.Join(",", weekdayIds)">
+                                                    <div class="form-check">
+                                                        <input class="form-check-input week-master-checkbox" type="checkbox" id="week_@week.WeekNumber" checked />
+                                                        <label class="form-check-label" for="week_@week.WeekNumber">
+                                                            <strong>@Localizer["ActivityWizard.GroupByWeek"]</strong>
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                                @foreach (var day in week.Days)
+                                                {
+                                                    var bgClass = day.IsWeekend ? "bg-light" : "";
+                                                    var rowClass = day.IsWeekend ? "day-row" : "day-row weekday-row";
+                                                    <div class="list-group-item @bgClass py-2 @rowClass">
+                                                        <div class="form-check">
+                                                            <input class="form-check-input day-checkbox" type="checkbox"
+                                                                   name="ActiveDayIds" value="@day.DayId"
+                                                                   id="day_@day.DayId" @(day.IsActive ? "checked" : "") />
+                                                            <label class="form-check-label" for="day_@day.DayId">
+                                                                <strong>@day.Date.ToString("dddd", new System.Globalization.CultureInfo("fr-BE"))</strong>
+                                                                <small class="text-muted ms-1">@day.Date.ToString("dd/MM")</small>
+                                                                @if (day.IsWeekend)
+                                                                {
+                                                                    <span class="badge bg-warning text-dark ms-1" style="font-size: 0.65rem;">Week-end</span>
+                                                                }
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+
+                        <div class="d-flex gap-2 mt-4">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-arrow-right me-1"></i>@Localizer["Next"]
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // "Regrouper par semaine" is a pure display convenience: when on, weekday checkboxes
+        // (Mon-Fri) are hidden and replaced by one master checkbox per week that checks/unchecks
+        // them all together. Nothing is persisted server-side — it's just less clicking.
+        document.getElementById('groupByWeekToggle').addEventListener('change', function () {
+            var grouped = this.checked;
+            document.querySelectorAll('.weekday-row').forEach(function (row) {
+                row.classList.toggle('d-none', grouped);
+            });
+            document.querySelectorAll('.week-master-row').forEach(function (row) {
+                row.classList.toggle('d-none', !grouped);
+            });
+        });
+
+        document.querySelectorAll('.week-master-checkbox').forEach(function (master) {
+            master.addEventListener('change', function () {
+                var ids = this.closest('.week-master-row').dataset.weekdayIds.split(',').filter(Boolean);
+                ids.forEach(function (id) {
+                    var cb = document.getElementById('day_' + id);
+                    if (cb) cb.checked = master.checked;
+                });
+            });
+        });
+    </script>
+}

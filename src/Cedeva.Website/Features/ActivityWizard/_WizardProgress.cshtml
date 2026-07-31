@@ -1,0 +1,74 @@
+@* Jauge de progression du wizard de création d'activité (Lot I). Model = numéro de l'étape courante (1-7). *@
+@model int
+@inject Microsoft.Extensions.Localization.IStringLocalizer<Cedeva.Website.Localization.SharedResources> Localizer
+
+@{
+    var titles = new[]
+    {
+        Localizer["ActivityWizard.Step1Title"].Value,
+        Localizer["ActivityWizard.Step2Title"].Value,
+        Localizer["ActivityWizard.Step3Title"].Value,
+        Localizer["ActivityWizard.Step4Title"].Value,
+        Localizer["ActivityWizard.Step5Title"].Value,
+        Localizer["ActivityWizard.Step6Title"].Value,
+        Localizer["ActivityWizard.Step7Title"].Value
+    };
+}
+
+<div class="d-flex align-items-start justify-content-between mb-4 wizard-progress">
+    @for (var i = 1; i <= titles.Length; i++)
+    {
+        var isDone = i < Model;
+        var isCurrent = i == Model;
+        <div class="d-flex flex-column align-items-center flex-fill wizard-progress-step">
+            <div class="d-flex align-items-center w-100">
+                @if (i > 1)
+                {
+                    <div class="flex-fill wizard-progress-line @((isDone || isCurrent) ? "bg-primary" : "bg-light")"></div>
+                }
+                else
+                {
+                    <div class="flex-fill"></div>
+                }
+                <div class="wizard-progress-circle rounded-circle d-flex align-items-center justify-content-center @((isDone || isCurrent) ? "bg-primary text-white" : "bg-light text-muted")">
+                    @if (isDone)
+                    {
+                        <i class="fas fa-check"></i>
+                    }
+                    else
+                    {
+                        @i
+                    }
+                </div>
+                @if (i < titles.Length)
+                {
+                    <div class="flex-fill wizard-progress-line @(isDone ? "bg-primary" : "bg-light")"></div>
+                }
+                else
+                {
+                    <div class="flex-fill"></div>
+                }
+            </div>
+            <small class="mt-2 text-center @(isCurrent ? "fw-bold text-primary" : "text-muted")">@titles[i - 1]</small>
+        </div>
+    }
+</div>
+
+<style>
+    .wizard-progress-circle {
+        width: 2.25rem;
+        height: 2.25rem;
+        min-width: 2.25rem;
+        font-weight: 600;
+        flex-shrink: 0;
+    }
+
+    .wizard-progress-line {
+        height: 2px;
+    }
+
+    .wizard-progress-step small {
+        font-size: 0.75rem;
+        max-width: 6.5rem;
+    }
+</style>

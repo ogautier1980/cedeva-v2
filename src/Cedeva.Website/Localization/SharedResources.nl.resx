@@ -1642,6 +1642,9 @@
   <data name="Field.BankAccountNameHelp" xml:space="preserve">
     <value>Naam van de houder van de bankrekening</value>
   </data>
+  <data name="Field.AcceptRegulation" xml:space="preserve">
+    <value>Ik aanvaard het huishoudelijk reglement</value>
+  </data>
   <data name="Field.BankAccountNumber" xml:space="preserve">
     <value>Rekeningnummer (IBAN)</value>
   </data>
@@ -2962,6 +2965,9 @@
   <data name="PublicRegistration.Activity" xml:space="preserve">
     <value>Activiteit</value>
   </data>
+  <data name="PublicRegistration.ActivityFull" xml:space="preserve">
+    <value>Deze activiteit zit vol.</value>
+  </data>
   <data name="PublicRegistration.ActivityQuestionsLead" xml:space="preserve">
     <value>Beantwoord de volgende vragen over de activiteit.</value>
   </data>
@@ -3051,6 +3057,9 @@
   </data>
   <data name="PublicRegistration.From" xml:space="preserve">
     <value>Van:</value>
+  </data>
+  <data name="PublicRegistration.FormNotActive" xml:space="preserve">
+    <value>Het inschrijvingsformulier is momenteel niet beschikbaar.</value>
   </data>
   <data name="PublicRegistration.Width" xml:space="preserve">
     <value>Breedte</value>
@@ -3785,6 +3794,69 @@
   </data>
   <data name="Activities.IncludedPostalCodes" xml:space="preserve">
     <value>Toegestane postcodes</value>
+  </data>
+  <data name="Activity.RegulationLinkUrl" xml:space="preserve">
+    <value>Link naar het huishoudelijk reglement</value>
+  </data>
+  <data name="Activity.RegulationAcceptanceText" xml:space="preserve">
+    <value>Tekst bij het aankruisvakje</value>
+  </data>
+  <data name="Activity.PostalCodeErrorMessage" xml:space="preserve">
+    <value>Foutmelding (postcodes)</value>
+  </data>
+  <data name="Activity.MaxChildrenPerDay" xml:space="preserve">
+    <value>Maximum aantal kinderen per dag</value>
+  </data>
+  <data name="Activity.FullMessage" xml:space="preserve">
+    <value>Bericht wanneer volzet</value>
+  </data>
+  <data name="Activity.PublicationStartDate" xml:space="preserve">
+    <value>Formulier zichtbaar vanaf</value>
+  </data>
+  <data name="Activity.PublicationEndDate" xml:space="preserve">
+    <value>Formulier zichtbaar tot</value>
+  </data>
+  <data name="Activity.NoActiveFormMessage" xml:space="preserve">
+    <value>Bericht wanneer geen formulier actief is</value>
+  </data>
+  <data name="Activity.RedirectUrlAfterSubmit" xml:space="preserve">
+    <value>Doorverwijspagina na verzending</value>
+  </data>
+  <data name="ActivityWizard.NewActivity" xml:space="preserve">
+    <value>Nieuwe activiteit</value>
+  </data>
+  <data name="ActivityWizard.Step1Title" xml:space="preserve">
+    <value>Titel en data</value>
+  </data>
+  <data name="ActivityWizard.Step2Title" xml:space="preserve">
+    <value>Instelling van de dagen</value>
+  </data>
+  <data name="ActivityWizard.Step3Title" xml:space="preserve">
+    <value>Reglement</value>
+  </data>
+  <data name="ActivityWizard.Step4Title" xml:space="preserve">
+    <value>Beperkingen</value>
+  </data>
+  <data name="ActivityWizard.Step5Title" xml:space="preserve">
+    <value>Bijkomende vragen</value>
+  </data>
+  <data name="ActivityWizard.Step6Title" xml:space="preserve">
+    <value>Weergave</value>
+  </data>
+  <data name="ActivityWizard.Step7Title" xml:space="preserve">
+    <value>Afwerking</value>
+  </data>
+  <data name="ActivityWizard.SaveAndContinue" xml:space="preserve">
+    <value>Opslaan en naar volgende stap</value>
+  </data>
+  <data name="ActivityWizard.AddDate" xml:space="preserve">
+    <value>Een datum toevoegen</value>
+  </data>
+  <data name="ActivityWizard.GroupByWeek" xml:space="preserve">
+    <value>Groeperen per week</value>
+  </data>
+  <data name="ActivityWizard.CreateNewActivity" xml:space="preserve">
+    <value>Een nieuwe activiteit aanmaken</value>
   </data>
   <data name="Activities.IncludedPostalCodesHelp" xml:space="preserve">
     <value>Lijst van toegestane postcodes (gescheiden door komma's). Indien leeg zijn alle codes toegestaan, behalve de uitgesloten codes.</value>

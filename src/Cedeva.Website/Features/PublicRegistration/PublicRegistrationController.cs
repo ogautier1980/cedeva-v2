@@ -44,17 +44,38 @@ public class PublicRegistrationController : Controller
         _logger = logger;
     }
 
+    // Publication window (PublicationStartDate/PublicationEndDate) gates whether the public form
+    // is currently open, independently of the activity's own StartDate/EndDate.
+    private static bool IsWithinPublicationWindow(Activity activity, DateTime now)
+    {
+        if (activity.PublicationStartDate.HasValue && now < activity.PublicationStartDate.Value) return false;
+        if (activity.PublicationEndDate.HasValue && now > activity.PublicationEndDate.Value) return false;
+        return true;
+    }
+
+    // MaxChildrenPerDay is enforced here as a cap on the activity's total active bookings, not a
+    // true per-calendar-day count — the practical reading for a single registration window.
+    private async Task<bool> IsActivityFullAsync(Activity activity)
+    {
+        if (!activity.MaxChildrenPerDay.HasValue) return false;
+        var count = await _context.Bookings.IgnoreQueryFilters().CountAsync(b => b.ActivityId == activity.Id);
+        return count >= activity.MaxChildrenPerDay.Value;
+    }
+
     // GET: PublicRegistration/SelectActivity?orgId=1
     [AllowAnonymous]
     public async Task<IActionResult> SelectActivity(int orgId)
     {
         // Anonymous public entry point (orgId comes from the trusted embed link): bypass the
         // multi-tenancy filter, but keep the explicit OrganisationId scope.
-        var activities = await _context.Activities
+        var now = DateTime.Now;
+        var activities = (await _context.Activities
             .IgnoreQueryFilters()
             .Where(a => a.OrganisationId == orgId && a.StartDate > DateTime.Now)
             .OrderBy(a => a.StartDate)
-            .ToListAsync();
+            .ToListAsync())
+            .Where(a => IsWithinPublicationWindow(a, now))
+            .ToList();
 
         var viewModel = new SelectActivityViewModel
         {
@@ -227,6 +248,8 @@ public class PublicRegistrationController : Controller
 
         var activityId = (int)TempData[TempDataActivityId]!;
 
+        var activity = await _context.Activities.IgnoreQueryFilters().FirstOrDefaultAsync(a => a.Id == activityId);
+
         var questions = await _context.ActivityQuestions
             .Where(q => q.ActivityId == activityId && q.IsActive)
             .OrderBy(q => q.DisplayOrder)
@@ -237,7 +260,9 @@ public class PublicRegistrationController : Controller
             ActivityId = activityId,
             ParentId = (int)TempData[TempDataParentId]!,
             ChildId = (int)TempData[TempDataChildId]!,
-            Questions = questions
+            Questions = questions,
+            RegulationLinkUrl = activity?.RegulationLinkUrl,
+            RegulationAcceptanceText = activity?.RegulationAcceptanceText
         };
 
         TempData.Keep(TempDataActivityId);
@@ -245,8 +270,8 @@ public class PublicRegistrationController : Controller
         TempData.Keep(TempDataChildId);
         TempData.Keep(TempDataOrganisationId);
 
-        // If no questions, skip to confirmation
-        if (!questions.Any())
+        // If no questions and no règlement to accept, skip straight to booking creation.
+        if (!questions.Any() && string.IsNullOrWhiteSpace(activity?.RegulationLinkUrl))
         {
             return RedirectToAction(nameof(CreateBooking));
         }
@@ -260,6 +285,8 @@ public class PublicRegistrationController : Controller
     [AllowAnonymous]
     public async Task<IActionResult> ActivityQuestions(ActivityQuestionsViewModel model)
     {
+        var activity = await _context.Activities.IgnoreQueryFilters().FirstOrDefaultAsync(a => a.Id == model.ActivityId);
+
         // Validate required questions
         var questions = await _context.ActivityQuestions
             .Where(q => q.ActivityId == model.ActivityId && q.IsRequired)
@@ -274,12 +301,19 @@ public class PublicRegistrationController : Controller
             ModelState.AddModelError("", _localizer["Registration.CustomQuestionRequired", question.QuestionText].Value);
         }
 
+        if (activity != null && !string.IsNullOrWhiteSpace(activity.RegulationLinkUrl) && !model.AcceptRegulation)
+        {
+            ModelState.AddModelError("", _localizer["Validation.Required"].Value);
+        }
+
         if (!ModelState.IsValid)
         {
             model.Questions = await _context.ActivityQuestions
                 .Where(q => q.ActivityId == model.ActivityId && q.IsActive)
                 .OrderBy(q => q.DisplayOrder)
                 .ToListAsync();
+            model.RegulationLinkUrl = activity?.RegulationLinkUrl;
+            model.RegulationAcceptanceText = activity?.RegulationAcceptanceText;
             return View(model);
         }
 
@@ -303,11 +337,20 @@ public class PublicRegistrationController : Controller
         var activityId = (int)TempData[TempDataActivityId]!;
         var childId = (int)TempData[TempDataChildId]!;
         var parentId = (int)TempData[TempDataParentId]!;
+        var organisationId = (int)TempData[TempDataOrganisationId]!;
 
         if (await _context.Bookings.AnyAsync(b => b.ActivityId == activityId && b.ChildId == childId))
         {
             ModelState.AddModelError("", _localizer["Message.BookingAlreadyExists"]);
             return RedirectToAction(nameof(SelectActivity));
+        }
+
+        var activity = await _context.Activities.IgnoreQueryFilters().FirstOrDefaultAsync(a => a.Id == activityId);
+        if (activity != null && await IsActivityFullAsync(activity))
+        {
+            TempData["ErrorMessage"] = activity.FullMessage ?? _localizer["PublicRegistration.ActivityFull"].Value;
+            TempData[TempDataOrganisationId] = organisationId;
+            return RedirectToAction(nameof(SelectActivity), new { orgId = organisationId });
         }
 
         var booking = await CreateBookingWithDaysAsync(activityId, childId);
@@ -317,10 +360,14 @@ public class PublicRegistrationController : Controller
         // resolve via IgnoreQueryFilters to actually load the entities for the confirmation email.
         var parent = await _context.Parents.IgnoreQueryFilters().FirstOrDefaultAsync(p => p.Id == parentId);
         var child = await _context.Children.IgnoreQueryFilters().FirstOrDefaultAsync(c => c.Id == childId);
-        var activity = await _context.Activities.IgnoreQueryFilters().FirstOrDefaultAsync(a => a.Id == activityId);
 
         if (parent != null && child != null && activity != null)
             await SendConfirmationEmail(parent, child, activity, booking);
+
+        if (activity != null && !string.IsNullOrWhiteSpace(activity.RedirectUrlAfterSubmit))
+        {
+            return Redirect(activity.RedirectUrlAfterSubmit);
+        }
 
         return RedirectToAction(nameof(Confirmation), new { bookingId = booking.Id });
     }
@@ -503,6 +550,19 @@ public class PublicRegistrationController : Controller
             return NotFound();
         }
 
+        var now = DateTime.Now;
+        if (!IsWithinPublicationWindow(activity, now))
+        {
+            ViewBag.BackgroundColor = bg ?? "ffffff";
+            return View("Unavailable", activity.NoActiveFormMessage ?? _localizer["PublicRegistration.FormNotActive"].Value);
+        }
+
+        if (await IsActivityFullAsync(activity))
+        {
+            ViewBag.BackgroundColor = bg ?? "ffffff";
+            return View("Unavailable", activity.FullMessage ?? _localizer["PublicRegistration.ActivityFull"].Value);
+        }
+
         var questions = await _context.ActivityQuestions
             .Where(q => q.ActivityId == activityId && q.IsActive)
             .OrderBy(q => q.DisplayOrder)
@@ -515,7 +575,9 @@ public class PublicRegistrationController : Controller
             ActivityDescription = activity.Description,
             ActivityStartDate = activity.StartDate,
             ActivityEndDate = activity.EndDate,
-            PricePerDay = activity.PricePerDay
+            PricePerDay = activity.PricePerDay,
+            RegulationLinkUrl = activity.RegulationLinkUrl,
+            RegulationAcceptanceText = activity.RegulationAcceptanceText
         };
 
         ViewBag.Questions = questions;
@@ -530,12 +592,27 @@ public class PublicRegistrationController : Controller
     [AllowAnonymous]
     public async Task<IActionResult> Register(SimpleRegistrationViewModel model, string? bg)
     {
+        // Anonymous public POST: bypass the tenancy filter (FindAsync would return null without a
+        // logged-in user and wrongly 404 the registration).
+        var activityEntity = await _context.Activities
+            .IgnoreQueryFilters()
+            .FirstOrDefaultAsync(a => a.Id == model.ActivityId);
+        if (activityEntity == null)
+        {
+            return NotFound();
+        }
+
         // Load and validate questions
         var questions = await _context.ActivityQuestions
             .Where(q => q.ActivityId == model.ActivityId)
             .ToListAsync();
 
         ValidateRequiredQuestions(questions, model);
+
+        if (!string.IsNullOrWhiteSpace(activityEntity.RegulationLinkUrl) && !model.AcceptRegulation)
+        {
+            ModelState.AddModelError(nameof(model.AcceptRegulation), _localizer["Validation.Required"].Value);
+        }
 
         if (!ModelState.IsValid)
         {
@@ -545,14 +622,13 @@ public class PublicRegistrationController : Controller
             return View(model);
         }
 
-        // Anonymous public POST: bypass the tenancy filter (FindAsync would return null without a
-        // logged-in user and wrongly 404 the registration).
-        var activityEntity = await _context.Activities
-            .IgnoreQueryFilters()
-            .FirstOrDefaultAsync(a => a.Id == model.ActivityId);
-        if (activityEntity == null)
+        if (await IsActivityFullAsync(activityEntity))
         {
-            return NotFound();
+            ModelState.AddModelError("", activityEntity.FullMessage ?? _localizer["PublicRegistration.ActivityFull"].Value);
+            await ReloadModelWithActivityInfoAsync(model);
+            ViewBag.Questions = questions;
+            ViewBag.BackgroundColor = bg ?? "ffffff";
+            return View(model);
         }
 
         // Create or update parent and child
@@ -585,6 +661,11 @@ public class PublicRegistrationController : Controller
             await SendConfirmationEmail(parent, child, activityEntity, booking);
         }
 
+        if (!string.IsNullOrWhiteSpace(activityEntity.RedirectUrlAfterSubmit))
+        {
+            return Redirect(activityEntity.RedirectUrlAfterSubmit);
+        }
+
         return RedirectToAction(nameof(Confirmation), new { bookingId });
     }
 
@@ -612,6 +693,8 @@ public class PublicRegistrationController : Controller
             model.ActivityStartDate = activity.StartDate;
             model.ActivityEndDate = activity.EndDate;
             model.PricePerDay = activity.PricePerDay;
+            model.RegulationLinkUrl = activity.RegulationLinkUrl;
+            model.RegulationAcceptanceText = activity.RegulationAcceptanceText;
         }
     }
 
