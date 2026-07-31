@@ -29,7 +29,7 @@ services:
     ports:
       - "5000:8080"
     volumes:
-      - cedeva-dpkeys:/keys
+      - cedeva-dpkeys:/app/keys
     depends_on:
       cedeva-db:
         condition: service_healthy

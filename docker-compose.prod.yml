@@ -27,7 +27,7 @@ services:
       - ConnectionStrings__DefaultConnection=Host=cedeva-db;Port=5432;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}
     volumes:
       - cedeva-uploads:/app/wwwroot/uploads
-      - cedeva-dpkeys:/keys
+      - cedeva-dpkeys:/app/keys
     depends_on:
       cedeva-db:
         condition: service_healthy

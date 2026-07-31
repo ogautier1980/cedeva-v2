@@ -84,13 +84,15 @@ try
     builder.Services.Configure<BrevoOptions>(builder.Configuration.GetSection(BrevoOptions.SectionName));
     builder.Services.Configure<StripeOptions>(builder.Configuration.GetSection(StripeOptions.SectionName));
 
-    // Persist the Data Protection key ring to a volume-backed directory. Without this, keys live
-    // only in the container's ephemeral filesystem: every container recreate (every deploy)
-    // silently invalidates every existing session/antiforgery/TempData cookie for anyone using the
-    // site at that moment (CryptographicException "key not found in the key ring").
+    // Persist the Data Protection key ring to a volume-backed directory (relative to the content
+    // root, e.g. /app/keys in the Docker image — NOT an absolute "/keys", which isn't writable on
+    // the GitHub Actions test runner or a plain local checkout). Without this, keys live only in
+    // the container's ephemeral filesystem: every container recreate (every deploy) silently
+    // invalidates every existing session/antiforgery/TempData cookie for anyone using the site at
+    // that moment (CryptographicException "key not found in the key ring").
     builder.Services.AddDataProtection()
         .SetApplicationName("Cedeva")
-        .PersistKeysToFileSystem(new DirectoryInfo("/keys"));
+        .PersistKeysToFileSystem(new DirectoryInfo(Path.Combine(builder.Environment.ContentRootPath, "keys")));
 
     // Rate limiting (per client IP) for sensitive anonymous endpoints: login and the public
     // registration flow — mitigates brute-force and bot spam. Client IP is resolved from the

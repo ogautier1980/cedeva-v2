@@ -88,6 +88,9 @@ docker-compose.override.yml
 .env
 !.env.example
 
+# Data Protection keys (generated locally by dotnet run/test — never committed)
+src/Cedeva.Website/keys/
+
 # Test results
 [Tt]est[Rr]esult*/
 [Bb]uild[Ll]og.*
