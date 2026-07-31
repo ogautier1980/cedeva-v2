@@ -22,7 +22,7 @@ Source : export Notion [`CEDEVA 2 0 ....md`](CEDEVA%202%200%2035545c93462a801cae
 - **Passer à OVH (VPS-2)** — migration d'hébergement (actuellement Azure). Implique une **migration vers PostgreSQL** (actuellement SQL Server).
 - **Passer à Molly** — remplace Stripe comme solution de paiement en ligne (actuellement `StripePaymentGateway`, voir [ADR 0010](../adr/0010-online-payments-provider-agnostic-stripe.md)).
 - **Créer un compte Brevo dédié pour Cedeva** — la config existe (`Brevo:ApiKey`/`SenderEmail: noreply@cedeva.be`/`SenderName: Cedeva` dans `appsettings.json`) mais la clé API est vide : il faut créer le compte Brevo propre à Cedeva et renseigner sa clé (`Brevo__ApiKey` en config Azure) pour que l'envoi d'emails (confirmations, rappels, SendEmail...) fonctionne réellement en production.
-- **Passer TinyMCE en self-hosted (GPL)** — actuellement chargé depuis le CDN cloud de Tiny avec une clé API (`TinyMCE:ApiKey` dans `appsettings.json`, domaine autorisé dans la CSP). La version self-hosted (licence GPL, gratuite et illimitée en domaines) supprime la dépendance à une clé API/CDN payant.
+- ✅ **Fait (2026-07-31)** — ~~Passer TinyMCE en self-hosted (GPL)~~ : en creusant, TinyMCE n'était en réalité utilisé nulle part dans l'app (l'éditeur riche réel est Summernote, chargé depuis `cdn.jsdelivr.net`). Config morte supprimée : section `TinyMCE:ApiKey` (`appsettings.json`) et entrées CSP `cdn.tiny.cloud` (`SecurityHeadersMiddleware.cs`).
 
 ---
 
