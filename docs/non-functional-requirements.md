@@ -39,17 +39,17 @@ Performance**.
 ## QA-4 — Disponibilité au déploiement — *priorité moyenne-haute*
 - **Source :** un push sur `main`.
 - **Stimulus :** build + déploiement automatique.
-- **Artefact :** pipeline CI/CD + App Service.
+- **Artefact :** pipeline CI/CD + VPS OVH (Docker Compose).
 - **Réponse :** un déploiement n'est validé que si l'app répond réellement ; sinon le run est rouge.
-- **Mesure :** gate `/health` (HTTP 200) ; runs ~3-4 min ; Always On actif.
-- **En place :** gate `/health`, Always On, seeding non-bloquant ([ADR 0007](adr/0007-cicd-azure-app-service-with-health-gate.md), [0009](adr/0009-background-nonblocking-startup-seeding.md)).
+- **Mesure :** gate `/health` (HTTP 200) ; runs ~5-6 min.
+- **En place :** gate `/health`, seeding non-bloquant ([ADR 0012](adr/0012-cicd-ovh-vps-via-ghcr.md), [0009](adr/0009-background-nonblocking-startup-seeding.md)).
 
 ## QA-5 — Maintenabilité — *priorité haute*
 - **Source :** le développeur (présent ou futur).
 - **Stimulus :** ajouter/modifier une fonctionnalité.
 - **Artefact :** l'ensemble du code.
 - **Réponse :** changement localisé, non régressif, compréhensible.
-- **Mesure :** build **0 warning** (analyzers actifs), **~1193 tests** unit/intégration (+ 65 E2E, 3 SQL) verts, couverture lignes ≈ 92 % (gate CI 85 %), décisions documentées (ADR).
+- **Mesure :** build **0 warning** (analyzers actifs), **~1254 tests** unit/intégration (+ 65 E2E, 3 SQL) verts, couverture lignes ≈ 92 % (gate CI 85 %), décisions documentées (ADR).
 - **En place :** feature folders, DI, services extraits, analyzers, Directory.Build.props, .editorconfig, cette documentation.
 
 ## QA-6 — Performance — *priorité moyenne*

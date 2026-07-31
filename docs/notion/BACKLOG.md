@@ -10,6 +10,10 @@ Source : export Notion [`CEDEVA 2 0 ....md`](CEDEVA%202%200%2035545c93462a801cae
 
 **Mise à jour 2026-07-31 (réponses)** — Olivier a tranché les questions 1 à 5 (détail dans les lots concernés) : paiements partiels/CPAS confirmés (Lot C), menu hamburger totalement supprimé (Lot A), numéro de ticket remis à 0 par activité (Lot D), définition de « Hors bilan » précisée (Lot D), périmètre de l'auto-proposition mail Excursion clarifié (Lot F). Il ne reste que les questions 6 (attestations fiscales) et 7 (modèle de questions par activité).
 
+**Mise à jour 2026-07-31 (livraison)** — Lots A, C, D, E, F et G codés, testés et déployés en production. Détail dans les sections concernées.
+
+**Mise à jour 2026-07-31 (relecture complète)** — Relecture détaillée de toutes les pages Notion + captures (43 images + `17.pdf`) pour vérifier que rien n'avait été manqué dans les synthèses précédentes. Résultat : aucune nouvelle demande non triée, mais 1 erreur de citation corrigée (Lot I, étape 2 — la bonne capture annotée en rouge est `10.25.06`, pas `09.19.42`) et 2 nuances ajoutées (Lot A : Thomas ne barre que 3 boutons « Actions rapides » sur 5, les 5 ont été retirés — à confirmer ; Lot C : ventilation « Total prévu EXCURSIONS » de la maquette absente de `Bookings/Details`, non bloquant).
+
 ---
 
 ## ⚠️ Questions ouvertes pour Thomas
@@ -49,7 +53,7 @@ Migration complète menée en une session, en 5 phases séquentielles (chaque ph
 ## Lot A — Accueil & Navigation
 
 - ✅ **Fait** — Tableau de bord d'activité : clic sur le **titre** → 7 gros boutons (`ActivityManagement/Index`) ; clic sur **« Paramètres »** (renommé, ex-« Gérer ») → réglages de l'activité (`Activities/Details`).
-- ✅ **Fait** — Page d'accueil réduite à la liste « Activités récentes » (4 cartes stats, inscriptions récentes, actions rapides retirées, `HomeController` simplifié en conséquence).
+- ✅ **Fait** — Page d'accueil réduite à la liste « Activités récentes » (4 cartes stats, inscriptions récentes, actions rapides retirées, `HomeController` simplifié en conséquence). ⚠️ **Nuance (relecture 2026-07-31)** : sur `18.08.04`, Thomas ne barre en rouge que 3 des 5 boutons « Actions rapides » (Nouvelle inscription, Nouveau parent, Nouveau membre équipe) — il laisse « Nouvelle activité » et « Nouvel enfant » non barrés. Les 5 ont été retirés. À confirmer avec Thomas si ces 2 raccourcis manquent, sinon rien à changer.
 - ✅ **Fait** — Menu du haut (dans une activité) réduit à « Tableau de bord » + dropdown « Pages spéciales » (liste des groupes, total des présences).
 - ✅ **Fait (2026-07-31)** — Menu hamburger **supprimé totalement** : tous ses liens (Contacts, Importer des parents/enfants, Équipe compris) redescendent en dessous sur la page d'accueil, dans une nouvelle section « Paramètres généraux ». Plus de barre latérale globale du tout.
 - ✅ **Fait (2026-07-31)** — Le tableau de bord d'activité est revenu à **8 grosses tuiles** (comme la maquette d'origine `18.09.45`) : le bouton séparé « Paramètres de l'activité » est maintenant la 8ᵉ tuile de la grille, ne reste en dessous que le bouton « Sortir de cette activité ».
@@ -63,6 +67,7 @@ Migration complète menée en une session, en 5 phases séquentielles (chaque ph
 ## Lot C — Présences
 
 - ✅ **Fait** — Clic sur un enfant → fiche `Bookings/Details` enrichie (adresse/parent éditables, groupe, fiche médicale, historique des paiements).
+- ⏸️ **Gap identifié (relecture 2026-07-31)** — La maquette de référence (`Présences/18.29.32`, « Dupont Jean ») affiche une ligne **« Total prévu EXCURSIONS »** distincte de « Total prévu à payer » et du listing des paiements. `Bookings/Details.cshtml` n'a pas de décomposition du coût des excursions séparée du prix de l'activité de base — non bloquant (le total global reste correct), mais la ventilation détaillée manque encore.
 - ✅ Confirmé dans le code : le filtre jour est déjà scopé à l'activité + jour sélectionné.
 - ✅ **Fait** — Colonne « Payé » (✓/✗ + solde) dans `Presences.cshtml`.
 - ✅ **Fait (2026-07-31)** — Forcer une inscription non payée : badge de statut de paiement (+ solde) ajouté sur `UnconfirmedBookings`/`ManageBookings` ; avertissement de confirmation (`confirm()` JS avec le solde dû) sur les 3 points d'entrée de confirmation (`UnconfirmedBookings`, `ManageBookings`, `Bookings/Details`) — rien ne bloquait techniquement la confirmation, le manque était la visibilité. Solde restant recalculé en direct pendant la saisie sur `Payments/Create` ; testé avec 2 paiements manuels successifs sur la même réservation.
@@ -114,7 +119,7 @@ Demande de refonte du formulaire de création d'activité : actuellement un form
 
 - ⏸️ **Pas fait** — **Écran d'entrée** : page « Sélectionnez votre activité » avec gros boutons par stage + « Créer une nouvelle activité » (vert) + « Déconnexion » (rouge) — réutilise le même écran que « Page d'accueil générale organisation ».
 - ⏸️ **Pas fait** — **Étape 1** : Titre + Dates (inchangé dans le principe, juste repositionné dans le wizard).
-- ⏸️ **Pas fait** — **Étape 2 — Paramétrage des dates** : supporter 2 modes d'inscription, « au jour le jour » et « à la semaine » (le lundi représente visuellement toute la semaine groupée). **À supprimer** (annoté en rouge, capture `09.19.42`) : boutons « Ajouter un jour avant/après », « Retirer le 1er/dernier jour », bandeau « Gérez les jours actifs ». **À la place** : un bouton « Ajouter une date » ouvrant un calendrier, en gardant la suppression ligne par ligne (icônes crayon/poubelle déjà présentes, capture `10.25.06`).
+- ⏸️ **Pas fait** — **Étape 2 — Paramétrage des dates** : supporter 2 modes d'inscription, « au jour le jour » et « à la semaine » (le lundi représente visuellement toute la semaine groupée). **À supprimer** (annoté en rouge, capture `10.25.06` — correction 2026-07-31 : ce n'est pas `09.19.42`, qui est une simple capture N&B sans annotation) : boutons « Ajouter un jour avant/après », « Retirer le 1er/dernier jour », bandeau « Gérez les jours actifs ». **À la place** : un bouton « Ajouter une date » ouvrant un calendrier, en gardant la suppression ligne par ligne (case à cocher + icône poubelle déjà présentes par ligne, pas de crayon, même capture `10.25.06`).
 - ✅ **Jugé conforme tel quel** — **Étape 3 — Règlement (R.O.I.)** : upload PDF + texte de case à cocher (capture `09.31.41`), juste à intégrer dans le wizard.
 - ✅ **Jugé conforme tel quel** — **Étape 4 — Limitations** : codes postaux autorisés/refusés (vide = tous), nombre max d'enfants/jour + message « COMPLET » personnalisable (capture `aa8a0a57`), juste à intégrer dans le wizard.
 - ⏸️ **Bloqué par la question n°2** — **Étape 5 — Autres questions** : reprend les questions personnalisées par activité, avec la question du modèle org→activité (n°2). **À supprimer** (annoté en rouge, capture `09.49.21`) : le toggle « Actif » du formulaire de question (« si on pose la question pour l'activité, c'est que c'est actif »).
