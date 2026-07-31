@@ -62,7 +62,7 @@ Migration complète menée en une session, en 5 phases séquentielles (chaque ph
 
 - ✅ Déjà le cas : ne montre que les inscriptions « à confirmer ».
 - ✅ **Fait** — Clic sur le nom de l'enfant → fiche `Bookings/Details` (voir Lot C).
-- ⏸️ **Pas fait, volontairement mis de côté** — Le coordinateur encode le montant à payer → mail au parent avec lien de paiement. Sensible (touche Stripe/facturation), à reprendre dans une session dédiée.
+- ✅ **Fait (2026-07-31, révision du flux)** — Le flux a été redéfini avec Olivier : le parent ne paie plus « en direct » à l'inscription ; à la confirmation par le coordinateur (`ManageBookings`), un mail avec lien de paiement Stripe (carte + Bancontact) et QR code est envoyé automatiquement au parent si un solde reste dû. Groupe et fiche médicale ont été **découplés** de l'acte de confirmation (retirés de `ManageBookings`, restent assignables via `Bookings/Edit` et l'écran `GroupAssignment`). Écran mort `UnconfirmedBookings` (non lié depuis l'UI) supprimé au passage. Pas d'expiration sur le lien (décision Olivier). ⚠️ Bancontact doit être activé côté Dashboard Stripe pour le compte live.
 
 ## Lot C — Présences
 
@@ -70,7 +70,7 @@ Migration complète menée en une session, en 5 phases séquentielles (chaque ph
 - ⏸️ **Gap identifié (relecture 2026-07-31)** — La maquette de référence (`Présences/18.29.32`, « Dupont Jean ») affiche une ligne **« Total prévu EXCURSIONS »** distincte de « Total prévu à payer » et du listing des paiements. `Bookings/Details.cshtml` n'a pas de décomposition du coût des excursions séparée du prix de l'activité de base — non bloquant (le total global reste correct), mais la ventilation détaillée manque encore.
 - ✅ Confirmé dans le code : le filtre jour est déjà scopé à l'activité + jour sélectionné.
 - ✅ **Fait** — Colonne « Payé » (✓/✗ + solde) dans `Presences.cshtml`.
-- ✅ **Fait (2026-07-31)** — Forcer une inscription non payée : badge de statut de paiement (+ solde) ajouté sur `UnconfirmedBookings`/`ManageBookings` ; avertissement de confirmation (`confirm()` JS avec le solde dû) sur les 3 points d'entrée de confirmation (`UnconfirmedBookings`, `ManageBookings`, `Bookings/Details`) — rien ne bloquait techniquement la confirmation, le manque était la visibilité. Solde restant recalculé en direct pendant la saisie sur `Payments/Create` ; testé avec 2 paiements manuels successifs sur la même réservation.
+- ✅ **Fait (2026-07-31)** — Forcer une inscription non payée : badge de statut de paiement (+ solde) sur `ManageBookings` ; avertissement de confirmation (`confirm()` JS avec le solde dû). Rien ne bloquait techniquement la confirmation, le manque était la visibilité — désormais remplacé par l'envoi automatique du mail de paiement (voir Lot B). Solde restant recalculé en direct pendant la saisie sur `Payments/Create` ; testé avec 2 paiements manuels successifs sur la même réservation.
 - ✅ **Fait** — Pages spéciales, enrichies au niveau demandé par Thomas :
   - **Liste des groupes imprimable** (`Groups`/`PrintGroups`) : sélection **multiple** de groupes (au lieu d'un seul à la fois, `<select multiple>`), options à cocher **Prévus/Présent/Signature** pour choisir les colonnes affichées, colonne **Signature** vide (émargement papier), **export PDF** et **export Excel** (`ExportGroupsPdf`/`ExportGroupsExcel`, réutilisent `IExportFacadeService` déjà utilisé ailleurs) en plus de l'impression navigateur existante. Rappel : les libellés « 3-4, 5-6, 7-8… » des captures sont juste les groupes de l'activité (comme nos « Groupe Rouge/Bleu/Vert »), pas une tranche d'âge — rien changé côté structure des groupes.
   - **Fait — « Imprimer tous les groupes du jour »** en un clic : bouton dédié sur `Groups.cshtml` (visible seulement si l'activité a un jour programmé aujourd'hui), distinct de l'impression filtrée groupe par groupe.
@@ -139,13 +139,19 @@ Page listée dans l'export mais sans capture d'écran associée — juste une li
 
 ## Ordre proposé
 
-Lots A, C, D, E, F et G sont livrés. Toutes les questions 1 à 5 d'origine étant tranchées par
+L'essentiel des Lots A à G est livré. Toutes les questions 1 à 5 d'origine étant tranchées par
 Olivier, **plus aucun item n'est bloqué en attente d'une réponse** sauf Lot H (attestations
-fiscales) et l'étape 5 du Lot I (modèle de questions). Reste à coder :
+fiscales) et l'étape 5 du Lot I (modèle de questions). Reste à coder, par priorité :
 
-1. **Lot H** — attestations fiscales par association : bloqué en attente d'un exemple de Thomas (question n°1).
-2. **Lot I** — wizard de création d'activité : étapes 1/2/3/4/6/7 codables directement (réagencement + retrait des boutons de dates + nouveau bouton calendrier), étape 5 bloquée par la question n°2 (modèle de questions). Bug Mac (fichier 0 ko) résolu depuis la migration OVH.
-3. **Lot J** — Paramètres : à maquetter avec Thomas avant de coder (aucune capture fournie).
+1. **Petits restes codables sans attendre Thomas** :
+   - Lot D — simplifier le parcours Comptes → Transactions (sauter directement sur la liste nue).
+   - Lot E — épurer l'UI de `SendEmail.cshtml` (retirer panneau Informations, boutons modèle/historique en trop, alléger Variables).
+   - Lot F — la vraie « auto-proposition » du mail Excursion (suggestion automatique à la création/programmation) ; seul le nouveau destinataire manuel existe aujourd'hui.
+   - Lot C — ventilation « Total prévu EXCURSIONS » séparée sur `Bookings/Details` (gap mineur, non bloquant).
+2. **Lot H** — attestations fiscales par association : bloqué en attente d'un exemple de Thomas (question n°1).
+3. **Lot I** — wizard de création d'activité : étapes 1/2/3/4/6/7 codables directement (réagencement + retrait des boutons de dates + nouveau bouton calendrier), étape 5 bloquée par la question n°2 (modèle de questions). Bug Mac (fichier 0 ko) résolu depuis la migration OVH.
+4. **Lot J** — Paramètres : à maquetter avec Thomas avant de coder (aucune capture fournie).
 
-Codable sans attendre Thomas : Lot I sauf l'étape 5. Bloqué par Thomas : Lot H (question n°1),
-l'étape 5 de Lot I (question n°2), et Lot J (maquette manquante).
+Codable sans attendre Thomas : le point 1 en entier, et Lot I sauf l'étape 5. Bloqué par Thomas :
+Lot H (question n°1), l'étape 5 de Lot I (question n°2), et Lot J (maquette manquante). À confirmer
+avec Thomas (non bloquant, cosmétique) : la nuance sur les 2 raccourcis « Actions rapides » (Lot A).
