@@ -1,0 +1,3 @@
+new.cedeva.be {
+	reverse_proxy cedeva-web:8080
+}

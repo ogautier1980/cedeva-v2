@@ -1,0 +1,54 @@
+services:
+  cedeva-db:
+    image: postgres:17-alpine
+    container_name: cedeva-postgres
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+    volumes:
+      - cedeva-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}
+      interval: 10s
+      timeout: 3s
+      retries: 10
+      start_period: 30s
+
+  cedeva-web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: cedeva-web
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:8080
+      - ConnectionStrings__DefaultConnection=Host=cedeva-db;Port=5432;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}
+    volumes:
+      - cedeva-uploads:/app/wwwroot/uploads
+    depends_on:
+      cedeva-db:
+        condition: service_healthy
+
+  caddy:
+    image: caddy:2-alpine
+    container_name: cedeva-caddy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    depends_on:
+      - cedeva-web
+
+volumes:
+  cedeva-pgdata:
+  cedeva-uploads:
+  caddy-data:
+  caddy-config:

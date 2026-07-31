@@ -85,6 +85,8 @@ secrets.json
 
 # Docker
 docker-compose.override.yml
+.env
+!.env.example
 
 # Test results
 [Tt]est[Rr]esult*/
