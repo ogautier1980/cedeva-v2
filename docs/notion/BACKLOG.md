@@ -94,7 +94,7 @@ Migration complète menée en une session, en 5 phases séquentielles (chaque ph
 - ✅ **Fait** — Formulaire Créer/Modifier : Heure début/fin et Type retirés de l'écran (champs cachés, valeurs préservées — pas supprimés du modèle). Nom/Description/Date/Coût/Groupes restent.
 - ✅ **Fait** — Liste « Gérer les excursions » : colonnes Type et finances retirées.
 - 🐛 **Bug corrigé** — `Excursions.SendEmail` n'envoyait jamais rien réellement ; corrigé.
-- ⏸️ **Pas fait (réponse Olivier, 2026-07-31)** — Auto-proposition d'un mail « Excursion » à la programmation : cible clarifiée — les familles éligibles sont celles **déjà inscrites à l'activité (stage) parente**, mais **pas encore inscrites à cette excursion précise**. Nouveau type de destinataire à ajouter au système actuel (qui ne cible aujourd'hui que les enfants déjà inscrits à la cible visée elle-même).
+- ✅ **Fait (2026-07-31)** — Nouveau type de destinataire sur `Excursions/SendEmail` : « Inscrits à l'activité, pas encore à cette excursion » (`not_yet_registered`), anti-join `Bookings`/`ExcursionRegistrations` (bookings confirmés de l'activité parente sans registration sur l'excursion visée). ⏸️ **Reste à faire** : l'« auto-proposition » proprement dite (suggérer/pré-remplir l'envoi automatiquement à la création ou programmation d'une excursion) n'est pas implémentée — seul le nouveau destinataire manuel dans `SendEmail` l'est.
 
 ## Lot G — Équipe
 
@@ -134,14 +134,13 @@ Page listée dans l'export mais sans capture d'écran associée — juste une li
 
 ## Ordre proposé
 
-Lots A, C, D, E et G sont livrés. Toutes les questions 1 à 5 d'origine étant tranchées par Olivier,
-**plus aucun item n'est bloqué en attente d'une réponse** sauf Lot H (attestations fiscales) et
-l'étape 5 du Lot I (modèle de questions). Reste à coder :
+Lots A, C, D, E, F et G sont livrés. Toutes les questions 1 à 5 d'origine étant tranchées par
+Olivier, **plus aucun item n'est bloqué en attente d'une réponse** sauf Lot H (attestations
+fiscales) et l'étape 5 du Lot I (modèle de questions). Reste à coder :
 
-1. **Lot F** — auto-proposition mail Excursion (nouveau type de destinataire : inscrit à l'activité, pas encore à l'excursion).
-2. **Lot H** — attestations fiscales par association : bloqué en attente d'un exemple de Thomas (question n°1).
-3. **Lot I** — wizard de création d'activité : étapes 1/2/3/4/6/7 codables directement (réagencement + retrait des boutons de dates + nouveau bouton calendrier), étape 5 bloquée par la question n°2 (modèle de questions). Bug Mac (fichier 0 ko) résolu depuis la migration OVH.
-4. **Lot J** — Paramètres : à maquetter avec Thomas avant de coder (aucune capture fournie).
+1. **Lot H** — attestations fiscales par association : bloqué en attente d'un exemple de Thomas (question n°1).
+2. **Lot I** — wizard de création d'activité : étapes 1/2/3/4/6/7 codables directement (réagencement + retrait des boutons de dates + nouveau bouton calendrier), étape 5 bloquée par la question n°2 (modèle de questions). Bug Mac (fichier 0 ko) résolu depuis la migration OVH.
+3. **Lot J** — Paramètres : à maquetter avec Thomas avant de coder (aucune capture fournie).
 
-Codable sans attendre Thomas : Lot F, et Lot I sauf l'étape 5. Bloqué par Thomas : Lot H
-(question n°1), l'étape 5 de Lot I (question n°2), et Lot J (maquette manquante).
+Codable sans attendre Thomas : Lot I sauf l'étape 5. Bloqué par Thomas : Lot H (question n°1),
+l'étape 5 de Lot I (question n°2), et Lot J (maquette manquante).

@@ -745,6 +745,63 @@ public class ExcursionsControllerCoverageTests
         response.StatusCode.Should().Be(HttpStatusCode.OK);
     }
 
+    [Fact]
+    public async Task SendEmail_Post_NotYetRegistered_OnlyReachesBookingsWithoutAnExcursionRegistration()
+    {
+        var fake = new FakeEmailService();
+        using var factory = new CedevaWebApplicationFactory
+        {
+            ConfigureExtraTestContainer = b => b.RegisterInstance(fake).As<IEmailService>()
+        };
+        var s = SeedFull(factory);
+        var client = factory.CreateClientFor("u1", s.OrgId, "Coordinator");
+
+        // The seeded booking registers to the excursion -> excluded from "not yet registered".
+        RegisterChild(factory, client, s);
+
+        // A second confirmed booking on the SAME activity, never registered to this excursion.
+        factory.Seed(ctx =>
+        {
+            var org = ctx.Organisations.Single(o => o.Id == s.OrgId);
+            var activity = ctx.Activities.IgnoreQueryFilters().Single(a => a.Id == s.ActivityId);
+            var parent = new Parent
+            {
+                FirstName = "Nadia",
+                LastName = "Nouvelle",
+                Email = "nadia.parent@test.be",
+                MobilePhoneNumber = "0470999888",
+                NationalRegisterNumber = "88030112345",
+                Address = TestData.Address(),
+                Organisation = org
+            };
+            var child = new Child
+            {
+                FirstName = "Noa",
+                LastName = "Enfant2",
+                BirthDate = new DateTime(2017, 2, 10),
+                NationalRegisterNumber = "17021012345",
+                Parent = parent
+            };
+            var booking = TestData.Booking(child, activity, group: null, totalAmount: 100m, paidAmount: 0m);
+            booking.IsConfirmed = true;
+            ctx.AddRange(parent, child, booking);
+            return 0;
+        });
+
+        var response = await client.PostAsync("/Excursions/SendEmail", Form(new()
+        {
+            ["ExcursionId"] = s.ExcursionId.ToString(),
+            ["SelectedRecipient"] = "not_yet_registered",
+            ["Subject"] = "Places restantes",
+            ["Message"] = "Il reste des places pour cette excursion.",
+        }));
+
+        response.StatusCode.Should().Be(HttpStatusCode.Redirect);
+        fake.Sent.Should().ContainSingle("only the booking without an excursion registration is a recipient");
+        fake.Sent[0].To.Should().Contain("nadia.parent@test.be");
+        fake.Sent[0].To.Should().NotContain("paul.parent@test.be", "this child is already registered to the excursion");
+    }
+
     // ---------------------------------------------------------------------
     // Expenses (GET) + AddExpense (POST)
     // ---------------------------------------------------------------------

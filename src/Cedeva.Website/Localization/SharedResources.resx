@@ -3751,6 +3751,9 @@
   <data name="Excursion.AllRegistered" xml:space="preserve">
     <value>Tous les inscrits</value>
   </data>
+  <data name="Excursion.NotYetRegistered" xml:space="preserve">
+    <value>Inscrits à l'activité, pas encore à cette excursion</value>
+  </data>
   <data name="Excursion.RegisteredOnly" xml:space="preserve">
     <value>Inscrits uniquement</value>
   </data>

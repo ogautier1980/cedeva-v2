@@ -3620,6 +3620,9 @@
   <data name="Excursion.AllRegistered" xml:space="preserve">
     <value>Alle ingeschrevenen</value>
   </data>
+  <data name="Excursion.NotYetRegistered" xml:space="preserve">
+    <value>Ingeschreven voor de activiteit, nog niet voor deze uitstap</value>
+  </data>
   <data name="Excursion.RegisteredOnly" xml:space="preserve">
     <value>Enkel ingeschrevenen</value>
   </data>

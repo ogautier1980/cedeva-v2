@@ -23,6 +23,7 @@ public class ExcursionsController : Controller
     private const string NavSectionKey = "NavSection";
     private const string NavActionKey = "NavAction";
     private const string NavSectionExcursions = "Excursions";
+    private const string RecipientNotYetRegistered = "not_yet_registered";
 
     private readonly CedevaDbContext _context;
     private readonly IExcursionService _excursionService;
@@ -613,29 +614,6 @@ public class ExcursionsController : Controller
             return View(model);
         }
 
-        var recipientGroupId = ExtractGroupIdFromRecipient(model.SelectedRecipient);
-
-        var registrations = await _context.ExcursionRegistrations
-            .Include(er => er.Booking)
-                .ThenInclude(b => b.Child)
-                    .ThenInclude(c => c.Parent)
-            .Include(er => er.Booking)
-                .ThenInclude(b => b.Group)
-            .Where(er => er.ExcursionId == model.ExcursionId)
-            .ToListAsync(ct);
-
-        if (recipientGroupId.HasValue)
-        {
-            registrations = registrations.Where(r => r.Booking.GroupId == recipientGroupId.Value).ToList();
-        }
-
-        if (!registrations.Any())
-        {
-            ModelState.AddModelError(string.Empty, _localizer["Message.NoRecipientsFound"]);
-            await ReloadExcursionForViewModel(model);
-            return View(model);
-        }
-
         var activityId = await _context.Excursions
             .Where(e => e.Id == model.ExcursionId)
             .Select(e => e.ActivityId)
@@ -646,23 +624,66 @@ public class ExcursionsController : Controller
             .FirstOrDefaultAsync(ct);
         var organisation = await _context.Organisations.FirstOrDefaultAsync(o => o.Id == organisationId, ct);
 
+        List<Booking> recipientBookings;
+        if (model.SelectedRecipient == RecipientNotYetRegistered)
+        {
+            // Confirmed bookings on the parent activity that have no registration yet for this excursion.
+            var registeredBookingIds = _context.ExcursionRegistrations
+                .Where(er => er.ExcursionId == model.ExcursionId)
+                .Select(er => er.BookingId);
+
+            recipientBookings = await _context.Bookings
+                .Include(b => b.Child)
+                    .ThenInclude(c => c.Parent)
+                .Include(b => b.Group)
+                .Where(b => b.ActivityId == activityId && b.IsConfirmed && !registeredBookingIds.Contains(b.Id))
+                .ToListAsync(ct);
+        }
+        else
+        {
+            var recipientGroupId = ExtractGroupIdFromRecipient(model.SelectedRecipient);
+
+            var registrationsQuery = _context.ExcursionRegistrations
+                .Include(er => er.Booking)
+                    .ThenInclude(b => b.Child)
+                        .ThenInclude(c => c.Parent)
+                .Include(er => er.Booking)
+                    .ThenInclude(b => b.Group)
+                .Where(er => er.ExcursionId == model.ExcursionId);
+
+            var registrations = await registrationsQuery.ToListAsync(ct);
+            if (recipientGroupId.HasValue)
+            {
+                registrations = registrations.Where(r => r.Booking.GroupId == recipientGroupId.Value).ToList();
+            }
+
+            recipientBookings = registrations.Select(r => r.Booking).ToList();
+        }
+
+        if (!recipientBookings.Any())
+        {
+            ModelState.AddModelError(string.Empty, _localizer["Message.NoRecipientsFound"]);
+            await ReloadExcursionForViewModel(model);
+            return View(model);
+        }
+
         var (attachmentFileName, attachmentFilePath) = await SaveAttachmentAsync(model.AttachmentFile, ct);
 
         int sentCount;
         if (model.SendSeparateEmailPerChild)
         {
             sentCount = 0;
-            foreach (var registration in registrations)
+            foreach (var booking in recipientBookings)
             {
-                var subject = _emailServices.VariableReplacement.ReplaceVariables(model.Subject, registration.Booking, organisation!);
-                var message = _emailServices.VariableReplacement.ReplaceVariables(model.Message, registration.Booking, organisation!);
-                await _emailServices.Email.SendEmailAsync(new List<string> { registration.Booking.Child.Parent.Email }, subject, message, attachmentFilePath);
+                var subject = _emailServices.VariableReplacement.ReplaceVariables(model.Subject, booking, organisation!);
+                var message = _emailServices.VariableReplacement.ReplaceVariables(model.Message, booking, organisation!);
+                await _emailServices.Email.SendEmailAsync(new List<string> { booking.Child.Parent.Email }, subject, message, attachmentFilePath);
                 sentCount++;
             }
         }
         else
         {
-            var recipientEmails = registrations.Select(r => r.Booking.Child.Parent.Email).Distinct().ToList();
+            var recipientEmails = recipientBookings.Select(b => b.Child.Parent.Email).Distinct().ToList();
             foreach (var emailAddress in recipientEmails)
             {
                 await _emailServices.Email.SendEmailAsync(new List<string> { emailAddress }, model.Subject, model.Message, attachmentFilePath);
@@ -918,7 +939,8 @@ public class ExcursionsController : Controller
     {
         var options = new List<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem>
         {
-            new() { Value = "all_registered", Text = _localizer["Excursion.AllRegistered"] }
+            new() { Value = "all_registered", Text = _localizer["Excursion.AllRegistered"] },
+            new() { Value = RecipientNotYetRegistered, Text = _localizer["Excursion.NotYetRegistered"] }
         };
 
         foreach (var group in groups.OrderBy(g => g.Label))
