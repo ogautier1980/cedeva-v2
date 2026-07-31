@@ -379,47 +379,6 @@ h2.cedeva-title {
     color: #007faf;
 }
 
-/* === SIDEBAR === */
-#sidebar-wrapper {
-    background-color: #007faf !important;
-    width: 250px;
-    min-height: 100vh;
-}
-
-#sidebar-wrapper .sidebar-heading {
-    border-bottom-color: rgba(255, 255, 255, 0.25);
-}
-
-#sidebar-wrapper .list-group-item {
-    background-color: #007faf !important;
-    color: #fff;
-    border: none;
-    transition: background-color 0.2s;
-}
-
-#sidebar-wrapper .list-group-item:hover {
-    background-color: #005778 !important;
-}
-
-#sidebar-wrapper .list-group-item.active {
-    background-color: #005778 !important;
-    border-color: #005778 !important;
-}
-
-#wrapper.toggled #sidebar-wrapper {
-    margin-left: -250px;
-}
-
-@media (max-width: 768px) {
-    #sidebar-wrapper {
-        margin-left: -250px;
-    }
-
-    #wrapper.toggled #sidebar-wrapper {
-        margin-left: 0;
-    }
-}
-
 /* === FORMS === */
 .form-label {
     font-weight: 600;

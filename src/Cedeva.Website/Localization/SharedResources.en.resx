@@ -2191,6 +2191,9 @@
   <data name="Home.ErrorTitle" xml:space="preserve">
     <value>An error occurred</value>
   </data>
+  <data name="Home.GeneralSettings" xml:space="preserve">
+    <value>General settings</value>
+  </data>
   <data name="Home.Manage" xml:space="preserve">
     <value>Settings</value>
   </data>

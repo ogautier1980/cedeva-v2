@@ -2191,6 +2191,9 @@
   <data name="Home.ErrorTitle" xml:space="preserve">
     <value>Er is een fout opgetreden</value>
   </data>
+  <data name="Home.GeneralSettings" xml:space="preserve">
+    <value>Algemene instellingen</value>
+  </data>
   <data name="Home.Manage" xml:space="preserve">
     <value>Instellingen</value>
   </data>
