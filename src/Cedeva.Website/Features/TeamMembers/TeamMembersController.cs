@@ -456,7 +456,7 @@ public class TeamMembersController : Controller
         }
         else
         {
-            // Azure Blob URL - redirect
+            // Not a local /uploads/ path (e.g. an external URL) - redirect
             return Redirect(teamMember.LicenseUrl);
         }
     }
@@ -557,7 +557,7 @@ public class TeamMembersController : Controller
         }
         else
         {
-            // Azure Blob URL - redirect
+            // Not a local /uploads/ path (e.g. an external URL) - redirect
             return Redirect(teamMember.CriminalRecordUrl);
         }
     }

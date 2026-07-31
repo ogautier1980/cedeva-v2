@@ -29,7 +29,7 @@ dotnet run --project src/Cedeva.Website                       # Lancer (seeder a
 | Paiement en ligne | Stripe Checkout via `IPaymentGateway` (agnostique du fournisseur) |
 | Email | Brevo SDK (C#) |
 | Excel | ClosedXML |
-| Stockage de fichiers | Azure Blob Storage |
+| Stockage de fichiers | Disque local (volume Docker en production) |
 | Conteneur DI | Autofac |
 | Logging | Serilog |
 | Authentification | ASP.NET Core Identity |
@@ -114,7 +114,7 @@ Racine du multi-tenant. Chaque entité est liée à une organisation.
 | Name | string (100) | Obligatoire |
 | Description | string (500) | Obligatoire |
 | AddressId | int | CE → Address |
-| LogoUrl | string? | URL Azure Blob |
+| LogoUrl | string? | URL de fichier (stockage local) |
 | BankAccountNumber | string? | IBAN pour le suivi des paiements |
 | BankAccountName | string? | Nom du titulaire du compte |
 
@@ -232,7 +232,7 @@ Membre de l'équipe (animateur ou coordinateur). Utilise `TeamMemberId` comme cl
 | License | License | Type de brevet |
 | Status | Status | Compensated / Volunteer |
 | DailyCompensation | decimal? | Indemnité journalière |
-| LicenseUrl | string (100) | URL Azure Blob |
+| LicenseUrl | string (100) | URL de fichier (stockage local) |
 | AddressId | int | CE → Address |
 | OrganisationId | int | CE → Organisation |
 | Activities | ICollection\<Activity> | Relation many-to-many |
@@ -421,7 +421,7 @@ Gestion centralisée d'une activité (sélection basée sur la session) :
 Paiement en ligne agnostique du fournisseur, derrière `IPaymentGateway` :
 - **Checkout** — `OnlinePaymentController` (anonyme) redirige vers Stripe Checkout (page hébergée) pour le solde dû ; un bouton « Payer en ligne » apparaît sur la page de confirmation publique quand `TotalAmount − PaidAmount > 0`.
 - **Webhook** — un webhook Stripe signé applique le paiement à la réservation (`Payment(Online)`, mise à jour `PaidAmount`/`PaymentStatus`), idempotent sur la référence fournisseur.
-- **Config** — `Stripe:SecretKey` / `Stripe:WebhookSecret` (Azure `Stripe__*`), jamais committés.
+- **Config** — `Stripe:SecretKey` / `Stripe:WebhookSecret` (`.env` du VPS en `Stripe__*`), jamais committés.
 - Voir [docs/adr/0010](docs/adr/0010-online-payments-provider-agnostic-stripe.md).
 
 ### Gestion des présences

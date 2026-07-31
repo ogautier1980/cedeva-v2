@@ -1,6 +1,6 @@
 # 0007 — CI/CD GitHub Actions → Azure App Service avec gate `/health`
 
-**Statut :** Accepté
+**Statut :** Remplacé par [0012](0012-cicd-ovh-vps-via-ghcr.md)
 
 ## Contexte
 Historiquement, ~27 % des déploiements échouaient à l'étape « Deploy to Azure Web App » avec

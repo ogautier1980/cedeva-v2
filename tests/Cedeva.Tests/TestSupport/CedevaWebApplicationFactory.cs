@@ -43,7 +43,7 @@ public class CedevaWebApplicationFactory : WebApplicationFactory<Program>
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
-        // Development => LocalFileStorageService (no Azure Blob); disable startup seeding.
+        // Development => LocalFileStorageService (used in every environment); disable startup seeding.
         builder.UseEnvironment("Development");
         builder.UseSetting("RunStartupSeeding", "false");
 

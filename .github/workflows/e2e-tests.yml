@@ -1,7 +1,7 @@
 name: E2E tests (Playwright)
 
 # Browser-level end-to-end tests. Independent of the deploy workflow: it gives a pass/fail
-# signal but does not gate the Azure deployment. Uses an in-process Kestrel + SQLite, so no
+# signal but does not gate the deployment. Uses an in-process Kestrel + SQLite, so no
 # database service is needed.
 on:
   push:

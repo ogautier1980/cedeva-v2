@@ -541,14 +541,14 @@ public class TeamMembersControllerCoverageTests
     }
 
     [Fact]
-    public async Task ViewLicense_Admin_AzureBlobUrl_Redirects()
+    public async Task ViewLicense_Admin_ExternalUrl_Redirects()
     {
         using var factory = new CedevaWebApplicationFactory();
         TeamMember tm = null!;
         factory.Seed(ctx =>
         {
             var org = TestData.Organisation();
-            // Non-/uploads/ URL => treated as an Azure Blob URL and redirected.
+            // Non-/uploads/ URL (e.g. a legacy external URL) => redirected rather than served locally.
             tm = SeedTeamMember(ctx, org, licenseUrl: "https://blob.example.com/licenses/abc.pdf");
             ctx.Add(org);
             return 0;

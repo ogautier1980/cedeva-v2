@@ -13,7 +13,7 @@ graph TB
     parent["Parent<br/>(formulaire iframe public, anonyme)"]
     cedeva["Cedeva<br/>ASP.NET Core MVC (.NET 10)"]
     brevo["Brevo<br/>(envoi d'emails)"]
-    blob["Azure Blob Storage<br/>(fichiers : logos, brevets)"]
+    blob["Disque local<br/>(fichiers : logos, brevets)"]
     sql["PostgreSQL 17<br/>(données applicatives + Identity)"]
     stripe["Stripe<br/>(paiement en ligne : Checkout + webhook)"]
 
@@ -21,7 +21,7 @@ graph TB
     parent -->|HTTPS, anonyme| cedeva
     parent -->|paiement carte| stripe
     cedeva -->|REST / api-key| brevo
-    cedeva -->|SDK| blob
+    cedeva -->|I/O disque| blob
     cedeva -->|EF Core| sql
     cedeva -->|Checkout API| stripe
     stripe -->|webhook signé| cedeva
@@ -35,25 +35,31 @@ iframe sur des sites partenaires (anonyme).
 
 ```mermaid
 graph LR
-    subgraph azure["Azure - France Central"]
-        app["App Service Linux<br/>cedeva-demo<br/>DOTNETCORE 10.0, Always On"]
-        azsql["Azure SQL"]
-        azblob["Azure Blob Storage"]
+    subgraph vps["VPS OVH (Ubuntu 24.04, Docker Compose)"]
+        caddy["Caddy<br/>reverse proxy, HTTPS auto (Let's Encrypt)"]
+        app["cedeva-web<br/>image GHCR, port 8080 interne"]
+        pg["cedeva-db<br/>PostgreSQL 17, pas de port exposé"]
+        caddy --> app
+        app --> pg
     end
-    gh["GitHub Actions<br/>build → test → migrate → deploy → /health gate"]
+    gh["GitHub Actions<br/>build → test → push image GHCR → deploy SSH → /health gate"]
+    ghcr["GHCR<br/>ghcr.io/ogautier1980/cedeva-v2"]
     brevo["Brevo API"]
 
-    gh -->|az webapp deploy zip| app
-    gh -->|ef database update| azsql
-    app --> azsql
-    app --> azblob
+    gh -->|docker build & push| ghcr
+    gh -->|ssh: docker compose pull && up -d| app
+    ghcr -->|docker pull| app
     app --> brevo
+    internet["new.cedeva.be"] --> caddy
 ```
 
-CI/CD : un workflow GitHub Actions ([main_cedeva-demo.yml](../.github/workflows/main_cedeva-demo.yml))
-qui, sur push `main` : build .NET 10 → `dotnet test` (gate) → migrations EF → déploiement zip →
-**vérification `/health`** (un déploiement n'est validé que si l'app répond réellement). Voir
-[ADR 0007](adr/0007-cicd-azure-app-service-with-health-gate.md).
+CI/CD : un workflow GitHub Actions ([deploy-vps.yml](../.github/workflows/deploy-vps.yml)) qui,
+sur push `main` : build .NET 10 → `dotnet test` (gate) → build & push de l'image Docker sur GHCR →
+déploiement SSH sur le VPS (`docker compose pull && up -d`) → **vérification `/health`** (un
+déploiement n'est validé que si l'app répond réellement en HTTPS). Les migrations EF s'appliquent
+automatiquement au démarrage de l'app (tâche de fond, voir [ADR 0009](adr/0009-background-nonblocking-startup-seeding.md)),
+donc pas d'étape de migration séparée dans le pipeline. Voir [ADR 0007](adr/0007-cicd-azure-app-service-with-health-gate.md)
+(historique, remplacé par le déploiement VPS ci-dessus).
 
 ## 3. Structure interne (composants)
 
@@ -106,7 +112,7 @@ sequenceDiagram
 - **Audit automatique** : `AuditableEntity` (CreatedAt/By, ModifiedAt/By) renseigné dans l'override
   `SaveChangesAsync` du `DbContext`.
 - **DI** : Autofac (`ConfigureContainer`), enregistrements dans `Program.cs`. Voir [ADR 0004](adr/0004-autofac-dependency-injection.md).
-- **Configuration typée** : pattern Options (`BrevoOptions`, `AzureStorageOptions`).
+- **Configuration typée** : pattern Options (`BrevoOptions`, `StripeOptions`).
 - **Localisation** : `IStringLocalizer<SharedResources>`, cookie FR/NL/EN.
 
 ## 5. Stack technique
@@ -120,11 +126,11 @@ sequenceDiagram
 | DI | Autofac |
 | Email | Brevo (HTTP, `IHttpClientFactory`) |
 | Paiement | Stripe Checkout derrière `IPaymentGateway` ([ADR 0010](adr/0010-online-payments-provider-agnostic-stripe.md)) |
-| Fichiers | Azure Blob (prod) / disque local (dev) |
+| Fichiers | Disque local, volume Docker persistant |
 | Export | ClosedXML (Excel), QuestPDF (PDF) |
 | Logs | Serilog (console + Seq optionnel, enrichers) |
 | Tests | xUnit + FluentAssertions + NSubstitute ; SQLite, Testcontainers (PostgreSQL), Playwright (E2E) ([ADR 0011](adr/0011-test-layers-e2e-and-db-fidelity.md)) |
-| CI/CD | GitHub Actions → Azure App Service (+ workflows E2E et SQL dédiés) |
+| CI/CD | GitHub Actions → GHCR → déploiement SSH sur VPS OVH (+ workflows E2E et SQL dédiés) |
 
 ## 6. Voir aussi
 - [Exigences non-fonctionnelles](non-functional-requirements.md)

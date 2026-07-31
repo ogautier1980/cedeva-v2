@@ -29,7 +29,7 @@ dotnet run --project src/Cedeva.Website                       # Run (auto-seeds 
 | Email | Brevo SDK (C#) + HttpClientFactory |
 | Online payments | Stripe Checkout via provider-agnostic `IPaymentGateway` |
 | Excel | ClosedXML |
-| File Storage | Azure Blob Storage (Production) / Local (Development) |
+| File Storage | Local disk (Docker volume in production) |
 | DI Container | Autofac |
 | Logging | Serilog |
 | Auth | ASP.NET Core Identity |
@@ -114,7 +114,7 @@ Multi-tenant root. Every entity is scoped to an organisation.
 | Name | string (100) | Required |
 | Description | string (500) | Required |
 | AddressId | int | FK → Address |
-| LogoUrl | string? | Azure Blob URL |
+| LogoUrl | string? | File URL (local storage) |
 | BankAccountNumber | string? | IBAN for payment tracking |
 | BankAccountName | string? | Account holder name |
 
@@ -232,7 +232,7 @@ Staff member (animator or coordinator). Uses `TeamMemberId` as PK.
 | License | License | Brevet type |
 | Status | Status | Compensated / Volunteer |
 | DailyCompensation | decimal? | Daily pay rate |
-| LicenseUrl | string (100) | Azure Blob URL |
+| LicenseUrl | string (100) | File URL (local storage) |
 | AddressId | int | FK → Address |
 | OrganisationId | int | FK → Organisation |
 | Activities | ICollection\<Activity> | Many-to-many |
@@ -487,7 +487,7 @@ Linked to an Activity; a coordinator can create excursions after the activity ha
 Provider-agnostic online payment, behind `IPaymentGateway` (so the provider can be swapped):
 - **Checkout** — `OnlinePaymentController` (anonymous) redirects to Stripe Checkout (hosted page) for the booking's remaining due amount; a "Pay online" button appears on the public confirmation page when `TotalAmount − PaidAmount > 0`.
 - **Webhook** — a signed Stripe webhook applies the paid event to the booking (records a `Payment(Online)`, updates `PaidAmount`/`PaymentStatus`), idempotent on the provider reference.
-- **Config** — `Stripe:SecretKey` / `Stripe:WebhookSecret` (Azure `Stripe__*`), never committed.
+- **Config** — `Stripe:SecretKey` / `Stripe:WebhookSecret` (VPS `.env` as `Stripe__*`), never committed.
 - See [docs/adr/0010](docs/adr/0010-online-payments-provider-agnostic-stripe.md).
 
 ### Presence Management
@@ -518,9 +518,9 @@ Comprehensive audit tracking for all entities:
 - **Localized:** Audit labels in FR/NL/EN
 
 ### File Storage
-Dual storage strategy based on environment:
-- **Development:** LocalFileStorageService saves to `wwwroot/uploads/` with path traversal protection
-- **Production:** AzureBlobStorageService with container-based organization
+- **LocalFileStorageService** saves to `wwwroot/uploads/` (bind-mounted Docker volume in
+  production) with path traversal protection, in all environments — no cloud storage provider on
+  the self-hosted OVH deployment target
 - **Security:** Path validation prevents directory traversal attacks, file extension and size validation with localized error messages
 
 ---

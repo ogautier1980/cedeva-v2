@@ -40,8 +40,8 @@ docker-compose up -d
 
 **Seeding:** `DbSeeder` always runs (roles, admin, 2 orgs + coordinators, Belgian municipalities).
 `TestDataSeeder` (rich, idempotent, realistic Belgian-FR demo data across all tables) runs when
-`SeedDemoData=true` — defaults to on in Development, off elsewhere. Set `SeedDemoData=true` as an
-Azure app setting to populate the demo site. Disable all startup seeding with `RunStartupSeeding=false`.
+`SeedDemoData=true` — defaults to on in Development, off elsewhere. Set `SeedDemoData=true` in the
+VPS `.env` to populate the demo site. Disable all startup seeding with `RunStartupSeeding=false`.
 
 ### Key Files
 | File | Purpose |
@@ -114,7 +114,7 @@ src/
 - `BookingPaymentService` applies a paid webhook to the booking (records `Payment(Online)`,
   updates `PaidAmount`/`PaymentStatus`, idempotent on provider reference)
 - "Pay online" button on the public confirmation page (amount = remaining due)
-- Secrets via config `Stripe:SecretKey` / `Stripe:WebhookSecret` (Azure `Stripe__*`) — never committed
+- Secrets via config `Stripe:SecretKey` / `Stripe:WebhookSecret` (VPS `.env` as `Stripe__*`) — never committed
 - See [docs/adr/0010](docs/adr/0010-online-payments-provider-agnostic-stripe.md)
 
 ### Activity Management
@@ -280,4 +280,4 @@ src/
 - Use IHttpClientFactory for HttpClient
 - Validate file paths for traversal attacks
 - Check file size limits in attributes
-- Use LocalFileStorageService (dev) or AzureBlobStorageService (prod)
+- Use LocalFileStorageService (all environments — Docker volume in production)

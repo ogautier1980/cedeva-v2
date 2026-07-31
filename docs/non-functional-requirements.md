@@ -58,7 +58,7 @@ Performance**.
 - **Artefact :** controllers + EF Core.
 - **Réponse :** page rendue rapidement.
 - **Mesure (objectif) :** P95 < 500 ms hors cold-start. *Non mesuré formellement aujourd'hui.*
-- **Instrumentation :** Serilog (+ sink Seq config-driven) et **Application Insights** (ressource Azure créée + connection string en place → actif en prod). **Reste :** surveiller les requêtes N+1.
+- **Instrumentation :** Serilog (+ sink Seq config-driven, non actif tant qu'aucun serveur Seq n'est configuré). Application Insights (support encore présent dans le code, inerte si vide) n'a plus de ressource Azure depuis la migration vers OVH — **à remplacer par un Seq auto-hébergé si un dashboard centralisé est souhaité.** **Reste :** surveiller les requêtes N+1.
 
 ## QA-7 — Confidentialité des données / RGPD — *priorité moyenne*
 - **Source :** exploitation des logs / fuite.

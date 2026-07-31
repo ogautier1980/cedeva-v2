@@ -302,9 +302,9 @@ try
         options.RequestCultureProviders.Insert(0, new Microsoft.AspNetCore.Localization.CookieRequestCultureProvider());
     });
 
-    // Honour X-Forwarded-* from Azure App Service's TLS-terminating reverse proxy so the
-    // app sees the real scheme (https) — required for HSTS / HttpsRedirection to work.
-    // The only ingress is the platform proxy, so the proxy/network allow-lists are cleared.
+    // Honour X-Forwarded-* from the Caddy reverse proxy (TLS termination) so the app sees the
+    // real scheme (https) — required for HSTS / HttpsRedirection to work. The only ingress is
+    // the Caddy container on the same Docker network, so the proxy/network allow-lists are cleared.
     builder.Services.Configure<ForwardedHeadersOptions>(options =>
     {
         options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
