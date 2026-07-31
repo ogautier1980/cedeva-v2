@@ -28,8 +28,10 @@ public class RegistrationFlowTests
         await page.FillAsync("#ParentEmail", "jean.dupont@test.be");
         await page.FillAsync("#ParentPhoneNumber", "0470000000");
         await page.FillAsync("#ParentStreet", "Rue de Test 1");
-        await page.FillAsync("#ParentPostalCode", "1000");
-        await page.FillAsync("#ParentCity", "Bruxelles");
+        // ParentPostalCode/ParentCity are now hidden inputs populated by the combined
+        // "Code postal / Ville" autocomplete field (unified-address-autocomplete.js parses
+        // "1000 Bruxelles" on blur even without picking a suggestion from the dropdown).
+        await page.FillAsync("#ParentCombinedAddress", "1000 Bruxelles");
         await page.FillAsync("#ParentNationalRegisterNumber", "85.06.15-133.80");
         await page.FillAsync("#ChildFirstName", "Marie");
         await page.FillAsync("#ChildLastName", "Dupont");
