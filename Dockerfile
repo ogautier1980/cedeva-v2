@@ -3,7 +3,7 @@ FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 
 # Copy solution and project files
-COPY ["Cedeva.sln", "./"]
+COPY ["Cedeva.sln", "Directory.Build.props", "./"]
 COPY ["src/Cedeva.Core/Cedeva.Core.csproj", "src/Cedeva.Core/"]
 COPY ["src/Cedeva.Infrastructure/Cedeva.Infrastructure.csproj", "src/Cedeva.Infrastructure/"]
 COPY ["src/Cedeva.Website/Cedeva.Website.csproj", "src/Cedeva.Website/"]

@@ -12,8 +12,8 @@ namespace Cedeva.Tests.TestSupport;
 
 /// <summary>
 /// Boots the real Cedeva web app in-memory for integration tests, but:
-/// - swaps SQL Server for a private SQLite in-memory database (shared open connection),
-/// - disables the background startup seeding (SQL Server migrations don't run on SQLite),
+/// - swaps PostgreSQL for a private SQLite in-memory database (shared open connection),
+/// - disables the background startup seeding (PostgreSQL migrations don't run on SQLite),
 /// - replaces cookie/Identity auth with <see cref="TestAuthHandler"/> (header-driven claims).
 /// Seed data via <see cref="Seed{T}"/>, then call <see cref="CreateClientFor"/>.
 /// </summary>
@@ -49,7 +49,7 @@ public class CedevaWebApplicationFactory : WebApplicationFactory<Program>
 
         builder.ConfigureTestServices(services =>
         {
-            // Replace the SQL Server DbContext with SQLite over a shared open connection.
+            // Replace the PostgreSQL DbContext with SQLite over a shared open connection.
             var toRemove = services.Where(d =>
                 d.ServiceType == typeof(DbContextOptions<CedevaDbContext>) ||
                 d.ServiceType == typeof(CedevaDbContext) ||

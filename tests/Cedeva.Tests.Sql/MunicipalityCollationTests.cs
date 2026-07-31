@@ -5,17 +5,18 @@ using Microsoft.EntityFrameworkCore;
 namespace Cedeva.Tests.Sql;
 
 /// <summary>
-/// Validates the address lookup against a real SQL Server, where the default collation is
-/// case-insensitive (CI). These assertions would behave differently on SQLite (case-sensitive
-/// equality), so only this suite proves the production behaviour — and that the EF queries
-/// translate to SQL at all (the bug that took down the autocomplete).
+/// Validates the address lookup against a real PostgreSQL, which is case-sensitive by default
+/// (unlike SQL Server's default CI collation). These assertions prove that
+/// <see cref="BelgianMunicipalityService"/> compensates explicitly via portable ToLower()
+/// comparisons — and that the EF queries translate to SQL and execute correctly against the real
+/// driver/migration chain (the bug class that took down the autocomplete).
 /// </summary>
 [Collection("Sql")]
 public class MunicipalityCollationTests
 {
-    private readonly SqlServerFixture _fx;
+    private readonly PostgreSqlFixture _fx;
 
-    public MunicipalityCollationTests(SqlServerFixture fx) => _fx = fx;
+    public MunicipalityCollationTests(PostgreSqlFixture fx) => _fx = fx;
 
     private async Task<BelgianMunicipalityService> SeededServiceAsync()
     {
@@ -41,12 +42,12 @@ public class MunicipalityCollationTests
     }
 
     [Fact]
-    public async Task Search_IsCaseInsensitive_OnSqlServerCollation()
+    public async Task Search_IsCaseInsensitive_ViaToLower()
     {
         var sut = await SeededServiceAsync();
 
-        // Lower-case term must still match "Gembloux" thanks to SQL Server's CI collation —
-        // SQLite would NOT match this with a plain StartsWith.
+        // Upper-case term must still match "Gembloux" thanks to the ToLower() comparison — a plain
+        // StartsWith would NOT match this on PostgreSQL's case-sensitive default collation.
         var results = (await sut.SearchMunicipalitiesAsync("GEMBL")).ToList();
 
         results.Should().ContainSingle(m => m.City == "Gembloux");

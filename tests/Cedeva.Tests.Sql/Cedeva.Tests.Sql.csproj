@@ -2,16 +2,16 @@
 
   <PropertyGroup>
     <IsPackable>false</IsPackable>
-    <!-- Integration tests against a real SQL Server (Testcontainers + Docker). Slower than the
+    <!-- Integration tests against a real PostgreSQL (Testcontainers + Docker). Slower than the
          SQLite suite and Docker-dependent, so they run in a dedicated CI job, not the deploy gate.
-         They catch behaviour SQLite masks (collation case-insensitivity, LINQ translation). -->
+         They catch behaviour SQLite masks (ILIKE case-insensitivity, LINQ translation). -->
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="FluentAssertions" Version="6.12.2" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.9" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.3" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.6.0" />
-    <PackageReference Include="Testcontainers.MsSql" Version="4.12.0" />
+    <PackageReference Include="Testcontainers.PostgreSql" Version="4.13.0" />
     <PackageReference Include="xunit" Version="2.9.2" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2" />
   </ItemGroup>

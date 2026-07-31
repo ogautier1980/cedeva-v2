@@ -2,6 +2,13 @@
 
 **Statut :** Accepté (complète [0007](0007-cicd-azure-app-service-with-health-gate.md))
 
+**Mise à jour 2026-07-31 :** le moteur de BDD a été migré de SQL Server vers PostgreSQL
+(hébergement OVH). Le principe de ce niveau de test (fidélité contre un vrai moteur de BDD plutôt
+que SQLite) reste inchangé ; `tests/Cedeva.Tests.Sql` tourne désormais contre PostgreSQL réel via
+`Testcontainers.PostgreSql`/`PostgreSqlFixture`. PostgreSQL étant sensible à la casse par défaut
+(contrairement à SQL Server), `BelgianMunicipalityService` compare désormais explicitement via
+`ToLower()` (portable SQLite/PostgreSQL) plutôt que de compter sur la collation du moteur.
+
 ## Contexte
 La suite reposait sur de l'unitaire + intégration sur **SQLite in-memory** et `WebApplicationFactory`.
 Deux angles morts ont été démontrés par des régressions réelles :

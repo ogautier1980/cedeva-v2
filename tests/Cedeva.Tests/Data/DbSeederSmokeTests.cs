@@ -23,14 +23,14 @@ namespace Cedeva.Tests.Data;
 ///
 /// <para><b>Why the private steps are invoked directly.</b> <see cref="DbSeeder.SeedAsync"/>'s
 /// first statement is <c>_context.Database.MigrateAsync()</c>. The committed migrations are
-/// SQL-Server-specific (e.g. <c>nvarchar(max)</c>, <c>SqlServer:Identity</c>) and the SQLite
-/// migration SQL generator emits invalid DDL for them (<c>SQLite Error 1: near "max"</c>), so a
-/// full <c>SeedAsync()</c> can never reach the seeding body on the SQLite test database — it
-/// always fails at the migrate step. That failure path (the try/catch wrapper) is asserted in
+/// PostgreSQL-specific (e.g. column type <c>text</c>, the <c>Npgsql:ValueGenerationStrategy</c>
+/// identity annotation) and the SQLite migration SQL generator emits invalid/incompatible DDL for
+/// them, so a full <c>SeedAsync()</c> can never reach the seeding body on the SQLite test database
+/// — it always fails at the migrate step. That failure path (the try/catch wrapper) is asserted in
 /// <see cref="SeedAsync_OnSqliteSchema_WrapsMigrateFailure"/>. To cover the actual seeding logic
 /// (roles, admin user, demo organisations + coordinators, Belgian municipalities, and their
 /// idempotency guards) the schema is created with <c>EnsureCreated()</c> — which honours the live
-/// model rather than the SQL-Server migrations — and the four seeding steps are driven through
+/// model rather than the PostgreSQL migrations — and the four seeding steps are driven through
 /// reflection. We may not modify <c>src</c> to make these steps public, so reflection is the only
 /// way to reach the real code with the real Identity stack.</para>
 /// </summary>

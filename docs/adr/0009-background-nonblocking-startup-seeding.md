@@ -2,6 +2,10 @@
 
 **Statut :** Accepté
 
+**Mise à jour 2026-07-31 :** le moteur de BDD a été migré de SQL Server vers PostgreSQL
+(hébergement OVH). Le raisonnement ci-dessous reste valable à l'identique — seule la mention
+"migrations SQL Server" plus bas désigne maintenant les migrations PostgreSQL/Npgsql.
+
 ## Contexte
 L'app exécutait `DbSeeder.SeedAsync()` (dont `Database.MigrateAsync()`) + `TestDataSeeder`
 **synchronement avant `app.Run()`**, sans gate d'environnement, en relançant l'exception en cas

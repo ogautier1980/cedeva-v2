@@ -16,7 +16,7 @@ namespace Cedeva.Tests.E2E;
 
 /// <summary>
 /// Boots the real Cedeva app on a real Kestrel server (random localhost port) so a browser
-/// can drive it, while swapping SQL Server for a private SQLite database. Follows the official
+/// can drive it, while swapping PostgreSQL for a private SQLite database. Follows the official
 /// "integration tests with Playwright" pattern: build the TestServer host the base factory
 /// expects, then build and start a second Kestrel host that shares the same service config.
 ///

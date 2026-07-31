@@ -7,7 +7,7 @@
 ## Démarrage rapide
 
 ```bash
-docker-compose up -d                                          # Démarrer SQL Server
+docker-compose up -d                                          # Démarrer PostgreSQL
 dotnet run --project src/Cedeva.Website                       # Lancer (seeder automatique)
 ```
 
@@ -24,7 +24,7 @@ dotnet run --project src/Cedeva.Website                       # Lancer (seeder a
 | Composant | Technologie |
 |-----------|-------------|
 | Backend | ASP.NET Core MVC (.NET 10) |
-| Base de données | SQL Server 2022 (Docker) |
+| Base de données | PostgreSQL 17 (Docker) |
 | ORM | Entity Framework Core 10 |
 | Paiement en ligne | Stripe Checkout via `IPaymentGateway` (agnostique du fournisseur) |
 | Email | Brevo SDK (C#) |

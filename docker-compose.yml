@@ -1,17 +1,17 @@
 services:
   cedeva-db:
-    image: mcr.microsoft.com/mssql/server:2022-latest
-    container_name: cedeva-sqlserver
+    image: postgres:17-alpine
+    container_name: cedeva-postgres
     environment:
-      - ACCEPT_EULA=Y
-      - SA_PASSWORD=YourStrong@Passw0rd
-      - MSSQL_PID=Developer
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=YourStrongPassword123
+      - POSTGRES_DB=Cedeva
     ports:
-      - "1433:1433"
+      - "5432:5432"
     volumes:
-      - cedeva-sqldata:/var/opt/mssql
+      - cedeva-pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "YourStrong@Passw0rd" -C -Q "SELECT 1" || exit 1
+      test: pg_isready -U postgres -d Cedeva
       interval: 10s
       timeout: 3s
       retries: 10
@@ -25,7 +25,7 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:8080
-      - ConnectionStrings__DefaultConnection=Server=cedeva-db;Database=Cedeva;User Id=sa;Password=YourStrong@Passw0rd;MultipleActiveResultSets=true;TrustServerCertificate=True
+      - ConnectionStrings__DefaultConnection=Host=cedeva-db;Port=5432;Database=Cedeva;Username=postgres;Password=YourStrongPassword123
     ports:
       - "5000:8080"
     depends_on:
@@ -33,4 +33,4 @@ services:
         condition: service_healthy
 
 volumes:
-  cedeva-sqldata:
+  cedeva-pgdata:

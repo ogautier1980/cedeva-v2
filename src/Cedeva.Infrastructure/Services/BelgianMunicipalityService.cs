@@ -14,12 +14,16 @@ public class BelgianMunicipalityService : IBelgianMunicipalityService
         _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
     }
 
+    // CA1862 suggests StringComparison.OrdinalIgnoreCase overloads instead of ToLower() — but EF
+    // Core cannot translate those to SQL and throws at query time (HTTP 500 on the autocomplete
+    // API). ToLower() on both sides translates to SQL LOWER(), portable across SQLite (tests) and
+    // PostgreSQL (prod), unlike EF.Functions.ILike (Npgsql-only). Do NOT "fix" these per CA1862.
+#pragma warning disable CA1862
     public async Task<bool> IsValidMunicipalityAsync(string postalCode, string city)
     {
-        // Case-insensitivity is handled server-side by SQL Server's default CI collation.
-        // EF Core cannot translate string.Equals(string, StringComparison) to SQL.
+        var lowerCity = city.ToLower();
         return await _dbContext.BelgianMunicipalities
-            .AnyAsync(m => m.PostalCode == postalCode && m.City == city);
+            .AnyAsync(m => m.PostalCode == postalCode && m.City.ToLower() == lowerCity);
     }
 
     public async Task<IEnumerable<BelgianMunicipality>> SearchMunicipalitiesAsync(string searchTerm)
@@ -29,16 +33,13 @@ public class BelgianMunicipalityService : IBelgianMunicipalityService
             return new List<BelgianMunicipality>();
         }
 
-        searchTerm = searchTerm.Trim();
-
-        // Plain StartsWith translates to SQL LIKE 'term%' and is case-insensitive under
-        // SQL Server's default CI collation. Do NOT use ToLowerInvariant() here: EF Core
-        // cannot translate it and throws at query time (HTTP 500 on the autocomplete API).
+        var lowerTerm = searchTerm.Trim().ToLower();
         return await _dbContext.BelgianMunicipalities
-            .Where(m => m.City.StartsWith(searchTerm) || m.PostalCode.StartsWith(searchTerm))
+            .Where(m => m.City.ToLower().StartsWith(lowerTerm) || m.PostalCode.ToLower().StartsWith(lowerTerm))
             .OrderBy(m => m.City)
             .ToListAsync();
     }
+#pragma warning restore CA1862
 
     public async Task ImportMunicipalitiesFromCsvAsync(string filePath)
     {

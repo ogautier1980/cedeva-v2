@@ -27,6 +27,13 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading.RateLimiting;
 
+// Npgsql 6+ rejects writing a non-UTC DateTime (Kind=Unspecified/Local) to a "timestamp with time
+// zone" column. The app has never tracked DateTimeKind on its business DateTime fields (BirthDate,
+// BookingDate, SentDate, etc. — SQL Server's datetime2 was kind-agnostic), so this restores the
+// pre-6.0 behaviour instead of auditing every DateTime call site. Must be set before any Npgsql
+// type mapping is touched, hence first thing in the process.
+AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+
 Log.Logger = new LoggerConfiguration()
     .WriteTo.Console()
     .CreateBootstrapLogger();
@@ -74,7 +81,6 @@ try
 
     // Strongly-typed configuration (Options pattern)
     builder.Services.Configure<BrevoOptions>(builder.Configuration.GetSection(BrevoOptions.SectionName));
-    builder.Services.Configure<AzureStorageOptions>(builder.Configuration.GetSection(AzureStorageOptions.SectionName));
     builder.Services.Configure<StripeOptions>(builder.Configuration.GetSection(StripeOptions.SectionName));
 
     // Rate limiting (per client IP) for sensitive anonymous endpoints: login and the public
@@ -95,15 +101,9 @@ try
                 _ => new FixedWindowRateLimiterOptions { PermitLimit = 30, Window = TimeSpan.FromMinutes(1) }));
     });
 
-    // Register storage service based on environment
-    if (builder.Environment.IsDevelopment())
-    {
-        builder.Services.AddScoped<IStorageService, LocalFileStorageService>();
-    }
-    else
-    {
-        builder.Services.AddScoped<IStorageService, AzureBlobStorageService>();
-    }
+    // File storage: local disk (bind-mounted/volume-backed under wwwroot/uploads in all
+    // environments — no cloud storage provider on the OVH/self-hosted deployment target).
+    builder.Services.AddScoped<IStorageService, LocalFileStorageService>();
 
     builder.Services.AddHttpClient("BrevoClient", client =>
     {
@@ -186,12 +186,12 @@ try
 
     // Add DbContext
     builder.Services.AddDbContext<CedevaDbContext>(options =>
-        options.UseSqlServer(
+        options.UseNpgsql(
             builder.Configuration.GetConnectionString("DefaultConnection"),
-            sqlOptions => sqlOptions.EnableRetryOnFailure(
+            npgsqlOptions => npgsqlOptions.EnableRetryOnFailure(
                 maxRetryCount: 5,
                 maxRetryDelay: TimeSpan.FromSeconds(30),
-                errorNumbersToAdd: null)));
+                errorCodesToAdd: null)));
 
     // Health checks — /health verifies the app can reach the database (used by the deploy gate).
     builder.Services.AddHealthChecks()

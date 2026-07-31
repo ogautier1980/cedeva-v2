@@ -46,6 +46,6 @@ public class BookingConfiguration : IEntityTypeConfiguration<Booking>
 
         builder.HasIndex(b => b.StructuredCommunication)
             .IsUnique()
-            .HasFilter("[StructuredCommunication] IS NOT NULL");
+            .HasFilter("\"StructuredCommunication\" IS NOT NULL");
     }
 }

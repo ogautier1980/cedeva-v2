@@ -2,24 +2,31 @@ using Cedeva.Core.Enums;
 using Cedeva.Core.Interfaces;
 using Cedeva.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
-using Testcontainers.MsSql;
+using Testcontainers.PostgreSql;
 
 namespace Cedeva.Tests.Sql;
 
 /// <summary>
-/// Starts a real SQL Server 2022 in a throwaway Docker container (Testcontainers) and creates the
-/// Cedeva schema on it. Shared across the "Sql" collection. Gives the same provider and default
-/// CI collation as production — so behaviour SQLite cannot reproduce (case-insensitive equality,
-/// LINQ translation) is exercised faithfully.
+/// Starts a real PostgreSQL 17 in a throwaway Docker container (Testcontainers) and creates the
+/// Cedeva schema on it. Shared across the "Sql" collection. Gives the same provider as production
+/// — so behaviour SQLite cannot reproduce (case-sensitive equality/ILIKE translation, real
+/// migration chain) is exercised faithfully.
 /// </summary>
-public sealed class SqlServerFixture : IAsyncLifetime
+public sealed class PostgreSqlFixture : IAsyncLifetime
 {
-    private readonly MsSqlContainer _container =
-        new MsSqlBuilder("mcr.microsoft.com/mssql/server:2022-latest").Build();
+    static PostgreSqlFixture()
+    {
+        // Same rationale as Program.cs: the app's business DateTime fields don't track
+        // DateTimeKind, so restore Npgsql's pre-6.0 lenient timestamptz write behaviour.
+        AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+    }
+
+    private readonly PostgreSqlContainer _container =
+        new PostgreSqlBuilder("postgres:17-alpine").Build();
 
     public CedevaDbContext NewContext() =>
         new(new DbContextOptionsBuilder<CedevaDbContext>()
-                .UseSqlServer(_container.GetConnectionString())
+                .UseNpgsql(_container.GetConnectionString())
                 .Options,
             new StubCurrentUser());
 
@@ -43,4 +50,4 @@ public sealed class SqlServerFixture : IAsyncLifetime
 }
 
 [CollectionDefinition("Sql")]
-public class SqlCollection : ICollectionFixture<SqlServerFixture>;
+public class SqlCollection : ICollectionFixture<PostgreSqlFixture>;

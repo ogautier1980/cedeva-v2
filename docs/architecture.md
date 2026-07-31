@@ -14,7 +14,7 @@ graph TB
     cedeva["Cedeva<br/>ASP.NET Core MVC (.NET 10)"]
     brevo["Brevo<br/>(envoi d'emails)"]
     blob["Azure Blob Storage<br/>(fichiers : logos, brevets)"]
-    sql["SQL Server 2022<br/>(données applicatives + Identity)"]
+    sql["PostgreSQL 17<br/>(données applicatives + Identity)"]
     stripe["Stripe<br/>(paiement en ligne : Checkout + webhook)"]
 
     coord -->|HTTPS, cookie auth| cedeva
@@ -84,7 +84,7 @@ sequenceDiagram
     participant MW as Middleware
     participant C as Controller
     participant S as Service / DbContext
-    participant DB as SQL Server
+    participant DB as PostgreSQL
 
     B->>MW: GET /Financial?id=42 + cookie
     Note over MW: ForwardedHeaders, SecurityHeaders, Auth, RateLimiter
@@ -115,7 +115,7 @@ sequenceDiagram
 |---------|-------|
 | Runtime | .NET 10 ([ADR 0006](adr/0006-upgrade-to-net-10.md)) |
 | Web | ASP.NET Core MVC (Razor, feature folders) |
-| Données | EF Core + SQL Server 2022 |
+| Données | EF Core + PostgreSQL 17 |
 | Auth | ASP.NET Core Identity (cookie, rôles) ([ADR 0008](adr/0008-cookie-identity-and-security-hardening.md)) |
 | DI | Autofac |
 | Email | Brevo (HTTP, `IHttpClientFactory`) |
@@ -123,7 +123,7 @@ sequenceDiagram
 | Fichiers | Azure Blob (prod) / disque local (dev) |
 | Export | ClosedXML (Excel), QuestPDF (PDF) |
 | Logs | Serilog (console + Seq optionnel, enrichers) |
-| Tests | xUnit + FluentAssertions + NSubstitute ; SQLite, Testcontainers (SQL Server), Playwright (E2E) ([ADR 0011](adr/0011-test-layers-e2e-and-db-fidelity.md)) |
+| Tests | xUnit + FluentAssertions + NSubstitute ; SQLite, Testcontainers (PostgreSQL), Playwright (E2E) ([ADR 0011](adr/0011-test-layers-e2e-and-db-fidelity.md)) |
 | CI/CD | GitHub Actions → Azure App Service (+ workflows E2E et SQL dédiés) |
 
 ## 6. Voir aussi

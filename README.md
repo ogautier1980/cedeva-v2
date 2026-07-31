@@ -7,7 +7,7 @@
 ## Quick Start
 
 ```bash
-docker-compose up -d                                          # Start SQL Server
+docker-compose up -d                                          # Start PostgreSQL
 dotnet run --project src/Cedeva.Website                       # Run (auto-seeds DB)
 ```
 
@@ -24,7 +24,7 @@ dotnet run --project src/Cedeva.Website                       # Run (auto-seeds 
 | Component | Technology |
 |-----------|-----------|
 | Backend | ASP.NET Core MVC (.NET 10) |
-| Database | SQL Server 2022 (Docker) |
+| Database | PostgreSQL 17 (Docker) |
 | ORM | Entity Framework Core 10 |
 | Email | Brevo SDK (C#) + HttpClientFactory |
 | Online payments | Stripe Checkout via provider-agnostic `IPaymentGateway` |
@@ -551,11 +551,11 @@ Global query filters on all tenant-scoped entities. Admin bypasses via `IgnoreQu
 ## Testing
 
 ~1193 unit/integration tests (≈92% line coverage; CI gate 85%) plus 65 browser E2E (Playwright)
-and 3 SQL Server (Testcontainers) tests, across 3 projects:
+and 3 PostgreSQL (Testcontainers) tests, across 3 projects:
 
 ```bash
 dotnet test tests/Cedeva.Tests       # unit + service-integration (SQLite) + controller (WebApplicationFactory)
-dotnet test tests/Cedeva.Tests.Sql   # real SQL Server via Testcontainers (Docker) — collation/translation fidelity
+dotnet test tests/Cedeva.Tests.Sql   # real PostgreSQL via Testcontainers (Docker) — translation fidelity
 dotnet test tests/Cedeva.Tests.E2E   # Playwright + Chromium (run playwright.ps1 install chromium first)
 ```
 
