@@ -25,7 +25,7 @@ Source : export Notion [`CEDEVA 2 0 ....md`](CEDEVA%202%200%2035545c93462a801cae
 - ✅ **Décision annulée (2026-07-31)** — ~~Passer à Molly~~ : on **garde Stripe** comme solution de paiement en ligne. `Stripe.net` mis à jour 47.4.0 → 52.2.0 (corrige un rejet de webhook pour incompatibilité de version d'API), testé de bout en bout en mode test (checkout + webhook).
 - ✅ **Fait (2026-07-31)** — ~~Créer un compte Brevo dédié pour Cedeva~~ : utilisation du compte Brevo existant de Thomas (Kivla srl), domaine `cedeva.be` authentifié (SPF/DKIM), clé API dédiée générée et configurée sur le VPS, IP du VPS ajoutée à l'allowlist Brevo. Testé de bout en bout (email de confirmation d'inscription reçu).
 - ✅ **Fait (2026-07-31)** — ~~Passer TinyMCE en self-hosted (GPL)~~ : en creusant, TinyMCE n'était en réalité utilisé nulle part dans l'app (l'éditeur riche réel est Summernote, chargé depuis `cdn.jsdelivr.net`). Config morte supprimée : section `TinyMCE:ApiKey` (`appsettings.json`) et entrées CSP `cdn.tiny.cloud` (`SecurityHeadersMiddleware.cs`).
-- 🐛 **Bug signalé, non investigué (2026-07-31, capture `09.54.00` annotée)** — Thomas : *« ça ne marche pas pour le moment, sur Mac, ça télécharge un fichier Register de 0ko »*, sur l'écran final « Création d'une activité » (code d'intégration iframe / bouton de téléchargement). À reproduire et diagnostiquer.
+- ✅ **Résolu (2026-07-31)** — 🐛 Bug signalé (capture `09.54.00` annotée) : Thomas ne pouvait pas télécharger le fichier « Register » (0 ko sur Mac) sur l'écran final « Création d'une activité » (code d'intégration iframe / bouton de téléchargement). Thomas a retesté après la migration Azure → OVH : ça fonctionne maintenant. Cause exacte non diagnostiquée (le bug a disparu avec le changement d'infra, pas de root cause confirmée côté code).
 
 ---
 
@@ -118,7 +118,7 @@ Demande de refonte du formulaire de création d'activité : actuellement un form
 - ✅ **Jugé conforme tel quel** — **Étape 4 — Limitations** : codes postaux autorisés/refusés (vide = tous), nombre max d'enfants/jour + message « COMPLET » personnalisable (capture `aa8a0a57`), juste à intégrer dans le wizard.
 - ⏸️ **Bloqué par la question n°2** — **Étape 5 — Autres questions** : reprend les questions personnalisées par activité, avec la question du modèle org→activité (n°2). **À supprimer** (annoté en rouge, capture `09.49.21`) : le toggle « Actif » du formulaire de question (« si on pose la question pour l'activité, c'est que c'est actif »).
 - ✅ **Jugé conforme tel quel** — **Étape 6 — Affichage** : dates d'affichage du formulaire, message si aucun formulaire actif, page de redirection après envoi (capture `09.50.34`), juste à intégrer dans le wizard.
-- ✅ **Jugé « super » tel quel** — **Étape 7 — Final** : couleurs (fond/boutons), URL directe, code d'intégration iframe avec aperçu (capture `09.54.00`). 🐛 **Bug signalé** : le téléchargement produit un fichier « Register » de 0 ko sur Mac — voir TO-DO.
+- ✅ **Jugé « super » tel quel** — **Étape 7 — Final** : couleurs (fond/boutons), URL directe, code d'intégration iframe avec aperçu (capture `09.54.00`). 🐛 Bug du téléchargement (fichier 0 ko sur Mac) — ✅ résolu, voir TO-DO.
 
 ## Lot J — Paramètres (nouveau 2026-07-31, sans maquette)
 
@@ -140,7 +140,7 @@ Lots C, D (sauf numéro de ticket/Hors bilan/Rapport détaillé), E et G sont li
 3. **Lot D** — numéro de ticket (remis à 0 par activité), Hors bilan (exclu des totaux Entrées/Sorties), rapport détaillé par catégorie.
 4. **Lot F** — auto-proposition mail Excursion (nouveau type de destinataire : inscrit à l'activité, pas encore à l'excursion).
 5. **Lot H** — attestations fiscales par association : bloqué en attente d'un exemple de Thomas (question n°1).
-6. **Lot I** — wizard de création d'activité : étapes 1/2/3/4/6/7 codables directement (réagencement + retrait des boutons de dates + nouveau bouton calendrier), étape 5 bloquée par la question n°2 (modèle de questions). Bug Mac (fichier 0 ko) à investiguer indépendamment.
+6. **Lot I** — wizard de création d'activité : étapes 1/2/3/4/6/7 codables directement (réagencement + retrait des boutons de dates + nouveau bouton calendrier), étape 5 bloquée par la question n°2 (modèle de questions). Bug Mac (fichier 0 ko) résolu depuis la migration OVH.
 7. **Lot J** — Paramètres : à maquetter avec Thomas avant de coder (aucune capture fournie).
 
 Codable sans attendre Thomas : Lot A en entier, Lot C, Lot D, Lot F, et Lot I sauf l'étape 5. Bloqué par Thomas : Lot H (question n°1), l'étape 5 de Lot I (question n°2), et Lot J (maquette manquante).
