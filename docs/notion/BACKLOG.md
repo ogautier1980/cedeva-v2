@@ -4,6 +4,10 @@ Source : export Notion [`CEDEVA 2 0 ....md`](CEDEVA%202%200%2035545c93462a801cae
 
 **Mise à jour 2026-07-30** — 5 des 10 questions posées après la relecture complète ont été tranchées par le user : attestations fiscales (par association), présences équipe (confirmé), richesse de la liste des groupes (confirmé, avec une précision), impression groupée des groupes (confirmé), ventilation ONE des présences (confirmé). Les items confirmés et codables sans blocage ont été livrés (Lots C, D, E). Une nouvelle question est apparue en construisant Lot H (besoin d'un exemple réel d'attestation fiscale) : il reste 6 questions ouvertes pour Thomas.
 
+**Mise à jour 2026-07-31 (Notion)** — Thomas a ajouté 2 nouvelles pages à l'export : **« Création d'une activité »** (refonte du formulaire de création en assistant multi-étapes, entièrement nouvelle — voir Lot I) et **« Paramètres »** (liste de champs texte, sans maquette — voir Lot J). La page « Tableau de bord de l'activité » a aussi été complétée (voir Lot A). Ça ajoute 1 nouvelle question ouverte (n°7, modèle de questions par activité) et 1 nouveau bug signalé (téléchargement du code d'intégration iframe qui produit un fichier 0 ko sur Mac). Aucune des 6 questions précédentes n'est résolue dans cet export.
+
+**Mise à jour 2026-07-31 (infra)** — Migration complète de l'hébergement Azure → VPS OVH réalisée dans la foulée (voir section *Infra* ci-dessous) : les 2 items TO-DO « Passer à OVH » et « Créer un compte Brevo dédié » sont maintenant ✅ Fait ; la décision « Passer à Molly » a été **annulée** (on garde Stripe).
+
 ---
 
 ## ⚠️ Questions ouvertes pour Thomas
@@ -14,15 +18,33 @@ Source : export Notion [`CEDEVA 2 0 ....md`](CEDEVA%202%200%2035545c93462a801cae
 4. **« Hors bilan »** (Lot D) — au-delà du principe (3e valeur du champ Type, confirmé par la référence), quelles transactions concrètes doivent y aller précisément ?
 5. **Auto-proposition mail Excursion** (Lot F) — Thomas veut annoncer une nouvelle excursion aux familles éligibles **avant même qu'elles soient inscrites** ; ça n'existe pas dans le système de destinataires actuel (qui ne cible que des enfants déjà inscrits). Un nouveau type de destinataire est à concevoir avec Thomas.
 6. **Attestations fiscales** (Lot H) — besoin d'un exemple réel (mise en page, mentions légales obligatoires, montant déductible, période couverte…), comme `17.pdf` l'a été pour le rapport ONE. Sans ça, le risque est de construire un document non valable fiscalement.
+7. **Modèle de questions par activité** (Lot I, nouveau 2026-07-31) — Thomas demande, dans la capture `09.49.21` de « Création d'une activité » : *« On fonctionne comme pour les mails avec un modèle qui englobe toutes les questions. Par défaut c'est tout ce que l'organisation a demandé mais c'est modifiable par activité ? »*. Même logique que les modèles d'email verrouillés (Lot E) à confirmer/adapter pour les questions personnalisées.
 
 *(Résolues et retirées de cette liste — détail dans le lot concerné : explication paiement/dépense → Lot D ; envoi depuis un modèle et conflit Lot 4 → Lot E ; attestations fiscales, présences équipe, richesse des groupes, impression groupée, ventilation ONE → voir Lots C/G/H ci-dessous.)*
 
 ## 📌 TO-DO (hors backlog UX)
 
-- **Passer à OVH (VPS-2)** — migration d'hébergement (actuellement Azure). Implique une **migration vers PostgreSQL** (actuellement SQL Server).
-- **Passer à Molly** — remplace Stripe comme solution de paiement en ligne (actuellement `StripePaymentGateway`, voir [ADR 0010](../adr/0010-online-payments-provider-agnostic-stripe.md)).
-- **Créer un compte Brevo dédié pour Cedeva** — la config existe (`Brevo:ApiKey`/`SenderEmail: noreply@cedeva.be`/`SenderName: Cedeva` dans `appsettings.json`) mais la clé API est vide : il faut créer le compte Brevo propre à Cedeva et renseigner sa clé (`Brevo__ApiKey` en config Azure) pour que l'envoi d'emails (confirmations, rappels, SendEmail...) fonctionne réellement en production.
+- ✅ **Fait (2026-07-31)** — ~~Passer à OVH (VPS-2)~~ : migration complète Azure → VPS OVH (`vps-5f0be0bf.vps.ovh.net`, `new.cedeva.be`) réalisée en 5 phases avec migration PostgreSQL incluse. Détail complet dans la section *Infra* ci-dessous.
+- ✅ **Décision annulée (2026-07-31)** — ~~Passer à Molly~~ : on **garde Stripe** comme solution de paiement en ligne. `Stripe.net` mis à jour 47.4.0 → 52.2.0 (corrige un rejet de webhook pour incompatibilité de version d'API), testé de bout en bout en mode test (checkout + webhook).
+- ✅ **Fait (2026-07-31)** — ~~Créer un compte Brevo dédié pour Cedeva~~ : utilisation du compte Brevo existant de Thomas (Kivla srl), domaine `cedeva.be` authentifié (SPF/DKIM), clé API dédiée générée et configurée sur le VPS, IP du VPS ajoutée à l'allowlist Brevo. Testé de bout en bout (email de confirmation d'inscription reçu).
 - ✅ **Fait (2026-07-31)** — ~~Passer TinyMCE en self-hosted (GPL)~~ : en creusant, TinyMCE n'était en réalité utilisé nulle part dans l'app (l'éditeur riche réel est Summernote, chargé depuis `cdn.jsdelivr.net`). Config morte supprimée : section `TinyMCE:ApiKey` (`appsettings.json`) et entrées CSP `cdn.tiny.cloud` (`SecurityHeadersMiddleware.cs`).
+- 🐛 **Bug signalé, non investigué (2026-07-31, capture `09.54.00` annotée)** — Thomas : *« ça ne marche pas pour le moment, sur Mac, ça télécharge un fichier Register de 0ko »*, sur l'écran final « Création d'une activité » (code d'intégration iframe / bouton de téléchargement). À reproduire et diagnostiquer.
+
+---
+
+## Infra — Migration Azure → VPS OVH (2026-07-31)
+
+Migration complète menée en une session, en 5 phases séquentielles (chaque phase vérifiée avant de passer à la suivante) :
+
+- **Phase A — SQL Server → PostgreSQL** : swap du provider EF Core (`Npgsql.EntityFrameworkCore.PostgreSQL`), migration baseline unique régénérée, `BelgianMunicipalityService` réécrit en comparaisons `ToLower()` portables (`EF.Functions.ILike` essayé d'abord, cassait la suite SQLite — Npgsql-only), `AzureBlobStorageService` supprimé au profit de `LocalFileStorageService` partout, switch Npgsql `EnableLegacyTimestampBehavior` (l'app ne trackait pas `DateTimeKind`, cassait le seeding sur les colonnes `timestamptz`).
+- **Phase B — VPS durci** : Ubuntu 24.04 LTS, SSH par clé uniquement (mot de passe désactivé), pare-feu `ufw` (22/80/443), Docker Engine + Compose (dépôt officiel), `fail2ban`, swap 2 Go.
+- **Phase C — Stack de prod** : `docker-compose.prod.yml` (app + PostgreSQL + Caddy), HTTPS automatique Let's Encrypt pour `new.cedeva.be`.
+- **Phase D — CI/CD** : nouveau workflow [`deploy-vps.yml`](../../.github/workflows/deploy-vps.yml) (build/test inchangés → build & push image sur GHCR → déploiement SSH → gate `/health`), remplace `main_cedeva-demo.yml` (Azure). Voir [ADR 0012](../adr/0012-cicd-ovh-vps-via-ghcr.md), supersède [ADR 0007](../adr/0007-cicd-azure-app-service-with-health-gate.md).
+- **Phase E — Décommissionnement Azure** : resource group `cedeva-rg` supprimé en entier (SQL Server, App Service, Storage, Application Insights…) + un espace de travail Log Analytics résiduel trouvé hors du resource group et supprimé aussi. Souscription Azure entièrement vide, confirmé via `az resource list`.
+
+**Bug de production découvert et corrigé pendant les tests** : le trousseau de clés Data Protection (`/root/.aspnet/DataProtection-Keys`) n'était pas persisté entre redémarrages du conteneur — chaque déploiement invalidait silencieusement toutes les sessions/jetons anti-CSRF/TempData en cours (`CryptographicException: key not found in the key ring`), cassant le formulaire d'inscription public en plein milieu. Corrigé par `PersistKeysToFileSystem` pointé sur un volume Docker nommé (`cedeva-dpkeys`).
+
+**Tests de bout en bout réalisés sur `new.cedeva.be`** : inscription publique (parent + enfant) via l'iframe, paiement Stripe (mode test, checkout + webhook), email de confirmation Brevo — les trois fonctionnent.
 
 ---
 
@@ -32,6 +54,7 @@ Source : export Notion [`CEDEVA 2 0 ....md`](CEDEVA%202%200%2035545c93462a801cae
 - ✅ **Fait** — Page d'accueil réduite à la liste « Activités récentes » (4 cartes stats, inscriptions récentes, actions rapides retirées, `HomeController` simplifié en conséquence).
 - ✅ **Fait** — Menu du haut (dans une activité) réduit à « Tableau de bord » + dropdown « Pages spéciales » (liste des groupes, total des présences).
 - ⏸️ **Non traité** — Menu hamburger (barre latérale globale) : cible connue mais reste à cadrer, voir question n°2.
+- ⏸️ **Pas fait (précision 2026-07-31, capture `10.35.33` annotée en vert)** — Le tableau de bord d'activité doit revenir à **8 grosses tuiles** (comme la maquette d'origine `18.09.45`) : transformer le bouton séparé « Paramètres de l'activité » en 8ᵉ tuile (à la place de la case actuellement vide), et ne garder en dessous que le bouton « Sortir de cette activité » (capture `10.03.21`). L'app actuelle a régressé vers 7 tuiles + 2 boutons séparés — c'est un retour en arrière à corriger, pas une nouvelle demande.
 
 ## Lot B — Confirmation des inscriptions
 
@@ -87,15 +110,39 @@ Source : export Notion [`CEDEVA 2 0 ....md`](CEDEVA%202%200%2035545c93462a801cae
 - ✅ **Fait** — 4 tableaux par activité (`ActivityManagement/OneReport`) : listings 2-5 ans / 6 ans et plus (N°, nom, âge, dates, jours, prix payé, indicateurs) + présences hebdomadaires par tranche d'âge. Format calqué sur [`17.pdf`](17.pdf). Aucune migration nécessaire, testé (`OneReportTests.cs`). **Ce rapport reste par activité** (c'est un rapport officiel envoyé à l'ONE, distinct de l'attestation fiscale ci-dessous — à ne pas confondre).
 - ⏸️ **Bloqué — en attente d'un exemple de Thomas** — Attestations fiscales : **regroupées par association**, pas par activité (confirmation du texte original — l'attestation fiscale donnée au parent est un document différent du rapport ONE par activité ci-dessus). Aucune attestation fiscale n'existe encore dans le code. Contrairement au rapport ONE (qui avait `17.pdf` comme référence exacte), on n'a **aucun exemple de mise en page/contenu réel** pour ce document officiel (mentions légales, montant déductible, période, etc.) — **à demander à Thomas avant de coder**, pour éviter de produire un document qui ne serait pas valable fiscalement.
 
+## Lot I — Création d'une activité (refonte wizard, nouveau 2026-07-31)
+
+Demande de refonte du formulaire de création d'activité : actuellement un formulaire plat unique (Titre/Du/Au), Thomas veut un **assistant multi-étapes avec jauge de progression** (maquette générique `10.21.29`, pastilles 1-2-3-4). Détail des 7 étapes :
+
+- ⏸️ **Pas fait** — **Écran d'entrée** : page « Sélectionnez votre activité » avec gros boutons par stage + « Créer une nouvelle activité » (vert) + « Déconnexion » (rouge) — réutilise le même écran que « Page d'accueil générale organisation ».
+- ⏸️ **Pas fait** — **Étape 1** : Titre + Dates (inchangé dans le principe, juste repositionné dans le wizard).
+- ⏸️ **Pas fait** — **Étape 2 — Paramétrage des dates** : supporter 2 modes d'inscription, « au jour le jour » et « à la semaine » (le lundi représente visuellement toute la semaine groupée). **À supprimer** (annoté en rouge, capture `09.19.42`) : boutons « Ajouter un jour avant/après », « Retirer le 1er/dernier jour », bandeau « Gérez les jours actifs ». **À la place** : un bouton « Ajouter une date » ouvrant un calendrier, en gardant la suppression ligne par ligne (icônes crayon/poubelle déjà présentes, capture `10.25.06`).
+- ✅ **Jugé conforme tel quel** — **Étape 3 — Règlement (R.O.I.)** : upload PDF + texte de case à cocher (capture `09.31.41`), juste à intégrer dans le wizard.
+- ✅ **Jugé conforme tel quel** — **Étape 4 — Limitations** : codes postaux autorisés/refusés (vide = tous), nombre max d'enfants/jour + message « COMPLET » personnalisable (capture `aa8a0a57`), juste à intégrer dans le wizard.
+- ⏸️ **Bloqué par la question n°7** — **Étape 5 — Autres questions** : reprend les questions personnalisées par activité, avec la question du modèle org→activité (n°7). **À supprimer** (annoté en rouge, capture `09.49.21`) : le toggle « Actif » du formulaire de question (« si on pose la question pour l'activité, c'est que c'est actif »).
+- ✅ **Jugé conforme tel quel** — **Étape 6 — Affichage** : dates d'affichage du formulaire, message si aucun formulaire actif, page de redirection après envoi (capture `09.50.34`), juste à intégrer dans le wizard.
+- ✅ **Jugé « super » tel quel** — **Étape 7 — Final** : couleurs (fond/boutons), URL directe, code d'intégration iframe avec aperçu (capture `09.54.00`). 🐛 **Bug signalé** : le téléchargement produit un fichier « Register » de 0 ko sur Mac — voir TO-DO.
+
+## Lot J — Paramètres (nouveau 2026-07-31, sans maquette)
+
+Page listée dans l'export mais sans capture d'écran associée — juste une liste de champs à formaliser :
+
+- ⏸️ **À maquetter** — **Signalétique de l'activité** : Logo, Titre, Adresse, E-mail (reply-to des mails envoyés), Téléphone 1, Téléphone 2, Numéro de compte, Numéro d'entreprise, Nom du responsable, Signature du responsable. Reprise par défaut des paramètres généraux de l'organisation, adaptable par activité.
+- ⏸️ **À maquetter** — Dates de l'activité (probablement un renvoi vers l'Étape 2 du wizard de création, Lot I).
+- ⏸️ **À maquetter** — Groupes de l'activité.
+- ⏸️ **À maquetter** — Formulaire (probablement un renvoi vers les Étapes 5/6 du wizard, Lot I).
+
 ---
 
 ## Ordre proposé
 
 Lots C, D (sauf numéro de ticket/Hors bilan/Rapport détaillé), E et G sont livrés. Reste :
 
-1. **Lot A** — cadrer le hamburger (question n°2).
+1. **Lot A** — cadrer le hamburger (question n°2) ; corriger le retour à 8 tuiles sur le tableau de bord d'activité (pas de question bloquante, codable directement).
 2. **Lot D** — numéro de ticket (question n°3), Hors bilan (question n°4), rapport détaillé par catégorie.
 3. **Lot F** — auto-proposition mail Excursion (question n°5).
 4. **Lot H** — attestations fiscales par association : bloqué en attente d'un exemple de Thomas (question n°6).
+5. **Lot I** — wizard de création d'activité : étapes 3/4/6/7 codables directement (juste du réagencement), étape 2 codable (retrait des boutons + nouveau bouton calendrier), étape 5 bloquée par la question n°7. Bug Mac (fichier 0 ko) à investiguer indépendamment.
+6. **Lot J** — Paramètres : à maquetter avec Thomas avant de coder (aucune capture fournie).
 
-Tout ce qui reste dans ces 4 points dépend d'une réponse de Thomas (questions 2 à 6) ; rien d'autre n'est codable sans attendre.
+Le tableau de bord d'activité (Lot A, tuiles) et le wizard de création (Lot I, étapes 3/4/6/7) sont codables sans attendre de réponse de Thomas. Tout le reste dépend d'une réponse de Thomas (questions 2 à 7) ou d'une maquette (Lot J).
