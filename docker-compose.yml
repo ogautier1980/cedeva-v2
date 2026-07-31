@@ -28,9 +28,12 @@ services:
       - ConnectionStrings__DefaultConnection=Host=cedeva-db;Port=5432;Database=Cedeva;Username=postgres;Password=YourStrongPassword123
     ports:
       - "5000:8080"
+    volumes:
+      - cedeva-dpkeys:/keys
     depends_on:
       cedeva-db:
         condition: service_healthy
 
 volumes:
   cedeva-pgdata:
+  cedeva-dpkeys:

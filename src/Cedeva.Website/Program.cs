@@ -19,6 +19,7 @@ using Cedeva.Website.Localization;
 using Cedeva.Website.Validation;
 using FluentValidation;
 using FluentValidation.AspNetCore;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -82,6 +83,14 @@ try
     // Strongly-typed configuration (Options pattern)
     builder.Services.Configure<BrevoOptions>(builder.Configuration.GetSection(BrevoOptions.SectionName));
     builder.Services.Configure<StripeOptions>(builder.Configuration.GetSection(StripeOptions.SectionName));
+
+    // Persist the Data Protection key ring to a volume-backed directory. Without this, keys live
+    // only in the container's ephemeral filesystem: every container recreate (every deploy)
+    // silently invalidates every existing session/antiforgery/TempData cookie for anyone using the
+    // site at that moment (CryptographicException "key not found in the key ring").
+    builder.Services.AddDataProtection()
+        .SetApplicationName("Cedeva")
+        .PersistKeysToFileSystem(new DirectoryInfo("/keys"));
 
     // Rate limiting (per client IP) for sensitive anonymous endpoints: login and the public
     // registration flow — mitigates brute-force and bot spam. Client IP is resolved from the
