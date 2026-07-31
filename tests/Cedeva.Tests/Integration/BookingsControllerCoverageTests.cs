@@ -144,6 +144,43 @@ public class BookingsControllerCoverageTests
     }
 
     [Fact]
+    public async Task Details_WithExcursionRegistration_ShowsExcursionsBreakdown()
+    {
+        using var factory = new CedevaWebApplicationFactory();
+        var g = SeedFullGraph(factory);
+        factory.Seed(ctx =>
+        {
+            var booking = ctx.Bookings.IgnoreQueryFilters().Single(b => b.Id == g.Booking.Id);
+            var excursion = new Excursion
+            {
+                Name = "Excursion Test",
+                ExcursionDate = new DateTime(2026, 7, 3),
+                Cost = 15m,
+                Type = ExcursionType.Other,
+                IsActive = true,
+                ActivityId = booking.ActivityId
+            };
+            ctx.Add(excursion);
+            ctx.SaveChanges();
+            ctx.Add(new ExcursionRegistration
+            {
+                ExcursionId = excursion.Id,
+                BookingId = booking.Id,
+                RegistrationDate = DateTime.Today
+            });
+            ctx.SaveChanges();
+            return 0;
+        });
+
+        var client = factory.CreateClientFor("u1", g.Org.Id, Coordinator);
+        var response = await client.GetAsync($"/Bookings/Details/{g.Booking.Id}");
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var html = await response.Content.ReadAsStringAsync();
+        html.Should().Contain("15,00", "the excursion cost breakdown line should show the registered excursion's cost");
+    }
+
+    [Fact]
     public async Task Details_UnknownId_ReturnsNotFound()
     {
         using var factory = new CedevaWebApplicationFactory();

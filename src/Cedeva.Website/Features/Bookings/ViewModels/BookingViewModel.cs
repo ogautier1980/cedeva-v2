@@ -35,6 +35,9 @@ public class BookingViewModel : AuditableViewModel
     public decimal PaidAmount { get; set; }
     public Core.Enums.PaymentStatus PaymentStatus { get; set; }
 
+    /// <summary>Portion of <see cref="TotalAmount"/> coming from registered excursions (already included in it).</summary>
+    public decimal TotalExcursionsAmount { get; set; }
+
     // Navigation properties for display
     public string? ChildFullName { get; set; }
     public string? ParentFullName { get; set; }

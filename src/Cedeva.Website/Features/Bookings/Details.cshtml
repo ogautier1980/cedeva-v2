@@ -118,6 +118,15 @@
                             <strong class="text-primary">@Model.TotalAmount.ToString("C2", new System.Globalization.CultureInfo("fr-BE"))</strong>
                         </dd>
 
+                        @if (Model.TotalExcursionsAmount > 0)
+                        {
+                            <dt class="col-sm-4">@Localizer["Financial.TotalExcursionsAmount"]</dt>
+                            <dd class="col-sm-8">
+                                <span class="text-muted">@Model.TotalExcursionsAmount.ToString("C2", new System.Globalization.CultureInfo("fr-BE"))</span>
+                                <small class="text-muted d-block">@Localizer["Financial.TotalExcursionsAmountHelp"]</small>
+                            </dd>
+                        }
+
                         <dt class="col-sm-4">@Localizer["Financial.PaidAmount"]</dt>
                         <dd class="col-sm-8">
                             <span class="text-success">@Model.PaidAmount.ToString("C2", new System.Globalization.CultureInfo("fr-BE"))</span>

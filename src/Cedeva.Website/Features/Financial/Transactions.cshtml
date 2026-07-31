@@ -8,7 +8,6 @@
     ViewData["ActivityName"] = Model.ActivityName;
     ViewData["NavSection"] = "Financial";
     ViewData["NavAction"] = "Transactions";
-    var currentFilter = ViewBag.CurrentFilter as string;
 }
 
 
@@ -41,68 +40,6 @@
     </div>
 
     @await Html.PartialAsync("_AlertMessages")
-    <!-- Summary Cards -->
-    <div class="row mb-4">
-        <div class="col-md-4">
-            <div class="card border-left-success shadow h-100">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col">
-                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                                @Localizer["Financial.TotalIncome"]
-                            </div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">
-                                <span class="financial-amount">@Model.TotalIncome.ToString("N2") €</span>
-                            </div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-arrow-down fa-2x text-gray-300"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-4">
-            <div class="card border-left-danger shadow h-100">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col">
-                            <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">
-                                @Localizer["Financial.TotalExpenses"]
-                            </div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">
-                                <span class="financial-amount">@Model.TotalExpenses.ToString("N2") €</span>
-                            </div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-arrow-up fa-2x text-gray-300"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-4">
-            <div class="card border-left-@(Model.NetBalance >= 0 ? "primary" : "warning") shadow h-100">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col">
-                            <div class="text-xs font-weight-bold text-@(Model.NetBalance >= 0 ? "primary" : "warning") text-uppercase mb-1">
-                                @Localizer["Financial.NetBalance"]
-                            </div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">
-                                <span class="financial-amount">@Model.NetBalance.ToString("N2") €</span>
-                            </div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-balance-scale fa-2x text-gray-300"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
 
     @if (Model.TotalOffBalance != 0)
     {
@@ -128,23 +65,6 @@
             </div>
         </div>
     }
-
-    <!-- Filter -->
-    <div class="row mb-3">
-        <div class="col-12">
-            <nav class="btn-group" aria-label="@Localizer["Field.Filter"]">
-                <a asp-action="Transactions" class="btn btn-@(string.IsNullOrEmpty(currentFilter) ? "primary" : "outline-primary")">
-                    <i class="fas fa-list me-1"></i>@Localizer["Financial.AllTransactions"]
-                </a>
-                <a asp-action="Transactions" asp-route-filter="income" class="btn btn-@(currentFilter == "income" ? "success" : "outline-success")">
-                    <i class="fas fa-arrow-down me-1"></i>@Localizer["Financial.IncomeOnly"]
-                </a>
-                <a asp-action="Transactions" asp-route-filter="expense" class="btn btn-@(currentFilter == "expense" ? "danger" : "outline-danger")">
-                    <i class="fas fa-arrow-up me-1"></i>@Localizer["Financial.ExpensesOnly"]
-                </a>
-            </nav>
-        </div>
-    </div>
 
     <!-- Transactions Table -->
     <div class="card shadow">

@@ -2125,6 +2125,12 @@
   <data name="Financial.TotalAmount" xml:space="preserve">
     <value>Total amount</value>
   </data>
+  <data name="Financial.TotalExcursionsAmount" xml:space="preserve">
+    <value>Of which excursions</value>
+  </data>
+  <data name="Financial.TotalExcursionsAmountHelp" xml:space="preserve">
+    <value>Already included in the total amount above.</value>
+  </data>
   <data name="Financial.TotalBookings" xml:space="preserve">
     <value>Total bookings</value>
   </data>

@@ -2080,6 +2080,12 @@
   <data name="Financial.TotalAmount" xml:space="preserve">
     <value>Montant total</value>
   </data>
+  <data name="Financial.TotalExcursionsAmount" xml:space="preserve">
+    <value>Dont excursions</value>
+  </data>
+  <data name="Financial.TotalExcursionsAmountHelp" xml:space="preserve">
+    <value>Déjà inclus dans le montant total ci-dessus.</value>
+  </data>
   <data name="Financial.TotalBookings" xml:space="preserve">
     <value>Total des réservations</value>
   </data>

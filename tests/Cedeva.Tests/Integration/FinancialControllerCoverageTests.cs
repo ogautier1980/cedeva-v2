@@ -303,7 +303,7 @@ public class FinancialControllerCoverageTests
     }
 
     // ---------------------------------------------------------------------
-    // Transactions (GET) – with and without filter query param
+    // Transactions (GET) – bare list, no stats cards/filter tabs (Lot D)
     // ---------------------------------------------------------------------
 
     [Fact]
@@ -320,7 +320,7 @@ public class FinancialControllerCoverageTests
     }
 
     [Fact]
-    public async Task Transactions_NoFilter_ShowsIncomeAndExpenses()
+    public async Task Transactions_ShowsIncomeAndExpenses()
     {
         using var factory = new CedevaWebApplicationFactory();
         var g = SeedFullGraph(factory);
@@ -331,33 +331,7 @@ public class FinancialControllerCoverageTests
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         var html = await response.Content.ReadAsStringAsync();
         html.Should().Contain("Stage Coverage");
-        // Both an expense label and the income side should be present without a filter.
         html.Should().Contain("Materiel");
-    }
-
-    [Fact]
-    public async Task Transactions_ExpenseFilter_RendersOk()
-    {
-        using var factory = new CedevaWebApplicationFactory();
-        var g = SeedFullGraph(factory);
-        var client = await ClientWithActivitySelected(factory, g.OrgId, g.ActivityId);
-
-        var response = await client.GetAsync("/Financial/Transactions?filter=expense");
-
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
-        (await response.Content.ReadAsStringAsync()).Should().Contain("Materiel");
-    }
-
-    [Fact]
-    public async Task Transactions_IncomeFilter_RendersOk()
-    {
-        using var factory = new CedevaWebApplicationFactory();
-        var g = SeedFullGraph(factory);
-        var client = await ClientWithActivitySelected(factory, g.OrgId, g.ActivityId);
-
-        var response = await client.GetAsync("/Financial/Transactions?filter=income");
-
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
     }
 
     // ---------------------------------------------------------------------

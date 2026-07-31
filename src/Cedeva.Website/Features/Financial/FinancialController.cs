@@ -621,7 +621,7 @@ public class FinancialController : Controller
     }
 
     // GET: Financial/Transactions
-    public async Task<IActionResult> Transactions(string? filter)
+    public async Task<IActionResult> Transactions()
     {
         var activityId = HttpContext.Session.GetInt32(SessionKeyActivityId);
         if (!activityId.HasValue)
@@ -639,54 +639,46 @@ public class FinancialController : Controller
 
         var transactions = new List<ViewModels.TransactionViewModel>();
 
-        // Récupérer les paiements (entrées) si pas de filtre ou filtre "income"
-        if (string.IsNullOrEmpty(filter) || filter == "income")
+        var payments = await _context.Payments
+            .Include(p => p.Booking)
+                .ThenInclude(b => b.Child)
+            .Where(p => p.Booking.ActivityId == activityId.Value && p.Status == Core.Enums.PaymentStatus.Paid)
+            .ToListAsync();
+
+        transactions.AddRange(payments.Select(p => new ViewModels.TransactionViewModel
         {
-            var payments = await _context.Payments
-                .Include(p => p.Booking)
-                    .ThenInclude(b => b.Child)
-                .Where(p => p.Booking.ActivityId == activityId.Value && p.Status == Core.Enums.PaymentStatus.Paid)
-                .ToListAsync();
+            Date = p.PaymentDate,
+            TicketNumber = p.TicketNumber,
+            Type = "Payment",
+            Label = $"{_ctx.Localizer["Payments.PaymentFrom"]} {p.Booking.Child.FirstName} {p.Booking.Child.LastName}",
+            Amount = p.Amount,
+            IsIncome = true,
+            PaymentMethod = _ctx.Localizer[$"PaymentMethod.{p.PaymentMethod}"].Value,
+            ChildName = $"{p.Booking.Child.FirstName} {p.Booking.Child.LastName}",
+            RelatedId = p.Id
+        }));
 
-            transactions.AddRange(payments.Select(p => new ViewModels.TransactionViewModel
-            {
-                Date = p.PaymentDate,
-                TicketNumber = p.TicketNumber,
-                Type = "Payment",
-                Label = $"{_ctx.Localizer["Payments.PaymentFrom"]} {p.Booking.Child.FirstName} {p.Booking.Child.LastName}",
-                Amount = p.Amount,
-                IsIncome = true,
-                PaymentMethod = _ctx.Localizer[$"PaymentMethod.{p.PaymentMethod}"].Value,
-                ChildName = $"{p.Booking.Child.FirstName} {p.Booking.Child.LastName}",
-                RelatedId = p.Id
-            }));
-        }
+        var expenses = await _context.Expenses
+            .Include(e => e.TeamMember)
+            .Include(e => e.Excursion)
+            .Include(e => e.ExpenseCategory)
+            .Where(e => e.ActivityId == activityId.Value)
+            .ToListAsync();
 
-        // Récupérer les dépenses (sorties) si pas de filtre ou filtre "expense"
-        if (string.IsNullOrEmpty(filter) || filter == "expense")
+        transactions.AddRange(expenses.Select(e => new ViewModels.TransactionViewModel
         {
-            var expenses = await _context.Expenses
-                .Include(e => e.TeamMember)
-                .Include(e => e.Excursion)
-                .Include(e => e.ExpenseCategory)
-                .Where(e => e.ActivityId == activityId.Value)
-                .ToListAsync();
-
-            transactions.AddRange(expenses.Select(e => new ViewModels.TransactionViewModel
-            {
-                Date = e.ExpenseDate,
-                TicketNumber = e.TicketNumber,
-                Type = "Expense",
-                Label = e.Label,
-                Category = e.Category,
-                AssignedTo = GetExpenseAssignedToLabel(e),
-                Amount = e.Amount,
-                IsIncome = false,
-                IsOffBalance = e.ExpenseCategory?.CategoryType == ExpenseCategoryType.OffBalance,
-                RelatedId = e.Id,
-                ExcursionName = e.Excursion?.Name
-            }));
-        }
+            Date = e.ExpenseDate,
+            TicketNumber = e.TicketNumber,
+            Type = "Expense",
+            Label = e.Label,
+            Category = e.Category,
+            AssignedTo = GetExpenseAssignedToLabel(e),
+            Amount = e.Amount,
+            IsIncome = false,
+            IsOffBalance = e.ExpenseCategory?.CategoryType == ExpenseCategoryType.OffBalance,
+            RelatedId = e.Id,
+            ExcursionName = e.Excursion?.Name
+        }));
 
         // Trier par date décroissante
         transactions = transactions.OrderByDescending(t => t.Date).ToList();
@@ -708,7 +700,6 @@ public class FinancialController : Controller
             Transactions = transactions
         };
 
-        ViewBag.CurrentFilter = filter;
         return View(viewModel);
     }
 

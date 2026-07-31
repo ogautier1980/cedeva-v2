@@ -67,7 +67,7 @@ Migration complète menée en une session, en 5 phases séquentielles (chaque ph
 ## Lot C — Présences
 
 - ✅ **Fait** — Clic sur un enfant → fiche `Bookings/Details` enrichie (adresse/parent éditables, groupe, fiche médicale, historique des paiements).
-- ⏸️ **Gap identifié (relecture 2026-07-31)** — La maquette de référence (`Présences/18.29.32`, « Dupont Jean ») affiche une ligne **« Total prévu EXCURSIONS »** distincte de « Total prévu à payer » et du listing des paiements. `Bookings/Details.cshtml` n'a pas de décomposition du coût des excursions séparée du prix de l'activité de base — non bloquant (le total global reste correct), mais la ventilation détaillée manque encore.
+- ✅ **Fait (2026-07-31)** — Ligne « Dont excursions » sur `Bookings/Details.cshtml`, sous le montant total (affichée seulement si > 0) : somme des `Excursion.Cost` des excursions auxquelles l'enfant est inscrit (déjà incluse dans `Booking.TotalAmount`, ajoutée par `ExcursionService.RegisterChildAsync`) — reprend l'esprit de la ligne « Total prévu EXCURSIONS » de la maquette `Présences/18.29.32`.
 - ✅ Confirmé dans le code : le filtre jour est déjà scopé à l'activité + jour sélectionné.
 - ✅ **Fait** — Colonne « Payé » (✓/✗ + solde) dans `Presences.cshtml`.
 - ✅ **Fait (2026-07-31)** — Forcer une inscription non payée : badge de statut de paiement (+ solde) sur `ManageBookings` ; avertissement de confirmation (`confirm()` JS avec le solde dû). Rien ne bloquait techniquement la confirmation, le manque était la visibilité — désormais remplacé par l'envoi automatique du mail de paiement (voir Lot B). Solde restant recalculé en direct pendant la saisie sur `Payments/Create` ; testé avec 2 paiements manuels successifs sur la même réservation.
@@ -89,7 +89,7 @@ Migration complète menée en une session, en 5 phases séquentielles (chaque ph
 
 ## Lot E — E-mails
 
-- ⏸️ **Pas fait** — Épurer l'UI de `SendEmail.cshtml` : retirer le panneau Informations et les boutons « Enregistrer comme modèle »/« Historique », alléger la checkbox « Un email par enfant », réduire le panneau Variables de personnalisation (réf. `19.12.49 1` annotée).
+- ✅ **Fait (2026-07-30, commit `9fe7f51`)** — Épurer l'UI de `SendEmail.cshtml` : panneau Informations retiré, boutons « Enregistrer comme modèle »/« Historique » sortis de la rangée du bas (déplacés en bandeau compact en haut d'écran), texte d'aide de « Un email par enfant » replié dans le label, panneau Variables de personnalisation replié par défaut (`<div class="collapse">`). Corrigé au passage 2026-07-31 : le backlog disait encore « Pas fait » alors que le travail était déjà livré la veille.
 - ✅ **Fait** — 3 modèles verrouillés (Confirmation d'inscription, Rappel fiche médicale, Rappel paiement) : uniques par organisation, non créables/dupliquables/supprimables, plus jamais copiés par activité (migration de nettoyage des copies déjà existantes).
 - ✅ Déjà le cas — modèles Excursion libres.
 - ✅ **Fait** — Bouton « Envoyer » sur `EmailTemplates/Index` → ouvre `SendEmail` avec le modèle pré-chargé.
@@ -143,13 +143,13 @@ L'essentiel des Lots A à G est livré. Toutes les questions 1 à 5 d'origine é
 Olivier, **plus aucun item n'est bloqué en attente d'une réponse** sauf Lot H (attestations
 fiscales) et l'étape 5 du Lot I (modèle de questions). Reste à coder, par priorité :
 
-1. **Petits restes codables sans attendre Thomas** :
-   - Lot D — simplifier le parcours Comptes → Transactions (sauter directement sur la liste nue).
-   - Lot E — épurer l'UI de `SendEmail.cshtml` (retirer panneau Informations, boutons modèle/historique en trop, alléger Variables).
-   - Lot F — la vraie « auto-proposition » du mail Excursion (suggestion automatique à la création/programmation) ; seul le nouveau destinataire manuel existe aujourd'hui.
-   - Lot C — ventilation « Total prévu EXCURSIONS » séparée sur `Bookings/Details` (gap mineur, non bloquant).
+1. **Petits restes** — tous livrés le 2026-07-31 sauf Lot F (mis de côté) :
+   - ✅ Lot D — simplifier le parcours Comptes → Transactions (cartes stats + onglets de filtre retirés de `Transactions.cshtml`, liste nue).
+   - ✅ Lot E — épuration de `SendEmail.cshtml` (en fait déjà livré le 2026-07-30, backlog seulement mis à jour aujourd'hui).
+   - ✅ Lot C — ligne « Dont excursions » sur `Bookings/Details`.
+   - ⏸️ Lot F — la vraie « auto-proposition » du mail Excursion (suggestion automatique à la création/programmation) ; seul le nouveau destinataire manuel existe. **Explicitement mis de côté pour l'instant.**
 2. **Lot H** — attestations fiscales par association : bloqué en attente d'un exemple de Thomas (question n°1).
-3. **Lot I** — wizard de création d'activité : étapes 1/2/3/4/6/7 codables directement (réagencement + retrait des boutons de dates + nouveau bouton calendrier), étape 5 bloquée par la question n°2 (modèle de questions). Bug Mac (fichier 0 ko) résolu depuis la migration OVH.
+3. **Lot I** — wizard de création d'activité : étapes 1/2/3/4/6/7 codables directement (réagencement + retrait des boutons de dates + nouveau bouton calendrier), étape 5 bloquée par la question n°2 (modèle de questions). Bug Mac (fichier 0 ko) résolu depuis la migration OVH. **Gros morceau — mérite son propre cadrage avant de commencer** (voir note ci-dessous).
 4. **Lot J** — Paramètres : à maquetter avec Thomas avant de coder (aucune capture fournie).
 
 Codable sans attendre Thomas : le point 1 en entier, et Lot I sauf l'étape 5. Bloqué par Thomas :

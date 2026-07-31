@@ -521,6 +521,13 @@ public class BookingsController : Controller
         var activity = await _context.Activities.FindAsync(booking.ActivityId);
         var group = booking.GroupId.HasValue ? await _context.ActivityGroups.FindAsync(booking.GroupId.Value) : null;
 
+        // Portion of TotalAmount coming from excursions (already folded into TotalAmount when the
+        // child registers — see ExcursionService.RegisterChildAsync), surfaced separately for the
+        // "Total prévu EXCURSIONS" breakdown line.
+        var totalExcursionsAmount = await _context.ExcursionRegistrations
+            .Where(er => er.BookingId == id)
+            .SumAsync(er => er.Excursion.Cost);
+
         // Tenant isolation: a non-admin may only see bookings whose activity belongs to their
         // organisation (Booking itself has no query filter and the FindAsync calls bypass filters).
         if (!_ctx.CurrentUser.IsAdmin && activity?.OrganisationId != _ctx.CurrentUser.OrganisationId)
@@ -579,6 +586,7 @@ public class BookingsController : Controller
             TotalAmount = booking.TotalAmount,
             PaidAmount = booking.PaidAmount,
             PaymentStatus = booking.PaymentStatus,
+            TotalExcursionsAmount = totalExcursionsAmount,
             ChildFullName = child != null ? $"{child.FirstName} {child.LastName}" : "",
             ParentFullName = parent != null ? $"{parent.FirstName} {parent.LastName}" : "",
             ParentId = parent?.Id,

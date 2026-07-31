@@ -2125,6 +2125,12 @@
   <data name="Financial.TotalAmount" xml:space="preserve">
     <value>Totaalbedrag</value>
   </data>
+  <data name="Financial.TotalExcursionsAmount" xml:space="preserve">
+    <value>Waarvan uitstappen</value>
+  </data>
+  <data name="Financial.TotalExcursionsAmountHelp" xml:space="preserve">
+    <value>Al inbegrepen in het totaalbedrag hierboven.</value>
+  </data>
   <data name="Financial.TotalBookings" xml:space="preserve">
     <value>Totaal boekingen</value>
   </data>
