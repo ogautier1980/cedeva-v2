@@ -467,7 +467,7 @@
     <value>All children are already assigned to a group.</value>
   </data>
   <data name="ActivityManagement.AllBookingsComplete" xml:space="preserve">
-    <value>All bookings are complete (confirmed, with group and medical sheet).</value>
+    <value>All bookings are confirmed.</value>
   </data>
   <data name="ActivityManagement.AllMembersAssigned" xml:space="preserve">
     <value>All team members are already assigned to this activity.</value>
@@ -4106,6 +4106,9 @@
   </data>
   <data name="EmailTemplateType.NewRegistrationNotification" xml:space="preserve">
     <value>New registration notification</value>
+  </data>
+  <data name="EmailTemplateType.PaymentLinkRequest" xml:space="preserve">
+    <value>Payment link</value>
   </data>
   <data name="Activities.CannotRemoveLastDay" xml:space="preserve">
     <value>Cannot remove the activity's last day.</value>

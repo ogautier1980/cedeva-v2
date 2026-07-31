@@ -126,9 +126,9 @@ public class SeederSmokeTests
         seededOrg.BankAccountName.Should().NotBeNullOrEmpty();
         seededOrg.Email.Should().NotBeNullOrEmpty();
 
-        // A user exists, so the email-template branch executed (5 templates per org).
+        // A user exists, so the email-template branch executed (6 templates per org).
         (await verify.EmailTemplates.IgnoreQueryFilters().CountAsync(t => t.OrganisationId == org.Id))
-            .Should().Be(5);
+            .Should().Be(6);
     }
 
     [Fact]

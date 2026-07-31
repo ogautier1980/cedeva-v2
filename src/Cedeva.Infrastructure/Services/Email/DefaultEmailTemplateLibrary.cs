@@ -101,6 +101,26 @@ public static class DefaultEmailTemplateLibrary
                 "</ul>" +
                 "<p>Connectez-vous à Cedeva pour la traiter.</p>",
             IsDefault = true
+        },
+        new EmailTemplate
+        {
+            OrganisationId = organisationId,
+            Name = "Lien de paiement",
+            TemplateType = EmailTemplateType.PaymentLinkRequest,
+            Subject = "Lien de paiement – %nom_complet_enfant% – %nom_activite%",
+            HtmlContent =
+                "<h2 style=\"color:#007faf;\">Confirmation et paiement de votre inscription</h2>" +
+                GreetingParent +
+                "<p>Nous vous confirmons que l'inscription de <strong>%nom_complet_enfant%</strong> " +
+                "à <strong>%nom_activite%</strong> est validée.</p>" +
+                "<p><strong>Montant restant à payer :</strong> %montant_restant%</p>" +
+                "<p style=\"text-align:center;\">" +
+                "<a href=\"%lien_paiement%\" style=\"background:#007faf;color:#ffffff;padding:12px 24px;" +
+                "border-radius:4px;text-decoration:none;display:inline-block;\">Payer en ligne</a></p>" +
+                "<p style=\"text-align:center;\">Ou scannez ce QR code pour payer par carte ou Bancontact :</p>" +
+                "<p style=\"text-align:center;\">%qr_code_paiement%</p>" +
+                "<p>Cordialement,<br><strong>%nom_organisation%</strong></p>",
+            IsDefault = true
         }
     };
 

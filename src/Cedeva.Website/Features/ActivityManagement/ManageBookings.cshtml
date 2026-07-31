@@ -41,12 +41,6 @@ else
                 <span class="badge bg-danger" id="pending-count" style="@(Model.PendingConfirmationCount == 0 ? "display:none;" : "")">
                     <i class="fas fa-clock me-1"></i>@Model.PendingConfirmationCount
                 </span>
-                <span class="badge bg-warning text-dark" id="group-count" style="@(Model.WithoutGroupCount == 0 ? "display:none;" : "")">
-                    <i class="fas fa-users me-1"></i>@Model.WithoutGroupCount
-                </span>
-                <span class="badge bg-info" id="medical-count" style="@(Model.WithoutMedicalSheetCount == 0 ? "display:none;" : "")">
-                    <i class="fas fa-file-medical me-1"></i>@Model.WithoutMedicalSheetCount
-                </span>
             </h6>
         </div>
         <div class="card-body p-0">
@@ -63,8 +57,6 @@ else
                             <th scope="col" class="sortable" data-column="age">
                                 @Localizer["Field.Age"] <i class="fas fa-sort text-muted"></i>
                             </th>
-                            <th scope="col">@Localizer["Field.Group"]</th>
-                            <th scope="col" class="text-center">@Localizer["Field.MedicalSheet"]</th>
                             <th scope="col" class="text-center">@Localizer["Financial.PaymentStatus"]</th>
                             <th scope="col" class="text-center">@Localizer["Field.Status"]</th>
                         </tr>
@@ -79,41 +71,6 @@ else
                                 <td><a asp-controller="Bookings" asp-action="Details" asp-route-id="@item.BookingId">@item.FirstName</a></td>
                                 <td><a asp-controller="Bookings" asp-action="Details" asp-route-id="@item.BookingId">@item.LastName</a></td>
                                 <td>@item.Age</td>
-                                <td>
-                                    <select class="form-select form-select-sm group-selector"
-                                            data-booking-id="@item.BookingId"
-                                            onchange="updateGroup(this)"
-                                            style="max-width: 200px;">
-                                        <option value="">@Localizer["ActivityManagement.SelectGroup"]</option>
-                                        @foreach (var option in Model.GroupOptions)
-                                        {
-                                            @if (item.GroupId?.ToString() == option.Value)
-                                            {
-                                                <option value="@option.Value" selected>@option.Text</option>
-                                            }
-                                            else
-                                            {
-                                                <option value="@option.Value">@option.Text</option>
-                                            }
-                                        }
-                                    </select>
-                                </td>
-                                <td class="text-center">
-                                    <button type="button"
-                                            class="btn btn-sm btn-link p-0"
-                                            data-booking-id="@item.BookingId"
-                                            data-medical="@item.IsMedicalSheet.ToString().ToLower()"
-                                            onclick="toggleMedicalSheet(this)">
-                                        @if (item.IsMedicalSheet)
-                                        {
-                                            <i class="fas fa-check-circle text-success fa-lg"></i>
-                                        }
-                                        else
-                                        {
-                                            <i class="fas fa-times-circle text-danger fa-lg"></i>
-                                        }
-                                    </button>
-                                </td>
                                 <td class="text-center">
                                     @{
                                         var statusBadge = item.PaymentStatus switch
@@ -160,11 +117,6 @@ else
 
 @section Scripts {
     <script>
-        $(document).ready(function () {
-            // Initialize Choices.js on all group selectors
-            CedevaChoices.initAll('.group-selector');
-        });
-
         // Sorting state
         let currentSort = { column: null, direction: 'asc' };
 
@@ -229,50 +181,8 @@ else
             }
         }
 
-        // Update group
-        async function updateGroup(selectElement) {
-            const bookingId = selectElement.dataset.bookingId;
-            const groupId = selectElement.value;
-
-            if (!groupId) return;
-
-            selectElement.disabled = true;
-
-            try {
-                await updateBooking(bookingId, { groupId: parseInt(groupId) });
-                selectElement.disabled = false;
-            } catch (error) {
-                selectElement.disabled = false;
-                selectElement.value = '';
-            }
-        }
-
-        // Toggle medical sheet
-        async function toggleMedicalSheet(button) {
-            const bookingId = button.dataset.bookingId;
-            const currentValue = button.dataset.medical === 'true';
-            const newValue = !currentValue;
-
-            button.disabled = true;
-
-            try {
-                await updateBooking(bookingId, { isMedicalSheet: newValue });
-
-                // Update button
-                button.dataset.medical = newValue.toString();
-                const icon = button.querySelector('i');
-                if (newValue) {
-                    icon.className = 'fas fa-check-circle text-success fa-lg';
-                } else {
-                    icon.className = 'fas fa-times-circle text-danger fa-lg';
-                }
-                button.disabled = false;
-            } catch (error) {
-                button.disabled = false;
-            }
-        }
-
-        // Confirm booking
+        // Confirm booking — the server sends the payment link email (if a balance is due) as a
+        // side effect of this call; nothing else happens here in this screen.
         async function confirmBooking(button) {
             if (button.dataset.unpaid === 'true') {
                 var message = @Json.Serialize(Localizer["ActivityManagement.ConfirmUnpaidBooking"].Value)
@@ -286,84 +196,57 @@ else
             button.disabled = true;
 
             try {
-                await updateBooking(bookingId, { isConfirmed: true });
-
-                // Replace button with confirmed badge
-                const cell = button.parentElement;
-                cell.innerHTML = '<span class="badge bg-success"><i class="fas fa-check me-1"></i>@Localizer["Confirmed"]</span>';
-            } catch (error) {
-                button.disabled = false;
-            }
-        }
-
-        // Generic update booking function
-        async function updateBooking(bookingId, updates) {
-            try {
-                const response = await fetch('@Url.Action("UpdateBooking", "ActivityManagement")', {
+                const response = await fetch('@Url.Action("ConfirmBooking", "ActivityManagement")', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                         'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
                     },
-                    body: JSON.stringify({
-                        bookingId: parseInt(bookingId),
-                        ...updates
-                    })
+                    body: JSON.stringify({ bookingId: parseInt(bookingId) })
                 });
 
                 const result = await response.json();
 
-                if (result.success) {
-                    // Update badge counts
-                    await updateBadgeCounts();
-
-                    // If booking is complete, remove row
-                    if (result.isComplete) {
-                        const row = document.getElementById('booking-row-' + bookingId);
-                        row.style.transition = 'opacity 0.3s';
-                        row.style.opacity = '0';
-                        setTimeout(() => {
-                            row.remove();
-
-                            // Check if all bookings are complete
-                            const remainingRows = document.querySelectorAll('tbody tr');
-                            if (remainingRows.length === 0) {
-                                location.reload();
-                            }
-                        }, 300);
-                    }
-                } else {
+                if (!result.success) {
                     alert(result.message || '@Localizer["Message.ErrorOccurred"]');
-                    throw new Error(result.message);
+                    button.disabled = false;
+                    return;
                 }
+
+                await updateBadgeCounts();
+
+                const row = document.getElementById('booking-row-' + bookingId);
+                row.style.transition = 'opacity 0.3s';
+                row.style.opacity = '0';
+                setTimeout(() => {
+                    row.remove();
+                    const remainingRows = document.querySelectorAll('tbody tr');
+                    if (remainingRows.length === 0) {
+                        location.reload();
+                    }
+                }, 300);
             } catch (error) {
-                console.error('Error updating booking:', error);
+                console.error('Error confirming booking:', error);
                 alert('@Localizer["Message.ErrorOccurred"]');
-                throw error;
+                button.disabled = false;
             }
         }
 
-        // Update badge counts
+        // Update badge count
         async function updateBadgeCounts() {
             try {
                 const response = await fetch('@Url.Action("GetManageBookingsStats", "ActivityManagement")?activityId=@Model.ActivityId');
                 const stats = await response.json();
 
-                updateBadge('pending-count', stats.pendingConfirmation, 'fas fa-clock me-1');
-                updateBadge('group-count', stats.withoutGroup, 'fas fa-users me-1');
-                updateBadge('medical-count', stats.withoutMedicalSheet, 'fas fa-file-medical me-1');
+                const badge = document.getElementById('pending-count');
+                if (stats.pendingConfirmation === 0) {
+                    badge.style.display = 'none';
+                } else {
+                    badge.style.display = 'inline-block';
+                    badge.innerHTML = `<i class="fas fa-clock me-1"></i>${stats.pendingConfirmation}`;
+                }
             } catch (error) {
                 console.error('Error updating badge counts:', error);
-            }
-        }
-
-        function updateBadge(badgeId, count, iconClass) {
-            const badge = document.getElementById(badgeId);
-            if (count === 0) {
-                badge.style.display = 'none';
-            } else {
-                badge.style.display = 'inline-block';
-                badge.innerHTML = `<i class="${iconClass}"></i>${count}`;
             }
         }
     </script>

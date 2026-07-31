@@ -33,7 +33,8 @@ public class EmailFacadeService : IEmailFacadeService
     /// </summary>
     public async Task<bool> SendBookingTemplateAsync(
         EmailTemplateType type, int organisationId, IEnumerable<string> recipients,
-        Booking booking, Organisation organisation)
+        Booking booking, Organisation organisation,
+        IReadOnlyDictionary<string, string>? extraVariables = null)
     {
         // Prefer the activity's own default template, falling back to the organisation-level one.
         var template = await Template.GetDefaultTemplateAsync(type, organisationId, booking.ActivityId);
@@ -44,8 +45,8 @@ public class EmailFacadeService : IEmailFacadeService
         if (to.Count == 0)
             return false;
 
-        var subject = VariableReplacement.ReplaceVariables(template.Subject, booking, organisation);
-        var html = VariableReplacement.ReplaceVariables(template.HtmlContent, booking, organisation);
+        var subject = VariableReplacement.ReplaceVariables(template.Subject, booking, organisation, extraVariables);
+        var html = VariableReplacement.ReplaceVariables(template.HtmlContent, booking, organisation, extraVariables);
         await Email.SendEmailAsync(to, subject, html);
         return true;
     }

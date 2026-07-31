@@ -16,10 +16,12 @@ public interface IEmailFacadeService
 
     /// <summary>
     /// Renders the organisation's default template for the given type (with %variables% resolved from
-    /// the booking/organisation) and sends it to the unique recipients. Returns false when there is
-    /// no such template or no recipient, so the caller can fall back to a default message.
+    /// the booking/organisation, plus any <paramref name="extraVariables"/>) and sends it to the
+    /// unique recipients. Returns false when there is no such template or no recipient, so the
+    /// caller can fall back to a default message.
     /// </summary>
     Task<bool> SendBookingTemplateAsync(
         EmailTemplateType type, int organisationId, IEnumerable<string> recipients,
-        Booking booking, Organisation organisation);
+        Booking booking, Organisation organisation,
+        IReadOnlyDictionary<string, string>? extraVariables = null);
 }

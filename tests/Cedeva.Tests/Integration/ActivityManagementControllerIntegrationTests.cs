@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
+using Autofac;
 using Cedeva.Core.Entities;
 using Cedeva.Core.Enums;
 using Cedeva.Tests.TestSupport;
@@ -14,7 +15,7 @@ namespace Cedeva.Tests.Integration;
 /// activity-management dashboard (no classic Create CRUD): it exposes activity-scoped views
 /// (Index, Presences, SendEmail, SentEmails, TeamMembers, ManageBookings, GroupAssignment, Print)
 /// and mutating POST endpoints (ConfirmBooking, Add/RemoveTeamMember, UpdatePresence,
-/// AssignToGroup, UpdateBooking). The activity is always resolved through the
+/// AssignToGroup). The activity is always resolved through the
 /// multi-tenancy query filter, so a Coordinator of another organisation gets NotFound.
 /// </summary>
 [Collection("WebApp")]
@@ -174,50 +175,46 @@ public class ActivityManagementControllerIntegrationTests
     // ---------------------------------------------------------------------
 
     [Fact]
-    public async Task ConfirmBooking_WithGroup_ConfirmsAndAssignsGroup_AndRedirects()
+    public async Task ConfirmBooking_ValidBooking_ConfirmsWithoutTouchingGroupOrMedicalSheet()
     {
         using var factory = new CedevaWebApplicationFactory();
         int bookingId = 0;
-        int groupId = 0;
         factory.Seed(ctx =>
         {
             var org = TestData.Organisation();
             var activity = TestData.Activity(org);
-            var group = TestData.Group(activity, "Les Lions");
             var parent = TestData.Parent(org);
             var child = TestData.Child(parent);
-            var booking = TestData.Booking(child, activity, null, totalAmount: 100m, paidAmount: 0m);
+            var booking = TestData.Booking(child, activity, null, totalAmount: 100m, paidAmount: 100m);
             booking.IsConfirmed = false;
-            ctx.AddRange(org, activity, group, parent, child, booking);
+            booking.IsMedicalSheet = false;
+            ctx.AddRange(org, activity, parent, child, booking);
             ctx.SaveChanges();
             bookingId = booking.Id;
-            groupId = group.Id;
             return 0;
         });
 
         var client = factory.CreateClientFor("u1", organisationId: 1, role: "Coordinator");
-        var content = new FormUrlEncodedContent(new Dictionary<string, string>
-        {
-            ["bookingId"] = bookingId.ToString(),
-            ["groupId"] = groupId.ToString()
-        });
+        var response = await client.PostAsJsonAsync("/ActivityManagement/ConfirmBooking", new { BookingId = bookingId });
 
-        var response = await client.PostAsync("/ActivityManagement/ConfirmBooking", content);
-
-        response.StatusCode.Should().Be(HttpStatusCode.Found);
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
 
         using var db = factory.NewDbContext();
         var saved = await db.Bookings.IgnoreQueryFilters().FirstAsync(b => b.Id == bookingId);
         saved.IsConfirmed.Should().BeTrue();
-        saved.GroupId.Should().Be(groupId);
+        saved.GroupId.Should().BeNull("group assignment is no longer part of confirmation");
+        saved.IsMedicalSheet.Should().BeFalse("medical sheet is no longer part of confirmation");
     }
 
     [Fact]
-    public async Task ConfirmBooking_WithoutGroup_CreatesDefaultGroup_AndConfirms()
+    public async Task ConfirmBooking_WithBalanceDue_SendsPaymentLinkEmail()
     {
-        using var factory = new CedevaWebApplicationFactory();
+        var fake = new TestSupport.FakeEmailService();
+        using var factory = new CedevaWebApplicationFactory
+        {
+            ConfigureExtraTestContainer = b => b.RegisterInstance(fake).As<Cedeva.Core.Interfaces.IEmailService>()
+        };
         int bookingId = 0;
-        int activityId = 0;
         factory.Seed(ctx =>
         {
             var org = TestData.Organisation();
@@ -229,29 +226,46 @@ public class ActivityManagementControllerIntegrationTests
             ctx.AddRange(org, activity, parent, child, booking);
             ctx.SaveChanges();
             bookingId = booking.Id;
-            activityId = activity.Id;
             return 0;
         });
 
         var client = factory.CreateClientFor("u1", organisationId: 1, role: "Coordinator");
-        var content = new FormUrlEncodedContent(new Dictionary<string, string>
+        var response = await client.PostAsJsonAsync("/ActivityManagement/ConfirmBooking", new { BookingId = bookingId });
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        fake.Sent.Should().ContainSingle("a balance is still due, so a payment link must be emailed");
+        fake.Sent[0].To.Should().Contain("paul.parent@test.be");
+        fake.Sent[0].Html.Should().Contain($"OnlinePayment/Checkout?bookingId={bookingId}");
+    }
+
+    [Fact]
+    public async Task ConfirmBooking_FullyPaid_DoesNotSendPaymentLinkEmail()
+    {
+        var fake = new TestSupport.FakeEmailService();
+        using var factory = new CedevaWebApplicationFactory
         {
-            ["bookingId"] = bookingId.ToString()
+            ConfigureExtraTestContainer = b => b.RegisterInstance(fake).As<Cedeva.Core.Interfaces.IEmailService>()
+        };
+        int bookingId = 0;
+        factory.Seed(ctx =>
+        {
+            var org = TestData.Organisation();
+            var activity = TestData.Activity(org);
+            var parent = TestData.Parent(org);
+            var child = TestData.Child(parent);
+            var booking = TestData.Booking(child, activity, null, totalAmount: 100m, paidAmount: 100m);
+            booking.IsConfirmed = false;
+            ctx.AddRange(org, activity, parent, child, booking);
+            ctx.SaveChanges();
+            bookingId = booking.Id;
+            return 0;
         });
 
-        var response = await client.PostAsync("/ActivityManagement/ConfirmBooking", content);
+        var client = factory.CreateClientFor("u1", organisationId: 1, role: "Coordinator");
+        var response = await client.PostAsJsonAsync("/ActivityManagement/ConfirmBooking", new { BookingId = bookingId });
 
-        response.StatusCode.Should().Be(HttpStatusCode.Found);
-
-        using var db = factory.NewDbContext();
-        var saved = await db.Bookings.IgnoreQueryFilters().Include(b => b.Group).FirstAsync(b => b.Id == bookingId);
-        saved.IsConfirmed.Should().BeTrue();
-        saved.GroupId.Should().NotBeNull();
-        saved.Group!.Label.Should().Be("Sans groupe");
-
-        var defaultGroups = await db.ActivityGroups.IgnoreQueryFilters()
-            .Where(g => g.ActivityId == activityId && g.Label == "Sans groupe").ToListAsync();
-        defaultGroups.Should().HaveCount(1);
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        fake.Sent.Should().BeEmpty("the booking is already fully paid, no payment link is needed");
     }
 
     [Fact]
@@ -261,12 +275,7 @@ public class ActivityManagementControllerIntegrationTests
         factory.Seed(_ => 0);
 
         var client = factory.CreateClientFor("u1", organisationId: 1, role: "Coordinator");
-        var content = new FormUrlEncodedContent(new Dictionary<string, string>
-        {
-            ["bookingId"] = "424242"
-        });
-
-        var response = await client.PostAsync("/ActivityManagement/ConfirmBooking", content);
+        var response = await client.PostAsJsonAsync("/ActivityManagement/ConfirmBooking", new { BookingId = 424242 });
 
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
@@ -642,59 +651,11 @@ public class ActivityManagementControllerIntegrationTests
     }
 
     // ---------------------------------------------------------------------
-    // POST UpdateBooking (JSON body -> JSON result)
-    // ---------------------------------------------------------------------
-
-    [Fact]
-    public async Task UpdateBooking_SetsMedicalSheet_AndPersists()
-    {
-        using var factory = new CedevaWebApplicationFactory();
-        int bookingId = 0;
-        factory.Seed(ctx =>
-        {
-            var org = TestData.Organisation();
-            var activity = TestData.Activity(org);
-            var parent = TestData.Parent(org);
-            var child = TestData.Child(parent);
-            var booking = TestData.Booking(child, activity, null, 100m, 0m);
-            booking.IsMedicalSheet = false;
-            ctx.AddRange(org, activity, parent, child, booking);
-            ctx.SaveChanges();
-            bookingId = booking.Id;
-            return 0;
-        });
-
-        var client = factory.CreateClientFor("u1", organisationId: 1, role: "Coordinator");
-        var response = await client.PostAsJsonAsync("/ActivityManagement/UpdateBooking",
-            new { BookingId = bookingId, IsMedicalSheet = true });
-
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
-        (await response.Content.ReadAsStringAsync()).Should().Contain("\"success\":true");
-
-        using var db = factory.NewDbContext();
-        var saved = await db.Bookings.IgnoreQueryFilters().FirstAsync(b => b.Id == bookingId);
-        saved.IsMedicalSheet.Should().BeTrue();
-    }
-
-    [Fact]
-    public async Task UpdateBooking_WithUnknownBooking_ReturnsNotFound()
-    {
-        using var factory = new CedevaWebApplicationFactory();
-        factory.Seed(_ => 0);
-
-        var client = factory.CreateClientFor("u1", organisationId: 1, role: "Coordinator");
-        var response = await client.PostAsJsonAsync("/ActivityManagement/UpdateBooking",
-            new { BookingId = 654321, IsConfirmed = true });
-
-        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
-    }
-
-    // ---------------------------------------------------------------------
     // GET GetManageBookingsStats (anonymous JSON result)
     // ---------------------------------------------------------------------
 
     [Fact]
-    public async Task GetManageBookingsStats_CountsBookingsNeedingAttention()
+    public async Task GetManageBookingsStats_CountsUnconfirmedBookings()
     {
         using var factory = new CedevaWebApplicationFactory();
         int activityId = 0;
@@ -705,10 +666,8 @@ public class ActivityManagementControllerIntegrationTests
             var parent = TestData.Parent(org);
             var child = TestData.Child(parent);
 
-            // Unconfirmed, no group, no medical sheet -> counts in all three buckets.
             var b1 = TestData.Booking(child, activity, null, 100m, 0m);
             b1.IsConfirmed = false;
-            b1.IsMedicalSheet = false;
 
             ctx.AddRange(org, activity, parent, child, b1);
             ctx.SaveChanges();
@@ -721,10 +680,7 @@ public class ActivityManagementControllerIntegrationTests
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         using var doc = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
-        var root = doc.RootElement;
-        root.GetProperty("pendingConfirmation").GetInt32().Should().Be(1);
-        root.GetProperty("withoutGroup").GetInt32().Should().Be(1);
-        root.GetProperty("withoutMedicalSheet").GetInt32().Should().Be(1);
+        doc.RootElement.GetProperty("pendingConfirmation").GetInt32().Should().Be(1);
     }
 
     // ---------------------------------------------------------------------

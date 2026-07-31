@@ -9,7 +9,7 @@ namespace Cedeva.Tests.Integration;
 
 /// <summary>
 /// Drives the defensive catch branches of the ActivityManagement JSON endpoints
-/// <c>AssignToGroup</c> and <c>UpdateBooking</c> by forcing persistence to fail
+/// <c>AssignToGroup</c> and <c>ConfirmBooking</c> by forcing persistence to fail
 /// (<see cref="ThrowingSaveChangesInterceptor"/>). These deliberately answer with
 /// <c>StatusCode(500, new { success = false, ... })</c> — a *handled* JSON error envelope, not an
 /// unhandled crash — so we assert the 500 carries that JSON body and the change isn't persisted.
@@ -71,7 +71,7 @@ public class ActivityManagementJsonErrorPathTests
 
     [Theory]
     [MemberData(nameof(SaveFailures.Kinds), MemberType = typeof(SaveFailures))]
-    public async Task UpdateBooking_WhenSaveFails_ReturnsHandledJson500_AndNotUpdated(string kind)
+    public async Task ConfirmBooking_WhenSaveFails_ReturnsHandledJson500_AndNotUpdated(string kind)
     {
         var (factory, s) = Seed();
         using (factory)
@@ -79,8 +79,8 @@ public class ActivityManagementJsonErrorPathTests
             var client = factory.CreateClientFor("u1", s.OrgId, "Coordinator");
             factory.ThrowOnSaveChanges = SaveFailures.Make(kind);
 
-            var response = await client.PostAsJsonAsync("/ActivityManagement/UpdateBooking",
-                new { BookingId = s.BookingId, IsConfirmed = true });
+            var response = await client.PostAsJsonAsync("/ActivityManagement/ConfirmBooking",
+                new { BookingId = s.BookingId });
 
             await AssertHandledJson500(response);
 

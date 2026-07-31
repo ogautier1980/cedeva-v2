@@ -27,6 +27,7 @@ public class ActivityManagementController : Controller
     private readonly ISessionStateService _sessionState;
     private readonly IStringLocalizer<SharedResources> _localizer;
     private readonly IExportFacadeService _exportServices;
+    private readonly IQrCodeService _qrCodeService;
 
     public ActivityManagementController(
         CedevaDbContext context,
@@ -35,7 +36,8 @@ public class ActivityManagementController : Controller
         IActivityEmailService activityEmailService,
         ISessionStateService sessionState,
         IStringLocalizer<SharedResources> localizer,
-        IExportFacadeService exportServices)
+        IExportFacadeService exportServices,
+        IQrCodeService qrCodeService)
     {
         _context = context;
         _logger = logger;
@@ -44,6 +46,7 @@ public class ActivityManagementController : Controller
         _sessionState = sessionState;
         _localizer = localizer;
         _exportServices = exportServices;
+        _qrCodeService = qrCodeService;
     }
 
     [HttpGet]
@@ -90,58 +93,6 @@ public class ActivityManagementController : Controller
         return RedirectToAction(nameof(Index));
     }
 
-    [HttpGet]
-    public async Task<IActionResult> UnconfirmedBookings(int? id)
-    {
-        id ??= _sessionState.Get<int>(SessionKeyActivityId);
-
-        if (id is null)
-            return NotFound();
-
-        var activity = await _context.Activities
-            .Include(a => a.Groups)
-            .Include(a => a.Bookings)
-                .ThenInclude(b => b.Child)
-            .FirstOrDefaultAsync(a => a.Id == id);
-
-        if (activity == null)
-            return NotFound();
-
-        // Store the activity ID for future visits
-        _sessionState.Set<int>(SessionKeyActivityId, id.Value);
-
-        var unconfirmedBookings = activity.Bookings
-            .Where(b => !b.IsConfirmed)
-            .ToList();
-
-        var viewModel = new UnconfirmedBookingsViewModel
-        {
-            Activity = activity,
-            UnconfirmedBookings = unconfirmedBookings,
-            GroupOptions = activity.Groups.Select(g => new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem
-            {
-                Value = g.Id.ToString(),
-                Text = g.Label
-            }).ToList()
-        };
-
-        return View(viewModel);
-    }
-
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    [ActionName("BeginUnconfirmedBookings")]
-    public IActionResult UnconfirmedBookingsPost(int id)
-    {
-        if (!ModelState.IsValid)
-        {
-            return RedirectToAction(nameof(Index));
-        }
-
-        _sessionState.Set<int>(SessionKeyActivityId, id);
-        return RedirectToAction(nameof(UnconfirmedBookings));
-    }
-
     [HttpPost]
     [ValidateAntiForgeryToken]
     [ActionName("BeginGroupAssignment")]
@@ -154,57 +105,6 @@ public class ActivityManagementController : Controller
 
         _sessionState.Set<int>(SessionKeyActivityId, id);
         return RedirectToAction(nameof(GroupAssignment));
-    }
-
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> ConfirmBooking(int bookingId, int? groupId)
-    {
-        if (!ModelState.IsValid)
-        {
-            return RedirectToAction(nameof(UnconfirmedBookings));
-        }
-
-        var booking = await _context.Bookings
-            .Include(b => b.Activity)
-                .ThenInclude(a => a.Groups)
-            .FirstOrDefaultAsync(b => b.Id == bookingId);
-
-        if (booking == null)
-            return NotFound();
-
-        // If a group was selected, use it; otherwise assign to "Sans groupe"
-        if (groupId.HasValue && groupId.Value > 0)
-        {
-            booking.GroupId = groupId.Value;
-        }
-        else
-        {
-            // Find or create "Sans groupe" group for this activity
-            var noGroupLabel = DefaultGroupLabel;
-            var noGroup = booking.Activity.Groups.FirstOrDefault(g => g.Label == noGroupLabel);
-
-            if (noGroup == null)
-            {
-                noGroup = new ActivityGroup
-                {
-                    ActivityId = booking.Activity.Id,
-                    Label = noGroupLabel,
-                    Capacity = null
-                };
-                _context.ActivityGroups.Add(noGroup);
-                await _context.SaveChangesAsync(); // Save to get the Id
-            }
-
-            booking.GroupId = noGroup.Id;
-        }
-
-        booking.IsConfirmed = true;
-
-        await _context.SaveChangesAsync();
-
-        TempData[ControllerExtensions.SuccessMessageKey] = _localizer["Message.BookingConfirmed"].Value;
-        return RedirectToAction(nameof(UnconfirmedBookings));
     }
 
     [HttpGet]
@@ -1443,16 +1343,12 @@ public class ActivityManagementController : Controller
             return NotFound();
         }
 
-        // Get all bookings that need attention (not confirmed OR no real group OR no medical sheet)
+        // Only unconfirmed bookings need attention here — group and medical sheet are assigned
+        // independently (Bookings/Edit, GroupAssignment), no longer gating the confirm action.
         var bookings = await _context.Bookings
             .Include(b => b.Child)
                 .ThenInclude(c => c.Parent)
-            .Include(b => b.Group)
-            .Where(b => b.ActivityId == selectedActivityId.Value
-                     && (!b.IsConfirmed
-                         || b.GroupId == null
-                         || (b.Group != null && b.Group.Label == DefaultGroupLabel)
-                         || !b.IsMedicalSheet))
+            .Where(b => b.ActivityId == selectedActivityId.Value && !b.IsConfirmed)
             .OrderBy(b => b.Child.LastName)
             .ThenBy(b => b.Child.FirstName)
             .ToListAsync();
@@ -1469,35 +1365,20 @@ public class ActivityManagementController : Controller
                 LastName = b.Child.LastName,
                 BirthDate = b.Child.BirthDate,
                 IsConfirmed = b.IsConfirmed,
-                GroupId = b.GroupId,
-                GroupLabel = b.Group?.Label,
-                IsMedicalSheet = b.IsMedicalSheet,
                 TotalAmount = b.TotalAmount,
                 PaidAmount = b.PaidAmount,
                 PaymentStatus = b.PaymentStatus
-            }).ToList(),
-            GroupOptions = activity.Groups
-                .Where(g => g.Label != DefaultGroupLabel)
-                .OrderBy(g => g.Label)
-                .Select(g => new SelectListItem
-                {
-                    Value = g.Id.ToString(),
-                    Text = g.Label
-                })
-                .ToList()
+            }).ToList()
         };
 
-        // Calculate summary counts
-        viewModel.PendingConfirmationCount = viewModel.Bookings.Count(b => b.NeedsConfirmation);
-        viewModel.WithoutGroupCount = viewModel.Bookings.Count(b => b.NeedsGroup);
-        viewModel.WithoutMedicalSheetCount = viewModel.Bookings.Count(b => b.NeedsMedicalSheet);
+        viewModel.PendingConfirmationCount = viewModel.Bookings.Count;
 
         return View(viewModel);
     }
 
-    // POST: ActivityManagement/UpdateBooking
+    // POST: ActivityManagement/ConfirmBooking
     [HttpPost]
-    public async Task<IActionResult> UpdateBooking([FromBody] UpdateBookingRequest request)
+    public async Task<IActionResult> ConfirmBooking([FromBody] ConfirmBookingRequest request)
     {
         if (!ModelState.IsValid)
         {
@@ -1507,7 +1388,9 @@ public class ActivityManagementController : Controller
         try
         {
             var booking = await _context.Bookings
-                .Include(b => b.Group)
+                .Include(b => b.Child)
+                    .ThenInclude(c => c.Parent)
+                .Include(b => b.Activity)
                 .FirstOrDefaultAsync(b => b.Id == request.BookingId);
 
             if (booking == null)
@@ -1515,104 +1398,85 @@ public class ActivityManagementController : Controller
                 return NotFound(new { success = false, message = _localizer["Message.BookingNotFound"].Value });
             }
 
-            // Update the requested field(s)
-            var (updated, groupNotFound) = await ApplyBookingUpdatesAsync(booking, request);
-
-            if (groupNotFound)
+            if (!booking.IsConfirmed)
             {
-                return NotFound(new { success = false, message = _localizer["Message.GroupNotFound"].Value });
-            }
-
-            if (updated)
-            {
+                booking.IsConfirmed = true;
                 await _context.SaveChangesAsync();
-            }
 
-            // Check if booking is now complete (confirmed, has real group, has medical sheet)
-            var isComplete = booking.IsConfirmed
-                          && booking.GroupId.HasValue
-                          && (booking.Group == null || booking.Group.Label != DefaultGroupLabel)
-                          && booking.IsMedicalSheet;
+                if (booking.TotalAmount - booking.PaidAmount > 0)
+                {
+                    await SendPaymentLinkEmailAsync(booking);
+                }
+            }
 
             return Ok(new
             {
                 success = true,
                 message = _localizer["Message.BookingUpdated"].Value,
-                isComplete = isComplete
+                isComplete = true
             });
-        }
-        catch (InvalidOperationException ex)
-        {
-            _logger.LogWarning(ex, "Invalid operation while updating booking {BookingId}", request.BookingId);
-            return StatusCode(500, new { success = false, message = ex.Message });
         }
         catch (DbUpdateException ex)
         {
-            _logger.LogError(ex, "Database error while updating booking {BookingId}", request.BookingId);
+            _logger.LogError(ex, "Database error while confirming booking {BookingId}", request.BookingId);
             return StatusCode(500, new { success = false, message = _localizer[LocalizerKeyErrorOccurred].Value });
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Unexpected error while updating booking {BookingId}", request.BookingId);
+            _logger.LogError(ex, "Unexpected error while confirming booking {BookingId}", request.BookingId);
             return StatusCode(500, new { success = false, message = _localizer[LocalizerKeyErrorOccurred].Value });
         }
     }
 
-    private async Task<(bool updated, bool groupNotFound)> ApplyBookingUpdatesAsync(Booking booking, UpdateBookingRequest request)
+    /// <summary>
+    /// Sends the parent a Stripe payment link (card + Bancontact) with a QR code for the
+    /// remaining balance. Best-effort: never blocks the confirmation itself.
+    /// </summary>
+    private async Task SendPaymentLinkEmailAsync(Booking booking)
     {
-        bool updated = false;
-
-        if (request.GroupId.HasValue)
+        try
         {
-            var group = await _context.ActivityGroups.FindAsync(request.GroupId.Value);
-            if (group == null)
+            var organisation = await _context.Organisations
+                .FirstOrDefaultAsync(o => o.Id == booking.Activity.OrganisationId);
+            var parentEmail = booking.Child.Parent?.Email;
+
+            if (organisation == null || string.IsNullOrWhiteSpace(parentEmail))
+                return;
+
+            var checkoutUrl = Url.Action("Checkout", "OnlinePayment", new { bookingId = booking.Id }, Request.Scheme)!;
+            var qrDataUri = _qrCodeService.GenerateDataUri(checkoutUrl);
+            var qrImageTag = $"<img src=\"{qrDataUri}\" alt=\"QR paiement\" style=\"width:180px;height:180px;\">";
+
+            var extraVariables = new Dictionary<string, string>
             {
-                return (false, true);
-            }
-            booking.GroupId = request.GroupId.Value;
-            updated = true;
-        }
-
-        if (request.IsConfirmed.HasValue)
-        {
-            booking.IsConfirmed = request.IsConfirmed.Value;
-            if (request.IsConfirmed.Value && booking.GroupId == null)
-            {
-                await AssignDefaultGroupAsync(booking);
-            }
-            updated = true;
-        }
-
-        if (request.IsMedicalSheet.HasValue)
-        {
-            booking.IsMedicalSheet = request.IsMedicalSheet.Value;
-            updated = true;
-        }
-
-        return (updated, false);
-    }
-
-    private async Task AssignDefaultGroupAsync(Booking booking)
-    {
-        var activity = await _context.Activities
-            .Include(a => a.Groups)
-            .FirstOrDefaultAsync(a => a.Id == booking.ActivityId);
-
-        if (activity == null) return;
-
-        var noGroup = activity.Groups.FirstOrDefault(g => g.Label == DefaultGroupLabel);
-        if (noGroup == null)
-        {
-            noGroup = new ActivityGroup
-            {
-                ActivityId = activity.Id,
-                Label = DefaultGroupLabel,
-                Capacity = null
+                ["lien_paiement"] = checkoutUrl,
+                ["qr_code_paiement"] = qrImageTag
             };
-            _context.ActivityGroups.Add(noGroup);
-            await _context.SaveChangesAsync();
+
+            var sent = await _emailServices.SendBookingTemplateAsync(
+                EmailTemplateType.PaymentLinkRequest, organisation.Id, [parentEmail], booking, organisation, extraVariables);
+
+            if (!sent)
+            {
+                var subject = $"Lien de paiement – {booking.Child.FirstName} {booking.Child.LastName} – {booking.Activity.Name}";
+                var body =
+                    $"<h2 style=\"color:#007faf;\">Confirmation et paiement de votre inscription</h2>" +
+                    $"<p>Chère famille,</p>" +
+                    $"<p>Nous vous confirmons que l'inscription de <strong>{booking.Child.FirstName} {booking.Child.LastName}</strong> " +
+                    $"à <strong>{booking.Activity.Name}</strong> est validée.</p>" +
+                    $"<p><strong>Montant restant à payer :</strong> {(booking.TotalAmount - booking.PaidAmount):F2} €</p>" +
+                    $"<p style=\"text-align:center;\"><a href=\"{checkoutUrl}\" style=\"background:#007faf;color:#ffffff;" +
+                    $"padding:12px 24px;border-radius:4px;text-decoration:none;display:inline-block;\">Payer en ligne</a></p>" +
+                    $"<p style=\"text-align:center;\">Ou scannez ce QR code pour payer par carte ou Bancontact :</p>" +
+                    $"<p style=\"text-align:center;\">{qrImageTag}</p>" +
+                    $"<p>Cordialement,<br><strong>{organisation.Name}</strong></p>";
+                await _emailServices.Email.SendEmailAsync(parentEmail, subject, body);
+            }
         }
-        booking.GroupId = noGroup.Id;
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Failed to send payment link email for booking {BookingId}", booking.Id);
+        }
     }
 
     // GET: ActivityManagement/GetManageBookingsStats
@@ -1625,34 +1489,18 @@ public class ActivityManagementController : Controller
         var activityIsVisible = await _context.Activities.AnyAsync(a => a.Id == activityId);
         if (!activityIsVisible)
         {
-            return Ok(new { pendingConfirmation = 0, withoutGroup = 0, withoutMedicalSheet = 0 });
+            return Ok(new { pendingConfirmation = 0 });
         }
 
-        var bookings = await _context.Bookings
-            .Include(b => b.Group)
-            .Where(b => b.ActivityId == activityId
-                     && (!b.IsConfirmed
-                         || b.GroupId == null
-                         || (b.Group != null && b.Group.Label == DefaultGroupLabel)
-                         || !b.IsMedicalSheet))
-            .ToListAsync();
+        var pendingConfirmation = await _context.Bookings
+            .CountAsync(b => b.ActivityId == activityId && !b.IsConfirmed);
 
-        var stats = new
-        {
-            pendingConfirmation = bookings.Count(b => !b.IsConfirmed),
-            withoutGroup = bookings.Count(b => b.GroupId == null || (b.Group != null && b.Group.Label == DefaultGroupLabel)),
-            withoutMedicalSheet = bookings.Count(b => !b.IsMedicalSheet)
-        };
-
-        return Ok(stats);
+        return Ok(new { pendingConfirmation });
     }
 
-    public class UpdateBookingRequest
+    public class ConfirmBookingRequest
     {
         public int BookingId { get; set; }
-        public int? GroupId { get; set; }
-        public bool? IsConfirmed { get; set; }
-        public bool? IsMedicalSheet { get; set; }
     }
 
     public class AssignToGroupRequest

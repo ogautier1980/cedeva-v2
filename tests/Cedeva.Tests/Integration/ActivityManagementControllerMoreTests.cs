@@ -16,7 +16,7 @@ namespace Cedeva.Tests.Integration;
 /// - Presences with an explicit dayId, no-id/no-session NotFound and tenant isolation,
 /// - session-driven GroupAssignment / ManageBookings NotFound and tenant-isolation branches,
 /// - UpdatePresence persisting <c>false</c>,
-/// - unauthenticated access to the JSON/AJAX endpoints (AssignToGroup, UpdateBooking,
+/// - unauthenticated access to the JSON/AJAX endpoints (AssignToGroup, ConfirmBooking,
 ///   GetManageBookingsStats, UpdatePresence),
 /// - tenant isolation / empty results on GetManageBookingsStats and SentEmails.
 /// </summary>
@@ -366,14 +366,14 @@ public class ActivityManagementControllerMoreTests
     }
 
     [Fact]
-    public async Task UpdateBooking_WithoutAuth_IsChallenged()
+    public async Task ConfirmBooking_WithoutAuth_IsChallenged()
     {
         using var factory = new CedevaWebApplicationFactory();
         factory.Seed(_ => 0);
 
         var client = factory.CreateClient(new WebApplicationFactoryClientOptions { AllowAutoRedirect = false });
-        var response = await client.PostAsJsonAsync("/ActivityManagement/UpdateBooking",
-            new { BookingId = 1, IsConfirmed = true });
+        var response = await client.PostAsJsonAsync("/ActivityManagement/ConfirmBooking",
+            new { BookingId = 1 });
 
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }
@@ -408,98 +408,18 @@ public class ActivityManagementControllerMoreTests
             // A booking needing attention, but it belongs to another org.
             var booking = TestData.Booking(child, activity, null, 100m, 0m);
             booking.IsConfirmed = false;
-            booking.IsMedicalSheet = false;
             ctx.AddRange(org, activity, parent, child, booking);
             ctx.SaveChanges();
             activityId = activity.Id;
             return 0;
         });
 
-        // Coordinator of a foreign org: the tenant filter hides the bookings -> all zeros.
+        // Coordinator of a foreign org: the tenant filter hides the bookings -> zero.
         var client = factory.CreateClientFor("u1", ForeignOrgId, "Coordinator");
         var response = await client.GetAsync($"/ActivityManagement/GetManageBookingsStats?activityId={activityId}");
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         using var doc = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
-        var root = doc.RootElement;
-        root.GetProperty("pendingConfirmation").GetInt32().Should().Be(0);
-        root.GetProperty("withoutGroup").GetInt32().Should().Be(0);
-        root.GetProperty("withoutMedicalSheet").GetInt32().Should().Be(0);
-    }
-
-    // ---------------------------------------------------------------------
-    // GET GetManageBookingsStats - distinct buckets (group OK + medical OK, only unconfirmed)
-    // ---------------------------------------------------------------------
-
-    [Fact]
-    public async Task GetManageBookingsStats_OnlyPendingConfirmation_CountsSingleBucket()
-    {
-        using var factory = new CedevaWebApplicationFactory();
-        int activityId = 0;
-        factory.Seed(ctx =>
-        {
-            var org = TestData.Organisation();
-            var activity = TestData.Activity(org);
-            var group = TestData.Group(activity, "Les Pumas");
-            var parent = TestData.Parent(org);
-            var child = TestData.Child(parent);
-            // Has a real group + medical sheet, but not confirmed -> only pendingConfirmation.
-            var booking = TestData.Booking(child, activity, group, 100m, 0m);
-            booking.IsConfirmed = false;
-            booking.IsMedicalSheet = true;
-            ctx.AddRange(org, activity, group, parent, child, booking);
-            ctx.SaveChanges();
-            activityId = activity.Id;
-            return 0;
-        });
-
-        var client = factory.CreateClientFor("u1", organisationId: 1, role: "Coordinator");
-        var response = await client.GetAsync($"/ActivityManagement/GetManageBookingsStats?activityId={activityId}");
-
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
-        using var doc = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
-        var root = doc.RootElement;
-        root.GetProperty("pendingConfirmation").GetInt32().Should().Be(1);
-        root.GetProperty("withoutGroup").GetInt32().Should().Be(0);
-        root.GetProperty("withoutMedicalSheet").GetInt32().Should().Be(0);
-    }
-
-    // ---------------------------------------------------------------------
-    // POST UpdateBooking - clearing confirmation on an already-grouped booking (not complete)
-    // ---------------------------------------------------------------------
-
-    [Fact]
-    public async Task UpdateBooking_UnconfirmingGroupedBooking_ReportsNotComplete()
-    {
-        using var factory = new CedevaWebApplicationFactory();
-        int bookingId = 0;
-        factory.Seed(ctx =>
-        {
-            var org = TestData.Organisation();
-            var activity = TestData.Activity(org);
-            var group = TestData.Group(activity, "Les Lynx");
-            var parent = TestData.Parent(org);
-            var child = TestData.Child(parent);
-            var booking = TestData.Booking(child, activity, group, 100m, 0m); // confirmed + grouped
-            booking.IsMedicalSheet = true;
-            ctx.AddRange(org, activity, group, parent, child, booking);
-            ctx.SaveChanges();
-            bookingId = booking.Id;
-            return 0;
-        });
-
-        var client = factory.CreateClientFor("u1", organisationId: 1, role: "Coordinator");
-        var response = await client.PostAsJsonAsync("/ActivityManagement/UpdateBooking",
-            new { BookingId = bookingId, IsConfirmed = false });
-
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
-        using var doc = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
-        doc.RootElement.GetProperty("success").GetBoolean().Should().BeTrue();
-        // Unconfirmed => not complete even though grouped + medical sheet present.
-        doc.RootElement.GetProperty("isComplete").GetBoolean().Should().BeFalse();
-
-        using var db = factory.NewDbContext();
-        var saved = await db.Bookings.IgnoreQueryFilters().FirstAsync(b => b.Id == bookingId);
-        saved.IsConfirmed.Should().BeFalse();
+        doc.RootElement.GetProperty("pendingConfirmation").GetInt32().Should().Be(0);
     }
 }

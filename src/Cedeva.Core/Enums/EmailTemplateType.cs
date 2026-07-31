@@ -36,6 +36,12 @@ public enum EmailTemplateType
     NewRegistrationNotification = 6,
 
     /// <summary>
+    /// Lien de paiement (+ QR code) envoyé au parent quand le coordinateur confirme une
+    /// réservation avec un solde restant dû (verrouillé)
+    /// </summary>
+    PaymentLinkRequest = 7,
+
+    /// <summary>
     /// Template personnalisé
     /// </summary>
     Custom = 99
@@ -51,7 +57,8 @@ public static class EmailTemplateTypeExtensions
     [
         EmailTemplateType.BookingConfirmation,
         EmailTemplateType.MedicalSheetReminder,
-        EmailTemplateType.PaymentReminder
+        EmailTemplateType.PaymentReminder,
+        EmailTemplateType.PaymentLinkRequest
     ];
 
     public static bool IsLocked(this EmailTemplateType type) => LockedTypes.Contains(type);

@@ -127,8 +127,31 @@ public class EmailVariableReplacementServiceTests
     }
 
     [Fact]
-    public void GetAvailableVariables_Returns22Variables()
+    public void GetAvailableVariables_Returns24Variables()
     {
-        _sut.GetAvailableVariables().Should().HaveCount(22);
+        _sut.GetAvailableVariables().Should().HaveCount(24);
+    }
+
+    [Fact]
+    public void ReplaceVariables_WithExtraVariables_ResolvesThem()
+    {
+        var (booking, org) = BuildFullBooking();
+        var extra = new Dictionary<string, string>
+        {
+            ["lien_paiement"] = "https://example.test/OnlinePayment/Checkout?bookingId=42",
+            ["qr_code_paiement"] = "<img src=\"data:image/png;base64,AAA\">"
+        };
+
+        var result = _sut.ReplaceVariables("%lien_paiement% - %qr_code_paiement%", booking, org, extra);
+
+        result.Should().Be("https://example.test/OnlinePayment/Checkout?bookingId=42 - <img src=\"data:image/png;base64,AAA\">");
+    }
+
+    [Fact]
+    public void ReplaceVariables_WithoutExtraVariables_LeavesUnknownPlaceholderUntouched()
+    {
+        var (booking, org) = BuildFullBooking();
+
+        _sut.ReplaceVariables("%lien_paiement%", booking, org).Should().Be("%lien_paiement%");
     }
 }

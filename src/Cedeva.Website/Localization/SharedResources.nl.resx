@@ -467,7 +467,7 @@
     <value>Alle kinderen zijn al aan een groep toegewezen.</value>
   </data>
   <data name="ActivityManagement.AllBookingsComplete" xml:space="preserve">
-    <value>Alle inschrijvingen zijn compleet (bevestigd, met groep en medisch dossier).</value>
+    <value>Alle inschrijvingen zijn bevestigd.</value>
   </data>
   <data name="ActivityManagement.AllMembersAssigned" xml:space="preserve">
     <value>Alle teamleden zijn al toegewezen aan deze activiteit.</value>
@@ -4106,6 +4106,9 @@
   </data>
   <data name="EmailTemplateType.NewRegistrationNotification" xml:space="preserve">
     <value>Melding nieuwe inschrijving</value>
+  </data>
+  <data name="EmailTemplateType.PaymentLinkRequest" xml:space="preserve">
+    <value>Betaallink</value>
   </data>
   <data name="Activities.CannotRemoveLastDay" xml:space="preserve">
     <value>Kan de laatste dag van de activiteit niet verwijderen.</value>

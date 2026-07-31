@@ -39,6 +39,7 @@ public class StripePaymentGateway : IPaymentGateway
         var sessionOptions = new SessionCreateOptions
         {
             Mode = "payment",
+            PaymentMethodTypes = ["card", "bancontact"],
             SuccessUrl = request.SuccessUrl,
             CancelUrl = request.CancelUrl,
             CustomerEmail = string.IsNullOrWhiteSpace(request.CustomerEmail) ? null : request.CustomerEmail,

@@ -31,11 +31,11 @@ public class DefaultEmailTemplateLibraryTests
 
         var created = await DefaultEmailTemplateLibrary.EnsureAsync(ctx, orgId);
 
-        created.Should().Be(5);
+        created.Should().Be(6);
         await using var verify = db.NewContext(FakeCurrentUserService.Admin());
         var templates = await verify.EmailTemplates.IgnoreQueryFilters()
             .Where(t => t.OrganisationId == orgId && t.ActivityId == null).ToListAsync();
-        templates.Should().HaveCount(5);
+        templates.Should().HaveCount(6);
         templates.Should().ContainSingle(t => t.TemplateType == EmailTemplateType.BookingConfirmation && t.IsDefault);
     }
 
@@ -51,7 +51,7 @@ public class DefaultEmailTemplateLibraryTests
 
         secondRun.Should().Be(0, "the library already exists");
         await using var verify = db.NewContext(FakeCurrentUserService.Admin());
-        (await verify.EmailTemplates.IgnoreQueryFilters().CountAsync(t => t.OrganisationId == orgId)).Should().Be(5);
+        (await verify.EmailTemplates.IgnoreQueryFilters().CountAsync(t => t.OrganisationId == orgId)).Should().Be(6);
     }
 
     [Fact]

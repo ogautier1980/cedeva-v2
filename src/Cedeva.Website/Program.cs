@@ -175,6 +175,7 @@ try
         containerBuilder.RegisterType<BelgianMunicipalityService>().As<IBelgianMunicipalityService>().InstancePerLifetimeScope();
         containerBuilder.RegisterType<StructuredCommunicationService>().As<IStructuredCommunicationService>().InstancePerLifetimeScope();
         containerBuilder.RegisterType<StripePaymentGateway>().As<IPaymentGateway>().InstancePerLifetimeScope();
+        containerBuilder.RegisterType<QrCodeService>().As<IQrCodeService>().InstancePerLifetimeScope();
         containerBuilder.RegisterType<BookingPaymentService>().As<IBookingPaymentService>().InstancePerLifetimeScope();
         containerBuilder.RegisterType<ExcursionService>().As<IExcursionService>().InstancePerLifetimeScope();
         containerBuilder.RegisterType<ContactDirectoryService>().As<IContactDirectoryService>().InstancePerLifetimeScope();

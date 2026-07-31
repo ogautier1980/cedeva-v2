@@ -14,13 +14,20 @@ public class EmailVariableReplacementService : IEmailVariableReplacementService
     /// Replaces all variables in the template with actual data
     /// Uses case-insensitive regex pattern: %variable_name%
     /// </summary>
-    public string ReplaceVariables(string template, Booking booking, Organisation organisation)
+    public string ReplaceVariables(string template, Booking booking, Organisation organisation,
+        IReadOnlyDictionary<string, string>? extraVariables = null)
     {
         if (string.IsNullOrEmpty(template))
             return template;
 
         // Build variable resolver dictionary
         var variableResolvers = BuildVariableResolvers(booking, organisation);
+
+        if (extraVariables != null)
+        {
+            foreach (var (name, value) in extraVariables)
+                variableResolvers[name] = () => value;
+        }
 
         // Replace variables using regex (case-insensitive)
         var result = Regex.Replace(
@@ -83,7 +90,11 @@ public class EmailVariableReplacementService : IEmailVariableReplacementService
             // Organisation (3 variables)
             { "%nom_organisation%", "Nom de l'organisation" },
             { "%numero_compte%", "Numéro de compte bancaire de l'organisation" },
-            { "%titulaire_compte%", "Nom du titulaire du compte bancaire" }
+            { "%titulaire_compte%", "Nom du titulaire du compte bancaire" },
+
+            // Paiement en ligne (2 variables, disponibles uniquement sur le template "Lien de paiement")
+            { "%lien_paiement%", "URL du paiement en ligne Stripe (carte/Bancontact)" },
+            { "%qr_code_paiement%", "QR code du lien de paiement, prêt à afficher (image intégrée)" }
         };
     }
 
