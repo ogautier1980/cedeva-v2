@@ -19,14 +19,18 @@
                         <span asp-validation-for="Name" class="text-danger"></span>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">@Localizer["Field.Type"]</label>
+                        <label class="form-label">@Localizer["ExpenseCategory.CategoryType"]</label>
                         <div class="form-check">
-                            <input asp-for="IsIncome" type="radio" class="form-check-input" id="IsIncomeFalse" value="false" checked="@(!Model.IsIncome)" />
-                            <label class="form-check-label" for="IsIncomeFalse">@Localizer["Financial.Expense"]</label>
+                            <input asp-for="CategoryType" type="radio" class="form-check-input" id="CategoryTypeExpense" value="@ExpenseCategoryType.Expense" checked="@(Model.CategoryType == ExpenseCategoryType.Expense)" />
+                            <label class="form-check-label" for="CategoryTypeExpense">@Localizer["Financial.Expense"]</label>
                         </div>
                         <div class="form-check">
-                            <input asp-for="IsIncome" type="radio" class="form-check-input" id="IsIncomeTrue" value="true" checked="@Model.IsIncome" />
-                            <label class="form-check-label" for="IsIncomeTrue">@Localizer["Financial.Income"]</label>
+                            <input asp-for="CategoryType" type="radio" class="form-check-input" id="CategoryTypeIncome" value="@ExpenseCategoryType.Income" checked="@(Model.CategoryType == ExpenseCategoryType.Income)" />
+                            <label class="form-check-label" for="CategoryTypeIncome">@Localizer["Financial.Income"]</label>
+                        </div>
+                        <div class="form-check">
+                            <input asp-for="CategoryType" type="radio" class="form-check-input" id="CategoryTypeOffBalance" value="@ExpenseCategoryType.OffBalance" checked="@(Model.CategoryType == ExpenseCategoryType.OffBalance)" />
+                            <label class="form-check-label" for="CategoryTypeOffBalance">@Localizer["Financial.OffBalance"]</label>
                         </div>
                     </div>
                     <div class="mb-3">

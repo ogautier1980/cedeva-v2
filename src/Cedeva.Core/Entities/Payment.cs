@@ -12,6 +12,12 @@ public class Payment : AuditableEntity
     public int BookingId { get; set; }
     public Booking Booking { get; set; } = null!;
 
+    /// <summary>
+    /// Numéro de ticket, unique par activité (remis à 1 à chaque nouvelle activité — partage la
+    /// même séquence que <see cref="Expense.TicketNumber"/> pour cette activité).
+    /// </summary>
+    public int TicketNumber { get; set; }
+
     public decimal Amount { get; set; }
 
     public DateTime PaymentDate { get; set; }

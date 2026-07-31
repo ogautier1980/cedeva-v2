@@ -439,6 +439,10 @@ h2.cedeva-title {
     border-left: 4px solid #007faf !important;
 }
 
+.border-left-secondary {
+    border-left: 4px solid #6c757d !important;
+}
+
 /* === TABLES === */
 .table {
     color: #5a5c69;

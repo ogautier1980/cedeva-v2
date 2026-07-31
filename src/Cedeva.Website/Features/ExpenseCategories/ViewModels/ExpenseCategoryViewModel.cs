@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using Cedeva.Core.Enums;
 
 namespace Cedeva.Website.Features.ExpenseCategories.ViewModels;
 
@@ -12,8 +13,8 @@ public class ExpenseCategoryViewModel
     [Display(Name = "Field.Name")]
     public string Name { get; set; } = string.Empty;
 
-    [Display(Name = "ExpenseCategory.IsIncome")]
-    public bool IsIncome { get; set; }
+    [Display(Name = "ExpenseCategory.CategoryType")]
+    public ExpenseCategoryType CategoryType { get; set; }
 
     [Display(Name = "ExpenseCategory.Budget")]
     [Range(0, 1000000, ErrorMessage = "Validation.Range")]

@@ -213,6 +213,48 @@
         </div>
     </div>
 
+    <!-- Rapport détaillé par catégorie -->
+    @if (Model.ExpensesByCategory.Any())
+    {
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card shadow">
+                    <div class="card-header bg-secondary text-white">
+                        <h5 class="mb-0"><i class="fas fa-tags me-2"></i>@Localizer["Financial.ExpensesByCategory"]</h5>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-sm table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th scope="col">@Localizer["Expense.Category"]</th>
+                                    <th scope="col" class="text-end">@Localizer["Financial.Count"]</th>
+                                    <th scope="col" class="text-end">@Localizer["Field.Amount"]</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var cat in Model.ExpensesByCategory)
+                                {
+                                    <tr>
+                                        <td>@cat.CategoryName</td>
+                                        <td class="text-end">@cat.Count</td>
+                                        <td class="text-end">@cat.Total.ToString("N2") €</td>
+                                    </tr>
+                                }
+                            </tbody>
+                            <tfoot>
+                                <tr class="table-secondary">
+                                    <th scope="col">@Localizer["Financial.Total"]</th>
+                                    <th scope="col" class="text-end">@Model.ExpensesByCategory.Sum(c => c.Count)</th>
+                                    <th scope="col" class="text-end">@Model.ExpensesByCategory.Sum(c => c.Total).ToString("N2") €</th>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
     <!-- Final Summary -->
     <div class="row">
         <div class="col-12">
@@ -243,6 +285,13 @@
                                 <th scope="col">@Localizer["Financial.Balance"]</th>
                                 <td class="text-end"><strong>@Model.Balance.ToString("N2") €</strong></td>
                             </tr>
+                            @if (Model.TotalOffBalance != 0)
+                            {
+                                <tr class="table-secondary">
+                                    <th scope="col">@Localizer["Financial.OffBalance"]</th>
+                                    <td class="text-end"><strong>@Model.TotalOffBalance.ToString("N2") €</strong></td>
+                                </tr>
+                            }
                         </tbody>
                     </table>
                 </div>

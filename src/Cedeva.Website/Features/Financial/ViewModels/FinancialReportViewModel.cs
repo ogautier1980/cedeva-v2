@@ -22,6 +22,9 @@ public class FinancialReportViewModel
     public decimal TotalOrganizationExpenses { get; set; }
     public List<ExpenseDetailViewModel> OrganizationExpenseDetails { get; set; } = new();
 
+    // Rapport détaillé par catégorie (toutes les dépenses hors Hors bilan, organisation + équipe)
+    public List<CategoryExpenseSummaryViewModel> ExpensesByCategory { get; set; } = new();
+
     // Salaires équipe
     public int TeamMembersCount { get; set; }
     public decimal TotalTeamSalaries { get; set; }
@@ -31,6 +34,9 @@ public class FinancialReportViewModel
     public decimal TotalExpenses { get; set; }
     public decimal Balance { get; set; }
     public decimal BalancePercentage { get; set; }
+
+    // Hors bilan (transferts internes, ex. caisse → banque) — exclu du bilan ci-dessus
+    public decimal TotalOffBalance { get; set; }
 }
 
 public class TeamMemberSalaryDetailViewModel
@@ -52,4 +58,11 @@ public class ExpenseDetailViewModel
     public string Label { get; set; } = string.Empty;
     public string? Category { get; set; }
     public decimal Amount { get; set; }
+}
+
+public class CategoryExpenseSummaryViewModel
+{
+    public string CategoryName { get; set; } = string.Empty;
+    public int Count { get; set; }
+    public decimal Total { get; set; }
 }

@@ -17,8 +17,22 @@ public class Expense : AuditableEntity
     [Required(ErrorMessage = "Validation.Required")]
     public decimal Amount { get; set; }
 
+    /// <summary>
+    /// Numéro de ticket, unique par activité (remis à 1 à chaque nouvelle activité — partage la
+    /// même séquence que <see cref="Payment.TicketNumber"/> pour cette activité).
+    /// </summary>
+    public int TicketNumber { get; set; }
+
     [StringLength(50, ErrorMessage = "Validation.StringLength")]
     public string? Category { get; set; }
+
+    /// <summary>
+    /// Optional link to the curated ExpenseCategory (added after Category existed as free text —
+    /// nullable so pre-existing expenses without a matching category aren't left dangling).
+    /// Drives whether this expense is excluded from the Entrées/Sorties totals (Hors bilan).
+    /// </summary>
+    public int? ExpenseCategoryId { get; set; }
+    public ExpenseCategory? ExpenseCategory { get; set; }
 
     /// <summary>
     /// Type de dépense (uniquement pour dépenses liées à un animateur):

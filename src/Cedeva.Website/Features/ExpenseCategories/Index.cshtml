@@ -32,13 +32,17 @@
                             <tr>
                                 <td>@category.Name</td>
                                 <td>
-                                    @if (category.IsIncome)
+                                    @switch (category.CategoryType)
                                     {
-                                        <span class="badge bg-success"><i class="fas fa-arrow-down me-1"></i>@Localizer["Financial.Income"]</span>
-                                    }
-                                    else
-                                    {
-                                        <span class="badge bg-danger"><i class="fas fa-arrow-up me-1"></i>@Localizer["Financial.Expense"]</span>
+                                        case ExpenseCategoryType.Income:
+                                            <span class="badge bg-success"><i class="fas fa-arrow-down me-1"></i>@Localizer["Financial.Income"]</span>
+                                            break;
+                                        case ExpenseCategoryType.OffBalance:
+                                            <span class="badge bg-secondary"><i class="fas fa-right-left me-1"></i>@Localizer["Financial.OffBalance"]</span>
+                                            break;
+                                        default:
+                                            <span class="badge bg-danger"><i class="fas fa-arrow-up me-1"></i>@Localizer["Financial.Expense"]</span>
+                                            break;
                                     }
                                 </td>
                                 <td class="text-end">@(category.Budget.HasValue ? category.Budget.Value.ToString("N2") + " €" : "-")</td>

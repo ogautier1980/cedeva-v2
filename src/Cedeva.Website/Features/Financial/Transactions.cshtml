@@ -104,6 +104,31 @@
         </div>
     </div>
 
+    @if (Model.TotalOffBalance != 0)
+    {
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <div class="card border-left-secondary shadow h-100">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col">
+                                <div class="text-xs font-weight-bold text-secondary text-uppercase mb-1">
+                                    @Localizer["Financial.OffBalance"]
+                                </div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                    <span class="financial-amount">@Model.TotalOffBalance.ToString("N2") €</span>
+                                </div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-right-left fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
     <!-- Filter -->
     <div class="row mb-3">
         <div class="col-12">
@@ -141,6 +166,7 @@
                     <table class="table table-hover">
                         <thead class="table-light">
                             <tr>
+                                <th scope="col">@Localizer["Financial.TicketNumber"]</th>
                                 <th scope="col">@Localizer["Field.Date"]</th>
                                 <th scope="col">@Localizer["Field.Type"]</th>
                                 <th scope="col">@Localizer["Field.Label"]</th>
@@ -152,6 +178,7 @@
                             @foreach (var transaction in Model.Transactions)
                             {
                                 <tr>
+                                    <td class="text-muted">#@transaction.TicketNumber</td>
                                     <td>@transaction.Date.ToString("dd/MM/yyyy")</td>
                                     <td>
                                         @if (transaction.IsIncome)
@@ -164,6 +191,12 @@
                                         {
                                             <span class="badge bg-danger">
                                                 <i class="fas fa-arrow-up me-1"></i>@Localizer["Financial.Expense"]
+                                            </span>
+                                        }
+                                        @if (transaction.IsOffBalance)
+                                        {
+                                            <span class="badge bg-secondary ms-1">
+                                                <i class="fas fa-right-left me-1"></i>@Localizer["Financial.OffBalance"]
                                             </span>
                                         }
                                     </td>
@@ -201,7 +234,11 @@
                                     </td>
                                     <td class="text-end">
                                         <span class="financial-amount">
-                                            @if (transaction.IsIncome)
+                                            @if (transaction.IsOffBalance)
+                                            {
+                                                <strong class="text-secondary">@transaction.Amount.ToString("N2") €</strong>
+                                            }
+                                            else if (transaction.IsIncome)
                                             {
                                                 <strong class="text-success">+@transaction.Amount.ToString("N2") €</strong>
                                             }
@@ -216,7 +253,7 @@
                         </tbody>
                         <tfoot>
                             <tr class="table-secondary">
-                                <th scope="col" colspan="4" class="text-end">@Localizer["Financial.NetBalance"]:</th>
+                                <th scope="col" colspan="5" class="text-end">@Localizer["Financial.NetBalance"]:</th>
                                 <th scope="col" class="text-end">
                                     <span class="financial-amount">
                                         <strong class="@(Model.NetBalance >= 0 ? "text-success" : "text-danger")">

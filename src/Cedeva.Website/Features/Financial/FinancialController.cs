@@ -1,4 +1,5 @@
 using Cedeva.Core.Entities;
+using Cedeva.Core.Enums;
 using Cedeva.Core.Interfaces;
 using Cedeva.Infrastructure.Data;
 using Cedeva.Website.Features.Financial.ViewModels;
@@ -79,14 +80,18 @@ public class FinancialController : Controller
 
         // Load expenses for calculations
         var expenses = await _context.Expenses
+            .Include(e => e.ExpenseCategory)
             .Where(e => e.ActivityId == activityId.Value)
             .ToListAsync();
 
+        // Hors bilan expenses (internal transfers) never enter the Entrées/Sorties totals.
+        var regularExpenses = expenses.Where(e => e.ExpenseCategory?.CategoryType != ExpenseCategoryType.OffBalance).ToList();
+
         // Calculate financial metrics using service
         var totalRevenue = _financialCalculationService.CalculateTotalRevenue(activity);
-        var organizationExpenses = _financialCalculationService.CalculateOrganizationExpenses(expenses);
-        var teamMemberExpenses = _financialCalculationService.CalculateTeamMemberSalaries(activity, expenses);
-        var totalExpenses = _financialCalculationService.CalculateTotalExpenses(activity, expenses);
+        var organizationExpenses = _financialCalculationService.CalculateOrganizationExpenses(regularExpenses);
+        var teamMemberExpenses = _financialCalculationService.CalculateTeamMemberSalaries(activity, regularExpenses);
+        var totalExpenses = _financialCalculationService.CalculateTotalExpenses(activity, regularExpenses);
         var pendingAmount = _financialCalculationService.CalculatePendingPayments(activity);
 
         // Count pending bookings for display
@@ -354,18 +359,26 @@ public class FinancialController : Controller
             .ToListAsync();
     }
 
-    /// <summary>Creates an expense category for the activity's organisation if the name is new.</summary>
-    private async Task EnsureExpenseCategoryAsync(int activityId, string? name)
+    /// <summary>
+    /// Creates an expense category for the activity's organisation if the name is new, and returns
+    /// its Id so the caller can link the expense to it (drives the Hors bilan exclusion).
+    /// </summary>
+    private async Task<int?> EnsureExpenseCategoryAsync(int activityId, string? name)
     {
         if (string.IsNullOrWhiteSpace(name))
-            return;
+            return null;
 
         name = name.Trim();
         var orgId = await _context.Activities.Where(a => a.Id == activityId)
             .Select(a => a.OrganisationId).FirstOrDefaultAsync();
-        var exists = await _context.ExpenseCategories.AnyAsync(c => c.OrganisationId == orgId && c.Name == name);
-        if (!exists)
-            _context.ExpenseCategories.Add(new ExpenseCategory { OrganisationId = orgId, Name = name });
+        var category = await _context.ExpenseCategories.FirstOrDefaultAsync(c => c.OrganisationId == orgId && c.Name == name);
+        if (category == null)
+        {
+            category = new ExpenseCategory { OrganisationId = orgId, Name = name };
+            _context.ExpenseCategories.Add(category);
+            await _context.SaveChangesAsync(); // Assign an Id before the expense references it.
+        }
+        return category.Id;
     }
 
     // POST: Financial/CreateExpense
@@ -386,7 +399,7 @@ public class FinancialController : Controller
             return View(viewModel);
         }
 
-        await EnsureExpenseCategoryAsync(activityId.Value, viewModel.Category);
+        var expenseCategoryId = await EnsureExpenseCategoryAsync(activityId.Value, viewModel.Category);
 
         var expense = new Expense
         {
@@ -394,6 +407,8 @@ public class FinancialController : Controller
             Description = viewModel.Description,
             Amount = viewModel.Amount,
             Category = string.IsNullOrWhiteSpace(viewModel.Category) ? null : viewModel.Category.Trim(),
+            ExpenseCategoryId = expenseCategoryId,
+            TicketNumber = await GetNextTicketNumberAsync(activityId.Value),
             ExpenseDate = viewModel.ExpenseDate,
             ActivityId = activityId.Value
         };
@@ -489,12 +504,13 @@ public class FinancialController : Controller
             return View(viewModel);
         }
 
-        await EnsureExpenseCategoryAsync(expense.ActivityId, viewModel.Category);
+        var expenseCategoryId = await EnsureExpenseCategoryAsync(expense.ActivityId, viewModel.Category);
 
         expense.Label = viewModel.Label;
         expense.Description = viewModel.Description;
         expense.Amount = viewModel.Amount;
         expense.Category = string.IsNullOrWhiteSpace(viewModel.Category) ? null : viewModel.Category.Trim();
+        expense.ExpenseCategoryId = expenseCategoryId;
         expense.ExpenseDate = viewModel.ExpenseDate;
 
         // Parse AssignedTo
@@ -635,6 +651,7 @@ public class FinancialController : Controller
             transactions.AddRange(payments.Select(p => new ViewModels.TransactionViewModel
             {
                 Date = p.PaymentDate,
+                TicketNumber = p.TicketNumber,
                 Type = "Payment",
                 Label = $"{_ctx.Localizer["Payments.PaymentFrom"]} {p.Booking.Child.FirstName} {p.Booking.Child.LastName}",
                 Amount = p.Amount,
@@ -651,18 +668,21 @@ public class FinancialController : Controller
             var expenses = await _context.Expenses
                 .Include(e => e.TeamMember)
                 .Include(e => e.Excursion)
+                .Include(e => e.ExpenseCategory)
                 .Where(e => e.ActivityId == activityId.Value)
                 .ToListAsync();
 
             transactions.AddRange(expenses.Select(e => new ViewModels.TransactionViewModel
             {
                 Date = e.ExpenseDate,
+                TicketNumber = e.TicketNumber,
                 Type = "Expense",
                 Label = e.Label,
                 Category = e.Category,
                 AssignedTo = GetExpenseAssignedToLabel(e),
                 Amount = e.Amount,
                 IsIncome = false,
+                IsOffBalance = e.ExpenseCategory?.CategoryType == ExpenseCategoryType.OffBalance,
                 RelatedId = e.Id,
                 ExcursionName = e.Excursion?.Name
             }));
@@ -671,8 +691,11 @@ public class FinancialController : Controller
         // Trier par date décroissante
         transactions = transactions.OrderByDescending(t => t.Date).ToList();
 
-        var totalIncome = transactions.Where(t => t.IsIncome).Sum(t => t.Amount);
-        var totalExpenses = transactions.Where(t => !t.IsIncome).Sum(t => t.Amount);
+        // Les transactions Hors bilan (ex. transfert caisse -> banque) n'entrent pas dans les totaux
+        // Entrées/Sorties, pour ne pas gonfler le bilan avec un même montant des deux côtés.
+        var totalIncome = transactions.Where(t => t.IsIncome && !t.IsOffBalance).Sum(t => t.Amount);
+        var totalExpenses = transactions.Where(t => !t.IsIncome && !t.IsOffBalance).Sum(t => t.Amount);
+        var totalOffBalance = transactions.Where(t => t.IsOffBalance).Sum(t => t.Amount);
 
         var viewModel = new ViewModels.TransactionsListViewModel
         {
@@ -681,6 +704,7 @@ public class FinancialController : Controller
             TotalIncome = totalIncome,
             TotalExpenses = totalExpenses,
             NetBalance = totalIncome - totalExpenses,
+            TotalOffBalance = totalOffBalance,
             Transactions = transactions
         };
 
@@ -712,9 +736,14 @@ public class FinancialController : Controller
 
         var expenses = await _context.Expenses
             .Include(e => e.TeamMember)
+            .Include(e => e.ExpenseCategory)
             .Where(e => e.ActivityId == activityId.Value)
             .OrderByDescending(e => e.ExpenseDate)
             .ToListAsync();
+
+        // Hors bilan expenses (internal transfers) never enter the Entrées/Sorties totals.
+        var regularExpenses = expenses.Where(e => e.ExpenseCategory?.CategoryType != ExpenseCategoryType.OffBalance).ToList();
+        var totalOffBalance = expenses.Where(e => e.ExpenseCategory?.CategoryType == ExpenseCategoryType.OffBalance).Sum(e => e.Amount);
 
         var totalRevenue = _financialCalculationService.CalculateTotalRevenue(activity);
         var pendingAmount = _financialCalculationService.CalculatePendingPayments(activity);
@@ -722,11 +751,16 @@ public class FinancialController : Controller
         var pendingBookings = activity.Bookings.Count(b => !b.IsConfirmed);
         var avgRevenue = activity.Bookings.Any() ? totalRevenue / activity.Bookings.Count : 0;
 
-        var (orgCardExpenses, orgCashExpenses, orgExpenseDetails) = BuildOrganizationExpenseBreakdown(expenses);
-        var teamSalaryDetails = BuildTeamMemberSalaryDetails(activity, expenses);
-        var totalTeamSalaries = _financialCalculationService.CalculateTeamMemberSalaries(activity, expenses);
-        var totalExpenses = _financialCalculationService.CalculateTotalExpenses(activity, expenses);
-        var balance = _financialCalculationService.CalculateNetProfit(activity, expenses);
+        var (orgCardExpenses, orgCashExpenses, orgExpenseDetails) = BuildOrganizationExpenseBreakdown(regularExpenses);
+        // Scoped to organisation expenses only (matches OrganizationExpenseDetails/TotalOrganizationExpenses
+        // above): team-member expenses (reimbursements/personal consumptions) feed into the net salary
+        // formula below, not a raw sum, so including them here would make this total disagree with
+        // TotalExpenses in the final summary.
+        var expensesByCategory = BuildExpensesByCategory(regularExpenses.Where(e => !e.TeamMemberId.HasValue).ToList());
+        var teamSalaryDetails = BuildTeamMemberSalaryDetails(activity, regularExpenses);
+        var totalTeamSalaries = _financialCalculationService.CalculateTeamMemberSalaries(activity, regularExpenses);
+        var totalExpenses = _financialCalculationService.CalculateTotalExpenses(activity, regularExpenses);
+        var balance = _financialCalculationService.CalculateNetProfit(activity, regularExpenses);
         var balancePercentage = totalRevenue > 0 ? (balance / totalRevenue) * 100 : 0;
 
         var viewModel = new FinancialReportViewModel
@@ -746,12 +780,14 @@ public class FinancialController : Controller
             OrganizationCashExpenses = orgCashExpenses,
             TotalOrganizationExpenses = orgCardExpenses + orgCashExpenses,
             OrganizationExpenseDetails = orgExpenseDetails,
+            ExpensesByCategory = expensesByCategory,
             TeamMembersCount = activity.TeamMembers.Count,
             TotalTeamSalaries = totalTeamSalaries,
             TeamMemberSalaryDetails = teamSalaryDetails,
             TotalExpenses = totalExpenses,
             Balance = balance,
-            BalancePercentage = balancePercentage
+            BalancePercentage = balancePercentage,
+            TotalOffBalance = totalOffBalance
         };
 
         return View(viewModel);
@@ -775,6 +811,20 @@ public class FinancialController : Controller
         return (cardExpenses, cashExpenses, details);
     }
 
+    private List<CategoryExpenseSummaryViewModel> BuildExpensesByCategory(List<Expense> expenses)
+    {
+        return expenses
+            .GroupBy(e => e.ExpenseCategory?.Name ?? e.Category ?? _ctx.Localizer["Financial.Uncategorized"].Value)
+            .Select(g => new CategoryExpenseSummaryViewModel
+            {
+                CategoryName = g.Key,
+                Count = g.Count(),
+                Total = g.Sum(e => e.Amount)
+            })
+            .OrderByDescending(c => c.Total)
+            .ToList();
+    }
+
     private List<TeamMemberSalaryDetailViewModel> BuildTeamMemberSalaryDetails(Activity activity, List<Expense> expenses)
     {
         var teamSalaryDetails = new List<TeamMemberSalaryDetailViewModel>();
@@ -791,7 +841,7 @@ public class FinancialController : Controller
             teamSalaryDetails.Add(new TeamMemberSalaryDetailViewModel
             {
                 Name = tm.FullName,
-                Role = _ctx.Localizer[$"TeamRole.{tm.TeamRole}"].Value,
+                Role = _ctx.Localizer[$"Enum.TeamRole.{tm.TeamRole}"].Value,
                 DaysWorked = presentDaysCount,
                 DailyCompensation = tm.DailyCompensation ?? 0,
                 BaseSalary = baseSalary,
@@ -802,6 +852,24 @@ public class FinancialController : Controller
         }
 
         return teamSalaryDetails;
+    }
+
+    /// <summary>
+    /// Next ticket number for the activity's shared Payment/Expense sequence (starts at 1, resets per activity).
+    /// </summary>
+    private async Task<int> GetNextTicketNumberAsync(int activityId)
+    {
+        var maxPaymentTicket = await _context.Payments
+            .Where(p => p.Booking.ActivityId == activityId)
+            .Select(p => (int?)p.TicketNumber)
+            .MaxAsync() ?? 0;
+
+        var maxExpenseTicket = await _context.Expenses
+            .Where(e => e.ActivityId == activityId)
+            .Select(e => (int?)e.TicketNumber)
+            .MaxAsync() ?? 0;
+
+        return Math.Max(maxPaymentTicket, maxExpenseTicket) + 1;
     }
 
     private async Task PopulateAssignedToDropdown(int activityId)

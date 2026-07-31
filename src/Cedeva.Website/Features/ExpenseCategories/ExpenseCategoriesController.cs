@@ -35,7 +35,7 @@ public class ExpenseCategoriesController : Controller
     public async Task<IActionResult> Index()
     {
         var categories = await _context.ExpenseCategories
-            .OrderByDescending(c => c.IsIncome)
+            .OrderByDescending(c => c.CategoryType)
             .ThenBy(c => c.Name)
             .ToListAsync();
         return View(categories);
@@ -61,7 +61,7 @@ public class ExpenseCategoriesController : Controller
         {
             OrganisationId = orgId,
             Name = name,
-            IsIncome = viewModel.IsIncome,
+            CategoryType = viewModel.CategoryType,
             Budget = viewModel.Budget
         });
         await _context.SaveChangesAsync();
@@ -80,7 +80,7 @@ public class ExpenseCategoriesController : Controller
         {
             Id = category.Id,
             Name = category.Name,
-            IsIncome = category.IsIncome,
+            CategoryType = category.CategoryType,
             Budget = category.Budget
         });
     }
@@ -105,7 +105,7 @@ public class ExpenseCategoriesController : Controller
 
         var oldName = category.Name;
         category.Name = newName;
-        category.IsIncome = viewModel.IsIncome;
+        category.CategoryType = viewModel.CategoryType;
         category.Budget = viewModel.Budget;
 
         // Keep existing expenses consistent with the renamed category.

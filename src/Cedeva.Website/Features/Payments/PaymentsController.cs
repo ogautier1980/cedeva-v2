@@ -179,6 +179,7 @@ public class PaymentsController : Controller
         var payment = new Payment
         {
             BookingId = viewModel.BookingId,
+            TicketNumber = await GetNextTicketNumberAsync(booking.ActivityId),
             Amount = viewModel.Amount,
             PaymentDate = viewModel.PaymentDate,
             PaymentMethod = viewModel.PaymentMethod,
@@ -282,6 +283,24 @@ public class PaymentsController : Controller
             viewModel.BookingTotalAmount = booking.TotalAmount;
             viewModel.BookingPaidAmount = booking.PaidAmount;
         }
+    }
+
+    /// <summary>
+    /// Next ticket number for the activity's shared Payment/Expense sequence (starts at 1, resets per activity).
+    /// </summary>
+    private async Task<int> GetNextTicketNumberAsync(int activityId)
+    {
+        var maxPaymentTicket = await _context.Payments
+            .Where(p => p.Booking.ActivityId == activityId)
+            .Select(p => (int?)p.TicketNumber)
+            .MaxAsync() ?? 0;
+
+        var maxExpenseTicket = await _context.Expenses
+            .Where(e => e.ActivityId == activityId)
+            .Select(e => (int?)e.TicketNumber)
+            .MaxAsync() ?? 0;
+
+        return Math.Max(maxPaymentTicket, maxExpenseTicket) + 1;
     }
 
     private static void UpdateBookingPaymentStatus(Booking booking, decimal paymentAmount)

@@ -75,12 +75,12 @@ Migration complète menée en une session, en 5 phases séquentielles (chaque ph
 
 - ⏸️ **Pas fait** — Simplification du parcours Comptes → Transactions : la cible (captures `18.48.58 1`/`18.50.34`) est de sauter directement sur la liste des transactions nue (sans les cartes stats ni les onglets de filtre) en cliquant sur « Comptes ».
 - ✅ **Fait** — Bouton « Masquer les montants » sur `Transactions.cshtml`.
-- ⏸️ **Pas fait (réponse Olivier, 2026-07-31)** — Numéro de ticket unique par ligne : compteur **remis à 0 à chaque nouvelle activité** (pas global, pas par organisation). Révèle aussi un champ **« Caisse / Compte »** (cash vs bancaire) absent du modèle actuel.
+- ✅ **Fait (2026-07-31)** — Numéro de ticket unique par ligne : `Payment.TicketNumber`/`Expense.TicketNumber`, séquence **partagée** entre les deux tables, **remise à 1 à chaque nouvelle activité** (via `GetNextTicketNumberAsync`, `MAX(...) WHERE ActivityId = X` + 1). Colonne « N° ticket » sur `Transactions.cshtml`, affiché aussi sur `Payments/Details.cshtml`. Migration avec backfill des tickets existants (interleave chronologique Payment+Expense par activité). Champ **« Caisse / Compte »** : déjà couvert par le modèle existant (`Payment.PaymentMethod` Cash/BankTransfer, `Expense.OrganizationPaymentSource` OrganizationCard/OrganizationCash) — pas de nouveau champ ajouté, contrairement à ce que ce backlog supposait.
 - ✅ **Fait** — Fusion Ajouter un paiement / Ajouter une dépense (`Financial/AddTransaction`, onglets Paiement/Dépense) : `Payment` (clé = réservation) et `Expense` (clé = activité) n'ayant ni la même clé ni les mêmes champs, la fusion est un écran unique à onglets hébergeant les deux formulaires existants inchangés (POST vers `PaymentsController.Create` / `FinancialController.CreateExpense`). Les 2 boutons de `Transactions.cshtml` pointent maintenant vers cet écran unique.
 - 🐛 **Bug corrigé** — Clé de session incohérente entre `PaymentsController` (`"FinancialActivityId"`) et `FinancialController` (`"Financial_ActivityId"`) : le filtre par activité de `SelectBooking` était un no-op en production (listait toutes les réservations impayées de l'org, pas seulement celles de l'activité courante).
-- ⏸️ **Partiel (réponse Olivier, 2026-07-31)** — Catégories : `ExpenseCategory.IsIncome` (bool) + `Budget` ajoutés. La référence (`18.58.21`/`19.00.10`) montre en réalité 3 valeurs (Entrée/Sortie/**Hors bilan**) et un champ **« Lié à un enfant ? »** absent — à revoir. **« Hors bilan » précisé** : sert aux mouvements internes type transfert bancaire (ex. verser 1000 € de caisse à la banque) — une transaction marquée Hors bilan ne doit **pas** apparaître comme +1000/-1000 dans les totaux Entrées/Sorties du bilan, pour ne pas le gonfler artificiellement.
+- ✅ **Fait (2026-07-31)** — Catégories : `ExpenseCategory.IsIncome` (bool) remplacé par `CategoryType` (enum **Expense/Income/OffBalance**, 3 valeurs comme sur `18.58.21`/`19.00.10`) + `Budget`. Nouvelle FK structurelle `Expense.ExpenseCategoryId` (les dépenses n'étaient rapprochées d'une catégorie que par nom en texte libre) avec migration de rapprochement automatique par nom. **« Hors bilan »** : les dépenses dont la catégorie est `OffBalance` sont exclues des totaux Entrées/Sorties partout (`Transactions`, `Index`, `Report`), affichées dans leur propre section (carte + badge dédiés). Champ **« Lié à un enfant ? »** de la référence toujours absent — à revoir séparément si besoin.
 - ✅ Déjà 100% auto-calculé, vérifié dans le code : catégories Équipe (Sorties) et PAF (Entrées).
-- ⏸️ **Pas fait** — Rapport plus détaillé (par catégorie avec Budget + section Hors bilan séparée, réf. `19.00.54`) ; version actuelle = juste 2 colonnes Entrées/Sorties.
+- ✅ **Fait (2026-07-31)** — Rapport détaillé par catégorie (tableau groupé Nom/Nombre/Montant, dépenses d'organisation uniquement pour rester cohérent avec le total du résumé final) + section Hors bilan séparée sur `Report.cshtml`. Pas encore de colonne Budget par catégorie dans ce tableau (`ExpenseCategory.Budget` existe mais n'est pas encore affiché en regard du réalisé) — amélioration possible ultérieure.
 
 ## Lot E — E-mails
 
@@ -134,16 +134,14 @@ Page listée dans l'export mais sans capture d'écran associée — juste une li
 
 ## Ordre proposé
 
-Lots A, C, D (sauf numéro de ticket/Hors bilan/Rapport détaillé), E et G sont livrés. Toutes les
-questions 1 à 5 d'origine étant tranchées par Olivier, **plus aucun item n'est bloqué en attente
-d'une réponse** sauf Lot H (attestations fiscales) et l'étape 5 du Lot I (modèle de questions).
-Reste à coder :
+Lots A, C, D, E et G sont livrés. Toutes les questions 1 à 5 d'origine étant tranchées par Olivier,
+**plus aucun item n'est bloqué en attente d'une réponse** sauf Lot H (attestations fiscales) et
+l'étape 5 du Lot I (modèle de questions). Reste à coder :
 
-1. **Lot D** — numéro de ticket (remis à 0 par activité), Hors bilan (exclu des totaux Entrées/Sorties), rapport détaillé par catégorie.
-2. **Lot F** — auto-proposition mail Excursion (nouveau type de destinataire : inscrit à l'activité, pas encore à l'excursion).
-3. **Lot H** — attestations fiscales par association : bloqué en attente d'un exemple de Thomas (question n°1).
-4. **Lot I** — wizard de création d'activité : étapes 1/2/3/4/6/7 codables directement (réagencement + retrait des boutons de dates + nouveau bouton calendrier), étape 5 bloquée par la question n°2 (modèle de questions). Bug Mac (fichier 0 ko) résolu depuis la migration OVH.
-5. **Lot J** — Paramètres : à maquetter avec Thomas avant de coder (aucune capture fournie).
+1. **Lot F** — auto-proposition mail Excursion (nouveau type de destinataire : inscrit à l'activité, pas encore à l'excursion).
+2. **Lot H** — attestations fiscales par association : bloqué en attente d'un exemple de Thomas (question n°1).
+3. **Lot I** — wizard de création d'activité : étapes 1/2/3/4/6/7 codables directement (réagencement + retrait des boutons de dates + nouveau bouton calendrier), étape 5 bloquée par la question n°2 (modèle de questions). Bug Mac (fichier 0 ko) résolu depuis la migration OVH.
+4. **Lot J** — Paramètres : à maquetter avec Thomas avant de coder (aucune capture fournie).
 
-Codable sans attendre Thomas : Lot D, Lot F, et Lot I sauf l'étape 5. Bloqué par Thomas : Lot H
+Codable sans attendre Thomas : Lot F, et Lot I sauf l'étape 5. Bloqué par Thomas : Lot H
 (question n°1), l'étape 5 de Lot I (question n°2), et Lot J (maquette manquante).

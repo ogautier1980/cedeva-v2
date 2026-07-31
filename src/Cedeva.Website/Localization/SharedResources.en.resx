@@ -1993,6 +1993,21 @@
   <data name="Financial.Income" xml:space="preserve">
     <value>Income</value>
   </data>
+  <data name="Financial.OffBalance" xml:space="preserve">
+    <value>Off-balance</value>
+  </data>
+  <data name="Financial.TicketNumber" xml:space="preserve">
+    <value>Ticket #</value>
+  </data>
+  <data name="Financial.Uncategorized" xml:space="preserve">
+    <value>Uncategorized</value>
+  </data>
+  <data name="Financial.ExpensesByCategory" xml:space="preserve">
+    <value>Expenses by category</value>
+  </data>
+  <data name="Financial.Count" xml:space="preserve">
+    <value>Count</value>
+  </data>
   <data name="Financial.IncomeOnly" xml:space="preserve">
     <value>Income only</value>
   </data>
@@ -4266,8 +4281,8 @@
   <data name="ExpenseCategory.Duplicate" xml:space="preserve">
     <value>This category already exists.</value>
   </data>
-  <data name="ExpenseCategory.IsIncome" xml:space="preserve">
-    <value>Income or expense</value>
+  <data name="ExpenseCategory.CategoryType" xml:space="preserve">
+    <value>Type</value>
   </data>
   <data name="ExpenseCategory.Budget" xml:space="preserve">
     <value>Budget</value>

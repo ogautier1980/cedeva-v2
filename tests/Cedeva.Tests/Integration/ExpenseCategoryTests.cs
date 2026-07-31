@@ -1,5 +1,6 @@
 using System.Net;
 using Cedeva.Core.Entities;
+using Cedeva.Core.Enums;
 using Cedeva.Tests.TestSupport;
 using Microsoft.EntityFrameworkCore;
 
@@ -33,6 +34,28 @@ public class ExpenseCategoryTests
         dup.StatusCode.Should().Be(HttpStatusCode.OK);
         using (var db = factory.NewDbContext())
             (await db.ExpenseCategories.IgnoreQueryFilters().CountAsync(c => c.OrganisationId == org.Id && c.Name == "Goûter")).Should().Be(1);
+    }
+
+    [Fact]
+    public async Task Create_WithOffBalanceCategoryType_PersistsCategoryType()
+    {
+        using var factory = new CedevaWebApplicationFactory();
+        Organisation org = null!;
+        factory.Seed(ctx => { org = TestData.Organisation(); ctx.Add(org); return 0; });
+        var client = factory.CreateClientFor("u1", org.Id, "Coordinator");
+
+        var response = await client.PostAsync("/ExpenseCategories/Create",
+            new FormUrlEncodedContent(new Dictionary<string, string>
+            {
+                ["Name"] = "Virement caisse -> banque",
+                ["CategoryType"] = ((int)ExpenseCategoryType.OffBalance).ToString()
+            }));
+        response.StatusCode.Should().Be(HttpStatusCode.Found);
+
+        using var db = factory.NewDbContext();
+        var category = await db.ExpenseCategories.IgnoreQueryFilters()
+            .SingleAsync(c => c.OrganisationId == org.Id && c.Name == "Virement caisse -> banque");
+        category.CategoryType.Should().Be(ExpenseCategoryType.OffBalance);
     }
 
     [Fact]

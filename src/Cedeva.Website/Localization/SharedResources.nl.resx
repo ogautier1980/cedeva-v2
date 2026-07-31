@@ -1993,6 +1993,21 @@
   <data name="Financial.Income" xml:space="preserve">
     <value>Inkomsten</value>
   </data>
+  <data name="Financial.OffBalance" xml:space="preserve">
+    <value>Buiten balans</value>
+  </data>
+  <data name="Financial.TicketNumber" xml:space="preserve">
+    <value>Ticketnr.</value>
+  </data>
+  <data name="Financial.Uncategorized" xml:space="preserve">
+    <value>Zonder categorie</value>
+  </data>
+  <data name="Financial.ExpensesByCategory" xml:space="preserve">
+    <value>Uitgaven per categorie</value>
+  </data>
+  <data name="Financial.Count" xml:space="preserve">
+    <value>Aantal</value>
+  </data>
   <data name="Financial.IncomeOnly" xml:space="preserve">
     <value>Alleen inkomsten</value>
   </data>
@@ -4266,8 +4281,8 @@
   <data name="ExpenseCategory.Duplicate" xml:space="preserve">
     <value>Deze categorie bestaat al.</value>
   </data>
-  <data name="ExpenseCategory.IsIncome" xml:space="preserve">
-    <value>Inkomsten of uitgave</value>
+  <data name="ExpenseCategory.CategoryType" xml:space="preserve">
+    <value>Type</value>
   </data>
   <data name="ExpenseCategory.Budget" xml:space="preserve">
     <value>Budget</value>

@@ -30,5 +30,12 @@ public class ExpenseConfiguration : IEntityTypeConfiguration<Expense>
             .WithMany(ex => ex.Expenses)
             .HasForeignKey(e => e.ExcursionId)
             .OnDelete(DeleteBehavior.Restrict);
+
+        // Optional/nullable: deleting a category shouldn't be blocked by expenses referencing it —
+        // just null out the link (the free-text Category name is kept as a display fallback).
+        builder.HasOne(e => e.ExpenseCategory)
+            .WithMany()
+            .HasForeignKey(e => e.ExpenseCategoryId)
+            .OnDelete(DeleteBehavior.SetNull);
     }
 }

@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
+using Cedeva.Core.Enums;
 using Cedeva.Core.Interfaces;
 
 namespace Cedeva.Core.Entities;
@@ -20,8 +21,8 @@ public class ExpenseCategory : AuditableEntity, IOrganisationScoped
     [StringLength(50, ErrorMessage = "Validation.StringLength")]
     public string Name { get; set; } = string.Empty;
 
-    /// <summary>True = Entrée (income category), false = Sortie (expense category, the historical default).</summary>
-    public bool IsIncome { get; set; }
+    /// <summary>Entrée / Sortie / Hors bilan (internal transfer, excluded from Entrées/Sorties totals).</summary>
+    public ExpenseCategoryType CategoryType { get; set; }
 
     /// <summary>Optional planning budget for this category; null means no budget has been set.</summary>
     public decimal? Budget { get; set; }
