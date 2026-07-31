@@ -26,6 +26,7 @@ Source : export Notion [`CEDEVA 2 0 ....md`](CEDEVA%202%200%2035545c93462a801cae
 - ✅ **Fait (2026-07-31)** — ~~Créer un compte Brevo dédié pour Cedeva~~ : utilisation du compte Brevo existant de Thomas (Kivla srl), domaine `cedeva.be` authentifié (SPF/DKIM), clé API dédiée générée et configurée sur le VPS, IP du VPS ajoutée à l'allowlist Brevo. Testé de bout en bout (email de confirmation d'inscription reçu).
 - ✅ **Fait (2026-07-31)** — ~~Passer TinyMCE en self-hosted (GPL)~~ : en creusant, TinyMCE n'était en réalité utilisé nulle part dans l'app (l'éditeur riche réel est Summernote, chargé depuis `cdn.jsdelivr.net`). Config morte supprimée : section `TinyMCE:ApiKey` (`appsettings.json`) et entrées CSP `cdn.tiny.cloud` (`SecurityHeadersMiddleware.cs`).
 - ✅ **Résolu (2026-07-31)** — 🐛 Bug signalé (capture `09.54.00` annotée) : Thomas ne pouvait pas télécharger le fichier « Register » (0 ko sur Mac) sur l'écran final « Création d'une activité » (code d'intégration iframe / bouton de téléchargement). Thomas a retesté après la migration Azure → OVH : ça fonctionne maintenant. Cause exacte non diagnostiquée (le bug a disparu avec le changement d'infra, pas de root cause confirmée côté code).
+- 🐛 **Bug découvert (2026-07-31, pas encore corrigé)** — Le champ Montant de `Payments/Create` rejette parfois la saisie en validation côté client (« Veuillez fournir une valeur multiple de 0.01 » / valeur jugée invalide) selon le format décimal tapé (point vs virgule). Trouvé en testant Lot C, sans rapport avec les changements du jour — probablement un souci de culture (`fr-BE`) dans la validation jQuery unobtrusive générée pour le champ `Amount`. À investiguer séparément.
 
 ---
 
@@ -50,8 +51,8 @@ Migration complète menée en une session, en 5 phases séquentielles (chaque ph
 - ✅ **Fait** — Tableau de bord d'activité : clic sur le **titre** → 7 gros boutons (`ActivityManagement/Index`) ; clic sur **« Paramètres »** (renommé, ex-« Gérer ») → réglages de l'activité (`Activities/Details`).
 - ✅ **Fait** — Page d'accueil réduite à la liste « Activités récentes » (4 cartes stats, inscriptions récentes, actions rapides retirées, `HomeController` simplifié en conséquence).
 - ✅ **Fait** — Menu du haut (dans une activité) réduit à « Tableau de bord » + dropdown « Pages spéciales » (liste des groupes, total des présences).
-- ⏸️ **Pas fait (réponse Olivier, 2026-07-31)** — Menu hamburger **supprimé totalement** : tous ses liens (Contacts, Importer des parents/enfants, Équipe compris) redescendent en dessous sur la page d'accueil, dans la section « Paramètres généraux » (comme les screenshots l'illustrent, capture `18.38.25`). Plus de barre latérale globale du tout.
-- ⏸️ **Pas fait (précision 2026-07-31, capture `10.35.33` annotée en vert)** — Le tableau de bord d'activité doit revenir à **8 grosses tuiles** (comme la maquette d'origine `18.09.45`) : transformer le bouton séparé « Paramètres de l'activité » en 8ᵉ tuile (à la place de la case actuellement vide), et ne garder en dessous que le bouton « Sortir de cette activité » (capture `10.03.21`). L'app actuelle a régressé vers 7 tuiles + 2 boutons séparés — c'est un retour en arrière à corriger, pas une nouvelle demande.
+- ✅ **Fait (2026-07-31)** — Menu hamburger **supprimé totalement** : tous ses liens (Contacts, Importer des parents/enfants, Équipe compris) redescendent en dessous sur la page d'accueil, dans une nouvelle section « Paramètres généraux ». Plus de barre latérale globale du tout.
+- ✅ **Fait (2026-07-31)** — Le tableau de bord d'activité est revenu à **8 grosses tuiles** (comme la maquette d'origine `18.09.45`) : le bouton séparé « Paramètres de l'activité » est maintenant la 8ᵉ tuile de la grille, ne reste en dessous que le bouton « Sortir de cette activité ».
 
 ## Lot B — Confirmation des inscriptions
 
@@ -64,7 +65,7 @@ Migration complète menée en une session, en 5 phases séquentielles (chaque ph
 - ✅ **Fait** — Clic sur un enfant → fiche `Bookings/Details` enrichie (adresse/parent éditables, groupe, fiche médicale, historique des paiements).
 - ✅ Confirmé dans le code : le filtre jour est déjà scopé à l'activité + jour sélectionné.
 - ✅ **Fait** — Colonne « Payé » (✓/✗ + solde) dans `Presences.cshtml`.
-- ⏸️ **Pas fait (réponse Olivier, 2026-07-31)** — Forcer une inscription non payée : le coordinateur doit pouvoir confirmer une inscription malgré un solde dû, puis encoder un ou plusieurs paiements manuels pour cette réservation, avec le **solde restant qui se met à jour** au fil des paiements encodés.
+- ✅ **Fait (2026-07-31)** — Forcer une inscription non payée : badge de statut de paiement (+ solde) ajouté sur `UnconfirmedBookings`/`ManageBookings` ; avertissement de confirmation (`confirm()` JS avec le solde dû) sur les 3 points d'entrée de confirmation (`UnconfirmedBookings`, `ManageBookings`, `Bookings/Details`) — rien ne bloquait techniquement la confirmation, le manque était la visibilité. Solde restant recalculé en direct pendant la saisie sur `Payments/Create` ; testé avec 2 paiements manuels successifs sur la même réservation.
 - ✅ **Fait** — Pages spéciales, enrichies au niveau demandé par Thomas :
   - **Liste des groupes imprimable** (`Groups`/`PrintGroups`) : sélection **multiple** de groupes (au lieu d'un seul à la fois, `<select multiple>`), options à cocher **Prévus/Présent/Signature** pour choisir les colonnes affichées, colonne **Signature** vide (émargement papier), **export PDF** et **export Excel** (`ExportGroupsPdf`/`ExportGroupsExcel`, réutilisent `IExportFacadeService` déjà utilisé ailleurs) en plus de l'impression navigateur existante. Rappel : les libellés « 3-4, 5-6, 7-8… » des captures sont juste les groupes de l'activité (comme nos « Groupe Rouge/Bleu/Vert »), pas une tranche d'âge — rien changé côté structure des groupes.
   - **Fait — « Imprimer tous les groupes du jour »** en un clic : bouton dédié sur `Groups.cshtml` (visible seulement si l'activité a un jour programmé aujourd'hui), distinct de l'impression filtrée groupe par groupe.
@@ -133,14 +134,16 @@ Page listée dans l'export mais sans capture d'écran associée — juste une li
 
 ## Ordre proposé
 
-Lots C, D (sauf numéro de ticket/Hors bilan/Rapport détaillé), E et G sont livrés. Toutes les questions 1 à 5 d'origine étant désormais tranchées par Olivier, **plus aucun item n'est bloqué en attente d'une réponse** sauf Lot H (attestations fiscales) et une partie de Lot I (modèle de questions). Reste à coder :
+Lots A, C, D (sauf numéro de ticket/Hors bilan/Rapport détaillé), E et G sont livrés. Toutes les
+questions 1 à 5 d'origine étant tranchées par Olivier, **plus aucun item n'est bloqué en attente
+d'une réponse** sauf Lot H (attestations fiscales) et l'étape 5 du Lot I (modèle de questions).
+Reste à coder :
 
-1. **Lot A** — suppression du menu hamburger (liens redescendus sur la page d'accueil) ; retour à 8 tuiles sur le tableau de bord d'activité. Les deux sont maintenant des specs claires, codables directement.
-2. **Lot C** — forcer une inscription non payée + paiements manuels multiples avec solde qui se met à jour.
-3. **Lot D** — numéro de ticket (remis à 0 par activité), Hors bilan (exclu des totaux Entrées/Sorties), rapport détaillé par catégorie.
-4. **Lot F** — auto-proposition mail Excursion (nouveau type de destinataire : inscrit à l'activité, pas encore à l'excursion).
-5. **Lot H** — attestations fiscales par association : bloqué en attente d'un exemple de Thomas (question n°1).
-6. **Lot I** — wizard de création d'activité : étapes 1/2/3/4/6/7 codables directement (réagencement + retrait des boutons de dates + nouveau bouton calendrier), étape 5 bloquée par la question n°2 (modèle de questions). Bug Mac (fichier 0 ko) résolu depuis la migration OVH.
-7. **Lot J** — Paramètres : à maquetter avec Thomas avant de coder (aucune capture fournie).
+1. **Lot D** — numéro de ticket (remis à 0 par activité), Hors bilan (exclu des totaux Entrées/Sorties), rapport détaillé par catégorie.
+2. **Lot F** — auto-proposition mail Excursion (nouveau type de destinataire : inscrit à l'activité, pas encore à l'excursion).
+3. **Lot H** — attestations fiscales par association : bloqué en attente d'un exemple de Thomas (question n°1).
+4. **Lot I** — wizard de création d'activité : étapes 1/2/3/4/6/7 codables directement (réagencement + retrait des boutons de dates + nouveau bouton calendrier), étape 5 bloquée par la question n°2 (modèle de questions). Bug Mac (fichier 0 ko) résolu depuis la migration OVH.
+5. **Lot J** — Paramètres : à maquetter avec Thomas avant de coder (aucune capture fournie).
 
-Codable sans attendre Thomas : Lot A en entier, Lot C, Lot D, Lot F, et Lot I sauf l'étape 5. Bloqué par Thomas : Lot H (question n°1), l'étape 5 de Lot I (question n°2), et Lot J (maquette manquante).
+Codable sans attendre Thomas : Lot D, Lot F, et Lot I sauf l'étape 5. Bloqué par Thomas : Lot H
+(question n°1), l'étape 5 de Lot I (question n°2), et Lot J (maquette manquante).

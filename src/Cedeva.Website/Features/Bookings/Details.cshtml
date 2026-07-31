@@ -364,7 +364,14 @@
                             <input type="hidden" name="GroupId" value="@Model.GroupId" />
                             <input type="hidden" name="IsConfirmed" value="true" />
                             <input type="hidden" name="IsMedicalSheet" value="@Model.IsMedicalSheet" />
-                            <button type="submit" class="btn btn-success w-100 text-nowrap">
+                            @{
+                                var confirmOnClick = Model.PaymentStatus != PaymentStatus.Paid
+                                    ? "return confirm(" + Json.Serialize(string.Format(
+                                        Localizer["ActivityManagement.ConfirmUnpaidBooking"].Value,
+                                        (Model.TotalAmount - Model.PaidAmount).ToString("C2", new System.Globalization.CultureInfo("fr-BE")))) + ");"
+                                    : null;
+                            }
+                            <button type="submit" class="btn btn-success w-100 text-nowrap" onclick="@confirmOnClick">
                                 <i class="fas fa-check me-2"></i>@Localizer["Bookings.ConfirmBooking"]
                             </button>
                         </form>

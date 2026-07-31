@@ -487,6 +487,9 @@
   <data name="ActivityManagement.ChildrenCount" xml:space="preserve">
     <value>enfant(s)</value>
   </data>
+  <data name="ActivityManagement.ConfirmUnpaidBooking" xml:space="preserve">
+    <value>Cette inscription n'est pas entièrement payée (solde restant : {0}). Confirmer quand même ?</value>
+  </data>
   <data name="ActivityManagement.TeamPresences" xml:space="preserve">
     <value>Présences équipe</value>
   </data>
@@ -2760,6 +2763,9 @@
   </data>
   <data name="Payments.RemainingAmount" xml:space="preserve">
     <value>Montant restant</value>
+  </data>
+  <data name="Payments.AfterThisPayment" xml:space="preserve">
+    <value>après ce paiement</value>
   </data>
   <data name="Payments.SelectBooking" xml:space="preserve">
     <value>Sélectionner une réservation</value>

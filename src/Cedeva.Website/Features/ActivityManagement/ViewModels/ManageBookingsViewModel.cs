@@ -1,3 +1,4 @@
+using Cedeva.Core.Enums;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Cedeva.Website.Features.ActivityManagement.ViewModels;
@@ -28,6 +29,10 @@ public class BookingManagementItem
     public int? GroupId { get; set; }
     public string? GroupLabel { get; set; }
     public bool IsMedicalSheet { get; set; }
+    public decimal TotalAmount { get; set; }
+    public decimal PaidAmount { get; set; }
+    public PaymentStatus PaymentStatus { get; set; }
+    public decimal Balance => TotalAmount - PaidAmount;
 
     // Flags to determine what needs attention
     public bool NeedsConfirmation => !IsConfirmed;

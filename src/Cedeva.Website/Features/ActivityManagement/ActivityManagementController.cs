@@ -1471,7 +1471,10 @@ public class ActivityManagementController : Controller
                 IsConfirmed = b.IsConfirmed,
                 GroupId = b.GroupId,
                 GroupLabel = b.Group?.Label,
-                IsMedicalSheet = b.IsMedicalSheet
+                IsMedicalSheet = b.IsMedicalSheet,
+                TotalAmount = b.TotalAmount,
+                PaidAmount = b.PaidAmount,
+                PaymentStatus = b.PaymentStatus
             }).ToList(),
             GroupOptions = activity.Groups
                 .Where(g => g.Label != DefaultGroupLabel)

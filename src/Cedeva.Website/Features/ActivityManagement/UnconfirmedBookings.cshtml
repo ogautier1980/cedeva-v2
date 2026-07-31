@@ -27,6 +27,7 @@
                             <th scope="col">@Localizer["Child"]</th>
                             <th scope="col">@Localizer["Parent"]</th>
                             <th scope="col">@Localizer["ActivityManagement.RegistrationDate"]</th>
+                            <th scope="col">@Localizer["Financial.PaymentStatus"]</th>
                             <th scope="col" style="width: 250px;">@Localizer["Group"]</th>
                             <th scope="col" class="text-end">@Localizer["Actions"]</th>
                         </tr>
@@ -55,6 +56,23 @@
                                     @booking.BookingDate.ToString("dd/MM/yyyy")
                                 </td>
                                 <td>
+                                    @{
+                                        var statusBadge = booking.PaymentStatus switch
+                                        {
+                                            PaymentStatus.Paid => "bg-success",
+                                            PaymentStatus.PartiallyPaid => "bg-warning text-dark",
+                                            PaymentStatus.NotPaid => "bg-danger",
+                                            _ => "bg-secondary"
+                                        };
+                                        var balance = booking.TotalAmount - booking.PaidAmount;
+                                    }
+                                    <span class="badge @statusBadge">@Localizer[$"PaymentStatus.{booking.PaymentStatus}"]</span>
+                                    @if (balance > 0)
+                                    {
+                                        <br /><small class="text-danger">@balance.ToString("C2", new System.Globalization.CultureInfo("fr-BE"))</small>
+                                    }
+                                </td>
+                                <td>
                                     <select name="groupId-@booking.Id" id="groupId-@booking.Id" class="form-select form-select-sm">
                                         <option value="">@Localizer["ActivityManagement.SelectGroup"]</option>
                                         @foreach (var option in Model.GroupOptions)
@@ -64,7 +82,9 @@
                                     </select>
                                 </td>
                                 <td class="text-end">
-                                    <form asp-action="ConfirmBooking" method="post" class="d-inline">
+                                    <form asp-action="ConfirmBooking" method="post" class="d-inline confirm-booking-form"
+                                          data-unpaid="@(booking.PaymentStatus != PaymentStatus.Paid ? "true" : "false")"
+                                          data-balance="@balance.ToString("C2", new System.Globalization.CultureInfo("fr-BE"))">
                                         @Html.AntiForgeryToken()
                                         <input type="hidden" name="bookingId" value="@booking.Id" />
                                         <input type="hidden" name="groupId" id="groupIdHidden-@booking.Id" />
@@ -86,3 +106,19 @@
         }
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        document.querySelectorAll('.confirm-booking-form').forEach(function (form) {
+            form.addEventListener('submit', function (e) {
+                if (form.dataset.unpaid === 'true') {
+                    var message = @Json.Serialize(Localizer["ActivityManagement.ConfirmUnpaidBooking"].Value)
+                        .replace('{0}', form.dataset.balance);
+                    if (!confirm(message)) {
+                        e.preventDefault();
+                    }
+                }
+            });
+        });
+    </script>
+}

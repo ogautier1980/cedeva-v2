@@ -65,6 +65,7 @@ else
                             </th>
                             <th scope="col">@Localizer["Field.Group"]</th>
                             <th scope="col" class="text-center">@Localizer["Field.MedicalSheet"]</th>
+                            <th scope="col" class="text-center">@Localizer["Financial.PaymentStatus"]</th>
                             <th scope="col" class="text-center">@Localizer["Field.Status"]</th>
                         </tr>
                     </thead>
@@ -114,6 +115,22 @@ else
                                     </button>
                                 </td>
                                 <td class="text-center">
+                                    @{
+                                        var statusBadge = item.PaymentStatus switch
+                                        {
+                                            PaymentStatus.Paid => "bg-success",
+                                            PaymentStatus.PartiallyPaid => "bg-warning text-dark",
+                                            PaymentStatus.NotPaid => "bg-danger",
+                                            _ => "bg-secondary"
+                                        };
+                                    }
+                                    <span class="badge @statusBadge">@Localizer[$"PaymentStatus.{item.PaymentStatus}"]</span>
+                                    @if (item.Balance > 0)
+                                    {
+                                        <br /><small class="text-danger">@item.Balance.ToString("C2", new System.Globalization.CultureInfo("fr-BE"))</small>
+                                    }
+                                </td>
+                                <td class="text-center">
                                     @if (item.IsConfirmed)
                                     {
                                         <span class="badge bg-success">
@@ -125,6 +142,8 @@ else
                                         <button type="button"
                                                 class="btn btn-success btn-sm"
                                                 data-booking-id="@item.BookingId"
+                                                data-unpaid="@(item.PaymentStatus != PaymentStatus.Paid ? "true" : "false")"
+                                                data-balance="@item.Balance.ToString("C2", new System.Globalization.CultureInfo("fr-BE"))"
                                                 onclick="confirmBooking(this)">
                                             <i class="fas fa-check me-1"></i>@Localizer["Confirm"]
                                         </button>
@@ -255,6 +274,14 @@ else
 
         // Confirm booking
         async function confirmBooking(button) {
+            if (button.dataset.unpaid === 'true') {
+                var message = @Json.Serialize(Localizer["ActivityManagement.ConfirmUnpaidBooking"].Value)
+                    .replace('{0}', button.dataset.balance);
+                if (!confirm(message)) {
+                    return;
+                }
+            }
+
             const bookingId = button.dataset.bookingId;
             button.disabled = true;
 
