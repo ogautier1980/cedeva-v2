@@ -23,6 +23,7 @@ using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Serilog;
 using System.Net;
 using System.Net.Sockets;
@@ -83,6 +84,8 @@ try
     // Strongly-typed configuration (Options pattern)
     builder.Services.Configure<BrevoOptions>(builder.Configuration.GetSection(BrevoOptions.SectionName));
     builder.Services.Configure<StripeOptions>(builder.Configuration.GetSection(StripeOptions.SectionName));
+    builder.Services.Configure<MollieOptions>(builder.Configuration.GetSection(MollieOptions.SectionName));
+    builder.Services.Configure<PaymentsOptions>(builder.Configuration.GetSection(PaymentsOptions.SectionName));
 
     // Persist the Data Protection key ring to a volume-backed directory (relative to the content
     // root, e.g. /app/keys in the Docker image — NOT an absolute "/keys", which isn't writable on
@@ -115,6 +118,14 @@ try
     // File storage: local disk (bind-mounted/volume-backed under wwwroot/uploads in all
     // environments — no cloud storage provider on the OVH/self-hosted deployment target).
     builder.Services.AddScoped<IStorageService, LocalFileStorageService>();
+
+    // Mollie API key is set per-request by MolliePaymentGateway (lazily, like Stripe), not baked
+    // in here, so the client stays registrable even when Mollie isn't configured/selected.
+    builder.Services.AddHttpClient("MollieClient", client =>
+    {
+        client.BaseAddress = new Uri("https://api.mollie.com/v2/");
+        client.DefaultRequestHeaders.Add("Accept", "application/json");
+    });
 
     builder.Services.AddHttpClient("BrevoClient", client =>
     {
@@ -174,7 +185,19 @@ try
         containerBuilder.RegisterType<StorageContext>().As<IStorageContext>().InstancePerLifetimeScope();
         containerBuilder.RegisterType<BelgianMunicipalityService>().As<IBelgianMunicipalityService>().InstancePerLifetimeScope();
         containerBuilder.RegisterType<StructuredCommunicationService>().As<IStructuredCommunicationService>().InstancePerLifetimeScope();
-        containerBuilder.RegisterType<StripePaymentGateway>().As<IPaymentGateway>().InstancePerLifetimeScope();
+        // Both gateways are always registered (as themselves); IPaymentGateway resolves to
+        // whichever the "Payments:Provider" config key selects — switch providers with a config
+        // change alone, no code/redeploy of a different build needed.
+        containerBuilder.RegisterType<StripePaymentGateway>().AsSelf().InstancePerLifetimeScope();
+        containerBuilder.RegisterType<MolliePaymentGateway>().AsSelf().InstancePerLifetimeScope();
+        containerBuilder.Register<IPaymentGateway>(ctx =>
+        {
+            // Mollie is the default: anything other than an explicit "Stripe" resolves to Mollie.
+            var provider = ctx.Resolve<IOptions<PaymentsOptions>>().Value.Provider;
+            return string.Equals(provider, PaymentsOptions.StripeProvider, StringComparison.OrdinalIgnoreCase)
+                ? ctx.Resolve<StripePaymentGateway>()
+                : ctx.Resolve<MolliePaymentGateway>();
+        }).InstancePerLifetimeScope();
         containerBuilder.RegisterType<QrCodeService>().As<IQrCodeService>().InstancePerLifetimeScope();
         containerBuilder.RegisterType<BookingPaymentService>().As<IBookingPaymentService>().InstancePerLifetimeScope();
         containerBuilder.RegisterType<ExcursionService>().As<IExcursionService>().InstancePerLifetimeScope();

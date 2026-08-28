@@ -44,29 +44,29 @@ public class StripePaymentGatewayTests
     }
 
     [Fact]
-    public void ParseWebhook_NullSignatureHeader_ReturnsNull()
+    public async Task ParseWebhookAsync_NullSignatureHeader_ReturnsNull()
     {
         var sut = BuildGateway();
 
-        sut.ParseWebhook("{}", null).Should().BeNull();
+        (await sut.ParseWebhookAsync("{}", null)).Should().BeNull();
     }
 
     [Fact]
-    public void ParseWebhook_EmptySignatureHeader_ReturnsNull()
+    public async Task ParseWebhookAsync_EmptySignatureHeader_ReturnsNull()
     {
         var sut = BuildGateway();
 
-        sut.ParseWebhook("{}", string.Empty).Should().BeNull();
+        (await sut.ParseWebhookAsync("{}", string.Empty)).Should().BeNull();
     }
 
     [Fact]
-    public void ParseWebhook_InvalidSignature_ReturnsNull()
+    public async Task ParseWebhookAsync_InvalidSignature_ReturnsNull()
     {
         // A non-empty but bogus signature header makes Stripe's EventUtility.ConstructEvent
         // throw a StripeException, which the gateway catches and converts to null.
         var sut = BuildGateway();
 
-        sut.ParseWebhook("{\"id\":\"evt_1\"}", "t=1,v1=deadbeef").Should().BeNull();
+        (await sut.ParseWebhookAsync("{\"id\":\"evt_1\"}", "t=1,v1=deadbeef")).Should().BeNull();
     }
 
     [Fact]

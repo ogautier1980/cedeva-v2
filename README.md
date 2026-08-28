@@ -27,7 +27,7 @@ dotnet run --project src/Cedeva.Website                       # Run (auto-seeds 
 | Database | PostgreSQL 17 (Docker) |
 | ORM | Entity Framework Core 10 |
 | Email | Brevo SDK (C#) + HttpClientFactory |
-| Online payments | Stripe Checkout via provider-agnostic `IPaymentGateway` |
+| Online payments | Stripe or Mollie (config-switchable) via provider-agnostic `IPaymentGateway` |
 | Excel | ClosedXML |
 | File Storage | Local disk (Docker volume in production) |
 | DI Container | Autofac |
@@ -69,7 +69,7 @@ src/
 │   └── Enums/                 # All enumerations
 └── Cedeva.Infrastructure/     # Infrastructure layer
     ├── Data/                  # DbContext, migrations, seeder
-    ├── Services/              # Email, Excel, PDF, storage, Stripe payments
+    ├── Services/              # Email, Excel, PDF, storage, online payments (Stripe/Mollie)
     └── Repositories/          # Generic repository + unit of work
 ```
 
@@ -284,7 +284,7 @@ Individual payment record for a booking.
 | CreatedByUserId | int? | User who registered manual payment |
 
 > **Note:** CODA bank-statement import and reconciliation (`CodaFile`, `BankTransaction`) were
-> **removed** and replaced by online payments (Stripe) — see [docs/adr/0010](docs/adr/0010-online-payments-provider-agnostic-stripe.md).
+> **removed** and replaced by online payments (Stripe/Mollie) — see [docs/adr/0010](docs/adr/0010-online-payments-provider-agnostic-stripe.md).
 
 ### Expense
 Financial expense linked to an activity. Two categories: team-member expenses and organisation expenses.
@@ -483,11 +483,14 @@ Linked to an Activity; a coordinator can create excursions after the activity ha
 - Team salary calculation: prestations + reimbursements − personal consumptions
 - Excel export for salaries and financial reports
 
-### Online Payments (Stripe)
-Provider-agnostic online payment, behind `IPaymentGateway` (so the provider can be swapped):
-- **Checkout** — `OnlinePaymentController` (anonymous) redirects to Stripe Checkout (hosted page) for the booking's remaining due amount; a "Pay online" button appears on the public confirmation page when `TotalAmount − PaidAmount > 0`.
-- **Webhook** — a signed Stripe webhook applies the paid event to the booking (records a `Payment(Online)`, updates `PaidAmount`/`PaymentStatus`), idempotent on the provider reference.
-- **Config** — `Stripe:SecretKey` / `Stripe:WebhookSecret` (VPS `.env` as `Stripe__*`), never committed.
+### Online Payments (Stripe / Mollie)
+Provider-agnostic online payment, behind `IPaymentGateway` — both `StripePaymentGateway` and
+`MolliePaymentGateway` are always registered; `Payments:Provider` (`"Stripe"` or `"Mollie"`, default
+`"Mollie"` — anything other than an explicit `"Stripe"` resolves to Mollie) selects which one
+`IPaymentGateway` resolves to. Switching provider is a config change, no code change:
+- **Checkout** — `OnlinePaymentController` (anonymous) redirects to the provider's hosted checkout page for the booking's remaining due amount; a "Pay online" button appears on the public confirmation page when `TotalAmount − PaidAmount > 0`.
+- **Webhook** — a single `OnlinePayment/Webhook` endpoint applies the paid event to the booking (records a `Payment(Online)`, updates `PaidAmount`/`PaymentStatus`), idempotent on the provider reference. Stripe signs the payload (`Stripe-Signature` header, verified locally); Mollie posts only a payment id and is verified by fetching that payment back from the Mollie API with the secret key.
+- **Config** — `Stripe:SecretKey` / `Stripe:WebhookSecret`, `Mollie:ApiKey`, `Payments:Provider` (VPS `.env` as `Stripe__*` / `Mollie__*` / `Payments__Provider`), never committed.
 - See [docs/adr/0010](docs/adr/0010-online-payments-provider-agnostic-stripe.md).
 
 ### Presence Management

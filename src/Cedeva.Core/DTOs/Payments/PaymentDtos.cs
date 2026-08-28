@@ -8,7 +8,10 @@ public record PaymentCheckoutRequest(
     string Description,
     string? CustomerEmail,
     string SuccessUrl,
-    string CancelUrl);
+    string CancelUrl,
+    // Only used by providers that require a per-payment callback URL (e.g. Mollie); Stripe ignores
+    // it since its webhook endpoint is configured once in the Stripe dashboard.
+    string? WebhookUrl = null);
 
 /// <summary>Result of creating a checkout session: where to send the payer + a provider reference.</summary>
 public record PaymentCheckoutResult(string CheckoutUrl, string ProviderReference);

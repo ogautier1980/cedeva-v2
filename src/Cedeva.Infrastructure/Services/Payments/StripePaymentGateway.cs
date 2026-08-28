@@ -64,10 +64,11 @@ public class StripePaymentGateway : IPaymentGateway
         return new PaymentCheckoutResult(session.Url, session.Id);
     }
 
-    public PaymentWebhookResult? ParseWebhook(string requestBody, string? signatureHeader)
+    public Task<PaymentWebhookResult?> ParseWebhookAsync(string requestBody, string? signatureHeader, CancellationToken cancellationToken = default)
     {
+        // Stripe verifies the signature locally (HMAC over the raw body) — no network call needed.
         if (string.IsNullOrEmpty(signatureHeader))
-            return null;
+            return Task.FromResult<PaymentWebhookResult?>(null);
 
         Event stripeEvent;
         try
@@ -77,16 +78,17 @@ public class StripePaymentGateway : IPaymentGateway
         catch (StripeException ex)
         {
             _logger.LogWarning(ex, "Rejected Stripe webhook with invalid signature");
-            return null;
+            return Task.FromResult<PaymentWebhookResult?>(null);
         }
 
         if (stripeEvent.Type != CheckoutCompletedEvent || stripeEvent.Data.Object is not Session session)
-            return null;
+            return Task.FromResult<PaymentWebhookResult?>(null);
 
         var isPaid = string.Equals(session.PaymentStatus, "paid", StringComparison.OrdinalIgnoreCase);
         var amount = (session.AmountTotal ?? 0) / 100m;
-        return new PaymentWebhookResult(isPaid, ResolveBookingId(session), session.Id, amount,
+        var result = new PaymentWebhookResult(isPaid, ResolveBookingId(session), session.Id, amount,
             session.Currency ?? _options.Currency);
+        return Task.FromResult<PaymentWebhookResult?>(result);
     }
 
     private static int ResolveBookingId(Session session)

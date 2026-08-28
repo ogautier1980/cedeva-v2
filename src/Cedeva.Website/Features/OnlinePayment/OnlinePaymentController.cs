@@ -57,7 +57,8 @@ public class OnlinePaymentController : Controller
             Description: $"{booking.Activity.Name} — {booking.Child.FirstName} {booking.Child.LastName}",
             CustomerEmail: booking.Child.Parent?.Email,
             SuccessUrl: Url.Action(nameof(Return), "OnlinePayment", new { bookingId }, Request.Scheme)!,
-            CancelUrl: Url.Action("Confirmation", "PublicRegistration", new { bookingId }, Request.Scheme)!);
+            CancelUrl: Url.Action("Confirmation", "PublicRegistration", new { bookingId }, Request.Scheme)!,
+            WebhookUrl: Url.Action(nameof(Webhook), "OnlinePayment", null, Request.Scheme)!);
 
         var result = await _gateway.CreateCheckoutAsync(request);
         _logger.LogInformation("Started {Provider} checkout {Reference} for booking {BookingId} ({Amount})",
@@ -79,9 +80,11 @@ public class OnlinePaymentController : Controller
     {
         using var reader = new StreamReader(Request.Body);
         var body = await reader.ReadToEndAsync();
+        // Only Stripe uses this header; Mollie's gateway implementation ignores it (it verifies
+        // the payment by fetching it back from the Mollie API instead).
         var signature = Request.Headers["Stripe-Signature"].FirstOrDefault();
 
-        var result = _gateway.ParseWebhook(body, signature);
+        var result = await _gateway.ParseWebhookAsync(body, signature, HttpContext.RequestAborted);
         if (result == null)
             return BadRequest();
 

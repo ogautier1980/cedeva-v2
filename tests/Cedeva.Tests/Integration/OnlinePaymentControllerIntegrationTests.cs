@@ -8,10 +8,11 @@ namespace Cedeva.Tests.Integration;
 /// <summary>
 /// Integration tests for the anonymous <c>OnlinePaymentController</c>.
 ///
-/// Stripe is NOT configured in the test app (Stripe:SecretKey is empty in appsettings.json),
-/// so a real hosted checkout cannot be created: <c>Checkout</c> only succeeds (without touching
-/// Stripe) for a booking that has nothing left to pay. The webhook gateway returns null for any
-/// unsigned/invalid payload, so the webhook endpoint always answers gracefully (400, never 500).
+/// Neither provider is configured in the test app (Mollie:ApiKey/Stripe:SecretKey are empty in
+/// appsettings.json — Mollie is the default gateway), so a real hosted checkout cannot be created:
+/// <c>Checkout</c> only succeeds (without touching the provider) for a booking that has nothing
+/// left to pay. The webhook gateway returns null for any unsigned/invalid payload, so the webhook
+/// endpoint always answers gracefully (400, never 500).
 /// </summary>
 [Collection("WebApp")]
 public class OnlinePaymentControllerIntegrationTests
@@ -91,12 +92,12 @@ public class OnlinePaymentControllerIntegrationTests
     }
 
     [Fact]
-    public async Task Checkout_AmountDue_StripeNotConfigured_DoesNotRedirectToProvider()
+    public async Task Checkout_AmountDue_ProviderNotConfigured_DoesNotRedirectToConfirmation()
     {
         using var factory = new CedevaWebApplicationFactory();
-        // amountDue > 0 forces a real CreateCheckoutAsync call. The outcome depends on whether a
-        // Stripe SecretKey is configured for the host (appsettings is empty, but a developer's
-        // user-secrets or CI may supply one):
+        // amountDue > 0 forces a real CreateCheckoutAsync call. The outcome depends on whether the
+        // active provider (Mollie by default) is configured for the host (appsettings is empty,
+        // but a developer's user-secrets or CI may supply one):
         //   * configured   -> 302 redirect to the provider's hosted checkout (NOT our Confirmation),
         //   * not configured -> the gateway throws InvalidOperationException, surfaced as a 500
         //                       (Development exception page) or rethrown by the TestServer.
@@ -125,20 +126,20 @@ public class OnlinePaymentControllerIntegrationTests
         }
         catch (InvalidOperationException)
         {
-            // Stripe not configured and the TestServer rethrew the unhandled gateway exception:
+            // Provider not configured and the TestServer rethrew the unhandled gateway exception:
             // definitively not the "nothing due" Confirmation redirect.
             return;
         }
 
         if (response.StatusCode == HttpStatusCode.Found)
         {
-            // Stripe configured: the redirect must go to the provider, never our Confirmation page.
+            // Provider configured: the redirect must go to it, never our Confirmation page.
             var location = response.Headers.Location!.ToString();
             location.Should().NotContain("Confirmation");
         }
         else
         {
-            // Stripe not configured: the unhandled gateway exception surfaces as a server error.
+            // Provider not configured: the unhandled gateway exception surfaces as a server error.
             response.StatusCode.Should().Be(HttpStatusCode.InternalServerError);
         }
     }

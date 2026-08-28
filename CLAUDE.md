@@ -18,7 +18,7 @@ Guide for Claude Code when working with the Cedeva codebase.
 
 **Cedeva** — ASP.NET Core MVC (.NET 10) for managing children's vacation activity centers in Belgium. Multi-tenant SaaS (organisations scope all data). Full spec: [README.md](README.md).
 
-**Stack:** .NET 10 · PostgreSQL 17 · EF Core 10 · ASP.NET Identity · Bootstrap 5 · Docker · Brevo email · Stripe payments · ClosedXML
+**Stack:** .NET 10 · PostgreSQL 17 · EF Core 10 · ASP.NET Identity · Bootstrap 5 · Docker · Brevo email · Stripe/Mollie payments · ClosedXML
 
 ## Quick Reference
 
@@ -108,13 +108,19 @@ src/
 - `FinancialCalculationService` for reusable business logic
 - ⚠️ CODA import & bank reconciliation were **removed** (replaced by online payments — see below)
 
-### Online Payments (Stripe)
-- Provider-agnostic `IPaymentGateway` (Checkout + webhook) with `StripePaymentGateway`
-- `OnlinePaymentController` (anonymous): Checkout redirect, Return, signed Webhook
+### Online Payments (Stripe / Mollie)
+- Provider-agnostic `IPaymentGateway` (Checkout + async webhook parsing), two implementations
+  always registered: `StripePaymentGateway` and `MolliePaymentGateway`
+- **Switch provider via config only**: `Payments:Provider` = `"Mollie"` (default) or `"Stripe"` —
+  anything other than an explicit `"Stripe"` resolves to Mollie; no code change, no different build
+- `OnlinePaymentController` (anonymous): Checkout redirect, Return, single Webhook endpoint for
+  both providers (Stripe signs its payload; Mollie is verified by re-fetching the payment from
+  its API with the secret key — no signature header)
 - `BookingPaymentService` applies a paid webhook to the booking (records `Payment(Online)`,
-  updates `PaidAmount`/`PaymentStatus`, idempotent on provider reference)
+  updates `PaidAmount`/`PaymentStatus`, idempotent on provider reference) — unchanged by either provider
 - "Pay online" button on the public confirmation page (amount = remaining due)
-- Secrets via config `Stripe:SecretKey` / `Stripe:WebhookSecret` (VPS `.env` as `Stripe__*`) — never committed
+- Secrets via config `Stripe:SecretKey` / `Stripe:WebhookSecret` / `Mollie:ApiKey` (VPS `.env` as
+  `Stripe__*` / `Mollie__*`) — never committed
 - See [docs/adr/0010](docs/adr/0010-online-payments-provider-agnostic-stripe.md)
 
 ### Activity Management

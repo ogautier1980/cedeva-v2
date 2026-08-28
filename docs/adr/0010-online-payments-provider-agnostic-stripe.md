@@ -2,6 +2,18 @@
 
 **Statut :** Accepté (remplace l'import CODA / rapprochement bancaire, supprimés)
 
+**Mise à jour 2026-08-01 :** Mollie a finalement été ajouté comme second fournisseur
+(`MolliePaymentGateway`), sans supprimer Stripe — exactement le scénario que cette ADR anticipait
+(« changer de fournisseur = une nouvelle implémentation d'`IPaymentGateway` »). Les deux
+implémentations sont toujours enregistrées ; une clé de config `Payments:Provider` (`"Mollie"` par
+défaut, `"Stripe"` explicitement pour basculer — toute autre valeur retombe sur Mollie) sélectionne
+laquelle `IPaymentGateway` résout — bascule par configuration seule, aucun redéploiement de code
+différent. Mollie n'a pas de webhook signé : il
+poste uniquement l'id du paiement (`id=tr_xxx`, form-urlencoded) et la vérification se fait en
+recontactant l'API Mollie avec la clé secrète pour relire ce paiement — d'où le passage de
+`ParseWebhook` (synchrone) à `ParseWebhookAsync`. Implémenté en HTTP direct (`IHttpClientFactory`,
+pas de SDK tiers) plutôt que via un package NuGet Mollie non officiel.
+
 ## Contexte
 Cedeva facturait des réservations mais encaissait hors-ligne : l'« import CODA » et le
 rapprochement bancaire servaient à pointer manuellement les virements. C'était lourd, peu fiable et
