@@ -1,0 +1,142 @@
+@using Cedeva.Website.Features.Payments.ViewModels
+@model PaymentViewModel
+@inject IStringLocalizer<SharedResources> Localizer
+
+@{
+    ViewData["Title"] = Localizer["Payments.Edit"];
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>@Localizer["Payments.Edit"]</h2>
+        <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left"></i> @Localizer["Common.Back"]
+        </a>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-money-bill"></i> @Localizer["Payments.PaymentInformation"]</h5>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Edit" method="post">
+                        @Html.AntiForgeryToken()
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+                        <input type="hidden" asp-for="Id" />
+                        <input type="hidden" asp-for="BookingId" />
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="Amount" class="form-label">@Localizer["Field.Amount"]</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-euro-sign"></i></span>
+                                    <input asp-for="Amount" class="form-control" id="Amount" step="0.01" />
+                                </div>
+                                <span asp-validation-for="Amount" class="text-danger"></span>
+                                <small class="text-muted">@Localizer["Payments.RemainingAmount"]: <strong class="text-danger">@Model.BookingRemainingAmount.ToString("C")</strong></small>
+                                <div class="small mt-1" id="balanceAfterPaymentWrapper" style="display:none;">
+                                    @Localizer["Payments.RemainingAmount"] (@Localizer["Payments.AfterThisPayment"]) :
+                                    <strong id="balanceAfterPayment"></strong>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="PaymentDate" class="form-label">@Localizer["Field.PaymentDate"]</label>
+                                <input asp-for="PaymentDate" class="form-control" id="PaymentDate" type="date" />
+                                <span asp-validation-for="PaymentDate" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="PaymentMethod" class="form-label">@Localizer["Field.PaymentMethod"]</label>
+                                <select asp-for="PaymentMethod" class="form-select" id="PaymentMethod">
+                                    <option value="@PaymentMethod.Cash">@Localizer["PaymentMethod.Cash"]</option>
+                                    <option value="@PaymentMethod.Other">@Localizer["PaymentMethod.Other"]</option>
+                                </select>
+                                <span asp-validation-for="PaymentMethod" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="Reference" class="form-label">@Localizer["Payment.Reference"]</label>
+                                <input asp-for="Reference" class="form-control" id="Reference" placeholder="@Localizer["Payments.ReferenceHelp"]" />
+                                <span asp-validation-for="Reference" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                            <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-outline-secondary">
+                                <i class="fas fa-times"></i> @Localizer["Common.Cancel"]
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> @Localizer["Save"]
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card border-info">
+                <div class="card-header bg-info text-white">
+                    <h5><i class="fas fa-info-circle"></i> @Localizer["Payments.BookingInformation"]</h5>
+                </div>
+                <div class="card-body">
+                    <dl class="row mb-0">
+                        <dt class="col-sm-5">@Localizer["Field.Child"]:</dt>
+                        <dd class="col-sm-7">@Model.ChildName</dd>
+
+                        <dt class="col-sm-5">@Localizer["Field.Parent"]:</dt>
+                        <dd class="col-sm-7">@Model.ParentName</dd>
+
+                        <dt class="col-sm-5">@Localizer["Field.Activity"]:</dt>
+                        <dd class="col-sm-7">@Model.ActivityName</dd>
+
+                        <dt class="col-sm-5">@Localizer["Payments.TotalAmount"]:</dt>
+                        <dd class="col-sm-7"><strong>@Model.BookingTotalAmount.ToString("C")</strong></dd>
+
+                        <dt class="col-sm-5">@Localizer["Payments.AlreadyPaid"]:</dt>
+                        <dd class="col-sm-7 text-success"><strong>@Model.BookingPaidAmount.ToString("C")</strong></dd>
+
+                        <dt class="col-sm-5">@Localizer["Payments.RemainingAmount"]:</dt>
+                        <dd class="col-sm-7 text-danger"><strong id="sidebarRemainingAmount">@Model.BookingRemainingAmount.ToString("C")</strong></dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        $(document).ready(function() {
+            CedevaChoices.initAll('.form-select');
+        });
+
+        // Live remaining-balance recalculation as the coordinator adjusts the amount.
+        (function () {
+            const remainingBefore = @Model.BookingRemainingAmount.ToString("F2", System.Globalization.CultureInfo.InvariantCulture);
+            const amountInput = document.getElementById('Amount');
+            const wrapper = document.getElementById('balanceAfterPaymentWrapper');
+            const display = document.getElementById('balanceAfterPayment');
+            const formatter = new Intl.NumberFormat('fr-BE', { style: 'currency', currency: 'EUR' });
+
+            amountInput.addEventListener('input', function () {
+                const entered = parseFloat(amountInput.value.replace(',', '.'));
+                if (isNaN(entered) || entered <= 0) {
+                    wrapper.style.display = 'none';
+                    return;
+                }
+
+                const after = remainingBefore - entered;
+                display.textContent = formatter.format(after);
+                display.className = after > 0 ? 'text-danger' : (after < 0 ? 'text-info' : 'text-success');
+                wrapper.style.display = 'block';
+            });
+        })();
+    </script>
+}

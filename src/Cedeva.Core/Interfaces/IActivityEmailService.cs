@@ -35,7 +35,10 @@ public record ActivityEmailRequest(
     bool SendSeparateEmailPerChild,
     IReadOnlyList<string> SelectedContactEmails,
     string? AttachmentFileName,
-    string? AttachmentFilePath);
+    string? AttachmentFilePath,
+    // Filters recipients to those booked that week (ActivityDay.Week) — independent of
+    // SelectedDayId (a specific day) so a coordinator can pick either, or neither ("everyone").
+    int? SelectedWeekNumber = null);
 
 /// <summary>
 /// Orchestrates sending a composed email for an activity: resolves recipients (all/medical/unpaid/

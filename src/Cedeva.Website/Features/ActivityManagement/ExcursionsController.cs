@@ -510,6 +510,29 @@ public class ExcursionsController : Controller
         }
     }
 
+    // POST: ActivityManagement/Excursions/UpdatePaidAmount — records how much has actually been
+    // paid for one child's excursion registration (the "prévu" stays Excursion.Cost, shared by all).
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> UpdatePaidAmount(int registrationId, decimal paidAmount)
+    {
+        if (paidAmount < 0)
+        {
+            return Json(new { success = false, message = _localizer["Validation.AmountRange"].ToString() });
+        }
+
+        var registration = await _context.ExcursionRegistrations.FindAsync(registrationId);
+        if (registration == null)
+        {
+            return Json(new { success = false, message = _localizer[ErrorRegistrationNotFound].ToString() });
+        }
+
+        registration.PaidAmount = paidAmount;
+        await _context.SaveChangesAsync();
+
+        return Json(new { success = true });
+    }
+
     [HttpGet]
     public async Task<IActionResult> Attendance(int id)
     {
@@ -677,13 +700,13 @@ public class ExcursionsController : Controller
             {
                 var subject = _emailServices.VariableReplacement.ReplaceVariables(model.Subject, booking, organisation!);
                 var message = _emailServices.VariableReplacement.ReplaceVariables(model.Message, booking, organisation!);
-                await _emailServices.Email.SendEmailAsync(new List<string> { booking.Child.Parent.Email }, subject, message, attachmentFilePath);
+                await _emailServices.Email.SendEmailAsync(booking.Child.Parent.GetEmailAddresses().ToList(), subject, message, attachmentFilePath);
                 sentCount++;
             }
         }
         else
         {
-            var recipientEmails = recipientBookings.Select(b => b.Child.Parent.Email).Distinct().ToList();
+            var recipientEmails = recipientBookings.SelectMany(b => b.Child.Parent.GetEmailAddresses()).Distinct().ToList();
             foreach (var emailAddress in recipientEmails)
             {
                 await _emailServices.Email.SendEmailAsync(new List<string> { emailAddress }, model.Subject, model.Message, attachmentFilePath);

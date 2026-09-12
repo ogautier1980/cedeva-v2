@@ -25,6 +25,11 @@ public class ParentViewModel : AuditableViewModel
     [Display(Name = "Field.Email")]
     public string Email { get; set; } = string.Empty;
 
+    [EmailAddress(ErrorMessage = "Validation.InvalidEmail")]
+    [StringLength(100, ErrorMessage = "Validation.StringLength")]
+    [Display(Name = "Field.SecondaryEmail")]
+    public string? SecondaryEmail { get; set; }
+
     [StringLength(100, ErrorMessage = "Validation.StringLength")]
     [RegularExpression(@"^((\+32|0032)[\s\.\-\/]?|0)[\s\.\-\/]?\d([\s\.\-\/]?\d){7}$", ErrorMessage = "Validation.InvalidLandlineNumber")]
     [Display(Name = "Field.LandlineNumber")]

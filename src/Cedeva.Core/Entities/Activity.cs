@@ -21,6 +21,10 @@ public class Activity : AuditableEntity, IOrganisationScoped
 
     public decimal? PricePerDay { get; set; }
 
+    /// <summary>Default garderie (before/after-school care) rate per day (Lot K #5) — pre-fills
+    /// ChildcareRegistration.Amount when a coordinator registers a child, still editable per row.</summary>
+    public decimal? ChildcarePricePerDay { get; set; }
+
     [Required(ErrorMessage = "Validation.Required")]
     [DataType(DataType.Date)]
     public DateTime StartDate { get; set; }
@@ -78,6 +82,11 @@ public class Activity : AuditableEntity, IOrganisationScoped
     [StringLength(500, ErrorMessage = "Validation.StringLength")]
     public string? RedirectUrlAfterSubmit { get; set; }
 
+    /// <summary>Message affiché si l'inscription est refusée pour cause de quota atteint pour
+    /// l'année de naissance de l'enfant (Lot K #4). Null = message générique par défaut.</summary>
+    [StringLength(300, ErrorMessage = "Validation.StringLength")]
+    public string? BirthYearQuotaExceededMessage { get; set; }
+
     public int OrganisationId { get; set; }
     public Organisation Organisation { get; set; } = null!;
 
@@ -87,4 +96,5 @@ public class Activity : AuditableEntity, IOrganisationScoped
     public ICollection<Booking> Bookings { get; set; } = new List<Booking>();
     public ICollection<Child> Children { get; set; } = new List<Child>();
     public ICollection<TeamMember> TeamMembers { get; set; } = new List<TeamMember>();
+    public ICollection<ActivityBirthYearQuota> BirthYearQuotas { get; set; } = new List<ActivityBirthYearQuota>();
 }

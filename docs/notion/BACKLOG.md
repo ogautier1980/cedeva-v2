@@ -14,6 +14,12 @@ Source : export Notion [`CEDEVA 2 0 ....md`](CEDEVA%202%200%2035545c93462a801cae
 
 **Mise à jour 2026-07-31 (relecture complète)** — Relecture détaillée de toutes les pages Notion + captures (43 images + `17.pdf`) pour vérifier que rien n'avait été manqué dans les synthèses précédentes. Résultat : aucune nouvelle demande non triée, mais 1 erreur de citation corrigée (Lot I, étape 2 — la bonne capture annotée en rouge est `10.25.06`, pas `09.19.42`) et 2 nuances ajoutées (Lot A : Thomas ne barre que 3 boutons « Actions rapides » sur 5, les 5 ont été retirés — à confirmer ; Lot C : ventilation « Total prévu EXCURSIONS » de la maquette absente de `Bookings/Details`, non bloquant).
 
+**Mise à jour 2026-09-12 (Notion — nouvelle note + 2ᵉ relecture exhaustive)** — Thomas a ajouté 3 fichiers à l'export : un exemple d'**attestation mutuelle** (`GERARD_MULLER_-_S2.pdf`, commune de Clavier), une capture de l'app Notes listant **8 nouvelles demandes** (voir Lot K), et une image d'avatar Notion sans valeur fonctionnelle. Une 2ᵉ relecture exhaustive (texte + **toutes** les images/PDF, cette fois par des agents dédiés indépendants) de l'intégralité des pages a par ailleurs trouvé **2 écarts réels** manqués par la relecture du 2026-07-31, tous deux tranchés par Olivier le 2026-09-12 :
+- **Lot A** — Thomas demandait explicitement une page d'accueil en gros boutons « Titre + Dates » par stage (comme l'écran de sélection d'activité), pas juste une liste allégée. **Décision : gros bouton par stage, comme demandé.**
+- **Lot B** — la maquette montrait un montant **éditable manuellement** par le coordinateur à la confirmation (capture `19.49.08`) ; le flux livré l'avait entièrement automatisé sans possibilité d'ajustement. **Décision : réintroduire la possibilité d'ajustement manuel.**
+
+Le reste des pages (Comptes, Emails, Équipe, Excursions, ONE, Présences, Tableau de bord, Hamburger, Paramètres, Inscriptions, reste de Création d'activité) a été confirmé conforme à ce backlog, annotation par annotation — aucun autre écart trouvé.
+
 ---
 
 ## ⚠️ Questions ouvertes pour Thomas
@@ -54,6 +60,7 @@ Migration complète menée en une session, en 5 phases séquentielles (chaque ph
 
 - ✅ **Fait** — Tableau de bord d'activité : clic sur le **titre** → 7 gros boutons (`ActivityManagement/Index`) ; clic sur **« Paramètres »** (renommé, ex-« Gérer ») → réglages de l'activité (`Activities/Details`).
 - ✅ **Fait** — Page d'accueil réduite à la liste « Activités récentes » (4 cartes stats, inscriptions récentes, actions rapides retirées, `HomeController` simplifié en conséquence). ⚠️ **Nuance (relecture 2026-07-31)** : sur `18.08.04`, Thomas ne barre en rouge que 3 des 5 boutons « Actions rapides » (Nouvelle inscription, Nouveau parent, Nouveau membre équipe) — il laisse « Nouvelle activité » et « Nouvel enfant » non barrés. Les 5 ont été retirés. À confirmer avec Thomas si ces 2 raccourcis manquent, sinon rien à changer.
+- ✅ **Fait (2026-09-12)** — La demande initiale (texte de la page « Page d'accueil générale organisation ») allait plus loin que la simple suppression de widgets : Thomas voulait arriver sur une page en **gros boutons par stage** (un bouton = Titre + Dates de l'activité, comme l'écran de sélection d'activité déjà existant dans l'app). `Home/Index.cshtml` : la liste `list-group` (titre + dates + nombre de réservations + bouton « Gérer » séparé) remplacée par une grille de gros boutons cliquables (titre + dates uniquement).
 - ✅ **Fait** — Menu du haut (dans une activité) réduit à « Tableau de bord » + dropdown « Pages spéciales » (liste des groupes, total des présences).
 - ✅ **Fait (2026-07-31)** — Menu hamburger **supprimé totalement** : tous ses liens (Contacts, Importer des parents/enfants, Équipe compris) redescendent en dessous sur la page d'accueil, dans une nouvelle section « Paramètres généraux ». Plus de barre latérale globale du tout.
 - ✅ **Fait (2026-07-31)** — Le tableau de bord d'activité est revenu à **8 grosses tuiles** (comme la maquette d'origine `18.09.45`) : le bouton séparé « Paramètres de l'activité » est maintenant la 8ᵉ tuile de la grille, ne reste en dessous que le bouton « Sortir de cette activité ».
@@ -63,6 +70,7 @@ Migration complète menée en une session, en 5 phases séquentielles (chaque ph
 - ✅ Déjà le cas : ne montre que les inscriptions « à confirmer ».
 - ✅ **Fait** — Clic sur le nom de l'enfant → fiche `Bookings/Details` (voir Lot C).
 - ✅ **Fait (2026-07-31, révision du flux)** — Le flux a été redéfini avec Olivier : le parent ne paie plus « en direct » à l'inscription ; à la confirmation par le coordinateur (`ManageBookings`), un mail avec lien de paiement Stripe (carte + Bancontact) et QR code est envoyé automatiquement au parent si un solde reste dû. Groupe et fiche médicale ont été **découplés** de l'acte de confirmation (retirés de `ManageBookings`, restent assignables via `Bookings/Edit` et l'écran `GroupAssignment`). Écran mort `UnconfirmedBookings` (non lié depuis l'UI) supprimé au passage. Pas d'expiration sur le lien (décision Olivier). ⚠️ Bancontact doit être activé côté Dashboard Stripe pour le compte live.
+- ✅ **Fait (2026-09-12)** — La maquette d'origine (`Inscriptions/19.49.08`) montrait un champ **« Total prévu à payer » éditable manuellement** par le coordinateur juste avant de valider l'inscription (encadré rouge). Réintroduit sur `ManageBookings.cshtml` (champ montant pré-rempli avec `Booking.TotalAmount`, ajustable avant de cliquer sur « Confirmer » — `ConfirmBookingRequest.AdjustedTotalAmount`, recalcule `PaymentStatus`).
 
 ## Lot C — Présences
 
@@ -128,6 +136,8 @@ Demande de refonte du formulaire de création d'activité : actuellement un form
 
 Les 4 groupes de champs neufs (Règlement, Limitations, Affichage, redirection) sont branchés à la fois sur le flux d'inscription simple (`Register`, celui réellement utilisé par le code d'intégration iframe généré) et sur le flux multi-étapes (`SelectActivity`/`ActivityQuestions`/`CreateBooking`). Vérifié par 8 nouveaux tests d'intégration + parcours navigateur complet des 7 étapes (Playwright). 🐛 Bug trouvé et corrigé en cours de route : les vues du wizard avaient été placées sous `Features/Activities/` au lieu de `Features/ActivityWizard/` (la convention feature-folder de l'app associe le dossier de vues au nom du contrôleur), ce qui cassait chaque étape avec une 500.
 
+⚠️ **Lacune découverte le 2026-09-12** : les 8 tests mentionnés ci-dessus couvrent le branchement des champs côté `PublicRegistrationController`, mais **`ActivityWizardController` lui-même (Step1 à Step7, `AddDate`) n'a aucun test automatisé** — vérifié uniquement par le parcours Playwright manuel au moment de la livraison, jamais figé en test de régression. Seule l'étape 4 (gestion des quotas par année de naissance, ajoutée aujourd'hui) a des tests. À combler séparément si ce contrôleur est retouché.
+
 ## Lot J — Paramètres (nouveau 2026-07-31, sans maquette)
 
 Page listée dans l'export mais sans capture d'écran associée — juste une liste de champs à formaliser :
@@ -136,6 +146,21 @@ Page listée dans l'export mais sans capture d'écran associée — juste une li
 - ⏸️ **À maquetter** — Dates de l'activité (probablement un renvoi vers l'Étape 2 du wizard de création, Lot I).
 - ⏸️ **À maquetter** — Groupes de l'activité.
 - ⏸️ **À maquetter** — Formulaire (probablement un renvoi vers les Étapes 5/6 du wizard, Lot I).
+
+## Lot K — Nouvelles demandes (note du 2026-08-24 + écarts retrouvés le 2026-09-12)
+
+Toutes les décisions ci-dessous ont été tranchées par Olivier le 2026-09-12.
+
+- ⏸️ **Pas fait** — **Page d'accueil en gros boutons par stage** (écart Lot A, voir ci-dessus) : remplacer la liste `list-group` de `Home/Index.cshtml` par une grille de gros boutons, un par activité, affichant uniquement Titre + Dates (réutilise l'esprit de l'écran de sélection d'activité public), clic → `ActivityManagement/Index`.
+- ⏸️ **Pas fait** — **Ajustement manuel du montant à la confirmation** (écart Lot B, voir ci-dessus) : réintroduire sur `ManageBookings` un champ montant éditable (pré-rempli avec `Booking.TotalAmount`) avant validation, sans casser l'envoi automatique du mail de paiement sur le solde qui en résulte.
+- ✅ **Fait (2026-09-12)** — **2 adresses e-mail par parent** : `Parent.SecondaryEmail` (migration `AddParentSecondaryEmailAndExcursionPaidAmount`), `Parent.GetEmailAddresses()` (helper partagé, dédupliqué) inclus dans tous les envois (`EmailRecipientService`, confirmation de réservation, mails d'excursion) — hors formulaire d'inscription publique (admin uniquement, scope volontairement limité). Champ sur `Parents/Create.cshtml`/`Edit.cshtml`.
+- ✅ **Fait (2026-09-12)** — **Envoi de mail filtré par semaine** : nouveau paramètre `weekNumber` sur `IEmailRecipientService.GetRecipientEmailsAsync` (filtre `ActivityDay.Week`, cumulable avec le filtre par jour), sélecteur « Prévu la semaine » sur `SendEmail.cshtml` (`ActivityManagement`).
+- ✅ **Fait (2026-09-12)** — **Quota d'inscription par année de naissance** — décision (Olivier) : les enfants s'inscrivent en général à la semaine ; **en pratique une réservation réserve toujours tous les jours actifs de l'activité en une fois** (pas d'inscription partielle par semaine dans le flux actuel), donc un quota par (activité, année de naissance) se comporte déjà comme un quota « par semaine » dans le cas courant (1 activité = 1 semaine de stage) — approximation pragmatique documentée dans le code, à affiner si un jour le flux permet une inscription partielle. Nouvelle table `ActivityBirthYearQuota` (`ActivityId`, `BirthYear`, `MaxChildren`, index unique sur le couple), `Activity.BirthYearQuotaExceededMessage` (message personnalisable), vérifié dans `PublicRegistrationController` (`Register` POST, `CreateBooking` du flux multi-étapes) via `CheckBirthYearQuotaAsync`. Gestion des quotas ajoutée à l'étape 4 (Limitations) du wizard (`ActivityWizardController.AddBirthYearQuota`/`RemoveBirthYearQuota`).
+- ✅ **Fait (2026-09-12)** — **Prévu/payé sur les excursions** : `ExcursionRegistration.PaidAmount` (le "prévu" reste `Excursion.Cost`, commun), champ éditable par ligne dans `Excursions/Registrations.cshtml` (AJAX, `ExcursionsController.UpdatePaidAmount`).
+- ✅ **Fait (2026-09-12)** — **Garderie (accueil extrascolaire), comme service optionnel** — nouvelle entité `ChildcareRegistration` (`BookingId`, `ActivityDayId`, `Amount`, index unique sur le couple), `Activity.ChildcarePricePerDay` (tarif par défaut, configurable sur `Activities/Edit`, éditable par ligne). Nouvelle page `ActivityManagement/Childcare` (sélecteur de jour + case à cocher + montant par enfant, AJAX, ajoutée au menu « Pages spéciales ») — c'est à la fois l'écran de gestion **et** la liste des enfants inscrits à la garderie ce jour-là. Montant inclus dans `Booking.TotalAmount` comme pour les excursions.
+- ✅ **Fait (2026-09-12)** — **Attestation mutuelle, générée automatiquement, généralisée par organisation** — le PDF fourni (`GERARD_MULLER_-_S2.pdf`, commune de Clavier) a servi de modèle, généralisé : `Organisation.ResponsibleName` (nouveau champ, configurable sur `Organisations/Edit`) complète le logo et l'adresse déjà existants (`Organisation.LogoUrl`/`Address`). Contrairement au plan initial, **pas de nouveau service QuestPDF** : suivant le pattern déjà établi par `OneReport`/`Print`/`PrintGroups` (page HTML imprimable par le navigateur, pas de PDF généré serveur), nouvelle action `Bookings/MutualityAttestation/{id}` + vue dédiée, bouton sur `Bookings/Details`. Utilise les données déjà disponibles (`BookingDay.IsPresent` pour les jours réels de présence, `Booking.PaidAmount`).
+- ✅ **Fait (2026-09-12)** — **1 aîné par famille sur les listes** — décision (Olivier) appliquée : ignore les familles recomposées, basé uniquement sur `Child.ParentId`. `PresenceChildInfo.IsEldestInFamily` (calculé dynamiquement, `ActivityManagementController.ComputeEldestChildIds`, pas de nouveau champ persistant), badge ⭐ affiché sur `Presences.cshtml`, `Groups.cshtml`, `Print.cshtml`, `PrintGroups.cshtml`.
+- ✅ **Fait (2026-09-12)** — **Édition/suppression de lignes de comptes** : `PaymentsController.Edit`/`Delete` ajoutées (le pattern existait déjà côté `Expense`), avec réajustement de `Booking.PaidAmount`/`PaymentStatus` par delta (helper partagé `RecalculateBookingPaymentStatus`, aussi utilisé par `Cancel`).
 
 ---
 
@@ -153,6 +178,13 @@ fiscales) et Lot J (maquette manquante). Reste à coder, par priorité :
 2. **Lot H** — attestations fiscales par association : bloqué en attente d'un exemple de Thomas (question n°1).
 3. ✅ **Lot I** — wizard de création d'activité en 7 étapes, livré le 2026-08-01 (voir détail ci-dessus).
 4. **Lot J** — Paramètres : à maquetter avec Thomas avant de coder (aucune capture fournie).
+5. ✅ **Lot K** — nouvelles demandes du 2026-08-24 + 2 écarts retrouvés le 2026-09-12, toutes tranchées
+   par Olivier et livrées le 2026-09-12 (10 items au total, détail dans la section Lot K ci-dessus) :
+   2 e-mails parent, édition/suppression de paiements, prévu/payé excursions, filtre e-mail par
+   semaine, aîné par famille, quota par année de naissance, page d'accueil en gros boutons,
+   ajustement manuel du montant à la confirmation, garderie, attestation mutuelle généralisée.
+   Suite de tests complète : 1299/1299 au vert (1268 avant ce lot). ⚠️ Lacune de test découverte au
+   passage sur `ActivityWizardController` (Lot I) — voir note dans la section Lot I.
 
 Bloqué par Thomas : Lot H (question n°1) et Lot J (maquette manquante). À confirmer avec Thomas
 (non bloquant, cosmétique) : la nuance sur les 2 raccourcis « Actions rapides » (Lot A).

@@ -81,6 +81,7 @@
                                     <th scope="col">@Localizer["FirstName"]</th>
                                     <th scope="col">@Localizer["BirthDate"]</th>
                                     <th scope="col">@Localizer["PaymentStatus"]</th>
+                                    <th scope="col" class="text-center">@Localizer["Excursion.PaidAmount"]</th>
                                     <th scope="col" class="text-center">@Localizer["Excursion.Registered"]</th>
                                 </tr>
                             </thead>
@@ -95,6 +96,23 @@
                                             <span class="badge @(child.PaymentStatus.Contains("Paid") || child.PaymentStatus.Contains("Payé") ? "bg-success" : child.PaymentStatus.Contains("Partial") || child.PaymentStatus.Contains("Partiel") ? "bg-warning" : "bg-danger")">
                                                 @child.PaymentStatus
                                             </span>
+                                        </td>
+                                        <td class="text-center" style="min-width: 140px;">
+                                            @if (child.IsRegistered)
+                                            {
+                                                <div class="input-group input-group-sm">
+                                                    <span class="input-group-text">€</span>
+                                                    <input type="number" step="0.01" min="0"
+                                                           class="form-control paid-amount-input"
+                                                           data-registration-id="@child.RegistrationId"
+                                                           value="@child.PaidAmount.ToString("F2", System.Globalization.CultureInfo.InvariantCulture)" />
+                                                </div>
+                                                <small class="text-muted">/ @child.ExcursionCost.ToString("C")</small>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted">—</span>
+                                            }
                                         </td>
                                         <td class="text-center">
                                             <div class="form-check d-inline-block">
@@ -196,6 +214,41 @@
                         checkbox.prop('checked', !isRegistered);
                     }
                 });
+            });
+
+            // Saved on blur / Enter, not on every keystroke.
+            function savePaidAmount(input) {
+                var registrationId = input.data('registration-id');
+                var amount = parseFloat(input.val().replace(',', '.'));
+                if (isNaN(amount) || amount < 0) {
+                    return;
+                }
+
+                var token = $('input[name="__RequestVerificationToken"]').val();
+                $.ajax({
+                    url: '@Url.Action("UpdatePaidAmount", "Excursions")',
+                    type: 'POST',
+                    headers: { 'RequestVerificationToken': token },
+                    data: { registrationId: registrationId, paidAmount: amount },
+                    success: function (response) {
+                        if (!response.success) {
+                            alert('@Localizer["Error"]: ' + response.message);
+                        }
+                    },
+                    error: function () {
+                        alert('@Localizer["Error.UpdateFailed"]');
+                    }
+                });
+            }
+
+            $('.paid-amount-input').on('blur', function () {
+                savePaidAmount($(this));
+            });
+            $('.paid-amount-input').on('keydown', function (e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    $(this).trigger('blur');
+                }
             });
         });
     </script>

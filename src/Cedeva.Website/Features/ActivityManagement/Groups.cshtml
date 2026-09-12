@@ -116,6 +116,10 @@
                                     <td><span class="badge bg-secondary">@child.ActivityGroupName</span></td>
                                     <td>
                                         <a asp-controller="Bookings" asp-action="Details" asp-route-id="@child.BookingId">@child.ChildLastName</a>
+                                        @if (child.IsEldestInFamily)
+                                        {
+                                            <i class="fas fa-star text-warning ms-1" title="@Localizer["ActivityManagement.EldestInFamily"]"></i>
+                                        }
                                     </td>
                                     <td>@child.ChildFirstName</td>
                                     <td>@child.ParentName</td>

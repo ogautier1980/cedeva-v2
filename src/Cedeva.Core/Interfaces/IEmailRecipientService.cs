@@ -9,6 +9,7 @@ public interface IEmailRecipientService
     /// <param name="selectedRecipient">Selected recipient criteria (allparents, medicalsheetreminder, or group_X)</param>
     /// <param name="recipientGroupId">Optional group ID if recipient type is group</param>
     /// <param name="scheduledDayId">Optional activity day ID to filter recipients by specific day</param>
+    /// <param name="weekNumber">Optional week (ActivityDay.Week) to filter recipients booked that week</param>
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>List of email addresses</returns>
     Task<List<string>> GetRecipientEmailsAsync(
@@ -16,5 +17,6 @@ public interface IEmailRecipientService
         string selectedRecipient,
         int? recipientGroupId = null,
         int? scheduledDayId = null,
+        int? weekNumber = null,
         CancellationToken cancellationToken = default);
 }

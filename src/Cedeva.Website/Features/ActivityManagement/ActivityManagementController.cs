@@ -148,6 +148,165 @@ public class ActivityManagementController : Controller
         return View(viewModel);
     }
 
+    // GET: ActivityManagement/Childcare — Lot K #5: day-by-day optional garderie service. Only
+    // children actually reserved on the selected day are eligible (mirrors Presences).
+    [HttpGet]
+    public async Task<IActionResult> Childcare(int? id, int? dayId)
+    {
+        id ??= _sessionState.Get<int>(SessionKeyActivityId);
+        if (id is null) return NotFound();
+
+        var activity = await _context.Activities
+            .Include(a => a.Days)
+            .Include(a => a.Bookings)
+                .ThenInclude(b => b.Child)
+            .Include(a => a.Bookings)
+                .ThenInclude(b => b.Days)
+            .FirstOrDefaultAsync(a => a.Id == id);
+
+        if (activity == null) return NotFound();
+
+        _sessionState.Set<int>(SessionKeyActivityId, id.Value);
+
+        dayId = SelectDefaultActivityDay(activity, dayId);
+        var selectedDay = activity.Days.FirstOrDefault(d => d.DayId == dayId);
+        var dayOptions = BuildDayDropdownOptions(activity, dayId);
+
+        var registrations = dayId.HasValue
+            ? await _context.ChildcareRegistrations
+                .Where(r => r.ActivityDayId == dayId.Value && r.Booking.ActivityId == id)
+                .ToListAsync()
+            : new List<ChildcareRegistration>();
+        var registrationsByBookingId = registrations.ToDictionary(r => r.BookingId, r => r);
+
+        var children = activity.Bookings
+            .Where(b => b.IsConfirmed && (dayId == null || b.Days.Any(bd => bd.ActivityDayId == dayId.Value && bd.IsReserved)))
+            .Select(b =>
+            {
+                registrationsByBookingId.TryGetValue(b.Id, out var registration);
+                return new ChildcareChildInfo
+                {
+                    BookingId = b.Id,
+                    ChildFirstName = b.Child.FirstName,
+                    ChildLastName = b.Child.LastName,
+                    IsRegistered = registration != null,
+                    RegistrationId = registration?.Id,
+                    Amount = registration?.Amount ?? activity.ChildcarePricePerDay ?? 0m
+                };
+            })
+            .OrderBy(c => c.ChildLastName)
+            .ThenBy(c => c.ChildFirstName)
+            .ToList();
+
+        return View(new ChildcareViewModel
+        {
+            Activity = activity,
+            SelectedActivityDayId = dayId,
+            SelectedActivityDay = selectedDay,
+            ActivityDayOptions = dayOptions,
+            Children = children
+        });
+    }
+
+    // POST: ActivityManagement/ToggleChildcare — register/unregister a child for garderie on a
+    // given day. Included in Booking.TotalAmount, like an excursion registration.
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> ToggleChildcare(int bookingId, int activityDayId, bool register)
+    {
+        var booking = await _context.Bookings.FirstOrDefaultAsync(b => b.Id == bookingId);
+        if (booking == null)
+        {
+            return Json(new { success = false, message = _localizer["Error.BookingNotFound"].Value });
+        }
+
+        var existing = await _context.ChildcareRegistrations
+            .FirstOrDefaultAsync(r => r.BookingId == bookingId && r.ActivityDayId == activityDayId);
+
+        if (register)
+        {
+            if (existing != null)
+            {
+                return Json(new { success = true }); // already registered, nothing to do
+            }
+
+            var activity = await _context.Activities.FirstOrDefaultAsync(a => a.Id == booking.ActivityId);
+            var amount = activity?.ChildcarePricePerDay ?? 0m;
+
+            _context.ChildcareRegistrations.Add(new ChildcareRegistration
+            {
+                BookingId = bookingId,
+                ActivityDayId = activityDayId,
+                Amount = amount
+            });
+            booking.TotalAmount += amount;
+        }
+        else
+        {
+            if (existing == null)
+            {
+                return Json(new { success = true }); // already unregistered, nothing to do
+            }
+
+            booking.TotalAmount -= existing.Amount;
+            _context.ChildcareRegistrations.Remove(existing);
+        }
+
+        RecalculateBookingPaymentStatus(booking);
+        await _context.SaveChangesAsync();
+
+        return Json(new { success = true });
+    }
+
+    // POST: ActivityManagement/UpdateChildcareAmount — adjusts one day's garderie charge.
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> UpdateChildcareAmount(int registrationId, decimal amount)
+    {
+        if (amount < 0)
+        {
+            return Json(new { success = false, message = _localizer["Validation.AmountRange"].Value });
+        }
+
+        var registration = await _context.ChildcareRegistrations
+            .Include(r => r.Booking)
+            .FirstOrDefaultAsync(r => r.Id == registrationId);
+
+        if (registration == null)
+        {
+            return Json(new { success = false, message = _localizer["Error.RegistrationNotFound"].Value });
+        }
+
+        registration.Booking.TotalAmount = registration.Booking.TotalAmount - registration.Amount + amount;
+        registration.Amount = amount;
+        RecalculateBookingPaymentStatus(registration.Booking);
+
+        await _context.SaveChangesAsync();
+        return Json(new { success = true });
+    }
+
+    /// <summary>Derives Booking.PaymentStatus from its current PaidAmount/TotalAmount — shared by
+    /// garderie and excursion registration toggles so both end in the same status logic used by
+    /// PaymentsController (kept as a local copy here, same 4-way rule, to avoid a cross-controller
+    /// dependency for one small static helper).</summary>
+    private static void RecalculateBookingPaymentStatus(Booking booking)
+    {
+        if (booking.PaidAmount <= 0)
+        {
+            booking.PaymentStatus = PaymentStatus.NotPaid;
+        }
+        else if (booking.PaidAmount < booking.TotalAmount)
+        {
+            booking.PaymentStatus = PaymentStatus.PartiallyPaid;
+        }
+        else
+        {
+            booking.PaymentStatus = booking.PaidAmount > booking.TotalAmount
+                ? PaymentStatus.Overpaid
+                : PaymentStatus.Paid;
+        }
+    }
+
     private static int? SelectDefaultActivityDay(Activity activity, int? dayId)
     {
         if (dayId != null)
@@ -181,6 +340,8 @@ public class ActivityManagementController : Controller
 
     private static List<PresenceChildInfo> BuildChildrenList(Activity activity, int? dayId)
     {
+        var eldestChildIds = ComputeEldestChildIds(activity.Bookings);
+
         return activity.Bookings
             .Where(b => b.IsConfirmed)
             .Select(b =>
@@ -197,12 +358,25 @@ public class ActivityManagementController : Controller
                     BookingDayId = bookingDay?.Id,
                     ActivityGroupName = b.Group?.Label,
                     TotalAmount = b.TotalAmount,
-                    PaidAmount = b.PaidAmount
+                    PaidAmount = b.PaidAmount,
+                    IsEldestInFamily = eldestChildIds.Contains(b.ChildId)
                 };
             })
             .OrderBy(c => c.ChildLastName)
             .ThenBy(c => c.ChildFirstName)
             .ToList();
+    }
+
+    /// <summary>Lot K #7: the eldest child per family (Child.ParentId — the person who registers,
+    /// regardless of the real family tie) among a set of bookings, ignoring blended families.</summary>
+    private static HashSet<int> ComputeEldestChildIds(IEnumerable<Booking> bookings)
+    {
+        return bookings
+            .Select(b => b.Child)
+            .Where(c => c != null)
+            .GroupBy(c => c.ParentId)
+            .Select(g => g.OrderBy(c => c.BirthDate).First().Id)
+            .ToHashSet();
     }
 
     [HttpPost]
@@ -349,6 +523,7 @@ public class ActivityManagementController : Controller
             ActivityName = activity.Name,
             RecipientOptions = GetRecipientOptions(activity.Groups, excursions, await GetContactGroupsAsync(activity.OrganisationId, default)),
             DayOptions = GetDayOptions(activity.Days),
+            WeekOptions = GetWeekOptions(activity.Days),
             ContactOptions = await GetContactOptionsAsync(activity.OrganisationId, default),
             PreselectedTemplateId = templateId
         };
@@ -374,7 +549,7 @@ public class ActivityManagementController : Controller
                 model.ActivityId, model.SelectedRecipient, model.SelectedDayId,
                 model.Subject, model.Message, model.SendSeparateEmailPerChild,
                 model.SelectedContactEmails ?? new List<string>(),
-                attachmentFileName, attachmentFilePath), ct);
+                attachmentFileName, attachmentFilePath, model.SelectedWeekNumber), ct);
 
             switch (result.Outcome)
             {
@@ -720,6 +895,7 @@ public class ActivityManagementController : Controller
 
             model.RecipientOptions = GetRecipientOptions(activity.Groups, excursions, await GetContactGroupsAsync(activity.OrganisationId, ct));
             model.DayOptions = GetDayOptions(activity.Days);
+            model.WeekOptions = GetWeekOptions(activity.Days);
             model.ContactOptions = await GetContactOptionsAsync(activity.OrganisationId, ct);
             ViewBag.Templates = await _emailServices.Template.GetAllTemplatesAsync(activity.OrganisationId, activity.Id);
         }
@@ -734,6 +910,20 @@ public class ActivityManagementController : Controller
             {
                 Value = d.DayId.ToString(),
                 Text = $"{d.Label} - {d.DayDate:dd/MM/yyyy}"
+            })
+            .ToList();
+    }
+
+    private static List<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem> GetWeekOptions(IEnumerable<ActivityDay> days)
+    {
+        return days
+            .Where(d => d.IsActive && d.Week.HasValue)
+            .GroupBy(d => d.Week!.Value)
+            .OrderBy(g => g.Key)
+            .Select(g => new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem
+            {
+                Value = g.Key.ToString(),
+                Text = $"Semaine {g.Key} ({g.Min(d => d.DayDate):dd/MM} - {g.Max(d => d.DayDate):dd/MM})"
             })
             .ToList();
     }
@@ -786,6 +976,7 @@ public class ActivityManagementController : Controller
             .ToListAsync();
 
         var presenceItems = new List<PresenceChildInfo>();
+        var eldestChildIds = ComputeEldestChildIds(bookings);
 
         foreach (var booking in bookings)
         {
@@ -797,6 +988,7 @@ public class ActivityManagementController : Controller
                 {
                     BookingDayId = bookingDay.Id,
                     BookingId = booking.Id,
+                    ChildId = booking.ChildId,
                     ChildFirstName = booking.Child.FirstName,
                     ChildLastName = booking.Child.LastName,
                     ChildBirthDate = booking.Child.BirthDate,
@@ -804,7 +996,8 @@ public class ActivityManagementController : Controller
                     ParentPhone = booking.Child.Parent.MobilePhoneNumber ?? booking.Child.Parent.PhoneNumber ?? "",
                     IsReserved = bookingDay.IsReserved,
                     IsPresent = bookingDay.IsPresent,
-                    ActivityGroupName = booking.Group?.Label
+                    ActivityGroupName = booking.Group?.Label,
+                    IsEldestInFamily = eldestChildIds.Contains(booking.ChildId)
                 });
             }
         }
@@ -1006,6 +1199,8 @@ public class ActivityManagementController : Controller
 
     private static List<PresenceChildInfo> BuildGroupsRoster(Activity activity, List<int> groupIds, int? dayId)
     {
+        var eldestChildIds = ComputeEldestChildIds(activity.Bookings);
+
         return activity.Bookings
             .Where(b => b.IsConfirmed)
             .Where(b => groupIds.Count == 0 || (b.GroupId.HasValue && groupIds.Contains(b.GroupId.Value)))
@@ -1026,7 +1221,8 @@ public class ActivityManagementController : Controller
                     BookingDayId = bookingDay?.Id,
                     ActivityGroupName = b.Group?.Label,
                     TotalAmount = b.TotalAmount,
-                    PaidAmount = b.PaidAmount
+                    PaidAmount = b.PaidAmount,
+                    IsEldestInFamily = eldestChildIds.Contains(b.ChildId)
                 };
             })
             .Where(c => !dayId.HasValue || c.IsReserved)
@@ -1400,6 +1596,17 @@ public class ActivityManagementController : Controller
 
             if (!booking.IsConfirmed)
             {
+                if (request.AdjustedTotalAmount.HasValue && request.AdjustedTotalAmount.Value >= 0
+                    && request.AdjustedTotalAmount.Value != booking.TotalAmount)
+                {
+                    booking.TotalAmount = request.AdjustedTotalAmount.Value;
+                    booking.PaymentStatus = booking.PaidAmount <= 0
+                        ? PaymentStatus.NotPaid
+                        : booking.PaidAmount < booking.TotalAmount
+                            ? PaymentStatus.PartiallyPaid
+                            : booking.PaidAmount > booking.TotalAmount ? PaymentStatus.Overpaid : PaymentStatus.Paid;
+                }
+
                 booking.IsConfirmed = true;
                 await _context.SaveChangesAsync();
 
@@ -1501,6 +1708,10 @@ public class ActivityManagementController : Controller
     public class ConfirmBookingRequest
     {
         public int BookingId { get; set; }
+
+        /// <summary>Optional coordinator adjustment to the booking's TotalAmount, made at
+        /// confirmation time (e.g. a discount) — applied before the payment-link email is sent.</summary>
+        public decimal? AdjustedTotalAmount { get; set; }
     }
 
     public class AssignToGroupRequest

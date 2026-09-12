@@ -172,6 +172,46 @@ public class BookingsController : Controller
         return View(viewModel);
     }
 
+    // GET: Bookings/MutualityAttestation/5 — Lot K #3, printable certificate for the child's
+    // mutuality/health-insurance reimbursement, using this booking's organisation's own
+    // signalétique (logo, responsible name, address).
+    public async Task<IActionResult> MutualityAttestation(int id)
+    {
+        var booking = await _context.Bookings
+            .Include(b => b.Child)
+            .Include(b => b.Activity)
+                .ThenInclude(a => a.Organisation)
+                    .ThenInclude(o => o.Address)
+            .Include(b => b.Days)
+            .FirstOrDefaultAsync(b => b.Id == id);
+
+        if (booking == null)
+        {
+            return NotFound();
+        }
+
+        var organisation = booking.Activity.Organisation;
+        var address = organisation.Address;
+
+        var viewModel = new MutualityAttestationViewModel
+        {
+            OrganisationName = organisation.Name,
+            OrganisationLogoUrl = organisation.LogoUrl,
+            ResponsibleName = organisation.ResponsibleName,
+            OrganisationAddress = address != null ? $"{address.Street}, {address.PostalCode} {address.City}" : string.Empty,
+            ChildFirstName = booking.Child.FirstName,
+            ChildLastName = booking.Child.LastName,
+            ChildBirthDate = booking.Child.BirthDate,
+            ActivityName = booking.Activity.Name,
+            ActivityStartDate = booking.Activity.StartDate,
+            ActivityEndDate = booking.Activity.EndDate,
+            DaysAttended = booking.Days.Count(d => d.IsPresent),
+            AmountPaid = booking.PaidAmount
+        };
+
+        return View(viewModel);
+    }
+
     // GET: Bookings/Create
     public async Task<IActionResult> Create(int? childId, int? activityId)
     {
@@ -661,7 +701,7 @@ public class BookingsController : Controller
             {
                 await _emailServices.SendBookingTemplateAsync(
                     EmailTemplateType.BookingConfirmation, activity.OrganisationId,
-                    new[] { parent.Email }, fullBooking, organisation);
+                    parent.GetEmailAddresses().ToArray(), fullBooking, organisation);
             }
 
             TempData[ControllerExtensions.SuccessMessageKey] = _ctx.Localizer["Message.BookingConfirmedEmailSent"].Value;

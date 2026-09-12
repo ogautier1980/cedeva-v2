@@ -448,6 +448,9 @@
   <data name="ActivityManagement.AllGroups" xml:space="preserve">
     <value>Alle groepen</value>
   </data>
+  <data name="ActivityManagement.EldestInFamily" xml:space="preserve">
+    <value>Oudste kind van het gezin (bij deze ouder)</value>
+  </data>
   <data name="ActivityManagement.Expected" xml:space="preserve">
     <value>Verwacht</value>
   </data>
@@ -487,8 +490,14 @@
   <data name="ActivityManagement.ChildrenCount" xml:space="preserve">
     <value>kind(eren)</value>
   </data>
+  <data name="ActivityManagement.AdjustAmountBeforeConfirm" xml:space="preserve">
+    <value>Totaalbedrag te betalen — aanpasbaar vóór bevestiging</value>
+  </data>
   <data name="ActivityManagement.ConfirmUnpaidBooking" xml:space="preserve">
     <value>Deze inschrijving is niet volledig betaald (resterend saldo: {0}). Toch bevestigen?</value>
+  </data>
+  <data name="ActivityManagement.Childcare" xml:space="preserve">
+    <value>Buitenschoolse opvang</value>
   </data>
   <data name="ActivityManagement.TeamPresences" xml:space="preserve">
     <value>Teamaanwezigheden</value>
@@ -798,6 +807,42 @@
   </data>
   <data name="Bookings.Details" xml:space="preserve">
     <value>Details van de inschrijving</value>
+  </data>
+  <data name="Bookings.MutualityAttestation" xml:space="preserve">
+    <value>Mutualiteitsattest</value>
+  </data>
+  <data name="Bookings.MutualityAttestationActivityInfo" xml:space="preserve">
+    <value>Informatie over de activiteit</value>
+  </data>
+  <data name="Bookings.MutualityAttestationActivityName" xml:space="preserve">
+    <value>Naam van de gevolgde activiteit</value>
+  </data>
+  <data name="Bookings.MutualityAttestationAmountReceived" xml:space="preserve">
+    <value>Totaal ontvangen bedrag</value>
+  </data>
+  <data name="Bookings.MutualityAttestationChild" xml:space="preserve">
+    <value>Gegevens van het kind</value>
+  </data>
+  <data name="Bookings.MutualityAttestationDaysAttended" xml:space="preserve">
+    <value>Aantal aanwezigheidsdagen</value>
+  </data>
+  <data name="Bookings.MutualityAttestationIntro" xml:space="preserve">
+    <value>Dit document is bestemd voor mutualiteiten in het kader van een aanvraag tot financiële tussenkomst voor de kosten verbonden aan de deelname van het kind aan de activiteit.</value>
+  </data>
+  <data name="Bookings.MutualityAttestationIssuedOn" xml:space="preserve">
+    <value>Datum van verzending</value>
+  </data>
+  <data name="Bookings.MutualityAttestationOrganiser" xml:space="preserve">
+    <value>Gegevens van de organiserende instantie</value>
+  </data>
+  <data name="Bookings.MutualityAttestationPeriod" xml:space="preserve">
+    <value>Periode van de activiteit</value>
+  </data>
+  <data name="Bookings.MutualityAttestationStampAndSignature" xml:space="preserve">
+    <value>Stempel en handtekening van de verantwoordelijke</value>
+  </data>
+  <data name="Bookings.MutualityAttestationSubtitle" xml:space="preserve">
+    <value>Afgeleverd door {0}</value>
   </data>
   <data name="Bookings.EditBooking" xml:space="preserve">
     <value>Inschrijving bewerken</value>
@@ -1264,6 +1309,12 @@
   <data name="Email.DayFilterHelp" xml:space="preserve">
     <value>Ontvangers filteren op specifieke dag (optioneel)</value>
   </data>
+  <data name="Email.ScheduledForWeek" xml:space="preserve">
+    <value>Gepland voor week</value>
+  </data>
+  <data name="Email.WeekFilterHelp" xml:space="preserve">
+    <value>Ontvangers filteren op week (optioneel, combineerbaar met het dagfilter)</value>
+  </data>
   <data name="Email.MergeFields" xml:space="preserve">
     <value>Personalisatievariabelen</value>
   </data>
@@ -1377,6 +1428,9 @@
   </data>
   <data name="Error.PaymentCancellationFailed" xml:space="preserve">
     <value>Annuleren van de betaling mislukt</value>
+  </data>
+  <data name="Error.PaymentCancelledCannotEdit" xml:space="preserve">
+    <value>Een geannuleerde betaling kan niet meer worden gewijzigd</value>
   </data>
   <data name="Error.PaymentCreationFailed" xml:space="preserve">
     <value>Aanmaken van de betaling mislukt</value>
@@ -1642,6 +1696,12 @@
   <data name="Field.BankAccountNameHelp" xml:space="preserve">
     <value>Naam van de houder van de bankrekening</value>
   </data>
+  <data name="Field.ResponsibleName" xml:space="preserve">
+    <value>Naam van de verantwoordelijke</value>
+  </data>
+  <data name="Field.ResponsibleNameHelp" xml:space="preserve">
+    <value>Gebruikt op gegenereerde officiële documenten (bv. mutualiteitsattest)</value>
+  </data>
   <data name="Field.AcceptRegulation" xml:space="preserve">
     <value>Ik aanvaard het huishoudelijk reglement</value>
   </data>
@@ -1707,6 +1767,9 @@
   </data>
   <data name="Field.Email" xml:space="preserve">
     <value>E-mail</value>
+  </data>
+  <data name="Field.SecondaryEmail" xml:space="preserve">
+    <value>2e e-mailadres (optioneel)</value>
   </data>
   <data name="Field.EmailConfirmed" xml:space="preserve">
     <value>E-mail bevestigd</value>
@@ -1818,6 +1881,9 @@
   </data>
   <data name="Field.PostalCodeCity" xml:space="preserve">
     <value>Postcode / Plaats</value>
+  </data>
+  <data name="Field.ChildcarePricePerDay" xml:space="preserve">
+    <value>Prijs opvang per dag</value>
   </data>
   <data name="Field.PricePerDay" xml:space="preserve">
     <value>Prijs per dag</value>
@@ -2452,6 +2518,12 @@
   <data name="Message.PaymentCreated" xml:space="preserve">
     <value>Betaling succesvol aangemaakt</value>
   </data>
+  <data name="Message.PaymentDeleted" xml:space="preserve">
+    <value>Betaling succesvol verwijderd</value>
+  </data>
+  <data name="Message.PaymentUpdated" xml:space="preserve">
+    <value>Betaling succesvol bijgewerkt</value>
+  </data>
   <data name="Message.PresencesSaved" xml:space="preserve">
     <value>Aanwezigheden succesvol opgeslagen.</value>
   </data>
@@ -2788,6 +2860,9 @@
   <data name="Payments.ConfirmCancel" xml:space="preserve">
     <value>Annulering bevestigen</value>
   </data>
+  <data name="Payments.ConfirmDelete" xml:space="preserve">
+    <value>Verwijdering bevestigen</value>
+  </data>
   <data name="Payments.Create" xml:space="preserve">
     <value>Aanmaken</value>
   </data>
@@ -2796,6 +2871,15 @@
   </data>
   <data name="Payments.DangerZone" xml:space="preserve">
     <value>Gevarenzone</value>
+  </data>
+  <data name="Payments.DeletePayment" xml:space="preserve">
+    <value>Betaling verwijderen</value>
+  </data>
+  <data name="Payments.DeleteWarning" xml:space="preserve">
+    <value>Let op: deze actie verwijdert de regel definitief, zonder spoor</value>
+  </data>
+  <data name="Payments.Edit" xml:space="preserve">
+    <value>Betaling bewerken</value>
   </data>
   <data name="Payments.Details" xml:space="preserve">
     <value>Details</value>
@@ -2967,6 +3051,9 @@
   </data>
   <data name="PublicRegistration.ActivityFull" xml:space="preserve">
     <value>Deze activiteit zit vol.</value>
+  </data>
+  <data name="PublicRegistration.BirthYearQuotaExceeded" xml:space="preserve">
+    <value>Het maximum aantal kinderen geboren dat jaar is bereikt voor deze activiteit.</value>
   </data>
   <data name="PublicRegistration.ActivityQuestionsLead" xml:space="preserve">
     <value>Beantwoord de volgende vragen over de activiteit.</value>
@@ -3602,6 +3689,9 @@
   <data name="Excursion.RegistrationsHelp" xml:space="preserve">
     <value>Vink de vakjes aan om kinderen voor de uitstap in te schrijven. De kost wordt toegevoegd aan het boekingstotaal.</value>
   </data>
+  <data name="Excursion.PaidAmount" xml:space="preserve">
+    <value>Betaald</value>
+  </data>
   <data name="Excursion.Registered" xml:space="preserve">
     <value>ingeschreven</value>
   </data>
@@ -3803,6 +3893,21 @@
   </data>
   <data name="Activity.PostalCodeErrorMessage" xml:space="preserve">
     <value>Foutmelding (postcodes)</value>
+  </data>
+  <data name="Activity.BirthYear" xml:space="preserve">
+    <value>Geboortejaar</value>
+  </data>
+  <data name="Activity.BirthYearQuotaExceededMessage" xml:space="preserve">
+    <value>Bericht wanneer het quotum per geboortejaar is bereikt</value>
+  </data>
+  <data name="Activity.BirthYearQuotas" xml:space="preserve">
+    <value>Quota per geboortejaar</value>
+  </data>
+  <data name="Activity.BirthYearQuotasHelp" xml:space="preserve">
+    <value>Beperkt het aantal kinderen geboren in een bepaald jaar voor deze activiteit (bv. max 24 kinderen geboren in 2020).</value>
+  </data>
+  <data name="Activity.MaxChildren" xml:space="preserve">
+    <value>Maximum aantal</value>
   </data>
   <data name="Activity.MaxChildrenPerDay" xml:space="preserve">
     <value>Maximum aantal kinderen per dag</value>

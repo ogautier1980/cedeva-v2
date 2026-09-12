@@ -23,7 +23,8 @@ public class OrganisationsControllerIntegrationTests
         string city = "Bruxelles",
         string postalCode = "1000",
         string bankAccountNumber = "BE68 5390 0754 7034",
-        string bankAccountName = "Cedeva ASBL")
+        string bankAccountName = "Cedeva ASBL",
+        string responsibleName = "Responsable Test")
     {
         var fields = new Dictionary<string, string>
         {
@@ -34,7 +35,8 @@ public class OrganisationsControllerIntegrationTests
             ["PostalCode"] = postalCode,
             ["Country"] = "Belgium",
             ["BankAccountNumber"] = bankAccountNumber,
-            ["BankAccountName"] = bankAccountName
+            ["BankAccountName"] = bankAccountName,
+            ["ResponsibleName"] = responsibleName
         };
         if (id != null) fields["Id"] = id;
         return new FormUrlEncodedContent(fields);
@@ -196,6 +198,7 @@ public class OrganisationsControllerIntegrationTests
         created!.Description.Should().Be("Une description bien assez longue");
         created.BankAccountNumber.Should().Be("BE68 5390 0754 7034"); // bank fields are persisted
         created.BankAccountName.Should().Be("Cedeva ASBL");
+        created.ResponsibleName.Should().Be("Responsable Test");
     }
 
     [Fact]
@@ -214,7 +217,8 @@ public class OrganisationsControllerIntegrationTests
         var response = await AdminClient(factory).PostAsync(
             $"/Organisations/Edit/{org.Id}",
             ValidForm(id: org.Id.ToString(), name: "Org Bank Edit",
-                bankAccountNumber: "BE71 0961 2345 6769", bankAccountName: "New name"));
+                bankAccountNumber: "BE71 0961 2345 6769", bankAccountName: "New name",
+                responsibleName: "Nouveau Responsable"));
 
         response.StatusCode.Should().Be(HttpStatusCode.Found);
 
@@ -222,6 +226,7 @@ public class OrganisationsControllerIntegrationTests
         var updated = db.Organisations.Single(o => o.Id == org.Id);
         updated.BankAccountNumber.Should().Be("BE71 0961 2345 6769");
         updated.BankAccountName.Should().Be("New name");
+        updated.ResponsibleName.Should().Be("Nouveau Responsable");
     }
 
     [Fact]

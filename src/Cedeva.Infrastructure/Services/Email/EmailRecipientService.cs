@@ -23,6 +23,7 @@ public class EmailRecipientService : IEmailRecipientService
         string selectedRecipient,
         int? recipientGroupId = null,
         int? scheduledDayId = null,
+        int? weekNumber = null,
         CancellationToken cancellationToken = default)
     {
         List<string> emails;
@@ -43,6 +44,13 @@ public class EmailRecipientService : IEmailRecipientService
                     bd.ActivityDayId == scheduledDayId.Value && bd.IsReserved));
             }
 
+            // Apply week filter if specified (children are usually booked a full week at a time)
+            if (weekNumber.HasValue)
+            {
+                query = query.Where(b => b.Days.Any(bd =>
+                    bd.ActivityDay.Week == weekNumber.Value && bd.IsReserved));
+            }
+
             // Apply recipient type filter
             if (selectedRecipient == "medicalsheetreminder")
             {
@@ -53,11 +61,17 @@ public class EmailRecipientService : IEmailRecipientService
                 query = query.Where(b => b.GroupId == recipientGroupId);
             }
 
-            emails = await query
-                .Where(b => b.Child != null && b.Child.Parent != null && !string.IsNullOrEmpty(b.Child.Parent.Email))
-                .Select(b => b.Child.Parent.Email)
+            var parents = await query
+                .Where(b => b.Child != null && b.Child.Parent != null)
+                .Select(b => b.Child.Parent)
                 .Distinct()
                 .ToListAsync(cancellationToken);
+
+            // A parent may have a 2nd address (SecondaryEmail) — every send goes to both.
+            emails = parents
+                .SelectMany(p => p.GetEmailAddresses())
+                .Distinct()
+                .ToList();
 
             _logger.LogInformation(
                 "Retrieved {Count} email addresses for activity {ActivityId} with criteria {Criteria}, day filter: {DayId}",

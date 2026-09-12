@@ -448,6 +448,9 @@
   <data name="ActivityManagement.AllGroups" xml:space="preserve">
     <value>Tous les groupes</value>
   </data>
+  <data name="ActivityManagement.EldestInFamily" xml:space="preserve">
+    <value>Aîné de la famille (chez ce parent)</value>
+  </data>
   <data name="ActivityManagement.Expected" xml:space="preserve">
     <value>Prévus</value>
   </data>
@@ -487,8 +490,14 @@
   <data name="ActivityManagement.ChildrenCount" xml:space="preserve">
     <value>enfant(s)</value>
   </data>
+  <data name="ActivityManagement.AdjustAmountBeforeConfirm" xml:space="preserve">
+    <value>Montant total à payer — ajustable avant confirmation</value>
+  </data>
   <data name="ActivityManagement.ConfirmUnpaidBooking" xml:space="preserve">
     <value>Cette inscription n'est pas entièrement payée (solde restant : {0}). Confirmer quand même ?</value>
+  </data>
+  <data name="ActivityManagement.Childcare" xml:space="preserve">
+    <value>Garderie</value>
   </data>
   <data name="ActivityManagement.TeamPresences" xml:space="preserve">
     <value>Présences équipe</value>
@@ -801,6 +810,42 @@
   </data>
   <data name="Bookings.Details" xml:space="preserve">
     <value>Détails de l'inscription</value>
+  </data>
+  <data name="Bookings.MutualityAttestation" xml:space="preserve">
+    <value>Attestation mutuelle</value>
+  </data>
+  <data name="Bookings.MutualityAttestationActivityInfo" xml:space="preserve">
+    <value>Information sur l'activité</value>
+  </data>
+  <data name="Bookings.MutualityAttestationActivityName" xml:space="preserve">
+    <value>Nom de l'activité suivie</value>
+  </data>
+  <data name="Bookings.MutualityAttestationAmountReceived" xml:space="preserve">
+    <value>Montant total perçu</value>
+  </data>
+  <data name="Bookings.MutualityAttestationChild" xml:space="preserve">
+    <value>Coordonnées de l'enfant</value>
+  </data>
+  <data name="Bookings.MutualityAttestationDaysAttended" xml:space="preserve">
+    <value>Nombre de jours de fréquentation</value>
+  </data>
+  <data name="Bookings.MutualityAttestationIntro" xml:space="preserve">
+    <value>Ce document est à destination des mutuelles dans le cadre d'une demande d'intervention financière pour les frais liés à la participation de l'enfant à l'activité.</value>
+  </data>
+  <data name="Bookings.MutualityAttestationIssuedOn" xml:space="preserve">
+    <value>Date de l'envoi</value>
+  </data>
+  <data name="Bookings.MutualityAttestationOrganiser" xml:space="preserve">
+    <value>Coordonnées de l'organisme organisateur</value>
+  </data>
+  <data name="Bookings.MutualityAttestationPeriod" xml:space="preserve">
+    <value>Période de l'activité</value>
+  </data>
+  <data name="Bookings.MutualityAttestationStampAndSignature" xml:space="preserve">
+    <value>Cachet et signature du responsable</value>
+  </data>
+  <data name="Bookings.MutualityAttestationSubtitle" xml:space="preserve">
+    <value>Délivrée par {0}</value>
   </data>
   <data name="Bookings.EditBooking" xml:space="preserve">
     <value>Modifier l'inscription</value>
@@ -1333,6 +1378,9 @@
   <data name="Error.PaymentCancellationFailed" xml:space="preserve">
     <value>Échec de l'annulation du paiement</value>
   </data>
+  <data name="Error.PaymentCancelledCannotEdit" xml:space="preserve">
+    <value>Un paiement annulé ne peut plus être modifié</value>
+  </data>
   <data name="Error.PaymentCreationFailed" xml:space="preserve">
     <value>Échec de la création du paiement</value>
   </data>
@@ -1597,6 +1645,12 @@
   <data name="Field.BankAccountNameHelp" xml:space="preserve">
     <value>Nom du titulaire du compte bancaire</value>
   </data>
+  <data name="Field.ResponsibleName" xml:space="preserve">
+    <value>Nom du responsable</value>
+  </data>
+  <data name="Field.ResponsibleNameHelp" xml:space="preserve">
+    <value>Utilisé sur les documents officiels générés (ex. attestation mutuelle)</value>
+  </data>
   <data name="Field.AcceptRegulation" xml:space="preserve">
     <value>J'accepte le règlement d'ordre intérieur</value>
   </data>
@@ -1662,6 +1716,9 @@
   </data>
   <data name="Field.Email" xml:space="preserve">
     <value>Email</value>
+  </data>
+  <data name="Field.SecondaryEmail" xml:space="preserve">
+    <value>2ᵉ adresse e-mail (optionnel)</value>
   </data>
   <data name="Field.EmailConfirmed" xml:space="preserve">
     <value>Email confirmé</value>
@@ -1773,6 +1830,9 @@
   </data>
   <data name="Field.PostalCodeCity" xml:space="preserve">
     <value>Code postal / Ville</value>
+  </data>
+  <data name="Field.ChildcarePricePerDay" xml:space="preserve">
+    <value>Prix garderie par jour</value>
   </data>
   <data name="Field.PricePerDay" xml:space="preserve">
     <value>Prix par jour</value>
@@ -2407,6 +2467,12 @@
   <data name="Message.PaymentCreated" xml:space="preserve">
     <value>Paiement créé avec succès</value>
   </data>
+  <data name="Message.PaymentDeleted" xml:space="preserve">
+    <value>Paiement supprimé avec succès</value>
+  </data>
+  <data name="Message.PaymentUpdated" xml:space="preserve">
+    <value>Paiement mis à jour avec succès</value>
+  </data>
   <data name="Message.PresencesSaved" xml:space="preserve">
     <value>Présences enregistrées avec succès.</value>
   </data>
@@ -2743,6 +2809,9 @@
   <data name="Payments.ConfirmCancel" xml:space="preserve">
     <value>Confirmer l'annulation</value>
   </data>
+  <data name="Payments.ConfirmDelete" xml:space="preserve">
+    <value>Confirmer la suppression</value>
+  </data>
   <data name="Payments.Create" xml:space="preserve">
     <value>Créer</value>
   </data>
@@ -2752,8 +2821,17 @@
   <data name="Payments.DangerZone" xml:space="preserve">
     <value>Zone dangereuse</value>
   </data>
+  <data name="Payments.DeletePayment" xml:space="preserve">
+    <value>Supprimer le paiement</value>
+  </data>
+  <data name="Payments.DeleteWarning" xml:space="preserve">
+    <value>Attention : cette action supprime définitivement la ligne, sans laisser de trace</value>
+  </data>
   <data name="Payments.Details" xml:space="preserve">
     <value>Détails</value>
+  </data>
+  <data name="Payments.Edit" xml:space="preserve">
+    <value>Modifier le paiement</value>
   </data>
   <data name="Payments.ForActivity" xml:space="preserve">
     <value>Pour l'activité</value>
@@ -2922,6 +3000,9 @@
   </data>
   <data name="PublicRegistration.ActivityFull" xml:space="preserve">
     <value>Cette activité est complète.</value>
+  </data>
+  <data name="PublicRegistration.BirthYearQuotaExceeded" xml:space="preserve">
+    <value>Le nombre maximum d'enfants nés cette année-là est atteint pour cette activité.</value>
   </data>
   <data name="PublicRegistration.ActivityQuestionsLead" xml:space="preserve">
     <value>Veuillez répondre aux questions suivantes concernant l'activité.</value>
@@ -3538,6 +3619,12 @@
   <data name="Email.DayFilterHelp" xml:space="preserve">
     <value>Filtrer les destinataires par jour spécifique (optionnel)</value>
   </data>
+  <data name="Email.ScheduledForWeek" xml:space="preserve">
+    <value>Prévu la semaine</value>
+  </data>
+  <data name="Email.WeekFilterHelp" xml:space="preserve">
+    <value>Filtrer les destinataires par semaine (optionnel, cumulable avec le filtre par jour)</value>
+  </data>
   <data name="Email.MergeFields" xml:space="preserve">
     <value>Variables de personnalisation</value>
   </data>
@@ -3723,6 +3810,9 @@
   </data>
   <data name="Excursion.RegistrationsHelp" xml:space="preserve">
     <value>Cochez les cases pour inscrire les enfants à l'excursion. Le coût sera ajouté au total de la réservation.</value>
+  </data>
+  <data name="Excursion.PaidAmount" xml:space="preserve">
+    <value>Payé</value>
   </data>
   <data name="Excursion.Registered" xml:space="preserve">
     <value>inscrits</value>
@@ -3924,6 +4014,21 @@
   </data>
   <data name="Activity.PostalCodeErrorMessage" xml:space="preserve">
     <value>Message d'erreur (codes postaux)</value>
+  </data>
+  <data name="Activity.BirthYear" xml:space="preserve">
+    <value>Année de naissance</value>
+  </data>
+  <data name="Activity.BirthYearQuotaExceededMessage" xml:space="preserve">
+    <value>Message si le quota par année de naissance est atteint</value>
+  </data>
+  <data name="Activity.BirthYearQuotas" xml:space="preserve">
+    <value>Quotas par année de naissance</value>
+  </data>
+  <data name="Activity.BirthYearQuotasHelp" xml:space="preserve">
+    <value>Limite le nombre d'enfants nés une année donnée pour cette activité (ex : max 24 enfants nés en 2020).</value>
+  </data>
+  <data name="Activity.MaxChildren" xml:space="preserve">
+    <value>Nombre maximum</value>
   </data>
   <data name="Activity.MaxChildrenPerDay" xml:space="preserve">
     <value>Nombre maximum d'enfants par jour</value>

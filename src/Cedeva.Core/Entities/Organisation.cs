@@ -37,6 +37,13 @@ public class Organisation : AuditableEntity
     /// </summary>
     public string? BankAccountName { get; set; }
 
+    /// <summary>
+    /// Nom du responsable de l'organisation — utilisé sur les documents officiels générés (ex.
+    /// attestation mutuelle, Lot K #3), en plus du logo (<see cref="LogoUrl"/>).
+    /// </summary>
+    [StringLength(200, ErrorMessage = "Validation.StringLength")]
+    public string? ResponsibleName { get; set; }
+
     public ICollection<Activity> Activities { get; set; } = new List<Activity>();
     public ICollection<Parent> Parents { get; set; } = new List<Parent>();
     public ICollection<TeamMember> TeamMembers { get; set; } = new List<TeamMember>();

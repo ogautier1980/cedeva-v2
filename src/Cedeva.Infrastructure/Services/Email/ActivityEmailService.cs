@@ -63,7 +63,7 @@ public class ActivityEmailService : IActivityEmailService
             return new ActivityEmailResult(ActivityEmailOutcome.NoRecipients, 0);
 
         var allEmails = await _email.Recipient.GetRecipientEmailsAsync(
-            request.ActivityId, request.SelectedRecipient!, recipientGroupId, request.SelectedDayId, ct);
+            request.ActivityId, request.SelectedRecipient!, recipientGroupId, request.SelectedDayId, request.SelectedWeekNumber, ct);
         await LogSentEmailAsync(request, recipientGroupId, allEmails, ct);
 
         return new ActivityEmailResult(ActivityEmailOutcome.Sent, sentCount);
@@ -112,7 +112,7 @@ public class ActivityEmailService : IActivityEmailService
         {
             var subject = _email.VariableReplacement.ReplaceVariables(request.Subject, booking, organisation);
             var message = _email.VariableReplacement.ReplaceVariables(request.Message, booking, organisation);
-            await _email.Email.SendEmailAsync(new List<string> { booking.Child.Parent.Email }, subject, message, request.AttachmentFilePath);
+            await _email.Email.SendEmailAsync(booking.Child.Parent.GetEmailAddresses().ToList(), subject, message, request.AttachmentFilePath);
             count++;
         }
 
@@ -123,7 +123,7 @@ public class ActivityEmailService : IActivityEmailService
     private async Task<int> SendPerParentAsync(ActivityEmailRequest request, int? recipientGroupId, CancellationToken ct)
     {
         var recipientEmails = await _email.Recipient.GetRecipientEmailsAsync(
-            request.ActivityId, request.SelectedRecipient!, recipientGroupId, request.SelectedDayId, ct);
+            request.ActivityId, request.SelectedRecipient!, recipientGroupId, request.SelectedDayId, request.SelectedWeekNumber, ct);
 
         foreach (var emailAddress in recipientEmails)
             await _email.Email.SendEmailAsync(new List<string> { emailAddress }, request.Subject, request.Message, request.AttachmentFilePath);
@@ -143,6 +143,9 @@ public class ActivityEmailService : IActivityEmailService
 
         if (request.SelectedDayId.HasValue)
             query = query.Where(b => b.Days.Any(bd => bd.ActivityDayId == request.SelectedDayId.Value && bd.IsReserved));
+
+        if (request.SelectedWeekNumber.HasValue)
+            query = query.Where(b => b.Days.Any(bd => bd.ActivityDay.Week == request.SelectedWeekNumber.Value && bd.IsReserved));
 
         var selectedRecipient = request.SelectedRecipient;
         if (selectedRecipient == EmailRecipientKeys.MedicalSheetReminder)

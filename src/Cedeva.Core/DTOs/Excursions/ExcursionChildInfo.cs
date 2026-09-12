@@ -13,5 +13,6 @@ public class ExcursionChildInfo
     public bool IsRegistered { get; set; }
     public int? RegistrationId { get; set; }
     public decimal ExcursionCost { get; set; }
+    public decimal PaidAmount { get; set; }
     public string PaymentStatus { get; set; } = string.Empty;
 }

@@ -45,6 +45,10 @@ public class OrganisationViewModel : AuditableViewModel
     [Display(Name = "Field.BankAccountName")]
     public string? BankAccountName { get; set; }
 
+    [StringLength(200, ErrorMessage = "Validation.StringLength")]
+    [Display(Name = "Field.ResponsibleName")]
+    public string? ResponsibleName { get; set; }
+
     // Address
     [Required(ErrorMessage = "Validation.Required")]
     [StringLength(100, MinimumLength = 2, ErrorMessage = "Validation.StringLength")]

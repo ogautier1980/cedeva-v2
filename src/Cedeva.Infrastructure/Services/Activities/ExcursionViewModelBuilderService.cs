@@ -80,6 +80,7 @@ public class ExcursionViewModelBuilderService : IExcursionViewModelBuilderServic
                 IsRegistered = isRegistered,
                 RegistrationId = registration?.Id,
                 ExcursionCost = excursion.Cost,
+                PaidAmount = registration?.PaidAmount ?? 0m,
                 PaymentStatus = paymentStatusLocalizer(booking.PaymentStatus)
             });
         }

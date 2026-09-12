@@ -96,6 +96,14 @@ else
                                     }
                                     else
                                     {
+                                        <div class="input-group input-group-sm mb-1" style="max-width: 140px; margin-inline: auto;">
+                                            <span class="input-group-text">€</span>
+                                            <input type="number" step="0.01" min="0"
+                                                   class="form-control confirm-amount-input"
+                                                   id="confirm-amount-@item.BookingId"
+                                                   value="@item.TotalAmount.ToString("F2", System.Globalization.CultureInfo.InvariantCulture)"
+                                                   title="@Localizer["ActivityManagement.AdjustAmountBeforeConfirm"]" />
+                                        </div>
                                         <button type="button"
                                                 class="btn btn-success btn-sm"
                                                 data-booking-id="@item.BookingId"
@@ -195,6 +203,9 @@ else
             const bookingId = button.dataset.bookingId;
             button.disabled = true;
 
+            const amountInput = document.getElementById('confirm-amount-' + bookingId);
+            const adjustedTotalAmount = amountInput ? parseFloat(amountInput.value.replace(',', '.')) : null;
+
             try {
                 const response = await fetch('@Url.Action("ConfirmBooking", "ActivityManagement")', {
                     method: 'POST',
@@ -202,7 +213,10 @@ else
                         'Content-Type': 'application/json',
                         'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
                     },
-                    body: JSON.stringify({ bookingId: parseInt(bookingId) })
+                    body: JSON.stringify({
+                        bookingId: parseInt(bookingId),
+                        adjustedTotalAmount: (adjustedTotalAmount != null && !isNaN(adjustedTotalAmount)) ? adjustedTotalAmount : null
+                    })
                 });
 
                 const result = await response.json();

@@ -246,7 +246,18 @@ public class ActivityWizardController : Controller
         var activity = await _context.Activities.FirstOrDefaultAsync(a => a.Id == id);
         if (activity == null) return NotFound();
 
-        return View(new WizardStep4ViewModel
+        return View(await BuildStep4ViewModelAsync(activity));
+    }
+
+    private async Task<WizardStep4ViewModel> BuildStep4ViewModelAsync(Activity activity)
+    {
+        var quotas = await _context.ActivityBirthYearQuotas
+            .Where(q => q.ActivityId == activity.Id)
+            .OrderBy(q => q.BirthYear)
+            .Select(q => new WizardBirthYearQuotaItem { Id = q.Id, BirthYear = q.BirthYear, MaxChildren = q.MaxChildren })
+            .ToListAsync();
+
+        return new WizardStep4ViewModel
         {
             ActivityId = activity.Id,
             ActivityName = activity.Name,
@@ -254,8 +265,10 @@ public class ActivityWizardController : Controller
             ExcludedPostalCodes = activity.ExcludedPostalCodes,
             PostalCodeErrorMessage = activity.PostalCodeErrorMessage,
             MaxChildrenPerDay = activity.MaxChildrenPerDay,
-            FullMessage = activity.FullMessage
-        });
+            FullMessage = activity.FullMessage,
+            BirthYearQuotaExceededMessage = activity.BirthYearQuotaExceededMessage,
+            BirthYearQuotas = quotas
+        };
     }
 
     [HttpPost]
@@ -264,6 +277,11 @@ public class ActivityWizardController : Controller
     {
         if (!ModelState.IsValid)
         {
+            var activityForReload = await _context.Activities.FirstOrDefaultAsync(a => a.Id == viewModel.ActivityId);
+            if (activityForReload != null)
+            {
+                viewModel.BirthYearQuotas = (await BuildStep4ViewModelAsync(activityForReload)).BirthYearQuotas;
+            }
             return View(viewModel);
         }
 
@@ -275,9 +293,57 @@ public class ActivityWizardController : Controller
         activity.PostalCodeErrorMessage = string.IsNullOrWhiteSpace(viewModel.PostalCodeErrorMessage) ? null : viewModel.PostalCodeErrorMessage.Trim();
         activity.MaxChildrenPerDay = viewModel.MaxChildrenPerDay;
         activity.FullMessage = string.IsNullOrWhiteSpace(viewModel.FullMessage) ? null : viewModel.FullMessage.Trim();
+        activity.BirthYearQuotaExceededMessage = string.IsNullOrWhiteSpace(viewModel.BirthYearQuotaExceededMessage) ? null : viewModel.BirthYearQuotaExceededMessage.Trim();
         await _context.SaveChangesAsync();
 
         return RedirectToAction(nameof(Step5), new { id = activity.Id });
+    }
+
+    // POST: ActivityWizard/AddBirthYearQuota — adds/updates a per-birth-year cap (Lot K #4).
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> AddBirthYearQuota(int id, int birthYear, int maxChildren)
+    {
+        var activity = await _context.Activities.FirstOrDefaultAsync(a => a.Id == id);
+        if (activity == null) return NotFound();
+
+        if (birthYear >= 1900 && birthYear <= 2100 && maxChildren >= 1)
+        {
+            var existing = await _context.ActivityBirthYearQuotas
+                .FirstOrDefaultAsync(q => q.ActivityId == id && q.BirthYear == birthYear);
+
+            if (existing != null)
+            {
+                existing.MaxChildren = maxChildren;
+            }
+            else
+            {
+                _context.ActivityBirthYearQuotas.Add(new ActivityBirthYearQuota
+                {
+                    ActivityId = id,
+                    BirthYear = birthYear,
+                    MaxChildren = maxChildren
+                });
+            }
+            await _context.SaveChangesAsync();
+        }
+
+        return RedirectToAction(nameof(Step4), new { id });
+    }
+
+    // POST: ActivityWizard/RemoveBirthYearQuota
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> RemoveBirthYearQuota(int id, int quotaId)
+    {
+        var quota = await _context.ActivityBirthYearQuotas.FirstOrDefaultAsync(q => q.Id == quotaId && q.ActivityId == id);
+        if (quota != null)
+        {
+            _context.ActivityBirthYearQuotas.Remove(quota);
+            await _context.SaveChangesAsync();
+        }
+
+        return RedirectToAction(nameof(Step4), new { id });
     }
 
     // ------------------------------------------------------------------

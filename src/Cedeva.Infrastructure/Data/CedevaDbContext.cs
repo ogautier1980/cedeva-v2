@@ -21,6 +21,7 @@ public class CedevaDbContext : IdentityDbContext<CedevaUser>, IUnitOfWork
 
     public DbSet<Organisation> Organisations => Set<Organisation>();
     public DbSet<Activity> Activities => Set<Activity>();
+    public DbSet<ActivityBirthYearQuota> ActivityBirthYearQuotas => Set<ActivityBirthYearQuota>();
     public DbSet<ActivityDay> ActivityDays => Set<ActivityDay>();
     public DbSet<ActivityGroup> ActivityGroups => Set<ActivityGroup>();
     public DbSet<ActivityQuestion> ActivityQuestions => Set<ActivityQuestion>();
@@ -30,6 +31,7 @@ public class CedevaDbContext : IdentityDbContext<CedevaUser>, IUnitOfWork
     public DbSet<Booking> Bookings => Set<Booking>();
     public DbSet<BookingDay> BookingDays => Set<BookingDay>();
     public DbSet<Child> Children => Set<Child>();
+    public DbSet<ChildcareRegistration> ChildcareRegistrations => Set<ChildcareRegistration>();
     public DbSet<Parent> Parents => Set<Parent>();
     public DbSet<TeamMember> TeamMembers => Set<TeamMember>();
     public DbSet<TeamMemberDay> TeamMemberDays => Set<TeamMemberDay>();

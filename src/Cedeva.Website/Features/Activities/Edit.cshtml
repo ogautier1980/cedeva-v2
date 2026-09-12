@@ -144,6 +144,18 @@
                                 </div>
                                 <span asp-validation-for="PricePerDay" class="text-danger"></span>
                             </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="ChildcarePricePerDay" class="form-label">@Localizer["Field.ChildcarePricePerDay"]</label>
+                                <div class="input-group">
+                                    <input asp-for="ChildcarePricePerDay" type="text" class="form-control" id="ChildcarePricePerDay"
+                                           data-val-number="@Localizer["Validation.Number"]" />
+                                    <span class="input-group-text">€</span>
+                                </div>
+                                <span asp-validation-for="ChildcarePricePerDay" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="row">
                             <div class="col-md-6 mb-3 d-flex align-items-end">
                                 <div class="form-check">
                                     <input asp-for="IsActive" class="form-check-input" id="IsActive" />

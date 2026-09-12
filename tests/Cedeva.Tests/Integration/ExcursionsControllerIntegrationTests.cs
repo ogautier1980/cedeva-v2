@@ -123,6 +123,92 @@ public class ExcursionsControllerIntegrationTests
     }
 
     [Fact]
+    public async Task UpdatePaidAmount_ValidPost_UpdatesRegistrationPaidAmount()
+    {
+        using var factory = new CedevaWebApplicationFactory();
+        var seeded = SeedExcursionScenario(factory, cost: 15m);
+        var client = factory.CreateClientFor("u1", seeded.OrgId, "Coordinator");
+
+        (await client.PostAsync("/Excursions/RegisterChild", new FormUrlEncodedContent(
+            new Dictionary<string, string>
+            {
+                ["excursionId"] = seeded.ExcursionId.ToString(),
+                ["bookingId"] = seeded.BookingId.ToString(),
+            }))).EnsureSuccessStatusCode();
+
+        int registrationId;
+        await using (var ctx = factory.NewDbContext())
+        {
+            registrationId = (await ctx.ExcursionRegistrations.SingleAsync(r => r.BookingId == seeded.BookingId)).Id;
+        }
+
+        var response = await client.PostAsync("/Excursions/UpdatePaidAmount", new FormUrlEncodedContent(
+            new Dictionary<string, string>
+            {
+                ["registrationId"] = registrationId.ToString(),
+                ["paidAmount"] = "15",
+            }));
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        (await response.Content.ReadAsStringAsync()).Should().Contain("\"success\":true");
+
+        await using var verify = factory.NewDbContext();
+        (await verify.ExcursionRegistrations.SingleAsync(r => r.Id == registrationId)).PaidAmount.Should().Be(15m);
+    }
+
+    [Fact]
+    public async Task UpdatePaidAmount_NegativeAmount_ReturnsFailureWithoutChangingValue()
+    {
+        using var factory = new CedevaWebApplicationFactory();
+        var seeded = SeedExcursionScenario(factory, cost: 15m);
+        var client = factory.CreateClientFor("u1", seeded.OrgId, "Coordinator");
+
+        (await client.PostAsync("/Excursions/RegisterChild", new FormUrlEncodedContent(
+            new Dictionary<string, string>
+            {
+                ["excursionId"] = seeded.ExcursionId.ToString(),
+                ["bookingId"] = seeded.BookingId.ToString(),
+            }))).EnsureSuccessStatusCode();
+
+        int registrationId;
+        await using (var ctx = factory.NewDbContext())
+        {
+            registrationId = (await ctx.ExcursionRegistrations.SingleAsync(r => r.BookingId == seeded.BookingId)).Id;
+        }
+
+        var response = await client.PostAsync("/Excursions/UpdatePaidAmount", new FormUrlEncodedContent(
+            new Dictionary<string, string>
+            {
+                ["registrationId"] = registrationId.ToString(),
+                ["paidAmount"] = "-5",
+            }));
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        (await response.Content.ReadAsStringAsync()).Should().Contain("\"success\":false");
+
+        await using var verify = factory.NewDbContext();
+        (await verify.ExcursionRegistrations.SingleAsync(r => r.Id == registrationId)).PaidAmount.Should().Be(0m);
+    }
+
+    [Fact]
+    public async Task UpdatePaidAmount_UnknownRegistration_ReturnsFailure()
+    {
+        using var factory = new CedevaWebApplicationFactory();
+        var seeded = SeedExcursionScenario(factory);
+        var client = factory.CreateClientFor("u1", seeded.OrgId, "Coordinator");
+
+        var response = await client.PostAsync("/Excursions/UpdatePaidAmount", new FormUrlEncodedContent(
+            new Dictionary<string, string>
+            {
+                ["registrationId"] = "999999",
+                ["paidAmount"] = "10",
+            }));
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        (await response.Content.ReadAsStringAsync()).Should().Contain("\"success\":false");
+    }
+
+    [Fact]
     public async Task RegisterChild_WithoutAuth_IsChallenged()
     {
         using var factory = new CedevaWebApplicationFactory();

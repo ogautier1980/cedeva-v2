@@ -135,6 +135,7 @@ public class OrganisationsController : Controller
             Email = organisation.Email,
             BankAccountNumber = organisation.BankAccountNumber,
             BankAccountName = organisation.BankAccountName,
+            ResponsibleName = organisation.ResponsibleName,
             Street = address?.Street ?? "",
             City = address?.City ?? "",
             PostalCode = address?.PostalCode ?? "",
@@ -190,6 +191,7 @@ public class OrganisationsController : Controller
                 Email = viewModel.Email,
                 BankAccountNumber = viewModel.BankAccountNumber,
                 BankAccountName = viewModel.BankAccountName,
+                ResponsibleName = viewModel.ResponsibleName,
                 AddressId = address.Id
             };
 
@@ -229,6 +231,7 @@ public class OrganisationsController : Controller
             Email = organisation.Email,
             BankAccountNumber = organisation.BankAccountNumber,
             BankAccountName = organisation.BankAccountName,
+            ResponsibleName = organisation.ResponsibleName,
             Street = address?.Street ?? "",
             City = address?.City ?? "",
             PostalCode = address?.PostalCode ?? "",
@@ -268,6 +271,7 @@ public class OrganisationsController : Controller
             organisation.Email = viewModel.Email;
             organisation.BankAccountNumber = viewModel.BankAccountNumber;
             organisation.BankAccountName = viewModel.BankAccountName;
+            organisation.ResponsibleName = viewModel.ResponsibleName;
 
             await HandleLogoRemoval(organisation, viewModel.RemoveLogo);
             await HandleLogoUpload(organisation, viewModel.LogoFile);
@@ -488,6 +492,7 @@ public class OrganisationsController : Controller
             Email = organisation.Email,
             BankAccountNumber = organisation.BankAccountNumber,
             BankAccountName = organisation.BankAccountName,
+            ResponsibleName = organisation.ResponsibleName,
             Street = address?.Street ?? "",
             City = address?.City ?? "",
             PostalCode = address?.PostalCode ?? "",

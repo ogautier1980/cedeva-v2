@@ -1,0 +1,178 @@
+@model Cedeva.Website.Features.ActivityManagement.ViewModels.ChildcareViewModel
+
+@{
+    ViewData["Title"] = Localizer["ActivityManagement.Childcare"] + " - " + Model.Activity.Name;
+    ViewData["ActivityId"] = Model.Activity.Id;
+    ViewData["ActivityName"] = Model.Activity.Name;
+    ViewData["NavSection"] = "Childcare";
+}
+
+<div class="container-fluid py-4">
+    @await Html.PartialAsync("_AlertMessages")
+    <!-- Sélection du jour -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form asp-action="Childcare" method="get" class="row g-3 align-items-end">
+                <input type="hidden" name="id" value="@Model.Activity.Id" />
+                <div class="col-md-6">
+                    <label for="dayId" class="form-label fw-bold">@Localizer["ActivityManagement.SelectDay"]</label>
+                    <select name="dayId" id="dayId" class="form-select">
+                        @if (!Model.ActivityDayOptions.Any())
+                        {
+                            <option value="">@Localizer["ActivityManagement.NoActiveDay"]</option>
+                        }
+                        else
+                        {
+                            @foreach (var option in Model.ActivityDayOptions)
+                            {
+                                <option value="@option.Value" selected="@option.Selected">@option.Text</option>
+                            }
+                        }
+                    </select>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    @if (Model.SelectedActivityDay != null)
+    {
+        @if (!Model.Children.Any())
+        {
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle"></i> @Localizer["ActivityManagement.NoConfirmedBookings"]
+            </div>
+        }
+        else
+        {
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-child"></i> @Localizer["ActivityManagement.Childcare"]
+                        <span class="badge bg-light text-dark ms-2">@Model.Children.Count(c => c.IsRegistered) / @Model.Children.Count @Localizer["Excursion.Registered"]</span>
+                    </h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th scope="col">@Localizer["LastName"]</th>
+                                    <th scope="col">@Localizer["FirstName"]</th>
+                                    <th scope="col" class="text-center">@Localizer["ActivityManagement.Childcare"]</th>
+                                    <th scope="col" class="text-center">@Localizer["Field.Amount"]</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var child in Model.Children)
+                                {
+                                    <tr class="@(child.IsRegistered ? "table-success" : "")" data-booking-id="@child.BookingId">
+                                        <td>@child.ChildLastName</td>
+                                        <td>@child.ChildFirstName</td>
+                                        <td class="text-center">
+                                            <div class="form-check d-inline-block">
+                                                <input type="checkbox"
+                                                       class="form-check-input childcare-checkbox"
+                                                       data-booking-id="@child.BookingId"
+                                                       data-activityday-id="@Model.SelectedActivityDayId"
+                                                       @(child.IsRegistered ? "checked" : "")
+                                                       style="cursor: pointer;" />
+                                            </div>
+                                        </td>
+                                        <td class="text-center" style="min-width: 120px;">
+                                            @if (child.IsRegistered)
+                                            {
+                                                <div class="input-group input-group-sm">
+                                                    <span class="input-group-text">€</span>
+                                                    <input type="number" step="0.01" min="0"
+                                                           class="form-control childcare-amount-input"
+                                                           data-registration-id="@child.RegistrationId"
+                                                           value="@child.Amount.ToString("F2", System.Globalization.CultureInfo.InvariantCulture)" />
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted">—</span>
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <div class="alert alert-warning">
+            <i class="fas fa-exclamation-triangle"></i> @Localizer["ActivityManagement.SelectActivityDay"]
+        </div>
+    }
+</div>
+
+@section Scripts {
+    @Html.AntiForgeryToken()
+    <script>
+        $(document).ready(function () {
+            const daySelector = document.getElementById('dayId');
+            if (daySelector) {
+                new Choices(daySelector, {
+                    searchEnabled: false,
+                    itemSelectText: '',
+                    shouldSort: false,
+                    callbackOnInit: function() {
+                        daySelector.addEventListener('change', function() {
+                            this.form.submit();
+                        });
+                    }
+                });
+            }
+
+            const token = $('input[name="__RequestVerificationToken"]').val();
+
+            $('.childcare-checkbox').on('change', function () {
+                var checkbox = $(this);
+                var bookingId = checkbox.data('booking-id');
+                var activityDayId = checkbox.data('activityday-id');
+                var register = checkbox.is(':checked');
+
+                $.ajax({
+                    url: '@Url.Action("ToggleChildcare", "ActivityManagement")',
+                    type: 'POST',
+                    headers: { 'RequestVerificationToken': token },
+                    data: { bookingId: bookingId, activityDayId: activityDayId, register: register },
+                    success: function (response) {
+                        if (response.success) {
+                            location.reload();
+                        } else {
+                            alert('@Localizer["Error"]: ' + response.message);
+                            checkbox.prop('checked', !register);
+                        }
+                    },
+                    error: function () {
+                        alert('@Localizer["ActivityManagement.UpdateError"]');
+                        checkbox.prop('checked', !register);
+                    }
+                });
+            });
+
+            $('.childcare-amount-input').on('blur', function () {
+                var input = $(this);
+                var registrationId = input.data('registration-id');
+                var amount = parseFloat(input.val().replace(',', '.'));
+                if (isNaN(amount) || amount < 0) return;
+
+                $.ajax({
+                    url: '@Url.Action("UpdateChildcareAmount", "ActivityManagement")',
+                    type: 'POST',
+                    headers: { 'RequestVerificationToken': token },
+                    data: { registrationId: registrationId, amount: amount },
+                    error: function () {
+                        alert('@Localizer["ActivityManagement.UpdateError"]');
+                    }
+                });
+            });
+        });
+    </script>
+}

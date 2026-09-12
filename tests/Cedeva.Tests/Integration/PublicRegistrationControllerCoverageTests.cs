@@ -518,6 +518,138 @@ public class PublicRegistrationControllerCoverageTests
     }
 
     // ---------------------------------------------------------------------
+    // Register POST: birth-year quota (Lot K #4).
+    // ---------------------------------------------------------------------
+
+    [Fact]
+    public async Task Register_Post_BirthYearQuotaReached_ReturnsOkAndCreatesNoBooking()
+    {
+        using var factory = new CedevaWebApplicationFactory();
+        Activity activity = null!;
+        factory.Seed(ctx =>
+        {
+            var org = TestData.Organisation();
+            activity = TestData.Activity(org, "Stage Quota Post");
+            var quota = new ActivityBirthYearQuota { Activity = activity, BirthYear = 2016, MaxChildren = 1 };
+            var parent = TestData.Parent(org);
+            var c = TestData.Child(parent); // BirthDate 2016-05-20 (TestData default)
+            var existing = TestData.Booking(c, activity, group: null, totalAmount: 0m, paidAmount: 0m);
+            ctx.AddRange(org, activity, quota, parent, c, existing);
+            return 0;
+        });
+
+        var client = Anonymous(factory);
+        var form = new FormUrlEncodedContent(new Dictionary<string, string>
+        {
+            ["ActivityId"] = activity.Id.ToString(),
+            ["ParentFirstName"] = "Paul",
+            ["ParentLastName"] = "Parent",
+            ["ParentEmail"] = "quota.parent@test.be",
+            ["ParentPhoneNumber"] = "021234567",
+            ["ParentNationalRegisterNumber"] = "85.06.15-133.80",
+            ["ParentStreet"] = "Rue Quota 1",
+            ["ParentPostalCode"] = "1000",
+            ["ParentCity"] = "Bruxelles",
+            ["ChildFirstName"] = "Zoe",
+            ["ChildLastName"] = "Enfant",
+            ["ChildBirthDate"] = "2016-03-10", // same birth year (2016) as the existing registration
+            ["ChildNationalRegisterNumber"] = "16.07.08-164.10",
+        });
+
+        var response = await client.PostAsync("/PublicRegistration/Register", form);
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        using var db = factory.NewDbContext();
+        db.Bookings.IgnoreQueryFilters()
+            .Count(b => b.ActivityId == activity.Id)
+            .Should().Be(1);
+    }
+
+    [Fact]
+    public async Task Register_Post_BirthYearQuotaNotReached_CreatesBooking()
+    {
+        using var factory = new CedevaWebApplicationFactory();
+        Activity activity = null!;
+        factory.Seed(ctx =>
+        {
+            var org = TestData.Organisation();
+            activity = TestData.Activity(org, "Stage Quota Ok");
+            var quota = new ActivityBirthYearQuota { Activity = activity, BirthYear = 2016, MaxChildren = 5 };
+            ctx.AddRange(org, activity, quota);
+            return 0;
+        });
+
+        var client = Anonymous(factory);
+        var form = new FormUrlEncodedContent(new Dictionary<string, string>
+        {
+            ["ActivityId"] = activity.Id.ToString(),
+            ["ParentFirstName"] = "Paul",
+            ["ParentLastName"] = "Parent",
+            ["ParentEmail"] = "quota.ok.parent@test.be",
+            ["ParentPhoneNumber"] = "021234567",
+            ["ParentNationalRegisterNumber"] = "85.06.15-133.80",
+            ["ParentStreet"] = "Rue Quota 2",
+            ["ParentPostalCode"] = "1000",
+            ["ParentCity"] = "Bruxelles",
+            ["ChildFirstName"] = "Zoe",
+            ["ChildLastName"] = "Enfant",
+            ["ChildBirthDate"] = "2016-03-10",
+            ["ChildNationalRegisterNumber"] = "16.07.08-164.10",
+        });
+
+        var response = await client.PostAsync("/PublicRegistration/Register", form);
+
+        response.StatusCode.Should().Be(HttpStatusCode.Found);
+
+        using var db = factory.NewDbContext();
+        db.Bookings.IgnoreQueryFilters().Any(b => b.ActivityId == activity.Id).Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task Register_Post_BirthYearQuotaReached_UsesCustomMessage()
+    {
+        using var factory = new CedevaWebApplicationFactory();
+        Activity activity = null!;
+        factory.Seed(ctx =>
+        {
+            var org = TestData.Organisation();
+            activity = TestData.Activity(org, "Stage Quota Message");
+            activity.BirthYearQuotaExceededMessage = "Plus de place pour les 2016 cette semaine.";
+            var quota = new ActivityBirthYearQuota { Activity = activity, BirthYear = 2016, MaxChildren = 1 };
+            var parent = TestData.Parent(org);
+            var c = TestData.Child(parent);
+            var existing = TestData.Booking(c, activity, group: null, totalAmount: 0m, paidAmount: 0m);
+            ctx.AddRange(org, activity, quota, parent, c, existing);
+            return 0;
+        });
+
+        var client = Anonymous(factory);
+        var form = new FormUrlEncodedContent(new Dictionary<string, string>
+        {
+            ["ActivityId"] = activity.Id.ToString(),
+            ["ParentFirstName"] = "Paul",
+            ["ParentLastName"] = "Parent",
+            ["ParentEmail"] = "quota.message.parent@test.be",
+            ["ParentPhoneNumber"] = "021234567",
+            ["ParentNationalRegisterNumber"] = "85.06.15-133.80",
+            ["ParentStreet"] = "Rue Quota 3",
+            ["ParentPostalCode"] = "1000",
+            ["ParentCity"] = "Bruxelles",
+            ["ChildFirstName"] = "Zoe",
+            ["ChildLastName"] = "Enfant",
+            ["ChildBirthDate"] = "2016-03-10",
+            ["ChildNationalRegisterNumber"] = "16.07.08-164.10",
+        });
+
+        var response = await client.PostAsync("/PublicRegistration/Register", form);
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var html = await response.Content.ReadAsStringAsync();
+        html.Should().Contain("Plus de place pour les 2016 cette semaine.");
+    }
+
+    // ---------------------------------------------------------------------
     // Register POST: règlement acceptance is required when RegulationLinkUrl is set.
     // ---------------------------------------------------------------------
 

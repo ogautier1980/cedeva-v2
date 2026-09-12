@@ -26,6 +26,11 @@ public class ActivityViewModel : AuditableViewModel
     [DataType(DataType.Currency)]
     public decimal? PricePerDay { get; set; }
 
+    [Display(Name = "Field.ChildcarePricePerDay")]
+    [Range(0, 1000, ErrorMessage = "Validation.Range")]
+    [DataType(DataType.Currency)]
+    public decimal? ChildcarePricePerDay { get; set; }
+
     [Required(ErrorMessage = "Validation.Required")]
     [Display(Name = "Field.StartDate")]
     [DataType(DataType.Date)]

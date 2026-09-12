@@ -86,6 +86,19 @@ public class WizardStep4ViewModel
     [StringLength(300, ErrorMessage = "Validation.StringLength")]
     [Display(Name = "Activity.FullMessage")]
     public string? FullMessage { get; set; }
+
+    [StringLength(300, ErrorMessage = "Validation.StringLength")]
+    [Display(Name = "Activity.BirthYearQuotaExceededMessage")]
+    public string? BirthYearQuotaExceededMessage { get; set; }
+
+    public List<WizardBirthYearQuotaItem> BirthYearQuotas { get; set; } = new();
+}
+
+public class WizardBirthYearQuotaItem
+{
+    public int Id { get; set; }
+    public int BirthYear { get; set; }
+    public int MaxChildren { get; set; }
 }
 
 /// <summary>Step 5 — Autres questions (reuses the existing question editor, minus the Actif toggle).</summary>

@@ -200,6 +200,10 @@
                         </td>
                         <td>
                             <strong>@item.ChildFirstName @item.ChildLastName</strong>
+                            @if (item.IsEldestInFamily)
+                            {
+                                <i class="fas fa-star" title="@Localizer["ActivityManagement.EldestInFamily"]"></i>
+                            }
                         </td>
                         <td>
                             @item.ChildBirthDate.ToString("dd/MM/yyyy")

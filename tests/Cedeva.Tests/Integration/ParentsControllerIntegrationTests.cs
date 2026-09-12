@@ -200,6 +200,33 @@ public class ParentsControllerIntegrationTests
     }
 
     [Fact]
+    public async Task CreatePost_WithSecondaryEmail_Persists()
+    {
+        using var factory = new CedevaWebApplicationFactory();
+        Organisation org = null!;
+        factory.Seed(ctx =>
+        {
+            org = TestData.Organisation();
+            ctx.Add(org);
+            return 0;
+        });
+
+        var form = ValidParentForm();
+        form["SecondaryEmail"] = "jean.pro@test.be";
+
+        var client = factory.CreateClientFor("u1", org.Id, "Coordinator");
+        var response = await client.PostAsync("/Parents/Create", new FormUrlEncodedContent(form));
+
+        response.StatusCode.Should().Be(HttpStatusCode.Found);
+
+        using var db = factory.NewDbContext();
+        var persisted = await db.Parents.IgnoreQueryFilters().FirstOrDefaultAsync(p => p.LastName == "Dupont");
+
+        persisted.Should().NotBeNull();
+        persisted!.SecondaryEmail.Should().Be("jean.pro@test.be");
+    }
+
+    [Fact]
     public async Task CreatePost_MissingRequiredFields_ReturnsViewAndDoesNotPersist()
     {
         using var factory = new CedevaWebApplicationFactory();

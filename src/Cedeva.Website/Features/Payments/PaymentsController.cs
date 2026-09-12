@@ -247,16 +247,7 @@ public class PaymentsController : Controller
 
         // Mettre à jour le montant payé de la réservation
         payment.Booking.PaidAmount -= payment.Amount;
-
-        // Recalculer le statut de paiement
-        if (payment.Booking.PaidAmount <= 0)
-        {
-            payment.Booking.PaymentStatus = PaymentStatus.NotPaid;
-        }
-        else if (payment.Booking.PaidAmount < payment.Booking.TotalAmount)
-        {
-            payment.Booking.PaymentStatus = PaymentStatus.PartiallyPaid;
-        }
+        RecalculateBookingPaymentStatus(payment.Booking);
 
         // Persistence failures bubble to the global exception handler (/Home/Error).
         await _context.SaveChangesAsync();
@@ -266,6 +257,130 @@ public class PaymentsController : Controller
         TempData[ControllerExtensions.SuccessMessageKey] = _localizer["Message.PaymentCancelled"].Value;
 
         return RedirectToAction("Details", "Bookings", new { id = payment.BookingId });
+    }
+
+    // GET: Payments/Edit/5
+    public async Task<IActionResult> Edit(int id)
+    {
+        var payment = await _context.Payments
+            .Include(p => p.Booking)
+                .ThenInclude(b => b.Child)
+                    .ThenInclude(c => c.Parent)
+            .Include(p => p.Booking.Activity)
+            .FirstOrDefaultAsync(p => p.Id == id);
+
+        if (payment == null)
+        {
+            return NotFound();
+        }
+
+        if (payment.Status == PaymentStatus.Cancelled)
+        {
+            TempData[ControllerExtensions.ErrorMessageKey] = _localizer["Error.PaymentCancelledCannotEdit"].Value;
+            return RedirectToAction(nameof(Details), new { id });
+        }
+
+        var viewModel = new PaymentViewModel
+        {
+            Id = payment.Id,
+            BookingId = payment.BookingId,
+            Amount = payment.Amount,
+            PaymentDate = payment.PaymentDate,
+            PaymentMethod = payment.PaymentMethod,
+            Reference = payment.Reference,
+            ChildName = $"{payment.Booking.Child.FirstName} {payment.Booking.Child.LastName}",
+            ParentName = $"{payment.Booking.Child.Parent.FirstName} {payment.Booking.Child.Parent.LastName}",
+            ActivityName = payment.Booking.Activity.Name,
+            BookingTotalAmount = payment.Booking.TotalAmount,
+            // "Already paid, excluding this payment" so the sidebar/remaining-balance preview in the
+            // shared Edit view reacts correctly as the coordinator adjusts this payment's amount.
+            BookingPaidAmount = payment.Booking.PaidAmount - payment.Amount
+        };
+
+        return View(viewModel);
+    }
+
+    // POST: Payments/Edit/5
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Edit(PaymentViewModel viewModel)
+    {
+        var payment = await _context.Payments
+            .Include(p => p.Booking)
+            .FirstOrDefaultAsync(p => p.Id == viewModel.Id);
+
+        if (payment == null)
+        {
+            TempData[ControllerExtensions.ErrorMessageKey] = _localizer["Error.PaymentNotFound"].Value;
+            return RedirectToAction(nameof(Index));
+        }
+
+        if (payment.Status == PaymentStatus.Cancelled)
+        {
+            TempData[ControllerExtensions.ErrorMessageKey] = _localizer["Error.PaymentCancelledCannotEdit"].Value;
+            return RedirectToAction(nameof(Details), new { id = viewModel.Id });
+        }
+
+        if (!ModelState.IsValid)
+        {
+            await ReloadBookingInfoForViewModel(viewModel);
+            viewModel.BookingPaidAmount = payment.Booking.PaidAmount - payment.Amount;
+            return View(viewModel);
+        }
+
+        // Réajuster le montant payé de la réservation par la différence (pas un simple ajout).
+        payment.Booking.PaidAmount = payment.Booking.PaidAmount - payment.Amount + viewModel.Amount;
+        RecalculateBookingPaymentStatus(payment.Booking);
+
+        payment.Amount = viewModel.Amount;
+        payment.PaymentDate = viewModel.PaymentDate;
+        payment.PaymentMethod = viewModel.PaymentMethod;
+        payment.Reference = viewModel.Reference;
+
+        // Persistence failures bubble to the global exception handler (/Home/Error).
+        await _context.SaveChangesAsync();
+
+        _logger.LogInformation("Payment edited: {PaymentId}, new amount {Amount}", payment.Id, viewModel.Amount);
+
+        TempData[ControllerExtensions.SuccessMessageKey] = _localizer["Message.PaymentUpdated"].Value;
+
+        return RedirectToAction("Details", "Bookings", new { id = payment.BookingId });
+    }
+
+    // POST: Payments/Delete/5 — physically removes the line (unlike Cancel, which keeps a
+    // Cancelled row for the audit trail). Meant for erroneous entries (wrong booking/account…).
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Delete(int id)
+    {
+        var payment = await _context.Payments
+            .Include(p => p.Booking)
+            .FirstOrDefaultAsync(p => p.Id == id);
+
+        if (payment == null)
+        {
+            TempData[ControllerExtensions.ErrorMessageKey] = _localizer["Error.PaymentNotFound"].Value;
+            return RedirectToAction(nameof(Index));
+        }
+
+        var bookingId = payment.BookingId;
+
+        if (payment.Status != PaymentStatus.Cancelled)
+        {
+            payment.Booking.PaidAmount -= payment.Amount;
+            RecalculateBookingPaymentStatus(payment.Booking);
+        }
+
+        _context.Payments.Remove(payment);
+
+        // Persistence failures bubble to the global exception handler (/Home/Error).
+        await _context.SaveChangesAsync();
+
+        _logger.LogInformation("Payment deleted: {PaymentId}", id);
+
+        TempData[ControllerExtensions.SuccessMessageKey] = _localizer["Message.PaymentDeleted"].Value;
+
+        return RedirectToAction("Details", "Bookings", new { id = bookingId });
     }
 
     private async Task ReloadBookingInfoForViewModel(PaymentViewModel viewModel)
@@ -306,16 +421,26 @@ public class PaymentsController : Controller
     private static void UpdateBookingPaymentStatus(Booking booking, decimal paymentAmount)
     {
         booking.PaidAmount += paymentAmount;
+        RecalculateBookingPaymentStatus(booking);
+    }
 
-        if (booking.PaidAmount >= booking.TotalAmount)
+    /// <summary>Derives Booking.PaymentStatus from its current PaidAmount/TotalAmount — shared by
+    /// Create/Edit/Cancel/Delete so every mutation of PaidAmount ends in the same status logic.</summary>
+    private static void RecalculateBookingPaymentStatus(Booking booking)
+    {
+        if (booking.PaidAmount <= 0)
+        {
+            booking.PaymentStatus = PaymentStatus.NotPaid;
+        }
+        else if (booking.PaidAmount < booking.TotalAmount)
+        {
+            booking.PaymentStatus = PaymentStatus.PartiallyPaid;
+        }
+        else
         {
             booking.PaymentStatus = booking.PaidAmount > booking.TotalAmount
                 ? PaymentStatus.Overpaid
                 : PaymentStatus.Paid;
-        }
-        else if (booking.PaidAmount > 0)
-        {
-            booking.PaymentStatus = PaymentStatus.PartiallyPaid;
         }
     }
 }

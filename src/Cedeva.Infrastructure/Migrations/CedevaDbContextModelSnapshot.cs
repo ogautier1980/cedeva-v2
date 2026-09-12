@@ -60,6 +60,13 @@ namespace Cedeva.Infrastructure.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("BirthYearQuotaExceededMessage")
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)");
+
+                    b.Property<decimal?>("ChildcarePricePerDay")
+                        .HasColumnType("numeric");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp without time zone");
 
@@ -145,6 +152,44 @@ namespace Cedeva.Infrastructure.Migrations
                     b.HasIndex("OrganisationId");
 
                     b.ToTable("Activities");
+                });
+
+            modelBuilder.Entity("Cedeva.Core.Entities.ActivityBirthYearQuota", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("ActivityId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("BirthYear")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("MaxChildren")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("ModifiedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ActivityId", "BirthYear")
+                        .IsUnique();
+
+                    b.ToTable("ActivityBirthYearQuotas");
                 });
 
             modelBuilder.Entity("Cedeva.Core.Entities.ActivityDay", b =>
@@ -721,6 +766,46 @@ namespace Cedeva.Infrastructure.Migrations
                     b.ToTable("Children");
                 });
 
+            modelBuilder.Entity("Cedeva.Core.Entities.ChildcareRegistration", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("ActivityDayId")
+                        .HasColumnType("integer");
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("numeric");
+
+                    b.Property<int>("BookingId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("ModifiedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ActivityDayId");
+
+                    b.HasIndex("BookingId", "ActivityDayId")
+                        .IsUnique();
+
+                    b.ToTable("ChildcareRegistrations");
+                });
+
             modelBuilder.Entity("Cedeva.Core.Entities.Contact", b =>
                 {
                     b.Property<int>("Id")
@@ -1089,6 +1174,9 @@ namespace Cedeva.Infrastructure.Migrations
                     b.Property<string>("Notes")
                         .HasColumnType("text");
 
+                    b.Property<decimal>("PaidAmount")
+                        .HasColumnType("numeric");
+
                     b.Property<DateTime>("RegistrationDate")
                         .HasColumnType("timestamp without time zone");
 
@@ -1314,6 +1402,10 @@ namespace Cedeva.Infrastructure.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
+                    b.Property<string>("ResponsibleName")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
                     b.HasKey("Id");
 
                     b.HasIndex("AddressId");
@@ -1374,6 +1466,10 @@ namespace Cedeva.Infrastructure.Migrations
                         .HasColumnType("integer");
 
                     b.Property<string>("PhoneNumber")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("SecondaryEmail")
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
@@ -1740,6 +1836,17 @@ namespace Cedeva.Infrastructure.Migrations
                     b.Navigation("Organisation");
                 });
 
+            modelBuilder.Entity("Cedeva.Core.Entities.ActivityBirthYearQuota", b =>
+                {
+                    b.HasOne("Cedeva.Core.Entities.Activity", "Activity")
+                        .WithMany("BirthYearQuotas")
+                        .HasForeignKey("ActivityId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Activity");
+                });
+
             modelBuilder.Entity("Cedeva.Core.Entities.ActivityDay", b =>
                 {
                     b.HasOne("Cedeva.Core.Entities.Activity", "Activity")
@@ -1887,6 +1994,25 @@ namespace Cedeva.Infrastructure.Migrations
                     b.Navigation("ActivityGroup");
 
                     b.Navigation("Parent");
+                });
+
+            modelBuilder.Entity("Cedeva.Core.Entities.ChildcareRegistration", b =>
+                {
+                    b.HasOne("Cedeva.Core.Entities.ActivityDay", "ActivityDay")
+                        .WithMany()
+                        .HasForeignKey("ActivityDayId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Cedeva.Core.Entities.Booking", "Booking")
+                        .WithMany()
+                        .HasForeignKey("BookingId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ActivityDay");
+
+                    b.Navigation("Booking");
                 });
 
             modelBuilder.Entity("Cedeva.Core.Entities.Contact", b =>
@@ -2205,6 +2331,8 @@ namespace Cedeva.Infrastructure.Migrations
             modelBuilder.Entity("Cedeva.Core.Entities.Activity", b =>
                 {
                     b.Navigation("AdditionalQuestions");
+
+                    b.Navigation("BirthYearQuotas");
 
                     b.Navigation("Bookings");
 

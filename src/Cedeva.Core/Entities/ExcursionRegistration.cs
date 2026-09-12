@@ -30,4 +30,9 @@ public class ExcursionRegistration : AuditableEntity
     /// Notes spécifiques (besoins particuliers, etc.)
     /// </summary>
     public string? Notes { get; set; }
+
+    /// <summary>Montant déjà payé pour cette excursion (le "prévu" reste <see cref="Excursion.Cost"/>,
+    /// commun à tous les enfants inscrits — seul le payé est propre à chaque inscription).</summary>
+    [Range(0, 9999999, ErrorMessage = "Validation.AmountRange")]
+    public decimal PaidAmount { get; set; }
 }

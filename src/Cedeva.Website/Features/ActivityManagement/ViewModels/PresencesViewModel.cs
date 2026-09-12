@@ -29,6 +29,11 @@ public class PresenceChildInfo
     public decimal PaidAmount { get; set; }
     public bool IsFullyPaid => PaidAmount >= TotalAmount;
     public decimal Balance => TotalAmount - PaidAmount;
+
+    /// <summary>True if this child is the eldest among the children registered by the same
+    /// parent (by Child.ParentId — the person who registers, regardless of the real family tie)
+    /// for this activity. Computed, not persisted.</summary>
+    public bool IsEldestInFamily { get; set; }
 }
 
 public class PrintPresencesViewModel
@@ -80,6 +85,25 @@ public class TeamMemberPresenceInfo
     public string TeamRole { get; set; } = string.Empty;
     public bool IsPresent { get; set; }
     public int? TeamMemberDayId { get; set; }
+}
+
+public class ChildcareViewModel
+{
+    public Activity Activity { get; set; } = null!;
+    public int? SelectedActivityDayId { get; set; }
+    public ActivityDay? SelectedActivityDay { get; set; }
+    public List<SelectListItem> ActivityDayOptions { get; set; } = new();
+    public List<ChildcareChildInfo> Children { get; set; } = new();
+}
+
+public class ChildcareChildInfo
+{
+    public int BookingId { get; set; }
+    public string ChildFirstName { get; set; } = string.Empty;
+    public string ChildLastName { get; set; } = string.Empty;
+    public bool IsRegistered { get; set; }
+    public int? RegistrationId { get; set; }
+    public decimal Amount { get; set; }
 }
 
 public class PresenceSummaryViewModel

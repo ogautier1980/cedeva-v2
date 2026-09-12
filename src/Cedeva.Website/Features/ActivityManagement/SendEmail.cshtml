@@ -52,6 +52,15 @@
                             <div class="form-text">@Localizer["Email.DayFilterHelp"]</div>
                         </div>
 
+                        <!-- Week filter (independent of the day filter — pick either, or neither for everyone) -->
+                        <div class="mb-3" id="weekFilterBlock">
+                            <label for="SelectedWeekNumber" class="form-label">@Localizer["Email.ScheduledForWeek"]</label>
+                            <select asp-for="SelectedWeekNumber" asp-items="Model.WeekOptions" class="form-select" id="SelectedWeekNumber">
+                                <option value="">@Localizer["Email.AllDays"]</option>
+                            </select>
+                            <div class="form-text">@Localizer["Email.WeekFilterHelp"]</div>
+                        </div>
+
                         <!-- Custom contacts picker (shown only for the "custom contacts" recipient) -->
                         <div class="mb-3 d-none" id="customContactsBlock">
                             <label class="form-label">@Localizer["Email.SelectContacts"]</label>
@@ -250,6 +259,7 @@
             // Initialize Choices.js on select elements
             CedevaChoices.init('#SelectedRecipient');
             CedevaChoices.init('#SelectedDayId');
+            CedevaChoices.init('#SelectedWeekNumber');
             CedevaChoices.init('#templateSelect');
 
             // Show the custom-contacts picker (and hide the day/per-child options that don't apply)

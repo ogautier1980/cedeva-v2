@@ -207,6 +207,71 @@ public class ActivityManagementControllerIntegrationTests
     }
 
     [Fact]
+    public async Task ConfirmBooking_WithAdjustedTotalAmount_UpdatesTotalAndRecalculatesStatus()
+    {
+        using var factory = new CedevaWebApplicationFactory();
+        int orgId = 0, bookingId = 0;
+        factory.Seed(ctx =>
+        {
+            var org = TestData.Organisation();
+            var activity = TestData.Activity(org);
+            var parent = TestData.Parent(org);
+            var child = TestData.Child(parent);
+            var booking = TestData.Booking(child, activity, null, totalAmount: 100m, paidAmount: 40m);
+            booking.IsConfirmed = false;
+            booking.PaymentStatus = Cedeva.Core.Enums.PaymentStatus.PartiallyPaid;
+            ctx.AddRange(org, activity, parent, child, booking);
+            ctx.SaveChanges();
+            orgId = org.Id;
+            bookingId = booking.Id;
+            return 0;
+        });
+
+        var client = factory.CreateClientFor("u1", organisationId: orgId, role: "Coordinator");
+        // Coordinator grants a discount: 40 paid on a now-40 total => fully paid.
+        var response = await client.PostAsJsonAsync("/ActivityManagement/ConfirmBooking",
+            new { BookingId = bookingId, AdjustedTotalAmount = 40m });
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        using var db = factory.NewDbContext();
+        var saved = await db.Bookings.IgnoreQueryFilters().FirstAsync(b => b.Id == bookingId);
+        saved.IsConfirmed.Should().BeTrue();
+        saved.TotalAmount.Should().Be(40m);
+        saved.PaymentStatus.Should().Be(Cedeva.Core.Enums.PaymentStatus.Paid);
+    }
+
+    [Fact]
+    public async Task ConfirmBooking_WithoutAdjustedTotalAmount_LeavesTotalUnchanged()
+    {
+        using var factory = new CedevaWebApplicationFactory();
+        int orgId = 0, bookingId = 0;
+        factory.Seed(ctx =>
+        {
+            var org = TestData.Organisation();
+            var activity = TestData.Activity(org);
+            var parent = TestData.Parent(org);
+            var child = TestData.Child(parent);
+            var booking = TestData.Booking(child, activity, null, totalAmount: 100m, paidAmount: 100m);
+            booking.IsConfirmed = false;
+            ctx.AddRange(org, activity, parent, child, booking);
+            ctx.SaveChanges();
+            orgId = org.Id;
+            bookingId = booking.Id;
+            return 0;
+        });
+
+        var client = factory.CreateClientFor("u1", organisationId: orgId, role: "Coordinator");
+        var response = await client.PostAsJsonAsync("/ActivityManagement/ConfirmBooking", new { BookingId = bookingId });
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        using var db = factory.NewDbContext();
+        var saved = await db.Bookings.IgnoreQueryFilters().FirstAsync(b => b.Id == bookingId);
+        saved.TotalAmount.Should().Be(100m);
+    }
+
+    [Fact]
     public async Task ConfirmBooking_WithBalanceDue_SendsPaymentLinkEmail()
     {
         var fake = new TestSupport.FakeEmailService();

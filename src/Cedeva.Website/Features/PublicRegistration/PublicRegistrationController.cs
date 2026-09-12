@@ -62,6 +62,30 @@ public class PublicRegistrationController : Controller
         return count >= activity.MaxChildrenPerDay.Value;
     }
 
+    // Lot K #4: caps registrations by the child's birth year. Enforced per activity (not per
+    // week): a booking always reserves all of the activity's active days at once (no
+    // partial-week registration exists today), so a per-activity cap already behaves as "per
+    // week" in the common case where one activity = one week of camp.
+    private async Task<string?> CheckBirthYearQuotaAsync(int activityId, DateTime childBirthDate)
+    {
+        var birthYear = childBirthDate.Year;
+        var quota = await _context.ActivityBirthYearQuotas
+            .IgnoreQueryFilters()
+            .FirstOrDefaultAsync(q => q.ActivityId == activityId && q.BirthYear == birthYear);
+
+        if (quota == null) return null;
+
+        var count = await _context.Bookings.IgnoreQueryFilters()
+            .CountAsync(b => b.ActivityId == activityId && b.Child.BirthDate.Year == birthYear);
+
+        if (count < quota.MaxChildren) return null;
+
+        var activity = await _context.Activities.IgnoreQueryFilters().FirstOrDefaultAsync(a => a.Id == activityId);
+        return !string.IsNullOrWhiteSpace(activity?.BirthYearQuotaExceededMessage)
+            ? activity.BirthYearQuotaExceededMessage
+            : _localizer["PublicRegistration.BirthYearQuotaExceeded"].Value;
+    }
+
     // GET: PublicRegistration/SelectActivity?orgId=1
     [AllowAnonymous]
     public async Task<IActionResult> SelectActivity(int orgId)
@@ -353,6 +377,18 @@ public class PublicRegistrationController : Controller
             return RedirectToAction(nameof(SelectActivity), new { orgId = organisationId });
         }
 
+        var childForQuota = await _context.Children.IgnoreQueryFilters().FirstOrDefaultAsync(c => c.Id == childId);
+        if (childForQuota != null)
+        {
+            var birthYearQuotaMessage = await CheckBirthYearQuotaAsync(activityId, childForQuota.BirthDate);
+            if (birthYearQuotaMessage != null)
+            {
+                TempData["ErrorMessage"] = birthYearQuotaMessage;
+                TempData[TempDataOrganisationId] = organisationId;
+                return RedirectToAction(nameof(SelectActivity), new { orgId = organisationId });
+            }
+        }
+
         var booking = await CreateBookingWithDaysAsync(activityId, childId);
         await SaveBookingAnswersFromTempDataAsync(booking.Id);
 
@@ -480,11 +516,11 @@ public class PublicRegistrationController : Controller
             // Prefer the org's BookingConfirmation template; fall back to the built-in message.
             var sent = organisation != null && fullBooking != null && await _emailServices.SendBookingTemplateAsync(
                 EmailTemplateType.BookingConfirmation, activity.OrganisationId,
-                new[] { parent.Email }, fullBooking, organisation);
+                parent.GetEmailAddresses().ToArray(), fullBooking, organisation);
 
             if (!sent)
             {
-                await _emailService.SendEmailAsync(parent.Email, subject, body);
+                await _emailService.SendEmailAsync(parent.GetEmailAddresses(), subject, body);
             }
 
             // Notify the organisation of the new registration (separate, also non-fatal).
@@ -625,6 +661,16 @@ public class PublicRegistrationController : Controller
         if (await IsActivityFullAsync(activityEntity))
         {
             ModelState.AddModelError("", activityEntity.FullMessage ?? _localizer["PublicRegistration.ActivityFull"].Value);
+            await ReloadModelWithActivityInfoAsync(model);
+            ViewBag.Questions = questions;
+            ViewBag.BackgroundColor = bg ?? "ffffff";
+            return View(model);
+        }
+
+        var birthYearQuotaMessage = await CheckBirthYearQuotaAsync(model.ActivityId, model.ChildBirthDate);
+        if (birthYearQuotaMessage != null)
+        {
+            ModelState.AddModelError("", birthYearQuotaMessage);
             await ReloadModelWithActivityInfoAsync(model);
             ViewBag.Questions = questions;
             ViewBag.BackgroundColor = bg ?? "ffffff";

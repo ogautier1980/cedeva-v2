@@ -18,13 +18,13 @@ public class EmailRecipientServiceTests
 
         var org = TestData.Organisation();
         var activity = TestData.Activity(org);
-        var day1 = new ActivityDay { Label = "J1", DayDate = new DateTime(2026, 7, 6), IsActive = true };
+        var day1 = new ActivityDay { Label = "J1", DayDate = new DateTime(2026, 7, 6), IsActive = true, Week = 1 };
         activity.Days.Add(day1);
         var g1 = TestData.Group(activity, "G1");
         var g2 = TestData.Group(activity, "G2");
 
-        // Parent P: confirmed, group G1, HAS medical sheet, reserved on day1
-        var p = TestData.Parent(org); p.Email = "p@x.be";
+        // Parent P: confirmed, group G1, HAS medical sheet, reserved on day1, has a 2nd e-mail
+        var p = TestData.Parent(org); p.Email = "p@x.be"; p.SecondaryEmail = "p2@x.be";
         var bP = TestData.Booking(TestData.Child(p), activity, g1, 100m, 0m);
         bP.IsMedicalSheet = true;
         bP.Days.Add(new BookingDay { ActivityDay = day1, IsReserved = true });
@@ -66,7 +66,8 @@ public class EmailRecipientServiceTests
 
         var emails = await Sut(s.Db).GetRecipientEmailsAsync(s.ActivityId, "allparents");
 
-        emails.Should().BeEquivalentTo(new[] { "p@x.be", "q@x.be", "r@x.be" }); // S unconfirmed; R once
+        // P has a 2nd address (p2@x.be) -> included alongside the primary one.
+        emails.Should().BeEquivalentTo(new[] { "p@x.be", "p2@x.be", "q@x.be", "r@x.be" }); // S unconfirmed; R once
     }
 
     [Fact]
@@ -88,7 +89,7 @@ public class EmailRecipientServiceTests
 
         var emails = await Sut(s.Db).GetRecipientEmailsAsync(s.ActivityId, "group_x", recipientGroupId: s.GroupG1Id);
 
-        emails.Should().BeEquivalentTo(new[] { "p@x.be", "r@x.be" }); // Q is in G2 -> excluded
+        emails.Should().BeEquivalentTo(new[] { "p@x.be", "p2@x.be", "r@x.be" }); // Q is in G2 -> excluded
     }
 
     [Fact]
@@ -99,6 +100,28 @@ public class EmailRecipientServiceTests
 
         var emails = await Sut(s.Db).GetRecipientEmailsAsync(s.ActivityId, "allparents", scheduledDayId: s.DayId);
 
-        emails.Should().BeEquivalentTo(new[] { "p@x.be", "r@x.be" }); // Q not reserved; R2 has no day
+        emails.Should().BeEquivalentTo(new[] { "p@x.be", "p2@x.be", "r@x.be" }); // Q not reserved; R2 has no day
+    }
+
+    [Fact]
+    public async Task WeekFilter_ReturnsOnlyParentsReservedThatWeek()
+    {
+        var s = Seed();
+        using var _ = s.Db;
+
+        var emails = await Sut(s.Db).GetRecipientEmailsAsync(s.ActivityId, "allparents", weekNumber: 1);
+
+        emails.Should().BeEquivalentTo(new[] { "p@x.be", "p2@x.be", "r@x.be" }); // Q not reserved; R2 has no day
+    }
+
+    [Fact]
+    public async Task WeekFilter_NoBookingInThatWeek_ReturnsEmpty()
+    {
+        var s = Seed();
+        using var _ = s.Db;
+
+        var emails = await Sut(s.Db).GetRecipientEmailsAsync(s.ActivityId, "allparents", weekNumber: 2);
+
+        emails.Should().BeEmpty();
     }
 }

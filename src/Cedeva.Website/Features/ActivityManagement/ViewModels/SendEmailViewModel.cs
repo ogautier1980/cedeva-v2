@@ -15,6 +15,9 @@ public class SendEmailViewModel
     [Display(Name = "Email.ScheduledForDay")]
     public int? SelectedDayId { get; set; }
 
+    [Display(Name = "Email.ScheduledForWeek")]
+    public int? SelectedWeekNumber { get; set; }
+
     [Required(ErrorMessage = "Validation.Required")]
     [StringLength(255, ErrorMessage = "Validation.StringLength")]
     [Display(Name = "Field.Subject")]
@@ -33,6 +36,7 @@ public class SendEmailViewModel
 
     public List<SelectListItem> RecipientOptions { get; set; } = new();
     public List<SelectListItem> DayOptions { get; set; } = new();
+    public List<SelectListItem> WeekOptions { get; set; } = new();
 
     /// <summary>When arriving from "Envoyer" on the EmailTemplates list, pre-selects and auto-loads this template.</summary>
     public int? PreselectedTemplateId { get; set; }

@@ -58,6 +58,12 @@
                             <span asp-validation-for="Email" class="text-danger"></span>
                         </div>
 
+                        <div class="mb-3">
+                            <label for="SecondaryEmail" class="form-label">@Localizer["Field.SecondaryEmail"]</label>
+                            <input asp-for="SecondaryEmail" type="email" class="form-control" id="SecondaryEmail" />
+                            <span asp-validation-for="SecondaryEmail" class="text-danger"></span>
+                        </div>
+
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label for="MobilePhoneNumber" class="form-label">@Localizer["Field.MobilePhoneNumber"]</label>

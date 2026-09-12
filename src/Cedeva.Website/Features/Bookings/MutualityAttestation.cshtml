@@ -1,0 +1,80 @@
+@model Cedeva.Website.Features.Bookings.ViewModels.MutualityAttestationViewModel
+@{
+    ViewData["Title"] = Localizer["Bookings.MutualityAttestation"];
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8" />
+    <title>@ViewData["Title"] - @Model.ChildFirstName @Model.ChildLastName</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <style>
+        body { padding: 2rem; }
+        .attestation-container { max-width: 800px; margin: 0 auto; }
+        .attestation-logo { max-height: 90px; max-width: 220px; }
+        .section-box { border: 1px solid #333; padding: 1rem 1.25rem; margin-bottom: 1.25rem; }
+        .section-title { font-weight: bold; margin-bottom: 0.75rem; }
+        .signature-zone { margin-top: 3rem; }
+        @@media print {
+            .no-print { display: none !important; }
+            body { padding: 0; }
+        }
+    </style>
+</head>
+<body>
+    <div class="attestation-container">
+        <div class="no-print text-end mb-3">
+            <button class="btn btn-primary" onclick="window.print()">
+                <i class="fas fa-print"></i> @Localizer["Button.Print"]
+            </button>
+        </div>
+
+        @if (!string.IsNullOrWhiteSpace(Model.OrganisationLogoUrl))
+        {
+            <img src="@Model.OrganisationLogoUrl" alt="@Model.OrganisationName" class="attestation-logo mb-3" />
+        }
+
+        <h2 class="text-center mb-2">@Localizer["Bookings.MutualityAttestation"]</h2>
+        <p class="text-center text-muted mb-4">@Localizer["Bookings.MutualityAttestationSubtitle", Model.OrganisationName]</p>
+
+        <p>@Localizer["Bookings.MutualityAttestationIntro"]</p>
+
+        <div class="section-box">
+            <div class="section-title">1. @Localizer["Bookings.MutualityAttestationOrganiser"]</div>
+            <p class="mb-1"><strong>@Model.OrganisationName</strong></p>
+            @if (!string.IsNullOrWhiteSpace(Model.ResponsibleName))
+            {
+                <p class="mb-1">@Localizer["Field.ResponsibleName"]: @Model.ResponsibleName</p>
+            }
+            @if (!string.IsNullOrWhiteSpace(Model.OrganisationAddress))
+            {
+                <p class="mb-0">@Localizer["Address"]: @Model.OrganisationAddress</p>
+            }
+        </div>
+
+        <div class="section-box">
+            <div class="section-title">2. @Localizer["Bookings.MutualityAttestationChild"]</div>
+            <p class="mb-1">@Localizer["Field.LastName"]: @Model.ChildLastName</p>
+            <p class="mb-1">@Localizer["Field.FirstName"]: @Model.ChildFirstName</p>
+            <p class="mb-0">@Localizer["Field.BirthDate"]: @Model.ChildBirthDate.ToString("dd-MM-yyyy")</p>
+        </div>
+
+        <div class="section-box">
+            <div class="section-title">3. @Localizer["Bookings.MutualityAttestationActivityInfo"]</div>
+            <p class="mb-1">@Localizer["Bookings.MutualityAttestationActivityName"]: @Model.ActivityName</p>
+            <p class="mb-1">@Localizer["Bookings.MutualityAttestationPeriod"]: @Model.ActivityStartDate.ToString("dd-MM-yyyy") - @Model.ActivityEndDate.ToString("dd-MM-yyyy")</p>
+            <p class="mb-1">@Localizer["Bookings.MutualityAttestationDaysAttended"]: @Model.DaysAttended</p>
+            <p class="mb-0">@Localizer["Bookings.MutualityAttestationAmountReceived"]: @Model.AmountPaid.ToString("C", new System.Globalization.CultureInfo("fr-BE"))</p>
+        </div>
+
+        <div class="section-box">
+            <div class="section-title">4. @Localizer["Bookings.MutualityAttestationStampAndSignature"]</div>
+            <p class="mb-0">@Localizer["Bookings.MutualityAttestationIssuedOn"]: @Model.IssuedDate.ToString("dd-MM-yyyy")</p>
+            <div class="signature-zone"></div>
+        </div>
+    </div>
+</body>
+</html>

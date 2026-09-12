@@ -80,6 +80,13 @@
                             <small class="form-text text-muted">@Localizer["Field.BankAccountNameHelp"]</small>
                         </div>
 
+                        <div class="mb-3">
+                            <label for="ResponsibleName" class="form-label">@Localizer["Field.ResponsibleName"]</label>
+                            <input asp-for="ResponsibleName" class="form-control" id="ResponsibleName" />
+                            <span asp-validation-for="ResponsibleName" class="text-danger"></span>
+                            <small class="form-text text-muted">@Localizer["Field.ResponsibleNameHelp"]</small>
+                        </div>
+
                         <hr />
 
                         <div class="d-flex justify-content-between">

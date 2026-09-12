@@ -1,4 +1,6 @@
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 
 using Cedeva.Core.Interfaces;
 
@@ -21,6 +23,12 @@ public class Parent : AuditableEntity, IOrganisationScoped
     [EmailAddress]
     public string Email { get; set; } = string.Empty;
 
+    /// <summary>Optional second parent/guardian e-mail — also included as a recipient wherever
+    /// the app e-mails the family (custom sends, confirmations, reminders).</summary>
+    [StringLength(100, ErrorMessage = "Validation.StringLength")]
+    [EmailAddress(ErrorMessage = "Validation.InvalidEmail")]
+    public string? SecondaryEmail { get; set; }
+
     public int AddressId { get; set; }
     public Address Address { get; set; } = null!;
 
@@ -41,4 +49,12 @@ public class Parent : AuditableEntity, IOrganisationScoped
     public ICollection<Child> Children { get; set; } = new List<Child>();
 
     public string FullName => $"{LastName}, {FirstName}";
+
+    /// <summary>Both e-mail addresses (primary + optional secondary), non-empty and de-duplicated —
+    /// the single place every mail-sending code path should read recipients from.</summary>
+    public IEnumerable<string> GetEmailAddresses() =>
+        new[] { Email, SecondaryEmail }
+            .Where(e => !string.IsNullOrWhiteSpace(e))
+            .Select(e => e!)
+            .Distinct();
 }

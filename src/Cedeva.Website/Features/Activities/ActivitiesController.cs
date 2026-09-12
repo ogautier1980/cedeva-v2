@@ -222,6 +222,7 @@ public class ActivitiesController : Controller
             Description = viewModel.Description,
             IsActive = viewModel.IsActive,
             PricePerDay = viewModel.PricePerDay,
+            ChildcarePricePerDay = viewModel.ChildcarePricePerDay,
             StartDate = viewModel.StartDate,
             EndDate = viewModel.EndDate,
             IncludedPostalCodes = viewModel.IncludedPostalCodes,
@@ -384,6 +385,7 @@ public class ActivitiesController : Controller
         activity.Description = viewModel.Description;
         activity.IsActive = viewModel.IsActive;
         activity.PricePerDay = viewModel.PricePerDay;
+        activity.ChildcarePricePerDay = viewModel.ChildcarePricePerDay;
 
         // Handle date changes and generate/remove days if needed
         var oldStartDate = activity.StartDate;
@@ -594,6 +596,7 @@ public class ActivitiesController : Controller
             Description = activity.Description,
             IsActive = activity.IsActive,
             PricePerDay = activity.PricePerDay,
+            ChildcarePricePerDay = activity.ChildcarePricePerDay,
             StartDate = activity.StartDate,
             EndDate = activity.EndDate,
             IncludedPostalCodes = activity.IncludedPostalCodes,

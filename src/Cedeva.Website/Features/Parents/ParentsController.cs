@@ -262,6 +262,7 @@ public class ParentsController : Controller
             FirstName = viewModel.FirstName,
             LastName = viewModel.LastName,
             Email = viewModel.Email,
+            SecondaryEmail = viewModel.SecondaryEmail,
             PhoneNumber = viewModel.PhoneNumber,
             MobilePhoneNumber = viewModel.MobilePhoneNumber,
             NationalRegisterNumber = NationalRegisterNumberHelper.StripFormatting(viewModel.NationalRegisterNumber),
@@ -311,6 +312,7 @@ public class ParentsController : Controller
             FirstName = viewModel.FirstName,
             LastName = viewModel.LastName,
             Email = viewModel.Email,
+            SecondaryEmail = viewModel.SecondaryEmail,
             PhoneNumber = viewModel.PhoneNumber,
             MobilePhoneNumber = viewModel.MobilePhoneNumber,
             NationalRegisterNumber = NationalRegisterNumberHelper.StripFormatting(viewModel.NationalRegisterNumber),
@@ -387,6 +389,7 @@ public class ParentsController : Controller
         parent.FirstName = viewModel.FirstName;
         parent.LastName = viewModel.LastName;
         parent.Email = viewModel.Email;
+        parent.SecondaryEmail = viewModel.SecondaryEmail;
         parent.PhoneNumber = viewModel.PhoneNumber;
         parent.MobilePhoneNumber = viewModel.MobilePhoneNumber;
         parent.NationalRegisterNumber = NationalRegisterNumberHelper.StripFormatting(viewModel.NationalRegisterNumber);
@@ -518,6 +521,7 @@ public class ParentsController : Controller
             FirstName = parent.FirstName,
             LastName = parent.LastName,
             Email = parent.Email,
+            SecondaryEmail = parent.SecondaryEmail,
             PhoneNumber = parent.PhoneNumber,
             MobilePhoneNumber = parent.MobilePhoneNumber,
             NationalRegisterNumber = NationalRegisterNumberHelper.Format(parent.NationalRegisterNumber),
