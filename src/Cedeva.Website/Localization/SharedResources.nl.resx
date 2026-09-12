@@ -3154,6 +3154,18 @@
   <data name="PublicRegistration.BirthYearQuotaExceeded" xml:space="preserve">
     <value>Het maximum aantal kinderen geboren dat jaar is bereikt voor deze activiteit.</value>
   </data>
+  <data name="PublicRegistration.SelectWeeks" xml:space="preserve">
+    <value>Selecteer de gewenste week(en)</value>
+  </data>
+  <data name="PublicRegistration.WeekLabel" xml:space="preserve">
+    <value>Week {0}</value>
+  </data>
+  <data name="PublicRegistration.SelectAtLeastOneWeek" xml:space="preserve">
+    <value>Selecteer minstens één week.</value>
+  </data>
+  <data name="PublicRegistration.EstimatedTotal" xml:space="preserve">
+    <value>Geschat bedrag</value>
+  </data>
   <data name="PublicRegistration.ActivityQuestionsLead" xml:space="preserve">
     <value>Beantwoord de volgende vragen over de activiteit.</value>
   </data>

@@ -23,6 +23,7 @@ public class PublicRegistrationController : Controller
     private const string TempDataParentId = "ParentId";
     private const string TempDataChildId = "ChildId";
     private const string TempDataQuestionAnswers = "QuestionAnswers";
+    private const string TempDataSelectedWeeks = "SelectedWeeks";
 
     private readonly CedevaDbContext _context;
     private readonly IEmailService _emailService;
@@ -62,10 +63,11 @@ public class PublicRegistrationController : Controller
         return count >= activity.MaxChildrenPerDay.Value;
     }
 
-    // Lot K #4: caps registrations by the child's birth year. Enforced per activity (not per
-    // week): a booking always reserves all of the activity's active days at once (no
-    // partial-week registration exists today), so a per-activity cap already behaves as "per
-    // week" in the common case where one activity = one week of camp.
+    // Lot K #4: caps registrations by the child's birth year. Enforced per activity, counting
+    // every booking on it regardless of which week(s) it actually reserves — a child registering
+    // for just one week of a multi-week activity still counts against the same quota as one
+    // registering for another week. Known granularity gap, not addressed by the week-selection
+    // feature below (out of scope for that change).
     private async Task<string?> CheckBirthYearQuotaAsync(int activityId, DateTime childBirthDate)
     {
         var birthYear = childBirthDate.Year;
@@ -84,6 +86,33 @@ public class PublicRegistrationController : Controller
         return !string.IsNullOrWhiteSpace(activity?.BirthYearQuotaExceededMessage)
             ? activity.BirthYearQuotaExceededMessage
             : _localizer["PublicRegistration.BirthYearQuotaExceeded"].Value;
+    }
+
+    // Groups an activity's active days by week for the public form's week picker — a multi-week
+    // activity lets a parent register for one or more specific weeks instead of the whole thing.
+    private static List<ActivityWeekOption> BuildWeekOptions(List<ActivityDay> activeDays) =>
+        activeDays
+            .GroupBy(d => d.Week ?? 1)
+            .OrderBy(g => g.Key)
+            .Select(g => new ActivityWeekOption
+            {
+                WeekNumber = g.Key,
+                StartDate = g.Min(d => d.DayDate),
+                EndDate = g.Max(d => d.DayDate),
+                DayIds = g.Select(d => d.DayId).ToList()
+            })
+            .ToList();
+
+    // Resolves which ActivityDay ids a booking should reserve: all of them if the activity has a
+    // single week (nothing to choose) or the parent picked none, otherwise just the selected weeks'.
+    private static List<int> ResolveSelectedDayIds(List<ActivityWeekOption> weekOptions, List<int>? selectedWeeks)
+    {
+        if (weekOptions.Count <= 1 || selectedWeeks == null || selectedWeeks.Count == 0)
+        {
+            return weekOptions.SelectMany(w => w.DayIds).ToList();
+        }
+
+        return weekOptions.Where(w => selectedWeeks.Contains(w.WeekNumber)).SelectMany(w => w.DayIds).ToList();
     }
 
     // GET: PublicRegistration/SelectActivity?orgId=1
@@ -279,6 +308,11 @@ public class PublicRegistrationController : Controller
             .OrderBy(q => q.DisplayOrder)
             .ToListAsync();
 
+        var activeDays = await _context.ActivityDays
+            .Where(d => d.ActivityId == activityId && d.IsActive)
+            .ToListAsync();
+        var weekOptions = BuildWeekOptions(activeDays);
+
         var viewModel = new ActivityQuestionsViewModel
         {
             ActivityId = activityId,
@@ -286,16 +320,19 @@ public class PublicRegistrationController : Controller
             ChildId = (int)TempData[TempDataChildId]!,
             Questions = questions,
             RegulationLinkUrl = activity?.RegulationLinkUrl,
-            RegulationAcceptanceText = activity?.RegulationAcceptanceText
+            RegulationAcceptanceText = activity?.RegulationAcceptanceText,
+            PricePerDay = activity?.PricePerDay
         };
+
+        ViewBag.Weeks = weekOptions;
 
         TempData.Keep(TempDataActivityId);
         TempData.Keep(TempDataParentId);
         TempData.Keep(TempDataChildId);
         TempData.Keep(TempDataOrganisationId);
 
-        // If no questions and no règlement to accept, skip straight to booking creation.
-        if (!questions.Any() && string.IsNullOrWhiteSpace(activity?.RegulationLinkUrl))
+        // If no questions, no règlement to accept, and no week to choose, skip straight to booking creation.
+        if (!questions.Any() && string.IsNullOrWhiteSpace(activity?.RegulationLinkUrl) && weekOptions.Count <= 1)
         {
             return RedirectToAction(nameof(CreateBooking));
         }
@@ -330,6 +367,16 @@ public class PublicRegistrationController : Controller
             ModelState.AddModelError("", _localizer["Validation.Required"].Value);
         }
 
+        var activeDays = await _context.ActivityDays
+            .Where(d => d.ActivityId == model.ActivityId && d.IsActive)
+            .ToListAsync();
+        var weekOptions = BuildWeekOptions(activeDays);
+
+        if (weekOptions.Count > 1 && model.SelectedWeeks.Count == 0)
+        {
+            ModelState.AddModelError(nameof(model.SelectedWeeks), _localizer["PublicRegistration.SelectAtLeastOneWeek"].Value);
+        }
+
         if (!ModelState.IsValid)
         {
             model.Questions = await _context.ActivityQuestions
@@ -338,11 +385,14 @@ public class PublicRegistrationController : Controller
                 .ToListAsync();
             model.RegulationLinkUrl = activity?.RegulationLinkUrl;
             model.RegulationAcceptanceText = activity?.RegulationAcceptanceText;
+            model.PricePerDay = activity?.PricePerDay;
+            ViewBag.Weeks = weekOptions;
             return View(model);
         }
 
-        // Store answers in TempData
+        // Store answers and selected weeks in TempData
         TempData[TempDataQuestionAnswers] = JsonSerializer.Serialize(model.Answers);
+        TempData[TempDataSelectedWeeks] = JsonSerializer.Serialize(model.SelectedWeeks);
         TempData.Keep(TempDataActivityId);
         TempData.Keep(TempDataParentId);
         TempData.Keep(TempDataChildId);
@@ -389,7 +439,11 @@ public class PublicRegistrationController : Controller
             }
         }
 
-        var booking = await CreateBookingWithDaysAsync(activityId, childId);
+        var selectedWeeks = TempData[TempDataSelectedWeeks] is string selectedWeeksJson
+            ? JsonSerializer.Deserialize<List<int>>(selectedWeeksJson)
+            : null;
+
+        var booking = await CreateBookingWithDaysAsync(activityId, childId, selectedWeeks);
         await SaveBookingAnswersFromTempDataAsync(booking.Id);
 
         // Anonymous flow: FindAsync honours the tenancy filter (returns null with no user), so
@@ -408,11 +462,13 @@ public class PublicRegistrationController : Controller
         return RedirectToAction(nameof(Confirmation), new { bookingId = booking.Id });
     }
 
-    private async Task<Booking> CreateBookingWithDaysAsync(int activityId, int childId)
+    private async Task<Booking> CreateBookingWithDaysAsync(int activityId, int childId, List<int>? selectedWeeks)
     {
         var activeDays = await _context.ActivityDays
             .Where(d => d.ActivityId == activityId && d.IsActive)
             .ToListAsync();
+        var weekOptions = BuildWeekOptions(activeDays);
+        var selectedDayIds = ResolveSelectedDayIds(weekOptions, selectedWeeks);
 
         var activity = await _context.Activities
             .IgnoreQueryFilters()
@@ -425,14 +481,14 @@ public class PublicRegistrationController : Controller
             BookingDate = DateTime.Now,
             IsConfirmed = false,
             IsMedicalSheet = false,
-            // Amount due = price per day × reserved days, so online payment can be offered.
-            TotalAmount = (activity?.PricePerDay ?? 0m) * activeDays.Count
+            // Amount due = price per day × the selected week(s)' days only, so online payment can be offered.
+            TotalAmount = (activity?.PricePerDay ?? 0m) * selectedDayIds.Count
         };
         _context.Bookings.Add(booking);
         await _context.SaveChangesAsync();
 
-        foreach (var day in activeDays)
-            _context.BookingDays.Add(new BookingDay { BookingId = booking.Id, ActivityDayId = day.DayId, IsReserved = true, IsPresent = false });
+        foreach (var dayId in selectedDayIds)
+            _context.BookingDays.Add(new BookingDay { BookingId = booking.Id, ActivityDayId = dayId, IsReserved = true, IsPresent = false });
         await _context.SaveChangesAsync();
         return booking;
     }
@@ -604,6 +660,10 @@ public class PublicRegistrationController : Controller
             .OrderBy(q => q.DisplayOrder)
             .ToListAsync();
 
+        var activeDays = await _context.ActivityDays
+            .Where(d => d.ActivityId == activityId && d.IsActive)
+            .ToListAsync();
+
         var viewModel = new SimpleRegistrationViewModel
         {
             ActivityId = activityId,
@@ -617,6 +677,7 @@ public class PublicRegistrationController : Controller
         };
 
         ViewBag.Questions = questions;
+        ViewBag.Weeks = BuildWeekOptions(activeDays);
         ViewBag.BackgroundColor = bg ?? "ffffff";
 
         return View(viewModel);
@@ -643,6 +704,11 @@ public class PublicRegistrationController : Controller
             .Where(q => q.ActivityId == model.ActivityId)
             .ToListAsync();
 
+        var activeDays = await _context.ActivityDays
+            .Where(d => d.ActivityId == model.ActivityId && d.IsActive)
+            .ToListAsync();
+        var weekOptions = BuildWeekOptions(activeDays);
+
         ValidateRequiredQuestions(questions, model);
 
         if (!string.IsNullOrWhiteSpace(activityEntity.RegulationLinkUrl) && !model.AcceptRegulation)
@@ -650,10 +716,16 @@ public class PublicRegistrationController : Controller
             ModelState.AddModelError(nameof(model.AcceptRegulation), _localizer["Validation.Required"].Value);
         }
 
+        if (weekOptions.Count > 1 && model.SelectedWeeks.Count == 0)
+        {
+            ModelState.AddModelError(nameof(model.SelectedWeeks), _localizer["PublicRegistration.SelectAtLeastOneWeek"].Value);
+        }
+
         if (!ModelState.IsValid)
         {
             await ReloadModelWithActivityInfoAsync(model);
             ViewBag.Questions = questions;
+            ViewBag.Weeks = BuildWeekOptions(activeDays);
             ViewBag.BackgroundColor = bg ?? "ffffff";
             return View(model);
         }
@@ -663,6 +735,7 @@ public class PublicRegistrationController : Controller
             ModelState.AddModelError("", activityEntity.FullMessage ?? _localizer["PublicRegistration.ActivityFull"].Value);
             await ReloadModelWithActivityInfoAsync(model);
             ViewBag.Questions = questions;
+            ViewBag.Weeks = BuildWeekOptions(activeDays);
             ViewBag.BackgroundColor = bg ?? "ffffff";
             return View(model);
         }
@@ -673,6 +746,7 @@ public class PublicRegistrationController : Controller
             ModelState.AddModelError("", birthYearQuotaMessage);
             await ReloadModelWithActivityInfoAsync(model);
             ViewBag.Questions = questions;
+            ViewBag.Weeks = BuildWeekOptions(activeDays);
             ViewBag.BackgroundColor = bg ?? "ffffff";
             return View(model);
         }
@@ -690,12 +764,14 @@ public class PublicRegistrationController : Controller
             ModelState.AddModelError("", _localizer["Message.BookingAlreadyExists"]);
             await ReloadModelWithActivityInfoAsync(model);
             ViewBag.Questions = questions;
+            ViewBag.Weeks = BuildWeekOptions(activeDays);
             ViewBag.BackgroundColor = bg ?? "ffffff";
             return View(model);
         }
 
-        // Create booking with answers
-        var bookingId = await CreateBookingWithAnswersAsync(model, childId);
+        // Create booking with answers, reserving only the selected week(s)' days
+        var selectedDayIds = ResolveSelectedDayIds(weekOptions, model.SelectedWeeks);
+        var bookingId = await CreateBookingWithAnswersAsync(model, childId, selectedDayIds);
 
         // Send confirmation email (anonymous flow: bypass tenancy filter to load parent/child)
         var parent = await _context.Parents.IgnoreQueryFilters().FirstOrDefaultAsync(p => p.Id == parentId);
@@ -862,17 +938,12 @@ public class PublicRegistrationController : Controller
         }
     }
 
-    private async Task<int> CreateBookingWithAnswersAsync(SimpleRegistrationViewModel model, int childId)
+    private async Task<int> CreateBookingWithAnswersAsync(SimpleRegistrationViewModel model, int childId, List<int> selectedDayIds)
     {
         // Anonymous flow: bypass the tenancy filter to read the activity's price.
         var activity = await _context.Activities
             .IgnoreQueryFilters()
             .FirstOrDefaultAsync(a => a.Id == model.ActivityId);
-
-        // The simple iframe registers the child for the whole activity (all active days).
-        var activeDays = await _context.ActivityDays
-            .Where(d => d.ActivityId == model.ActivityId && d.IsActive)
-            .ToListAsync();
 
         var booking = new Booking
         {
@@ -881,20 +952,20 @@ public class PublicRegistrationController : Controller
             BookingDate = DateTime.Now,
             IsConfirmed = false,
             IsMedicalSheet = false,
-            // Compute the amount due so the public confirmation page can offer online payment.
-            TotalAmount = (activity?.PricePerDay ?? 0m) * activeDays.Count
+            // Amount due = price per day × the selected week(s)' days only, not the whole activity.
+            TotalAmount = (activity?.PricePerDay ?? 0m) * selectedDayIds.Count
         };
 
         _context.Bookings.Add(booking);
         await _context.SaveChangesAsync();
 
-        // Reserve the activity's active days for this booking (presence tracking + amount basis).
-        foreach (var day in activeDays)
+        // Reserve only the selected days for this booking (presence tracking + amount basis).
+        foreach (var dayId in selectedDayIds)
         {
             _context.BookingDays.Add(new BookingDay
             {
                 BookingId = booking.Id,
-                ActivityDayId = day.DayId,
+                ActivityDayId = dayId,
                 IsReserved = true,
                 IsPresent = false
             });

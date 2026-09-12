@@ -14,4 +14,9 @@ public class ActivityQuestionsViewModel
     public string? RegulationLinkUrl { get; set; }
     public string? RegulationAcceptanceText { get; set; }
     public bool AcceptRegulation { get; set; }
+
+    /// <summary>Weeks selected by the parent (week numbers). See <see cref="ActivityWeekOption"/>.</summary>
+    public List<int> SelectedWeeks { get; set; } = new();
+
+    public decimal? PricePerDay { get; set; }
 }

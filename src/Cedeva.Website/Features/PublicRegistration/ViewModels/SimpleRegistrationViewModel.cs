@@ -98,4 +98,11 @@ public class SimpleRegistrationViewModel
 
     // Custom questions
     public Dictionary<int, string> QuestionAnswers { get; set; } = new();
+
+    /// <summary>
+    /// Weeks selected by the parent (week numbers, matching ActivityWeekOption.WeekNumber). Only
+    /// meaningful when the activity spans more than one week — a single-week activity has nothing
+    /// to choose and reserves all of its active days regardless of this field.
+    /// </summary>
+    public List<int> SelectedWeeks { get; set; } = new();
 }

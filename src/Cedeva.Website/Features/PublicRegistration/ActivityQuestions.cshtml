@@ -3,6 +3,8 @@
 @{
     ViewData["Title"] = Localizer["PublicRegistration.Questions"];
     Layout = "~/Features/Shared/Layouts/_PublicLayout.cshtml";
+    var weeks = ViewBag.Weeks as List<Cedeva.Website.Features.PublicRegistration.ViewModels.ActivityWeekOption> ?? new();
+    var hasSubmittableContent = Model.Questions.Any() || !string.IsNullOrWhiteSpace(Model.RegulationLinkUrl) || weeks.Count > 1;
 }
 
 <div class="container py-5">
@@ -19,6 +21,30 @@
                         <input type="hidden" asp-for="ActivityId" />
                         <input type="hidden" asp-for="ParentId" />
                         <input type="hidden" asp-for="ChildId" />
+
+                        @if (weeks.Count > 1)
+                        {
+                            <div class="mb-4">
+                                <strong class="d-block mb-2"><i class="fas fa-calendar-week me-2"></i>@Localizer["PublicRegistration.SelectWeeks"]</strong>
+                                @foreach (var week in weeks)
+                                {
+                                    <div class="form-check">
+                                        <input type="checkbox" name="SelectedWeeks" value="@week.WeekNumber" class="form-check-input week-checkbox"
+                                               id="week_@week.WeekNumber" data-days="@week.DayIds.Count"
+                                               checked="@(Model.SelectedWeeks.Contains(week.WeekNumber))" />
+                                        <label class="form-check-label" for="week_@week.WeekNumber">
+                                            @Localizer["PublicRegistration.WeekLabel", week.WeekNumber]
+                                            (@week.StartDate.ToString("dd/MM") - @week.EndDate.ToString("dd/MM"))
+                                        </label>
+                                    </div>
+                                }
+                                <span asp-validation-for="SelectedWeeks" class="text-danger d-block"></span>
+                                @if (Model.PricePerDay.HasValue)
+                                {
+                                    <div class="mt-2 fw-semibold" id="weeksTotalAmount" style="display:none;"></div>
+                                }
+                            </div>
+                        }
 
                         @if (Model.Questions.Any())
                         {
@@ -129,41 +155,36 @@
                                     </div>
                                 </div>
                             }
+                        }
+                        else if (!string.IsNullOrWhiteSpace(Model.RegulationLinkUrl))
+                        {
+                            <div class="mb-3">
+                                <div class="form-check">
+                                    <input asp-for="AcceptRegulation" class="form-check-input" id="AcceptRegulation" />
+                                    <label class="form-check-label" for="AcceptRegulation">
+                                        @(string.IsNullOrWhiteSpace(Model.RegulationAcceptanceText) ? Localizer["Field.AcceptRegulation"].Value : Model.RegulationAcceptanceText)
+                                        <a href="@Model.RegulationLinkUrl" target="_blank" rel="noopener noreferrer">
+                                            <i class="fas fa-external-link-alt ms-1"></i>
+                                        </a>
+                                    </label>
+                                    <span asp-validation-for="AcceptRegulation" class="text-danger d-block"></span>
+                                </div>
+                            </div>
+                        }
+                        else if (weeks.Count <= 1)
+                        {
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle me-2"></i>@Localizer["PublicRegistration.NoQuestionsRequired"]
+                            </div>
+                        }
 
+                        @if (hasSubmittableContent)
+                        {
                             <div class="d-grid gap-2 mt-4">
                                 <button type="submit" class="btn btn-primary btn-lg">
                                     <i class="fas fa-check me-2"></i>@Localizer["PublicRegistration.FinalizeBooking"]
                                 </button>
                             </div>
-                        }
-                        else
-                        {
-                            @if (!string.IsNullOrWhiteSpace(Model.RegulationLinkUrl))
-                            {
-                                <div class="mb-3">
-                                    <div class="form-check">
-                                        <input asp-for="AcceptRegulation" class="form-check-input" id="AcceptRegulation" />
-                                        <label class="form-check-label" for="AcceptRegulation">
-                                            @(string.IsNullOrWhiteSpace(Model.RegulationAcceptanceText) ? Localizer["Field.AcceptRegulation"].Value : Model.RegulationAcceptanceText)
-                                            <a href="@Model.RegulationLinkUrl" target="_blank" rel="noopener noreferrer">
-                                                <i class="fas fa-external-link-alt ms-1"></i>
-                                            </a>
-                                        </label>
-                                        <span asp-validation-for="AcceptRegulation" class="text-danger d-block"></span>
-                                    </div>
-                                </div>
-                                <div class="d-grid gap-2">
-                                    <button type="submit" class="btn btn-primary btn-lg">
-                                        <i class="fas fa-check me-2"></i>@Localizer["PublicRegistration.FinalizeBooking"]
-                                    </button>
-                                </div>
-                            }
-                            else
-                            {
-                                <div class="alert alert-info">
-                                    <i class="fas fa-info-circle me-2"></i>@Localizer["PublicRegistration.NoQuestionsRequired"]
-                                </div>
-                            }
                         }
                     </form>
                 </div>
@@ -177,6 +198,24 @@
     <script>
         $(document).ready(function() {
             CedevaChoices.initAll('.form-select');
+
+            var pricePerDay = @Json.Serialize(Model.PricePerDay);
+            var estimatedTotalLabel = @Json.Serialize(Localizer["PublicRegistration.EstimatedTotal"].Value);
+            function updateWeeksTotal() {
+                if (!pricePerDay) return;
+                var totalDays = 0;
+                $('.week-checkbox:checked').each(function () {
+                    totalDays += parseInt($(this).data('days'), 10) || 0;
+                });
+                if (totalDays === 0) {
+                    $('#weeksTotalAmount').hide();
+                    return;
+                }
+                var total = (pricePerDay * totalDays).toFixed(2);
+                $('#weeksTotalAmount').text(estimatedTotalLabel + ': ' + total + ' €').show();
+            }
+            $('.week-checkbox').on('change', updateWeeksTotal);
+            updateWeeksTotal();
         });
     </script>
 }
