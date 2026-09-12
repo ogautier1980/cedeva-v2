@@ -14,14 +14,15 @@ rapport ONE, `GERARD_MULLER_-_S2.pdf` pour l'attestation mutuelle).
 - **Lot I, étape 4 — `MaxChildrenPerDay`** : appliqué comme un plafond sur le nombre total
   d'inscriptions actives de l'activité, pas un vrai comptage par jour calendaire. Approximation
   pragmatique, à affiner si Thomas la juge insuffisante.
-- **Lot K — quota par année de naissance** : une réservation couvre toujours tous les jours actifs
-  de l'activité en une fois (pas d'inscription partielle par semaine), donc un quota par (activité,
-  année de naissance) se comporte déjà comme un quota par semaine dans le cas courant. À revoir si
-  le flux permet un jour une inscription partielle.
+- **Lot K — quota par année de naissance** : dans l'usage réel, une activité représente une semaine
+  du stage (du lundi au vendredi, samedis/dimanches exclus) — un stage de plusieurs semaines est
+  donc créé comme plusieurs activités distinctes (une par semaine), et une réservation couvre tous
+  les jours actifs de l'activité en une fois. Un quota par (activité, année de naissance) se
+  comporte donc bien comme un quota par semaine. À revoir seulement si le modèle change (une seule
+  activité multi-semaines avec inscription partielle par semaine).
 - **Lot J — signalétique de l'activité** : les champs (logo, adresse, téléphone, etc.) sont
   persistés et peuvent surcharger ceux de l'organisation, mais rien ne les consomme encore dans un
   document ou e-mail réel — le fallback reste à câbler au moment de l'utiliser.
-- **Bancontact** doit être activé côté Dashboard Stripe pour le compte live (paiement en ligne).
 
 ## Lot A — Accueil & Navigation
 
@@ -33,7 +34,7 @@ un dropdown « Pages spéciales ».
 ## Lot B — Confirmation des inscriptions
 
 Le parent ne paie plus à l'inscription : à la confirmation par le coordinateur (`ManageBookings`),
-un mail avec lien de paiement Stripe (carte + Bancontact) et QR code est envoyé automatiquement si
+un mail avec lien de paiement en ligne (Mollie par défaut, carte + Bancontact) et QR code est envoyé automatiquement si
 un solde reste dû. Le montant total est ajustable manuellement à ce moment-là
 (`ConfirmBookingRequest.AdjustedTotalAmount`). Groupe et fiche médicale sont assignables séparément
 (`Bookings/Edit`, `GroupAssignment`).
