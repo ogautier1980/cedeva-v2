@@ -14,12 +14,19 @@ rapport ONE, `GERARD_MULLER_-_S2.pdf` pour l'attestation mutuelle).
 - **Lot I, étape 4 — `MaxChildrenPerDay`** : appliqué comme un plafond sur le nombre total
   d'inscriptions actives de l'activité, pas un vrai comptage par jour calendaire. Approximation
   pragmatique, à affiner si Thomas la juge insuffisante.
-- **Lot K — quota par année de naissance** : dans l'usage réel, une activité représente une semaine
-  du stage (du lundi au vendredi, samedis/dimanches exclus) — un stage de plusieurs semaines est
-  donc créé comme plusieurs activités distinctes (une par semaine), et une réservation couvre tous
-  les jours actifs de l'activité en une fois. Un quota par (activité, année de naissance) se
-  comporte donc bien comme un quota par semaine. À revoir seulement si le modèle change (une seule
-  activité multi-semaines avec inscription partielle par semaine).
+- ⚠️ **Manque fonctionnel réel (pas juste une approximation)** — Une activité couvre en général
+  plusieurs semaines (du lundi au vendredi, samedis/dimanches exclus), créée comme **une seule**
+  activité ; en général, un enfant s'inscrit pour **une seule semaine** de cette activité, pas
+  toutes. Or l'inscription publique (`PublicRegistrationController`, formulaire iframe simple et
+  parcours en plusieurs étapes) réserve **toujours tous les jours actifs de l'activité entière**
+  (`CreateBookingWithDaysAsync`/`CreateBookingWithAnswersAsync`) — aucune sélection de semaine
+  n'existe côté public. `Booking.TotalAmount` est donc calculé sur toutes les semaines, pas sur la
+  semaine choisie, et le quota par (activité, année de naissance) (Lot K #4) compte des
+  réservations qui portent chacune sur l'activité entière, pas sur une semaine. Seule
+  `Bookings/Create`/`Edit` (coordinateur, côté back-office) permet de sélectionner des jours
+  précis (`SelectedActivityDayIds`, regroupés par semaine dans l'UI) — donc corriger une
+  réservation publique à la main, semaine par semaine, reste possible mais manuel. À traiter :
+  ajouter une sélection de semaine au formulaire public.
 - **Lot J — signalétique de l'activité** : les champs (logo, adresse, téléphone, etc.) sont
   persistés et peuvent surcharger ceux de l'organisation, mais rien ne les consomme encore dans un
   document ou e-mail réel — le fallback reste à câbler au moment de l'utiliser.
