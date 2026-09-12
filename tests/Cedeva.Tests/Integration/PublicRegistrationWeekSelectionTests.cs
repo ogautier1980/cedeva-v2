@@ -298,6 +298,77 @@ public class PublicRegistrationWeekSelectionTests
         booking.TotalAmount.Should().Be(100m);
     }
 
+    // =====================================================================
+    // Birth-year quota (Lot K #4) enforced PER WEEK, not per whole activity.
+    // =====================================================================
+
+    [Fact]
+    public async Task Register_Post_BirthYearQuotaFullForWeek1_StillAllowsWeek2Registration()
+    {
+        using var factory = new CedevaWebApplicationFactory();
+        var (orgId, activityId) = SeedTwoWeekActivity(factory);
+        factory.Seed(ctx =>
+        {
+            var activity = ctx.Activities.IgnoreQueryFilters().Include(a => a.Days).Single(a => a.Id == activityId);
+            var week1Days = activity.Days.Where(d => d.Week == 1).ToList();
+
+            var quota = new ActivityBirthYearQuota { ActivityId = activityId, BirthYear = 2016, MaxChildren = 1 };
+            var parent = TestData.Parent(ctx.Organisations.IgnoreQueryFilters().Single(o => o.Id == orgId));
+            var child = TestData.Child(parent); // BirthDate 2016-05-20 (TestData default)
+            var booking = TestData.Booking(child, activity, group: null, totalAmount: 100m, paidAmount: 0m);
+            booking.Days = week1Days.Select(d => new BookingDay { ActivityDay = d, IsReserved = true }).ToList();
+
+            ctx.AddRange(quota, parent, child, booking);
+            return 0;
+        });
+
+        var client = Anonymous(factory);
+        var fields = ValidSimpleFields(activityId);
+        fields["ChildBirthDate"] = "2016-03-10"; // same birth year (2016) as the existing week-1 registrant
+        fields["SelectedWeeks"] = "2"; // registering for week 2 only, which has no birth-2016 registrant yet
+
+        var response = await client.PostAsync("/PublicRegistration/Register", Form(fields));
+
+        response.StatusCode.Should().Be(HttpStatusCode.Found,
+            "the quota is full for week 1 only — week 2 has room for this birth year");
+
+        using var db = factory.NewDbContext();
+        db.Bookings.IgnoreQueryFilters().Count(b => b.ActivityId == activityId).Should().Be(2);
+    }
+
+    [Fact]
+    public async Task Register_Post_BirthYearQuotaFullForWeek1_BlocksAnotherWeek1Registration()
+    {
+        using var factory = new CedevaWebApplicationFactory();
+        var (orgId, activityId) = SeedTwoWeekActivity(factory);
+        factory.Seed(ctx =>
+        {
+            var activity = ctx.Activities.IgnoreQueryFilters().Include(a => a.Days).Single(a => a.Id == activityId);
+            var week1Days = activity.Days.Where(d => d.Week == 1).ToList();
+
+            var quota = new ActivityBirthYearQuota { ActivityId = activityId, BirthYear = 2016, MaxChildren = 1 };
+            var parent = TestData.Parent(ctx.Organisations.IgnoreQueryFilters().Single(o => o.Id == orgId));
+            var child = TestData.Child(parent);
+            var booking = TestData.Booking(child, activity, group: null, totalAmount: 100m, paidAmount: 0m);
+            booking.Days = week1Days.Select(d => new BookingDay { ActivityDay = d, IsReserved = true }).ToList();
+
+            ctx.AddRange(quota, parent, child, booking);
+            return 0;
+        });
+
+        var client = Anonymous(factory);
+        var fields = ValidSimpleFields(activityId);
+        fields["ChildBirthDate"] = "2016-03-10";
+        fields["SelectedWeeks"] = "1"; // same week as the existing registrant -> quota full
+
+        var response = await client.PostAsync("/PublicRegistration/Register", Form(fields));
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK, "week 1's quota for this birth year is already reached");
+
+        using var db = factory.NewDbContext();
+        db.Bookings.IgnoreQueryFilters().Count(b => b.ActivityId == activityId).Should().Be(1);
+    }
+
     [Fact]
     public async Task ActivityQuestions_Post_TwoWeekActivity_NoWeekSelected_ReturnsOk()
     {

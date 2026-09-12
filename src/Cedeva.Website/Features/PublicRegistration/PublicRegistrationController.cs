@@ -63,12 +63,13 @@ public class PublicRegistrationController : Controller
         return count >= activity.MaxChildrenPerDay.Value;
     }
 
-    // Lot K #4: caps registrations by the child's birth year. Enforced per activity, counting
-    // every booking on it regardless of which week(s) it actually reserves — a child registering
-    // for just one week of a multi-week activity still counts against the same quota as one
-    // registering for another week. Known granularity gap, not addressed by the week-selection
-    // feature below (out of scope for that change).
-    private async Task<string?> CheckBirthYearQuotaAsync(int activityId, DateTime childBirthDate)
+    // Lot K #4: caps registrations by the child's birth year, enforced PER WEEK — a child
+    // registering for just one week of a multi-week activity is checked only against other
+    // bookings that also cover that week, not against the whole activity's bookings. A booking
+    // spanning several weeks is checked against each of those weeks separately: if any one of them
+    // is already at quota, the registration is refused.
+    private async Task<string?> CheckBirthYearQuotaAsync(
+        int activityId, DateTime childBirthDate, List<ActivityWeekOption> weekOptions, List<int> selectedDayIds)
     {
         var birthYear = childBirthDate.Year;
         var quota = await _context.ActivityBirthYearQuotas
@@ -77,15 +78,27 @@ public class PublicRegistrationController : Controller
 
         if (quota == null) return null;
 
-        var count = await _context.Bookings.IgnoreQueryFilters()
-            .CountAsync(b => b.ActivityId == activityId && b.Child.BirthDate.Year == birthYear);
+        var selectedDaySet = selectedDayIds.ToHashSet();
+        var weeksBeingRegistered = weekOptions.Where(w => w.DayIds.Any(selectedDaySet.Contains)).ToList();
 
-        if (count < quota.MaxChildren) return null;
+        foreach (var week in weeksBeingRegistered)
+        {
+            var weekDaySet = week.DayIds.ToHashSet();
+            var count = await _context.Bookings.IgnoreQueryFilters()
+                .Where(b => b.ActivityId == activityId && b.Child.BirthDate.Year == birthYear)
+                .Where(b => b.Days.Any(d => weekDaySet.Contains(d.ActivityDayId)))
+                .CountAsync();
 
-        var activity = await _context.Activities.IgnoreQueryFilters().FirstOrDefaultAsync(a => a.Id == activityId);
-        return !string.IsNullOrWhiteSpace(activity?.BirthYearQuotaExceededMessage)
-            ? activity.BirthYearQuotaExceededMessage
-            : _localizer["PublicRegistration.BirthYearQuotaExceeded"].Value;
+            if (count >= quota.MaxChildren)
+            {
+                var activity = await _context.Activities.IgnoreQueryFilters().FirstOrDefaultAsync(a => a.Id == activityId);
+                return !string.IsNullOrWhiteSpace(activity?.BirthYearQuotaExceededMessage)
+                    ? activity.BirthYearQuotaExceededMessage
+                    : _localizer["PublicRegistration.BirthYearQuotaExceeded"].Value;
+            }
+        }
+
+        return null;
     }
 
     // Groups an activity's active days by week for the public form's week picker — a multi-week
@@ -427,10 +440,21 @@ public class PublicRegistrationController : Controller
             return RedirectToAction(nameof(SelectActivity), new { orgId = organisationId });
         }
 
+        var selectedWeeks = TempData[TempDataSelectedWeeks] is string selectedWeeksJson
+            ? JsonSerializer.Deserialize<List<int>>(selectedWeeksJson)
+            : null;
+
+        var activeDaysForQuota = await _context.ActivityDays
+            .Where(d => d.ActivityId == activityId && d.IsActive)
+            .ToListAsync();
+        var weekOptionsForQuota = BuildWeekOptions(activeDaysForQuota);
+        var selectedDayIdsForQuota = ResolveSelectedDayIds(weekOptionsForQuota, selectedWeeks);
+
         var childForQuota = await _context.Children.IgnoreQueryFilters().FirstOrDefaultAsync(c => c.Id == childId);
         if (childForQuota != null)
         {
-            var birthYearQuotaMessage = await CheckBirthYearQuotaAsync(activityId, childForQuota.BirthDate);
+            var birthYearQuotaMessage = await CheckBirthYearQuotaAsync(
+                activityId, childForQuota.BirthDate, weekOptionsForQuota, selectedDayIdsForQuota);
             if (birthYearQuotaMessage != null)
             {
                 TempData["ErrorMessage"] = birthYearQuotaMessage;
@@ -438,10 +462,6 @@ public class PublicRegistrationController : Controller
                 return RedirectToAction(nameof(SelectActivity), new { orgId = organisationId });
             }
         }
-
-        var selectedWeeks = TempData[TempDataSelectedWeeks] is string selectedWeeksJson
-            ? JsonSerializer.Deserialize<List<int>>(selectedWeeksJson)
-            : null;
 
         var booking = await CreateBookingWithDaysAsync(activityId, childId, selectedWeeks);
         await SaveBookingAnswersFromTempDataAsync(booking.Id);
@@ -740,7 +760,8 @@ public class PublicRegistrationController : Controller
             return View(model);
         }
 
-        var birthYearQuotaMessage = await CheckBirthYearQuotaAsync(model.ActivityId, model.ChildBirthDate);
+        var selectedDayIdsForQuota = ResolveSelectedDayIds(weekOptions, model.SelectedWeeks);
+        var birthYearQuotaMessage = await CheckBirthYearQuotaAsync(model.ActivityId, model.ChildBirthDate, weekOptions, selectedDayIdsForQuota);
         if (birthYearQuotaMessage != null)
         {
             ModelState.AddModelError("", birthYearQuotaMessage);

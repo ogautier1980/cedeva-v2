@@ -1,5 +1,6 @@
 using System.Net;
 using Cedeva.Core.Entities;
+using Cedeva.Core.Helpers;
 using Cedeva.Tests.TestSupport;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
@@ -521,6 +522,15 @@ public class PublicRegistrationControllerCoverageTests
     // Register POST: birth-year quota (Lot K #4).
     // ---------------------------------------------------------------------
 
+    /// <summary>Next Monday at least one month out, so the activity stays "future" and its 5
+    /// weekdays fall in a single week regardless of when the suite runs.</summary>
+    private static DateTime NextMonday()
+    {
+        var date = DateTime.Today.AddMonths(1);
+        while (date.DayOfWeek != DayOfWeek.Monday) date = date.AddDays(1);
+        return date;
+    }
+
     [Fact]
     public async Task Register_Post_BirthYearQuotaReached_ReturnsOkAndCreatesNoBooking()
     {
@@ -530,10 +540,14 @@ public class PublicRegistrationControllerCoverageTests
         {
             var org = TestData.Organisation();
             activity = TestData.Activity(org, "Stage Quota Post");
+            activity.StartDate = NextMonday();
+            activity.EndDate = activity.StartDate.AddDays(4);
+            ActivityDayGenerator.GenerateDays(activity);
             var quota = new ActivityBirthYearQuota { Activity = activity, BirthYear = 2016, MaxChildren = 1 };
             var parent = TestData.Parent(org);
             var c = TestData.Child(parent); // BirthDate 2016-05-20 (TestData default)
             var existing = TestData.Booking(c, activity, group: null, totalAmount: 0m, paidAmount: 0m);
+            existing.Days = activity.Days.Select(d => new BookingDay { ActivityDay = d, IsReserved = true }).ToList();
             ctx.AddRange(org, activity, quota, parent, c, existing);
             return 0;
         });
@@ -615,11 +629,15 @@ public class PublicRegistrationControllerCoverageTests
         {
             var org = TestData.Organisation();
             activity = TestData.Activity(org, "Stage Quota Message");
+            activity.StartDate = NextMonday();
+            activity.EndDate = activity.StartDate.AddDays(4);
+            ActivityDayGenerator.GenerateDays(activity);
             activity.BirthYearQuotaExceededMessage = "Plus de place pour les 2016 cette semaine.";
             var quota = new ActivityBirthYearQuota { Activity = activity, BirthYear = 2016, MaxChildren = 1 };
             var parent = TestData.Parent(org);
             var c = TestData.Child(parent);
             var existing = TestData.Booking(c, activity, group: null, totalAmount: 0m, paidAmount: 0m);
+            existing.Days = activity.Days.Select(d => new BookingDay { ActivityDay = d, IsReserved = true }).ToList();
             ctx.AddRange(org, activity, quota, parent, c, existing);
             return 0;
         });

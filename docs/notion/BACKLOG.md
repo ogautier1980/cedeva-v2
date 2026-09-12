@@ -23,9 +23,10 @@ rapport ONE, `GERARD_MULLER_-_S2.pdf` pour l'attestation mutuelle).
   n'apparaît que si l'activité a plus d'une semaine (`ActivityWeekOption`, regroupement par
   `ActivityDay.Week`). `Booking.TotalAmount` et les jours réservés (`BookingDay`) ne portent
   désormais que sur la ou les semaines cochées, avec un montant estimé recalculé en direct côté
-  client. Le quota par (activité, année de naissance) (Lot K #4) continue cependant de compter
-  l'activité entière, pas la semaine — non traité par ce changement (granularité différente, hors
-  scope).
+  client. Le quota par (activité, année de naissance) (Lot K #4) est désormais lui aussi vérifié
+  **par semaine** (`CheckBirthYearQuotaAsync`, comparé pour chaque semaine sélectionnée aux
+  réservations existantes qui couvrent cette même semaine) — un enfant peut donc s'inscrire à une
+  semaine dont le quota d'une autre semaine est atteint.
 - **Lot J — signalétique de l'activité** : les champs (logo, adresse, téléphone, etc.) sont
   persistés et peuvent surcharger ceux de l'organisation, mais rien ne les consomme encore dans un
   document ou e-mail réel — le fallback reste à câbler au moment de l'utiliser.
