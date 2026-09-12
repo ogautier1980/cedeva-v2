@@ -99,6 +99,33 @@ public class PaymentsControllerIntegrationTests
             .Should().BeTrue();
     }
 
+    [Theory]
+    [InlineData("38.50")]
+    [InlineData("38,50")]
+    public async Task Create_WithEitherDecimalSeparator_BindsTheSameAmount(string amountInput)
+    {
+        // Regression test: the request culture is fr-BE, whose "." is a thousands separator — a
+        // naive culture-aware bind of "38.50" would silently store 3850 instead of 38.50.
+        using var factory = new CedevaWebApplicationFactory();
+        var s = SeedBooking(factory, total: 100m, paid: 0m, status: PaymentStatus.NotPaid);
+        var client = factory.CreateClientFor("u1", s.OrgId, "Coordinator");
+
+        var response = await client.PostAsync("/Payments/Create", new FormUrlEncodedContent(new Dictionary<string, string>
+        {
+            ["BookingId"] = s.BookingId.ToString(),
+            ["Amount"] = amountInput,
+            ["PaymentDate"] = "2026-07-01",
+            ["PaymentMethod"] = ((int)PaymentMethod.Cash).ToString(),
+        }));
+
+        response.StatusCode.Should().Be(HttpStatusCode.Found);
+
+        await using var ctx = factory.NewDbContext();
+        var booking = await ctx.Bookings.SingleAsync(b => b.Id == s.BookingId);
+        booking.PaidAmount.Should().Be(38.50m);
+        (await ctx.Payments.SingleAsync(p => p.BookingId == s.BookingId)).Amount.Should().Be(38.50m);
+    }
+
     [Fact]
     public async Task Cancel_RevertsBookingPaymentAndMarksPaymentCancelled()
     {

@@ -177,6 +177,7 @@ try
         containerBuilder.RegisterType<EmailRecipientService>().As<IEmailRecipientService>().InstancePerLifetimeScope();
         containerBuilder.RegisterType<EmailVariableReplacementService>().As<IEmailVariableReplacementService>().InstancePerLifetimeScope();
         containerBuilder.RegisterType<EmailTemplateService>().As<IEmailTemplateService>().InstancePerLifetimeScope();
+        containerBuilder.RegisterType<QuestionTemplateService>().As<IQuestionTemplateService>().InstancePerLifetimeScope();
         containerBuilder.RegisterType<EmailFacadeService>().As<IEmailFacadeService>().InstancePerLifetimeScope();
         containerBuilder.RegisterType<ClosedXmlExportService>().As<IExcelExportService>().InstancePerLifetimeScope();
         containerBuilder.RegisterType<QuestPdfExportService>().As<IPdfExportService>().InstancePerLifetimeScope();
@@ -278,6 +279,13 @@ try
         {
             options.DataAnnotationLocalizerProvider = (type, factory) =>
                 factory.Create(typeof(SharedResources));
+        })
+        .AddMvcOptions(options =>
+        {
+            // Insert before the built-in binders: the request culture is fr-BE, whose "." is a
+            // thousands separator, so the default binder silently misreads a period-typed amount
+            // like "38.50" as 3850. See Cedeva.Website.Infrastructure.DecimalModelBinder.
+            options.ModelBinderProviders.Insert(0, new Cedeva.Website.Infrastructure.DecimalModelBinderProvider());
         })
         .AddRazorOptions(options =>
         {

@@ -126,7 +126,14 @@
             const formatter = new Intl.NumberFormat('fr-BE', { style: 'currency', currency: 'EUR' });
 
             amountInput.addEventListener('input', function () {
-                const entered = parseFloat(amountInput.value.replace(',', '.'));
+                // Whichever of "." / "," appears last is the decimal separator (matches
+                // DecimalInputHelper server-side) — earlier occurrences are thousands separators.
+                const raw = amountInput.value.trim();
+                const sepIndex = Math.max(raw.lastIndexOf('.'), raw.lastIndexOf(','));
+                const normalized = sepIndex < 0
+                    ? raw
+                    : raw.slice(0, sepIndex).replace(/[.,]/g, '') + '.' + raw.slice(sepIndex + 1);
+                const entered = parseFloat(normalized);
                 if (isNaN(entered) || entered <= 0) {
                     wrapper.style.display = 'none';
                     return;
