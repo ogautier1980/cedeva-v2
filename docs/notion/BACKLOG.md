@@ -1,191 +1,119 @@
-# Backlog CEDEVA 2.0 — Retour UX/Fonctionnel (Notion, 2026-07-28)
+# Backlog CEDEVA 2.0 — Retour UX/Fonctionnel
 
-Source : export Notion [`CEDEVA 2 0 ....md`](CEDEVA%202%200%2035545c93462a801cae9dd5fc2c518849.md) + captures d'écran du même dossier (certaines annotées par Thomas en rouge/vert) + exemple [`17.pdf`](17.pdf) (listing ONE).
+Source : export Notion du client (captures d'écran annotées) + exemples fournis (`17.pdf` pour le
+rapport ONE, `GERARD_MULLER_-_S2.pdf` pour l'attestation mutuelle).
 
-**Mise à jour 2026-07-30** — 5 des 10 questions posées après la relecture complète ont été tranchées par le user : attestations fiscales (par association), présences équipe (confirmé), richesse de la liste des groupes (confirmé, avec une précision), impression groupée des groupes (confirmé), ventilation ONE des présences (confirmé). Les items confirmés et codables sans blocage ont été livrés (Lots C, D, E). Une nouvelle question est apparue en construisant Lot H (besoin d'un exemple réel d'attestation fiscale) : il reste 6 questions ouvertes pour Thomas.
+**Statut : tous les lots (A à K) sont livrés et déployés en production.**
 
-**Mise à jour 2026-07-31 (Notion)** — Thomas a ajouté 2 nouvelles pages à l'export : **« Création d'une activité »** (refonte du formulaire de création en assistant multi-étapes, entièrement nouvelle — voir Lot I) et **« Paramètres »** (liste de champs texte, sans maquette — voir Lot J). La page « Tableau de bord de l'activité » a aussi été complétée (voir Lot A). Ça ajoute 1 nouvelle question ouverte (n°7, modèle de questions par activité) et 1 nouveau bug signalé (téléchargement du code d'intégration iframe qui produit un fichier 0 ko sur Mac). Aucune des 6 questions précédentes n'est résolue dans cet export.
+## Points d'attention restants
 
-**Mise à jour 2026-07-31 (infra)** — Migration complète de l'hébergement Azure → VPS OVH réalisée dans la foulée (voir section *Infra* ci-dessous) : les 2 items TO-DO « Passer à OVH » et « Créer un compte Brevo dédié » sont maintenant ✅ Fait ; la décision « Passer à Molly » a été **annulée** (on garde Stripe).
-
-**Mise à jour 2026-07-31 (réponses)** — Olivier a tranché les questions 1 à 5 (détail dans les lots concernés) : paiements partiels/CPAS confirmés (Lot C), menu hamburger totalement supprimé (Lot A), numéro de ticket remis à 0 par activité (Lot D), définition de « Hors bilan » précisée (Lot D), périmètre de l'auto-proposition mail Excursion clarifié (Lot F). Il ne reste que les questions 6 (attestations fiscales) et 7 (modèle de questions par activité).
-
-**Mise à jour 2026-07-31 (livraison)** — Lots A, C, D, E, F et G codés, testés et déployés en production. Détail dans les sections concernées.
-
-**Mise à jour 2026-07-31 (relecture complète)** — Relecture détaillée de toutes les pages Notion + captures (43 images + `17.pdf`) pour vérifier que rien n'avait été manqué dans les synthèses précédentes. Résultat : aucune nouvelle demande non triée, mais 1 erreur de citation corrigée (Lot I, étape 2 — la bonne capture annotée en rouge est `10.25.06`, pas `09.19.42`) et 2 nuances ajoutées (Lot A : Thomas ne barre que 3 boutons « Actions rapides » sur 5, les 5 ont été retirés — à confirmer ; Lot C : ventilation « Total prévu EXCURSIONS » de la maquette absente de `Bookings/Details`, non bloquant).
-
-**Mise à jour 2026-09-12 (Notion — nouvelle note + 2ᵉ relecture exhaustive)** — Thomas a ajouté 3 fichiers à l'export : un exemple d'**attestation mutuelle** (`GERARD_MULLER_-_S2.pdf`, commune de Clavier), une capture de l'app Notes listant **8 nouvelles demandes** (voir Lot K), et une image d'avatar Notion sans valeur fonctionnelle. Une 2ᵉ relecture exhaustive (texte + **toutes** les images/PDF, cette fois par des agents dédiés indépendants) de l'intégralité des pages a par ailleurs trouvé **2 écarts réels** manqués par la relecture du 2026-07-31, tous deux tranchés par Olivier le 2026-09-12 :
-- **Lot A** — Thomas demandait explicitement une page d'accueil en gros boutons « Titre + Dates » par stage (comme l'écran de sélection d'activité), pas juste une liste allégée. **Décision : gros bouton par stage, comme demandé.**
-- **Lot B** — la maquette montrait un montant **éditable manuellement** par le coordinateur à la confirmation (capture `19.49.08`) ; le flux livré l'avait entièrement automatisé sans possibilité d'ajustement. **Décision : réintroduire la possibilité d'ajustement manuel.**
-
-Le reste des pages (Comptes, Emails, Équipe, Excursions, ONE, Présences, Tableau de bord, Hamburger, Paramètres, Inscriptions, reste de Création d'activité) a été confirmé conforme à ce backlog, annotation par annotation — aucun autre écart trouvé.
-
----
-
-## ⚠️ Questions ouvertes pour Thomas
-
-1. ✅ **Résolu (2026-09-12)** — **Attestations fiscales** (Lot H) — besoin d'un exemple réel (mise en page, mentions légales obligatoires, montant déductible, période couverte…), comme `17.pdf` l'a été pour le rapport ONE. Décision (Olivier, 2026-09-12) : à défaut d'exemple fiscal réel, document groupé par association avec les mentions légales génériques belges (art. 113 CIR92), implémenté (`ParentsController.FiscalAttestation`) avec un avertissement visible à l'écran — à faire relire par Thomas/un comptable avant tout usage réel.
-2. ✅ **Fait (2026-09-12)** — **Modèle de questions par activité** (Lot I, nouveau 2026-07-31) — confirmé par Olivier : « Thomas le veut vraiment ». `OrganisationQuestionTemplate` (migration `AddOrganisationQuestionTemplates`), page CRUD `/QuestionTemplates` (même famille que `/EmailTemplates`/`/ExpenseCategories` sur la page d'accueil), copié dans les `ActivityQuestion` de chaque nouvelle activité à la création (`IQuestionTemplateService.CopyOrganisationTemplatesToActivityAsync`, branché sur `ActivitiesController.Create`, `ActivityWizardController.Step1` et l'import CSV) — reste ensuite librement modifiable par activité, comme demandé.
-
-*(Résolues et retirées de cette liste — détail dans le lot concerné : explication paiement/dépense → Lot D ; envoi depuis un modèle et conflit Lot 4 → Lot E ; attestations fiscales, présences équipe, richesse des groupes, impression groupée, ventilation ONE → voir Lots C/G/H ci-dessous ; paiements partiels/CPAS (Olivier, 2026-07-31) → Lot C ; menu hamburger (Olivier, 2026-07-31) → Lot A ; numéro de ticket (Olivier, 2026-07-31) → Lot D ; Hors bilan (Olivier, 2026-07-31) → Lot D ; auto-proposition mail Excursion (Olivier, 2026-07-31) → Lot F.)*
-
-## 📌 TO-DO (hors backlog UX)
-
-- ✅ **Fait (2026-07-31)** — ~~Passer à OVH (VPS-2)~~ : migration complète Azure → VPS OVH (`vps-5f0be0bf.vps.ovh.net`, `new.cedeva.be`) réalisée en 5 phases avec migration PostgreSQL incluse. Détail complet dans la section *Infra* ci-dessous.
-- ✅ **Décision revenue (2026-07-31 → 2026-08-28)** — « Passer à Mollie » avait été annulée le 2026-07-31 (`Stripe.net` mis à jour 47.4.0 → 52.2.0 à la place). Réactivée le 2026-08-28 : Mollie ajouté comme second fournisseur (`MolliePaymentGateway`, API v2 en HTTP direct) **sans supprimer Stripe** — les deux sont toujours enregistrés, `Payments:Provider` (config, "Mollie" par défaut) sélectionne lequel `IPaymentGateway` résout. Testé de bout en bout en prod, mode test (checkout + webhook). Voir [ADR 0010](../adr/0010-online-payments-provider-agnostic-stripe.md).
-- ✅ **Fait (2026-07-31)** — ~~Créer un compte Brevo dédié pour Cedeva~~ : utilisation du compte Brevo existant de Thomas (Kivla srl), domaine `cedeva.be` authentifié (SPF/DKIM), clé API dédiée générée et configurée sur le VPS, IP du VPS ajoutée à l'allowlist Brevo. Testé de bout en bout (email de confirmation d'inscription reçu).
-- ✅ **Fait (2026-07-31)** — ~~Passer TinyMCE en self-hosted (GPL)~~ : en creusant, TinyMCE n'était en réalité utilisé nulle part dans l'app (l'éditeur riche réel est Summernote, chargé depuis `cdn.jsdelivr.net`). Config morte supprimée : section `TinyMCE:ApiKey` (`appsettings.json`) et entrées CSP `cdn.tiny.cloud` (`SecurityHeadersMiddleware.cs`).
-- ✅ **Résolu (2026-07-31)** — 🐛 Bug signalé (capture `09.54.00` annotée) : Thomas ne pouvait pas télécharger le fichier « Register » (0 ko sur Mac) sur l'écran final « Création d'une activité » (code d'intégration iframe / bouton de téléchargement). Thomas a retesté après la migration Azure → OVH : ça fonctionne maintenant. Cause exacte non diagnostiquée (le bug a disparu avec le changement d'infra, pas de root cause confirmée côté code).
-- ✅ **Corrigé (2026-09-12)** — Le champ Montant de `Payments/Create` (point vs virgule). Root cause réelle, plus grave que le symptôme initialement observé : la culture de requête `fr-BE` utilise `.` comme séparateur de **milliers** (`,` = décimal) ; le binding serveur par défaut de .NET, culture-aware, interprétait donc silencieusement "38.50" tapé au clavier comme **3850** (×100, sans erreur ni rejet) — un bug de corruption de données financières, pas juste un souci d'ergonomie de validation client. Corrigé par un binder de modèle dédié (`Cedeva.Core.Helpers.DecimalInputHelper` + `Cedeva.Website.Infrastructure.DecimalModelBinder`, enregistré globalement dans `Program.cs`) qui normalise l'entrée : le dernier séparateur (`.` ou `,`) rencontré est traité comme le séparateur décimal, les précédents comme séparateurs de milliers — accepte "38.50", "38,50", "1.234,56" et "1,234.56" en produisant la même valeur. Corrige tous les champs `decimal` de l'app (Payments, Expenses, ExcursionExpenses…), pas seulement `Payments/Create`. Testé : `DecimalInputHelperTests` (unitaire) + `PaymentsControllerIntegrationTests.Create_WithEitherDecimalSeparator_BindsTheSameAmount` (régression bout en bout, reproduit le bug ×100 avant le fix puis vérifie qu'il n'a plus lieu).
-
----
-
-## Infra — Migration Azure → VPS OVH (2026-07-31)
-
-Migration complète menée en une session, en 5 phases séquentielles (chaque phase vérifiée avant de passer à la suivante) :
-
-- **Phase A — SQL Server → PostgreSQL** : swap du provider EF Core (`Npgsql.EntityFrameworkCore.PostgreSQL`), migration baseline unique régénérée, `BelgianMunicipalityService` réécrit en comparaisons `ToLower()` portables (`EF.Functions.ILike` essayé d'abord, cassait la suite SQLite — Npgsql-only), `AzureBlobStorageService` supprimé au profit de `LocalFileStorageService` partout, switch Npgsql `EnableLegacyTimestampBehavior` (l'app ne trackait pas `DateTimeKind`, cassait le seeding sur les colonnes `timestamptz`).
-- **Phase B — VPS durci** : Ubuntu 24.04 LTS, SSH par clé uniquement (mot de passe désactivé), pare-feu `ufw` (22/80/443), Docker Engine + Compose (dépôt officiel), `fail2ban`, swap 2 Go.
-- **Phase C — Stack de prod** : `docker-compose.prod.yml` (app + PostgreSQL + Caddy), HTTPS automatique Let's Encrypt pour `new.cedeva.be`.
-- **Phase D — CI/CD** : nouveau workflow [`deploy-vps.yml`](../../.github/workflows/deploy-vps.yml) (build/test inchangés → build & push image sur GHCR → déploiement SSH → gate `/health`), remplace `main_cedeva-demo.yml` (Azure). Voir [ADR 0012](../adr/0012-cicd-ovh-vps-via-ghcr.md), supersède [ADR 0007](../adr/0007-cicd-azure-app-service-with-health-gate.md).
-- **Phase E — Décommissionnement Azure** : resource group `cedeva-rg` supprimé en entier (SQL Server, App Service, Storage, Application Insights…) + un espace de travail Log Analytics résiduel trouvé hors du resource group et supprimé aussi. Souscription Azure entièrement vide, confirmé via `az resource list`.
-
-**Bug de production découvert et corrigé pendant les tests** : le trousseau de clés Data Protection (`/root/.aspnet/DataProtection-Keys`) n'était pas persisté entre redémarrages du conteneur — chaque déploiement invalidait silencieusement toutes les sessions/jetons anti-CSRF/TempData en cours (`CryptographicException: key not found in the key ring`), cassant le formulaire d'inscription public en plein milieu. Corrigé par `PersistKeysToFileSystem` pointé sur un volume Docker nommé (`cedeva-dpkeys`).
-
-**Tests de bout en bout réalisés sur `new.cedeva.be`** : inscription publique (parent + enfant) via l'iframe, paiement Stripe (mode test, checkout + webhook), email de confirmation Brevo — les trois fonctionnent.
-
----
+- **Lot H — Attestation fiscale** : aucun exemple réel n'a jamais été fourni. Le document généré
+  (`ParentsController.FiscalAttestation`) utilise des mentions légales génériques belges (frais de
+  garde d'enfants, art. 113 CIR92) — **à faire relire par Thomas ou un comptable avant tout usage
+  réel**. Un avertissement visible (non imprimé) le rappelle sur l'écran.
+- **Lot I, étape 4 — `MaxChildrenPerDay`** : appliqué comme un plafond sur le nombre total
+  d'inscriptions actives de l'activité, pas un vrai comptage par jour calendaire. Approximation
+  pragmatique, à affiner si Thomas la juge insuffisante.
+- **Lot K — quota par année de naissance** : une réservation couvre toujours tous les jours actifs
+  de l'activité en une fois (pas d'inscription partielle par semaine), donc un quota par (activité,
+  année de naissance) se comporte déjà comme un quota par semaine dans le cas courant. À revoir si
+  le flux permet un jour une inscription partielle.
+- **Lot J — signalétique de l'activité** : les champs (logo, adresse, téléphone, etc.) sont
+  persistés et peuvent surcharger ceux de l'organisation, mais rien ne les consomme encore dans un
+  document ou e-mail réel — le fallback reste à câbler au moment de l'utiliser.
+- **Bancontact** doit être activé côté Dashboard Stripe pour le compte live (paiement en ligne).
 
 ## Lot A — Accueil & Navigation
 
-- ✅ **Fait** — Tableau de bord d'activité : clic sur le **titre** → 7 gros boutons (`ActivityManagement/Index`) ; clic sur **« Paramètres »** (renommé, ex-« Gérer ») → réglages de l'activité (`Activities/Details`).
-- ✅ **Fait** — Page d'accueil réduite à la liste « Activités récentes » (4 cartes stats, inscriptions récentes, actions rapides retirées, `HomeController` simplifié en conséquence). ⚠️ **Nuance (relecture 2026-07-31, confirmée 2026-09-12)** : sur `18.08.04`, Thomas ne barrait en rouge que 3 des 5 boutons « Actions rapides » (Nouvelle inscription, Nouveau parent, Nouveau membre équipe), laissant « Nouvelle activité » et « Nouvel enfant » non barrés. **Décision (Olivier, 2026-09-12) : retirer bien les 5**, comme déjà fait — rien à changer.
-- ✅ **Fait (2026-09-12)** — La demande initiale (texte de la page « Page d'accueil générale organisation ») allait plus loin que la simple suppression de widgets : Thomas voulait arriver sur une page en **gros boutons par stage** (un bouton = Titre + Dates de l'activité, comme l'écran de sélection d'activité déjà existant dans l'app). `Home/Index.cshtml` : la liste `list-group` (titre + dates + nombre de réservations + bouton « Gérer » séparé) remplacée par une grille de gros boutons cliquables (titre + dates uniquement).
-- ✅ **Fait** — Menu du haut (dans une activité) réduit à « Tableau de bord » + dropdown « Pages spéciales » (liste des groupes, total des présences).
-- ✅ **Fait (2026-07-31)** — Menu hamburger **supprimé totalement** : tous ses liens (Contacts, Importer des parents/enfants, Équipe compris) redescendent en dessous sur la page d'accueil, dans une nouvelle section « Paramètres généraux ». Plus de barre latérale globale du tout.
-- ✅ **Fait (2026-07-31)** — Le tableau de bord d'activité est revenu à **8 grosses tuiles** (comme la maquette d'origine `18.09.45`) : le bouton séparé « Paramètres de l'activité » est maintenant la 8ᵉ tuile de la grille, ne reste en dessous que le bouton « Sortir de cette activité ».
+Page d'accueil réduite à une grille de gros boutons par activité (titre + dates), plus une section
+« Paramètres généraux » regroupant les liens auparavant dans le menu hamburger (supprimé). Le
+tableau de bord d'une activité affiche 8 tuiles (dont « Paramètres »), le menu du haut se limite à
+un dropdown « Pages spéciales ».
 
 ## Lot B — Confirmation des inscriptions
 
-- ✅ Déjà le cas : ne montre que les inscriptions « à confirmer ».
-- ✅ **Fait** — Clic sur le nom de l'enfant → fiche `Bookings/Details` (voir Lot C).
-- ✅ **Fait (2026-07-31, révision du flux)** — Le flux a été redéfini avec Olivier : le parent ne paie plus « en direct » à l'inscription ; à la confirmation par le coordinateur (`ManageBookings`), un mail avec lien de paiement Stripe (carte + Bancontact) et QR code est envoyé automatiquement au parent si un solde reste dû. Groupe et fiche médicale ont été **découplés** de l'acte de confirmation (retirés de `ManageBookings`, restent assignables via `Bookings/Edit` et l'écran `GroupAssignment`). Écran mort `UnconfirmedBookings` (non lié depuis l'UI) supprimé au passage. Pas d'expiration sur le lien (décision Olivier). ⚠️ Bancontact doit être activé côté Dashboard Stripe pour le compte live.
-- ✅ **Fait (2026-09-12)** — La maquette d'origine (`Inscriptions/19.49.08`) montrait un champ **« Total prévu à payer » éditable manuellement** par le coordinateur juste avant de valider l'inscription (encadré rouge). Réintroduit sur `ManageBookings.cshtml` (champ montant pré-rempli avec `Booking.TotalAmount`, ajustable avant de cliquer sur « Confirmer » — `ConfirmBookingRequest.AdjustedTotalAmount`, recalcule `PaymentStatus`).
+Le parent ne paie plus à l'inscription : à la confirmation par le coordinateur (`ManageBookings`),
+un mail avec lien de paiement Stripe (carte + Bancontact) et QR code est envoyé automatiquement si
+un solde reste dû. Le montant total est ajustable manuellement à ce moment-là
+(`ConfirmBookingRequest.AdjustedTotalAmount`). Groupe et fiche médicale sont assignables séparément
+(`Bookings/Edit`, `GroupAssignment`).
 
 ## Lot C — Présences
 
-- ✅ **Fait** — Clic sur un enfant → fiche `Bookings/Details` enrichie (adresse/parent éditables, groupe, fiche médicale, historique des paiements).
-- ✅ **Fait (2026-07-31)** — Ligne « Dont excursions » sur `Bookings/Details.cshtml`, sous le montant total (affichée seulement si > 0) : somme des `Excursion.Cost` des excursions auxquelles l'enfant est inscrit (déjà incluse dans `Booking.TotalAmount`, ajoutée par `ExcursionService.RegisterChildAsync`) — reprend l'esprit de la ligne « Total prévu EXCURSIONS » de la maquette `Présences/18.29.32`.
-- ✅ Confirmé dans le code : le filtre jour est déjà scopé à l'activité + jour sélectionné.
-- ✅ **Fait** — Colonne « Payé » (✓/✗ + solde) dans `Presences.cshtml`.
-- ✅ **Fait (2026-07-31)** — Forcer une inscription non payée : badge de statut de paiement (+ solde) sur `ManageBookings` ; avertissement de confirmation (`confirm()` JS avec le solde dû). Rien ne bloquait techniquement la confirmation, le manque était la visibilité — désormais remplacé par l'envoi automatique du mail de paiement (voir Lot B). Solde restant recalculé en direct pendant la saisie sur `Payments/Create` ; testé avec 2 paiements manuels successifs sur la même réservation.
-- ✅ **Fait** — Pages spéciales, enrichies au niveau demandé par Thomas :
-  - **Liste des groupes imprimable** (`Groups`/`PrintGroups`) : sélection **multiple** de groupes (au lieu d'un seul à la fois, `<select multiple>`), options à cocher **Prévus/Présent/Signature** pour choisir les colonnes affichées, colonne **Signature** vide (émargement papier), **export PDF** et **export Excel** (`ExportGroupsPdf`/`ExportGroupsExcel`, réutilisent `IExportFacadeService` déjà utilisé ailleurs) en plus de l'impression navigateur existante. Rappel : les libellés « 3-4, 5-6, 7-8… » des captures sont juste les groupes de l'activité (comme nos « Groupe Rouge/Bleu/Vert »), pas une tranche d'âge — rien changé côté structure des groupes.
-  - **Fait — « Imprimer tous les groupes du jour »** en un clic : bouton dédié sur `Groups.cshtml` (visible seulement si l'activité a un jour programmé aujourd'hui), distinct de l'impression filtrée groupe par groupe.
-  - ✅ **Fait** — Total des présences journalières (`PresenceSummary`) : décomposé par indicateur ONE (Milieu défavorisé / Handicap léger / Handicap lourd) en plus du total brut réservé/présent (réf. capture `18.48.14`).
+Fiche enfant enrichie (`Bookings/Details`), colonne « Payé » sur `Presences.cshtml`, listes de
+groupes imprimables avec sélection multiple et export PDF/Excel, bouton « Imprimer tous les groupes
+du jour », total des présences décomposé par indicateur ONE.
 
 ## Lot D — Comptes / Finances
 
-- ✅ **Fait (2026-07-31, statut corrigé 2026-09-12)** — Simplification du parcours Comptes → Transactions : cartes stats et onglets de filtre retirés de `Transactions.cshtml` (liste nue, conforme aux captures `18.48.58 1`/`18.50.34`). Livré avec Lot C/E le même jour — ce bullet était resté à tort sur « Pas fait ».
-- ✅ **Fait** — Bouton « Masquer les montants » sur `Transactions.cshtml`.
-- ✅ **Fait (2026-07-31)** — Numéro de ticket unique par ligne : `Payment.TicketNumber`/`Expense.TicketNumber`, séquence **partagée** entre les deux tables, **remise à 1 à chaque nouvelle activité** (via `GetNextTicketNumberAsync`, `MAX(...) WHERE ActivityId = X` + 1). Colonne « N° ticket » sur `Transactions.cshtml`, affiché aussi sur `Payments/Details.cshtml`. Migration avec backfill des tickets existants (interleave chronologique Payment+Expense par activité). Champ **« Caisse / Compte »** : déjà couvert par le modèle existant (`Payment.PaymentMethod` Cash/BankTransfer, `Expense.OrganizationPaymentSource` OrganizationCard/OrganizationCash) — pas de nouveau champ ajouté, contrairement à ce que ce backlog supposait.
-- ✅ **Fait** — Fusion Ajouter un paiement / Ajouter une dépense (`Financial/AddTransaction`, onglets Paiement/Dépense) : `Payment` (clé = réservation) et `Expense` (clé = activité) n'ayant ni la même clé ni les mêmes champs, la fusion est un écran unique à onglets hébergeant les deux formulaires existants inchangés (POST vers `PaymentsController.Create` / `FinancialController.CreateExpense`). Les 2 boutons de `Transactions.cshtml` pointent maintenant vers cet écran unique.
-- 🐛 **Bug corrigé** — Clé de session incohérente entre `PaymentsController` (`"FinancialActivityId"`) et `FinancialController` (`"Financial_ActivityId"`) : le filtre par activité de `SelectBooking` était un no-op en production (listait toutes les réservations impayées de l'org, pas seulement celles de l'activité courante).
-- ✅ **Fait (2026-07-31)** — Catégories : `ExpenseCategory.IsIncome` (bool) remplacé par `CategoryType` (enum **Expense/Income/OffBalance**, 3 valeurs comme sur `18.58.21`/`19.00.10`) + `Budget`. Nouvelle FK structurelle `Expense.ExpenseCategoryId` (les dépenses n'étaient rapprochées d'une catégorie que par nom en texte libre) avec migration de rapprochement automatique par nom. **« Hors bilan »** : les dépenses dont la catégorie est `OffBalance` sont exclues des totaux Entrées/Sorties partout (`Transactions`, `Index`, `Report`), affichées dans leur propre section (carte + badge dédiés). Champ **« Lié à un enfant ? »** de la référence toujours absent — à revoir séparément si besoin.
-- ✅ Déjà 100% auto-calculé, vérifié dans le code : catégories Équipe (Sorties) et PAF (Entrées).
-- ✅ **Fait (2026-07-31)** — Rapport détaillé par catégorie (tableau groupé Nom/Nombre/Montant, dépenses d'organisation uniquement pour rester cohérent avec le total du résumé final) + section Hors bilan séparée sur `Report.cshtml`. Pas encore de colonne Budget par catégorie dans ce tableau (`ExpenseCategory.Budget` existe mais n'est pas encore affiché en regard du réalisé) — amélioration possible ultérieure.
+`Transactions.cshtml` simplifié (liste nue). Numéro de ticket unique par ligne, partagé entre
+paiements et dépenses, remis à 1 par activité. Écran unique à onglets pour ajouter un paiement ou
+une dépense. Catégories de dépenses avec type (Expense/Income/OffBalance) et budget ; les dépenses
+« hors bilan » sont exclues des totaux et affichées à part.
 
 ## Lot E — E-mails
 
-- ✅ **Fait (2026-07-30, commit `9fe7f51`)** — Épurer l'UI de `SendEmail.cshtml` : panneau Informations retiré, boutons « Enregistrer comme modèle »/« Historique » sortis de la rangée du bas (déplacés en bandeau compact en haut d'écran), texte d'aide de « Un email par enfant » replié dans le label, panneau Variables de personnalisation replié par défaut (`<div class="collapse">`). Corrigé au passage 2026-07-31 : le backlog disait encore « Pas fait » alors que le travail était déjà livré la veille.
-- ✅ **Fait** — 3 modèles verrouillés (Confirmation d'inscription, Rappel fiche médicale, Rappel paiement) : uniques par organisation, non créables/dupliquables/supprimables, plus jamais copiés par activité (migration de nettoyage des copies déjà existantes).
-- ✅ Déjà le cas — modèles Excursion libres.
-- ✅ **Fait** — Bouton « Envoyer » sur `EmailTemplates/Index` → ouvre `SendEmail` avec le modèle pré-chargé.
+`SendEmail.cshtml` épuré (panneaux repliables). Trois modèles verrouillés par organisation
+(confirmation, rappel fiche médicale, rappel paiement) : non créables/dupliquables/supprimables, ne
+sont jamais copiés par activité. Bouton « Envoyer » sur la liste des modèles pré-charge `SendEmail`.
 
 ## Lot F — Excursions
 
-- ✅ **Fait** — Formulaire Créer/Modifier : Heure début/fin et Type retirés de l'écran (champs cachés, valeurs préservées — pas supprimés du modèle). Nom/Description/Date/Coût/Groupes restent.
-- ✅ **Fait** — Liste « Gérer les excursions » : colonnes Type et finances retirées.
-- 🐛 **Bug corrigé** — `Excursions.SendEmail` n'envoyait jamais rien réellement ; corrigé.
-- ✅ **Fait (2026-07-31)** — Nouveau type de destinataire sur `Excursions/SendEmail` : « Inscrits à l'activité, pas encore à cette excursion » (`not_yet_registered`), anti-join `Bookings`/`ExcursionRegistrations` (bookings confirmés de l'activité parente sans registration sur l'excursion visée).
-- ✅ **Fait (2026-09-12)** — Périmètre simplifié par Olivier : pas de vraie auto-proposition (déclenchement automatique à la création/programmation), juste un modèle avec les champs demandés. Nouveau type `EmailTemplateType.ExcursionProposal` (non verrouillé, comme les autres modèles Excursion), modèle par défaut ajouté à `DefaultEmailTemplateLibrary`. `Excursions/SendEmail` gagne le même sélecteur de modèle que la page d'envoi générale (`ViewBag.Templates` + `/EmailTemplates/GetTemplate/{id}`), avec le modèle « Proposition d'excursion » par défaut **auto-suggéré** au chargement (pré-rempli mais toujours modifiable avant l'envoi — l'esprit de l'« auto-proposition » sans le déclenchement automatique). 🐛 **Bug corrigé au passage** : les 4 variables déjà annoncées dans le menu déroulant « Variables » de l'éditeur (`%child_firstname%`, `%child_lastname%`, `%excursion_name%`, `%excursion_date%`) n'étaient **jamais résolues** à l'envoi — un coordinateur les insérant voyait le texte littéral `%excursion_name%` dans le mail reçu par les parents. Corrigé (`ExcursionsController.SendEmail`, branche « un mail par enfant »). ⚠️ `DefaultEmailTemplateLibrary.EnsureAsync` changé pour ne plus seeder « tout ou rien » par organisation mais type par type, afin que ce nouveau modèle atteigne aussi les organisations existantes (backfill via `DbSeeder`, qui tourne à chaque démarrage).
+Formulaire simplifié (heure/type retirés de l'écran). Destinataire « inscrits à l'activité, pas
+encore à cette excursion ». Modèle « Proposition d'excursion » (`EmailTemplateType.ExcursionProposal`)
+auto-suggéré au chargement de `Excursions/SendEmail`, avec les variables `%excursion_name%`,
+`%excursion_date%`, `%child_firstname%`, `%child_lastname%` (désormais réellement résolues à
+l'envoi).
 
 ## Lot G — Équipe
 
-- ✅ **Fait** — Panneau « Membres disponibles » déplacé sous « Équipe assignée », replié par défaut.
-- ✅ **Fait** — Présences équipe jour/jour (miroir du système enfants) : nouvelle entité `TeamMemberDay` (+ migration avec backfill des assignations existantes en présent, pour ne rien changer rétroactivement aux salaires déjà calculés), page `TeamPresences` (sélecteur de jour + case à cocher par membre, même mécanisme AJAX que `Presences`), dans le dropdown « Pages spéciales ». Les lignes de présence sont créées/supprimées automatiquement à l'assignation/retrait d'un membre et à l'activation/désactivation d'un jour (formulaire d'édition, éditeur AJAX +/- jour, changement de plage de dates). Le calcul salarial (`FinancialCalculationService`, `FinancialController` Index/TeamSalaries/ExportTeamSalaries/Report) utilise désormais le nombre réel de jours cochés « présent » par membre au lieu de supposer 100% des jours de l'activité.
-- ✅ Déjà satisfait, vérifié : compléments/dépenses par membre (`Expense.TeamMemberId`), décompte total par personne (`TeamSalaries.cshtml`).
-- ✅ **Fait** — Stockage de l'extrait de casier judiciaire (`TeamMember.CriminalRecordUrl`).
+Présences équipe jour par jour (`TeamMemberDay`, page `TeamPresences`), utilisées par le calcul
+salarial au lieu de supposer 100% des jours de l'activité. Compléments/dépenses par membre déjà
+existants. Stockage de l'extrait de casier judiciaire.
 
-## Lot H — ONE (organisme officiel)
+## Lot H — ONE et attestations fiscales
 
-- ✅ **Fait** — 4 tableaux par activité (`ActivityManagement/OneReport`) : listings 2-5 ans / 6 ans et plus (N°, nom, âge, dates, jours, prix payé, indicateurs) + présences hebdomadaires par tranche d'âge. Format calqué sur [`17.pdf`](17.pdf). Aucune migration nécessaire, testé (`OneReportTests.cs`). **Ce rapport reste par activité** (c'est un rapport officiel envoyé à l'ONE, distinct de l'attestation fiscale ci-dessous — à ne pas confondre).
-- ✅ **Fait (2026-09-12)** — Attestations fiscales : **regroupées par association** (confirmation du texte original — document différent du rapport ONE par activité ci-dessus). Décision (Olivier, 2026-09-12) : en l'absence d'exemple réel de la part de Thomas, construction d'un document avec les mentions légales génériques belges (frais de garde d'enfants, art. 113 CIR92), **à faire relire par Thomas/un comptable avant tout usage réel** — un bandeau d'avertissement visible (non imprimé) le rappelle sur l'écran. `ParentsController.FiscalAttestation` (nouveau bouton sur `Parents/Details`), regroupe tous les enfants du parent et toutes les activités de l'organisation pour une année fiscale donnée (sélecteur d'année, réservations confirmées et payées uniquement), même style d'écran imprimable que l'attestation mutuelle (Lot K #3) mais volontairement un fichier/contrôleur distinct : structure différente (groupé vs par activité), destinataire différent (fisc vs mutuelle), et le contenu de l'attestation mutuelle réutilise un vrai exemple client (`GERARD_MULLER_-_S2.pdf`) alors que celle-ci n'en a aucun.
+- **Rapport ONE** (`ActivityManagement/OneReport`) : listings par tranche d'âge + présences
+  hebdomadaires, par activité, calqué sur `17.pdf`.
+- **Attestation fiscale** (`ParentsController.FiscalAttestation`) : groupée par association — tous
+  les enfants d'un parent, toutes les activités de l'organisation, pour une année donnée. Voir
+  avertissement en haut de ce document.
 
-## Lot I — Création d'une activité (refonte wizard) — ✅ Fait le 2026-08-01
+## Lot I — Assistant de création d'activité
 
-Demande de refonte du formulaire de création d'activité : actuellement un formulaire plat unique (Titre/Du/Au), Thomas veut un **assistant multi-étapes avec jauge de progression** (maquette générique `10.21.29`, pastilles 1-2-3-4). Livré : nouveau `ActivityWizardController` (`Features/ActivityWizard/`), jauge `_WizardProgress.cshtml`, 9 nouveaux champs nullable sur `Activity` (migration `AddActivityWizardFields`). Détail des 7 étapes :
+`ActivityWizardController` (7 étapes avec jauge de progression) : Titre + Dates, Paramétrage des
+dates (ajout de dates, regroupement par semaine), Règlement (lien PDF + case à cocher), Limitations
+(codes postaux, quotas), Autres questions, Affichage (fenêtre de publication, redirection), puis
+retour à l'écran d'intégration iframe existant. Couverture de tests complète (25 tests).
 
-- ✅ **Fait** — **Écran d'entrée** : bouton vert « Créer une nouvelle activité » bien visible sur `Activities/Index`, pointe vers l'étape 1 du wizard (formulaire plat `Create` conservé mais plus mis en avant). Déconnexion déjà présente globalement dans le layout.
-- ✅ **Fait** — **Étape 1** : Titre + Dates — crée l'`Activity` au clic sur Enregistrer, puis redirige vers l'étape 2.
-- ✅ **Fait** — **Étape 2 — Paramétrage des dates** : boutons « Ajouter un jour avant/après », « Retirer le 1er/dernier jour » et bandeau info supprimés. Remplacés par un bouton « Ajouter une date » (calendrier) + un toggle « Regrouper par semaine » (JS pur, non persisté, coche/décoche les jours ouvrés d'une semaine via une case maîtresse).
-- ✅ **Fait** — **Étape 3 — Règlement (R.O.I.)** : capture `09.31.41` relue plus précisément en cours d'implémentation — c'est un **champ URL** (lien vers le PDF hébergé ailleurs) + texte de case à cocher, **pas un upload de fichier**. `RegulationLinkUrl`/`RegulationAcceptanceText`, branchés jusque sur le formulaire public (case à cocher requise avant inscription si renseigné).
-- ✅ **Fait** — **Étape 4 — Limitations** : codes postaux autorisés/refusés (existant) + nouveaux `PostalCodeErrorMessage`, `MaxChildrenPerDay`, `FullMessage`. Le plafond est appliqué côté formulaire public comme un cap sur le nombre total d'inscriptions actives de l'activité (pas un vrai comptage par jour calendaire — approximation pragmatique, à affiner si Thomas la juge insuffisante).
-- ✅ **Fait** — **Étape 5 — Autres questions** : éditeur de questions réutilisé, toggle « Actif » retiré du formulaire (round-trippé via un champ caché — les nouvelles questions restent actives par défaut). Le modèle de questions org→activité (question ouverte n°2, ci-dessus) est désormais fait aussi — copié automatiquement à la création via Step1, avant même d'arriver à cette étape.
-- ✅ **Fait** — **Étape 6 — Affichage** : `PublicationStartDate`/`PublicationEndDate`/`NoActiveFormMessage`/`RedirectUrlAfterSubmit`, branchés sur le formulaire public (fenêtre de publication, redirection personnalisée après envoi).
-- ✅ **Fait** — **Étape 7 — Final** : redirige vers l'écran de personnalisation iframe existant (`PublicRegistration/EmbedCode`, pas `Activities/Details` comme supposé initialement), inchangé.
+## Lot J — Paramètres de l'activité
 
-Les 4 groupes de champs neufs (Règlement, Limitations, Affichage, redirection) sont branchés à la fois sur le flux d'inscription simple (`Register`, celui réellement utilisé par le code d'intégration iframe généré) et sur le flux multi-étapes (`SelectActivity`/`ActivityQuestions`/`CreateBooking`). Vérifié par 8 nouveaux tests d'intégration + parcours navigateur complet des 7 étapes (Playwright). 🐛 Bug trouvé et corrigé en cours de route : les vues du wizard avaient été placées sous `Features/Activities/` au lieu de `Features/ActivityWizard/` (la convention feature-folder de l'app associe le dossier de vues au nom du contrôleur), ce qui cassait chaque étape avec une 500.
+Signalétique de l'activité (logo, titre affiché, adresse, e-mail, téléphones, numéro de compte,
+numéro d'entreprise, responsable, signature) ajoutée à `Activities/Edit`/`Details` — chaque champ,
+laissé vide, doit reprendre celui de l'organisation. Dates, groupes et formulaire renvoient vers les
+écrans déjà existants (wizard, `ActivityGroupsController`).
 
-✅ **Comblé (2026-09-12)** — Lacune du 2026-09-12 : `ActivityWizardControllerTests` étendu de 5 à 25 tests, couvrant les 7 étapes (Step1 création + validation date, Step2/`AddDate`/`Step2Next` incluant l'extension de plage et la désactivation de jours, Step3 Règlement, Step4 Limitations + quotas par année de naissance, Step5 questions existantes/nouvelles, Step6 Affichage + redirection finale vers `PublicRegistration/EmbedCode`). 🐛 Piège rencontré en écrivant ces tests : lire une `Activity` via `factory.NewDbContext()` sans `.IgnoreQueryFilters()` renvoie toujours 0 ligne (le filtre multi-tenant n'a pas de contexte organisation ambiant hors requête HTTP) — corrigé en suivant la convention déjà utilisée ailleurs dans la suite.
+**Modèle de questions par activité** : `OrganisationQuestionTemplate`, page `/QuestionTemplates`,
+copié automatiquement dans les questions de chaque nouvelle activité (wizard, création simple,
+import CSV), puis librement modifiable par activité.
 
-## Lot J — Paramètres (nouveau 2026-07-31, sans maquette)
+## Lot K — Nouvelles demandes
 
-Page listée dans l'export mais sans capture d'écran associée — juste une liste de champs à formaliser. Décision (Olivier, 2026-09-12) : la page « Paramètres » existante (tuile de la même icône sur le tableau de bord de l'activité → `Activities/Details`, bouton « Modifier » → `Activities/Edit`) est le bon endroit ; pas de nouvelle page à créer, juste les champs manquants à y ajouter.
+2 adresses e-mail par parent, envoi de mail filtré par semaine, quota d'inscription par année de
+naissance, prévu/payé sur les excursions, garderie (accueil extrascolaire) comme service optionnel,
+attestation mutuelle générée automatiquement (calquée sur `GERARD_MULLER_-_S2.pdf`), un seul badge
+« aîné » par famille sur les listes, édition/suppression de lignes de comptes.
 
-- ✅ **Fait (2026-09-12)** — **Signalétique de l'activité** : Logo, Titre affiché, Adresse, E-mail (reply-to), Téléphone 1, Téléphone 2, Numéro de compte, Numéro d'entreprise, Nom du responsable, Signature du responsable — 10 nouveaux champs nullable sur `Activity` (migration `AddActivityAndOrganisationSignaletiqueFields`), chacun un override : laissé vide, il « reprend celui de l'organisation » (le fallback se fait au point de consommation — pas encore câblé dans un document/e-mail réel, cette page ne fait qu'exposer et persister les champs). `Organisation` complétée avec les 4 champs qui lui manquaient encore pour servir de source par défaut (`Phone1`, `Phone2`, `CompanyNumber`, `ResponsibleSignatureUrl` — mêmes ajouts faits côté `Organisations/Edit`). Logo et signature : upload fichier (`IStorageService`, même pattern que le logo d'organisation) ; adresse : ligne `Address` créée/supprimée à la demande (aucun champ rempli ⇒ pas de ligne).
-- ✅ Déjà couvert — Dates de l'activité : renvoi vers l'Étape 2 du wizard (Lot I), éditeur de jours déjà présent sur `Activities/Edit`.
-- ✅ Déjà couvert — Groupes de l'activité : `ActivityGroupsController` existant, lien depuis `Activities/Details`.
-- ✅ Déjà couvert — Formulaire : Étapes 5/6 du wizard (Lot I) + éditeur de questions déjà sur `Activities/Edit`.
+## Bug connu et corrigé
 
-## Lot K — Nouvelles demandes (note du 2026-08-24 + écarts retrouvés le 2026-09-12)
+`Payments/Create` : sous la culture fr-BE (où `.` est un séparateur de milliers), un montant tapé
+comme « 38.50 » était silencieusement interprété comme 3850 (×100), sans erreur. Corrigé par un
+binder de modèle dédié (`DecimalInputHelper`/`DecimalModelBinder`), qui traite le dernier séparateur
+tapé comme le séparateur décimal — corrige tous les champs `decimal` de l'app, pas seulement celui-ci.
 
-Toutes les décisions ci-dessous ont été tranchées par Olivier le 2026-09-12.
+## Infra — Migration Azure → VPS OVH
 
-- ✅ **Fait (2026-09-12)** — **Page d'accueil en gros boutons par stage** (écart Lot A, voir ci-dessus) : `Home/Index.cshtml`.
-- ✅ **Fait (2026-09-12)** — **Ajustement manuel du montant à la confirmation** (écart Lot B, voir ci-dessus) : `ManageBookings.cshtml`.
-- ✅ **Fait (2026-09-12)** — **2 adresses e-mail par parent** : `Parent.SecondaryEmail` (migration `AddParentSecondaryEmailAndExcursionPaidAmount`), `Parent.GetEmailAddresses()` (helper partagé, dédupliqué) inclus dans tous les envois (`EmailRecipientService`, confirmation de réservation, mails d'excursion) — hors formulaire d'inscription publique (admin uniquement, scope volontairement limité). Champ sur `Parents/Create.cshtml`/`Edit.cshtml`.
-- ✅ **Fait (2026-09-12)** — **Envoi de mail filtré par semaine** : nouveau paramètre `weekNumber` sur `IEmailRecipientService.GetRecipientEmailsAsync` (filtre `ActivityDay.Week`, cumulable avec le filtre par jour), sélecteur « Prévu la semaine » sur `SendEmail.cshtml` (`ActivityManagement`).
-- ✅ **Fait (2026-09-12)** — **Quota d'inscription par année de naissance** — décision (Olivier) : les enfants s'inscrivent en général à la semaine ; **en pratique une réservation réserve toujours tous les jours actifs de l'activité en une fois** (pas d'inscription partielle par semaine dans le flux actuel), donc un quota par (activité, année de naissance) se comporte déjà comme un quota « par semaine » dans le cas courant (1 activité = 1 semaine de stage) — approximation pragmatique documentée dans le code, à affiner si un jour le flux permet une inscription partielle. Nouvelle table `ActivityBirthYearQuota` (`ActivityId`, `BirthYear`, `MaxChildren`, index unique sur le couple), `Activity.BirthYearQuotaExceededMessage` (message personnalisable), vérifié dans `PublicRegistrationController` (`Register` POST, `CreateBooking` du flux multi-étapes) via `CheckBirthYearQuotaAsync`. Gestion des quotas ajoutée à l'étape 4 (Limitations) du wizard (`ActivityWizardController.AddBirthYearQuota`/`RemoveBirthYearQuota`).
-- ✅ **Fait (2026-09-12)** — **Prévu/payé sur les excursions** : `ExcursionRegistration.PaidAmount` (le "prévu" reste `Excursion.Cost`, commun), champ éditable par ligne dans `Excursions/Registrations.cshtml` (AJAX, `ExcursionsController.UpdatePaidAmount`).
-- ✅ **Fait (2026-09-12)** — **Garderie (accueil extrascolaire), comme service optionnel** — nouvelle entité `ChildcareRegistration` (`BookingId`, `ActivityDayId`, `Amount`, index unique sur le couple), `Activity.ChildcarePricePerDay` (tarif par défaut, configurable sur `Activities/Edit`, éditable par ligne). Nouvelle page `ActivityManagement/Childcare` (sélecteur de jour + case à cocher + montant par enfant, AJAX, ajoutée au menu « Pages spéciales ») — c'est à la fois l'écran de gestion **et** la liste des enfants inscrits à la garderie ce jour-là. Montant inclus dans `Booking.TotalAmount` comme pour les excursions.
-- ✅ **Fait (2026-09-12)** — **Attestation mutuelle, générée automatiquement, généralisée par organisation** — le PDF fourni (`GERARD_MULLER_-_S2.pdf`, commune de Clavier) a servi de modèle, généralisé : `Organisation.ResponsibleName` (nouveau champ, configurable sur `Organisations/Edit`) complète le logo et l'adresse déjà existants (`Organisation.LogoUrl`/`Address`). Contrairement au plan initial, **pas de nouveau service QuestPDF** : suivant le pattern déjà établi par `OneReport`/`Print`/`PrintGroups` (page HTML imprimable par le navigateur, pas de PDF généré serveur), nouvelle action `Bookings/MutualityAttestation/{id}` + vue dédiée, bouton sur `Bookings/Details`. Utilise les données déjà disponibles (`BookingDay.IsPresent` pour les jours réels de présence, `Booking.PaidAmount`).
-- ✅ **Fait (2026-09-12)** — **1 aîné par famille sur les listes** — décision (Olivier) appliquée : ignore les familles recomposées, basé uniquement sur `Child.ParentId`. `PresenceChildInfo.IsEldestInFamily` (calculé dynamiquement, `ActivityManagementController.ComputeEldestChildIds`, pas de nouveau champ persistant), badge ⭐ affiché sur `Presences.cshtml`, `Groups.cshtml`, `Print.cshtml`, `PrintGroups.cshtml`.
-- ✅ **Fait (2026-09-12)** — **Édition/suppression de lignes de comptes** : `PaymentsController.Edit`/`Delete` ajoutées (le pattern existait déjà côté `Expense`), avec réajustement de `Booking.PaidAmount`/`PaymentStatus` par delta (helper partagé `RecalculateBookingPaymentStatus`, aussi utilisé par `Cancel`).
-
----
-
-## Ordre proposé
-
-L'essentiel des Lots A à I est livré. Toutes les questions 1 à 5 d'origine étant tranchées par
-Olivier, **plus aucun item n'est bloqué en attente d'une réponse** sauf Lot H (attestations
-fiscales) et Lot J (maquette manquante). Reste à coder, par priorité :
-
-1. **Petits restes** — tous livrés le 2026-07-31 sauf Lot F (mis de côté) :
-   - ✅ Lot D — simplifier le parcours Comptes → Transactions (cartes stats + onglets de filtre retirés de `Transactions.cshtml`, liste nue).
-   - ✅ Lot E — épuration de `SendEmail.cshtml` (en fait déjà livré le 2026-07-30, backlog seulement mis à jour aujourd'hui).
-   - ✅ Lot C — ligne « Dont excursions » sur `Bookings/Details`.
-   - ✅ **Fait (2026-09-12)** — Lot F — périmètre simplifié par Olivier : modèle « Proposition d'excursion » (nouveau `EmailTemplateType.ExcursionProposal`) auto-suggéré sur `Excursions/SendEmail`, pas de vrai déclenchement automatique.
-2. ✅ **Lot H** — attestations fiscales par association : implémenté le 2026-09-12 (mentions légales génériques, à faire relire avant usage réel — voir détail ci-dessus).
-3. ✅ **Lot I** — wizard de création d'activité en 7 étapes, livré le 2026-08-01 (voir détail ci-dessus).
-4. **Lot J** — Paramètres : à maquetter avec Thomas avant de coder (aucune capture fournie).
-5. ✅ **Lot K** — nouvelles demandes du 2026-08-24 + 2 écarts retrouvés le 2026-09-12, toutes tranchées
-   par Olivier et livrées le 2026-09-12 (10 items au total, détail dans la section Lot K ci-dessus) :
-   2 e-mails parent, édition/suppression de paiements, prévu/payé excursions, filtre e-mail par
-   semaine, aîné par famille, quota par année de naissance, page d'accueil en gros boutons,
-   ajustement manuel du montant à la confirmation, garderie, attestation mutuelle généralisée.
-   Suite de tests complète : 1299/1299 au vert (1268 avant ce lot). ⚠️ Lacune de test découverte au
-   passage sur `ActivityWizardController` (Lot I) — voir note dans la section Lot I.
-
-Bloqué par Thomas : Lot H (question n°1) et Lot J (maquette manquante). À confirmer avec Thomas
-(non bloquant, cosmétique) : la nuance sur les 2 raccourcis « Actions rapides » (Lot A).
+Hébergement migré vers un VPS OVH (Ubuntu 24.04, Docker, Caddy/Let's Encrypt), PostgreSQL à la
+place de SQL Server, CI/CD via GHCR (voir [ADR 0012](../adr/0012-cicd-ovh-vps-via-ghcr.md)). Azure
+entièrement décommissionné. Paiement en ligne : Stripe et Mollie tous les deux disponibles,
+sélection par configuration (`Payments:Provider`, voir [ADR 0010](../adr/0010-online-payments-provider-agnostic-stripe.md)).
