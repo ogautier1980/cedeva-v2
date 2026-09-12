@@ -6,6 +6,7 @@
     ViewData["ActivityName"] = Model.Activity?.Name;
     ViewData["NavSection"] = "Excursions";
     ViewData["NavAction"] = "SendEmail";
+    bool hasTemplates = ViewBag.Templates != null && ((dynamic)ViewBag.Templates).Count > 0;
 }
 
 
@@ -56,6 +57,26 @@
                             <span asp-validation-for="SelectedRecipient" class="text-danger"></span>
                             <div class="form-text">@Localizer["Excursion.RecipientHelp"]</div>
                         </div>
+
+                        <!-- Template selector -->
+                        @if (hasTemplates)
+                        {
+                            <div class="mb-3">
+                                <label for="templateSelect" class="form-label">@Localizer["Email.UseTemplate"]</label>
+                                <div class="input-group">
+                                    <select class="form-select" id="templateSelect">
+                                        <option value="">@Localizer["Email.NoTemplate"]</option>
+                                        @foreach (dynamic tmpl in ViewBag.Templates)
+                                        {
+                                            <option value="@tmpl.Id" selected="@(Model.PreselectedTemplateId.HasValue && tmpl.Id == Model.PreselectedTemplateId.Value)">@tmpl.Name@(tmpl.IsDefault ? " ★" : "")</option>
+                                        }
+                                    </select>
+                                    <button type="button" class="btn btn-outline-primary" id="loadTemplateBtn">
+                                        <i class="fas fa-download me-1"></i>@Localizer["Email.LoadTemplate"]
+                                    </button>
+                                </div>
+                            </div>
+                        }
 
                         <!-- Subject -->
                         <div class="mb-3">
@@ -195,6 +216,36 @@
                     }
                 }
             });
+
+            // Load template via AJAX
+            $('#loadTemplateBtn').on('click', function () {
+                const templateId = $('#templateSelect').val();
+                if (!templateId) {
+                    alert('@Localizer["Email.SelectTemplateFirst"]');
+                    return;
+                }
+
+                fetch('/EmailTemplates/GetTemplate/' + templateId)
+                    .then(response => {
+                        if (!response.ok) throw new Error('Template not found');
+                        return response.json();
+                    })
+                    .then(data => {
+                        $('#Subject').val(data.subject);
+                        $('#Message').summernote('code', data.htmlContent);
+                    })
+                    .catch(err => {
+                        alert('@Localizer["Email.TemplateLoadError"]');
+                    });
+            });
+
+            @if (Model.PreselectedTemplateId.HasValue)
+            {
+                <text>
+                // Suggested default excursion-proposal template — auto-loaded, still fully editable.
+                $('#loadTemplateBtn').trigger('click');
+                </text>
+            }
         });
     </script>
 }

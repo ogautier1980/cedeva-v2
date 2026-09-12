@@ -212,6 +212,86 @@ public class ParentsController : Controller
         return View(viewModel);
     }
 
+    // GET: Parents/FiscalAttestation/5 — Lot H, attestation fiscale (frais de garde d'enfants) pour
+    // une année donnée, groupée par association : tous les enfants du parent, toutes les activités
+    // de l'organisation confondues. Distinct de Bookings/MutualityAttestation (Lot K #3), qui est
+    // par enfant/activité et destinée aux mutuelles, pas au fisc.
+    public async Task<IActionResult> FiscalAttestation(int id, int? year)
+    {
+        var parent = await _context.Parents
+            .Include(p => p.Address)
+            .Include(p => p.Children)
+                .ThenInclude(c => c.Bookings)
+                    .ThenInclude(b => b.Activity)
+            .FirstOrDefaultAsync(p => p.Id == id);
+
+        if (parent == null)
+        {
+            return NotFound();
+        }
+
+        var organisation = await _context.Organisations
+            .Include(o => o.Address)
+            .FirstOrDefaultAsync(o => o.Id == parent.OrganisationId);
+        if (organisation == null)
+        {
+            return NotFound();
+        }
+
+        var allBookings = parent.Children
+            .SelectMany(c => c.Bookings.Select(b => (Child: c, Booking: b)))
+            .Where(x => x.Booking.IsConfirmed && x.Booking.PaidAmount > 0)
+            .ToList();
+
+        var availableYears = allBookings
+            .Select(x => x.Booking.Activity.StartDate.Year)
+            .Distinct()
+            .OrderByDescending(y => y)
+            .ToList();
+
+        var fiscalYear = year ?? availableYears.FirstOrDefault(DateTime.Today.Year);
+
+        var lines = allBookings
+            .Where(x => x.Booking.Activity.StartDate.Year == fiscalYear)
+            .OrderBy(x => x.Booking.Activity.StartDate)
+            .ThenBy(x => x.Child.LastName)
+            .Select(x => new FiscalAttestationLine
+            {
+                ChildFirstName = x.Child.FirstName,
+                ChildLastName = x.Child.LastName,
+                ChildBirthDate = x.Child.BirthDate,
+                ChildNationalRegisterNumber = x.Child.NationalRegisterNumber,
+                ActivityName = x.Booking.Activity.Name,
+                ActivityStartDate = x.Booking.Activity.StartDate,
+                ActivityEndDate = x.Booking.Activity.EndDate,
+                AmountPaid = x.Booking.PaidAmount
+            })
+            .ToList();
+
+        var viewModel = new FiscalAttestationViewModel
+        {
+            ParentId = parent.Id,
+            FiscalYear = fiscalYear,
+            AvailableYears = availableYears,
+            OrganisationName = organisation.Name,
+            OrganisationLogoUrl = organisation.LogoUrl,
+            OrganisationAddress = organisation.Address != null
+                ? $"{organisation.Address.Street}, {organisation.Address.PostalCode} {organisation.Address.City}"
+                : string.Empty,
+            ResponsibleName = organisation.ResponsibleName,
+            CompanyNumber = organisation.CompanyNumber,
+            ParentFirstName = parent.FirstName,
+            ParentLastName = parent.LastName,
+            ParentNationalRegisterNumber = parent.NationalRegisterNumber,
+            ParentAddress = parent.Address != null
+                ? $"{parent.Address.Street}, {parent.Address.PostalCode} {parent.Address.City}"
+                : string.Empty,
+            Lines = lines
+        };
+
+        return View(viewModel);
+    }
+
     public async Task<IActionResult> Create()
     {
         var viewModel = new ParentViewModel

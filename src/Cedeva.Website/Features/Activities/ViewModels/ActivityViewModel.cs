@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using Cedeva.Core.Enums;
+using Cedeva.Website.Validation;
 using Cedeva.Website.ViewModels;
 
 namespace Cedeva.Website.Features.Activities.ViewModels;
@@ -76,6 +77,76 @@ public class ActivityViewModel : AuditableViewModel
 
     // For Edit: existing questions with Id, DisplayOrder, IsActive
     public List<ExistingActivityQuestionViewModel> ExistingQuestions { get; set; } = new();
+
+    // --- Signalétique (Lot J) : chaque champ, laissé vide, reprend celui de l'organisation ---
+
+    [StringLength(200, ErrorMessage = "Validation.StringLength")]
+    [Display(Name = "Field.DisplayTitle")]
+    public string? DisplayTitle { get; set; }
+
+    [Display(Name = "Field.Logo")]
+    [AllowedExtensions(".jpg", ".jpeg", ".png", ".gif", ".svg")]
+    [MaxFileSize(5 * 1024 * 1024)]
+    public IFormFile? LogoFile { get; set; }
+
+    [Display(Name = "Field.RemoveLogo")]
+    public bool RemoveLogo { get; set; }
+
+    [Display(Name = "Field.LogoUrl")]
+    public string? LogoUrl { get; set; }
+
+    [StringLength(100, ErrorMessage = "Validation.StringLength")]
+    [Display(Name = "Field.Street")]
+    public string? Street { get; set; }
+
+    [StringLength(100, ErrorMessage = "Validation.StringLength")]
+    [Display(Name = "Field.City")]
+    public string? City { get; set; }
+
+    [StringLength(10, ErrorMessage = "Validation.StringLength")]
+    [Display(Name = "Field.PostalCode")]
+    public string? PostalCode { get; set; }
+
+    [Display(Name = "Field.Country")]
+    public Country? Country { get; set; }
+
+    public int? AddressId { get; set; }
+
+    [EmailAddress(ErrorMessage = "Validation.InvalidEmail")]
+    [StringLength(200, ErrorMessage = "Validation.StringLength")]
+    [Display(Name = "Field.Email")]
+    public string? Email { get; set; }
+
+    [StringLength(30, ErrorMessage = "Validation.StringLength")]
+    [Display(Name = "Field.Phone1")]
+    public string? Phone1 { get; set; }
+
+    [StringLength(30, ErrorMessage = "Validation.StringLength")]
+    [Display(Name = "Field.Phone2")]
+    public string? Phone2 { get; set; }
+
+    [StringLength(34, ErrorMessage = "Validation.StringLength")]
+    [Display(Name = "Field.BankAccountNumber")]
+    public string? BankAccountNumber { get; set; }
+
+    [StringLength(20, ErrorMessage = "Validation.StringLength")]
+    [Display(Name = "Field.CompanyNumber")]
+    public string? CompanyNumber { get; set; }
+
+    [StringLength(200, ErrorMessage = "Validation.StringLength")]
+    [Display(Name = "Field.ResponsibleName")]
+    public string? ResponsibleName { get; set; }
+
+    [Display(Name = "Field.ResponsibleSignature")]
+    [AllowedExtensions(".jpg", ".jpeg", ".png", ".gif", ".svg")]
+    [MaxFileSize(5 * 1024 * 1024)]
+    public IFormFile? ResponsibleSignatureFile { get; set; }
+
+    [Display(Name = "Field.RemoveResponsibleSignature")]
+    public bool RemoveResponsibleSignature { get; set; }
+
+    [Display(Name = "Field.ResponsibleSignatureUrl")]
+    public string? ResponsibleSignatureUrl { get; set; }
 }
 
 public class NewActivityGroupViewModel

@@ -3,6 +3,7 @@ using System;
 using Cedeva.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Cedeva.Infrastructure.Migrations
 {
     [DbContext(typeof(CedevaDbContext))]
-    partial class CedevaDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260912132204_AddActivityAndOrganisationSignaletiqueFields")]
+    partial class AddActivityAndOrganisationSignaletiqueFields
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1466,54 +1469,6 @@ namespace Cedeva.Infrastructure.Migrations
                     b.ToTable("Organisations");
                 });
 
-            modelBuilder.Entity("Cedeva.Core.Entities.OrganisationQuestionTemplate", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.Property<string>("CreatedBy")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<int>("DisplayOrder")
-                        .HasColumnType("integer");
-
-                    b.Property<bool>("IsRequired")
-                        .HasColumnType("boolean");
-
-                    b.Property<DateTime?>("ModifiedAt")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.Property<string>("ModifiedBy")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Options")
-                        .HasColumnType("text");
-
-                    b.Property<int>("OrganisationId")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("QuestionText")
-                        .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)");
-
-                    b.Property<int>("QuestionType")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("OrganisationId");
-
-                    b.ToTable("OrganisationQuestionTemplates");
-                });
-
             modelBuilder.Entity("Cedeva.Core.Entities.Parent", b =>
                 {
                     b.Property<int>("Id")
@@ -2314,17 +2269,6 @@ namespace Cedeva.Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("Address");
-                });
-
-            modelBuilder.Entity("Cedeva.Core.Entities.OrganisationQuestionTemplate", b =>
-                {
-                    b.HasOne("Cedeva.Core.Entities.Organisation", "Organisation")
-                        .WithMany()
-                        .HasForeignKey("OrganisationId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Organisation");
                 });
 
             modelBuilder.Entity("Cedeva.Core.Entities.Parent", b =>

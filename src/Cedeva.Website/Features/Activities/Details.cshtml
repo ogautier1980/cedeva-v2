@@ -62,6 +62,61 @@
                     </dl>
                 </div>
             </div>
+
+            <div class="card shadow mb-4">
+                <div class="card-header">
+                    <h6 class="mb-0"><i class="fas fa-id-card me-2"></i>@Localizer["Activities.Signaletique"]</h6>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted small">@Localizer["Activities.SignaletiqueHelp"]</p>
+                    <dl class="row mb-0">
+                        <dt class="col-sm-3">@Localizer["Field.DisplayTitle"]</dt>
+                        <dd class="col-sm-9">@(string.IsNullOrWhiteSpace(Model.DisplayTitle) ? Model.OrganisationName : Model.DisplayTitle)</dd>
+
+                        @if (!string.IsNullOrEmpty(Model.LogoUrl))
+                        {
+                            <dt class="col-sm-3">@Localizer["Field.Logo"]</dt>
+                            <dd class="col-sm-9"><img src="@Model.LogoUrl" alt="Logo" class="img-thumbnail" style="max-width: 120px;" /></dd>
+                        }
+
+                        <dt class="col-sm-3">@Localizer["Field.Email"]</dt>
+                        <dd class="col-sm-9">@(string.IsNullOrWhiteSpace(Model.Email) ? Localizer["Activities.UsesOrganisationDefault"].Value : Model.Email)</dd>
+
+                        <dt class="col-sm-3">@Localizer["Field.Phone1"]</dt>
+                        <dd class="col-sm-9">@(string.IsNullOrWhiteSpace(Model.Phone1) ? Localizer["Activities.UsesOrganisationDefault"].Value : Model.Phone1)</dd>
+
+                        <dt class="col-sm-3">@Localizer["Field.Phone2"]</dt>
+                        <dd class="col-sm-9">@(string.IsNullOrWhiteSpace(Model.Phone2) ? Localizer["Activities.UsesOrganisationDefault"].Value : Model.Phone2)</dd>
+
+                        <dt class="col-sm-3">@Localizer["Field.Street"]</dt>
+                        <dd class="col-sm-9">
+                            @if (!string.IsNullOrWhiteSpace(Model.Street))
+                            {
+                                @($"{Model.Street}, {Model.PostalCode} {Model.City}")
+                            }
+                            else
+                            {
+                                @Localizer["Activities.UsesOrganisationDefault"].Value
+                            }
+                        </dd>
+
+                        <dt class="col-sm-3">@Localizer["Field.BankAccountNumber"]</dt>
+                        <dd class="col-sm-9">@(string.IsNullOrWhiteSpace(Model.BankAccountNumber) ? Localizer["Activities.UsesOrganisationDefault"].Value : Model.BankAccountNumber)</dd>
+
+                        <dt class="col-sm-3">@Localizer["Field.CompanyNumber"]</dt>
+                        <dd class="col-sm-9">@(string.IsNullOrWhiteSpace(Model.CompanyNumber) ? Localizer["Activities.UsesOrganisationDefault"].Value : Model.CompanyNumber)</dd>
+
+                        <dt class="col-sm-3">@Localizer["Field.ResponsibleName"]</dt>
+                        <dd class="col-sm-9">@(string.IsNullOrWhiteSpace(Model.ResponsibleName) ? Localizer["Activities.UsesOrganisationDefault"].Value : Model.ResponsibleName)</dd>
+
+                        @if (!string.IsNullOrEmpty(Model.ResponsibleSignatureUrl))
+                        {
+                            <dt class="col-sm-3">@Localizer["Field.ResponsibleSignature"]</dt>
+                            <dd class="col-sm-9"><img src="@Model.ResponsibleSignatureUrl" alt="@Localizer["Field.ResponsibleSignature"]" class="img-thumbnail" style="max-width: 120px;" /></dd>
+                        }
+                    </dl>
+                </div>
+            </div>
         </div>
 
         <div class="col-lg-4">

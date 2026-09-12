@@ -1,5 +1,6 @@
 using System.Net;
 using Cedeva.Core.Entities;
+using Cedeva.Core.Enums;
 using Cedeva.Tests.TestSupport;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
@@ -17,7 +18,16 @@ public class ActivitiesControllerIntegrationTests
         string isActive = "true",
         string pricePerDay = "20",
         int organisationId = 0,
-        int id = 0)
+        int id = 0,
+        string? displayTitle = null,
+        string? email = null,
+        string? phone1 = null,
+        string? street = null,
+        string? city = null,
+        string? postalCode = null,
+        string? bankAccountNumber = null,
+        string? companyNumber = null,
+        string? responsibleName = null)
     {
         var fields = new Dictionary<string, string>
         {
@@ -30,6 +40,15 @@ public class ActivitiesControllerIntegrationTests
             ["OrganisationId"] = organisationId.ToString(),
             ["Id"] = id.ToString()
         };
+        if (displayTitle != null) fields["DisplayTitle"] = displayTitle;
+        if (email != null) fields["Email"] = email;
+        if (phone1 != null) fields["Phone1"] = phone1;
+        if (street != null) fields["Street"] = street;
+        if (city != null) fields["City"] = city;
+        if (postalCode != null) fields["PostalCode"] = postalCode;
+        if (bankAccountNumber != null) fields["BankAccountNumber"] = bankAccountNumber;
+        if (companyNumber != null) fields["CompanyNumber"] = companyNumber;
+        if (responsibleName != null) fields["ResponsibleName"] = responsibleName;
         return new FormUrlEncodedContent(fields);
     }
 
@@ -347,6 +366,77 @@ public class ActivitiesControllerIntegrationTests
         var updated = await db.Activities.IgnoreQueryFilters()
             .FirstOrDefaultAsync(a => a.Id == activity.Id);
         updated!.Name.Should().Be("NomModifie");
+    }
+
+    [Fact]
+    public async Task EditPost_SignaletiqueFields_ArePersistedAndAddressIsCreated()
+    {
+        using var factory = new CedevaWebApplicationFactory();
+        Organisation org = null!;
+        Activity activity = null!;
+        factory.Seed(ctx =>
+        {
+            org = TestData.Organisation();
+            activity = TestData.Activity(org, "StageSignaletique");
+            ctx.AddRange(org, activity);
+            return 0;
+        });
+
+        var client = factory.CreateClientFor("u1", org.Id, "Coordinator");
+        var form = ValidActivityForm(
+            organisationId: org.Id, id: activity.Id,
+            displayTitle: "Stage de Pâques ASBL", email: "contact@stage.be", phone1: "02 123 45 67",
+            street: "Rue du Stage", city: "Namur", postalCode: "5000",
+            bankAccountNumber: "BE71 0961 2345 6769", companyNumber: "0123.456.789",
+            responsibleName: "Jean Dupont");
+
+        var response = await client.PostAsync($"/Activities/Edit/{activity.Id}", form);
+
+        response.StatusCode.Should().Be(HttpStatusCode.Found);
+
+        using var db = factory.NewDbContext();
+        var updated = await db.Activities.IgnoreQueryFilters()
+            .Include(a => a.Address)
+            .FirstAsync(a => a.Id == activity.Id);
+        updated.DisplayTitle.Should().Be("Stage de Pâques ASBL");
+        updated.Email.Should().Be("contact@stage.be");
+        updated.Phone1.Should().Be("02 123 45 67");
+        updated.BankAccountNumber.Should().Be("BE71 0961 2345 6769");
+        updated.CompanyNumber.Should().Be("0123.456.789");
+        updated.ResponsibleName.Should().Be("Jean Dupont");
+        updated.Address.Should().NotBeNull();
+        updated.Address!.Street.Should().Be("Rue du Stage");
+        updated.Address.City.Should().Be("Namur");
+        updated.Address.PostalCode.Should().Be("5000");
+    }
+
+    [Fact]
+    public async Task EditPost_BlankSignaletiqueAddress_RemovesExistingOverrideAddress()
+    {
+        using var factory = new CedevaWebApplicationFactory();
+        Organisation org = null!;
+        Activity activity = null!;
+        factory.Seed(ctx =>
+        {
+            org = TestData.Organisation();
+            activity = TestData.Activity(org, "StageAdresseRetrait");
+            activity.Address = new Address { Street = "Ancienne Rue", City = "Liège", PostalCode = "4000", Country = Country.Belgium };
+            ctx.AddRange(org, activity);
+            return 0;
+        });
+
+        var client = factory.CreateClientFor("u1", org.Id, "Coordinator");
+        var form = ValidActivityForm(organisationId: org.Id, id: activity.Id,
+            street: "", city: "", postalCode: "");
+
+        var response = await client.PostAsync($"/Activities/Edit/{activity.Id}", form);
+
+        response.StatusCode.Should().Be(HttpStatusCode.Found);
+
+        using var db = factory.NewDbContext();
+        var updated = await db.Activities.IgnoreQueryFilters()
+            .FirstAsync(a => a.Id == activity.Id);
+        updated.AddressId.Should().BeNull();
     }
 
     [Fact]

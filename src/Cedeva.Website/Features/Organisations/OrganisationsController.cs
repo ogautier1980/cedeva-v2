@@ -136,6 +136,10 @@ public class OrganisationsController : Controller
             BankAccountNumber = organisation.BankAccountNumber,
             BankAccountName = organisation.BankAccountName,
             ResponsibleName = organisation.ResponsibleName,
+            ResponsibleSignatureUrl = organisation.ResponsibleSignatureUrl,
+            Phone1 = organisation.Phone1,
+            Phone2 = organisation.Phone2,
+            CompanyNumber = organisation.CompanyNumber,
             Street = address?.Street ?? "",
             City = address?.City ?? "",
             PostalCode = address?.PostalCode ?? "",
@@ -192,6 +196,9 @@ public class OrganisationsController : Controller
                 BankAccountNumber = viewModel.BankAccountNumber,
                 BankAccountName = viewModel.BankAccountName,
                 ResponsibleName = viewModel.ResponsibleName,
+                Phone1 = viewModel.Phone1,
+                Phone2 = viewModel.Phone2,
+                CompanyNumber = viewModel.CompanyNumber,
                 AddressId = address.Id
             };
 
@@ -202,6 +209,7 @@ public class OrganisationsController : Controller
             await DefaultEmailTemplateLibrary.EnsureAsync(_context, organisation.Id);
 
             await UploadLogoFileForNewOrganisation(organisation, viewModel.LogoFile);
+            await UploadResponsibleSignatureFileForNewOrganisation(organisation, viewModel.ResponsibleSignatureFile);
 
             TempData[ControllerExtensions.SuccessMessageKey] = _ctx.Localizer["Message.OrganisationCreated"].Value;
             return RedirectToAction(nameof(Details), new { id = organisation.Id });
@@ -232,6 +240,10 @@ public class OrganisationsController : Controller
             BankAccountNumber = organisation.BankAccountNumber,
             BankAccountName = organisation.BankAccountName,
             ResponsibleName = organisation.ResponsibleName,
+            ResponsibleSignatureUrl = organisation.ResponsibleSignatureUrl,
+            Phone1 = organisation.Phone1,
+            Phone2 = organisation.Phone2,
+            CompanyNumber = organisation.CompanyNumber,
             Street = address?.Street ?? "",
             City = address?.City ?? "",
             PostalCode = address?.PostalCode ?? "",
@@ -272,9 +284,14 @@ public class OrganisationsController : Controller
             organisation.BankAccountNumber = viewModel.BankAccountNumber;
             organisation.BankAccountName = viewModel.BankAccountName;
             organisation.ResponsibleName = viewModel.ResponsibleName;
+            organisation.Phone1 = viewModel.Phone1;
+            organisation.Phone2 = viewModel.Phone2;
+            organisation.CompanyNumber = viewModel.CompanyNumber;
 
             await HandleLogoRemoval(organisation, viewModel.RemoveLogo);
             await HandleLogoUpload(organisation, viewModel.LogoFile);
+            await HandleResponsibleSignatureRemoval(organisation, viewModel.RemoveResponsibleSignature);
+            await HandleResponsibleSignatureUpload(organisation, viewModel.ResponsibleSignatureFile);
 
             await _organisationRepository.UpdateAsync(organisation);
             await _unitOfWork.SaveChangesAsync();
@@ -350,12 +367,23 @@ public class OrganisationsController : Controller
 
         var addressId = organisation.AddressId;
 
-        // Delete logo file if exists
+        // Delete logo/signature files if they exist
         if (!string.IsNullOrEmpty(organisation.LogoUrl))
         {
             try
             {
                 await _storageService.DeleteFileAsync(organisation.LogoUrl);
+            }
+            catch
+            {
+                // Ignore errors if file doesn't exist
+            }
+        }
+        if (!string.IsNullOrEmpty(organisation.ResponsibleSignatureUrl))
+        {
+            try
+            {
+                await _storageService.DeleteFileAsync(organisation.ResponsibleSignatureUrl);
             }
             catch
             {
@@ -431,6 +459,65 @@ public class OrganisationsController : Controller
                 $"{organisation.Id}/logos"
             );
             organisation.LogoUrl = filePath;
+        }
+    }
+
+    private async Task HandleResponsibleSignatureRemoval(Organisation organisation, bool removeSignature)
+    {
+        if (removeSignature && !string.IsNullOrEmpty(organisation.ResponsibleSignatureUrl))
+        {
+            try
+            {
+                await _storageService.DeleteFileAsync(organisation.ResponsibleSignatureUrl);
+            }
+            catch
+            {
+                // Ignore errors if file doesn't exist
+            }
+            organisation.ResponsibleSignatureUrl = null;
+        }
+    }
+
+    private async Task HandleResponsibleSignatureUpload(Organisation organisation, IFormFile? signatureFile)
+    {
+        if (signatureFile != null)
+        {
+            if (!string.IsNullOrEmpty(organisation.ResponsibleSignatureUrl))
+            {
+                try
+                {
+                    await _storageService.DeleteFileAsync(organisation.ResponsibleSignatureUrl);
+                }
+                catch
+                {
+                    // Ignore errors if file doesn't exist
+                }
+            }
+
+            var fileName = $"{Guid.NewGuid()}_{Path.GetFileName(signatureFile.FileName)}";
+            var filePath = await _storageService.UploadFileAsync(
+                signatureFile.OpenReadStream(),
+                fileName,
+                signatureFile.ContentType,
+                $"{organisation.Id}/signatures"
+            );
+            organisation.ResponsibleSignatureUrl = filePath;
+        }
+    }
+
+    private async Task UploadResponsibleSignatureFileForNewOrganisation(Organisation organisation, IFormFile? signatureFile)
+    {
+        if (signatureFile != null)
+        {
+            var fileName = $"{Guid.NewGuid()}_{Path.GetFileName(signatureFile.FileName)}";
+            var filePath = await _storageService.UploadFileAsync(
+                signatureFile.OpenReadStream(),
+                fileName,
+                signatureFile.ContentType,
+                $"{organisation.Id}/signatures"
+            );
+            organisation.ResponsibleSignatureUrl = filePath;
+            await _unitOfWork.SaveChangesAsync();
         }
     }
 

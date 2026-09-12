@@ -24,7 +24,10 @@ public class OrganisationsControllerIntegrationTests
         string postalCode = "1000",
         string bankAccountNumber = "BE68 5390 0754 7034",
         string bankAccountName = "Cedeva ASBL",
-        string responsibleName = "Responsable Test")
+        string responsibleName = "Responsable Test",
+        string? phone1 = null,
+        string? phone2 = null,
+        string? companyNumber = null)
     {
         var fields = new Dictionary<string, string>
         {
@@ -39,6 +42,9 @@ public class OrganisationsControllerIntegrationTests
             ["ResponsibleName"] = responsibleName
         };
         if (id != null) fields["Id"] = id;
+        if (phone1 != null) fields["Phone1"] = phone1;
+        if (phone2 != null) fields["Phone2"] = phone2;
+        if (companyNumber != null) fields["CompanyNumber"] = companyNumber;
         return new FormUrlEncodedContent(fields);
     }
 
@@ -227,6 +233,31 @@ public class OrganisationsControllerIntegrationTests
         updated.BankAccountNumber.Should().Be("BE71 0961 2345 6769");
         updated.BankAccountName.Should().Be("New name");
         updated.ResponsibleName.Should().Be("Nouveau Responsable");
+    }
+
+    [Fact]
+    public async Task Edit_Post_UpdatesPhoneAndCompanyNumberFields()
+    {
+        using var factory = new CedevaWebApplicationFactory();
+        var org = factory.Seed(ctx =>
+        {
+            var o = TestData.Organisation("Org Signaletique");
+            ctx.Add(o);
+            return o;
+        });
+
+        var response = await AdminClient(factory).PostAsync(
+            $"/Organisations/Edit/{org.Id}",
+            ValidForm(id: org.Id.ToString(), name: "Org Signaletique",
+                phone1: "02 000 00 00", phone2: "0470 00 00 00", companyNumber: "0123.456.789"));
+
+        response.StatusCode.Should().Be(HttpStatusCode.Found);
+
+        using var db = factory.NewDbContext();
+        var updated = db.Organisations.Single(o => o.Id == org.Id);
+        updated.Phone1.Should().Be("02 000 00 00");
+        updated.Phone2.Should().Be("0470 00 00 00");
+        updated.CompanyNumber.Should().Be("0123.456.789");
     }
 
     [Fact]

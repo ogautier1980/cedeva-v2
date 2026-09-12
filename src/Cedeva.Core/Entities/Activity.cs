@@ -87,6 +87,48 @@ public class Activity : AuditableEntity, IOrganisationScoped
     [StringLength(300, ErrorMessage = "Validation.StringLength")]
     public string? BirthYearQuotaExceededMessage { get; set; }
 
+    // --- Signalétique (Lot J) : chaque champ est un override optionnel — quand null, les
+    // documents/e-mails générés pour cette activité doivent reprendre la valeur équivalente de
+    // Organisation. Tous nullable ; pas de valeur par défaut stockée ici (le fallback se fait au
+    // point de consommation, pas en base).
+
+    /// <summary>Titre affiché sur les documents/e-mails de cette activité (distinct de <see cref="Name"/>,
+    /// qui reste le nom interne du stage). Null = reprend Organisation.Name.</summary>
+    [StringLength(200, ErrorMessage = "Validation.StringLength")]
+    public string? DisplayTitle { get; set; }
+
+    /// <summary>Logo pour cette activité (upload). Null = reprend Organisation.LogoUrl.</summary>
+    public string? LogoUrl { get; set; }
+
+    /// <summary>Adresse propre à l'activité. Null = reprend Organisation.Address.</summary>
+    public int? AddressId { get; set; }
+    public Address? Address { get; set; }
+
+    /// <summary>Adresse e-mail de réponse (reply-to) des mails envoyés pour cette activité. Null = reprend Organisation.Email.</summary>
+    [EmailAddress(ErrorMessage = "Validation.InvalidEmail")]
+    [StringLength(200, ErrorMessage = "Validation.StringLength")]
+    public string? Email { get; set; }
+
+    [StringLength(30, ErrorMessage = "Validation.StringLength")]
+    public string? Phone1 { get; set; }
+
+    [StringLength(30, ErrorMessage = "Validation.StringLength")]
+    public string? Phone2 { get; set; }
+
+    /// <summary>Numéro de compte (IBAN). Null = reprend Organisation.BankAccountNumber.</summary>
+    public string? BankAccountNumber { get; set; }
+
+    /// <summary>Numéro d'entreprise (BCE). Null = reprend Organisation.CompanyNumber.</summary>
+    [StringLength(20, ErrorMessage = "Validation.StringLength")]
+    public string? CompanyNumber { get; set; }
+
+    /// <summary>Nom du responsable. Null = reprend Organisation.ResponsibleName.</summary>
+    [StringLength(200, ErrorMessage = "Validation.StringLength")]
+    public string? ResponsibleName { get; set; }
+
+    /// <summary>Image de signature du responsable (upload). Null = reprend Organisation.ResponsibleSignatureUrl.</summary>
+    public string? ResponsibleSignatureUrl { get; set; }
+
     public int OrganisationId { get; set; }
     public Organisation Organisation { get; set; } = null!;
 

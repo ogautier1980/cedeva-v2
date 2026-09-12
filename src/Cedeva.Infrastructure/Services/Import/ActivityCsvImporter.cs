@@ -15,11 +15,13 @@ public class ActivityCsvImporter : ICsvEntityImporter
 {
     private readonly CedevaDbContext _context;
     private readonly IEmailTemplateService _templateService;
+    private readonly IQuestionTemplateService _questionTemplateService;
 
-    public ActivityCsvImporter(CedevaDbContext context, IEmailTemplateService templateService)
+    public ActivityCsvImporter(CedevaDbContext context, IEmailTemplateService templateService, IQuestionTemplateService questionTemplateService)
     {
         _context = context;
         _templateService = templateService;
+        _questionTemplateService = questionTemplateService;
     }
 
     public string Key => "activities";
@@ -112,9 +114,12 @@ public class ActivityCsvImporter : ICsvEntityImporter
             result.Created++;
         }
 
-        // Seed each new activity with the organisation's template library.
+        // Seed each new activity with the organisation's template libraries (e-mail + questions).
         foreach (var id in createdActivityIds)
+        {
             await _templateService.CopyOrganisationTemplatesToActivityAsync(organisationId, id);
+            await _questionTemplateService.CopyOrganisationTemplatesToActivityAsync(organisationId, id);
+        }
 
         return result;
     }

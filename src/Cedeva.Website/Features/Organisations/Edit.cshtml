@@ -104,6 +104,44 @@
                             <small class="form-text text-muted">@Localizer["Field.ResponsibleNameHelp"]</small>
                         </div>
 
+                        <div class="mb-3">
+                            <label for="ResponsibleSignatureFile" class="form-label">@Localizer["Field.ResponsibleSignature"]</label>
+
+                            @if (!string.IsNullOrEmpty(Model.ResponsibleSignatureUrl))
+                            {
+                                <div class="mb-2">
+                                    <img src="@Model.ResponsibleSignatureUrl" alt="@Localizer["Field.ResponsibleSignature"]" class="img-thumbnail" style="max-width: 200px;" />
+                                    <div class="form-check mt-1">
+                                        <input asp-for="RemoveResponsibleSignature" class="form-check-input" id="RemoveResponsibleSignature" />
+                                        <label class="form-check-label" for="RemoveResponsibleSignature">@Localizer["Field.RemoveResponsibleSignature"]</label>
+                                    </div>
+                                </div>
+                            }
+
+                            <input asp-for="ResponsibleSignatureFile" type="file" class="form-control" id="ResponsibleSignatureFile" accept="image/*" />
+                            <span asp-validation-for="ResponsibleSignatureFile" class="text-danger"></span>
+                        </div>
+                        <input type="hidden" asp-for="ResponsibleSignatureUrl" />
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="Phone1" class="form-label">@Localizer["Field.Phone1"]</label>
+                                <input asp-for="Phone1" class="form-control" id="Phone1" />
+                                <span asp-validation-for="Phone1" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="Phone2" class="form-label">@Localizer["Field.Phone2"]</label>
+                                <input asp-for="Phone2" class="form-control" id="Phone2" />
+                                <span asp-validation-for="Phone2" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="CompanyNumber" class="form-label">@Localizer["Field.CompanyNumber"]</label>
+                            <input asp-for="CompanyNumber" class="form-control" id="CompanyNumber" placeholder="0123.456.789" />
+                            <span asp-validation-for="CompanyNumber" class="text-danger"></span>
+                        </div>
+
                         <hr />
 
                         <div class="d-flex justify-content-between">

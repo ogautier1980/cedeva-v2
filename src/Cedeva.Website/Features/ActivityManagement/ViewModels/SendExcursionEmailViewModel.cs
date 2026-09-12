@@ -31,4 +31,6 @@ public class SendExcursionEmailViewModel
     public IFormFile? AttachmentFile { get; set; }
 
     public List<SelectListItem> RecipientOptions { get; set; } = new();
+
+    public int? PreselectedTemplateId { get; set; }
 }

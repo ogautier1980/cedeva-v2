@@ -168,6 +168,111 @@
 
                         <hr />
 
+                        <h6 class="mb-3 text-primary"><i class="fas fa-id-card me-2"></i>@Localizer["Activities.Signaletique"]</h6>
+                        <div class="alert alert-info py-2">
+                            <i class="fas fa-info-circle me-2"></i>@Localizer["Activities.SignaletiqueHelp"]
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="DisplayTitle" class="form-label">@Localizer["Field.DisplayTitle"]</label>
+                            <input asp-for="DisplayTitle" class="form-control" id="DisplayTitle" placeholder="@Model.OrganisationName" />
+                            <span asp-validation-for="DisplayTitle" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="LogoFile" class="form-label">@Localizer["Field.Logo"]</label>
+
+                            @if (!string.IsNullOrEmpty(Model.LogoUrl))
+                            {
+                                <div class="mb-2">
+                                    <img src="@Model.LogoUrl" alt="Logo" class="img-thumbnail" style="max-width: 150px;" />
+                                    <div class="form-check mt-1">
+                                        <input asp-for="RemoveLogo" class="form-check-input" id="RemoveLogo" />
+                                        <label class="form-check-label" for="RemoveLogo">@Localizer["Field.RemoveLogo"]</label>
+                                    </div>
+                                </div>
+                            }
+                            <input asp-for="LogoFile" type="file" class="form-control" id="LogoFile" accept="image/*" />
+                            <span asp-validation-for="LogoFile" class="text-danger"></span>
+                        </div>
+                        <input type="hidden" asp-for="LogoUrl" />
+
+                        <div class="mb-3">
+                            <label for="Email" class="form-label">@Localizer["Field.Email"]</label>
+                            <input asp-for="Email" type="email" class="form-control" id="Email" />
+                            <span asp-validation-for="Email" class="text-danger"></span>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="Phone1" class="form-label">@Localizer["Field.Phone1"]</label>
+                                <input asp-for="Phone1" class="form-control" id="Phone1" />
+                                <span asp-validation-for="Phone1" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="Phone2" class="form-label">@Localizer["Field.Phone2"]</label>
+                                <input asp-for="Phone2" class="form-control" id="Phone2" />
+                                <span asp-validation-for="Phone2" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="Street" class="form-label">@Localizer["Field.Street"]</label>
+                                <input asp-for="Street" class="form-control" id="Street" />
+                                <span asp-validation-for="Street" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label for="PostalCode" class="form-label">@Localizer["Field.PostalCode"]</label>
+                                <input asp-for="PostalCode" class="form-control" id="PostalCode" />
+                                <span asp-validation-for="PostalCode" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label for="City" class="form-label">@Localizer["Field.City"]</label>
+                                <input asp-for="City" class="form-control" id="City" />
+                                <span asp-validation-for="City" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="BankAccountNumber" class="form-label">@Localizer["Field.BankAccountNumber"]</label>
+                                <input asp-for="BankAccountNumber" class="form-control" id="BankAccountNumber" placeholder="BE00 0000 0000 0000" />
+                                <span asp-validation-for="BankAccountNumber" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="CompanyNumber" class="form-label">@Localizer["Field.CompanyNumber"]</label>
+                                <input asp-for="CompanyNumber" class="form-control" id="CompanyNumber" placeholder="0123.456.789" />
+                                <span asp-validation-for="CompanyNumber" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="ResponsibleName" class="form-label">@Localizer["Field.ResponsibleName"]</label>
+                            <input asp-for="ResponsibleName" class="form-control" id="ResponsibleName" />
+                            <span asp-validation-for="ResponsibleName" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="ResponsibleSignatureFile" class="form-label">@Localizer["Field.ResponsibleSignature"]</label>
+
+                            @if (!string.IsNullOrEmpty(Model.ResponsibleSignatureUrl))
+                            {
+                                <div class="mb-2">
+                                    <img src="@Model.ResponsibleSignatureUrl" alt="@Localizer["Field.ResponsibleSignature"]" class="img-thumbnail" style="max-width: 150px;" />
+                                    <div class="form-check mt-1">
+                                        <input asp-for="RemoveResponsibleSignature" class="form-check-input" id="RemoveResponsibleSignature" />
+                                        <label class="form-check-label" for="RemoveResponsibleSignature">@Localizer["Field.RemoveResponsibleSignature"]</label>
+                                    </div>
+                                </div>
+                            }
+                            <input asp-for="ResponsibleSignatureFile" type="file" class="form-control" id="ResponsibleSignatureFile" accept="image/*" />
+                            <span asp-validation-for="ResponsibleSignatureFile" class="text-danger"></span>
+                        </div>
+                        <input type="hidden" asp-for="ResponsibleSignatureUrl" />
+
+                        <hr />
+
                         <h6 class="mb-3 text-primary"><i class="fas fa-map-marker-alt me-2"></i>@Localizer["Activities.PostalCodeRestrictions"]</h6>
 
                         <div class="row">

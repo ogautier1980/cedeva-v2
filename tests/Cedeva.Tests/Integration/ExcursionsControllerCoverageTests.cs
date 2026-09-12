@@ -710,6 +710,40 @@ public class ExcursionsControllerCoverageTests
     }
 
     [Fact]
+    public async Task SendEmail_Post_PerChild_ResolvesExcursionAndChildMergeVariables()
+    {
+        // Regression test (Lot F): %excursion_name%/%excursion_date%/%child_firstname%/
+        // %child_lastname% are advertised in the Summernote "Variables" dropdown on this screen but
+        // were never actually wired into ReplaceVariables — they used to reach the sent e-mail as
+        // literal, unresolved text.
+        var fake = new FakeEmailService();
+        using var factory = new CedevaWebApplicationFactory
+        {
+            ConfigureExtraTestContainer = b => b.RegisterInstance(fake).As<IEmailService>()
+        };
+        var s = SeedFull(factory);
+        var client = factory.CreateClientFor("u1", s.OrgId, "Coordinator");
+        RegisterChild(factory, client, s);
+
+        var response = await client.PostAsync("/Excursions/SendEmail", Form(new()
+        {
+            ["ExcursionId"] = s.ExcursionId.ToString(),
+            ["SelectedRecipient"] = "all_registered",
+            ["Subject"] = "Excursion : %excursion_name% le %excursion_date%",
+            ["Message"] = "Bonjour, %child_firstname% %child_lastname% est invité(e) à %excursion_name%.",
+            ["SendSeparateEmailPerChild"] = "true",
+        }));
+
+        response.StatusCode.Should().Be(HttpStatusCode.Redirect);
+        fake.Sent.Should().ContainSingle();
+        // Date separator follows the fr-BE request culture (matches the app's other date merge
+        // variables, e.g. %date_debut_activite%) — not necessarily "/".
+        var expectedDate = new DateTime(2026, 7, 3).ToString("dd/MM/yyyy", new System.Globalization.CultureInfo("fr-BE"));
+        fake.Sent[0].Subject.Should().Be($"Excursion : Excursion Test le {expectedDate}");
+        fake.Sent[0].Html.Should().Be("Bonjour, Chloé Enfant est invité(e) à Excursion Test.");
+    }
+
+    [Fact]
     public async Task SendEmail_Post_ModelInvalid_ReRendersWith200()
     {
         using var factory = new CedevaWebApplicationFactory();

@@ -44,6 +44,19 @@ public class Organisation : AuditableEntity
     [StringLength(200, ErrorMessage = "Validation.StringLength")]
     public string? ResponsibleName { get; set; }
 
+    /// <summary>Image de signature du responsable (upload), utilisée sur les documents officiels générés.</summary>
+    public string? ResponsibleSignatureUrl { get; set; }
+
+    [StringLength(30, ErrorMessage = "Validation.StringLength")]
+    public string? Phone1 { get; set; }
+
+    [StringLength(30, ErrorMessage = "Validation.StringLength")]
+    public string? Phone2 { get; set; }
+
+    /// <summary>Numéro d'entreprise (BCE), ex. "0123.456.789".</summary>
+    [StringLength(20, ErrorMessage = "Validation.StringLength")]
+    public string? CompanyNumber { get; set; }
+
     public ICollection<Activity> Activities { get; set; } = new List<Activity>();
     public ICollection<Parent> Parents { get; set; } = new List<Parent>();
     public ICollection<TeamMember> TeamMembers { get; set; } = new List<TeamMember>();

@@ -832,6 +832,42 @@
   <data name="Bookings.MutualityAttestationIssuedOn" xml:space="preserve">
     <value>Datum van verzending</value>
   </data>
+  <data name="Parents.FiscalAttestation" xml:space="preserve">
+    <value>Fiscaal attest</value>
+  </data>
+  <data name="Parents.FiscalYear" xml:space="preserve">
+    <value>Fiscaal jaar</value>
+  </data>
+  <data name="Parents.FiscalAttestationDraftWarning" xml:space="preserve">
+    <value>⚠️ Document automatisch gegenereerd op basis van de betalingen geregistreerd in Cedeva, volgens de algemene Belgische wettelijke vermeldingen (kosten voor kinderopvang, art. 113 WIB92). Er werd geen officieel model aangeleverd voor deze organisatie — laat dit document nalezen door een boekhouder voordat u het aan een ouder overhandigt.</value>
+  </data>
+  <data name="Parents.FiscalAttestationTitle" xml:space="preserve">
+    <value>Fiscaal attest — Kosten voor kinderopvang</value>
+  </data>
+  <data name="Parents.FiscalAttestationSubtitle" xml:space="preserve">
+    <value>Jaar {0} — Artikel 113 van het Wetboek van de inkomstenbelastingen 1992</value>
+  </data>
+  <data name="Parents.FiscalAttestationLegalIntro" xml:space="preserve">
+    <value>Ondergetekenden bevestigen dat de hieronder vermelde bedragen daadwerkelijk werden betaald door de begunstigde voor de opvang van kinderen jonger dan 12 jaar (of jonger dan 18 jaar bij zware handicap), buiten de normale schooluren, in het kader van de hieronder vermelde activiteiten.</value>
+  </data>
+  <data name="Parents.FiscalAttestationBeneficiary" xml:space="preserve">
+    <value>Begunstigde (ouder)</value>
+  </data>
+  <data name="Parents.FiscalAttestationDetail" xml:space="preserve">
+    <value>Detail per kind en per activiteit</value>
+  </data>
+  <data name="Parents.FiscalAttestationAmountPaid" xml:space="preserve">
+    <value>Betaald bedrag</value>
+  </data>
+  <data name="Parents.FiscalAttestationTotal" xml:space="preserve">
+    <value>Totaal</value>
+  </data>
+  <data name="Parents.FiscalAttestationNoLines" xml:space="preserve">
+    <value>Geen betalingen geregistreerd voor dit jaar.</value>
+  </data>
+  <data name="Parents.FiscalAttestationLegalFooter" xml:space="preserve">
+    <value>Dit attest wordt afgeleverd om te dienen waar nodig in het kader van de belastingaangifte van de begunstigde.</value>
+  </data>
   <data name="Bookings.MutualityAttestationOrganiser" xml:space="preserve">
     <value>Gegevens van de organiserende instantie</value>
   </data>
@@ -1701,6 +1737,69 @@
   </data>
   <data name="Field.ResponsibleNameHelp" xml:space="preserve">
     <value>Gebruikt op gegenereerde officiële documenten (bv. mutualiteitsattest)</value>
+  </data>
+  <data name="Field.Phone1" xml:space="preserve">
+    <value>Telefoon 1</value>
+  </data>
+  <data name="Field.Phone2" xml:space="preserve">
+    <value>Telefoon 2</value>
+  </data>
+  <data name="Field.CompanyNumber" xml:space="preserve">
+    <value>Ondernemingsnummer</value>
+  </data>
+  <data name="Field.ResponsibleSignature" xml:space="preserve">
+    <value>Handtekening van de verantwoordelijke</value>
+  </data>
+  <data name="Field.RemoveResponsibleSignature" xml:space="preserve">
+    <value>Handtekening verwijderen</value>
+  </data>
+  <data name="Field.ResponsibleSignatureUrl" xml:space="preserve">
+    <value>URL van de handtekening</value>
+  </data>
+  <data name="Field.DisplayTitle" xml:space="preserve">
+    <value>Weergegeven titel</value>
+  </data>
+  <data name="Activities.Signaletique" xml:space="preserve">
+    <value>Identiteitsgegevens van de activiteit</value>
+  </data>
+  <data name="Activities.SignaletiqueHelp" xml:space="preserve">
+    <value>Gebruikt op de documenten en e-mails die voor deze activiteit worden gegenereerd. Laat leeg om de instellingen van de organisatie over te nemen.</value>
+  </data>
+  <data name="Activities.UsesOrganisationDefault" xml:space="preserve">
+    <value>Neemt de instelling van de organisatie over</value>
+  </data>
+  <data name="QuestionTemplate.Title" xml:space="preserve">
+    <value>Vraagsjablonen</value>
+  </data>
+  <data name="QuestionTemplate.Help" xml:space="preserve">
+    <value>Vragen die automatisch worden gesteld bij elke nieuwe activiteit — daarna onafhankelijk aanpasbaar per activiteit.</value>
+  </data>
+  <data name="QuestionTemplate.AddTemplate" xml:space="preserve">
+    <value>Sjabloon toevoegen</value>
+  </data>
+  <data name="QuestionTemplate.CreateNew" xml:space="preserve">
+    <value>Nieuw vraagsjabloon</value>
+  </data>
+  <data name="QuestionTemplate.EditTemplate" xml:space="preserve">
+    <value>Vraagsjabloon bewerken</value>
+  </data>
+  <data name="QuestionTemplate.NoTemplates" xml:space="preserve">
+    <value>Geen vraagsjablonen gedefinieerd</value>
+  </data>
+  <data name="QuestionTemplate.ConfirmDelete" xml:space="preserve">
+    <value>Dit vraagsjabloon verwijderen? Reeds aangemaakte activiteiten blijven ongewijzigd.</value>
+  </data>
+  <data name="QuestionTemplate.Created" xml:space="preserve">
+    <value>Vraagsjabloon succesvol aangemaakt</value>
+  </data>
+  <data name="QuestionTemplate.Updated" xml:space="preserve">
+    <value>Vraagsjabloon succesvol bijgewerkt</value>
+  </data>
+  <data name="QuestionTemplate.Deleted" xml:space="preserve">
+    <value>Vraagsjabloon succesvol verwijderd</value>
+  </data>
+  <data name="QuestionTemplate.DisplayOrder" xml:space="preserve">
+    <value>Weergavevolgorde</value>
   </data>
   <data name="Field.AcceptRegulation" xml:space="preserve">
     <value>Ik aanvaard het huishoudelijk reglement</value>
@@ -4292,6 +4391,9 @@
   </data>
   <data name="EmailTemplateType.PaymentLinkRequest" xml:space="preserve">
     <value>Betaallink</value>
+  </data>
+  <data name="EmailTemplateType.ExcursionProposal" xml:space="preserve">
+    <value>Uitstapvoorstel</value>
   </data>
   <data name="Activities.CannotRemoveLastDay" xml:space="preserve">
     <value>Kan de laatste dag van de activiteit niet verwijderen.</value>

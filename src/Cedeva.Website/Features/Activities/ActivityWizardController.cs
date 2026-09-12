@@ -27,6 +27,7 @@ public class ActivityWizardController : Controller
     private readonly ILogger<ActivityWizardController> _logger;
     private readonly IStringLocalizer<SharedResources> _localizer;
     private readonly IEmailTemplateService _templateService;
+    private readonly IQuestionTemplateService _questionTemplateService;
     private readonly IActivityDayService _activityDayService;
 
     public ActivityWizardController(
@@ -35,6 +36,7 @@ public class ActivityWizardController : Controller
         ILogger<ActivityWizardController> logger,
         IStringLocalizer<SharedResources> localizer,
         IEmailTemplateService templateService,
+        IQuestionTemplateService questionTemplateService,
         IActivityDayService activityDayService)
     {
         _context = context;
@@ -42,6 +44,7 @@ public class ActivityWizardController : Controller
         _logger = logger;
         _localizer = localizer;
         _templateService = templateService;
+        _questionTemplateService = questionTemplateService;
         _activityDayService = activityDayService;
     }
 
@@ -95,6 +98,7 @@ public class ActivityWizardController : Controller
         await _context.SaveChangesAsync();
 
         await _templateService.CopyOrganisationTemplatesToActivityAsync(activity.OrganisationId, activity.Id);
+        await _questionTemplateService.CopyOrganisationTemplatesToActivityAsync(activity.OrganisationId, activity.Id);
 
         _logger.LogInformation("Activity {Name} created via wizard by user {UserId}", activity.Name, _currentUserService.UserId);
 

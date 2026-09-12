@@ -121,23 +121,46 @@ public static class DefaultEmailTemplateLibrary
                 "<p style=\"text-align:center;\">%qr_code_paiement%</p>" +
                 "<p>Cordialement,<br><strong>%nom_organisation%</strong></p>",
             IsDefault = true
+        },
+        new EmailTemplate
+        {
+            OrganisationId = organisationId,
+            Name = "Proposition d'excursion",
+            TemplateType = EmailTemplateType.ExcursionProposal,
+            Subject = "Excursion : %excursion_name% le %excursion_date%",
+            HtmlContent =
+                "<h2 style=\"color:#007faf;\">Une excursion est proposée !</h2>" +
+                "<p>Bonjour,</p>" +
+                "<p>Nous proposons une excursion à <strong>%child_firstname% %child_lastname%</strong> :</p>" +
+                "<ul>" +
+                "<li><strong>Excursion :</strong> %excursion_name%</li>" +
+                "<li><strong>Date :</strong> %excursion_date%</li>" +
+                "</ul>" +
+                "<p>Merci de nous faire savoir si vous souhaitez inscrire votre enfant.</p>" +
+                "<p>Cordialement,<br><strong>%nom_organisation%</strong></p>",
+            IsDefault = true
         }
     };
 
     /// <summary>
-    /// Adds the default library to an organisation if it has none yet (organisation-level templates).
-    /// Idempotent. Returns the number of templates created.
+    /// Adds any default template whose <see cref="EmailTemplateType"/> the organisation doesn't
+    /// already have at the organisation level. Idempotent — also backfills pre-existing
+    /// organisations when a new type is added to <see cref="Build"/> later (called on every
+    /// startup by <c>DbSeeder</c>). Returns the number of templates created.
     /// </summary>
     public static async Task<int> EnsureAsync(CedevaDbContext context, int organisationId, CancellationToken ct = default)
     {
-        var hasLibrary = await context.EmailTemplates.IgnoreQueryFilters()
-            .AnyAsync(t => t.OrganisationId == organisationId && t.ActivityId == null, ct);
-        if (hasLibrary)
+        var existingTypes = await context.EmailTemplates.IgnoreQueryFilters()
+            .Where(t => t.OrganisationId == organisationId && t.ActivityId == null)
+            .Select(t => t.TemplateType)
+            .ToListAsync(ct);
+
+        var missing = Build(organisationId).Where(t => !existingTypes.Contains(t.TemplateType)).ToList();
+        if (missing.Count == 0)
             return 0;
 
-        var templates = Build(organisationId);
-        context.EmailTemplates.AddRange(templates);
+        context.EmailTemplates.AddRange(missing);
         await context.SaveChangesAsync(ct);
-        return templates.Count;
+        return missing.Count;
     }
 }

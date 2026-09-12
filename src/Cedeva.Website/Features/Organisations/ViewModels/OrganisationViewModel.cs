@@ -49,6 +49,29 @@ public class OrganisationViewModel : AuditableViewModel
     [Display(Name = "Field.ResponsibleName")]
     public string? ResponsibleName { get; set; }
 
+    [Display(Name = "Field.ResponsibleSignature")]
+    [AllowedExtensions(".jpg", ".jpeg", ".png", ".gif", ".svg")]
+    [MaxFileSize(5 * 1024 * 1024)]
+    public IFormFile? ResponsibleSignatureFile { get; set; }
+
+    [Display(Name = "Field.RemoveResponsibleSignature")]
+    public bool RemoveResponsibleSignature { get; set; }
+
+    [Display(Name = "Field.ResponsibleSignatureUrl")]
+    public string? ResponsibleSignatureUrl { get; set; }
+
+    [StringLength(30, ErrorMessage = "Validation.StringLength")]
+    [Display(Name = "Field.Phone1")]
+    public string? Phone1 { get; set; }
+
+    [StringLength(30, ErrorMessage = "Validation.StringLength")]
+    [Display(Name = "Field.Phone2")]
+    public string? Phone2 { get; set; }
+
+    [StringLength(20, ErrorMessage = "Validation.StringLength")]
+    [Display(Name = "Field.CompanyNumber")]
+    public string? CompanyNumber { get; set; }
+
     // Address
     [Required(ErrorMessage = "Validation.Required")]
     [StringLength(100, MinimumLength = 2, ErrorMessage = "Validation.StringLength")]

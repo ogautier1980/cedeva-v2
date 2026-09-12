@@ -48,6 +48,7 @@ public class CedevaDbContext : IdentityDbContext<CedevaUser>, IUnitOfWork
     public DbSet<ExcursionRegistration> ExcursionRegistrations => Set<ExcursionRegistration>();
     public DbSet<ExcursionGroup> ExcursionGroups => Set<ExcursionGroup>();
     public DbSet<ExcursionTeamMember> ExcursionTeamMembers => Set<ExcursionTeamMember>();
+    public DbSet<OrganisationQuestionTemplate> OrganisationQuestionTemplates => Set<OrganisationQuestionTemplate>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -70,6 +71,7 @@ public class CedevaDbContext : IdentityDbContext<CedevaUser>, IUnitOfWork
         ApplyOrganisationFilter<Contact>(builder);
         ApplyOrganisationFilter<ContactGroup>(builder);
         ApplyOrganisationFilter<EmailTemplate>(builder);
+        ApplyOrganisationFilter<OrganisationQuestionTemplate>(builder);
 
         // Entities scoped via a relationship keep their own filter expression.
         builder.Entity<Child>()

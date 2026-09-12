@@ -1,0 +1,97 @@
+@model Cedeva.Website.Features.QuestionTemplates.ViewModels.QuestionTemplateViewModel
+@{
+    ViewData["Title"] = Localizer["QuestionTemplate.CreateNew"];
+}
+
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-question-circle me-2"></i>@Localizer["QuestionTemplate.CreateNew"]</h5>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Create" method="post">
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+                        <div class="mb-3">
+                            <label for="QuestionText" class="form-label">@Localizer["ActivityQuestions.QuestionText"]</label>
+                            <textarea asp-for="QuestionText" class="form-control" rows="3" placeholder="@Localizer["ActivityQuestions.QuestionTextPlaceholder"]" id="QuestionText"></textarea>
+                            <span asp-validation-for="QuestionText" class="text-danger"></span>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="QuestionType" class="form-label">@Localizer["ActivityQuestions.QuestionType"]</label>
+                                <select asp-for="QuestionType" class="form-select" asp-items="ViewBag.QuestionTypes" id="QuestionType">
+                                    <option value="">@Localizer["SelectType"]</option>
+                                </select>
+                                <span asp-validation-for="QuestionType" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <div class="mt-4">
+                                    <div class="form-check">
+                                        <input asp-for="IsRequired" class="form-check-input" type="checkbox" id="IsRequired" />
+                                        <label for="IsRequired" class="form-check-label">@Localizer["ActivityQuestions.IsRequired"]</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3" id="optionsDiv" style="display: none;">
+                            <label for="Options" class="form-label">@Localizer["ActivityQuestions.Options"]</label>
+                            <input asp-for="Options" class="form-control" placeholder="@Localizer["ActivityQuestions.OptionsPlaceholder"]" id="Options" />
+                            <span asp-validation-for="Options" class="text-danger"></span>
+                            <div class="form-text">@Localizer["ActivityQuestions.OptionsHelp"]</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="DisplayOrder" class="form-label">@Localizer["QuestionTemplate.DisplayOrder"]</label>
+                            <input asp-for="DisplayOrder" type="number" min="1" class="form-control" id="DisplayOrder" style="max-width: 120px;" />
+                            <span asp-validation-for="DisplayOrder" class="text-danger"></span>
+                        </div>
+
+                        <hr />
+
+                        <div class="d-flex justify-content-between">
+                            <a asp-action="Index" class="btn btn-outline-secondary text-nowrap">
+                                <i class="fas fa-arrow-left me-2"></i>@Localizer["Cancel"]
+                            </a>
+                            <button type="submit" class="btn btn-primary text-nowrap">
+                                <i class="fas fa-save me-2"></i>@Localizer["Save"]
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        $(document).ready(function() {
+            CedevaChoices.initAll('.form-select');
+
+            var $questionTypeSelect = $('#QuestionType');
+            var $optionsDiv = $('#optionsDiv');
+            var $optionsInput = $('#Options');
+
+            function toggleOptionsField() {
+                var selectedType = $questionTypeSelect.val();
+                if (selectedType == '2' || selectedType == '3') {
+                    $optionsDiv.show();
+                    $optionsInput.attr('required', 'required');
+                } else {
+                    $optionsDiv.hide();
+                    $optionsInput.removeAttr('required');
+                }
+            }
+
+            $questionTypeSelect.on('change', toggleOptionsField);
+            toggleOptionsField();
+        });
+    </script>
+}

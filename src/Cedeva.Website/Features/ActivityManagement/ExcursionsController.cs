@@ -599,7 +599,7 @@ public class ExcursionsController : Controller
     }
 
     [HttpGet]
-    public async Task<IActionResult> SendEmail(int id)
+    public async Task<IActionResult> SendEmail(int id, int? templateId)
     {
         var excursion = await _context.Excursions
             .Include(e => e.Activity)
@@ -612,12 +612,24 @@ public class ExcursionsController : Controller
 
         var recipientOptions = GetExcursionRecipientOptions(excursion.ExcursionGroups.Select(eg => eg.ActivityGroup).ToList());
 
+        ViewBag.Templates = await _emailServices.Template.GetAllTemplatesAsync(excursion.Activity.OrganisationId, excursion.ActivityId);
+
+        // No explicit template picked (e.g. arriving fresh from "Envoyer un mail") — suggest the
+        // organisation's default excursion-proposal template, still fully editable before sending.
+        if (templateId == null)
+        {
+            var defaultTemplate = await _emailServices.Template.GetDefaultTemplateAsync(
+                EmailTemplateType.ExcursionProposal, excursion.Activity.OrganisationId, excursion.ActivityId);
+            templateId = defaultTemplate?.Id;
+        }
+
         var viewModel = new SendExcursionEmailViewModel
         {
             ExcursionId = excursion.Id,
             Excursion = excursion,
             Activity = excursion.Activity,
-            RecipientOptions = recipientOptions
+            RecipientOptions = recipientOptions,
+            PreselectedTemplateId = templateId
         };
 
         this.SetActivityViewData(excursion.ActivityId, excursion.Activity.Name);
@@ -692,20 +704,34 @@ public class ExcursionsController : Controller
 
         var (attachmentFileName, attachmentFilePath) = await SaveAttachmentAsync(model.AttachmentFile, ct);
 
+        var excursion = await _context.Excursions.FirstOrDefaultAsync(e => e.Id == model.ExcursionId, ct);
+        var excursionVariables = new Dictionary<string, string>
+        {
+            ["excursion_name"] = excursion?.Name ?? string.Empty,
+            ["excursion_date"] = excursion?.ExcursionDate.ToString("dd/MM/yyyy") ?? string.Empty,
+        };
+
         int sentCount;
         if (model.SendSeparateEmailPerChild)
         {
             sentCount = 0;
             foreach (var booking in recipientBookings)
             {
-                var subject = _emailServices.VariableReplacement.ReplaceVariables(model.Subject, booking, organisation!);
-                var message = _emailServices.VariableReplacement.ReplaceVariables(model.Message, booking, organisation!);
+                var perChildVariables = new Dictionary<string, string>(excursionVariables)
+                {
+                    ["child_firstname"] = booking.Child.FirstName,
+                    ["child_lastname"] = booking.Child.LastName,
+                };
+                var subject = _emailServices.VariableReplacement.ReplaceVariables(model.Subject, booking, organisation!, perChildVariables);
+                var message = _emailServices.VariableReplacement.ReplaceVariables(model.Message, booking, organisation!, perChildVariables);
                 await _emailServices.Email.SendEmailAsync(booking.Child.Parent.GetEmailAddresses().ToList(), subject, message, attachmentFilePath);
                 sentCount++;
             }
         }
         else
         {
+            // One (identical) e-mail for every parent — no single booking to resolve per-child/per-
+            // booking variables against, so subject/message are sent as typed (unchanged behaviour).
             var recipientEmails = recipientBookings.SelectMany(b => b.Child.Parent.GetEmailAddresses()).Distinct().ToList();
             foreach (var emailAddress in recipientEmails)
             {
@@ -758,6 +784,7 @@ public class ExcursionsController : Controller
             model.Excursion = excursion;
             model.Activity = excursion.Activity;
             model.RecipientOptions = GetExcursionRecipientOptions(excursion.ExcursionGroups.Select(eg => eg.ActivityGroup).ToList());
+            ViewBag.Templates = await _emailServices.Template.GetAllTemplatesAsync(excursion.Activity.OrganisationId, excursion.ActivityId);
         }
     }
 

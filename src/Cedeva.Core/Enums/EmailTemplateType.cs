@@ -42,6 +42,11 @@ public enum EmailTemplateType
     PaymentLinkRequest = 7,
 
     /// <summary>
+    /// Proposition d'excursion aux parents (Lot F) — non verrouillé, comme les autres modèles Excursion.
+    /// </summary>
+    ExcursionProposal = 8,
+
+    /// <summary>
     /// Template personnalisé
     /// </summary>
     Custom = 99

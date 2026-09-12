@@ -1,5 +1,6 @@
 using System.Text;
 using Cedeva.Core.Enums;
+using Cedeva.Infrastructure.Services;
 using Cedeva.Infrastructure.Services.Email;
 using Cedeva.Infrastructure.Services.Import;
 using Cedeva.Tests.TestSupport;
@@ -93,7 +94,7 @@ public class CsvImportersTests
         var (db, orgA, _) = NewDb();
         using var _d = db;
         using var ctx = db.NewContext(FakeCurrentUserService.Coordinator(orgA));
-        var sut = new ActivityCsvImporter(ctx, new EmailTemplateService(ctx));
+        var sut = new ActivityCsvImporter(ctx, new EmailTemplateService(ctx), new QuestionTemplateService(ctx));
 
         var result = await sut.ImportAsync(Csv(
             "Name;Description;StartDate;EndDate;PricePerDay;IsActive",

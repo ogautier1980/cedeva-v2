@@ -31,7 +31,9 @@ public class ActivitiesController : Controller
     private readonly IUserDisplayService _userDisplayService;
     private readonly ISessionStateService _sessionState;
     private readonly IEmailTemplateService _templateService;
+    private readonly IQuestionTemplateService _questionTemplateService;
     private readonly IActivityDayService _activityDayService;
+    private readonly IStorageService _storageService;
 
     public ActivitiesController(
         CedevaDbContext context,
@@ -42,7 +44,9 @@ public class ActivitiesController : Controller
         IUserDisplayService userDisplayService,
         ISessionStateService sessionState,
         IEmailTemplateService templateService,
-        IActivityDayService activityDayService)
+        IQuestionTemplateService questionTemplateService,
+        IActivityDayService activityDayService,
+        IStorageService storageService)
     {
         _context = context;
         _currentUserService = currentUserService;
@@ -52,7 +56,9 @@ public class ActivitiesController : Controller
         _userDisplayService = userDisplayService;
         _sessionState = sessionState;
         _templateService = templateService;
+        _questionTemplateService = questionTemplateService;
         _activityDayService = activityDayService;
+        _storageService = storageService;
     }
 
     public async Task<IActionResult> Index([FromQuery] ActivityQueryParameters queryParams)
@@ -237,6 +243,7 @@ public class ActivitiesController : Controller
 
         // Seed the new activity with a copy of the organisation's template library.
         await _templateService.CopyOrganisationTemplatesToActivityAsync(activity.OrganisationId, activity.Id);
+        await _questionTemplateService.CopyOrganisationTemplatesToActivityAsync(activity.OrganisationId, activity.Id);
 
         await CreateActivityGroupsAsync(activity.Id, viewModel.NewGroups);
         await CreateActivityQuestionsAsync(activity.Id, viewModel.NewQuestions);
@@ -300,6 +307,124 @@ public class ActivitiesController : Controller
     }
 
     private static void GenerateActivityDays(Activity activity) => ActivityDayGenerator.GenerateDays(activity);
+
+    // --- Signalétique (Lot J) : logo/signature upload et adresse override, même pattern que
+    // OrganisationsController, adapté à une adresse optionnelle (créée à la demande, jamais requise). ---
+
+    private async Task UpdateActivityAddressFromViewModel(Activity activity, ActivityViewModel viewModel)
+    {
+        var hasAnyAddressField = !string.IsNullOrWhiteSpace(viewModel.Street)
+            || !string.IsNullOrWhiteSpace(viewModel.City)
+            || !string.IsNullOrWhiteSpace(viewModel.PostalCode);
+
+        if (!hasAnyAddressField)
+        {
+            if (activity.AddressId.HasValue)
+            {
+                var existing = await _context.Addresses.FindAsync(activity.AddressId.Value);
+                if (existing != null)
+                {
+                    _context.Addresses.Remove(existing);
+                }
+                activity.AddressId = null;
+            }
+            return;
+        }
+
+        if (activity.Address == null)
+        {
+            var address = new Address
+            {
+                Street = viewModel.Street ?? string.Empty,
+                City = viewModel.City ?? string.Empty,
+                PostalCode = viewModel.PostalCode ?? string.Empty,
+                Country = viewModel.Country ?? Core.Enums.Country.Belgium
+            };
+            _context.Addresses.Add(address);
+            activity.Address = address;
+        }
+        else
+        {
+            activity.Address.Street = viewModel.Street ?? string.Empty;
+            activity.Address.City = viewModel.City ?? string.Empty;
+            activity.Address.PostalCode = viewModel.PostalCode ?? string.Empty;
+            activity.Address.Country = viewModel.Country ?? Core.Enums.Country.Belgium;
+        }
+    }
+
+    private async Task HandleActivityLogoRemoval(Activity activity, bool removeLogo)
+    {
+        if (removeLogo && !string.IsNullOrEmpty(activity.LogoUrl))
+        {
+            try
+            {
+                await _storageService.DeleteFileAsync(activity.LogoUrl);
+            }
+            catch
+            {
+                // Ignore errors if file doesn't exist
+            }
+            activity.LogoUrl = null;
+        }
+    }
+
+    private async Task HandleActivityLogoUpload(Activity activity, IFormFile? logoFile)
+    {
+        if (logoFile == null) return;
+
+        if (!string.IsNullOrEmpty(activity.LogoUrl))
+        {
+            try
+            {
+                await _storageService.DeleteFileAsync(activity.LogoUrl);
+            }
+            catch
+            {
+                // Ignore errors if file doesn't exist
+            }
+        }
+
+        var fileName = $"{Guid.NewGuid()}_{Path.GetFileName(logoFile.FileName)}";
+        activity.LogoUrl = await _storageService.UploadFileAsync(
+            logoFile.OpenReadStream(), fileName, logoFile.ContentType, $"activities/{activity.Id}/logos");
+    }
+
+    private async Task HandleActivityResponsibleSignatureRemoval(Activity activity, bool removeSignature)
+    {
+        if (removeSignature && !string.IsNullOrEmpty(activity.ResponsibleSignatureUrl))
+        {
+            try
+            {
+                await _storageService.DeleteFileAsync(activity.ResponsibleSignatureUrl);
+            }
+            catch
+            {
+                // Ignore errors if file doesn't exist
+            }
+            activity.ResponsibleSignatureUrl = null;
+        }
+    }
+
+    private async Task HandleActivityResponsibleSignatureUpload(Activity activity, IFormFile? signatureFile)
+    {
+        if (signatureFile == null) return;
+
+        if (!string.IsNullOrEmpty(activity.ResponsibleSignatureUrl))
+        {
+            try
+            {
+                await _storageService.DeleteFileAsync(activity.ResponsibleSignatureUrl);
+            }
+            catch
+            {
+                // Ignore errors if file doesn't exist
+            }
+        }
+
+        var fileName = $"{Guid.NewGuid()}_{Path.GetFileName(signatureFile.FileName)}";
+        activity.ResponsibleSignatureUrl = await _storageService.UploadFileAsync(
+            signatureFile.OpenReadStream(), fileName, signatureFile.ContentType, $"activities/{activity.Id}/signatures");
+    }
 
     public async Task<IActionResult> Edit(int id, string? returnUrl = null)
     {
@@ -373,6 +498,7 @@ public class ActivitiesController : Controller
             .Include(a => a.Days)
             .Include(a => a.Bookings)
                 .ThenInclude(b => b.Days)
+            .Include(a => a.Address)
             .FirstOrDefaultAsync(a => a.Id == id);
 
         if (activity == null)
@@ -386,6 +512,22 @@ public class ActivitiesController : Controller
         activity.IsActive = viewModel.IsActive;
         activity.PricePerDay = viewModel.PricePerDay;
         activity.ChildcarePricePerDay = viewModel.ChildcarePricePerDay;
+
+        // Signalétique (Lot J) — chaque champ laissé vide reste null (fallback vers Organisation
+        // au point de consommation, pas ici).
+        activity.DisplayTitle = string.IsNullOrWhiteSpace(viewModel.DisplayTitle) ? null : viewModel.DisplayTitle.Trim();
+        activity.Email = string.IsNullOrWhiteSpace(viewModel.Email) ? null : viewModel.Email.Trim();
+        activity.Phone1 = string.IsNullOrWhiteSpace(viewModel.Phone1) ? null : viewModel.Phone1.Trim();
+        activity.Phone2 = string.IsNullOrWhiteSpace(viewModel.Phone2) ? null : viewModel.Phone2.Trim();
+        activity.BankAccountNumber = string.IsNullOrWhiteSpace(viewModel.BankAccountNumber) ? null : viewModel.BankAccountNumber.Trim();
+        activity.CompanyNumber = string.IsNullOrWhiteSpace(viewModel.CompanyNumber) ? null : viewModel.CompanyNumber.Trim();
+        activity.ResponsibleName = string.IsNullOrWhiteSpace(viewModel.ResponsibleName) ? null : viewModel.ResponsibleName.Trim();
+
+        await UpdateActivityAddressFromViewModel(activity, viewModel);
+        await HandleActivityLogoRemoval(activity, viewModel.RemoveLogo);
+        await HandleActivityLogoUpload(activity, viewModel.LogoFile);
+        await HandleActivityResponsibleSignatureRemoval(activity, viewModel.RemoveResponsibleSignature);
+        await HandleActivityResponsibleSignatureUpload(activity, viewModel.ResponsibleSignatureFile);
 
         // Handle date changes and generate/remove days if needed
         var oldStartDate = activity.StartDate;
@@ -606,6 +748,23 @@ public class ActivitiesController : Controller
             BookingsCount = activity.Bookings?.Count ?? 0,
             GroupsCount = activity.Groups?.Count ?? 0,
             TeamMembersCount = activity.TeamMembers?.Count ?? 0,
+
+            // Signalétique (Lot J) — champs override, chacun tombe à null s'il n'est pas défini
+            // (le fallback vers Organisation se fait au point de consommation, pas ici).
+            DisplayTitle = activity.DisplayTitle,
+            LogoUrl = activity.LogoUrl,
+            AddressId = activity.AddressId,
+            Street = activity.Address?.Street,
+            City = activity.Address?.City,
+            PostalCode = activity.Address?.PostalCode,
+            Country = activity.Address?.Country,
+            Email = activity.Email,
+            Phone1 = activity.Phone1,
+            Phone2 = activity.Phone2,
+            BankAccountNumber = activity.BankAccountNumber,
+            CompanyNumber = activity.CompanyNumber,
+            ResponsibleName = activity.ResponsibleName,
+            ResponsibleSignatureUrl = activity.ResponsibleSignatureUrl,
 
             // Audit fields
             CreatedAt = activity.CreatedAt,

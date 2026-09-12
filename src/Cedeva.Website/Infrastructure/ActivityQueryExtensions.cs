@@ -27,7 +27,8 @@ public static class ActivityQueryExtensions
             .Include(a => a.Organisation)
             .Include(a => a.Bookings)
             .Include(a => a.Groups)
-            .Include(a => a.TeamMembers);
+            .Include(a => a.TeamMembers)
+            .Include(a => a.Address);
     }
 
     /// <summary>

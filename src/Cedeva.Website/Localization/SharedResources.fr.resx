@@ -835,6 +835,42 @@
   <data name="Bookings.MutualityAttestationIssuedOn" xml:space="preserve">
     <value>Date de l'envoi</value>
   </data>
+  <data name="Parents.FiscalAttestation" xml:space="preserve">
+    <value>Attestation fiscale</value>
+  </data>
+  <data name="Parents.FiscalYear" xml:space="preserve">
+    <value>Année fiscale</value>
+  </data>
+  <data name="Parents.FiscalAttestationDraftWarning" xml:space="preserve">
+    <value>⚠️ Document généré automatiquement à partir des paiements enregistrés dans Cedeva, sur base des mentions légales génériques belges (frais de garde d'enfants, art. 113 CIR92). Aucun modèle officiel n'a été fourni pour cette organisation — faites relire ce document par un comptable avant de le remettre à un parent.</value>
+  </data>
+  <data name="Parents.FiscalAttestationTitle" xml:space="preserve">
+    <value>Attestation fiscale — Frais de garde d'enfants</value>
+  </data>
+  <data name="Parents.FiscalAttestationSubtitle" xml:space="preserve">
+    <value>Année {0} — Article 113 du Code des impôts sur les revenus 1992</value>
+  </data>
+  <data name="Parents.FiscalAttestationLegalIntro" xml:space="preserve">
+    <value>Nous soussignés attestons que les montants repris ci-dessous ont été effectivement payés par le bénéficiaire pour la garde d'enfants de moins de 12 ans (ou de moins de 18 ans en cas de handicap lourd), en dehors des heures normales de classe, dans le cadre des activités reprises ci-dessous.</value>
+  </data>
+  <data name="Parents.FiscalAttestationBeneficiary" xml:space="preserve">
+    <value>Bénéficiaire (parent)</value>
+  </data>
+  <data name="Parents.FiscalAttestationDetail" xml:space="preserve">
+    <value>Détail par enfant et par activité</value>
+  </data>
+  <data name="Parents.FiscalAttestationAmountPaid" xml:space="preserve">
+    <value>Montant payé</value>
+  </data>
+  <data name="Parents.FiscalAttestationTotal" xml:space="preserve">
+    <value>Total</value>
+  </data>
+  <data name="Parents.FiscalAttestationNoLines" xml:space="preserve">
+    <value>Aucun paiement enregistré pour cette année.</value>
+  </data>
+  <data name="Parents.FiscalAttestationLegalFooter" xml:space="preserve">
+    <value>Cette attestation est délivrée pour servir et valoir ce que de droit dans le cadre de la déclaration fiscale du bénéficiaire.</value>
+  </data>
   <data name="Bookings.MutualityAttestationOrganiser" xml:space="preserve">
     <value>Coordonnées de l'organisme organisateur</value>
   </data>
@@ -1650,6 +1686,69 @@
   </data>
   <data name="Field.ResponsibleNameHelp" xml:space="preserve">
     <value>Utilisé sur les documents officiels générés (ex. attestation mutuelle)</value>
+  </data>
+  <data name="Field.Phone1" xml:space="preserve">
+    <value>Téléphone 1</value>
+  </data>
+  <data name="Field.Phone2" xml:space="preserve">
+    <value>Téléphone 2</value>
+  </data>
+  <data name="Field.CompanyNumber" xml:space="preserve">
+    <value>Numéro d'entreprise</value>
+  </data>
+  <data name="Field.ResponsibleSignature" xml:space="preserve">
+    <value>Signature du responsable</value>
+  </data>
+  <data name="Field.RemoveResponsibleSignature" xml:space="preserve">
+    <value>Supprimer la signature</value>
+  </data>
+  <data name="Field.ResponsibleSignatureUrl" xml:space="preserve">
+    <value>URL de la signature</value>
+  </data>
+  <data name="Field.DisplayTitle" xml:space="preserve">
+    <value>Titre affiché</value>
+  </data>
+  <data name="Activities.Signaletique" xml:space="preserve">
+    <value>Signalétique de l'activité</value>
+  </data>
+  <data name="Activities.SignaletiqueHelp" xml:space="preserve">
+    <value>Utilisés sur les documents et e-mails générés pour cette activité. Laissez vide pour reprendre les paramètres de l'organisation.</value>
+  </data>
+  <data name="Activities.UsesOrganisationDefault" xml:space="preserve">
+    <value>Reprend le paramètre de l'organisation</value>
+  </data>
+  <data name="QuestionTemplate.Title" xml:space="preserve">
+    <value>Modèles de questions</value>
+  </data>
+  <data name="QuestionTemplate.Help" xml:space="preserve">
+    <value>Questions posées automatiquement sur chaque nouvelle activité créée — reste ensuite modifiable indépendamment sur chaque activité.</value>
+  </data>
+  <data name="QuestionTemplate.AddTemplate" xml:space="preserve">
+    <value>Ajouter un modèle</value>
+  </data>
+  <data name="QuestionTemplate.CreateNew" xml:space="preserve">
+    <value>Nouveau modèle de question</value>
+  </data>
+  <data name="QuestionTemplate.EditTemplate" xml:space="preserve">
+    <value>Modifier le modèle de question</value>
+  </data>
+  <data name="QuestionTemplate.NoTemplates" xml:space="preserve">
+    <value>Aucun modèle de question défini</value>
+  </data>
+  <data name="QuestionTemplate.ConfirmDelete" xml:space="preserve">
+    <value>Supprimer ce modèle de question ? Les activités déjà créées ne seront pas affectées.</value>
+  </data>
+  <data name="QuestionTemplate.Created" xml:space="preserve">
+    <value>Modèle de question créé avec succès</value>
+  </data>
+  <data name="QuestionTemplate.Updated" xml:space="preserve">
+    <value>Modèle de question mis à jour avec succès</value>
+  </data>
+  <data name="QuestionTemplate.Deleted" xml:space="preserve">
+    <value>Modèle de question supprimé avec succès</value>
+  </data>
+  <data name="QuestionTemplate.DisplayOrder" xml:space="preserve">
+    <value>Ordre d'affichage</value>
   </data>
   <data name="Field.AcceptRegulation" xml:space="preserve">
     <value>J'accepte le règlement d'ordre intérieur</value>
@@ -4314,6 +4413,9 @@
   </data>
   <data name="EmailTemplateType.PaymentLinkRequest" xml:space="preserve">
     <value>Lien de paiement</value>
+  </data>
+  <data name="EmailTemplateType.ExcursionProposal" xml:space="preserve">
+    <value>Proposition d'excursion</value>
   </data>
   <data name="Activities.CannotRemoveLastDay" xml:space="preserve">
     <value>Impossible de retirer le dernier jour de l'activité.</value>

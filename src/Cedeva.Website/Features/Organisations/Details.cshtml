@@ -97,6 +97,27 @@
                                 <span class="text-muted fst-italic">@Localizer["NotSpecified"]</span>
                             }
                         </dd>
+
+                        <dt class="col-sm-4">@Localizer["Field.ResponsibleSignature"]</dt>
+                        <dd class="col-sm-8">
+                            @if (!string.IsNullOrEmpty(Model.ResponsibleSignatureUrl))
+                            {
+                                <img src="@Model.ResponsibleSignatureUrl" alt="@Localizer["Field.ResponsibleSignature"]" class="img-thumbnail" style="max-width: 150px;" />
+                            }
+                            else
+                            {
+                                <span class="text-muted fst-italic">@Localizer["NotSpecified"]</span>
+                            }
+                        </dd>
+
+                        <dt class="col-sm-4">@Localizer["Field.Phone1"]</dt>
+                        <dd class="col-sm-8">@(string.IsNullOrWhiteSpace(Model.Phone1) ? Localizer["NotSpecified"].Value : Model.Phone1)</dd>
+
+                        <dt class="col-sm-4">@Localizer["Field.Phone2"]</dt>
+                        <dd class="col-sm-8">@(string.IsNullOrWhiteSpace(Model.Phone2) ? Localizer["NotSpecified"].Value : Model.Phone2)</dd>
+
+                        <dt class="col-sm-4">@Localizer["Field.CompanyNumber"]</dt>
+                        <dd class="col-sm-8">@(string.IsNullOrWhiteSpace(Model.CompanyNumber) ? Localizer["NotSpecified"].Value : Model.CompanyNumber)</dd>
                     </dl>
 
                     <hr />
