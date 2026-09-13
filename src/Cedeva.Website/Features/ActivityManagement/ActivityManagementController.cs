@@ -1135,7 +1135,8 @@ public class ActivityManagementController : Controller
         var columns = BuildGroupsExportColumns(dayId, showReserved, showPresent, showSignature);
 
         var sheetName = _localizer["ActivityManagement.GroupsList"].Value;
-        var excelData = _exportServices.Excel.ExportToExcel(roster, sheetName, columns);
+        var excelData = _exportServices.Excel.ExportToExcel(roster, sheetName, columns,
+            c => c.ActivityGroupName ?? _localizer["Presence.None"].Value);
         var fileName = $"{sheetName}_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx";
 
         return File(excelData, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
@@ -1162,7 +1163,8 @@ public class ActivityManagementController : Controller
         var columns = BuildGroupsExportColumns(dayId, showReserved, showPresent, showSignature);
 
         var title = _localizer["ActivityManagement.GroupsList"].Value;
-        var pdfData = _exportServices.Pdf.ExportToPdf(roster, title, columns);
+        var pdfData = _exportServices.Pdf.ExportToPdf(roster, title, columns,
+            c => c.ActivityGroupName ?? _localizer["Presence.None"].Value);
         var fileName = $"{title}_{DateTime.Now:yyyyMMdd_HHmmss}.pdf";
 
         return File(pdfData, "application/pdf", fileName);
@@ -1173,7 +1175,6 @@ public class ActivityManagementController : Controller
     {
         var columns = new Dictionary<string, Func<PresenceChildInfo, object>>
         {
-            { _localizer["Activities.Group"].Value, c => c.ActivityGroupName ?? _localizer["Presence.None"].Value },
             { _localizer["LastName"].Value, c => c.ChildLastName },
             { _localizer["FirstName"].Value, c => c.ChildFirstName },
             { _localizer["Parent"].Value, c => c.ParentName },

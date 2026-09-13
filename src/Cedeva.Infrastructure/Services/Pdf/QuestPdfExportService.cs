@@ -13,7 +13,8 @@ public class QuestPdfExportService : IPdfExportService
         QuestPDF.Settings.License = LicenseType.Community;
     }
 
-    public byte[] ExportToPdf<T>(IEnumerable<T> data, string title, Dictionary<string, Func<T, object>> columns)
+    public byte[] ExportToPdf<T>(IEnumerable<T> data, string title, Dictionary<string, Func<T, object>> columns,
+        Func<T, string>? groupSelector = null)
     {
         var dataList = data.ToList();
 
@@ -25,7 +26,7 @@ public class QuestPdfExportService : IPdfExportService
                 page.Margin(30);
 
                 page.Header().Row(row => BuildHeader(row, title, dataList.Count));
-                page.Content().PaddingVertical(10).Table(table => BuildTable(table, dataList, columns));
+                page.Content().PaddingVertical(10).Table(table => BuildTable(table, dataList, columns, groupSelector));
                 page.Footer().AlignCenter().Text(text => BuildFooter(text));
             });
         });
@@ -52,7 +53,8 @@ public class QuestPdfExportService : IPdfExportService
             .SemiBold();
     }
 
-    private static void BuildTable<T>(TableDescriptor table, List<T> dataList, Dictionary<string, Func<T, object>> columns)
+    private static void BuildTable<T>(TableDescriptor table, List<T> dataList, Dictionary<string, Func<T, object>> columns,
+        Func<T, string>? groupSelector)
     {
         // Define columns
         var columnCount = columns.Count;
@@ -77,8 +79,22 @@ public class QuestPdfExportService : IPdfExportService
         });
 
         // Data rows
+        string? currentGroup = null;
         foreach (var item in dataList)
         {
+            if (groupSelector != null)
+            {
+                var group = groupSelector(item);
+                if (group != currentGroup)
+                {
+                    currentGroup = group;
+                    table.Cell().ColumnSpan((uint)columnCount).Background(Colors.Grey.Lighten3).Padding(5)
+                        .Text(group)
+                        .FontSize(10)
+                        .Bold();
+                }
+            }
+
             foreach (var column in columns.Values)
             {
                 var value = column(item);

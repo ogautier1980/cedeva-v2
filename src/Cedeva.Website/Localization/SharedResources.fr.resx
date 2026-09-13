@@ -1048,6 +1048,9 @@
   <data name="Button.Print" xml:space="preserve">
     <value>Imprimer</value>
   </data>
+  <data name="Button.Filter" xml:space="preserve">
+    <value>Filtrer</value>
+  </data>
   <data name="Button.Save" xml:space="preserve">
     <value>Enregistrer</value>
   </data>

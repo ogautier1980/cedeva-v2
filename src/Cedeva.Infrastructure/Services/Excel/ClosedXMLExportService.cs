@@ -5,13 +5,14 @@ namespace Cedeva.Infrastructure.Services.Excel;
 
 public class ClosedXmlExportService : IExcelExportService
 {
-    public byte[] ExportToExcel<T>(IEnumerable<T> data, string sheetName, Dictionary<string, Func<T, object>> columns)
+    public byte[] ExportToExcel<T>(IEnumerable<T> data, string sheetName, Dictionary<string, Func<T, object>> columns,
+        Func<T, string>? groupSelector = null)
     {
         using var workbook = new XLWorkbook();
         var worksheet = workbook.Worksheets.Add(sheetName);
 
         WriteHeaders(worksheet, columns.Keys);
-        WriteDataRows(worksheet, data, columns.Values);
+        WriteDataRows(worksheet, data, columns.Values, columns.Count, groupSelector);
 
         worksheet.Columns().AdjustToContents();
 
@@ -34,11 +35,29 @@ public class ClosedXmlExportService : IExcelExportService
         }
     }
 
-    private static void WriteDataRows<T>(IXLWorksheet worksheet, IEnumerable<T> data, IEnumerable<Func<T, object>> columnFunctions)
+    private static void WriteDataRows<T>(IXLWorksheet worksheet, IEnumerable<T> data, IEnumerable<Func<T, object>> columnFunctions,
+        int columnCount, Func<T, string>? groupSelector)
     {
         var rowIndex = 2;
+        string? currentGroup = null;
         foreach (var item in data)
         {
+            if (groupSelector != null)
+            {
+                var group = groupSelector(item);
+                if (group != currentGroup)
+                {
+                    currentGroup = group;
+                    var groupRow = worksheet.Range(rowIndex, 1, rowIndex, columnCount);
+                    groupRow.Merge();
+                    var groupCell = worksheet.Cell(rowIndex, 1);
+                    groupCell.Value = group;
+                    groupCell.Style.Font.Bold = true;
+                    groupCell.Style.Fill.BackgroundColor = XLColor.FromArgb(0xE8, 0xE8, 0xE8);
+                    rowIndex++;
+                }
+            }
+
             var colIndex = 1;
             foreach (var columnFunc in columnFunctions)
             {

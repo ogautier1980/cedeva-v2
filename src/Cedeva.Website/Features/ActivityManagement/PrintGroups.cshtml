@@ -72,6 +72,11 @@
             background-color: #f9f9f9;
         }
 
+        .group-row {
+            background-color: #eee;
+            font-weight: bold;
+        }
+
         .checkbox-box {
             display: inline-block;
             width: 14px;
@@ -157,12 +162,14 @@
     }
     else
     {
+        var columnCount = 3
+            + (Model.ActivityDay != null && Model.ShowReserved ? 1 : 0)
+            + (Model.ActivityDay != null && Model.ShowPresent ? 1 : 0)
+            + (Model.ShowSignature ? 1 : 0);
         <table>
             <thead class="table-light">
                 <tr>
-                    <th scope="col" style="width: 80px">@Localizer["Group"]</th>
                     <th scope="col">@Localizer["FullName"]</th>
-                    <th scope="col" style="width: 100px">@Localizer["Presence.BirthDateShort"]</th>
                     <th scope="col">@Localizer["Parent"]</th>
                     <th scope="col" style="width: 110px">@Localizer["Phone"]</th>
                     @if (Model.ActivityDay != null && Model.ShowReserved)
@@ -180,37 +187,33 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach (var item in Model.Children)
+                @foreach (var group in Model.Children.GroupBy(c => c.ActivityGroupName))
                 {
                     <tr>
-                        <td>
-                            <span class="group-badge">@(item.ActivityGroupName ?? Localizer["Presence.None"].Value)</span>
-                        </td>
-                        <td>
-                            <strong>@item.ChildFirstName @item.ChildLastName</strong>
-                            @if (item.IsEldestInFamily)
-                            {
-                                <i class="fas fa-star" title="@Localizer["ActivityManagement.EldestInFamily"]"></i>
-                            }
-                        </td>
-                        <td>
-                            @item.ChildBirthDate.ToString("dd/MM/yyyy")
-                        </td>
-                        <td>@item.ParentName</td>
-                        <td>@item.ParentPhone</td>
-                        @if (Model.ActivityDay != null && Model.ShowReserved)
-                        {
-                            <td class="text-center">@(item.IsReserved ? "X" : "")</td>
-                        }
-                        @if (Model.ActivityDay != null && Model.ShowPresent)
-                        {
-                            <td class="text-center"><span class="checkbox-box"></span></td>
-                        }
-                        @if (Model.ShowSignature)
-                        {
-                            <td>&nbsp;</td>
-                        }
+                        <td colspan="@columnCount" class="group-row">@(group.Key ?? Localizer["Presence.None"].Value)</td>
                     </tr>
+                    @foreach (var item in group)
+                    {
+                        <tr>
+                            <td>
+                                <strong>@item.ChildFirstName @item.ChildLastName</strong>
+                            </td>
+                            <td>@item.ParentName</td>
+                            <td>@item.ParentPhone</td>
+                            @if (Model.ActivityDay != null && Model.ShowReserved)
+                            {
+                                <td class="text-center">@(item.IsReserved ? "X" : "")</td>
+                            }
+                            @if (Model.ActivityDay != null && Model.ShowPresent)
+                            {
+                                <td class="text-center"><span class="checkbox-box"></span></td>
+                            }
+                            @if (Model.ShowSignature)
+                            {
+                                <td>&nbsp;</td>
+                            }
+                        </tr>
+                    }
                 }
             </tbody>
         </table>
