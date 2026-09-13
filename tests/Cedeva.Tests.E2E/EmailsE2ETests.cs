@@ -227,6 +227,6 @@ public class EmailsE2ETests
         (await page.Locator("#Subject").CountAsync()).Should().Be(1);
         (await page.Locator("#Message").CountAsync()).Should().Be(1);
         (await page.Locator("#SelectedRecipient").CountAsync()).Should().Be(1);
-        (await page.InnerTextAsync("body")).Should().Contain("Stage E2E", "the seeded activity name should appear");
+        (await page.TitleAsync()).Should().Contain("Stage E2E", "the seeded activity name should appear in the page title");
     }
 }
