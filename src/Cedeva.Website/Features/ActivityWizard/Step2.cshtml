@@ -35,7 +35,11 @@
                         <div class="row g-3" id="weeksContainer">
                             @foreach (var week in Model.Weeks)
                             {
-                                var weekdayIds = week.Days.Where(d => !d.IsWeekend).Select(d => d.DayId).ToList();
+                                var weekdayDays = week.Days.Where(d => !d.IsWeekend).OrderBy(d => d.Date).ToList();
+                                var weekdayIds = weekdayDays.Select(d => d.DayId).ToList();
+                                var rangeLabel = weekdayDays.Any()
+                                    ? $"{weekdayDays.First().Date:dd/MM} - {weekdayDays.Last().Date:dd/MM}"
+                                    : Localizer["ActivityWizard.GroupByWeek"].Value;
                                 <div class="col-md-6 col-lg-4">
                                     <div class="card h-100">
                                         <div class="card-header bg-light">
@@ -47,7 +51,8 @@
                                                     <div class="form-check">
                                                         <input class="form-check-input week-master-checkbox" type="checkbox" id="week_@week.WeekNumber" checked />
                                                         <label class="form-check-label" for="week_@week.WeekNumber">
-                                                            <strong>@Localizer["ActivityWizard.GroupByWeek"]</strong>
+                                                            <strong>@rangeLabel</strong>
+                                                            <span class="text-muted small week-master-exceptions"></span>
                                                         </label>
                                                     </div>
                                                 </div>
@@ -98,6 +103,29 @@
         // "Regrouper par semaine" is a pure display convenience: when on, weekday checkboxes
         // (Mon-Fri) are hidden and replaced by one master checkbox per week that checks/unchecks
         // them all together. Nothing is persisted server-side — it's just less clicking.
+        var sauf = @Json.Serialize(Localizer["ActivityWizard.Except"].Value);
+
+        function refreshWeekMasterRow(masterRow) {
+            var ids = masterRow.dataset.weekdayIds.split(',').filter(Boolean);
+            var master = masterRow.querySelector('.week-master-checkbox');
+            var exceptionsSpan = masterRow.querySelector('.week-master-exceptions');
+            var uncheckedLabels = [];
+            var checkedCount = 0;
+            ids.forEach(function (id) {
+                var cb = document.getElementById('day_' + id);
+                if (!cb) return;
+                if (cb.checked) {
+                    checkedCount++;
+                } else {
+                    var label = document.querySelector('label[for="day_' + id + '"] small');
+                    uncheckedLabels.push(label ? label.textContent.trim() : id);
+                }
+            });
+            master.checked = checkedCount === ids.length;
+            master.indeterminate = checkedCount > 0 && checkedCount < ids.length;
+            exceptionsSpan.textContent = uncheckedLabels.length ? (' (' + sauf + ' ' + uncheckedLabels.join(', ') + ')') : '';
+        }
+
         document.getElementById('groupByWeekToggle').addEventListener('change', function () {
             var grouped = this.checked;
             document.querySelectorAll('.weekday-row').forEach(function (row) {
@@ -105,16 +133,19 @@
             });
             document.querySelectorAll('.week-master-row').forEach(function (row) {
                 row.classList.toggle('d-none', !grouped);
+                if (grouped) refreshWeekMasterRow(row);
             });
         });
 
         document.querySelectorAll('.week-master-checkbox').forEach(function (master) {
             master.addEventListener('change', function () {
-                var ids = this.closest('.week-master-row').dataset.weekdayIds.split(',').filter(Boolean);
+                var row = this.closest('.week-master-row');
+                var ids = row.dataset.weekdayIds.split(',').filter(Boolean);
                 ids.forEach(function (id) {
                     var cb = document.getElementById('day_' + id);
                     if (cb) cb.checked = master.checked;
                 });
+                refreshWeekMasterRow(row);
             });
         });
     </script>

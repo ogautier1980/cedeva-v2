@@ -4192,6 +4192,9 @@
   <data name="ActivityWizard.GroupByWeek" xml:space="preserve">
     <value>Regrouper par semaine</value>
   </data>
+  <data name="ActivityWizard.Except" xml:space="preserve">
+    <value>sauf</value>
+  </data>
   <data name="ActivityWizard.CreateNewActivity" xml:space="preserve">
     <value>Créer une nouvelle activité</value>
   </data>
