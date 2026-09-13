@@ -497,6 +497,22 @@ public class ActivityWizardController : Controller
         }
     }
 
+    // POST: ActivityWizard/RemoveQuestion — removes a question from THIS activity only (e.g. one
+    // copied by default from an organisation question template) without touching the template.
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> RemoveQuestion(int id, int questionId)
+    {
+        var question = await _context.ActivityQuestions.FirstOrDefaultAsync(q => q.Id == questionId && q.ActivityId == id);
+        if (question != null)
+        {
+            _context.ActivityQuestions.Remove(question);
+            await _context.SaveChangesAsync();
+        }
+
+        return RedirectToAction(nameof(Step5), new { id });
+    }
+
     private void AddNewQuestions(WizardStep5ViewModel viewModel, int activityId)
     {
         if (viewModel.NewQuestions.Count == 0) return;

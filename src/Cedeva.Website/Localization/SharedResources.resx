@@ -4195,6 +4195,12 @@
   <data name="ActivityWizard.GroupByWeek" xml:space="preserve">
     <value>Regrouper par semaine</value>
   </data>
+  <data name="ActivityWizard.ConfirmRemoveQuestion" xml:space="preserve">
+    <value>Retirer cette question de cette activité ? Le modèle de question au niveau de l'organisation, s'il existe, ne sera pas affecté.</value>
+  </data>
+  <data name="ActivityWizard.RemoveQuestionFromActivity" xml:space="preserve">
+    <value>Retirer cette question de cette activité</value>
+  </data>
   <data name="ActivityWizard.Except" xml:space="preserve">
     <value>sauf</value>
   </data>

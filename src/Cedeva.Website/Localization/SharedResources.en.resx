@@ -4074,6 +4074,12 @@
   <data name="ActivityWizard.GroupByWeek" xml:space="preserve">
     <value>Group by week</value>
   </data>
+  <data name="ActivityWizard.ConfirmRemoveQuestion" xml:space="preserve">
+    <value>Remove this question from this activity? The organisation-level question template, if any, will not be affected.</value>
+  </data>
+  <data name="ActivityWizard.RemoveQuestionFromActivity" xml:space="preserve">
+    <value>Remove this question from this activity</value>
+  </data>
   <data name="ActivityWizard.Except" xml:space="preserve">
     <value>except</value>
   </data>

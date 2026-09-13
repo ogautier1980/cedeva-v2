@@ -35,7 +35,7 @@
                                             <div class="col-auto">
                                                 <i class="fas fa-grip-vertical drag-handle text-muted" style="cursor: move;"></i>
                                             </div>
-                                            <div class="col-md-5">
+                                            <div class="col-md-4">
                                                 <input type="text" name="ExistingQuestions[@i].QuestionText" value="@question.QuestionText"
                                                        class="form-control form-control-sm" required maxlength="500" />
                                             </div>
@@ -48,13 +48,23 @@
                                                     <option value="3" selected="@(question.QuestionType == QuestionType.Dropdown)">@Localizer["Enum.QuestionType.Dropdown"]</option>
                                                 </select>
                                             </div>
-                                            <div class="col-md-3">
+                                            <div class="col-md-2">
                                                 <div class="form-check form-switch">
                                                     <input type="checkbox" name="ExistingQuestions[@i].IsRequired" value="true"
                                                            class="form-check-input" id="existing_required_@i" checked="@question.IsRequired" />
                                                     <input type="hidden" name="ExistingQuestions[@i].IsRequired" value="false" />
                                                     <label class="form-check-label small" for="existing_required_@i">@Localizer["Required"]</label>
                                                 </div>
+                                            </div>
+                                            <div class="col-md-2 text-end">
+                                                <button type="submit" class="btn btn-sm btn-outline-danger"
+                                                        formaction="@Url.Action("RemoveQuestion", new { id = Model.ActivityId, questionId = question.Id })"
+                                                        formmethod="post"
+                                                        formnovalidate
+                                                        onclick="return confirm(@Json.Serialize(Localizer["ActivityWizard.ConfirmRemoveQuestion"].Value));"
+                                                        title="@Localizer["ActivityWizard.RemoveQuestionFromActivity"]">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
                                             </div>
                                             <div class="col-12 question-options-container-edit" id="existing_options_@i"
                                                  style="display: @(question.QuestionType == QuestionType.Radio || question.QuestionType == QuestionType.Dropdown || question.QuestionType == QuestionType.Checkbox ? "block" : "none");">

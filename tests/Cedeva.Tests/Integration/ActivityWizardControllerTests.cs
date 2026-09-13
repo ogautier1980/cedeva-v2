@@ -756,6 +756,68 @@ public class ActivityWizardControllerTests
         (await ctx.ActivityQuestions.SingleAsync(q => q.Id == questionId)).QuestionText.Should().Be("Texte modifié");
     }
 
+    [Fact]
+    public async Task RemoveQuestion_DeletesActivityQuestionAndRedirectsToStep5()
+    {
+        // Covers removing a question copied by default from an organisation question template
+        // (Lot J) from this one activity, without touching the template itself.
+        using var factory = new CedevaWebApplicationFactory();
+        var (orgId, activityId) = SeedActivity(factory);
+        int questionId;
+        await using (var seedCtx = factory.NewDbContext())
+        {
+            var activity = await seedCtx.Activities.IgnoreQueryFilters().SingleAsync(a => a.Id == activityId);
+            var question = TestData.Question(activity, "Allergies connues ?");
+            seedCtx.ActivityQuestions.Add(question);
+            await seedCtx.SaveChangesAsync();
+            questionId = question.Id;
+        }
+
+        var client = factory.CreateClientFor("u1", orgId, "Coordinator");
+        var response = await client.PostAsync("/ActivityWizard/RemoveQuestion", new FormUrlEncodedContent(
+            new Dictionary<string, string>
+            {
+                ["id"] = activityId.ToString(),
+                ["questionId"] = questionId.ToString(),
+            }));
+
+        response.StatusCode.Should().Be(HttpStatusCode.Found);
+        response.Headers.Location!.ToString().Should().Contain($"/ActivityWizard/Step5/{activityId}");
+
+        await using var ctx = factory.NewDbContext();
+        (await ctx.ActivityQuestions.AnyAsync(q => q.Id == questionId)).Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task RemoveQuestion_QuestionBelongsToAnotherActivity_DoesNotDeleteIt()
+    {
+        using var factory = new CedevaWebApplicationFactory();
+        var (orgId, activityId) = SeedActivity(factory);
+        var (_, otherActivityId) = SeedActivity(factory);
+        int questionId;
+        await using (var seedCtx = factory.NewDbContext())
+        {
+            var otherActivity = await seedCtx.Activities.IgnoreQueryFilters().SingleAsync(a => a.Id == otherActivityId);
+            var question = TestData.Question(otherActivity, "Question d'une autre activité");
+            seedCtx.ActivityQuestions.Add(question);
+            await seedCtx.SaveChangesAsync();
+            questionId = question.Id;
+        }
+
+        var client = factory.CreateClientFor("u1", orgId, "Coordinator");
+        var response = await client.PostAsync("/ActivityWizard/RemoveQuestion", new FormUrlEncodedContent(
+            new Dictionary<string, string>
+            {
+                ["id"] = activityId.ToString(),
+                ["questionId"] = questionId.ToString(),
+            }));
+
+        response.StatusCode.Should().Be(HttpStatusCode.Found);
+
+        await using var ctx = factory.NewDbContext();
+        (await ctx.ActivityQuestions.AnyAsync(q => q.Id == questionId)).Should().BeTrue();
+    }
+
     // ------------------------------------------------------------------
     // Step 6 — Affichage
     // ------------------------------------------------------------------
