@@ -1802,7 +1802,7 @@
     <value>Display order</value>
   </data>
   <data name="Field.AcceptRegulation" xml:space="preserve">
-    <value>I accept the internal regulations</value>
+    <value>By registering my child, I accept the activity's internal regulations.</value>
   </data>
   <data name="Field.BankAccountNumber" xml:space="preserve">
     <value>Account number (IBAN)</value>

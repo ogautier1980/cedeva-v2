@@ -351,6 +351,19 @@ public class ActivityWizardControllerTests
     }
 
     [Fact]
+    public async Task Step3_Get_WithNoAcceptanceTextYet_PrefillsLocalizedDefault()
+    {
+        using var factory = new CedevaWebApplicationFactory();
+        var (orgId, activityId) = SeedActivity(factory);
+        var client = factory.CreateClientFor("u1", orgId, "Coordinator");
+
+        var response = await client.GetAsync($"/ActivityWizard/Step3/{activityId}");
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        (await response.Content.ReadAsStringAsync()).Should().Contain("En inscrivant mon enfant");
+    }
+
+    [Fact]
     public async Task Step3_Post_SavesRegulationAndRedirectsToStep4()
     {
         using var factory = new CedevaWebApplicationFactory();

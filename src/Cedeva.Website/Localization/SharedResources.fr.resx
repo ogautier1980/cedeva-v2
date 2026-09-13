@@ -1751,7 +1751,7 @@
     <value>Ordre d'affichage</value>
   </data>
   <data name="Field.AcceptRegulation" xml:space="preserve">
-    <value>J'accepte le règlement d'ordre intérieur</value>
+    <value>En inscrivant mon enfant, j'accepte le règlement d'ordre intérieur de l'activité.</value>
   </data>
   <data name="Field.BankAccountNumber" xml:space="preserve">
     <value>Numéro de compte (IBAN)</value>

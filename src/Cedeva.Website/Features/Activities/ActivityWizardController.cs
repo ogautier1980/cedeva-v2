@@ -268,7 +268,9 @@ public class ActivityWizardController : Controller
             ActivityId = activity.Id,
             ActivityName = activity.Name,
             RegulationLinkUrl = activity.RegulationLinkUrl,
-            RegulationAcceptanceText = activity.RegulationAcceptanceText
+            RegulationAcceptanceText = string.IsNullOrWhiteSpace(activity.RegulationAcceptanceText)
+                ? _localizer["Field.AcceptRegulation"].Value
+                : activity.RegulationAcceptanceText
         });
     }
 

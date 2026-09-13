@@ -1802,7 +1802,7 @@
     <value>Weergavevolgorde</value>
   </data>
   <data name="Field.AcceptRegulation" xml:space="preserve">
-    <value>Ik aanvaard het huishoudelijk reglement</value>
+    <value>Door mijn kind in te schrijven, aanvaard ik het huishoudelijk reglement van de activiteit.</value>
   </data>
   <data name="Field.BankAccountNumber" xml:space="preserve">
     <value>Rekeningnummer (IBAN)</value>
