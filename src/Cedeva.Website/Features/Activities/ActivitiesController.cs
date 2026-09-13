@@ -222,6 +222,14 @@ public class ActivitiesController : Controller
             return View(viewModel);
         }
 
+        var targetOrganisationId = _currentUserService.IsAdmin ? viewModel.OrganisationId : organisationId!.Value;
+        if (await ActivityNameExistsAsync(targetOrganisationId, viewModel.Name))
+        {
+            ModelState.AddModelError(nameof(viewModel.Name), _localizer["Validation.ActivityNameAlreadyExists"]);
+            await ReloadOrganisationsForAdmin();
+            return View(viewModel);
+        }
+
         var activity = new Activity
         {
             Name = viewModel.Name,
@@ -252,6 +260,18 @@ public class ActivitiesController : Controller
             activity.Name, _currentUserService.UserId, viewModel.NewGroups?.Count ?? 0, viewModel.NewQuestions?.Count ?? 0);
 
         return this.RedirectToIndexWithSuccess(_localizer["Message.ActivityCreated"].Value);
+    }
+
+    // Case-insensitive, trimmed uniqueness check scoped to one organisation (a name can be reused
+    // across different organisations without issue), excluding the activity being edited if any.
+    private async Task<bool> ActivityNameExistsAsync(int organisationId, string name, int excludeActivityId = 0)
+    {
+        var trimmedLower = name.Trim().ToLowerInvariant();
+        return await _context.Activities
+            .IgnoreQueryFilters()
+            .AnyAsync(a => a.OrganisationId == organisationId
+                && a.Id != excludeActivityId
+                && a.Name.ToLower() == trimmedLower);
     }
 
     private async Task ReloadOrganisationsForAdmin()
@@ -504,6 +524,12 @@ public class ActivitiesController : Controller
         if (activity == null)
         {
             return NotFound();
+        }
+
+        if (await ActivityNameExistsAsync(activity.OrganisationId, viewModel.Name, activity.Id))
+        {
+            ModelState.AddModelError(nameof(viewModel.Name), _localizer["Validation.ActivityNameAlreadyExists"]);
+            return View(viewModel);
         }
 
         // Update basic properties

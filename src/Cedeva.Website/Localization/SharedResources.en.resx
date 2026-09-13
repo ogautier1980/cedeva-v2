@@ -3607,6 +3607,12 @@
   <data name="Validation.EmailFormat" xml:space="preserve">
     <value>Invalid email format</value>
   </data>
+  <data name="Validation.ActivityNameAlreadyExists" xml:space="preserve">
+    <value>An activity with this name already exists in your organisation.</value>
+  </data>
+  <data name="Validation.RegulationDocumentRequired" xml:space="preserve">
+    <value>Provide a link to the regulations or upload a PDF file.</value>
+  </data>
   <data name="Validation.EndDateAfterStartDate" xml:space="preserve">
     <value>The end date must be after the start date</value>
   </data>
@@ -4082,6 +4088,15 @@
   </data>
   <data name="ActivityWizard.Except" xml:space="preserve">
     <value>except</value>
+  </data>
+  <data name="ActivityWizard.RegulationPdfFile" xml:space="preserve">
+    <value>Or upload a PDF</value>
+  </data>
+  <data name="ActivityWizard.RegulationPdfFileHelp" xml:space="preserve">
+    <value>If a file is uploaded, it replaces the link entered above.</value>
+  </data>
+  <data name="ActivityWizard.ViewCurrentRegulationDocument" xml:space="preserve">
+    <value>View current document</value>
   </data>
   <data name="ActivityWizard.CreateNewActivity" xml:space="preserve">
     <value>Create a new activity</value>

@@ -29,6 +29,7 @@ public class ActivityWizardController : Controller
     private readonly IEmailTemplateService _templateService;
     private readonly IQuestionTemplateService _questionTemplateService;
     private readonly IActivityDayService _activityDayService;
+    private readonly IStorageService _storageService;
 
     public ActivityWizardController(
         CedevaDbContext context,
@@ -37,7 +38,8 @@ public class ActivityWizardController : Controller
         IStringLocalizer<SharedResources> localizer,
         IEmailTemplateService templateService,
         IQuestionTemplateService questionTemplateService,
-        IActivityDayService activityDayService)
+        IActivityDayService activityDayService,
+        IStorageService storageService)
     {
         _context = context;
         _currentUserService = currentUserService;
@@ -46,6 +48,7 @@ public class ActivityWizardController : Controller
         _templateService = templateService;
         _questionTemplateService = questionTemplateService;
         _activityDayService = activityDayService;
+        _storageService = storageService;
     }
 
     // ------------------------------------------------------------------
@@ -87,6 +90,27 @@ public class ActivityWizardController : Controller
         if (viewModel.EndDate < viewModel.StartDate)
         {
             ModelState.AddModelError(nameof(viewModel.EndDate), _localizer["Validation.EndDateAfterStartDate"]);
+        }
+
+        if (viewModel.Id > 0)
+        {
+            var existingOrganisationId = await _context.Activities
+                .IgnoreQueryFilters()
+                .Where(a => a.Id == viewModel.Id)
+                .Select(a => a.OrganisationId)
+                .FirstOrDefaultAsync();
+            if (await ActivityNameExistsAsync(existingOrganisationId, viewModel.Name, viewModel.Id))
+            {
+                ModelState.AddModelError(nameof(viewModel.Name), _localizer["Validation.ActivityNameAlreadyExists"]);
+            }
+        }
+        else
+        {
+            var targetOrganisationId = _currentUserService.IsAdmin ? viewModel.OrganisationId : (_currentUserService.OrganisationId ?? 0);
+            if (targetOrganisationId != 0 && await ActivityNameExistsAsync(targetOrganisationId, viewModel.Name))
+            {
+                ModelState.AddModelError(nameof(viewModel.Name), _localizer["Validation.ActivityNameAlreadyExists"]);
+            }
         }
 
         if (!ModelState.IsValid)
@@ -291,21 +315,70 @@ public class ActivityWizardController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Step3(WizardStep3ViewModel viewModel)
     {
+        var hasTypedUrl = !string.IsNullOrWhiteSpace(viewModel.RegulationLinkUrl);
+        var hasUpload = viewModel.RegulationPdfFile != null;
+        if (!hasTypedUrl && !hasUpload)
+        {
+            ModelState.AddModelError(nameof(viewModel.RegulationLinkUrl), _localizer["Validation.RegulationDocumentRequired"]);
+        }
+
         if (!ModelState.IsValid)
         {
+            viewModel.WizardMaxStepReached = await _context.Activities
+                .Where(a => a.Id == viewModel.ActivityId)
+                .Select(a => a.WizardMaxStepReached)
+                .FirstOrDefaultAsync();
             return View(viewModel);
         }
 
         var activity = await _context.Activities.FirstOrDefaultAsync(a => a.Id == viewModel.ActivityId);
         if (activity == null) return NotFound();
 
-        activity.RegulationLinkUrl = string.IsNullOrWhiteSpace(viewModel.RegulationLinkUrl) ? null : viewModel.RegulationLinkUrl.Trim();
-        activity.RegulationAcceptanceText = string.IsNullOrWhiteSpace(viewModel.RegulationAcceptanceText) ? null : viewModel.RegulationAcceptanceText.Trim();
+        if (hasUpload)
+        {
+            await HandleRegulationPdfUpload(activity, viewModel.RegulationPdfFile!);
+        }
+        else
+        {
+            activity.RegulationLinkUrl = viewModel.RegulationLinkUrl!.Trim();
+        }
+
+        activity.RegulationAcceptanceText = viewModel.RegulationAcceptanceText!.Trim();
         AdvanceWizardProgress(activity, 4);
         await _context.SaveChangesAsync();
 
         return RedirectToAction(nameof(Step4), new { id = activity.Id });
     }
+
+    // Replaces the activity's RegulationLinkUrl with the uploaded PDF's storage URL. If the
+    // previous value was itself one of our own uploads (not an externally typed link), the old
+    // file is deleted so uploads don't pile up when a coordinator re-uploads a new version.
+    private async Task HandleRegulationPdfUpload(Activity activity, IFormFile pdfFile)
+    {
+        if (IsOwnUploadedFile(activity.RegulationLinkUrl))
+        {
+            try
+            {
+                await _storageService.DeleteFileAsync(activity.RegulationLinkUrl!);
+            }
+            catch
+            {
+                // Ignore errors if the file doesn't exist
+            }
+        }
+
+        var fileName = $"{Guid.NewGuid()}_{Path.GetFileName(pdfFile.FileName)}";
+        // Flat container name (no "/"): LocalFileStorageService currently rejects any nested
+        // containerPath (see its "Container path contains invalid characters" guard), which — as
+        // discovered while building this — also silently breaks the existing Activity
+        // logo/signature and Organisation uploads that pass a slash-containing path. Not fixed
+        // here since that's a separate, pre-existing issue affecting other features.
+        activity.RegulationLinkUrl = await _storageService.UploadFileAsync(
+            pdfFile.OpenReadStream(), fileName, pdfFile.ContentType, $"activity-{activity.Id}-regulations");
+    }
+
+    private static bool IsOwnUploadedFile(string? url) =>
+        !string.IsNullOrEmpty(url) && url.StartsWith("/uploads/", StringComparison.Ordinal);
 
     // ------------------------------------------------------------------
     // Step 4 — Limitations
@@ -592,6 +665,18 @@ public class ActivityWizardController : Controller
     }
 
     // ------------------------------------------------------------------
+
+    // Case-insensitive, trimmed uniqueness check scoped to one organisation (a name can be reused
+    // across different organisations without issue), excluding the activity being edited if any.
+    private async Task<bool> ActivityNameExistsAsync(int organisationId, string name, int excludeActivityId = 0)
+    {
+        var trimmedLower = name.Trim().ToLowerInvariant();
+        return await _context.Activities
+            .IgnoreQueryFilters()
+            .AnyAsync(a => a.OrganisationId == organisationId
+                && a.Id != excludeActivityId
+                && a.Name.ToLower() == trimmedLower);
+    }
 
     private async Task<Activity?> LoadActivityWithDaysAsync(int id) =>
         await _context.Activities.Include(a => a.Days).FirstOrDefaultAsync(a => a.Id == id);

@@ -155,7 +155,57 @@ public class ActivitiesControllerMoreTests
         any.Should().BeFalse();
     }
 
+    [Fact]
+    public async Task CreatePost_DuplicateNameInSameOrganisation_ReturnsOkAndDoesNotPersist()
+    {
+        using var factory = new CedevaWebApplicationFactory();
+        Organisation org = null!;
+        factory.Seed(ctx =>
+        {
+            org = TestData.Organisation();
+            var existing = TestData.Activity(org, "Stage Existant");
+            ctx.AddRange(org, existing);
+            return 0;
+        });
+
+        var client = factory.CreateClientFor("u1", org.Id, "Coordinator");
+        var fields = BaseActivityFields(name: "  stage existant  ", organisationId: org.Id);
+
+        var response = await client.PostAsync("/Activities/Create", new FormUrlEncodedContent(fields));
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        using var db = factory.NewDbContext();
+        (await db.Activities.IgnoreQueryFilters().CountAsync(a => a.OrganisationId == org.Id)).Should().Be(1);
+    }
+
     // ---------- POST Edit: postal codes ----------
+
+    [Fact]
+    public async Task EditPost_RenamingToAnotherActivitysName_ReturnsOkAndDoesNotRename()
+    {
+        using var factory = new CedevaWebApplicationFactory();
+        Organisation org = null!;
+        Activity activity = null!;
+        factory.Seed(ctx =>
+        {
+            org = TestData.Organisation();
+            activity = TestData.Activity(org, "StageARenommer");
+            var other = TestData.Activity(org, "AutreStageExistant");
+            ctx.AddRange(org, activity, other);
+            return 0;
+        });
+
+        var client = factory.CreateClientFor("u1", org.Id, "Coordinator");
+        var fields = BaseActivityFields(name: "AutreStageExistant", organisationId: org.Id, id: activity.Id);
+
+        var response = await client.PostAsync($"/Activities/Edit/{activity.Id}", new FormUrlEncodedContent(fields));
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        using var db = factory.NewDbContext();
+        (await db.Activities.IgnoreQueryFilters().FirstAsync(a => a.Id == activity.Id)).Name.Should().Be("StageARenommer");
+    }
+
+
 
     [Fact]
     public async Task EditPost_UpdatesPostalCodes()

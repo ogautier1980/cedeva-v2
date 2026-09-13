@@ -3559,6 +3559,12 @@
   <data name="Validation.EndDateAfterStartDate" xml:space="preserve">
     <value>La date de fin doit être après la date de début</value>
   </data>
+  <data name="Validation.ActivityNameAlreadyExists" xml:space="preserve">
+    <value>Une activité avec ce nom existe déjà dans votre organisation.</value>
+  </data>
+  <data name="Validation.RegulationDocumentRequired" xml:space="preserve">
+    <value>Indiquez un lien vers le règlement ou téléversez un fichier PDF.</value>
+  </data>
   <data name="Validation.FileRequired" xml:space="preserve">
     <value>Le fichier est requis</value>
   </data>
@@ -4203,6 +4209,15 @@
   </data>
   <data name="ActivityWizard.Except" xml:space="preserve">
     <value>sauf</value>
+  </data>
+  <data name="ActivityWizard.RegulationPdfFile" xml:space="preserve">
+    <value>Ou téléversez un PDF</value>
+  </data>
+  <data name="ActivityWizard.RegulationPdfFileHelp" xml:space="preserve">
+    <value>Si un fichier est téléversé, il remplace le lien saisi ci-dessus.</value>
+  </data>
+  <data name="ActivityWizard.ViewCurrentRegulationDocument" xml:space="preserve">
+    <value>Voir le document actuel</value>
   </data>
   <data name="ActivityWizard.CreateNewActivity" xml:space="preserve">
     <value>Créer une nouvelle activité</value>

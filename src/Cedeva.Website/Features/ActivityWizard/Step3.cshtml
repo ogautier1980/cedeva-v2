@@ -12,14 +12,29 @@
                     <h5 class="mb-0"><i class="fas fa-file-contract me-2"></i>@Model.ActivityName — @Localizer["ActivityWizard.Step3Title"]</h5>
                 </div>
                 <div class="card-body">
-                    <form asp-action="Step3" method="post">
+                    <form asp-action="Step3" method="post" enctype="multipart/form-data">
                         <input type="hidden" asp-for="ActivityId" />
                         <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+                        @if (!string.IsNullOrEmpty(Model.RegulationLinkUrl))
+                        {
+                            <div class="alert alert-light border py-2 mb-3">
+                                <i class="fas fa-file-pdf me-2"></i>
+                                <a href="@Model.RegulationLinkUrl" target="_blank" rel="noopener noreferrer">@Localizer["ActivityWizard.ViewCurrentRegulationDocument"]</a>
+                            </div>
+                        }
 
                         <div class="mb-3">
                             <label for="RegulationLinkUrl" class="form-label">@Localizer["Activity.RegulationLinkUrl"]</label>
                             <input asp-for="RegulationLinkUrl" class="form-control" id="RegulationLinkUrl" placeholder="https://..." />
                             <span asp-validation-for="RegulationLinkUrl" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="RegulationPdfFile" class="form-label">@Localizer["ActivityWizard.RegulationPdfFile"]</label>
+                            <input asp-for="RegulationPdfFile" type="file" class="form-control" id="RegulationPdfFile" accept="application/pdf" />
+                            <span asp-validation-for="RegulationPdfFile" class="text-danger"></span>
+                            <small class="form-text text-muted">@Localizer["ActivityWizard.RegulationPdfFileHelp"]</small>
                         </div>
 
                         <div class="mb-3">

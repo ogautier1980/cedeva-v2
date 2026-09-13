@@ -1,4 +1,6 @@
 using System.ComponentModel.DataAnnotations;
+using Cedeva.Website.Validation;
+using Microsoft.AspNetCore.Http;
 
 namespace Cedeva.Website.Features.Activities.ViewModels;
 
@@ -54,7 +56,10 @@ public class WizardDayViewModel
     public bool IsWeekend { get; set; }
 }
 
-/// <summary>Step 3 — Règlement.</summary>
+/// <summary>Step 3 — Règlement. The regulation document can be provided either as an external link
+/// (<see cref="RegulationLinkUrl"/>) or as an uploaded PDF (<see cref="RegulationPdfFile"/>); at
+/// least one must resolve to a link (an upload replaces whatever was typed in the URL field) —
+/// enforced in the controller rather than via a plain [Required], since either source suffices.</summary>
 public class WizardStep3ViewModel
 {
     public int ActivityId { get; set; }
@@ -64,6 +69,12 @@ public class WizardStep3ViewModel
     [Display(Name = "Activity.RegulationLinkUrl")]
     public string? RegulationLinkUrl { get; set; }
 
+    [AllowedExtensions(".pdf")]
+    [MaxFileSize(10 * 1024 * 1024)]
+    [Display(Name = "ActivityWizard.RegulationPdfFile")]
+    public IFormFile? RegulationPdfFile { get; set; }
+
+    [Required(ErrorMessage = "Validation.Required")]
     [StringLength(300, ErrorMessage = "Validation.StringLength")]
     [Display(Name = "Activity.RegulationAcceptanceText")]
     public string? RegulationAcceptanceText { get; set; }
@@ -128,18 +139,22 @@ public class WizardStep6ViewModel
     public int ActivityId { get; set; }
     public string ActivityName { get; set; } = string.Empty;
 
+    [Required(ErrorMessage = "Validation.Required")]
     [DataType(DataType.Date)]
     [Display(Name = "Activity.PublicationStartDate")]
     public DateTime? PublicationStartDate { get; set; }
 
+    [Required(ErrorMessage = "Validation.Required")]
     [DataType(DataType.Date)]
     [Display(Name = "Activity.PublicationEndDate")]
     public DateTime? PublicationEndDate { get; set; }
 
+    [Required(ErrorMessage = "Validation.Required")]
     [StringLength(300, ErrorMessage = "Validation.StringLength")]
     [Display(Name = "Activity.NoActiveFormMessage")]
     public string? NoActiveFormMessage { get; set; }
 
+    [Required(ErrorMessage = "Validation.Required")]
     [StringLength(500, ErrorMessage = "Validation.StringLength")]
     [Display(Name = "Activity.RedirectUrlAfterSubmit")]
     public string? RedirectUrlAfterSubmit { get; set; }

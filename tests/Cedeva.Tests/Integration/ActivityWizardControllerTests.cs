@@ -108,6 +108,86 @@ public class ActivityWizardControllerTests
     }
 
     [Fact]
+    public async Task Step1_Post_DuplicateNameInSameOrganisation_ReturnsViewWithoutCreatingActivity()
+    {
+        using var factory = new CedevaWebApplicationFactory();
+        var (orgId, _) = SeedActivity(factory); // seeds "Stage Wizard Quota" in orgId
+        var client = factory.CreateClientFor("u1", orgId, "Coordinator");
+
+        var response = await client.PostAsync("/ActivityWizard/Step1", new FormUrlEncodedContent(
+            new Dictionary<string, string>
+            {
+                ["Name"] = "  stage wizard quota  ", // same name, different case/whitespace
+                ["StartDate"] = "2026-04-06",
+                ["EndDate"] = "2026-04-10",
+                ["OrganisationId"] = orgId.ToString(),
+            }));
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        await using var ctx = factory.NewDbContext();
+        (await ctx.Activities.IgnoreQueryFilters().CountAsync(a => a.OrganisationId == orgId)).Should().Be(1);
+    }
+
+    [Fact]
+    public async Task Step1_Post_SameNameInDifferentOrganisation_IsAllowed()
+    {
+        using var factory = new CedevaWebApplicationFactory();
+        SeedActivity(factory); // seeds "Stage Wizard Quota" in its own organisation
+        var otherOrgId = factory.Seed(ctx =>
+        {
+            var org = TestData.Organisation();
+            ctx.Add(org);
+            return org;
+        }).Id;
+        var client = factory.CreateClientFor("u2", otherOrgId, "Coordinator");
+
+        var response = await client.PostAsync("/ActivityWizard/Step1", new FormUrlEncodedContent(
+            new Dictionary<string, string>
+            {
+                ["Name"] = "Stage Wizard Quota",
+                ["StartDate"] = "2026-04-06",
+                ["EndDate"] = "2026-04-10",
+                ["OrganisationId"] = otherOrgId.ToString(),
+            }));
+
+        response.StatusCode.Should().Be(HttpStatusCode.Found);
+
+        await using var ctx = factory.NewDbContext();
+        (await ctx.Activities.IgnoreQueryFilters().AnyAsync(a => a.OrganisationId == otherOrgId && a.Name == "Stage Wizard Quota"))
+            .Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task Step1_Post_WithId_RenamingToAnotherActivitysName_ReturnsViewWithoutUpdating()
+    {
+        using var factory = new CedevaWebApplicationFactory();
+        var (orgId, activityId) = SeedActivity(factory); // "Stage Wizard Quota"
+        await using (var seedCtx = factory.NewDbContext())
+        {
+            var org = await seedCtx.Organisations.IgnoreQueryFilters().SingleAsync(o => o.Id == orgId);
+            var other = TestData.Activity(org, "Autre Stage");
+            seedCtx.Add(other);
+            await seedCtx.SaveChangesAsync();
+        }
+
+        var client = factory.CreateClientFor("u1", orgId, "Coordinator");
+        var response = await client.PostAsync("/ActivityWizard/Step1", new FormUrlEncodedContent(
+            new Dictionary<string, string>
+            {
+                ["Id"] = activityId.ToString(),
+                ["Name"] = "Autre Stage",
+                ["StartDate"] = "2026-04-06",
+                ["EndDate"] = "2026-04-10",
+            }));
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        await using var ctx = factory.NewDbContext();
+        (await ctx.Activities.IgnoreQueryFilters().SingleAsync(a => a.Id == activityId)).Name.Should().Be("Stage Wizard Quota");
+    }
+
+    [Fact]
     public async Task Step1_Get_WithId_LoadsExistingActivityForEditing()
     {
         using var factory = new CedevaWebApplicationFactory();
@@ -405,7 +485,7 @@ public class ActivityWizardControllerTests
     }
 
     [Fact]
-    public async Task Step3_Post_BlankFields_ClearsExistingValues()
+    public async Task Step3_Post_BlankLinkAndNoFile_ReturnsViewWithoutSaving()
     {
         using var factory = new CedevaWebApplicationFactory();
         var (orgId, activityId) = SeedActivity(factory);
@@ -422,9 +502,84 @@ public class ActivityWizardControllerTests
             {
                 ["ActivityId"] = activityId.ToString(),
                 ["RegulationLinkUrl"] = "   ",
+                ["RegulationAcceptanceText"] = "J'accepte",
             }));
 
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        await using var ctx = factory.NewDbContext();
+        (await ctx.Activities.IgnoreQueryFilters().SingleAsync(a => a.Id == activityId)).RegulationLinkUrl
+            .Should().Be("https://example.be/roi.pdf");
+    }
+
+    [Fact]
+    public async Task Step3_Post_MissingAcceptanceText_ReturnsViewWithoutSaving()
+    {
+        using var factory = new CedevaWebApplicationFactory();
+        var (orgId, activityId) = SeedActivity(factory);
+        var client = factory.CreateClientFor("u1", orgId, "Coordinator");
+
+        var response = await client.PostAsync("/ActivityWizard/Step3", new FormUrlEncodedContent(
+            new Dictionary<string, string>
+            {
+                ["ActivityId"] = activityId.ToString(),
+                ["RegulationLinkUrl"] = "https://example.be/roi.pdf",
+            }));
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        await using var ctx = factory.NewDbContext();
+        (await ctx.Activities.IgnoreQueryFilters().SingleAsync(a => a.Id == activityId)).RegulationLinkUrl.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task Step3_Post_UploadedPdf_ReplacesTypedUrlAndStoresFile()
+    {
+        using var factory = new CedevaWebApplicationFactory();
+        var (orgId, activityId) = SeedActivity(factory);
+        var client = factory.CreateClientFor("u1", orgId, "Coordinator");
+
+        using var form = new MultipartFormDataContent
+        {
+            { new StringContent(activityId.ToString()), "ActivityId" },
+            { new StringContent("https://example.be/roi-ignore.pdf"), "RegulationLinkUrl" },
+            { new StringContent("J'accepte le règlement"), "RegulationAcceptanceText" }
+        };
+        var fileContent = new ByteArrayContent(new byte[] { 0x25, 0x50, 0x44, 0x46 }); // "%PDF"
+        fileContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/pdf");
+        form.Add(fileContent, "RegulationPdfFile", "reglement.pdf");
+
+        var response = await client.PostAsync("/ActivityWizard/Step3", form);
+
         response.StatusCode.Should().Be(HttpStatusCode.Found);
+
+        await using var ctx = factory.NewDbContext();
+        var activity = await ctx.Activities.IgnoreQueryFilters().SingleAsync(a => a.Id == activityId);
+        activity.RegulationLinkUrl.Should().NotBeNull();
+        activity.RegulationLinkUrl.Should().NotBe("https://example.be/roi-ignore.pdf");
+        activity.RegulationLinkUrl.Should().StartWith($"/uploads/activity-{activityId}-regulations/");
+        activity.RegulationLinkUrl.Should().EndWith("reglement.pdf");
+    }
+
+    [Fact]
+    public async Task Step3_Post_UploadedPdfWithWrongExtension_ReturnsViewWithoutSaving()
+    {
+        using var factory = new CedevaWebApplicationFactory();
+        var (orgId, activityId) = SeedActivity(factory);
+        var client = factory.CreateClientFor("u1", orgId, "Coordinator");
+
+        using var form = new MultipartFormDataContent
+        {
+            { new StringContent(activityId.ToString()), "ActivityId" },
+            { new StringContent("J'accepte le règlement"), "RegulationAcceptanceText" }
+        };
+        var fileContent = new ByteArrayContent(new byte[] { 0x00, 0x01 });
+        fileContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("image/png");
+        form.Add(fileContent, "RegulationPdfFile", "reglement.exe");
+
+        var response = await client.PostAsync("/ActivityWizard/Step3", form);
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
 
         await using var ctx = factory.NewDbContext();
         (await ctx.Activities.IgnoreQueryFilters().SingleAsync(a => a.Id == activityId)).RegulationLinkUrl.Should().BeNull();
@@ -861,6 +1016,25 @@ public class ActivityWizardControllerTests
         activity.PublicationEndDate.Should().Be(new DateTime(2026, 3, 31));
         activity.NoActiveFormMessage.Should().Be("Inscriptions bientôt ouvertes");
         activity.RedirectUrlAfterSubmit.Should().Be("https://example.be/merci");
+    }
+
+    [Fact]
+    public async Task Step6_Post_MissingRequiredFields_ReturnsViewWithoutSaving()
+    {
+        using var factory = new CedevaWebApplicationFactory();
+        var (orgId, activityId) = SeedActivity(factory);
+        var client = factory.CreateClientFor("u1", orgId, "Coordinator");
+
+        var response = await client.PostAsync("/ActivityWizard/Step6", new FormUrlEncodedContent(
+            new Dictionary<string, string>
+            {
+                ["ActivityId"] = activityId.ToString(),
+            }));
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        await using var ctx = factory.NewDbContext();
+        (await ctx.Activities.IgnoreQueryFilters().SingleAsync(a => a.Id == activityId)).PublicationStartDate.Should().BeNull();
     }
 
     [Fact]

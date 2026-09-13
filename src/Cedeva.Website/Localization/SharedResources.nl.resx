@@ -3607,6 +3607,12 @@
   <data name="Validation.EmailFormat" xml:space="preserve">
     <value>Ongeldig e-mailformaat</value>
   </data>
+  <data name="Validation.ActivityNameAlreadyExists" xml:space="preserve">
+    <value>Er bestaat al een activiteit met deze naam in uw organisatie.</value>
+  </data>
+  <data name="Validation.RegulationDocumentRequired" xml:space="preserve">
+    <value>Geef een link naar het reglement op of upload een PDF-bestand.</value>
+  </data>
   <data name="Validation.EndDateAfterStartDate" xml:space="preserve">
     <value>De einddatum moet na de begindatum liggen</value>
   </data>
@@ -4082,6 +4088,15 @@
   </data>
   <data name="ActivityWizard.Except" xml:space="preserve">
     <value>behalve</value>
+  </data>
+  <data name="ActivityWizard.RegulationPdfFile" xml:space="preserve">
+    <value>Of upload een PDF</value>
+  </data>
+  <data name="ActivityWizard.RegulationPdfFileHelp" xml:space="preserve">
+    <value>Als een bestand wordt geüpload, vervangt het de link hierboven.</value>
+  </data>
+  <data name="ActivityWizard.ViewCurrentRegulationDocument" xml:space="preserve">
+    <value>Huidig document bekijken</value>
   </data>
   <data name="ActivityWizard.CreateNewActivity" xml:space="preserve">
     <value>Een nieuwe activiteit aanmaken</value>
