@@ -111,15 +111,30 @@ public sealed class LocalFileStorageServiceTests : IDisposable
     [Theory]
     [InlineData("..")]
     [InlineData("../secret")]
-    [InlineData("sub/dir")]
     [InlineData("sub\\dir")]
     [InlineData("a..b")]
+    [InlineData("sub//dir")] // empty segment
+    [InlineData("/leading")] // empty leading segment
+    [InlineData("trailing/")] // empty trailing segment
     public async Task Upload_ContainerPathWithInvalidCharacters_Throws(string containerPath)
     {
         var act = async () => await _sut.UploadFileAsync(StreamFrom("x"), "f.txt", "text/plain", containerPath);
 
         (await act.Should().ThrowAsync<ArgumentException>())
             .WithMessage("*Container path contains invalid characters*");
+    }
+
+    [Fact]
+    public async Task Upload_WithNestedContainerPath_WritesFileUnderNestedFolders()
+    {
+        // Several callers (activity logos/signatures, regulation PDFs, organisation uploads) pass
+        // a slash-separated containerPath like "activities/42/logos" — this must be supported.
+        var result = await _sut.UploadFileAsync(StreamFrom("hello"), "logo.png", "image/png", "activities/42/logos");
+
+        result.Should().Be("/uploads/activities/42/logos/logo.png");
+
+        var onDisk = Path.Combine(_webRoot, "uploads", "activities", "42", "logos", "logo.png");
+        File.Exists(onDisk).Should().BeTrue();
     }
 
     // ---------------------------------------------------------------------

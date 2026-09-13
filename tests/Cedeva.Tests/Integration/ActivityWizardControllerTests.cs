@@ -557,7 +557,7 @@ public class ActivityWizardControllerTests
         var activity = await ctx.Activities.IgnoreQueryFilters().SingleAsync(a => a.Id == activityId);
         activity.RegulationLinkUrl.Should().NotBeNull();
         activity.RegulationLinkUrl.Should().NotBe("https://example.be/roi-ignore.pdf");
-        activity.RegulationLinkUrl.Should().StartWith($"/uploads/activity-{activityId}-regulations/");
+        activity.RegulationLinkUrl.Should().StartWith($"/uploads/activities/{activityId}/regulations/");
         activity.RegulationLinkUrl.Should().EndWith("reglement.pdf");
     }
 

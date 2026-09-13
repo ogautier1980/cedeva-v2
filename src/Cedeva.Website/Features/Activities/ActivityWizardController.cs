@@ -368,13 +368,8 @@ public class ActivityWizardController : Controller
         }
 
         var fileName = $"{Guid.NewGuid()}_{Path.GetFileName(pdfFile.FileName)}";
-        // Flat container name (no "/"): LocalFileStorageService currently rejects any nested
-        // containerPath (see its "Container path contains invalid characters" guard), which — as
-        // discovered while building this — also silently breaks the existing Activity
-        // logo/signature and Organisation uploads that pass a slash-containing path. Not fixed
-        // here since that's a separate, pre-existing issue affecting other features.
         activity.RegulationLinkUrl = await _storageService.UploadFileAsync(
-            pdfFile.OpenReadStream(), fileName, pdfFile.ContentType, $"activity-{activity.Id}-regulations");
+            pdfFile.OpenReadStream(), fileName, pdfFile.ContentType, $"activities/{activity.Id}/regulations");
     }
 
     private static bool IsOwnUploadedFile(string? url) =>

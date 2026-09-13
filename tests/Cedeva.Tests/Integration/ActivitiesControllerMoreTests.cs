@@ -205,7 +205,47 @@ public class ActivitiesControllerMoreTests
         (await db.Activities.IgnoreQueryFilters().FirstAsync(a => a.Id == activity.Id)).Name.Should().Be("StageARenommer");
     }
 
+    // ---------- POST Edit: logo upload ----------
 
+    [Fact]
+    public async Task EditPost_WithLogoFile_StoresLogoUnderNestedContainerPath()
+    {
+        // Regression guard: LocalFileStorageService used to reject any containerPath containing
+        // "/", which silently broke this upload since HandleActivityLogoUpload passes
+        // "activities/{id}/logos" (a nested path) — fixed by allowing nested segments.
+        using var factory = new CedevaWebApplicationFactory();
+        Organisation org = null!;
+        Activity activity = null!;
+        factory.Seed(ctx =>
+        {
+            org = TestData.Organisation();
+            activity = TestData.Activity(org, "StageAvecLogo");
+            ctx.AddRange(org, activity);
+            return 0;
+        });
+
+        var client = factory.CreateClientFor("u1", org.Id, "Coordinator");
+        var fields = BaseActivityFields(name: "StageAvecLogo", organisationId: org.Id, id: activity.Id);
+
+        using var form = new MultipartFormDataContent();
+        foreach (var (key, value) in fields)
+        {
+            form.Add(new StringContent(value), key);
+        }
+        var fileContent = new ByteArrayContent(new byte[] { 0x89, 0x50, 0x4E, 0x47 }); // PNG magic bytes
+        fileContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("image/png");
+        form.Add(fileContent, "LogoFile", "logo.png");
+
+        var response = await client.PostAsync($"/Activities/Edit/{activity.Id}", form);
+
+        response.StatusCode.Should().Be(HttpStatusCode.Found);
+
+        using var db = factory.NewDbContext();
+        var updated = await db.Activities.IgnoreQueryFilters().FirstAsync(a => a.Id == activity.Id);
+        updated.LogoUrl.Should().NotBeNullOrEmpty();
+        updated.LogoUrl.Should().StartWith($"/uploads/activities/{activity.Id}/logos/");
+        updated.LogoUrl.Should().EndWith("logo.png");
+    }
 
     [Fact]
     public async Task EditPost_UpdatesPostalCodes()

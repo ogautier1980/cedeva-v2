@@ -22,13 +22,25 @@ public class LocalFileStorageService : IStorageService
             throw new ArgumentException("Invalid file name", nameof(fileName));
         }
 
-        // Security: Validate containerPath doesn't contain path traversal sequences
-        if (!string.IsNullOrEmpty(containerPath) &&
-            (containerPath.Contains("..", StringComparison.Ordinal) ||
-             containerPath.Contains('/', StringComparison.Ordinal) ||
-             containerPath.Contains('\\', StringComparison.Ordinal)))
+        // Security: Validate containerPath doesn't contain path traversal sequences. Nested
+        // segments separated by "/" ARE allowed (e.g. "activities/42/logos", as used by several
+        // callers) — only ".." (anywhere, even inside a segment), backslashes (Windows separators
+        // have no business in this POSIX-style path), and empty/invalid segments are rejected.
+        if (!string.IsNullOrEmpty(containerPath))
         {
-            throw new ArgumentException("Container path contains invalid characters", nameof(containerPath));
+            if (containerPath.Contains("..", StringComparison.Ordinal) ||
+                containerPath.Contains('\\', StringComparison.Ordinal))
+            {
+                throw new ArgumentException("Container path contains invalid characters", nameof(containerPath));
+            }
+
+            foreach (var segment in containerPath.Split('/'))
+            {
+                if (string.IsNullOrWhiteSpace(segment) || segment.IndexOfAny(Path.GetInvalidFileNameChars()) >= 0)
+                {
+                    throw new ArgumentException("Container path contains invalid characters", nameof(containerPath));
+                }
+            }
         }
 
         // Organisation-scoped path: uploads/{organisationId}/{folder}/{guid}_{filename}
