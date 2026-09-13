@@ -1026,6 +1026,7 @@ public class PublicRegistrationController : Controller
 
         ViewBag.ActivityId = id;
         ViewBag.ActivityName = activity.Name;
+        ViewBag.WizardMaxStepReached = activity.WizardMaxStepReached;
 
         return View();
     }

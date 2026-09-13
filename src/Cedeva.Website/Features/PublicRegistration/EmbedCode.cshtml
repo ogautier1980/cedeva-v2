@@ -2,9 +2,12 @@
     ViewData["Title"] = Localizer["PublicRegistration.EmbedCode"];
     var activityId = ViewBag.ActivityId as int?;
     var activityName = ViewBag.ActivityName as string;
+    var wizardMaxStepReached = ViewBag.WizardMaxStepReached as int? ?? 0;
 }
 
 <div class="container-fluid">
+    @await Html.PartialAsync("~/Features/ActivityWizard/_WizardProgress.cshtml", (7, activityId ?? 0, wizardMaxStepReached))
+
     <div class="row mb-4">
         <div class="col-12">
             <h1 class="h3 mb-2"><i class="fas fa-code me-2"></i>@ViewData["Title"]</h1>

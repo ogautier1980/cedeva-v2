@@ -869,4 +869,33 @@ public class PublicRegistrationControllerCoverageTests
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
     }
+
+    [Fact]
+    public async Task EmbedCode_Get_RendersProgressGaugeWithClickableLinksToAllWizardSteps()
+    {
+        // The wizard's Step7 (this page) must let the coordinator jump back to any of the 6
+        // previous steps, same as those steps let each other.
+        using var factory = new CedevaWebApplicationFactory();
+        Organisation org = null!;
+        Activity activity = null!;
+        factory.Seed(ctx =>
+        {
+            org = TestData.Organisation();
+            activity = TestData.Activity(org, "Stage Embed Gauge");
+            activity.WizardMaxStepReached = 7;
+            ctx.AddRange(org, activity);
+            return 0;
+        });
+
+        var client = factory.CreateClientFor("u1", org.Id, "Coordinator");
+        var response = await client.GetAsync($"/PublicRegistration/EmbedCode/{activity.Id}");
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var html = await response.Content.ReadAsStringAsync();
+        for (var step = 1; step <= 6; step++)
+        {
+            html.Should().Contain($"/ActivityWizard/Step{step}/{activity.Id}",
+                $"step {step} should be clickable from EmbedCode's progress gauge");
+        }
+    }
 }
