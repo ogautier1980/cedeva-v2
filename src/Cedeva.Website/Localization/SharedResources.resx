@@ -895,6 +895,9 @@
   <data name="Bookings.EditParentAddress" xml:space="preserve">
     <value>Modifier les coordonnées</value>
   </data>
+  <data name="Bookings.EditChildInfo" xml:space="preserve">
+    <value>Modifier les informations de l'enfant</value>
+  </data>
   <data name="Bookings.MedicalSheet" xml:space="preserve">
     <value>Fiche médicale</value>
   </data>

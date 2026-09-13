@@ -169,7 +169,61 @@ public class BookingsController : Controller
             return NotFound();
         }
 
+        // Groups for the inline "change group" quick action (no need to go through Edit).
+        var groups = await _context.ActivityGroups
+            .Where(g => g.ActivityId == viewModel.ActivityId)
+            .OrderBy(g => g.Label)
+            .Select(g => new { g.Id, g.Label })
+            .ToListAsync();
+        ViewBag.Groups = new SelectList(groups, "Id", "Label", viewModel.GroupId);
+
         return View(viewModel);
+    }
+
+    // POST: Bookings/UpdateGroup — quick inline change from Details, without opening Edit.
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> UpdateGroup(int id, int? groupId)
+    {
+        if (!await CanAccessBookingAsync(id))
+        {
+            return NotFound();
+        }
+
+        var booking = await _context.Bookings.FindAsync(id);
+        if (booking == null)
+        {
+            return NotFound();
+        }
+
+        booking.GroupId = groupId;
+        await _context.SaveChangesAsync();
+
+        TempData[ControllerExtensions.SuccessMessageKey] = _ctx.Localizer["Message.BookingUpdated"].Value;
+        return RedirectToAction(nameof(Details), new { id });
+    }
+
+    // POST: Bookings/UpdateMedicalSheet — quick inline change from Details, without opening Edit.
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> UpdateMedicalSheet(int id, bool isMedicalSheet)
+    {
+        if (!await CanAccessBookingAsync(id))
+        {
+            return NotFound();
+        }
+
+        var booking = await _context.Bookings.FindAsync(id);
+        if (booking == null)
+        {
+            return NotFound();
+        }
+
+        booking.IsMedicalSheet = isMedicalSheet;
+        await _context.SaveChangesAsync();
+
+        TempData[ControllerExtensions.SuccessMessageKey] = _ctx.Localizer["Message.BookingUpdated"].Value;
+        return RedirectToAction(nameof(Details), new { id });
     }
 
     // GET: Bookings/MutualityAttestation/5 — Lot K #3, printable certificate for the child's

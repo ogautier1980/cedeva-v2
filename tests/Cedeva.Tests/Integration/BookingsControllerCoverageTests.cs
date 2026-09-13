@@ -237,6 +237,106 @@ public class BookingsControllerCoverageTests
     }
 
     [Fact]
+    public async Task Details_Get_RendersEditChildLinkAndInlineGroupMedicalSheetForms()
+    {
+        using var factory = new CedevaWebApplicationFactory();
+        var g = SeedFullGraph(factory);
+        var client = factory.CreateClientFor("u1", g.Org.Id, Coordinator);
+
+        var response = await client.GetAsync($"/Bookings/Details/{g.Booking.Id}");
+        var html = await response.Content.ReadAsStringAsync();
+
+        html.Should().Contain($"/Children/Edit/{g.Child.Id}");
+        html.Should().Contain($"/Bookings/UpdateGroup/{g.Booking.Id}");
+        html.Should().Contain($"/Bookings/UpdateMedicalSheet/{g.Booking.Id}");
+        html.Should().Contain($">{g.Group.Label}<");
+    }
+
+    [Fact]
+    public async Task UpdateGroupPost_ChangesBookingGroup()
+    {
+        using var factory = new CedevaWebApplicationFactory();
+        var g = SeedFullGraph(factory);
+        var otherGroup = factory.Seed(ctx =>
+        {
+            var activity = ctx.Activities.IgnoreQueryFilters().Single(a => a.Id == g.Activity.Id);
+            var group = TestData.Group(activity, "Groupe B");
+            ctx.Add(group);
+            ctx.SaveChanges();
+            return group;
+        });
+        var client = factory.CreateClientFor("u1", g.Org.Id, Coordinator);
+
+        var response = await client.PostAsync($"/Bookings/UpdateGroup/{g.Booking.Id}", new FormUrlEncodedContent(
+            new Dictionary<string, string> { ["groupId"] = otherGroup.Id.ToString() }));
+
+        response.StatusCode.Should().Be(HttpStatusCode.Redirect);
+        response.Headers.Location!.ToString().Should().Contain("/Bookings/Details");
+
+        await using var db = factory.NewDbContext();
+        (await db.Bookings.IgnoreQueryFilters().SingleAsync(b => b.Id == g.Booking.Id)).GroupId.Should().Be(otherGroup.Id);
+    }
+
+    [Fact]
+    public async Task UpdateGroupPost_ToNoGroup_ClearsBookingGroup()
+    {
+        using var factory = new CedevaWebApplicationFactory();
+        var g = SeedFullGraph(factory);
+        var client = factory.CreateClientFor("u1", g.Org.Id, Coordinator);
+
+        var response = await client.PostAsync($"/Bookings/UpdateGroup/{g.Booking.Id}", new FormUrlEncodedContent(
+            new Dictionary<string, string>()));
+
+        response.StatusCode.Should().Be(HttpStatusCode.Redirect);
+
+        await using var db = factory.NewDbContext();
+        (await db.Bookings.IgnoreQueryFilters().SingleAsync(b => b.Id == g.Booking.Id)).GroupId.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task UpdateGroupPost_AsDifferentOrgCoordinator_ReturnsNotFound()
+    {
+        using var factory = new CedevaWebApplicationFactory();
+        var g = SeedFullGraph(factory);
+        var client = factory.CreateClientFor("intruder", g.Org.Id + 999, Coordinator);
+
+        var response = await client.PostAsync($"/Bookings/UpdateGroup/{g.Booking.Id}", new FormUrlEncodedContent(
+            new Dictionary<string, string> { ["groupId"] = g.Group.Id.ToString() }));
+
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
+
+    [Fact]
+    public async Task UpdateMedicalSheetPost_ChangesBookingMedicalSheetStatus()
+    {
+        using var factory = new CedevaWebApplicationFactory();
+        var g = SeedFullGraph(factory);
+        var client = factory.CreateClientFor("u1", g.Org.Id, Coordinator);
+
+        var response = await client.PostAsync($"/Bookings/UpdateMedicalSheet/{g.Booking.Id}", new FormUrlEncodedContent(
+            new Dictionary<string, string> { ["isMedicalSheet"] = "true" }));
+
+        response.StatusCode.Should().Be(HttpStatusCode.Redirect);
+        response.Headers.Location!.ToString().Should().Contain("/Bookings/Details");
+
+        await using var db = factory.NewDbContext();
+        (await db.Bookings.IgnoreQueryFilters().SingleAsync(b => b.Id == g.Booking.Id)).IsMedicalSheet.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task UpdateMedicalSheetPost_AsDifferentOrgCoordinator_ReturnsNotFound()
+    {
+        using var factory = new CedevaWebApplicationFactory();
+        var g = SeedFullGraph(factory);
+        var client = factory.CreateClientFor("intruder", g.Org.Id + 999, Coordinator);
+
+        var response = await client.PostAsync($"/Bookings/UpdateMedicalSheet/{g.Booking.Id}", new FormUrlEncodedContent(
+            new Dictionary<string, string> { ["isMedicalSheet"] = "true" }));
+
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
+
+    [Fact]
     public async Task EditGet_AsDifferentOrgCoordinator_ReturnsNotFound()
     {
         using var factory = new CedevaWebApplicationFactory();
