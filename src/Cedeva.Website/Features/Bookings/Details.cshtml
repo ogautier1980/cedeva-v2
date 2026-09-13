@@ -188,14 +188,11 @@
 
                         <dt class="col-sm-4">@Localizer["Group"]</dt>
                         <dd class="col-sm-8">
-                            <form asp-action="UpdateGroup" asp-route-id="@Model.Id" method="post" class="d-flex gap-2 align-items-center" style="max-width: 260px;">
+                            <form asp-action="UpdateGroup" asp-route-id="@Model.Id" method="post" class="auto-submit-form" style="max-width: 260px;">
                                 @Html.AntiForgeryToken()
                                 <select name="groupId" class="form-select form-select-sm" asp-items="ViewBag.Groups">
                                     <option value="">@Localizer["NoGroupOptional"]</option>
                                 </select>
-                                <button type="submit" class="btn btn-sm btn-outline-primary" title="@Localizer["Save"]">
-                                    <i class="fas fa-check"></i>
-                                </button>
                             </form>
                         </dd>
                     </dl>
@@ -214,15 +211,12 @@
 
                         <dt class="col-sm-4">@Localizer["Bookings.MedicalSheetReceived"]</dt>
                         <dd class="col-sm-8">
-                            <form asp-action="UpdateMedicalSheet" asp-route-id="@Model.Id" method="post" class="d-flex gap-2 align-items-center" style="max-width: 200px;">
+                            <form asp-action="UpdateMedicalSheet" asp-route-id="@Model.Id" method="post" class="auto-submit-form" style="max-width: 200px;">
                                 @Html.AntiForgeryToken()
                                 <select name="isMedicalSheet" class="form-select form-select-sm">
                                     <option value="true" selected="@Model.IsMedicalSheet">@Localizer["Received"]</option>
                                     <option value="false" selected="@(!Model.IsMedicalSheet)">@Localizer["NotReceived"]</option>
                                 </select>
-                                <button type="submit" class="btn btn-sm btn-outline-primary" title="@Localizer["Save"]">
-                                    <i class="fas fa-check"></i>
-                                </button>
                             </form>
                         </dd>
 
@@ -507,3 +501,15 @@
         </small>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        // Groupe / Fiche médicale: submit as soon as the coordinator picks a new value, no
+        // separate "save" button needed.
+        $(document).ready(function () {
+            $('.auto-submit-form select').on('change', function () {
+                $(this).closest('form').trigger('submit');
+            });
+        });
+    </script>
+}
