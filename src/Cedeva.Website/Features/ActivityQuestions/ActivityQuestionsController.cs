@@ -120,8 +120,8 @@ public class ActivityQuestionsController : Controller
             return View(model);
         }
 
-        // Validate that options are provided for Radio and Dropdown question types
-        if ((model.QuestionType == QuestionType.Radio || model.QuestionType == QuestionType.Dropdown)
+        // Validate that options are provided for Checkbox, Radio and Dropdown question types
+        if ((model.QuestionType == QuestionType.Checkbox || model.QuestionType == QuestionType.Radio || model.QuestionType == QuestionType.Dropdown)
             && string.IsNullOrWhiteSpace(model.Options))
         {
             ModelState.AddModelError(nameof(model.Options), _localizer["ActivityQuestions.OptionsRequired"]);
@@ -194,8 +194,8 @@ public class ActivityQuestionsController : Controller
             return View(model);
         }
 
-        // Validate that options are provided for Radio and Dropdown question types
-        if ((model.QuestionType == QuestionType.Radio || model.QuestionType == QuestionType.Dropdown)
+        // Validate that options are provided for Checkbox, Radio and Dropdown question types
+        if ((model.QuestionType == QuestionType.Checkbox || model.QuestionType == QuestionType.Radio || model.QuestionType == QuestionType.Dropdown)
             && string.IsNullOrWhiteSpace(model.Options))
         {
             ModelState.AddModelError(nameof(model.Options), _localizer["ActivityQuestions.OptionsRequired"]);

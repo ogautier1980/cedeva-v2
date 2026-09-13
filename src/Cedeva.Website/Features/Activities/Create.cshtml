@@ -332,8 +332,8 @@
                 const selectedType = $(this).val();
                 const optionsContainer = $('#options_' + questionIdx);
 
-                // Show options field for Radio (2) and Dropdown (3)
-                if (selectedType === '2' || selectedType === '3') {
+                // Show options field for Checkbox (1), Radio (2) and Dropdown (3)
+                if (selectedType === '1' || selectedType === '2' || selectedType === '3') {
                     optionsContainer.show();
                 } else {
                     optionsContainer.hide();

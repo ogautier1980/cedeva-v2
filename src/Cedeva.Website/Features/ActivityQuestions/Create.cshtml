@@ -88,8 +88,8 @@
 
             function toggleOptionsField() {
                 var selectedType = $questionTypeSelect.val();
-                // Show options for Radio (2) and Dropdown (3)
-                if (selectedType == '2' || selectedType == '3') {
+                // Show options for Checkbox (1), Radio (2) and Dropdown (3)
+                if (selectedType == '1' || selectedType == '2' || selectedType == '3') {
                     $optionsDiv.show();
                     $optionsInput.attr('required', 'required');
                 } else {

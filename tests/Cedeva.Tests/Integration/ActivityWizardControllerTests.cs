@@ -653,6 +653,52 @@ public class ActivityWizardControllerTests
     }
 
     [Fact]
+    public async Task Step5_Get_NewQuestionTemplateDoesNotEscapeIndexInterpolation()
+    {
+        // Regression guard: the "Ajouter une question" JS template literal previously escaped the
+        // `$` in `${newQuestionIndex}` (i.e. `\${newQuestionIndex}`), which meant every dynamically
+        // added row was named e.g. "NewQuestions[${newQuestionIndex}].QuestionText" literally
+        // instead of "NewQuestions[0].QuestionText" — the model binder silently ignored these
+        // unrecognized indices, so new questions were never saved.
+        using var factory = new CedevaWebApplicationFactory();
+        var (orgId, activityId) = SeedActivity(factory);
+        var client = factory.CreateClientFor("u1", orgId, "Coordinator");
+
+        var response = await client.GetAsync($"/ActivityWizard/Step5/{activityId}");
+        var html = await response.Content.ReadAsStringAsync();
+
+        html.Should().NotContain("\\${newQuestionIndex}");
+        html.Should().Contain("NewQuestions[${idx}].QuestionText");
+    }
+
+    [Fact]
+    public async Task Step5_Get_ShowsOptionsFieldForCheckboxQuestionType()
+    {
+        using var factory = new CedevaWebApplicationFactory();
+        var (orgId, activityId) = SeedActivity(factory);
+        await using (var seedCtx = factory.NewDbContext())
+        {
+            var activity = await seedCtx.Activities.IgnoreQueryFilters().SingleAsync(a => a.Id == activityId);
+            var question = TestData.Question(activity, "Allergies ?");
+            question.QuestionType = QuestionType.Checkbox;
+            question.Options = "Gluten,Arachides";
+            seedCtx.ActivityQuestions.Add(question);
+            await seedCtx.SaveChangesAsync();
+        }
+
+        var client = factory.CreateClientFor("u1", orgId, "Coordinator");
+        var response = await client.GetAsync($"/ActivityWizard/Step5/{activityId}");
+        var html = await response.Content.ReadAsStringAsync();
+
+        html.Should().Contain("Gluten,Arachides");
+        var match = System.Text.RegularExpressions.Regex.Match(
+            html, "id=\"existing_options_0\"\\s+style=\"display:\\s*(\\w+);\"");
+        match.Success.Should().BeTrue("the options container for the existing question should carry a display style");
+        match.Groups[1].Value.Should().Be("block");
+        html.Should().Contain("selectedType === '1' || selectedType === '2' || selectedType === '3'");
+    }
+
+    [Fact]
     public async Task Step5_Post_AddsNewQuestionAndRedirectsToStep6()
     {
         using var factory = new CedevaWebApplicationFactory();
