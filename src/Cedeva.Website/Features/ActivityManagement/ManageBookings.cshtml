@@ -10,8 +10,6 @@
 
 @await Html.PartialAsync("_AlertMessages")
 
-@Html.AntiForgeryToken()
-
 <div class="mb-4">
     <h2><i class="fas fa-list-check me-2"></i>@Localizer["ActivityManagement.ManageBookings"]</h2>
 </div>
@@ -65,11 +63,14 @@ else
                         @foreach (var item in Model.Bookings)
                         {
                             <tr id="booking-row-@item.BookingId"
+                                class="booking-row"
+                                data-href="@Url.Action("Details", "Bookings", new { id = item.BookingId })"
                                 data-firstname="@item.FirstName.ToLower()"
                                 data-lastname="@item.LastName.ToLower()"
-                                data-age="@item.Age">
-                                <td><a asp-controller="Bookings" asp-action="Details" asp-route-id="@item.BookingId">@item.FirstName</a></td>
-                                <td><a asp-controller="Bookings" asp-action="Details" asp-route-id="@item.BookingId">@item.LastName</a></td>
+                                data-age="@item.Age"
+                                style="cursor: pointer;">
+                                <td>@item.FirstName</td>
+                                <td>@item.LastName</td>
                                 <td>@item.Age</td>
                                 <td class="text-center">
                                     @{
@@ -96,22 +97,9 @@ else
                                     }
                                     else
                                     {
-                                        <div class="input-group input-group-sm mb-1" style="max-width: 140px; margin-inline: auto;">
-                                            <span class="input-group-text">€</span>
-                                            <input type="number" step="0.01" min="0"
-                                                   class="form-control confirm-amount-input"
-                                                   id="confirm-amount-@item.BookingId"
-                                                   value="@item.TotalAmount.ToString("F2", System.Globalization.CultureInfo.InvariantCulture)"
-                                                   title="@Localizer["ActivityManagement.AdjustAmountBeforeConfirm"]" />
-                                        </div>
-                                        <button type="button"
-                                                class="btn btn-success btn-sm"
-                                                data-booking-id="@item.BookingId"
-                                                data-unpaid="@(item.PaymentStatus != PaymentStatus.Paid ? "true" : "false")"
-                                                data-balance="@item.Balance.ToString("C2", new System.Globalization.CultureInfo("fr-BE"))"
-                                                onclick="confirmBooking(this)">
-                                            <i class="fas fa-check me-1"></i>@Localizer["Confirm"]
-                                        </button>
+                                        <span class="badge bg-warning text-dark">
+                                            <i class="fas fa-clock me-1"></i>@Localizer["Pending"]
+                                        </span>
                                     }
                                 </td>
                             </tr>
@@ -189,79 +177,11 @@ else
             }
         }
 
-        // Confirm booking — the server sends the payment link email (if a balance is due) as a
-        // side effect of this call; nothing else happens here in this screen.
-        async function confirmBooking(button) {
-            if (button.dataset.unpaid === 'true') {
-                var message = @Json.Serialize(Localizer["ActivityManagement.ConfirmUnpaidBooking"].Value)
-                    .replace('{0}', button.dataset.balance);
-                if (!confirm(message)) {
-                    return;
-                }
-            }
-
-            const bookingId = button.dataset.bookingId;
-            button.disabled = true;
-
-            const amountInput = document.getElementById('confirm-amount-' + bookingId);
-            const adjustedTotalAmount = amountInput ? parseFloat(amountInput.value.replace(',', '.')) : null;
-
-            try {
-                const response = await fetch('@Url.Action("ConfirmBooking", "ActivityManagement")', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
-                    },
-                    body: JSON.stringify({
-                        bookingId: parseInt(bookingId),
-                        adjustedTotalAmount: (adjustedTotalAmount != null && !isNaN(adjustedTotalAmount)) ? adjustedTotalAmount : null
-                    })
-                });
-
-                const result = await response.json();
-
-                if (!result.success) {
-                    alert(result.message || '@Localizer["Message.ErrorOccurred"]');
-                    button.disabled = false;
-                    return;
-                }
-
-                await updateBadgeCounts();
-
-                const row = document.getElementById('booking-row-' + bookingId);
-                row.style.transition = 'opacity 0.3s';
-                row.style.opacity = '0';
-                setTimeout(() => {
-                    row.remove();
-                    const remainingRows = document.querySelectorAll('tbody tr');
-                    if (remainingRows.length === 0) {
-                        location.reload();
-                    }
-                }, 300);
-            } catch (error) {
-                console.error('Error confirming booking:', error);
-                alert('@Localizer["Message.ErrorOccurred"]');
-                button.disabled = false;
-            }
-        }
-
-        // Update badge count
-        async function updateBadgeCounts() {
-            try {
-                const response = await fetch('@Url.Action("GetManageBookingsStats", "ActivityManagement")?activityId=@Model.ActivityId');
-                const stats = await response.json();
-
-                const badge = document.getElementById('pending-count');
-                if (stats.pendingConfirmation === 0) {
-                    badge.style.display = 'none';
-                } else {
-                    badge.style.display = 'inline-block';
-                    badge.innerHTML = `<i class="fas fa-clock me-1"></i>${stats.pendingConfirmation}`;
-                }
-            } catch (error) {
-                console.error('Error updating badge counts:', error);
-            }
-        }
+        // The whole row navigates to the booking's details page, where it can be confirmed.
+        document.querySelectorAll('.booking-row').forEach(row => {
+            row.addEventListener('click', function () {
+                window.location = this.dataset.href;
+            });
+        });
     </script>
 }

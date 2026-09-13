@@ -283,6 +283,41 @@ public class ActivityManagementControllerCoverageTests
         (await response.Content.ReadAsStringAsync()).Should().Contain("Stage Manage");
     }
 
+    [Fact]
+    public async Task ManageBookings_Get_RowLinksToBookingDetailsAndHasNoInlineConfirmControls()
+    {
+        // The whole row (name cells included) navigates to Bookings/Details on click instead of
+        // exposing per-cell <a> links or an inline amount/confirm button — and the status column
+        // no longer repeats the amount already shown in the payment column.
+        using var factory = new CedevaWebApplicationFactory();
+        Organisation org = null!;
+        Activity activity = null!;
+        Booking booking = null!;
+        factory.Seed(ctx =>
+        {
+            org = TestData.Organisation();
+            activity = TestData.Activity(org, "Stage Manage Row");
+            var parent = TestData.Parent(org);
+            var child = TestData.Child(parent);
+            booking = TestData.Booking(child, activity, null, 100m, 0m);
+            booking.IsConfirmed = false;
+            ctx.AddRange(org, activity, parent, child, booking);
+            return 0;
+        });
+
+        var client = factory.CreateClientFor("u1", org.Id, "Coordinator");
+        await client.PostAsync("/ActivityManagement/BeginManageBookings",
+            new FormUrlEncodedContent(new Dictionary<string, string> { ["id"] = activity.Id.ToString() }));
+
+        var response = await client.GetAsync("/ActivityManagement/ManageBookings");
+        var html = await response.Content.ReadAsStringAsync();
+
+        html.Should().Contain($"data-href=\"/Bookings/Details/{booking.Id}\"");
+        html.Should().NotContain($"<a href=\"/Bookings/Details/{booking.Id}\"");
+        html.Should().NotContain("confirm-amount-");
+        html.Should().NotContain("confirmBooking(");
+    }
+
     // ---------------------------------------------------------------------
     // POST navigation shims (Index + Begin*) -> 302 to their GET target
     // ---------------------------------------------------------------------
