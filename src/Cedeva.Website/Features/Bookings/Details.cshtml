@@ -216,52 +216,18 @@
                                 </span>
                             }
                         </dd>
-                    </dl>
-
-                    <hr />
-
-                    <h6 class="mb-3 text-primary"><i class="fas fa-euro-sign me-2"></i>@Localizer["Financial.Information"]</h6>
-
-                    <dl class="row">
-                        <dt class="col-sm-4">@Localizer["Financial.TotalAmount"]</dt>
-                        <dd class="col-sm-8">
-                            <strong class="text-primary">@Model.TotalAmount.ToString("C2", new System.Globalization.CultureInfo("fr-BE"))</strong>
-                        </dd>
-
-                        @if (Model.TotalExcursionsAmount > 0)
-                        {
-                            <dt class="col-sm-4">@Localizer["Financial.TotalExcursionsAmount"]</dt>
-                            <dd class="col-sm-8">
-                                <span class="text-muted">@Model.TotalExcursionsAmount.ToString("C2", new System.Globalization.CultureInfo("fr-BE"))</span>
-                                <small class="text-muted d-block">@Localizer["Financial.TotalExcursionsAmountHelp"]</small>
-                            </dd>
-                        }
-
-                        <dt class="col-sm-4">@Localizer["Financial.PaidAmount"]</dt>
-                        <dd class="col-sm-8">
-                            <span class="text-success">@Model.PaidAmount.ToString("C2", new System.Globalization.CultureInfo("fr-BE"))</span>
-                        </dd>
-
-                        <dt class="col-sm-4">@Localizer["Financial.Balance"]</dt>
-                        <dd class="col-sm-8">
-                            @{
-                                var balance = Model.TotalAmount - Model.PaidAmount;
-                                var balanceClass = balance > 0 ? "text-danger" : "text-success";
-                            }
-                            <strong class="@balanceClass">@balance.ToString("C2", new System.Globalization.CultureInfo("fr-BE"))</strong>
-                        </dd>
 
                         <dt class="col-sm-4">@Localizer["Financial.PaymentStatus"]</dt>
                         <dd class="col-sm-8">
                             @{
-                                var statusBadge = Model.PaymentStatus switch
+                                var paymentStatusBadge = Model.PaymentStatus switch
                                 {
                                     PaymentStatus.Paid => "bg-success",
                                     PaymentStatus.PartiallyPaid => "bg-warning",
                                     PaymentStatus.NotPaid => "bg-danger",
                                     _ => "bg-secondary"
                                 };
-                                var statusText = Model.PaymentStatus switch
+                                var paymentStatusText = Model.PaymentStatus switch
                                 {
                                     PaymentStatus.Paid => Localizer["PaymentStatus.Paid"],
                                     PaymentStatus.PartiallyPaid => Localizer["PaymentStatus.PartiallyPaid"],
@@ -269,11 +235,35 @@
                                     _ => ""
                                 };
                             }
-                            <span class="badge @statusBadge">@statusText</span>
+                            <span class="badge @paymentStatusBadge">@paymentStatusText</span>
                         </dd>
                     </dl>
 
-                    <div class="d-flex justify-content-between align-items-center mb-3">
+                    <hr />
+
+                    <h6 class="mb-3 text-primary"><i class="fas fa-euro-sign me-2"></i>@Localizer["Financial.Information"]</h6>
+
+                    @{
+                        var balance = Model.TotalAmount - Model.PaidAmount;
+                        var balanceClass = balance > 0 ? "text-danger" : "text-success";
+                    }
+
+                    <div class="d-flex align-items-stretch mb-2" style="max-width: 320px;">
+                        <div class="bg-light border rounded-start px-2 py-1 small text-muted flex-grow-1">@Localizer["Bookings.ExpectedTotalToPay"]</div>
+                        <div class="border-top border-bottom px-2 py-1 text-end" style="min-width: 90px;">@Model.TotalAmount.ToString("N2")</div>
+                        <div class="bg-primary text-white rounded-end px-2 py-1">€</div>
+                    </div>
+
+                    @if (Model.TotalExcursionsAmount > 0)
+                    {
+                        <div class="d-flex align-items-stretch mb-2" style="max-width: 320px;">
+                            <div class="bg-light border rounded-start px-2 py-1 small text-muted flex-grow-1">@Localizer["Financial.TotalExcursionsAmount"]</div>
+                            <div class="border-top border-bottom px-2 py-1 text-end" style="min-width: 90px;">@Model.TotalExcursionsAmount.ToString("N2")</div>
+                            <div class="bg-primary text-white rounded-end px-2 py-1">€</div>
+                        </div>
+                    }
+
+                    <div class="d-flex justify-content-between align-items-center mt-3 mb-2">
                         <h6 class="mb-0 text-primary"><i class="fas fa-receipt me-2"></i>@Localizer["Bookings.PaymentHistory"]</h6>
                         <a asp-controller="Payments" asp-action="Create" asp-route-bookingId="@Model.Id" class="btn btn-sm btn-outline-primary">
                             <i class="fas fa-plus me-1"></i>@Localizer["Payments.AddPayment"]
@@ -282,33 +272,18 @@
 
                     @if (Model.Payments.Any())
                     {
-                        <div class="table-responsive">
-                            <table class="table table-sm table-hover">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th scope="col">@Localizer["Field.Date"]</th>
-                                        <th scope="col">@Localizer["Field.Amount"]</th>
-                                        <th scope="col">@Localizer["Field.PaymentMethod"]</th>
-                                        <th scope="col"></th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach (var payment in Model.Payments)
-                                    {
-                                        <tr>
-                                            <td>@payment.PaymentDate.ToString("dd/MM/yyyy")</td>
-                                            <td><strong class="text-success">@payment.Amount.ToString("C2", new System.Globalization.CultureInfo("fr-BE"))</strong></td>
-                                            <td>@Localizer[$"PaymentMethod.{payment.PaymentMethod}"]</td>
-                                            <td class="text-end">
-                                                <a asp-controller="Payments" asp-action="Details" asp-route-id="@payment.Id" class="btn btn-sm btn-outline-secondary">
-                                                    <i class="fas fa-eye"></i>
-                                                </a>
-                                            </td>
-                                        </tr>
-                                    }
-                                </tbody>
-                            </table>
-                        </div>
+                        @foreach (var payment in Model.Payments)
+                        {
+                            <div class="d-flex align-items-stretch mb-2" style="max-width: 320px;">
+                                <a asp-controller="Payments" asp-action="Details" asp-route-id="@payment.Id"
+                                   class="bg-light border rounded-start px-2 py-1 small flex-grow-1 text-decoration-none">
+                                    @payment.PaymentDate.ToString("dd/MM/yyyy")
+                                    <span class="text-muted">— @Localizer[$"PaymentMethod.{payment.PaymentMethod}"]</span>
+                                </a>
+                                <div class="border-top border-bottom px-2 py-1 text-end text-success" style="min-width: 90px;">@payment.Amount.ToString("N2")</div>
+                                <div class="bg-primary text-white rounded-end px-2 py-1">€</div>
+                            </div>
+                        }
                     }
                     else
                     {
@@ -317,69 +292,90 @@
                         </div>
                     }
 
+                    <div class="d-flex align-items-stretch mt-3 mb-2" style="max-width: 320px;">
+                        <div class="bg-light border rounded-start px-2 py-1 small text-muted flex-grow-1">@Localizer["Bookings.TotalPayments"]</div>
+                        <div class="border-top border-bottom px-2 py-1 text-end text-success"><strong>@Model.PaidAmount.ToString("N2")</strong></div>
+                        <div class="bg-primary text-white rounded-end px-2 py-1">€</div>
+                    </div>
+
+                    <div class="d-flex align-items-stretch mb-2" style="max-width: 320px;">
+                        <div class="bg-light border rounded-start px-2 py-1 small text-muted flex-grow-1">@Localizer["Financial.Balance"]</div>
+                        <div class="border-top border-bottom px-2 py-1 text-end @balanceClass" style="min-width: 90px;"><strong>@balance.ToString("N2")</strong></div>
+                        <div class="bg-primary text-white rounded-end px-2 py-1">€</div>
+                    </div>
+
                     @if (Model.IsConfirmed)
                     {
                     <hr />
 
                     <h6 class="mb-3 text-primary"><i class="fas fa-calendar-week me-2"></i>@Localizer["Bookings.ReservedDays"]</h6>
 
-                    @if (Model.WeeklyDays.Any())
+                    @if (Model.AllActivityDays.Any())
                     {
                         <div class="row g-3">
-                            @foreach (var week in Model.WeeklyDays)
+                            @foreach (var week in Model.AllActivityDays)
                             {
                                 <div class="col-md-6 col-lg-4">
-                                    <div class="card border-primary h-100">
-                                        <div class="card-header bg-primary text-white">
-                                            <i class="fas fa-calendar-week me-2"></i>@week.WeekLabel
-                                            <small class="ms-2">(@week.StartDate.ToString("dd/MM") - @week.EndDate.ToString("dd/MM/yyyy"))</small>
+                                    <div class="card h-100">
+                                        <div class="card-header bg-light">
+                                            <i class="fas fa-calendar me-2"></i>@week.WeekLabel
+                                            <small class="text-muted ms-2">(@week.StartDate.ToString("dd/MM") - @week.EndDate.ToString("dd/MM/yyyy"))</small>
                                         </div>
                                         <div class="card-body p-0">
-                                            <div class="list-group list-group-flush">
-                                                @foreach (var day in week.Days)
-                                                {
-                                                    var dayName = day.DayOfWeek switch
+                                            <table class="table table-sm mb-0">
+                                                <thead class="table-light">
+                                                    <tr>
+                                                        <th></th>
+                                                        <th class="text-center small fw-normal text-muted">@Localizer["Bookings.Planned"]</th>
+                                                        <th class="text-center small fw-normal text-muted">@Localizer["Present"]</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach (var day in week.Days)
                                                     {
-                                                        DayOfWeek.Monday => Localizer["DayOfWeek.Monday"],
-                                                        DayOfWeek.Tuesday => Localizer["DayOfWeek.Tuesday"],
-                                                        DayOfWeek.Wednesday => Localizer["DayOfWeek.Wednesday"],
-                                                        DayOfWeek.Thursday => Localizer["DayOfWeek.Thursday"],
-                                                        DayOfWeek.Friday => Localizer["DayOfWeek.Friday"],
-                                                        DayOfWeek.Saturday => Localizer["DayOfWeek.Saturday"],
-                                                        DayOfWeek.Sunday => Localizer["DayOfWeek.Sunday"],
-                                                        _ => ""
-                                                    };
-                                                    var isWeekend = day.DayOfWeek == DayOfWeek.Saturday || day.DayOfWeek == DayOfWeek.Sunday;
-                                                    var bgClass = isWeekend ? "bg-light" : "";
+                                                        var dayName = day.DayOfWeek switch
+                                                        {
+                                                            DayOfWeek.Monday => Localizer["DayOfWeek.Monday"],
+                                                            DayOfWeek.Tuesday => Localizer["DayOfWeek.Tuesday"],
+                                                            DayOfWeek.Wednesday => Localizer["DayOfWeek.Wednesday"],
+                                                            DayOfWeek.Thursday => Localizer["DayOfWeek.Thursday"],
+                                                            DayOfWeek.Friday => Localizer["DayOfWeek.Friday"],
+                                                            DayOfWeek.Saturday => Localizer["DayOfWeek.Saturday"],
+                                                            DayOfWeek.Sunday => Localizer["DayOfWeek.Sunday"],
+                                                            _ => ""
+                                                        };
+                                                        var isWeekend = day.DayOfWeek == DayOfWeek.Saturday || day.DayOfWeek == DayOfWeek.Sunday;
+                                                        var bgClass = isWeekend ? "bg-light" : "";
 
-                                                    <div class="list-group-item @bgClass py-2">
-                                                        <div class="d-flex justify-content-between align-items-center">
-                                                            <div>
+                                                        <tr class="@bgClass">
+                                                            <td>
                                                                 <strong>@dayName</strong>
                                                                 <small class="text-muted ms-1">@day.Date.ToString("dd/MM")</small>
-                                                                @if (isWeekend)
+                                                            </td>
+                                                            <td class="text-center">
+                                                                @if (day.IsReserved)
                                                                 {
-                                                                    <span class="badge bg-warning text-dark ms-1" style="font-size: 0.65rem;">Week-end</span>
-                                                                }
-                                                            </div>
-                                                            <div>
-                                                                @if (day.IsPresent)
-                                                                {
-                                                                    <span class="badge bg-success">
-                                                                        <i class="fas fa-check me-1"></i>@Localizer["Present"]
-                                                                    </span>
+                                                                    <i class="fas fa-check-circle text-primary"></i>
                                                                 }
                                                                 else
                                                                 {
-                                                                    <span class="badge bg-secondary">
-                                                                        <i class="fas fa-minus me-1"></i>@Localizer["NotMarked"]
-                                                                    </span>
+                                                                    <i class="far fa-circle text-muted"></i>
                                                                 }
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                }
-                                            </div>
+                                                            </td>
+                                                            <td class="text-center">
+                                                                @if (day.IsPresent)
+                                                                {
+                                                                    <i class="fas fa-check-circle text-success"></i>
+                                                                }
+                                                                else
+                                                                {
+                                                                    <i class="far fa-circle text-muted"></i>
+                                                                }
+                                                            </td>
+                                                        </tr>
+                                                    }
+                                                </tbody>
+                                            </table>
                                         </div>
                                     </div>
                                 </div>

@@ -617,35 +617,11 @@ public class BookingsController : Controller
             AnswerText = dto.AnswerText
         }).ToList();
 
-        // Group booking days by week
-        var weeklyDays = booking.Days
-            .Where(d => d.IsReserved && d.ActivityDay != null)
-            .GroupBy(d => d.ActivityDay.Week ?? 0)
-            .OrderBy(g => g.Key)
-            .Select(g => new WeeklyBookingDaysViewModel
-            {
-                WeekNumber = g.Key,
-                WeekLabel = $"Semaine {g.Key}",
-                StartDate = g.Min(d => d.ActivityDay.DayDate),
-                EndDate = g.Max(d => d.ActivityDay.DayDate),
-                Days = g.OrderBy(d => d.ActivityDay.DayDate)
-                    .Select(d => new BookingDayDisplayViewModel
-                    {
-                        ActivityDayId = d.ActivityDayId,
-                        Date = d.ActivityDay.DayDate,
-                        Label = d.ActivityDay.Label,
-                        DayOfWeek = d.ActivityDay.DayDate.DayOfWeek,
-                        IsReserved = d.IsReserved,
-                        IsPresent = d.IsPresent
-                    })
-                    .ToList()
-            })
-            .ToList();
-
-        // Every active day of the activity (not just reserved ones), for the editable checklist
-        // shown while the booking isn't confirmed yet — same shape as ActivityWizardController's
-        // day management, but scoped to this one booking's reservation state.
-        var allActivityDays = booking.IsConfirmed || activity == null
+        // Every active day of the activity (not just reserved ones) — used both by the editable
+        // checklist shown while the booking isn't confirmed yet, and by the read-only
+        // Prévu/Présent grid once it is; same shape as ActivityWizardController's day management,
+        // but scoped to this one booking's reservation/presence state.
+        var allActivityDays = activity == null
             ? new List<WeeklyBookingDaysViewModel>()
             : activity.Days
                 .Where(d => d.IsActive)
@@ -703,7 +679,6 @@ public class BookingsController : Controller
             GroupLabel = group?.Label,
             DaysCount = booking.Days.Count,
             QuestionAnswersCount = booking.QuestionAnswers.Count,
-            WeeklyDays = weeklyDays,
             AllActivityDays = allActivityDays,
             Questions = questions,
             Payments = booking.Payments

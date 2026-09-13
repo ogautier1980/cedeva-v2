@@ -68,8 +68,9 @@ public class BookingViewModel : AuditableViewModel
     public List<WeeklyBookingDaysViewModel> WeeklyDays { get; set; } = new();
 
     /// <summary>Every active day of the activity (not just the reserved ones), each flagged
-    /// <see cref="BookingDayDisplayViewModel.IsReserved"/> — used by Details' editable checklist
-    /// while the booking isn't confirmed yet, so a day can be added or removed from the booking.</summary>
+    /// <see cref="BookingDayDisplayViewModel.IsReserved"/> and <see cref="BookingDayDisplayViewModel.IsPresent"/> —
+    /// used by Details' editable checklist while the booking isn't confirmed yet (so a day can be
+    /// added or removed), and by its read-only Prévu/Présent grid once it is.</summary>
     public List<WeeklyBookingDaysViewModel> AllActivityDays { get; set; } = new();
 
     // Questions and answers (for Details/Edit views)

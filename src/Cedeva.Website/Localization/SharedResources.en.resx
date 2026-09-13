@@ -937,6 +937,12 @@
   <data name="Bookings.PaymentHistory" xml:space="preserve">
     <value>Payment history</value>
   </data>
+  <data name="Bookings.TotalPayments" xml:space="preserve">
+    <value>TOTAL payments</value>
+  </data>
+  <data name="Bookings.Planned" xml:space="preserve">
+    <value>Planned</value>
+  </data>
   <data name="Bookings.Pending" xml:space="preserve">
     <value>Pending</value>
   </data>

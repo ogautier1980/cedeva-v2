@@ -937,6 +937,12 @@
   <data name="Bookings.PaymentHistory" xml:space="preserve">
     <value>Betalingsgeschiedenis</value>
   </data>
+  <data name="Bookings.TotalPayments" xml:space="preserve">
+    <value>TOTAAL betalingen</value>
+  </data>
+  <data name="Bookings.Planned" xml:space="preserve">
+    <value>Gepland</value>
+  </data>
   <data name="Bookings.Pending" xml:space="preserve">
     <value>In afwachting</value>
   </data>
