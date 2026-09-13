@@ -23,19 +23,128 @@
                     </div>
                 </div>
                 <div class="card-body">
-                    <h6 class="mb-3 text-primary"><i class="fas fa-info-circle me-2"></i>@Localizer["Activities.GeneralInformation"]</h6>
+                    <h3 class="mb-1">
+                        <a asp-controller="Children" asp-action="Details" asp-route-id="@Model.ChildId" class="text-decoration-none">
+                            @Model.ChildFullName
+                        </a>
+                    </h3>
+                    @if (Model.ChildBirthDate.HasValue)
+                    {
+                        <p class="text-muted mb-4">
+                            <i class="fas fa-birthday-cake me-1"></i>@Model.ChildBirthDate.Value.ToString("dd/MM/yyyy")
+                        </p>
+                    }
+
+                    <h6 class="mb-3 text-primary">
+                        <i class="fas fa-calendar-week me-2"></i>
+                        <a asp-controller="Activities" asp-action="Details" asp-route-id="@Model.ActivityId" class="text-decoration-none">@Model.ActivityName</a>
+                        <small class="text-muted ms-2">
+                            @Model.ActivityStartDate?.ToString("dd/MM/yyyy") - @Model.ActivityEndDate?.ToString("dd/MM/yyyy")
+                        </small>
+                    </h6>
+
+                    @if (!Model.IsConfirmed)
+                    {
+                        <form asp-action="Edit" asp-route-id="@Model.Id" asp-route-returnUrl="@Url.Action("Details", new { id = Model.Id })" method="post">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="BookingDate" value="@Model.BookingDate.ToString("yyyy-MM-dd")" />
+                            <input type="hidden" name="ChildId" value="@Model.ChildId" />
+                            <input type="hidden" name="ActivityId" value="@Model.ActivityId" />
+                            <input type="hidden" name="GroupId" value="@Model.GroupId" />
+                            <input type="hidden" name="IsMedicalSheet" value="@Model.IsMedicalSheet.ToString().ToLowerInvariant()" />
+
+                            @if (Model.AllActivityDays.Any())
+                            {
+                                <div class="row g-3 mb-3">
+                                    @foreach (var week in Model.AllActivityDays)
+                                    {
+                                        <div class="col-md-6 col-lg-4">
+                                            <div class="card h-100">
+                                                <div class="card-header bg-light">
+                                                    <i class="fas fa-calendar me-2"></i>@week.WeekLabel
+                                                    <small class="text-muted ms-2">(@week.StartDate.ToString("dd/MM") - @week.EndDate.ToString("dd/MM/yyyy"))</small>
+                                                </div>
+                                                <div class="card-body p-0">
+                                                    <div class="list-group list-group-flush">
+                                                        @foreach (var day in week.Days)
+                                                        {
+                                                            var dayName = day.DayOfWeek switch
+                                                            {
+                                                                DayOfWeek.Monday => Localizer["DayOfWeek.Monday"],
+                                                                DayOfWeek.Tuesday => Localizer["DayOfWeek.Tuesday"],
+                                                                DayOfWeek.Wednesday => Localizer["DayOfWeek.Wednesday"],
+                                                                DayOfWeek.Thursday => Localizer["DayOfWeek.Thursday"],
+                                                                DayOfWeek.Friday => Localizer["DayOfWeek.Friday"],
+                                                                DayOfWeek.Saturday => Localizer["DayOfWeek.Saturday"],
+                                                                DayOfWeek.Sunday => Localizer["DayOfWeek.Sunday"],
+                                                                _ => ""
+                                                            };
+                                                            var isWeekend = day.DayOfWeek == DayOfWeek.Saturday || day.DayOfWeek == DayOfWeek.Sunday;
+                                                            var bgClass = isWeekend ? "bg-light" : "";
+
+                                                            <div class="list-group-item @bgClass py-2">
+                                                                <div class="form-check">
+                                                                    <input class="form-check-input" type="checkbox"
+                                                                           name="SelectedActivityDayIds" value="@day.ActivityDayId"
+                                                                           id="day_@day.ActivityDayId" @(day.IsReserved ? "checked" : "") />
+                                                                    <label class="form-check-label" for="day_@day.ActivityDayId">
+                                                                        <strong>@dayName</strong>
+                                                                        <small class="text-muted ms-1">@day.Date.ToString("dd/MM")</small>
+                                                                        @if (isWeekend)
+                                                                        {
+                                                                            <span class="badge bg-warning text-dark ms-1" style="font-size: 0.65rem;">Week-end</span>
+                                                                        }
+                                                                    </label>
+                                                                </div>
+                                                            </div>
+                                                        }
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="alert alert-info">
+                                    <i class="fas fa-info-circle me-2"></i>@Localizer["Bookings.NoDaysReserved"]
+                                </div>
+                            }
+
+                            <div class="mb-3">
+                                <label for="TotalAmount" class="form-label">@Localizer["Bookings.ExpectedTotalToPay"]</label>
+                                <div class="input-group" style="max-width: 200px;">
+                                    <input type="number" step="0.01" min="0" class="form-control" id="TotalAmount" name="TotalAmount"
+                                           value="@Model.TotalAmount.ToString("F2", System.Globalization.CultureInfo.InvariantCulture)" />
+                                    <span class="input-group-text">€</span>
+                                </div>
+                            </div>
+
+                            @{
+                                var confirmOnClick = Model.PaymentStatus != PaymentStatus.Paid
+                                    ? "return confirm(" + Json.Serialize(string.Format(
+                                        Localizer["ActivityManagement.ConfirmUnpaidBooking"].Value,
+                                        (Model.TotalAmount - Model.PaidAmount).ToString("C2", new System.Globalization.CultureInfo("fr-BE")))) + ");"
+                                    : null;
+                            }
+                            <div class="d-flex gap-2 mb-2">
+                                <button type="submit" name="IsConfirmed" value="true" class="btn btn-success" onclick="@confirmOnClick">
+                                    <i class="fas fa-check me-2"></i>@Localizer["Bookings.ConfirmBooking"]
+                                </button>
+                                <button type="submit" class="btn btn-outline-danger"
+                                        formaction="@Url.Action("Delete", new { id = Model.Id })" formmethod="post" formnovalidate>
+                                    <i class="fas fa-trash me-2"></i>@Localizer["Bookings.DeleteBooking"]
+                                </button>
+                            </div>
+                        </form>
+                    }
+
+                    <hr />
+
+                    <h6 class="mb-3 text-primary"><i class="fas fa-user-shield me-2"></i>@Localizer["Bookings.LegalGuardian"]</h6>
 
                     <dl class="row">
-                        <dt class="col-sm-4">@Localizer["Bookings.BookingDate"]</dt>
-                        <dd class="col-sm-8">@Model.BookingDate.ToString("dd/MM/yyyy")</dd>
-
-                        <dt class="col-sm-4">@Localizer["Child"]</dt>
-                        <dd class="col-sm-8">
-                            <a asp-controller="Children" asp-action="Details" asp-route-id="@Model.ChildId">
-                                <i class="fas fa-child me-1"></i>@Model.ChildFullName
-                            </a>
-                        </dd>
-
                         <dt class="col-sm-4">@Localizer["Parent"]</dt>
                         <dd class="col-sm-8">
                             <i class="fas fa-user me-1"></i>@Model.ParentFullName
@@ -61,17 +170,15 @@
                                 </a>
                             }
                         </dd>
+                    </dl>
 
-                        <dt class="col-sm-4">@Localizer["Activity"]</dt>
-                        <dd class="col-sm-8">
-                            <a asp-controller="Activities" asp-action="Details" asp-route-id="@Model.ActivityId">
-                                <strong>@Model.ActivityName</strong>
-                            </a><br />
-                            <small class="text-muted">
-                                <i class="fas fa-calendar me-1"></i>
-                                @Model.ActivityStartDate?.ToString("dd/MM/yyyy") - @Model.ActivityEndDate?.ToString("dd/MM/yyyy")
-                            </small>
-                        </dd>
+                    <hr />
+
+                    <h6 class="mb-3 text-primary"><i class="fas fa-info-circle me-2"></i>@Localizer["Activities.GeneralInformation"]</h6>
+
+                    <dl class="row">
+                        <dt class="col-sm-4">@Localizer["Bookings.BookingDate"]</dt>
+                        <dd class="col-sm-8">@Model.BookingDate.ToString("dd/MM/yyyy")</dd>
 
                         @if (!string.IsNullOrEmpty(Model.GroupLabel))
                         {
@@ -210,6 +317,8 @@
                         </div>
                     }
 
+                    @if (Model.IsConfirmed)
+                    {
                     <hr />
 
                     <h6 class="mb-3 text-primary"><i class="fas fa-calendar-week me-2"></i>@Localizer["Bookings.ReservedDays"]</h6>
@@ -282,6 +391,7 @@
                         <div class="alert alert-info">
                             <i class="fas fa-info-circle me-2"></i>@Localizer["Bookings.NoDaysReserved"]
                         </div>
+                    }
                     }
 
                     @if (Model.Questions.Any())
@@ -359,37 +469,6 @@
                     </ul>
                 </div>
             </div>
-
-            @if (!Model.IsConfirmed)
-            {
-                <div class="card shadow mt-3">
-                    <div class="card-header bg-warning">
-                        <h6 class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i>@Localizer["Bookings.ActionRequired"]</h6>
-                    </div>
-                    <div class="card-body">
-                        <p class="mb-2">@Localizer["Bookings.NotYetConfirmed"]</p>
-                        <form asp-action="Edit" method="post">
-                            <input type="hidden" name="Id" value="@Model.Id" />
-                            <input type="hidden" name="BookingDate" value="@Model.BookingDate.ToString("yyyy-MM-dd")" />
-                            <input type="hidden" name="ChildId" value="@Model.ChildId" />
-                            <input type="hidden" name="ActivityId" value="@Model.ActivityId" />
-                            <input type="hidden" name="GroupId" value="@Model.GroupId" />
-                            <input type="hidden" name="IsConfirmed" value="true" />
-                            <input type="hidden" name="IsMedicalSheet" value="@Model.IsMedicalSheet" />
-                            @{
-                                var confirmOnClick = Model.PaymentStatus != PaymentStatus.Paid
-                                    ? "return confirm(" + Json.Serialize(string.Format(
-                                        Localizer["ActivityManagement.ConfirmUnpaidBooking"].Value,
-                                        (Model.TotalAmount - Model.PaidAmount).ToString("C2", new System.Globalization.CultureInfo("fr-BE")))) + ");"
-                                    : null;
-                            }
-                            <button type="submit" class="btn btn-success w-100 text-nowrap" onclick="@confirmOnClick">
-                                <i class="fas fa-check me-2"></i>@Localizer["Bookings.ConfirmBooking"]
-                            </button>
-                        </form>
-                    </div>
-                </div>
-            }
 
             @if (!Model.IsMedicalSheet)
             {

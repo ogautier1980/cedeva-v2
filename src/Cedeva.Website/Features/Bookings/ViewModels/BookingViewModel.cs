@@ -40,6 +40,7 @@ public class BookingViewModel : AuditableViewModel
 
     // Navigation properties for display
     public string? ChildFullName { get; set; }
+    public DateTime? ChildBirthDate { get; set; }
     public string? ParentFullName { get; set; }
     public int? ParentId { get; set; }
     public string? ParentEmail { get; set; }
@@ -65,6 +66,11 @@ public class BookingViewModel : AuditableViewModel
 
     // Days grouped by week (for Details view)
     public List<WeeklyBookingDaysViewModel> WeeklyDays { get; set; } = new();
+
+    /// <summary>Every active day of the activity (not just the reserved ones), each flagged
+    /// <see cref="BookingDayDisplayViewModel.IsReserved"/> — used by Details' editable checklist
+    /// while the booking isn't confirmed yet, so a day can be added or removed from the booking.</summary>
+    public List<WeeklyBookingDaysViewModel> AllActivityDays { get; set; } = new();
 
     // Questions and answers (for Details/Edit views)
     public List<BookingQuestionViewModel> Questions { get; set; } = new();

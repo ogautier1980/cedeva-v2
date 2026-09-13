@@ -775,6 +775,12 @@
   <data name="Bookings.ConfirmBooking" xml:space="preserve">
     <value>Inschrijving bevestigen</value>
   </data>
+  <data name="Bookings.ExpectedTotalToPay" xml:space="preserve">
+    <value>Verwacht totaalbedrag te betalen</value>
+  </data>
+  <data name="Bookings.LegalGuardian" xml:space="preserve">
+    <value>Wettelijke voogd</value>
+  </data>
   <data name="Bookings.Confirmed" xml:space="preserve">
     <value>Bevestigd</value>
   </data>

@@ -778,6 +778,12 @@
   <data name="Bookings.ConfirmBooking" xml:space="preserve">
     <value>Confirmer l'inscription</value>
   </data>
+  <data name="Bookings.ExpectedTotalToPay" xml:space="preserve">
+    <value>Total prévu à payer</value>
+  </data>
+  <data name="Bookings.LegalGuardian" xml:space="preserve">
+    <value>Tuteur légal</value>
+  </data>
   <data name="Bookings.Confirmed" xml:space="preserve">
     <value>Confirmée</value>
   </data>

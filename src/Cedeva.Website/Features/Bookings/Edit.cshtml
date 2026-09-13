@@ -13,6 +13,7 @@
                 <div class="card-body">
                     <form asp-action="Edit" method="post">
                         <input type="hidden" asp-for="Id" />
+                        <input type="hidden" asp-for="TotalAmount" />
                         <input type="hidden" name="returnUrl" value="@ViewData["ReturnUrl"]" />
                         <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
 

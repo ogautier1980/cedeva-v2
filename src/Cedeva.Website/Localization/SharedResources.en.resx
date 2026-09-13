@@ -775,6 +775,12 @@
   <data name="Bookings.ConfirmBooking" xml:space="preserve">
     <value>Confirm registration</value>
   </data>
+  <data name="Bookings.ExpectedTotalToPay" xml:space="preserve">
+    <value>Expected total to pay</value>
+  </data>
+  <data name="Bookings.LegalGuardian" xml:space="preserve">
+    <value>Legal guardian</value>
+  </data>
   <data name="Bookings.Confirmed" xml:space="preserve">
     <value>Confirmed</value>
   </data>

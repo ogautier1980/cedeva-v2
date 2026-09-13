@@ -344,7 +344,8 @@ public class BookingsController : Controller
             ActivityId = booking.ActivityId,
             GroupId = booking.GroupId,
             IsConfirmed = booking.IsConfirmed,
-            IsMedicalSheet = booking.IsMedicalSheet
+            IsMedicalSheet = booking.IsMedicalSheet,
+            TotalAmount = booking.TotalAmount
         };
 
         // Populate weekly days with booking day status
@@ -435,6 +436,12 @@ public class BookingsController : Controller
             booking.IsConfirmed = viewModel.IsConfirmed;
             booking.IsMedicalSheet = viewModel.IsMedicalSheet;
 
+            if (booking.TotalAmount != viewModel.TotalAmount)
+            {
+                booking.TotalAmount = viewModel.TotalAmount;
+                RecalculatePaymentStatus(booking);
+            }
+
             UpdateBookingDays(booking, viewModel.SelectedActivityDayIds);
 
             await _bookingRepository.UpdateAsync(booking);
@@ -524,6 +531,27 @@ public class BookingsController : Controller
         }
     }
 
+    // Derives Booking.PaymentStatus from its current PaidAmount/TotalAmount — mirrors
+    // ActivityManagementController.RecalculateBookingPaymentStatus, kept local here since editing
+    // TotalAmount from Bookings/Details is a separate entry point into the same booking.
+    private static void RecalculatePaymentStatus(Booking booking)
+    {
+        if (booking.PaidAmount <= 0)
+        {
+            booking.PaymentStatus = PaymentStatus.NotPaid;
+        }
+        else if (booking.PaidAmount < booking.TotalAmount)
+        {
+            booking.PaymentStatus = PaymentStatus.PartiallyPaid;
+        }
+        else
+        {
+            booking.PaymentStatus = booking.PaidAmount > booking.TotalAmount
+                ? PaymentStatus.Overpaid
+                : PaymentStatus.Paid;
+        }
+    }
+
     // Non-admins may only access bookings whose activity belongs to their organisation.
     private async Task<bool> CanAccessBookingAsync(int bookingId)
     {
@@ -558,7 +586,7 @@ public class BookingsController : Controller
         var parent = child != null
             ? await _context.Parents.Include(p => p.Address).FirstOrDefaultAsync(p => p.Id == child.ParentId)
             : null;
-        var activity = await _context.Activities.FindAsync(booking.ActivityId);
+        var activity = await _context.Activities.Include(a => a.Days).FirstOrDefaultAsync(a => a.Id == booking.ActivityId);
         var group = booking.GroupId.HasValue ? await _context.ActivityGroups.FindAsync(booking.GroupId.Value) : null;
 
         // Portion of TotalAmount coming from excursions (already folded into TotalAmount when the
@@ -614,6 +642,39 @@ public class BookingsController : Controller
             })
             .ToList();
 
+        // Every active day of the activity (not just reserved ones), for the editable checklist
+        // shown while the booking isn't confirmed yet — same shape as ActivityWizardController's
+        // day management, but scoped to this one booking's reservation state.
+        var allActivityDays = booking.IsConfirmed || activity == null
+            ? new List<WeeklyBookingDaysViewModel>()
+            : activity.Days
+                .Where(d => d.IsActive)
+                .GroupBy(d => d.Week ?? 0)
+                .OrderBy(g => g.Key)
+                .Select(g => new WeeklyBookingDaysViewModel
+                {
+                    WeekNumber = g.Key,
+                    WeekLabel = $"Semaine {g.Key}",
+                    StartDate = g.Min(d => d.DayDate),
+                    EndDate = g.Max(d => d.DayDate),
+                    Days = g.OrderBy(d => d.DayDate)
+                        .Select(d =>
+                        {
+                            var bookingDay = booking.Days.FirstOrDefault(bd => bd.ActivityDayId == d.DayId);
+                            return new BookingDayDisplayViewModel
+                            {
+                                ActivityDayId = d.DayId,
+                                Date = d.DayDate,
+                                Label = d.Label,
+                                DayOfWeek = d.DayDate.DayOfWeek,
+                                IsReserved = bookingDay?.IsReserved ?? false,
+                                IsPresent = bookingDay?.IsPresent ?? false
+                            };
+                        })
+                        .ToList()
+                })
+                .ToList();
+
         var viewModel = new BookingViewModel
         {
             Id = booking.Id,
@@ -628,6 +689,7 @@ public class BookingsController : Controller
             PaymentStatus = booking.PaymentStatus,
             TotalExcursionsAmount = totalExcursionsAmount,
             ChildFullName = child != null ? $"{child.FirstName} {child.LastName}" : "",
+            ChildBirthDate = child?.BirthDate,
             ParentFullName = parent != null ? $"{parent.FirstName} {parent.LastName}" : "",
             ParentId = parent?.Id,
             ParentEmail = parent?.Email,
@@ -642,6 +704,7 @@ public class BookingsController : Controller
             DaysCount = booking.Days.Count,
             QuestionAnswersCount = booking.QuestionAnswers.Count,
             WeeklyDays = weeklyDays,
+            AllActivityDays = allActivityDays,
             Questions = questions,
             Payments = booking.Payments
                 .OrderByDescending(p => p.PaymentDate)

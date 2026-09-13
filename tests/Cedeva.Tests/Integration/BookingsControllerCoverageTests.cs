@@ -206,6 +206,37 @@ public class BookingsControllerCoverageTests
     }
 
     [Fact]
+    public async Task Details_NotConfirmed_ShowsEditableDayChecklistTotalAmountAndActionButtons()
+    {
+        using var factory = new CedevaWebApplicationFactory();
+        var g = SeedFullGraph(factory, bookingConfirmed: false);
+        var client = factory.CreateClientFor("u1", g.Org.Id, Coordinator);
+
+        var response = await client.GetAsync($"/Bookings/Details/{g.Booking.Id}");
+        var html = await response.Content.ReadAsStringAsync();
+
+        html.Should().Contain(g.Child.BirthDate.ToString("dd/MM/yyyy"));
+        html.Should().Contain($"name=\"SelectedActivityDayIds\" value=\"{g.Day1.DayId}\"");
+        html.Should().Contain($"name=\"SelectedActivityDayIds\" value=\"{g.Day2.DayId}\"");
+        html.Should().Contain("id=\"TotalAmount\"");
+        html.Should().Contain("name=\"IsConfirmed\" value=\"true\"");
+    }
+
+    [Fact]
+    public async Task Details_Confirmed_HidesEditableFormAndActionButtons()
+    {
+        using var factory = new CedevaWebApplicationFactory();
+        var g = SeedFullGraph(factory, bookingConfirmed: true);
+        var client = factory.CreateClientFor("u1", g.Org.Id, Coordinator);
+
+        var response = await client.GetAsync($"/Bookings/Details/{g.Booking.Id}");
+        var html = await response.Content.ReadAsStringAsync();
+
+        html.Should().NotContain("id=\"TotalAmount\"");
+        html.Should().NotContain("name=\"IsConfirmed\" value=\"true\"");
+    }
+
+    [Fact]
     public async Task EditGet_AsDifferentOrgCoordinator_ReturnsNotFound()
     {
         using var factory = new CedevaWebApplicationFactory();
@@ -377,6 +408,23 @@ public class BookingsControllerCoverageTests
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 
+    [Fact]
+    public async Task EditGet_PopulatesTotalAmountFromBooking()
+    {
+        // Regression guard: the GET action used to leave viewModel.TotalAmount at its default (0),
+        // which — once Edit.cshtml started round-tripping it via a hidden field so Bookings/Details
+        // could edit it — silently wiped the booking's real TotalAmount to 0 on every save from the
+        // classic Edit screen.
+        using var factory = new CedevaWebApplicationFactory();
+        var g = SeedFullGraph(factory);
+        var client = factory.CreateClientFor("u1", g.Org.Id, Coordinator);
+
+        var response = await client.GetAsync($"/Bookings/Edit/{g.Booking.Id}");
+        var html = await response.Content.ReadAsStringAsync();
+
+        html.Should().NotContain("id=\"TotalAmount\" name=\"TotalAmount\" value=\"0\"");
+    }
+
     // ---------------------------------------------------------------- Edit POST
 
     [Fact]
@@ -441,6 +489,42 @@ public class BookingsControllerCoverageTests
         await using var db = factory.NewDbContext();
         var updated = await db.Bookings.IgnoreQueryFilters().FirstAsync(b => b.Id == g.Booking.Id);
         updated.IsConfirmed.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task EditPost_ChangingTotalAmount_UpdatesTotalAndRecalculatesPaymentStatus()
+    {
+        // This is the mechanism Bookings/Details' new editable "Total prévu à payer" field posts
+        // through: submitting a different TotalAmount than the one currently stored must persist it
+        // and recompute PaymentStatus from the (now-changed) TotalAmount vs PaidAmount.
+        using var factory = new CedevaWebApplicationFactory();
+        var g = SeedFullGraph(factory, bookingConfirmed: false);
+        await using (var seedCtx = factory.NewDbContext())
+        {
+            var booking = await seedCtx.Bookings.IgnoreQueryFilters().SingleAsync(b => b.Id == g.Booking.Id);
+            booking.PaidAmount = 30m;
+            await seedCtx.SaveChangesAsync();
+        }
+        var client = factory.CreateClientFor("u1", g.Org.Id, Coordinator);
+
+        var form = new FormUrlEncodedContent(new[]
+        {
+            new KeyValuePair<string, string>("Id", g.Booking.Id.ToString()),
+            new KeyValuePair<string, string>("BookingDate", "2026-06-12"),
+            new KeyValuePair<string, string>("ChildId", g.Child.Id.ToString()),
+            new KeyValuePair<string, string>("ActivityId", g.Activity.Id.ToString()),
+            new KeyValuePair<string, string>("IsMedicalSheet", "false"),
+            new KeyValuePair<string, string>("TotalAmount", "30"), // now equal to PaidAmount
+        });
+
+        var response = await client.PostAsync($"/Bookings/Edit/{g.Booking.Id}", form);
+
+        response.StatusCode.Should().Be(HttpStatusCode.Redirect);
+
+        await using var db = factory.NewDbContext();
+        var updated = await db.Bookings.IgnoreQueryFilters().FirstAsync(b => b.Id == g.Booking.Id);
+        updated.TotalAmount.Should().Be(30m);
+        updated.PaymentStatus.Should().Be(PaymentStatus.Paid);
     }
 
     [Fact]
