@@ -55,7 +55,6 @@ else
                             <th scope="col" class="sortable" data-column="age">
                                 @Localizer["Field.Age"] <i class="fas fa-sort text-muted"></i>
                             </th>
-                            <th scope="col" class="text-center">@Localizer["Financial.PaymentStatus"]</th>
                             <th scope="col" class="text-center">@Localizer["Field.Status"]</th>
                         </tr>
                     </thead>
@@ -72,22 +71,6 @@ else
                                 <td>@item.FirstName</td>
                                 <td>@item.LastName</td>
                                 <td>@item.Age</td>
-                                <td class="text-center">
-                                    @{
-                                        var statusBadge = item.PaymentStatus switch
-                                        {
-                                            PaymentStatus.Paid => "bg-success",
-                                            PaymentStatus.PartiallyPaid => "bg-warning text-dark",
-                                            PaymentStatus.NotPaid => "bg-danger",
-                                            _ => "bg-secondary"
-                                        };
-                                    }
-                                    <span class="badge @statusBadge">@Localizer[$"PaymentStatus.{item.PaymentStatus}"]</span>
-                                    @if (item.Balance > 0)
-                                    {
-                                        <br /><small class="text-danger">@item.Balance.ToString("C2", new System.Globalization.CultureInfo("fr-BE"))</small>
-                                    }
-                                </td>
                                 <td class="text-center">
                                     @if (item.IsConfirmed)
                                     {

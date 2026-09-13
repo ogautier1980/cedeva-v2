@@ -1560,10 +1560,7 @@ public class ActivityManagementController : Controller
                 FirstName = b.Child.FirstName,
                 LastName = b.Child.LastName,
                 BirthDate = b.Child.BirthDate,
-                IsConfirmed = b.IsConfirmed,
-                TotalAmount = b.TotalAmount,
-                PaidAmount = b.PaidAmount,
-                PaymentStatus = b.PaymentStatus
+                IsConfirmed = b.IsConfirmed
             }).ToList()
         };
 
