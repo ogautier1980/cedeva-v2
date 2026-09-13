@@ -6,7 +6,27 @@
     // ActivityManagement navigation variables
     int activityId = ViewData.ContainsKey("ActivityId") ? Convert.ToInt32(ViewData["ActivityId"]) : 0;
     string navSection = ViewData.ContainsKey("NavSection") ? ViewData["NavSection"]?.ToString() ?? "" : "";
-    string activityName = ViewData.ContainsKey("ActivityName") ? ViewData["ActivityName"]?.ToString() ?? "" : "";
+
+    List<Cedeva.Core.Entities.ActivityGroup> activityGroups = new();
+    int? todayActivityDayId = null;
+    if (activityId > 0)
+    {
+        activityGroups = await DbContext.ActivityGroups
+            .Where(g => g.ActivityId == activityId)
+            .OrderBy(g => g.Label)
+            .ToListAsync();
+        todayActivityDayId = await DbContext.ActivityDays
+            .Where(d => d.ActivityId == activityId && d.IsActive && d.DayDate.Date == DateTime.Today)
+            .Select(d => (int?)d.DayId)
+            .FirstOrDefaultAsync();
+    }
+
+    string? printAllGroupsTodayUrl = null;
+    if (todayActivityDayId.HasValue)
+    {
+        printAllGroupsTodayUrl = Url.Action("PrintGroups", "ActivityManagement", new { activityId, dayId = todayActivityDayId })
+            + string.Concat(activityGroups.Select(g => $"&groupIds={g.Id}"));
+    }
 }
 
 <!DOCTYPE html>
@@ -75,15 +95,6 @@
 
                     @if (activityId > 0)
                     {
-                        <!-- Activity Management Navigation -->
-                        <div class="d-flex align-items-center text-white me-2">
-                            <a asp-action="Index" asp-controller="ActivityManagement" asp-route-id="@activityId"
-                               class="btn btn-sm btn-outline-light me-2" title="@Localizer["BackToDashboard"]">
-                                <i class="fas fa-arrow-left"></i>
-                            </a>
-                            <span class="text-white-50 me-2 d-none d-xl-inline small">@activityName</span>
-                        </div>
-
                         <ul class="navbar-nav me-auto activity-nav-compact">
                             <!-- Tableau de bord (retour aux 7 gros boutons) -->
                             <li class="nav-item">
@@ -93,38 +104,65 @@
                                 </a>
                             </li>
 
-                            <!-- Pages spéciales (dropdown) -->
+                            <!-- Groupes (dropdown) -->
                             <li class="nav-item dropdown">
-                                <button class="nav-link dropdown-toggle @((navSection == "Groups" || navSection == "PresenceSummary" || navSection == "TeamPresences" || navSection == "Childcare") ? "active" : "") btn btn-link"
+                                <button class="nav-link dropdown-toggle @(navSection == "Groups" ? "active" : "") btn btn-link"
                                         type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <i class="fas fa-layer-group"></i> @Localizer["ActivityManagement.SpecialPages"]
+                                    <i class="fas fa-layer-group"></i> @Localizer["ActivityManagement.GroupsNav"]
                                 </button>
                                 <ul class="dropdown-menu">
+                                    @foreach (var group in activityGroups)
+                                    {
+                                        <li>
+                                            <a class="dropdown-item" asp-action="Groups" asp-controller="ActivityManagement"
+                                               asp-route-id="@activityId" asp-route-groupIds="@group.Id">
+                                                <i class="fas fa-layer-group"></i> @group.Label
+                                            </a>
+                                        </li>
+                                    }
+                                    @if (activityGroups.Count > 0)
+                                    {
+                                        <li><hr class="dropdown-divider" /></li>
+                                    }
                                     <li>
                                         <a class="dropdown-item @(navSection == "Groups" ? "active" : "")"
                                            asp-action="Groups" asp-controller="ActivityManagement" asp-route-id="@activityId">
-                                            <i class="fas fa-layer-group"></i> @Localizer["ActivityManagement.GroupsList"]
+                                            <i class="fas fa-list"></i> @Localizer["ActivityManagement.DynamicLists"]
                                         </a>
                                     </li>
-                                    <li>
-                                        <a class="dropdown-item @(navSection == "PresenceSummary" ? "active" : "")"
-                                           asp-action="PresenceSummary" asp-controller="ActivityManagement" asp-route-id="@activityId">
-                                            <i class="fas fa-chart-bar"></i> @Localizer["ActivityManagement.PresenceSummary"]
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a class="dropdown-item @(navSection == "TeamPresences" ? "active" : "")"
-                                           asp-action="TeamPresences" asp-controller="ActivityManagement" asp-route-id="@activityId">
-                                            <i class="fas fa-user-check"></i> @Localizer["ActivityManagement.TeamPresences"]
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a class="dropdown-item @(navSection == "Childcare" ? "active" : "")"
-                                           asp-action="Childcare" asp-controller="ActivityManagement" asp-route-id="@activityId">
-                                            <i class="fas fa-child"></i> @Localizer["ActivityManagement.Childcare"]
-                                        </a>
-                                    </li>
+                                    @if (printAllGroupsTodayUrl != null)
+                                    {
+                                        <li>
+                                            <a class="dropdown-item" href="@printAllGroupsTodayUrl" target="_blank">
+                                                <i class="fas fa-calendar-day"></i> @Localizer["ActivityManagement.PrintAllGroupsToday"]
+                                            </a>
+                                        </li>
+                                    }
                                 </ul>
+                            </li>
+
+                            <!-- Total des présences -->
+                            <li class="nav-item">
+                                <a class="nav-link @(navSection == "PresenceSummary" ? "active" : "")"
+                                   asp-action="PresenceSummary" asp-controller="ActivityManagement" asp-route-id="@activityId">
+                                    <i class="fas fa-chart-bar"></i> @Localizer["ActivityManagement.PresenceSummary"]
+                                </a>
+                            </li>
+
+                            <!-- Présences équipe -->
+                            <li class="nav-item">
+                                <a class="nav-link @(navSection == "TeamPresences" ? "active" : "")"
+                                   asp-action="TeamPresences" asp-controller="ActivityManagement" asp-route-id="@activityId">
+                                    <i class="fas fa-user-check"></i> @Localizer["ActivityManagement.TeamPresences"]
+                                </a>
+                            </li>
+
+                            <!-- Garderie -->
+                            <li class="nav-item">
+                                <a class="nav-link @(navSection == "Childcare" ? "active" : "")"
+                                   asp-action="Childcare" asp-controller="ActivityManagement" asp-route-id="@activityId">
+                                    <i class="fas fa-child"></i> @Localizer["ActivityManagement.Childcare"]
+                                </a>
                             </li>
                         </ul>
                     }

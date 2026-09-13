@@ -523,6 +523,12 @@
   <data name="ActivityManagement.GroupsList" xml:space="preserve">
     <value>Groups list</value>
   </data>
+  <data name="ActivityManagement.GroupsNav" xml:space="preserve">
+    <value>Groups</value>
+  </data>
+  <data name="ActivityManagement.DynamicLists" xml:space="preserve">
+    <value>Dynamic lists</value>
+  </data>
   <data name="ActivityManagement.ManageActivity" xml:space="preserve">
     <value>Manage Activity</value>
   </data>
