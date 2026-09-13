@@ -1019,6 +1019,28 @@ public class ActivityWizardControllerTests
     }
 
     [Fact]
+    public async Task Step6_Post_BlankNoActiveFormMessage_IsAllowed()
+    {
+        using var factory = new CedevaWebApplicationFactory();
+        var (orgId, activityId) = SeedActivity(factory);
+        var client = factory.CreateClientFor("u1", orgId, "Coordinator");
+
+        var response = await client.PostAsync("/ActivityWizard/Step6", new FormUrlEncodedContent(
+            new Dictionary<string, string>
+            {
+                ["ActivityId"] = activityId.ToString(),
+                ["PublicationStartDate"] = "2026-03-01",
+                ["PublicationEndDate"] = "2026-03-31",
+                ["RedirectUrlAfterSubmit"] = "https://example.be/merci",
+            }));
+
+        response.StatusCode.Should().Be(HttpStatusCode.Found);
+
+        await using var ctx = factory.NewDbContext();
+        (await ctx.Activities.IgnoreQueryFilters().SingleAsync(a => a.Id == activityId)).NoActiveFormMessage.Should().BeNull();
+    }
+
+    [Fact]
     public async Task Step6_Post_MissingRequiredFields_ReturnsViewWithoutSaving()
     {
         using var factory = new CedevaWebApplicationFactory();

@@ -149,7 +149,6 @@ public class WizardStep6ViewModel
     [Display(Name = "Activity.PublicationEndDate")]
     public DateTime? PublicationEndDate { get; set; }
 
-    [Required(ErrorMessage = "Validation.Required")]
     [StringLength(300, ErrorMessage = "Validation.StringLength")]
     [Display(Name = "Activity.NoActiveFormMessage")]
     public string? NoActiveFormMessage { get; set; }
