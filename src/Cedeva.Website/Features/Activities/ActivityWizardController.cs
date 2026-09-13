@@ -656,7 +656,7 @@ public class ActivityWizardController : Controller
         TempData[ControllerExtensions.SuccessMessageKey] = _localizer["Message.ActivityCreated"].Value;
 
         // Step 7 = the existing iframe personalization screen, unchanged.
-        return RedirectToAction("EmbedCode", "PublicRegistration", new { id = activity.Id });
+        return RedirectToAction("EmbedCode", "PublicRegistration", new { id = activity.Id, fromWizard = true });
     }
 
     // ------------------------------------------------------------------

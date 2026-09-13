@@ -871,10 +871,11 @@ public class PublicRegistrationControllerCoverageTests
     }
 
     [Fact]
-    public async Task EmbedCode_Get_RendersProgressGaugeWithClickableLinksToAllWizardSteps()
+    public async Task EmbedCode_Get_FromWizard_RendersProgressGaugeWithClickableLinksToAllWizardSteps()
     {
-        // The wizard's Step7 (this page) must let the coordinator jump back to any of the 6
-        // previous steps, same as those steps let each other.
+        // The wizard's Step7 (this page, reached via Step6's "fromWizard=true" redirect) must let
+        // the coordinator jump back to any of the 6 previous steps, same as those steps let each
+        // other.
         using var factory = new CedevaWebApplicationFactory();
         Organisation org = null!;
         Activity activity = null!;
@@ -888,7 +889,7 @@ public class PublicRegistrationControllerCoverageTests
         });
 
         var client = factory.CreateClientFor("u1", org.Id, "Coordinator");
-        var response = await client.GetAsync($"/PublicRegistration/EmbedCode/{activity.Id}");
+        var response = await client.GetAsync($"/PublicRegistration/EmbedCode/{activity.Id}?fromWizard=true");
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         var html = await response.Content.ReadAsStringAsync();
@@ -897,5 +898,31 @@ public class PublicRegistrationControllerCoverageTests
             html.Should().Contain($"/ActivityWizard/Step{step}/{activity.Id}",
                 $"step {step} should be clickable from EmbedCode's progress gauge");
         }
+    }
+
+    [Fact]
+    public async Task EmbedCode_Get_NotFromWizard_DoesNotRenderProgressGauge()
+    {
+        // Reached from Activities/Details' "Code d'intégration" link (e.g. via
+        // ActivityManagement) instead of the wizard — the wizard steps are irrelevant there.
+        using var factory = new CedevaWebApplicationFactory();
+        Organisation org = null!;
+        Activity activity = null!;
+        factory.Seed(ctx =>
+        {
+            org = TestData.Organisation();
+            activity = TestData.Activity(org, "Stage Embed Sans Jauge");
+            activity.WizardMaxStepReached = 7;
+            ctx.AddRange(org, activity);
+            return 0;
+        });
+
+        var client = factory.CreateClientFor("u1", org.Id, "Coordinator");
+        var response = await client.GetAsync($"/PublicRegistration/EmbedCode/{activity.Id}");
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var html = await response.Content.ReadAsStringAsync();
+        html.Should().NotContain("wizard-progress-circle");
+        html.Should().NotContain($"/ActivityWizard/Step1/{activity.Id}");
     }
 }

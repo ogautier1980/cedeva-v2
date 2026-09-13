@@ -3,10 +3,14 @@
     var activityId = ViewBag.ActivityId as int?;
     var activityName = ViewBag.ActivityName as string;
     var wizardMaxStepReached = ViewBag.WizardMaxStepReached as int? ?? 0;
+    var showWizardGauge = ViewBag.ShowWizardGauge as bool? ?? false;
 }
 
 <div class="container-fluid">
-    @await Html.PartialAsync("~/Features/ActivityWizard/_WizardProgress.cshtml", (7, activityId ?? 0, wizardMaxStepReached))
+    @if (showWizardGauge)
+    {
+        @await Html.PartialAsync("~/Features/ActivityWizard/_WizardProgress.cshtml", (7, activityId ?? 0, wizardMaxStepReached))
+    }
 
     <div class="row mb-4">
         <div class="col-12">

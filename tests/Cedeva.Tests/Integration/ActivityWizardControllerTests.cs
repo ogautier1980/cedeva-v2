@@ -1009,6 +1009,8 @@ public class ActivityWizardControllerTests
         response.StatusCode.Should().Be(HttpStatusCode.Found);
         response.Headers.Location!.ToString().Should().Contain("/PublicRegistration/EmbedCode");
         response.Headers.Location!.ToString().Should().Contain(activityId.ToString());
+        response.Headers.Location!.ToString().Should().Contain("fromWizard=True",
+            "EmbedCode must know it was reached from the wizard so it shows the progress gauge");
 
         await using var ctx = factory.NewDbContext();
         var activity = await ctx.Activities.IgnoreQueryFilters().SingleAsync(a => a.Id == activityId);

@@ -1016,7 +1016,7 @@ public class PublicRegistrationController : Controller
 
     // GET: PublicRegistration/EmbedCode/1
     [Authorize(Roles = "Admin,Coordinator")]
-    public async Task<IActionResult> EmbedCode(int id)
+    public async Task<IActionResult> EmbedCode(int id, bool fromWizard = false)
     {
         var activity = await _context.Activities.FindAsync(id);
         if (activity == null)
@@ -1026,6 +1026,10 @@ public class PublicRegistrationController : Controller
 
         ViewBag.ActivityId = id;
         ViewBag.ActivityName = activity.Name;
+        // Only show the wizard's progress gauge when arriving from Step6 of the creation wizard —
+        // not when reached from Activities/Details' "Code d'intégration" link (e.g. via
+        // ActivityManagement), where the wizard steps are irrelevant.
+        ViewBag.ShowWizardGauge = fromWizard;
         ViewBag.WizardMaxStepReached = activity.WizardMaxStepReached;
 
         return View();
