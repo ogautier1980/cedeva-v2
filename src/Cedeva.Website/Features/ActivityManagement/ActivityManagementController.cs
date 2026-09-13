@@ -340,10 +340,10 @@ public class ActivityManagementController : Controller
 
     private static List<PresenceChildInfo> BuildChildrenList(Activity activity, int? dayId)
     {
-        var eldestChildIds = ComputeEldestChildIds(activity.Bookings);
-
         return activity.Bookings
-            .Where(b => b.IsConfirmed)
+            // Only children actually expected that day (mirrors Print/Childcare) — a child who
+            // didn't reserve the selected day has no business showing up on its presence list.
+            .Where(b => b.IsConfirmed && (dayId == null || b.Days.Any(bd => bd.ActivityDayId == dayId.Value && bd.IsReserved)))
             .Select(b =>
             {
                 var bookingDay = b.Days.FirstOrDefault(bd => bd.ActivityDayId == dayId);
@@ -356,10 +356,7 @@ public class ActivityManagementController : Controller
                     IsReserved = bookingDay?.IsReserved ?? false,
                     IsPresent = bookingDay?.IsPresent ?? false,
                     BookingDayId = bookingDay?.Id,
-                    ActivityGroupName = b.Group?.Label,
-                    TotalAmount = b.TotalAmount,
-                    PaidAmount = b.PaidAmount,
-                    IsEldestInFamily = eldestChildIds.Contains(b.ChildId)
+                    ActivityGroupName = b.Group?.Label
                 };
             })
             .OrderBy(c => c.ChildLastName)

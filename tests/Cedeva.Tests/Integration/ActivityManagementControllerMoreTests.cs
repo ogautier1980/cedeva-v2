@@ -165,6 +165,45 @@ public class ActivityManagementControllerMoreTests
     }
 
     [Fact]
+    public async Task Presences_ChildNotReservedOnSelectedDay_IsExcludedFromList()
+    {
+        // A confirmed booking that never reserved the selected day (no BookingDay row at all, or
+        // one with IsReserved=false) shouldn't show up on that day's presence list — it isn't
+        // expected there.
+        using var factory = new CedevaWebApplicationFactory();
+        Organisation org = null!;
+        Activity activity = null!;
+        int dayId = 0;
+        factory.Seed(ctx =>
+        {
+            org = TestData.Organisation();
+            activity = TestData.Activity(org, "Stage Presence Filter");
+            var day = Day(activity, "Mardi", new DateTime(2026, 7, 7));
+            var parent = TestData.Parent(org);
+            var reservedChild = TestData.Child(parent);
+            reservedChild.FirstName = "Reserve";
+            var notReservedChild = TestData.Child(parent);
+            notReservedChild.FirstName = "Absent";
+            notReservedChild.LastName = "PasPrevu";
+            var reservedBooking = TestData.Booking(reservedChild, activity, null, 100m, 0m);
+            var notReservedBooking = TestData.Booking(notReservedChild, activity, null, 100m, 0m);
+            var reservedBookingDay = new BookingDay { ActivityDay = day, Booking = reservedBooking, IsReserved = true, IsPresent = false };
+            ctx.AddRange(org, activity, day, parent, reservedChild, notReservedChild, reservedBooking, notReservedBooking, reservedBookingDay);
+            ctx.SaveChanges();
+            dayId = day.DayId;
+            return 0;
+        });
+
+        var client = factory.CreateClientFor("u1", org.Id, "Coordinator");
+        var response = await client.GetAsync($"/ActivityManagement/Presences?id={activity.Id}&dayId={dayId}");
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var html = await response.Content.ReadAsStringAsync();
+        html.Should().Contain("Reserve");
+        html.Should().NotContain("PasPrevu");
+    }
+
+    [Fact]
     public async Task Presences_WithNoIdAndNoSession_ReturnsNotFound()
     {
         using var factory = new CedevaWebApplicationFactory();
