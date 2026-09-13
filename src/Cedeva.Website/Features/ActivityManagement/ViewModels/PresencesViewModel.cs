@@ -19,6 +19,7 @@ public class PresenceChildInfo
     public string ChildFirstName { get; set; } = string.Empty;
     public string ChildLastName { get; set; } = string.Empty;
     public DateTime ChildBirthDate { get; set; }
+    public int ParentId { get; set; }
     public string ParentName { get; set; } = string.Empty;
     public string ParentPhone { get; set; } = string.Empty;
     public bool IsReserved { get; set; }

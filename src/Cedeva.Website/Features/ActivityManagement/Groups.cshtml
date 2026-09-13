@@ -98,11 +98,11 @@
                     <table class="table table-hover mb-0">
                         <thead class="table-light">
                             <tr>
-                                <th scope="col">@Localizer["Activities.Group"]</th>
                                 <th scope="col">@Localizer["LastName"]</th>
                                 <th scope="col">@Localizer["FirstName"]</th>
                                 <th scope="col">@Localizer["Parent"]</th>
                                 <th scope="col">@Localizer["Phone"]</th>
+                                <th scope="col" class="text-center">@Localizer["ActivityManagement.Expected"]</th>
                                 @if (Model.SelectedActivityDayId.HasValue)
                                 {
                                     <th scope="col" class="text-center">@Localizer["Present"]</th>
@@ -110,24 +110,28 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach (var child in Model.Children)
+                            @foreach (var group in Model.Children.GroupBy(c => c.ActivityGroupName))
                             {
-                                <tr>
-                                    <td><span class="badge bg-secondary">@child.ActivityGroupName</span></td>
-                                    <td>
-                                        <a asp-controller="Bookings" asp-action="Details" asp-route-id="@child.BookingId">@child.ChildLastName</a>
-                                        @if (child.IsEldestInFamily)
-                                        {
-                                            <i class="fas fa-star text-warning ms-1" title="@Localizer["ActivityManagement.EldestInFamily"]"></i>
-                                        }
-                                    </td>
-                                    <td>@child.ChildFirstName</td>
-                                    <td>@child.ParentName</td>
-                                    <td>@child.ParentPhone</td>
-                                    @if (Model.SelectedActivityDayId.HasValue)
-                                    {
+                                <tr class="table-secondary">
+                                    <th colspan="@(Model.SelectedActivityDayId.HasValue ? 6 : 5)">
+                                        @(group.Key ?? Localizer["Presence.None"])
+                                    </th>
+                                </tr>
+                                @foreach (var child in group)
+                                {
+                                    <tr>
+                                        <td>
+                                            <a asp-controller="Children" asp-action="Details" asp-route-id="@child.ChildId" class="text-decoration-none">@child.ChildLastName</a>
+                                        </td>
+                                        <td>
+                                            <a asp-controller="Children" asp-action="Details" asp-route-id="@child.ChildId" class="text-decoration-none">@child.ChildFirstName</a>
+                                        </td>
+                                        <td>
+                                            <a asp-controller="Parents" asp-action="Details" asp-route-id="@child.ParentId" class="text-decoration-none">@child.ParentName</a>
+                                        </td>
+                                        <td>@child.ParentPhone</td>
                                         <td class="text-center">
-                                            @if (child.IsPresent)
+                                            @if (child.IsReserved)
                                             {
                                                 <i class="fas fa-check text-success"></i>
                                             }
@@ -136,8 +140,21 @@
                                                 <i class="fas fa-times text-danger"></i>
                                             }
                                         </td>
-                                    }
-                                </tr>
+                                        @if (Model.SelectedActivityDayId.HasValue)
+                                        {
+                                            <td class="text-center">
+                                                @if (child.IsPresent)
+                                                {
+                                                    <i class="fas fa-check text-success"></i>
+                                                }
+                                                else
+                                                {
+                                                    <i class="fas fa-times text-danger"></i>
+                                                }
+                                            </td>
+                                        }
+                                    </tr>
+                                }
                             }
                         </tbody>
                     </table>

@@ -1213,6 +1213,7 @@ public class ActivityManagementController : Controller
                     ChildFirstName = b.Child.FirstName,
                     ChildLastName = b.Child.LastName,
                     ChildBirthDate = b.Child.BirthDate,
+                    ParentId = b.Child.ParentId,
                     ParentName = $"{b.Child.Parent.FirstName} {b.Child.Parent.LastName}",
                     ParentPhone = b.Child.Parent.MobilePhoneNumber ?? b.Child.Parent.PhoneNumber ?? "",
                     IsReserved = !dayId.HasValue || (bookingDay?.IsReserved ?? false),
