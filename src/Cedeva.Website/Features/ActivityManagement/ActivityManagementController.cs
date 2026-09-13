@@ -1043,14 +1043,9 @@ public class ActivityManagementController : Controller
         _sessionState.Set<int>(SessionKeyActivityId, id.Value);
 
         groupIds ??= new List<int>();
+        dayId = SelectDefaultActivityDay(activity, dayId);
 
         var dayOptions = BuildDayDropdownOptions(activity, dayId);
-        dayOptions.Insert(0, new SelectListItem
-        {
-            Value = "",
-            Text = _localizer["ActivityManagement.AllDays"].Value,
-            Selected = !dayId.HasValue
-        });
 
         var viewModel = new GroupsRosterViewModel
         {
