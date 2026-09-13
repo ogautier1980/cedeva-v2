@@ -2,9 +2,13 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Cedeva.Website.Features.Activities.ViewModels;
 
-/// <summary>Step 1 — Titre + Dates. Creates the Activity.</summary>
+/// <summary>Step 1 — Titre + Dates. Creates the Activity, or updates it when revisited
+/// (<see cref="Id"/> &gt; 0) from the "Précédent" button / progress gauge of a later step.</summary>
 public class WizardStep1ViewModel
 {
+    /// <summary>0 = creating a new activity; &gt; 0 = updating this existing one.</summary>
+    public int Id { get; set; }
+
     [Required(ErrorMessage = "Validation.Required")]
     [StringLength(100, ErrorMessage = "Validation.StringLength")]
     [Display(Name = "Field.Name")]

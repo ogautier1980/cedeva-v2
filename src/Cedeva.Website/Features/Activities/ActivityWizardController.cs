@@ -53,8 +53,25 @@ public class ActivityWizardController : Controller
     // ------------------------------------------------------------------
 
     [HttpGet]
-    public IActionResult Step1()
+    public async Task<IActionResult> Step1(int? id)
     {
+        // Revisited from a later step's "Précédent" button or the progress gauge — reload the
+        // existing activity's title/dates for editing instead of starting a new one.
+        if (id.HasValue)
+        {
+            var existing = await _context.Activities.FirstOrDefaultAsync(a => a.Id == id.Value);
+            if (existing == null) return NotFound();
+
+            return View(new WizardStep1ViewModel
+            {
+                Id = existing.Id,
+                Name = existing.Name,
+                StartDate = existing.StartDate,
+                EndDate = existing.EndDate,
+                OrganisationId = existing.OrganisationId
+            });
+        }
+
         var viewModel = new WizardStep1ViewModel
         {
             OrganisationId = _currentUserService.OrganisationId ?? 0
@@ -74,6 +91,11 @@ public class ActivityWizardController : Controller
         if (!ModelState.IsValid)
         {
             return View(viewModel);
+        }
+
+        if (viewModel.Id > 0)
+        {
+            return await UpdateStep1Async(viewModel);
         }
 
         var organisationId = _currentUserService.OrganisationId;
@@ -101,6 +123,32 @@ public class ActivityWizardController : Controller
         await _questionTemplateService.CopyOrganisationTemplatesToActivityAsync(activity.OrganisationId, activity.Id);
 
         _logger.LogInformation("Activity {Name} created via wizard by user {UserId}", activity.Name, _currentUserService.UserId);
+
+        return RedirectToAction(nameof(Step2), new { id = activity.Id });
+    }
+
+    // Revisiting Step1 (viewModel.Id > 0): update the existing activity's title/dates instead of
+    // creating a new one. OrganisationId is never reassigned here, matching ActivitiesController.Edit.
+    private async Task<IActionResult> UpdateStep1Async(WizardStep1ViewModel viewModel)
+    {
+        var activity = await LoadActivityWithDaysAsync(viewModel.Id);
+        if (activity == null) return NotFound();
+
+        activity.Name = viewModel.Name;
+
+        var oldStartDate = activity.StartDate;
+        var oldEndDate = activity.EndDate;
+        if (viewModel.StartDate != oldStartDate || viewModel.EndDate != oldEndDate)
+        {
+            activity.StartDate = viewModel.StartDate;
+            activity.EndDate = viewModel.EndDate;
+            ActivityDayGenerator.HandleDateRangeChanges(activity, viewModel.StartDate, viewModel.EndDate, oldStartDate, oldEndDate);
+            await _activityDayService.ReconcileTeamMemberDaysAsync(activity);
+        }
+
+        await _context.SaveChangesAsync();
+
+        _logger.LogInformation("Activity {Name} updated via wizard Step1 by user {UserId}", activity.Name, _currentUserService.UserId);
 
         return RedirectToAction(nameof(Step2), new { id = activity.Id });
     }

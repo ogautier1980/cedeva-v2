@@ -1,8 +1,13 @@
-@* Jauge de progression du wizard de création d'activité (Lot I). Model = numéro de l'étape courante (1-7). *@
-@model int
+@* Jauge de progression du wizard de création d'activité (Lot I).
+   Model = (numéro de l'étape courante 1-7, id de l'activité). Les étapes déjà complétées (1 à
+   CurrentStep-1) sont cliquables pour y revenir — l'étape 7 (écran final iframe) n'a pas de vue
+   propre au contrôleur, donc jamais cliquable ni "courante" ici. *@
+@model (int CurrentStep, int ActivityId)
 @inject Microsoft.Extensions.Localization.IStringLocalizer<Cedeva.Website.Localization.SharedResources> Localizer
 
 @{
+    var currentStep = Model.CurrentStep;
+    var activityId = Model.ActivityId;
     var titles = new[]
     {
         Localizer["ActivityWizard.Step1Title"].Value,
@@ -18,8 +23,9 @@
 <div class="d-flex align-items-start justify-content-between mb-4 wizard-progress">
     @for (var i = 1; i <= titles.Length; i++)
     {
-        var isDone = i < Model;
-        var isCurrent = i == Model;
+        var isDone = i < currentStep;
+        var isCurrent = i == currentStep;
+        var isClickable = isDone && i <= 6;
         <div class="d-flex flex-column align-items-center flex-fill wizard-progress-step">
             <div class="d-flex align-items-center w-100">
                 @if (i > 1)
@@ -30,16 +36,27 @@
                 {
                     <div class="flex-fill"></div>
                 }
-                <div class="wizard-progress-circle rounded-circle d-flex align-items-center justify-content-center @((isDone || isCurrent) ? "bg-primary text-white" : "bg-light text-muted")">
-                    @if (isDone)
-                    {
+                @if (isClickable)
+                {
+                    <a href="@Url.Action("Step" + i, "ActivityWizard", new { id = activityId })"
+                       class="wizard-progress-circle rounded-circle d-flex align-items-center justify-content-center bg-primary text-white text-decoration-none"
+                       title="@titles[i - 1]">
                         <i class="fas fa-check"></i>
-                    }
-                    else
-                    {
-                        @i
-                    }
-                </div>
+                    </a>
+                }
+                else
+                {
+                    <div class="wizard-progress-circle rounded-circle d-flex align-items-center justify-content-center @((isDone || isCurrent) ? "bg-primary text-white" : "bg-light text-muted")">
+                        @if (isDone)
+                        {
+                            <i class="fas fa-check"></i>
+                        }
+                        else
+                        {
+                            @i
+                        }
+                    </div>
+                }
                 @if (i < titles.Length)
                 {
                     <div class="flex-fill wizard-progress-line @(isDone ? "bg-primary" : "bg-light")"></div>
@@ -49,7 +66,14 @@
                     <div class="flex-fill"></div>
                 }
             </div>
-            <small class="mt-2 text-center @(isCurrent ? "fw-bold text-primary" : "text-muted")">@titles[i - 1]</small>
+            @if (isClickable)
+            {
+                <a href="@Url.Action("Step" + i, "ActivityWizard", new { id = activityId })" class="mt-2 text-center text-muted small text-decoration-none">@titles[i - 1]</a>
+            }
+            else
+            {
+                <small class="mt-2 text-center @(isCurrent ? "fw-bold text-primary" : "text-muted")">@titles[i - 1]</small>
+            }
         </div>
     }
 </div>

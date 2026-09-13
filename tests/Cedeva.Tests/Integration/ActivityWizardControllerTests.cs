@@ -107,6 +107,75 @@ public class ActivityWizardControllerTests
         (await ctx.Activities.IgnoreQueryFilters().AnyAsync(a => a.Name == "Stage Invalide")).Should().BeFalse();
     }
 
+    [Fact]
+    public async Task Step1_Get_WithId_LoadsExistingActivityForEditing()
+    {
+        using var factory = new CedevaWebApplicationFactory();
+        var (orgId, activityId) = SeedActivity(factory);
+        var client = factory.CreateClientFor("u1", orgId, "Coordinator");
+
+        var response = await client.GetAsync($"/ActivityWizard/Step1?id={activityId}");
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var html = await response.Content.ReadAsStringAsync();
+        html.Should().Contain("Stage Wizard Quota");
+    }
+
+    [Fact]
+    public async Task Step1_Get_WithUnknownId_ReturnsNotFound()
+    {
+        using var factory = new CedevaWebApplicationFactory();
+        var orgId = factory.Seed(ctx =>
+        {
+            var org = TestData.Organisation();
+            ctx.Add(org);
+            return org;
+        }).Id;
+        var client = factory.CreateClientFor("u1", orgId, "Coordinator");
+
+        var response = await client.GetAsync("/ActivityWizard/Step1?id=999999");
+
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
+
+    [Fact]
+    public async Task Step1_Post_WithId_UpdatesExistingActivityInsteadOfCreatingNew()
+    {
+        using var factory = new CedevaWebApplicationFactory();
+        var (orgId, activityId) = SeedActivity(factory);
+        var client = factory.CreateClientFor("u1", orgId, "Coordinator");
+
+        DateTime originalStart;
+        await using (var seedCtx = factory.NewDbContext())
+        {
+            originalStart = (await seedCtx.Activities.IgnoreQueryFilters().SingleAsync(a => a.Id == activityId)).StartDate;
+        }
+        var newEndDate = originalStart.AddDays(2); // shrink from 5 days (StartDate..+4) to 3 (StartDate..+2)
+
+        var response = await client.PostAsync("/ActivityWizard/Step1", new FormUrlEncodedContent(
+            new Dictionary<string, string>
+            {
+                ["Id"] = activityId.ToString(),
+                ["Name"] = "Stage Wizard Renommé",
+                ["StartDate"] = originalStart.ToString("yyyy-MM-dd"),
+                ["EndDate"] = newEndDate.ToString("yyyy-MM-dd"),
+                ["OrganisationId"] = orgId.ToString(),
+            }));
+
+        response.StatusCode.Should().Be(HttpStatusCode.Found);
+        response.Headers.Location!.ToString().Should().Be($"/ActivityWizard/Step2/{activityId}");
+
+        await using var ctx = factory.NewDbContext();
+        (await ctx.Activities.IgnoreQueryFilters().CountAsync()).Should().Be(1, "no new activity should be created");
+        var activity = await ctx.Activities.IgnoreQueryFilters().SingleAsync(a => a.Id == activityId);
+        activity.Name.Should().Be("Stage Wizard Renommé");
+        activity.StartDate.Should().Be(originalStart);
+        activity.EndDate.Should().Be(newEndDate);
+        // Date range shrunk from 5 to 3 days: the now out-of-range days are deactivated, not deleted.
+        (await ctx.ActivityDays.CountAsync(d => d.ActivityId == activityId)).Should().Be(5);
+        (await ctx.ActivityDays.CountAsync(d => d.ActivityId == activityId && d.IsActive)).Should().Be(3);
+    }
+
     // ------------------------------------------------------------------
     // Step 2 / AddDate / Step2Next
     // ------------------------------------------------------------------
@@ -644,5 +713,60 @@ public class ActivityWizardControllerTests
 
         await using var ctx = factory.NewDbContext();
         (await ctx.Activities.IgnoreQueryFilters().SingleAsync(a => a.Id == activityId)).PublicationStartDate.Should().BeNull();
+    }
+
+    // ------------------------------------------------------------------
+    // Navigation: "Précédent" buttons + clickable progress-gauge circles
+    // ------------------------------------------------------------------
+
+    [Fact]
+    public async Task Step2_Get_RendersPreviousButtonLinkingToStep1WithId()
+    {
+        using var factory = new CedevaWebApplicationFactory();
+        var (orgId, activityId) = SeedActivity(factory);
+        var client = factory.CreateClientFor("u1", orgId, "Coordinator");
+
+        var response = await client.GetAsync($"/ActivityWizard/Step2/{activityId}");
+
+        var html = await response.Content.ReadAsStringAsync();
+        html.Should().Contain($"/ActivityWizard/Step1/{activityId}");
+    }
+
+    [Fact]
+    public async Task Step6_Get_ProgressGauge_HasClickableLinksToAllPreviousSteps()
+    {
+        using var factory = new CedevaWebApplicationFactory();
+        var (orgId, activityId) = SeedActivity(factory);
+        var client = factory.CreateClientFor("u1", orgId, "Coordinator");
+
+        var response = await client.GetAsync($"/ActivityWizard/Step6/{activityId}");
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var html = await response.Content.ReadAsStringAsync();
+        for (var step = 1; step <= 5; step++)
+        {
+            html.Should().Contain($"/ActivityWizard/Step{step}/{activityId}",
+                $"step {step} is already completed and should be clickable from Step6's progress gauge");
+        }
+    }
+
+    [Fact]
+    public async Task Step1_Get_ProgressGauge_HasNoClickableSteps_SinceItIsTheFirstOne()
+    {
+        using var factory = new CedevaWebApplicationFactory();
+        var orgId = factory.Seed(ctx =>
+        {
+            var org = TestData.Organisation();
+            ctx.Add(org);
+            return org;
+        }).Id;
+        var client = factory.CreateClientFor("u1", orgId, "Coordinator");
+
+        var response = await client.GetAsync("/ActivityWizard/Step1");
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var html = await response.Content.ReadAsStringAsync();
+        html.Should().NotContain("wizard-progress-circle rounded-circle d-flex align-items-center justify-content-center bg-primary text-white text-decoration-none",
+            "step 1 is the current step, not a completed one, so no circle should be a clickable link");
     }
 }

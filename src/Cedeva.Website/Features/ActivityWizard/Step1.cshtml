@@ -1,18 +1,27 @@
 @model Cedeva.Website.Features.Activities.ViewModels.WizardStep1ViewModel
 @{
-    ViewData["Title"] = Localizer["ActivityWizard.NewActivity"];
+    var isEditing = Model.Id > 0;
+    ViewData["Title"] = isEditing ? Model.Name : Localizer["ActivityWizard.NewActivity"];
 }
 
 <div class="container-fluid">
-    @await Html.PartialAsync("_WizardProgress", 1)
+    @await Html.PartialAsync("_WizardProgress", (1, Model.Id))
     <div class="row">
         <div class="col-lg-8">
             <div class="card shadow">
                 <div class="card-header">
-                    <h5 class="mb-0"><i class="fas fa-plus me-2"></i>@Localizer["ActivityWizard.NewActivity"]</h5>
+                    @if (isEditing)
+                    {
+                        <h5 class="mb-0"><i class="fas fa-edit me-2"></i>@Model.Name — @Localizer["ActivityWizard.Step1Title"]</h5>
+                    }
+                    else
+                    {
+                        <h5 class="mb-0"><i class="fas fa-plus me-2"></i>@Localizer["ActivityWizard.NewActivity"]</h5>
+                    }
                 </div>
                 <div class="card-body">
                     <form asp-action="Step1" method="post">
+                        <input type="hidden" asp-for="Id" />
                         <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
 
                         @if (User.IsInRole("Admin"))
@@ -56,9 +65,18 @@
                             <button type="submit" class="btn btn-primary">
                                 <i class="fas fa-save me-1"></i>@Localizer["Save"]
                             </button>
-                            <a asp-controller="Activities" asp-action="Index" class="btn btn-outline-secondary">
-                                <i class="fas fa-times me-1"></i>@Localizer["Cancel"]
-                            </a>
+                            @if (Model.Id > 0)
+                            {
+                                <a asp-action="Step2" asp-route-id="@Model.Id" class="btn btn-outline-secondary">
+                                    <i class="fas fa-times me-1"></i>@Localizer["Cancel"]
+                                </a>
+                            }
+                            else
+                            {
+                                <a asp-controller="Activities" asp-action="Index" class="btn btn-outline-secondary">
+                                    <i class="fas fa-times me-1"></i>@Localizer["Cancel"]
+                                </a>
+                            }
                         </div>
                     </form>
                 </div>
