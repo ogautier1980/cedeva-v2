@@ -19,19 +19,17 @@
         <div class="card-body">
             @if (Model.RecentActivities.Any())
             {
-                <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3">
+                <div class="d-flex flex-column gap-3">
                     @foreach (var activity in Model.RecentActivities)
                     {
-                        <div class="col">
-                            <a asp-controller="ActivityManagement" asp-action="Index" asp-route-id="@activity.ActivityId"
-                               class="btn btn-outline-primary w-100 h-100 py-3 text-start d-flex flex-column justify-content-center">
-                                <span class="fw-bold fs-5">@activity.Name</span>
-                                <span class="small">
-                                    <i class="fas fa-calendar me-1"></i>
-                                    @activity.StartDate.ToString("dd/MM/yyyy") - @activity.EndDate.ToString("dd/MM/yyyy")
-                                </span>
-                            </a>
-                        </div>
+                        <a asp-controller="ActivityManagement" asp-action="Index" asp-route-id="@activity.ActivityId"
+                           class="btn btn-outline-primary w-100 py-3 text-start d-flex flex-column justify-content-center">
+                            <span class="fw-bold fs-5">@activity.Name</span>
+                            <span class="small">
+                                <i class="fas fa-calendar me-1"></i>
+                                @activity.StartDate.ToString("dd/MM/yyyy") - @activity.EndDate.ToString("dd/MM/yyyy")
+                            </span>
+                        </a>
                     }
                 </div>
             }
