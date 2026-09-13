@@ -4,12 +4,17 @@
     ViewData["ActivityId"] = Model.Activity.Id;
     ViewData["ActivityName"] = Model.Activity.Name;
     ViewData["NavSection"] = "PresenceSummary";
+    var culture = new System.Globalization.CultureInfo("fr-FR");
 }
 
 <div class="container-fluid py-4">
     @await Html.PartialAsync("_AlertMessages")
 
-    @if (!Model.Days.Any())
+    <h2 class="text-primary fw-bold mb-4">
+        @Localizer["ActivityManagement.PresenceSummary"]
+    </h2>
+
+    @if (!Model.Weeks.Any())
     {
         <div class="alert alert-info">
             <i class="fas fa-info-circle"></i> @Localizer["ActivityManagement.NoActiveDay"]
@@ -17,68 +22,71 @@
     }
     else
     {
-        <div class="card">
-            <div class="card-header bg-primary text-white">
-                <h5 class="mb-0">
-                    <i class="fas fa-chart-bar"></i> @Localizer["ActivityManagement.PresenceSummary"]
-                </h5>
+        @foreach (var week in Model.Weeks)
+        {
+            <div class="table-responsive mb-4">
+                <table class="table table-borderless mb-0 presence-summary-table">
+                    <thead>
+                        <tr>
+                            <th scope="col" class="fs-5 fw-bold text-dark">@Localizer["ActivityManagement.PresenceSummary.Week", week.WeekNumber]</th>
+                            <th scope="col" class="text-muted fw-normal">@Localizer["ActivityManagement.PresenceSummary.Reserved"]</th>
+                            <th scope="col" class="text-muted fw-normal">@Localizer["ActivityManagement.PresenceSummary.MD"]</th>
+                            <th scope="col" class="text-muted fw-normal">@Localizer["ActivityManagement.PresenceSummary.HLe"]</th>
+                            <th scope="col" class="text-muted fw-normal">@Localizer["ActivityManagement.PresenceSummary.HLo"]</th>
+                            <th scope="col" class="fw-bold text-dark">@Localizer["ActivityManagement.PresenceSummary.TotalReserved"]</th>
+                            <th scope="col" class="text-muted fw-normal">@Localizer["Present"]</th>
+                            <th scope="col" class="text-muted fw-normal">@Localizer["ActivityManagement.PresenceSummary.MD"]</th>
+                            <th scope="col" class="text-muted fw-normal">@Localizer["ActivityManagement.PresenceSummary.HLe"]</th>
+                            <th scope="col" class="text-muted fw-normal">@Localizer["ActivityManagement.PresenceSummary.HLo"]</th>
+                            <th scope="col" class="fw-bold text-dark">@Localizer["ActivityManagement.PresenceSummary.TotalPresent"]</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var day in week.Days)
+                        {
+                            <tr>
+                                <td>@(char.ToUpper(day.DayDate.ToString("dddd", culture)[0]) + day.DayDate.ToString("dddd", culture).Substring(1) + " " + day.DayDate.ToString("dd/MM/yyyy"))</td>
+                                <td class="text-muted">@day.ReservedRegularCount</td>
+                                <td class="text-muted">@day.ReservedDisadvantagedCount</td>
+                                <td class="text-muted">@day.ReservedMildDisabilityCount</td>
+                                <td class="text-muted">@day.ReservedSevereDisabilityCount</td>
+                                <td class="fw-bold">@day.ReservedCount</td>
+                                <td>@day.PresentRegularCount</td>
+                                <td class="text-muted">@day.PresentDisadvantagedCount</td>
+                                <td class="text-muted">@day.PresentMildDisabilityCount</td>
+                                <td class="text-muted">@day.PresentSevereDisabilityCount</td>
+                                <td class="fw-bold">@day.PresentCount</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
             </div>
-            <div class="card-body p-0">
-                <div class="table-responsive">
-                    <table class="table table-hover mb-0">
-                        <thead class="table-light">
-                            <tr>
-                                <th scope="col" rowspan="2" class="align-middle">@Localizer["Field.Date"]</th>
-                                <th scope="colgroup" colspan="2" class="text-center">@Localizer["Total"]</th>
-                                <th scope="colgroup" colspan="2" class="text-center">@Localizer["ONE.DisadvantagedEnvironment"]</th>
-                                <th scope="colgroup" colspan="2" class="text-center">@Localizer["ONE.MildDisability"]</th>
-                                <th scope="colgroup" colspan="2" class="text-center">@Localizer["ONE.SevereDisability"]</th>
-                            </tr>
-                            <tr>
-                                <th scope="col" class="text-center">@Localizer["Reserved"]</th>
-                                <th scope="col" class="text-center">@Localizer["Present"]</th>
-                                <th scope="col" class="text-center">@Localizer["Reserved"]</th>
-                                <th scope="col" class="text-center">@Localizer["Present"]</th>
-                                <th scope="col" class="text-center">@Localizer["Reserved"]</th>
-                                <th scope="col" class="text-center">@Localizer["Present"]</th>
-                                <th scope="col" class="text-center">@Localizer["Reserved"]</th>
-                                <th scope="col" class="text-center">@Localizer["Present"]</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var day in Model.Days)
-                            {
-                                <tr>
-                                    <td>
-                                        @day.DayDate.ToString("dddd dd/MM/yyyy", new System.Globalization.CultureInfo("fr-FR"))
-                                    </td>
-                                    <td class="text-center"><span class="badge bg-secondary">@day.ReservedCount</span></td>
-                                    <td class="text-center"><span class="badge bg-success">@day.PresentCount</span></td>
-                                    <td class="text-center">@day.ReservedDisadvantagedCount</td>
-                                    <td class="text-center">@day.PresentDisadvantagedCount</td>
-                                    <td class="text-center">@day.ReservedMildDisabilityCount</td>
-                                    <td class="text-center">@day.PresentMildDisabilityCount</td>
-                                    <td class="text-center">@day.ReservedSevereDisabilityCount</td>
-                                    <td class="text-center">@day.PresentSevereDisabilityCount</td>
-                                </tr>
-                            }
-                        </tbody>
-                        <tfoot class="table-light">
-                            <tr>
-                                <th scope="row">@Localizer["Total"]</th>
-                                <th class="text-center">@Model.Days.Sum(d => d.ReservedCount)</th>
-                                <th class="text-center">@Model.Days.Sum(d => d.PresentCount)</th>
-                                <th class="text-center">@Model.Days.Sum(d => d.ReservedDisadvantagedCount)</th>
-                                <th class="text-center">@Model.Days.Sum(d => d.PresentDisadvantagedCount)</th>
-                                <th class="text-center">@Model.Days.Sum(d => d.ReservedMildDisabilityCount)</th>
-                                <th class="text-center">@Model.Days.Sum(d => d.PresentMildDisabilityCount)</th>
-                                <th class="text-center">@Model.Days.Sum(d => d.ReservedSevereDisabilityCount)</th>
-                                <th class="text-center">@Model.Days.Sum(d => d.PresentSevereDisabilityCount)</th>
-                            </tr>
-                        </tfoot>
-                    </table>
-                </div>
-            </div>
+        }
+
+        <div class="border-start border-3 ps-3 text-muted mt-5">
+            <p class="fw-bold mb-1">@Localizer["ActivityManagement.PresenceSummary.Legend"]</p>
+            <p class="mb-1">@Localizer["ActivityManagement.PresenceSummary.MD"] = @Localizer["ActivityManagement.PresenceSummary.LegendMD"]</p>
+            <p class="mb-1">@Localizer["ActivityManagement.PresenceSummary.HLe"] = @Localizer["ActivityManagement.PresenceSummary.LegendHLe"]</p>
+            <p class="mb-0">@Localizer["ActivityManagement.PresenceSummary.HLo"] = @Localizer["ActivityManagement.PresenceSummary.LegendHLo"]</p>
         </div>
     }
 </div>
+
+<style>
+    .presence-summary-table th,
+    .presence-summary-table td {
+        padding: 0.65rem 0.75rem;
+        border-bottom: 1px solid #eee;
+    }
+
+    .presence-summary-table thead th {
+        background: none;
+        text-transform: none;
+        border-bottom: 1px solid #ddd;
+    }
+
+    .presence-summary-table thead th.text-muted {
+        font-size: 0.85rem;
+        font-weight: 400;
+    }
+</style>

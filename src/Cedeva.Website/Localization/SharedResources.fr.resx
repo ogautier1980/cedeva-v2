@@ -565,6 +565,39 @@
   <data name="ActivityManagement.PresenceSummary" xml:space="preserve">
     <value>Total des présences</value>
   </data>
+  <data name="ActivityManagement.PresenceSummary.Week" xml:space="preserve">
+    <value>Semaine {0}</value>
+  </data>
+  <data name="ActivityManagement.PresenceSummary.Reserved" xml:space="preserve">
+    <value>Prévu</value>
+  </data>
+  <data name="ActivityManagement.PresenceSummary.TotalReserved" xml:space="preserve">
+    <value>TOTAL Prévu</value>
+  </data>
+  <data name="ActivityManagement.PresenceSummary.TotalPresent" xml:space="preserve">
+    <value>TOTAL Présent</value>
+  </data>
+  <data name="ActivityManagement.PresenceSummary.MD" xml:space="preserve">
+    <value>M.D.</value>
+  </data>
+  <data name="ActivityManagement.PresenceSummary.HLe" xml:space="preserve">
+    <value>H. Le.</value>
+  </data>
+  <data name="ActivityManagement.PresenceSummary.HLo" xml:space="preserve">
+    <value>H. Lo.</value>
+  </data>
+  <data name="ActivityManagement.PresenceSummary.Legend" xml:space="preserve">
+    <value>Légende</value>
+  </data>
+  <data name="ActivityManagement.PresenceSummary.LegendMD" xml:space="preserve">
+    <value>Milieu défavorisé</value>
+  </data>
+  <data name="ActivityManagement.PresenceSummary.LegendHLe" xml:space="preserve">
+    <value>Handicap LEGER</value>
+  </data>
+  <data name="ActivityManagement.PresenceSummary.LegendHLo" xml:space="preserve">
+    <value>Handicap LOURD</value>
+  </data>
   <data name="ActivityManagement.RegistrationDate" xml:space="preserve">
     <value>Date d'inscription</value>
   </data>

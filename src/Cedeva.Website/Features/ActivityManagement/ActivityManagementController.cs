@@ -1267,12 +1267,15 @@ public class ActivityManagementController : Controller
             .Select(d =>
             {
                 var dayEntries = confirmedBookingDays.Where(e => e.BookingDay.ActivityDayId == d.DayId).ToList();
+                bool IsRegular(Child c) => !c.IsDisadvantagedEnvironment && !c.IsMildDisability && !c.IsSevereDisability;
                 return new DayPresenceSummary
                 {
                     DayDate = d.DayDate,
                     Label = d.Label,
                     ReservedCount = dayEntries.Count(e => e.BookingDay.IsReserved),
                     PresentCount = dayEntries.Count(e => e.BookingDay.IsPresent),
+                    ReservedRegularCount = dayEntries.Count(e => e.BookingDay.IsReserved && IsRegular(e.Child)),
+                    PresentRegularCount = dayEntries.Count(e => e.BookingDay.IsPresent && IsRegular(e.Child)),
                     ReservedDisadvantagedCount = dayEntries.Count(e => e.BookingDay.IsReserved && e.Child.IsDisadvantagedEnvironment),
                     PresentDisadvantagedCount = dayEntries.Count(e => e.BookingDay.IsPresent && e.Child.IsDisadvantagedEnvironment),
                     ReservedMildDisabilityCount = dayEntries.Count(e => e.BookingDay.IsReserved && e.Child.IsMildDisability),
@@ -1283,10 +1286,21 @@ public class ActivityManagementController : Controller
             })
             .ToList();
 
+        var weeks = days
+            .GroupBy(d => System.Globalization.ISOWeek.GetYear(d.DayDate) * 100 + System.Globalization.ISOWeek.GetWeekOfYear(d.DayDate))
+            .OrderBy(g => g.Min(d => d.DayDate))
+            .Select((g, index) => new WeekPresenceSummary
+            {
+                WeekNumber = index + 1,
+                Days = g.OrderBy(d => d.DayDate).ToList()
+            })
+            .ToList();
+
         var viewModel = new PresenceSummaryViewModel
         {
             Activity = activity,
-            Days = days
+            Days = days,
+            Weeks = weeks
         };
 
         return View(viewModel);

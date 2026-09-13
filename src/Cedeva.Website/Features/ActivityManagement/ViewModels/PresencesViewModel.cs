@@ -111,6 +111,13 @@ public class PresenceSummaryViewModel
 {
     public Activity Activity { get; set; } = null!;
     public List<DayPresenceSummary> Days { get; set; } = new();
+    public List<WeekPresenceSummary> Weeks { get; set; } = new();
+}
+
+public class WeekPresenceSummary
+{
+    public int WeekNumber { get; set; }
+    public List<DayPresenceSummary> Days { get; set; } = new();
 }
 
 public class DayPresenceSummary
@@ -125,4 +132,7 @@ public class DayPresenceSummary
     public int PresentMildDisabilityCount { get; set; }
     public int ReservedSevereDisabilityCount { get; set; }
     public int PresentSevereDisabilityCount { get; set; }
+    // Reserved/present counts for children with none of the ONE indicators — the plain "Prévu"/"Présent" columns.
+    public int ReservedRegularCount { get; set; }
+    public int PresentRegularCount { get; set; }
 }

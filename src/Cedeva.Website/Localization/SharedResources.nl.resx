@@ -562,6 +562,39 @@
   <data name="ActivityManagement.PresenceSummary" xml:space="preserve">
     <value>Totaal aanwezigheden</value>
   </data>
+  <data name="ActivityManagement.PresenceSummary.Week" xml:space="preserve">
+    <value>Week {0}</value>
+  </data>
+  <data name="ActivityManagement.PresenceSummary.Reserved" xml:space="preserve">
+    <value>Verwacht</value>
+  </data>
+  <data name="ActivityManagement.PresenceSummary.TotalReserved" xml:space="preserve">
+    <value>TOTAAL Verwacht</value>
+  </data>
+  <data name="ActivityManagement.PresenceSummary.TotalPresent" xml:space="preserve">
+    <value>TOTAAL Aanwezig</value>
+  </data>
+  <data name="ActivityManagement.PresenceSummary.MD" xml:space="preserve">
+    <value>M.D.</value>
+  </data>
+  <data name="ActivityManagement.PresenceSummary.HLe" xml:space="preserve">
+    <value>H. Le.</value>
+  </data>
+  <data name="ActivityManagement.PresenceSummary.HLo" xml:space="preserve">
+    <value>H. Lo.</value>
+  </data>
+  <data name="ActivityManagement.PresenceSummary.Legend" xml:space="preserve">
+    <value>Legende</value>
+  </data>
+  <data name="ActivityManagement.PresenceSummary.LegendMD" xml:space="preserve">
+    <value>Kansarme omgeving</value>
+  </data>
+  <data name="ActivityManagement.PresenceSummary.LegendHLe" xml:space="preserve">
+    <value>LICHTE handicap</value>
+  </data>
+  <data name="ActivityManagement.PresenceSummary.LegendHLo" xml:space="preserve">
+    <value>ZWARE handicap</value>
+  </data>
   <data name="ActivityManagement.RegistrationDate" xml:space="preserve">
     <value>Inschrijvingsdatum</value>
   </data>
