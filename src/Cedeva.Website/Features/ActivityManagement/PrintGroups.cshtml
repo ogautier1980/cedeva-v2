@@ -72,6 +72,13 @@
             background-color: #f9f9f9;
         }
 
+        .checkbox-box {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            border: 1.5px solid #333;
+        }
+
         .group-badge {
             background-color: #007bff;
             color: white;
@@ -197,7 +204,7 @@
                         }
                         @if (Model.ActivityDay != null && Model.ShowPresent)
                         {
-                            <td class="text-center">@(item.IsPresent ? "X" : "")</td>
+                            <td class="text-center"><span class="checkbox-box"></span></td>
                         }
                         @if (Model.ShowSignature)
                         {

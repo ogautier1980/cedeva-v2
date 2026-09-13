@@ -1188,7 +1188,8 @@ public class ActivityManagementController : Controller
             columns[_localizer["ActivityManagement.Expected"].Value] = c => c.IsReserved;
 
         if (dayId.HasValue && showPresent)
-            columns[_localizer["Present"].Value] = c => c.IsPresent;
+            // Left blank on purpose: this sheet is printed to record attendance by hand.
+            columns[_localizer["Present"].Value] = c => string.Empty;
 
         if (showSignature)
             columns[_localizer["ActivityManagement.Signature"].Value] = c => string.Empty;
