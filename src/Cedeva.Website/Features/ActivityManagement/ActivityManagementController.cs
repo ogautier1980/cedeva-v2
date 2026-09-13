@@ -361,7 +361,8 @@ public class ActivityManagementController : Controller
                     PaidAmount = b.PaidAmount
                 };
             })
-            .OrderBy(c => c.ChildLastName)
+            .OrderBy(c => c.ActivityGroupName)
+            .ThenBy(c => c.ChildLastName)
             .ThenBy(c => c.ChildFirstName)
             .ToList();
     }
