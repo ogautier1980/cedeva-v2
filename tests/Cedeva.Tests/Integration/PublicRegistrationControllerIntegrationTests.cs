@@ -60,7 +60,7 @@ public class PublicRegistrationControllerIntegrationTests
         {
             var org = TestData.Organisation();
             var a = TestData.Activity(org);
-            // Move into the past so the controller's "StartDate > DateTime.Now" filter excludes it.
+            // Move into the past so the controller's "EndDate >= DateTime.Today" filter excludes it.
             a.StartDate = new DateTime(2000, 1, 1);
             a.EndDate = new DateTime(2000, 1, 5);
             ctx.AddRange(org, a);
@@ -71,6 +71,51 @@ public class PublicRegistrationControllerIntegrationTests
         var response = await client.GetAsync($"/PublicRegistration/Register?activityId={activity.Id}");
 
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
+
+    [Fact]
+    public async Task Register_ActivityStartingToday_ReturnsOk()
+    {
+        // Regression guard: the wizard's default StartDate is DateTime.Today, and Step7's embed
+        // preview iframe used to render blank for such an activity because the Register endpoint
+        // filtered on "StartDate > DateTime.Now" — strictly excluding an activity starting today.
+        using var factory = new CedevaWebApplicationFactory();
+        var activity = factory.Seed(ctx =>
+        {
+            var org = TestData.Organisation();
+            var a = TestData.Activity(org, "Stage Qui Demarre Aujourdhui");
+            a.StartDate = DateTime.Today;
+            a.EndDate = DateTime.Today.AddDays(4);
+            ctx.AddRange(org, a);
+            return a;
+        });
+
+        var client = Anonymous(factory);
+        var response = await client.GetAsync($"/PublicRegistration/Register?activityId={activity.Id}");
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+    }
+
+    [Fact]
+    public async Task Register_ActivityAlreadyStartedButNotEnded_ReturnsOk()
+    {
+        // An activity in progress must stay registrable for its still-upcoming weeks (per-week
+        // registration, Lot K) until it's actually over.
+        using var factory = new CedevaWebApplicationFactory();
+        var activity = factory.Seed(ctx =>
+        {
+            var org = TestData.Organisation();
+            var a = TestData.Activity(org, "Stage En Cours");
+            a.StartDate = DateTime.Today.AddDays(-3);
+            a.EndDate = DateTime.Today.AddDays(4);
+            ctx.AddRange(org, a);
+            return a;
+        });
+
+        var client = Anonymous(factory);
+        var response = await client.GetAsync($"/PublicRegistration/Register?activityId={activity.Id}");
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
     }
 
     // ----- GET SelectActivity -----

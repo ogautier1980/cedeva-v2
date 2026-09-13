@@ -137,7 +137,10 @@ public class PublicRegistrationController : Controller
         var now = DateTime.Now;
         var activities = (await _context.Activities
             .IgnoreQueryFilters()
-            .Where(a => a.OrganisationId == orgId && a.StartDate > DateTime.Now)
+            // EndDate-based (not StartDate): an activity already under way should stay open for
+            // registration on its still-upcoming weeks (per-week registration, Lot K) until it's
+            // actually over, rather than disappearing the moment it starts.
+            .Where(a => a.OrganisationId == orgId && a.EndDate >= DateTime.Today)
             .OrderBy(a => a.StartDate)
             .ToListAsync())
             .Where(a => IsWithinPublicationWindow(a, now))
@@ -653,9 +656,12 @@ public class PublicRegistrationController : Controller
     {
         // Public, anonymous entry point: the activity is trusted via the embed's activityId, so
         // bypass the multi-tenancy filter (no logged-in user => no OrganisationId => it would 404).
+        // EndDate-based (not StartDate > Now): an activity that already started must stay
+        // registrable for its still-upcoming weeks (per-week registration, Lot K) until it's over —
+        // this was also why the wizard's Step7 preview (an activity created "today") looked blank.
         var activity = await _context.Activities
             .IgnoreQueryFilters()
-            .FirstOrDefaultAsync(a => a.Id == activityId && a.StartDate > DateTime.Now);
+            .FirstOrDefaultAsync(a => a.Id == activityId && a.EndDate >= DateTime.Today);
 
         if (activity == null)
         {
