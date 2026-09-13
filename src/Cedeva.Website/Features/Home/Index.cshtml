@@ -40,9 +40,16 @@
             }
 
             <div class="d-flex justify-content-between gap-2 mt-4">
-                <a asp-controller="ActivityWizard" asp-action="Step1" class="btn btn-success text-nowrap">
-                    <i class="fas fa-plus me-2"></i>@Localizer["ActivityWizard.CreateNewActivity"]
-                </a>
+                <div class="d-flex gap-2">
+                    <a asp-controller="ActivityWizard" asp-action="Step1" class="btn btn-success text-nowrap">
+                        <i class="fas fa-plus me-2"></i>@Localizer["ActivityWizard.CreateNewActivity"]
+                    </a>
+                    <form asp-controller="Account" asp-action="Logout" method="post">
+                        <button type="submit" class="btn btn-outline-secondary text-nowrap">
+                            <i class="fas fa-sign-out-alt me-2"></i>@Localizer["Layout.Logout"]
+                        </button>
+                    </form>
+                </div>
                 <a href="/Activities" class="btn btn-primary text-nowrap">@Localizer["Home.ViewAll"]</a>
             </div>
         </div>
