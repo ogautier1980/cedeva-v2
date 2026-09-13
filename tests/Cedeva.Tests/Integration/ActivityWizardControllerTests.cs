@@ -327,6 +327,23 @@ public class ActivityWizardControllerTests
         }
     }
 
+    [Fact]
+    public async Task Step2Next_AdvancesWizardMaxStepReachedTo3()
+    {
+        using var factory = new CedevaWebApplicationFactory();
+        var (orgId, activityId) = SeedActivity(factory);
+        var client = factory.CreateClientFor("u1", orgId, "Coordinator");
+
+        var response = await client.PostAsync("/ActivityWizard/Step2Next", new FormUrlEncodedContent(
+            new Dictionary<string, string> { ["id"] = activityId.ToString() }));
+
+        response.StatusCode.Should().Be(HttpStatusCode.Found);
+
+        await using var ctx = factory.NewDbContext();
+        var activity = await ctx.Activities.IgnoreQueryFilters().SingleAsync(a => a.Id == activityId);
+        activity.WizardMaxStepReached.Should().Be(3);
+    }
+
     // ------------------------------------------------------------------
     // Step 3 — Règlement
     // ------------------------------------------------------------------
@@ -792,6 +809,31 @@ public class ActivityWizardControllerTests
             html.Should().Contain($"/ActivityWizard/Step{step}/{activityId}",
                 $"step {step} is already completed and should be clickable from Step6's progress gauge");
         }
+    }
+
+    [Fact]
+    public async Task Step2_Get_ProgressGauge_HasClickableLinksToAlreadyReachedFollowingSteps()
+    {
+        using var factory = new CedevaWebApplicationFactory();
+        var (orgId, activityId) = SeedActivity(factory);
+        await using (var seedCtx = factory.NewDbContext())
+        {
+            var activity = await seedCtx.Activities.IgnoreQueryFilters().SingleAsync(a => a.Id == activityId);
+            activity.WizardMaxStepReached = 4;
+            await seedCtx.SaveChangesAsync();
+        }
+
+        var client = factory.CreateClientFor("u1", orgId, "Coordinator");
+        var response = await client.GetAsync($"/ActivityWizard/Step2/{activityId}");
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var html = await response.Content.ReadAsStringAsync();
+        html.Should().Contain($"/ActivityWizard/Step3/{activityId}",
+            "step 3 was already reached before navigating back to step 2, so it should stay clickable");
+        html.Should().Contain($"/ActivityWizard/Step4/{activityId}",
+            "step 4 was already reached before navigating back to step 2, so it should stay clickable");
+        html.Should().NotContain($"/ActivityWizard/Step5/{activityId}",
+            "step 5 was never reached, so it should not be clickable");
     }
 
     [Fact]

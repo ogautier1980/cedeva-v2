@@ -1,13 +1,16 @@
 @* Jauge de progression du wizard de création d'activité (Lot I).
-   Model = (numéro de l'étape courante 1-7, id de l'activité). Les étapes déjà complétées (1 à
-   CurrentStep-1) sont cliquables pour y revenir — l'étape 7 (écran final iframe) n'a pas de vue
+   Model = (numéro de l'étape courante 1-7, id de l'activité, étape la plus avancée déjà atteinte).
+   Les étapes déjà complétées avant l'étape courante (1 à CurrentStep-1) sont toujours cliquables
+   pour y revenir ; les étapes suivantes déjà atteintes lors d'un passage précédent (jusqu'à
+   MaxStepReached) sont elles aussi cliquables — l'étape 7 (écran final iframe) n'a pas de vue
    propre au contrôleur, donc jamais cliquable ni "courante" ici. *@
-@model (int CurrentStep, int ActivityId)
+@model (int CurrentStep, int ActivityId, int MaxStepReached)
 @inject Microsoft.Extensions.Localization.IStringLocalizer<Cedeva.Website.Localization.SharedResources> Localizer
 
 @{
     var currentStep = Model.CurrentStep;
     var activityId = Model.ActivityId;
+    var maxStepReached = Model.MaxStepReached;
     var titles = new[]
     {
         Localizer["ActivityWizard.Step1Title"].Value,
@@ -25,7 +28,8 @@
     {
         var isDone = i < currentStep;
         var isCurrent = i == currentStep;
-        var isClickable = isDone && i <= 6;
+        var isForwardReached = i > currentStep && i <= maxStepReached;
+        var isClickable = (isDone || isForwardReached) && i <= 6;
         <div class="d-flex flex-column align-items-center flex-fill wizard-progress-step">
             <div class="d-flex align-items-center w-100">
                 @if (i > 1)
@@ -39,9 +43,16 @@
                 @if (isClickable)
                 {
                     <a href="@Url.Action("Step" + i, "ActivityWizard", new { id = activityId })"
-                       class="wizard-progress-circle rounded-circle d-flex align-items-center justify-content-center bg-primary text-white text-decoration-none"
+                       class="wizard-progress-circle rounded-circle d-flex align-items-center justify-content-center text-decoration-none @(isDone ? "bg-primary text-white" : "bg-white border border-primary text-primary")"
                        title="@titles[i - 1]">
-                        <i class="fas fa-check"></i>
+                        @if (isDone)
+                        {
+                            <i class="fas fa-check"></i>
+                        }
+                        else
+                        {
+                            @i
+                        }
                     </a>
                 }
                 else

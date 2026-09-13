@@ -25,6 +25,9 @@ public class WizardStep1ViewModel
     public DateTime EndDate { get; set; } = DateTime.Today.AddDays(7);
 
     public int OrganisationId { get; set; }
+
+    /// <summary>Étape la plus avancée déjà atteinte pour cette activité (0 en création).</summary>
+    public int WizardMaxStepReached { get; set; }
 }
 
 /// <summary>Step 2 — Paramétrage des dates (display-only wrapper around the activity's day list).</summary>
@@ -33,6 +36,7 @@ public class WizardStep2ViewModel
     public int ActivityId { get; set; }
     public string ActivityName { get; set; } = string.Empty;
     public List<WizardDayWeekViewModel> Weeks { get; set; } = new();
+    public int WizardMaxStepReached { get; set; }
 }
 
 public class WizardDayWeekViewModel
@@ -63,6 +67,8 @@ public class WizardStep3ViewModel
     [StringLength(300, ErrorMessage = "Validation.StringLength")]
     [Display(Name = "Activity.RegulationAcceptanceText")]
     public string? RegulationAcceptanceText { get; set; }
+
+    public int WizardMaxStepReached { get; set; }
 }
 
 /// <summary>Step 4 — Limitations.</summary>
@@ -96,6 +102,7 @@ public class WizardStep4ViewModel
     public string? BirthYearQuotaExceededMessage { get; set; }
 
     public List<WizardBirthYearQuotaItem> BirthYearQuotas { get; set; } = new();
+    public int WizardMaxStepReached { get; set; }
 }
 
 public class WizardBirthYearQuotaItem
@@ -112,6 +119,7 @@ public class WizardStep5ViewModel
     public string ActivityName { get; set; } = string.Empty;
     public List<ExistingActivityQuestionViewModel> ExistingQuestions { get; set; } = new();
     public List<NewActivityQuestionViewModel> NewQuestions { get; set; } = new();
+    public int WizardMaxStepReached { get; set; }
 }
 
 /// <summary>Step 6 — Affichage.</summary>
@@ -135,4 +143,6 @@ public class WizardStep6ViewModel
     [StringLength(500, ErrorMessage = "Validation.StringLength")]
     [Display(Name = "Activity.RedirectUrlAfterSubmit")]
     public string? RedirectUrlAfterSubmit { get; set; }
+
+    public int WizardMaxStepReached { get; set; }
 }

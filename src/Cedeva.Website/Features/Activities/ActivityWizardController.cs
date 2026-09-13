@@ -68,7 +68,8 @@ public class ActivityWizardController : Controller
                 Name = existing.Name,
                 StartDate = existing.StartDate,
                 EndDate = existing.EndDate,
-                OrganisationId = existing.OrganisationId
+                OrganisationId = existing.OrganisationId,
+                WizardMaxStepReached = existing.WizardMaxStepReached
             });
         }
 
@@ -90,6 +91,13 @@ public class ActivityWizardController : Controller
 
         if (!ModelState.IsValid)
         {
+            if (viewModel.Id > 0)
+            {
+                viewModel.WizardMaxStepReached = await _context.Activities
+                    .Where(a => a.Id == viewModel.Id)
+                    .Select(a => a.WizardMaxStepReached)
+                    .FirstOrDefaultAsync();
+            }
             return View(viewModel);
         }
 
@@ -111,7 +119,8 @@ public class ActivityWizardController : Controller
             IsActive = true,
             StartDate = viewModel.StartDate,
             EndDate = viewModel.EndDate,
-            OrganisationId = _currentUserService.IsAdmin ? viewModel.OrganisationId : organisationId!.Value
+            OrganisationId = _currentUserService.IsAdmin ? viewModel.OrganisationId : organisationId!.Value,
+            WizardMaxStepReached = 2
         };
 
         ActivityDayGenerator.GenerateDays(activity);
@@ -146,6 +155,7 @@ public class ActivityWizardController : Controller
             await _activityDayService.ReconcileTeamMemberDaysAsync(activity);
         }
 
+        AdvanceWizardProgress(activity, 2);
         await _context.SaveChangesAsync();
 
         _logger.LogInformation("Activity {Name} updated via wizard Step1 by user {UserId}", activity.Name, _currentUserService.UserId);
@@ -225,6 +235,7 @@ public class ActivityWizardController : Controller
             }
         }
 
+        AdvanceWizardProgress(activity, 3);
         await _activityDayService.ReconcileTeamMemberDaysAsync(activity);
         await _context.SaveChangesAsync();
 
@@ -235,6 +246,7 @@ public class ActivityWizardController : Controller
     {
         ActivityId = activity.Id,
         ActivityName = activity.Name,
+        WizardMaxStepReached = activity.WizardMaxStepReached,
         Weeks = activity.Days
             .OrderBy(d => d.DayDate)
             .GroupBy(d => d.Week ?? 0)
@@ -270,7 +282,8 @@ public class ActivityWizardController : Controller
             RegulationLinkUrl = activity.RegulationLinkUrl,
             RegulationAcceptanceText = string.IsNullOrWhiteSpace(activity.RegulationAcceptanceText)
                 ? _localizer["Field.AcceptRegulation"].Value
-                : activity.RegulationAcceptanceText
+                : activity.RegulationAcceptanceText,
+            WizardMaxStepReached = activity.WizardMaxStepReached
         });
     }
 
@@ -288,6 +301,7 @@ public class ActivityWizardController : Controller
 
         activity.RegulationLinkUrl = string.IsNullOrWhiteSpace(viewModel.RegulationLinkUrl) ? null : viewModel.RegulationLinkUrl.Trim();
         activity.RegulationAcceptanceText = string.IsNullOrWhiteSpace(viewModel.RegulationAcceptanceText) ? null : viewModel.RegulationAcceptanceText.Trim();
+        AdvanceWizardProgress(activity, 4);
         await _context.SaveChangesAsync();
 
         return RedirectToAction(nameof(Step4), new { id = activity.Id });
@@ -324,7 +338,8 @@ public class ActivityWizardController : Controller
             MaxChildrenPerDay = activity.MaxChildrenPerDay,
             FullMessage = activity.FullMessage,
             BirthYearQuotaExceededMessage = activity.BirthYearQuotaExceededMessage,
-            BirthYearQuotas = quotas
+            BirthYearQuotas = quotas,
+            WizardMaxStepReached = activity.WizardMaxStepReached
         };
     }
 
@@ -351,6 +366,7 @@ public class ActivityWizardController : Controller
         activity.MaxChildrenPerDay = viewModel.MaxChildrenPerDay;
         activity.FullMessage = string.IsNullOrWhiteSpace(viewModel.FullMessage) ? null : viewModel.FullMessage.Trim();
         activity.BirthYearQuotaExceededMessage = string.IsNullOrWhiteSpace(viewModel.BirthYearQuotaExceededMessage) ? null : viewModel.BirthYearQuotaExceededMessage.Trim();
+        AdvanceWizardProgress(activity, 5);
         await _context.SaveChangesAsync();
 
         return RedirectToAction(nameof(Step5), new { id = activity.Id });
@@ -435,6 +451,7 @@ public class ActivityWizardController : Controller
 
         UpdateExistingQuestions(viewModel, activity.Id);
         AddNewQuestions(viewModel, activity.Id);
+        AdvanceWizardProgress(activity, 6);
         await _context.SaveChangesAsync();
 
         return RedirectToAction(nameof(Step6), new { id = activity.Id });
@@ -444,6 +461,7 @@ public class ActivityWizardController : Controller
     {
         ActivityId = activity.Id,
         ActivityName = activity.Name,
+        WizardMaxStepReached = activity.WizardMaxStepReached,
         ExistingQuestions = activity.AdditionalQuestions
             .OrderBy(q => q.DisplayOrder)
             .Select(q => new ExistingActivityQuestionViewModel
@@ -521,7 +539,8 @@ public class ActivityWizardController : Controller
             PublicationStartDate = activity.PublicationStartDate,
             PublicationEndDate = activity.PublicationEndDate,
             NoActiveFormMessage = activity.NoActiveFormMessage,
-            RedirectUrlAfterSubmit = activity.RedirectUrlAfterSubmit
+            RedirectUrlAfterSubmit = activity.RedirectUrlAfterSubmit,
+            WizardMaxStepReached = activity.WizardMaxStepReached
         });
     }
 
@@ -547,6 +566,7 @@ public class ActivityWizardController : Controller
         activity.PublicationEndDate = viewModel.PublicationEndDate;
         activity.NoActiveFormMessage = string.IsNullOrWhiteSpace(viewModel.NoActiveFormMessage) ? null : viewModel.NoActiveFormMessage.Trim();
         activity.RedirectUrlAfterSubmit = string.IsNullOrWhiteSpace(viewModel.RedirectUrlAfterSubmit) ? null : viewModel.RedirectUrlAfterSubmit.Trim();
+        AdvanceWizardProgress(activity, 7);
         await _context.SaveChangesAsync();
 
         TempData[ControllerExtensions.SuccessMessageKey] = _localizer["Message.ActivityCreated"].Value;
@@ -559,4 +579,15 @@ public class ActivityWizardController : Controller
 
     private async Task<Activity?> LoadActivityWithDaysAsync(int id) =>
         await _context.Activities.Include(a => a.Days).FirstOrDefaultAsync(a => a.Id == id);
+
+    // Records that this activity has been carried through to at least `reachedStep`, so the
+    // progress gauge can make that step (and any in between) clickable even after navigating
+    // back with "Précédent". Never regresses if the activity had already gone further.
+    private static void AdvanceWizardProgress(Activity activity, int reachedStep)
+    {
+        if (activity.WizardMaxStepReached < reachedStep)
+        {
+            activity.WizardMaxStepReached = reachedStep;
+        }
+    }
 }

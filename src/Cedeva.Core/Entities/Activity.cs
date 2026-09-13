@@ -78,6 +78,11 @@ public class Activity : AuditableEntity, IOrganisationScoped
     [StringLength(300, ErrorMessage = "Validation.StringLength")]
     public string? NoActiveFormMessage { get; set; }
 
+    /// <summary>Étape la plus avancée du wizard déjà atteinte pour cette activité (1-7). Permet à la
+    /// jauge de progression de rendre cliquables les étapes suivantes déjà complétées, même après
+    /// être revenu en arrière avec "Précédent".</summary>
+    public int WizardMaxStepReached { get; set; }
+
     /// <summary>URL de redirection après l'envoi du formulaire public, à la place de la page de confirmation standard (Lot I, étape 6).</summary>
     [StringLength(500, ErrorMessage = "Validation.StringLength")]
     public string? RedirectUrlAfterSubmit { get; set; }
