@@ -13,16 +13,12 @@
                 </div>
                 <div class="card-body">
                     <div class="d-flex flex-wrap align-items-end gap-3 mb-3">
-                        <form asp-action="AddDate" asp-route-id="@Model.ActivityId" method="post" class="d-flex align-items-end gap-2">
+                        <form id="addDatesForm" asp-action="AddDate" asp-route-id="@Model.ActivityId" method="post">
                             @Html.AntiForgeryToken()
-                            <div>
-                                <label for="date" class="form-label mb-1">@Localizer["ActivityWizard.AddDate"]</label>
-                                <input type="date" name="date" id="date" class="form-control form-control-sm" required />
-                            </div>
-                            <button type="submit" class="btn btn-outline-primary btn-sm">
-                                <i class="fas fa-calendar-plus me-1"></i>@Localizer["ActivityWizard.AddDate"]
-                            </button>
                         </form>
+                        <button type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addDatesModal">
+                            <i class="fas fa-calendar-plus me-1"></i>@Localizer["ActivityWizard.AddDates"]
+                        </button>
 
                         <div class="form-check form-switch ms-auto">
                             <input class="form-check-input" type="checkbox" id="groupByWeekToggle">
@@ -96,6 +92,33 @@
             </div>
         </div>
     </div>
+
+    <div class="modal fade" id="addDatesModal" tabindex="-1" aria-labelledby="addDatesModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-sm">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addDatesModalLabel">
+                        <i class="fas fa-calendar-plus me-2"></i>@Localizer["ActivityWizard.AddDates"]
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <button type="button" class="btn btn-sm btn-outline-secondary" id="calPrevMonth"><i class="fas fa-chevron-left"></i></button>
+                        <strong id="calMonthLabel"></strong>
+                        <button type="button" class="btn btn-sm btn-outline-secondary" id="calNextMonth"><i class="fas fa-chevron-right"></i></button>
+                    </div>
+                    <div id="calWeekdays" class="d-grid mb-1" style="grid-template-columns: repeat(7, 1fr);"></div>
+                    <div id="calDays" class="d-grid" style="grid-template-columns: repeat(7, 1fr); gap: 2px;"></div>
+                    <p class="text-muted small mt-2 mb-0">@Localizer["ActivityWizard.AddDatesHelp"]</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">@Localizer["Cancel"]</button>
+                    <button type="button" class="btn btn-primary" id="calConfirmBtn" disabled>@Localizer["ActivityWizard.AddDates"]</button>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 @section Scripts {
@@ -148,5 +171,133 @@
                 refreshWeekMasterRow(row);
             });
         });
+
+        // Simple custom calendar for picking a single date or a date range to add to the activity.
+        (function () {
+            var locale = document.documentElement.lang || 'fr';
+            var monthLabel = document.getElementById('calMonthLabel');
+            var weekdaysEl = document.getElementById('calWeekdays');
+            var daysEl = document.getElementById('calDays');
+            var confirmBtn = document.getElementById('calConfirmBtn');
+            var modalEl = document.getElementById('addDatesModal');
+
+            var today = new Date();
+            var viewYear = today.getFullYear();
+            var viewMonth = today.getMonth();
+            var rangeStart = null;
+            var rangeEnd = null;
+
+            function toDateOnly(y, m, d) { return new Date(y, m, d); }
+
+            function isSameDay(a, b) {
+                return a && b && a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
+            }
+
+            function isInRange(d) {
+                if (!rangeStart || !rangeEnd) return false;
+                return d > rangeStart && d < rangeEnd;
+            }
+
+            function renderWeekdayHeader() {
+                weekdaysEl.innerHTML = '';
+                var base = new Date(2024, 0, 1); // a Monday
+                for (var i = 0; i < 7; i++) {
+                    var d = new Date(2024, 0, 1 + i);
+                    var label = new Intl.DateTimeFormat(locale, { weekday: 'narrow' }).format(d);
+                    var span = document.createElement('div');
+                    span.className = 'text-center text-muted small';
+                    span.textContent = label;
+                    weekdaysEl.appendChild(span);
+                }
+            }
+
+            function render() {
+                monthLabel.textContent = new Intl.DateTimeFormat(locale, { month: 'long', year: 'numeric' }).format(new Date(viewYear, viewMonth, 1));
+                daysEl.innerHTML = '';
+
+                var firstOfMonth = new Date(viewYear, viewMonth, 1);
+                // Monday-first grid: convert JS Sunday=0 to Monday=0.
+                var startOffset = (firstOfMonth.getDay() + 6) % 7;
+                var daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
+
+                for (var i = 0; i < startOffset; i++) {
+                    daysEl.appendChild(document.createElement('div'));
+                }
+
+                for (var day = 1; day <= daysInMonth; day++) {
+                    var d = toDateOnly(viewYear, viewMonth, day);
+                    var btn = document.createElement('button');
+                    btn.type = 'button';
+                    btn.textContent = day;
+                    btn.className = 'btn btn-sm p-1';
+                    if (isSameDay(d, rangeStart) || isSameDay(d, rangeEnd)) {
+                        btn.classList.add('btn-primary');
+                    } else if (isInRange(d)) {
+                        btn.classList.add('btn-light', 'border-primary');
+                    } else {
+                        btn.classList.add('btn-outline-light', 'text-dark');
+                    }
+                    btn.addEventListener('click', function (clicked) {
+                        return function () { onDayClick(clicked); };
+                    }(d));
+                    daysEl.appendChild(btn);
+                }
+            }
+
+            function onDayClick(d) {
+                if (!rangeStart || rangeEnd) {
+                    rangeStart = d;
+                    rangeEnd = null;
+                } else if (d < rangeStart) {
+                    rangeStart = d;
+                    rangeEnd = null;
+                } else if (isSameDay(d, rangeStart)) {
+                    rangeEnd = null;
+                } else {
+                    rangeEnd = d;
+                }
+                confirmBtn.disabled = !rangeStart;
+                render();
+            }
+
+            document.getElementById('calPrevMonth').addEventListener('click', function () {
+                viewMonth--;
+                if (viewMonth < 0) { viewMonth = 11; viewYear--; }
+                render();
+            });
+            document.getElementById('calNextMonth').addEventListener('click', function () {
+                viewMonth++;
+                if (viewMonth > 11) { viewMonth = 0; viewYear++; }
+                render();
+            });
+
+            modalEl.addEventListener('show.bs.modal', function () {
+                rangeStart = null;
+                rangeEnd = null;
+                confirmBtn.disabled = true;
+                var now = new Date();
+                viewYear = now.getFullYear();
+                viewMonth = now.getMonth();
+                render();
+            });
+
+            confirmBtn.addEventListener('click', function () {
+                if (!rangeStart) return;
+                var form = document.getElementById('addDatesForm');
+                form.querySelectorAll('input[name="dates"]').forEach(function (el) { el.remove(); });
+
+                var end = rangeEnd || rangeStart;
+                for (var d = new Date(rangeStart); d <= end; d.setDate(d.getDate() + 1)) {
+                    var input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.name = 'dates';
+                    input.value = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+                    form.appendChild(input);
+                }
+                form.submit();
+            });
+
+            renderWeekdayHeader();
+        })();
     </script>
 }

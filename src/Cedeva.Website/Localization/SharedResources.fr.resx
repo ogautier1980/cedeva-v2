@@ -4186,8 +4186,11 @@
   <data name="ActivityWizard.SaveAndContinue" xml:space="preserve">
     <value>Enregistrer et passer à l'étape suivante</value>
   </data>
-  <data name="ActivityWizard.AddDate" xml:space="preserve">
-    <value>Ajouter une date</value>
+  <data name="ActivityWizard.AddDates" xml:space="preserve">
+    <value>Ajouter des dates</value>
+  </data>
+  <data name="ActivityWizard.AddDatesHelp" xml:space="preserve">
+    <value>Cliquez sur une date pour l'ajouter, ou sur deux dates pour sélectionner une plage.</value>
   </data>
   <data name="ActivityWizard.GroupByWeek" xml:space="preserve">
     <value>Regrouper par semaine</value>

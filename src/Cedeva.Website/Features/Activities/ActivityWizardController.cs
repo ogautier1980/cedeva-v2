@@ -168,27 +168,30 @@ public class ActivityWizardController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> AddDate(int id, DateTime date)
+    public async Task<IActionResult> AddDate(int id, List<DateTime> dates)
     {
         var activity = await LoadActivityWithDaysAsync(id);
         if (activity == null) return NotFound();
 
-        var existingDay = activity.Days.FirstOrDefault(d => d.DayDate.Date == date.Date);
-        if (existingDay != null)
+        foreach (var date in dates.OrderBy(d => d))
         {
-            existingDay.IsActive = true;
-        }
-        else if (date < activity.StartDate)
-        {
-            var oldStart = activity.StartDate;
-            activity.StartDate = date;
-            ActivityDayGenerator.HandleDateRangeChanges(activity, activity.StartDate, activity.EndDate, oldStart, activity.EndDate);
-        }
-        else if (date > activity.EndDate)
-        {
-            var oldEnd = activity.EndDate;
-            activity.EndDate = date;
-            ActivityDayGenerator.HandleDateRangeChanges(activity, activity.StartDate, activity.EndDate, activity.StartDate, oldEnd);
+            var existingDay = activity.Days.FirstOrDefault(d => d.DayDate.Date == date.Date);
+            if (existingDay != null)
+            {
+                existingDay.IsActive = true;
+            }
+            else if (date < activity.StartDate)
+            {
+                var oldStart = activity.StartDate;
+                activity.StartDate = date;
+                ActivityDayGenerator.HandleDateRangeChanges(activity, activity.StartDate, activity.EndDate, oldStart, activity.EndDate);
+            }
+            else if (date > activity.EndDate)
+            {
+                var oldEnd = activity.EndDate;
+                activity.EndDate = date;
+                ActivityDayGenerator.HandleDateRangeChanges(activity, activity.StartDate, activity.EndDate, activity.StartDate, oldEnd);
+            }
         }
 
         await _activityDayService.ReconcileTeamMemberDaysAsync(activity);

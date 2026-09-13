@@ -4065,8 +4065,11 @@
   <data name="ActivityWizard.SaveAndContinue" xml:space="preserve">
     <value>Opslaan en naar volgende stap</value>
   </data>
-  <data name="ActivityWizard.AddDate" xml:space="preserve">
-    <value>Een datum toevoegen</value>
+  <data name="ActivityWizard.AddDates" xml:space="preserve">
+    <value>Data toevoegen</value>
+  </data>
+  <data name="ActivityWizard.AddDatesHelp" xml:space="preserve">
+    <value>Klik op een datum om deze toe te voegen, of klik op twee data om een periode te selecteren.</value>
   </data>
   <data name="ActivityWizard.GroupByWeek" xml:space="preserve">
     <value>Groeperen per week</value>

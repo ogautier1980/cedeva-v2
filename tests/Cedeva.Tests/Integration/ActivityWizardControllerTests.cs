@@ -226,7 +226,7 @@ public class ActivityWizardControllerTests
             new Dictionary<string, string>
             {
                 ["id"] = activityId.ToString(),
-                ["date"] = newDate.ToString("yyyy-MM-dd"),
+                ["dates"] = newDate.ToString("yyyy-MM-dd"),
             }));
 
         response.StatusCode.Should().Be(HttpStatusCode.Found);
@@ -257,13 +257,44 @@ public class ActivityWizardControllerTests
             new Dictionary<string, string>
             {
                 ["id"] = activityId.ToString(),
-                ["date"] = targetDate.ToString("yyyy-MM-dd"),
+                ["dates"] = targetDate.ToString("yyyy-MM-dd"),
             }));
 
         response.StatusCode.Should().Be(HttpStatusCode.Found);
 
         await using var ctx = factory.NewDbContext();
         (await ctx.ActivityDays.SingleAsync(d => d.ActivityId == activityId && d.DayDate == targetDate)).IsActive.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task AddDate_MultipleDatesFromRangePicker_ExtendsRangeAndAddsAllOfThem()
+    {
+        using var factory = new CedevaWebApplicationFactory();
+        var (orgId, activityId) = SeedActivity(factory);
+        DateTime originalEnd;
+        await using (var seedCtx = factory.NewDbContext())
+        {
+            originalEnd = (await seedCtx.Activities.IgnoreQueryFilters().SingleAsync(a => a.Id == activityId)).EndDate;
+        }
+        var newDate1 = originalEnd.AddDays(1);
+        var newDate2 = originalEnd.AddDays(2);
+
+        var client = factory.CreateClientFor("u1", orgId, "Coordinator");
+        var response = await client.PostAsync("/ActivityWizard/AddDate", new FormUrlEncodedContent(
+            new[]
+            {
+                new KeyValuePair<string, string>("id", activityId.ToString()),
+                new KeyValuePair<string, string>("dates", newDate1.ToString("yyyy-MM-dd")),
+                new KeyValuePair<string, string>("dates", newDate2.ToString("yyyy-MM-dd")),
+            }));
+
+        response.StatusCode.Should().Be(HttpStatusCode.Found);
+
+        await using var ctx = factory.NewDbContext();
+        var activity = await ctx.Activities.IgnoreQueryFilters().SingleAsync(a => a.Id == activityId);
+        activity.EndDate.Should().Be(newDate2.Date);
+        (await ctx.ActivityDays.AnyAsync(d => d.ActivityId == activityId && d.DayDate == newDate1.Date)).Should().BeTrue();
+        (await ctx.ActivityDays.AnyAsync(d => d.ActivityId == activityId && d.DayDate == newDate2.Date)).Should().BeTrue();
     }
 
     [Fact]
