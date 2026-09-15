@@ -335,6 +335,9 @@ a:hover {
 .pagination .page-item.active .page-link {
     background-color: #007faf;
     border-color: #007faf;
+    /* Without this the rule above ("color: #007faf" on every .page-link) leaves the current
+       page number blue on a blue background, i.e. invisible. */
+    color: #fff;
 }
 
 .pagination .page-link:hover {

@@ -71,7 +71,8 @@
                         <tbody>
                             @foreach (var activity in Model.Activities)
                             {
-                                <tr>
+                                <tr class="activity-row" style="cursor: pointer;"
+                                    data-href="@Url.Action("Index", "ActivityManagement", new { id = activity.Id })">
                                     <td>
                                         <strong>@activity.Name</strong>
                                         <br><small class="text-muted">@activity.OrganisationName</small>
@@ -219,6 +220,15 @@
         $(document).ready(function () {
             // Initialize Choices.js on status filter
             CedevaChoices.init('#showActiveOnly');
+
+            // Clicking anywhere on a row opens that activity's management dashboard — except on the
+            // action buttons (manage/details/edit/delete), which keep their own destinations.
+            $('.activity-row').on('click', function (event) {
+                if ($(event.target).closest('a, button').length) {
+                    return;
+                }
+                window.location.href = $(this).data('href');
+            });
         });
     </script>
 }
