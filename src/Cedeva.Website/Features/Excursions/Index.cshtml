@@ -49,8 +49,8 @@
                         <tbody>
                             @foreach (var excursion in Model.Excursions)
                             {
-                                <tr>
-                                    <td><a asp-action="Details" asp-route-id="@excursion.Id" class="fw-bold">@excursion.Name</a></td>
+                                <tr data-href="@Url.Action("Details", new { id = excursion.Id })">
+                                    <td><a asp-action="Details" asp-route-id="@excursion.Id" class="fw-bold text-decoration-none">@excursion.Name</a></td>
                                     <td>@excursion.ExcursionDate.ToString("dd/MM/yyyy")</td>
                                     <td>
                                         @foreach (var groupName in excursion.TargetGroupNames)

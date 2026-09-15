@@ -65,7 +65,7 @@
                         <tbody>
                             @foreach (var child in Model)
                             {
-                                <tr>
+                                <tr data-href="@Url.Action("Details", new { id = child.Id })">
                                     <td>
                                         <strong>@child.LastName @child.FirstName</strong>
                                     </td>

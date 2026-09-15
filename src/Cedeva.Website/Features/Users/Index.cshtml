@@ -70,7 +70,7 @@
                         <tbody>
                             @foreach (var user in Model)
                             {
-                                <tr>
+                                <tr data-href="@Url.Action("Details", new { id = user.Id })">
                                     <td>
                                         <strong>@user.LastName @user.FirstName</strong>
                                     </td>

@@ -29,7 +29,7 @@
                     <tbody>
                         @foreach (var category in Model)
                         {
-                            <tr>
+                            <tr data-href="@Url.Action("Edit", new { id = category.Id })">
                                 <td>@category.Name</td>
                                 <td>
                                     @switch (category.CategoryType)

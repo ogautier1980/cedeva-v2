@@ -32,7 +32,7 @@
                     <tbody>
                         @foreach (var template in Model.OrderBy(t => t.DisplayOrder))
                         {
-                            <tr>
+                            <tr data-href="@Url.Action("Edit", new { id = template.Id })">
                                 <td>@template.QuestionText</td>
                                 <td>@Localizer[$"Enum.QuestionType.{template.QuestionType}"]</td>
                                 <td class="text-center">

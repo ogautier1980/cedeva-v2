@@ -22,7 +22,7 @@
                         <tbody>
                             @foreach (var row in Model.Rows)
                             {
-                                <tr>
+                                <tr data-href="@(Model.Editable && row.ContactId.HasValue ? Url.Action("Edit", "Contacts", new { id = row.ContactId }) : null)">
                                     <td>@row.FullName</td>
                                     <td>@(string.IsNullOrEmpty(row.Email) ? "—" : row.Email)</td>
                                     <td>@(string.IsNullOrEmpty(row.Function) ? "—" : row.Function)</td>

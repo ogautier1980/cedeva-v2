@@ -59,7 +59,7 @@
                         <tbody>
                             @foreach (var group in Model)
                             {
-                                <tr>
+                                <tr data-href="@Url.Action("Edit", new { id = group.Id, returnUrl = Context.Request.Path + Context.Request.QueryString })">
                                     <td>
                                         <strong>@group.Label</strong>
                                     </td>

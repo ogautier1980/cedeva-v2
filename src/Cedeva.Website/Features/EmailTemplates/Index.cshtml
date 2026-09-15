@@ -93,7 +93,7 @@ else
                     <tbody>
                         @foreach (var template in Model)
                         {
-                            <tr>
+                            <tr data-href="@Url.Action("Edit", new { id = template.Id })">
                                 <td>
                                     <strong>@template.Name</strong>
                                     @if (template.IsDefault)

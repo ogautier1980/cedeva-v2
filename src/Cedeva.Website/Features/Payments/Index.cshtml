@@ -50,7 +50,7 @@
                         <tbody>
                             @foreach (var payment in Model)
                             {
-                                <tr>
+                                <tr data-href="@Url.Action("Details", new { id = payment.Id })">
                                     <td>@payment.PaymentDate.ToString("dd/MM/yyyy")</td>
                                     <td>@payment.ChildName</td>
                                     <td>@payment.ParentName</td>

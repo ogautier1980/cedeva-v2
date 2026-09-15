@@ -464,6 +464,12 @@ h2.cedeva-title {
     background-color: #f2f4f8;
 }
 
+/* Rows that open a detail page when clicked (see clickable-rows.js). An empty data-href means
+   the row has no destination, so it must not look clickable either. */
+tr[data-href]:not([data-href=""]) {
+    cursor: pointer;
+}
+
 .sortable-header {
     cursor: pointer;
     user-select: none;
