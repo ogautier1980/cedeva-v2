@@ -252,8 +252,13 @@ public class ActivityWizardControllerTests
         activity.StartDate.Should().Be(originalStart);
         activity.EndDate.Should().Be(newEndDate);
         // Date range shrunk from 5 to 3 days: the now out-of-range days are deactivated, not deleted.
+        // Weekends stay inactive (ActivityDayGenerator), so the expected count depends on which
+        // weekdays the (today-relative) range lands on — computing it keeps the test date-proof.
+        var expectedActiveDays = Enumerable.Range(0, (newEndDate - originalStart).Days + 1)
+            .Select(offset => originalStart.AddDays(offset))
+            .Count(date => date.DayOfWeek != DayOfWeek.Saturday && date.DayOfWeek != DayOfWeek.Sunday);
         (await ctx.ActivityDays.CountAsync(d => d.ActivityId == activityId)).Should().Be(5);
-        (await ctx.ActivityDays.CountAsync(d => d.ActivityId == activityId && d.IsActive)).Should().Be(3);
+        (await ctx.ActivityDays.CountAsync(d => d.ActivityId == activityId && d.IsActive)).Should().Be(expectedActiveDays);
     }
 
     // ------------------------------------------------------------------
