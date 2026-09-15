@@ -16,8 +16,6 @@ namespace Cedeva.Tests.E2E;
 ///    via SelectOptionAsync rather than clicking the overlay.
 ///  - The ExcursionDate input is type=date, so it must be filled with the yyyy-MM-dd format, and
 ///    the controller requires that date to fall on an *active* ActivityDay.
-///  - Registration happens on /Excursions/Registrations via an AJAX checkbox; ticking it calls
-///    RegisterChild which bumps Booking.TotalAmount by the excursion cost.
 /// </summary>
 [Collection("E2E")]
 public class ExcursionsCrudE2ETests
@@ -295,62 +293,4 @@ public class ExcursionsCrudE2ETests
         deleted!.IsActive.Should().BeFalse("delete only flips IsActive (soft delete)");
     }
 
-    // ----------------------------------------------------------------------------------------
-    // Register a child -> Booking.TotalAmount reflects the excursion cost
-    // ----------------------------------------------------------------------------------------
-
-    [Fact]
-    public async Task RegisterChild_ViaRegistrationsPage_BumpsBookingTotalAmount()
-    {
-        var p = SeedActivityWithBooking(withBooking: true);
-        const decimal cost = 15m;
-
-        var seeded = _fx.Factory.Seed(ctx =>
-        {
-            var excursion = new Excursion
-            {
-                Name = $"Excur-Reg-{Guid.NewGuid():N}",
-                ExcursionDate = p.ExcursionDate,
-                Cost = cost,
-                Type = ExcursionType.Pool,
-                ActivityId = p.ActivityId,
-                IsActive = true,
-                ExcursionGroups = { new ExcursionGroup { ActivityGroupId = p.GroupId } }
-            };
-            ctx.Excursions.Add(excursion);
-            ctx.SaveChanges();
-            return excursion.Id;
-        });
-
-        decimal totalBefore;
-        await using (var pre = _fx.Factory.NewDbContext())
-        {
-            totalBefore = (await pre.Bookings.IgnoreQueryFilters().FirstAsync(b => b.Id == p.BookingId)).TotalAmount;
-        }
-
-        await using var ctx = await _fx.NewAuthedContextAsync("Coordinator", _fx.OrganisationId);
-        var page = await ctx.NewPageAsync();
-        await page.GotoAsync($"{_fx.BaseUrl}/Excursions/Registrations/{seeded}");
-
-        var checkbox = page.Locator($".registration-checkbox[data-booking-id='{p.BookingId}']");
-        (await checkbox.CountAsync()).Should().Be(1, "the eligible child must be listed for registration");
-
-        // Ticking the box fires the AJAX RegisterChild call, then the page reloads after ~500ms.
-        await checkbox.CheckAsync();
-        await page.WaitForURLAsync("**/Excursions/Registrations/**", new() { Timeout = 15000 });
-        await page.WaitForLoadStateAsync(LoadState.NetworkIdle);
-
-        // The checkbox should now be persisted as checked after the reload.
-        await Assertions.Expect(page.Locator($".registration-checkbox[data-booking-id='{p.BookingId}']"))
-            .ToBeCheckedAsync(new() { Timeout = 10000 });
-
-        await using var db = _fx.Factory.NewDbContext();
-        var registered = await db.ExcursionRegistrations.IgnoreQueryFilters()
-            .AnyAsync(r => r.ExcursionId == seeded && r.BookingId == p.BookingId);
-        registered.Should().BeTrue("registering the child must create an ExcursionRegistration");
-
-        var booking = await db.Bookings.IgnoreQueryFilters().FirstAsync(b => b.Id == p.BookingId);
-        booking.TotalAmount.Should().Be(totalBefore + cost,
-            "registering a child for an excursion adds the excursion cost to the booking total");
-    }
 }

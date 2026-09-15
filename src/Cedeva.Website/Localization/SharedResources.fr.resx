@@ -4030,6 +4030,12 @@
   <data name="Excursion.AllRegistered" xml:space="preserve">
     <value>Tous les inscrits</value>
   </data>
+  <data name="Excursion.AllConcernedChildren" xml:space="preserve">
+    <value>Tous les enfants concernés</value>
+  </data>
+  <data name="Excursion.PayOnline" xml:space="preserve">
+    <value>Payer l'excursion en ligne</value>
+  </data>
   <data name="Excursion.NotYetRegistered" xml:space="preserve">
     <value>Inscrits à l'activité, pas encore à cette excursion</value>
   </data>

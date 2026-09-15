@@ -15,4 +15,7 @@ public class QrCodeService : IQrCodeService
 
         return $"data:image/png;base64,{Convert.ToBase64String(bytes)}";
     }
+
+    public string GenerateImageTag(string content) =>
+        $"<img src=\"{GenerateDataUri(content)}\" alt=\"QR paiement\" style=\"width:180px;height:180px;\">";
 }

@@ -23,35 +23,33 @@ public class ExcursionsController : Controller
     private const string NavSectionKey = "NavSection";
     private const string NavActionKey = "NavAction";
     private const string NavSectionExcursions = "Excursions";
-    private const string RecipientNotYetRegistered = "not_yet_registered";
-
     private readonly CedevaDbContext _context;
     private readonly IExcursionService _excursionService;
-    private readonly IExcursionViewModelBuilderService _viewModelBuilder;
     private readonly ISessionStateService _sessionState;
     private readonly ILogger<ExcursionsController> _logger;
     private readonly IStringLocalizer<SharedResources> _localizer;
     private readonly IUserDisplayService _userDisplayService;
     private readonly IEmailFacadeService _emailServices;
+    private readonly IQrCodeService _qrCodeService;
 
     public ExcursionsController(
         CedevaDbContext context,
         IExcursionService excursionService,
-        IExcursionViewModelBuilderService viewModelBuilder,
         ISessionStateService sessionState,
         ILogger<ExcursionsController> logger,
         IStringLocalizer<SharedResources> localizer,
         IUserDisplayService userDisplayService,
-        IEmailFacadeService emailServices)
+        IEmailFacadeService emailServices,
+        IQrCodeService qrCodeService)
     {
         _context = context;
         _excursionService = excursionService;
-        _viewModelBuilder = viewModelBuilder;
         _sessionState = sessionState;
         _logger = logger;
         _localizer = localizer;
         _userDisplayService = userDisplayService;
         _emailServices = emailServices;
+        _qrCodeService = qrCodeService;
     }
 
     [HttpGet]
@@ -413,192 +411,6 @@ public class ExcursionsController : Controller
     }
 
     [HttpGet]
-    public async Task<IActionResult> Registrations(int id)
-    {
-        var excursion = await _context.Excursions
-            .Include(e => e.Activity)
-            .FirstOrDefaultAsync(e => e.Id == id);
-
-        if (excursion == null)
-            return NotFound();
-
-        // Use service to build the grouped and sorted children data
-        var childrenByGroup = await _viewModelBuilder.BuildRegistrationsByGroupAsync(
-            id,
-            status => _localizer[$"PaymentStatus.{status}"].ToString());
-
-        var viewModel = new ExcursionRegistrationsViewModel
-        {
-            Excursion = excursion,
-            Activity = excursion.Activity,
-            ChildrenByGroup = childrenByGroup
-        };
-
-        this.SetActivityViewData(excursion.ActivityId, excursion.Activity.Name);
-        ViewData[NavSectionKey] = NavSectionExcursions;
-        ViewData[NavActionKey] = "Registrations";
-
-        return View(viewModel);
-    }
-
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> RegisterChild(int excursionId, int bookingId)
-    {
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
-
-        try
-        {
-            await _excursionService.RegisterChildAsync(excursionId, bookingId);
-            return Json(new { success = true, message = _localizer["Message.ChildRegistered"].ToString() });
-        }
-        catch (InvalidOperationException ex)
-        {
-            _logger.LogWarning(ex, "Invalid operation while registering child for excursion {ExcursionId}, booking {BookingId}", excursionId, bookingId);
-            return Json(new { success = false, message = ex.Message });
-        }
-        catch (DbUpdateException ex)
-        {
-            _logger.LogError(ex, "Database error while registering child for excursion {ExcursionId}, booking {BookingId}", excursionId, bookingId);
-            return Json(new { success = false, message = _localizer[ErrorGeneric].ToString() });
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Unexpected error while registering child for excursion {ExcursionId}, booking {BookingId}", excursionId, bookingId);
-            return Json(new { success = false, message = _localizer[ErrorGeneric].ToString() });
-        }
-    }
-
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> UnregisterChild(int excursionId, int bookingId)
-    {
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
-
-        try
-        {
-            var result = await _excursionService.UnregisterChildAsync(excursionId, bookingId);
-            if (result)
-            {
-                return Json(new { success = true, message = _localizer["Message.ChildUnregistered"].ToString() });
-            }
-            else
-            {
-                return Json(new { success = false, message = _localizer[ErrorRegistrationNotFound].ToString() });
-            }
-        }
-        catch (InvalidOperationException ex)
-        {
-            _logger.LogWarning(ex, "Invalid operation while unregistering child from excursion {ExcursionId}, booking {BookingId}", excursionId, bookingId);
-            return Json(new { success = false, message = ex.Message });
-        }
-        catch (DbUpdateException ex)
-        {
-            _logger.LogError(ex, "Database error while unregistering child from excursion {ExcursionId}, booking {BookingId}", excursionId, bookingId);
-            return Json(new { success = false, message = _localizer[ErrorGeneric].ToString() });
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Unexpected error while unregistering child from excursion {ExcursionId}, booking {BookingId}", excursionId, bookingId);
-            return Json(new { success = false, message = _localizer[ErrorGeneric].ToString() });
-        }
-    }
-
-    // POST: ActivityManagement/Excursions/UpdatePaidAmount — records how much has actually been
-    // paid for one child's excursion registration (the "prévu" stays Excursion.Cost, shared by all).
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> UpdatePaidAmount(int registrationId, decimal paidAmount)
-    {
-        if (paidAmount < 0)
-        {
-            return Json(new { success = false, message = _localizer["Validation.AmountRange"].ToString() });
-        }
-
-        var registration = await _context.ExcursionRegistrations.FindAsync(registrationId);
-        if (registration == null)
-        {
-            return Json(new { success = false, message = _localizer[ErrorRegistrationNotFound].ToString() });
-        }
-
-        registration.PaidAmount = paidAmount;
-        await _context.SaveChangesAsync();
-
-        return Json(new { success = true });
-    }
-
-    [HttpGet]
-    public async Task<IActionResult> Attendance(int id)
-    {
-        var excursion = await _context.Excursions
-            .Include(e => e.Activity)
-            .FirstOrDefaultAsync(e => e.Id == id);
-
-        if (excursion == null)
-            return NotFound();
-
-        // Use service to build the grouped and sorted children data
-        var childrenByGroup = await _viewModelBuilder.BuildAttendanceByGroupAsync(id);
-
-        var viewModel = new ExcursionAttendanceViewModel
-        {
-            Excursion = excursion,
-            Activity = excursion.Activity,
-            ChildrenByGroup = childrenByGroup
-        };
-
-        this.SetActivityViewData(excursion.ActivityId, excursion.Activity.Name);
-        ViewData[NavSectionKey] = NavSectionExcursions;
-        ViewData[NavActionKey] = "Attendance";
-
-        return View(viewModel);
-    }
-
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> UpdateAttendance(int registrationId, bool isPresent)
-    {
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
-
-        try
-        {
-            var result = await _excursionService.UpdateAttendanceAsync(registrationId, isPresent);
-            if (result)
-            {
-                return Json(new { success = true, message = _localizer["Message.AttendanceUpdated"].ToString() });
-            }
-            else
-            {
-                return Json(new { success = false, message = _localizer[ErrorRegistrationNotFound].ToString() });
-            }
-        }
-        catch (InvalidOperationException ex)
-        {
-            _logger.LogWarning(ex, "Invalid operation while updating attendance for registration {RegistrationId}", registrationId);
-            return Json(new { success = false, message = ex.Message });
-        }
-        catch (DbUpdateException ex)
-        {
-            _logger.LogError(ex, "Database error while updating attendance for registration {RegistrationId}", registrationId);
-            return Json(new { success = false, message = _localizer[ErrorGeneric].ToString() });
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Unexpected error while updating attendance for registration {RegistrationId}", registrationId);
-            return Json(new { success = false, message = _localizer[ErrorGeneric].ToString() });
-        }
-    }
-
-    [HttpGet]
     public async Task<IActionResult> SendEmail(int id, int? templateId)
     {
         var excursion = await _context.Excursions
@@ -612,6 +424,9 @@ public class ExcursionsController : Controller
 
         var recipientOptions = GetExcursionRecipientOptions(excursion.ExcursionGroups.Select(eg => eg.ActivityGroup).ToList());
 
+        // How many children the excursion concerns — registrations only exist once the e-mail has
+        // been sent, so counting them would show 0 on the screen that triggers the send.
+        ViewBag.ConcernedChildrenCount = (await GetConcernedBookingsAsync(excursion, null, HttpContext.RequestAborted)).Count;
         ViewBag.Templates = await _emailServices.Template.GetAllTemplatesAsync(excursion.Activity.OrganisationId, excursion.ActivityId);
 
         // No explicit template picked (e.g. arriving fresh from "Envoyer un mail") — suggest the
@@ -649,51 +464,22 @@ public class ExcursionsController : Controller
             return View(model);
         }
 
-        var activityId = await _context.Excursions
-            .Where(e => e.Id == model.ExcursionId)
-            .Select(e => e.ActivityId)
-            .FirstOrDefaultAsync(ct);
+        var excursion = await _context.Excursions
+            .Include(e => e.ExcursionGroups)
+            .FirstOrDefaultAsync(e => e.Id == model.ExcursionId, ct);
+
+        if (excursion == null)
+            return NotFound();
+
+        var activityId = excursion.ActivityId;
         var organisationId = await _context.Activities
             .Where(a => a.Id == activityId)
             .Select(a => a.OrganisationId)
             .FirstOrDefaultAsync(ct);
         var organisation = await _context.Organisations.FirstOrDefaultAsync(o => o.Id == organisationId, ct);
 
-        List<Booking> recipientBookings;
-        if (model.SelectedRecipient == RecipientNotYetRegistered)
-        {
-            // Confirmed bookings on the parent activity that have no registration yet for this excursion.
-            var registeredBookingIds = _context.ExcursionRegistrations
-                .Where(er => er.ExcursionId == model.ExcursionId)
-                .Select(er => er.BookingId);
-
-            recipientBookings = await _context.Bookings
-                .Include(b => b.Child)
-                    .ThenInclude(c => c.Parent)
-                .Include(b => b.Group)
-                .Where(b => b.ActivityId == activityId && b.IsConfirmed && !registeredBookingIds.Contains(b.Id))
-                .ToListAsync(ct);
-        }
-        else
-        {
-            var recipientGroupId = ExtractGroupIdFromRecipient(model.SelectedRecipient);
-
-            var registrationsQuery = _context.ExcursionRegistrations
-                .Include(er => er.Booking)
-                    .ThenInclude(b => b.Child)
-                        .ThenInclude(c => c.Parent)
-                .Include(er => er.Booking)
-                    .ThenInclude(b => b.Group)
-                .Where(er => er.ExcursionId == model.ExcursionId);
-
-            var registrations = await registrationsQuery.ToListAsync(ct);
-            if (recipientGroupId.HasValue)
-            {
-                registrations = registrations.Where(r => r.Booking.GroupId == recipientGroupId.Value).ToList();
-            }
-
-            recipientBookings = registrations.Select(r => r.Booking).ToList();
-        }
+        var recipientBookings = await GetConcernedBookingsAsync(
+            excursion, ExtractGroupIdFromRecipient(model.SelectedRecipient), ct);
 
         if (!recipientBookings.Any())
         {
@@ -702,42 +488,43 @@ public class ExcursionsController : Controller
             return View(model);
         }
 
+        // Announcing the excursion is also what bills it: every child concerned is registered once
+        // (idempotent), which adds the excursion cost to their booking — the amount the payment link
+        // then collects.
+        await _excursionService.EnsureRegisteredAsync(excursion.Id, recipientBookings.Select(b => b.Id).ToList());
+
         var (attachmentFileName, attachmentFilePath) = await SaveAttachmentAsync(model.AttachmentFile, ct);
 
-        var excursion = await _context.Excursions.FirstOrDefaultAsync(e => e.Id == model.ExcursionId, ct);
         var excursionVariables = new Dictionary<string, string>
         {
-            ["excursion_name"] = excursion?.Name ?? string.Empty,
-            ["excursion_date"] = excursion?.ExcursionDate.ToString("dd/MM/yyyy") ?? string.Empty,
+            ["excursion_name"] = excursion.Name,
+            ["excursion_date"] = excursion.ExcursionDate.ToString("dd/MM/yyyy"),
         };
 
-        int sentCount;
-        if (model.SendSeparateEmailPerChild)
+        // One e-mail per child: the payment link is specific to that child's booking.
+        var sentCount = 0;
+        foreach (var booking in recipientBookings)
         {
-            sentCount = 0;
-            foreach (var booking in recipientBookings)
+            var checkoutUrl = Url.Action("Checkout", "OnlinePayment", new { bookingId = booking.Id }, Request.Scheme)!;
+            var perChildVariables = new Dictionary<string, string>(excursionVariables)
             {
-                var perChildVariables = new Dictionary<string, string>(excursionVariables)
-                {
-                    ["child_firstname"] = booking.Child.FirstName,
-                    ["child_lastname"] = booking.Child.LastName,
-                };
-                var subject = _emailServices.VariableReplacement.ReplaceVariables(model.Subject, booking, organisation!, perChildVariables);
-                var message = _emailServices.VariableReplacement.ReplaceVariables(model.Message, booking, organisation!, perChildVariables);
-                await _emailServices.Email.SendEmailAsync(booking.Child.Parent.GetEmailAddresses().ToList(), subject, message, attachmentFilePath);
-                sentCount++;
-            }
-        }
-        else
-        {
-            // One (identical) e-mail for every parent — no single booking to resolve per-child/per-
-            // booking variables against, so subject/message are sent as typed (unchanged behaviour).
-            var recipientEmails = recipientBookings.SelectMany(b => b.Child.Parent.GetEmailAddresses()).Distinct().ToList();
-            foreach (var emailAddress in recipientEmails)
+                ["child_firstname"] = booking.Child.FirstName,
+                ["child_lastname"] = booking.Child.LastName,
+                ["lien_paiement"] = checkoutUrl,
+                ["qr_code_paiement"] = _qrCodeService.GenerateImageTag(checkoutUrl),
+            };
+            var subject = _emailServices.VariableReplacement.ReplaceVariables(model.Subject, booking, organisation!, perChildVariables);
+            var message = _emailServices.VariableReplacement.ReplaceVariables(model.Message, booking, organisation!, perChildVariables);
+
+            // Templates that don't spell out %lien_paiement% still get a payment block appended, so
+            // the parent always has a way to pay the excursion from the e-mail.
+            if (!message.Contains(checkoutUrl, StringComparison.Ordinal))
             {
-                await _emailServices.Email.SendEmailAsync(new List<string> { emailAddress }, model.Subject, model.Message, attachmentFilePath);
+                message += BuildPaymentBlock(checkoutUrl);
             }
-            sentCount = recipientEmails.Count;
+
+            await _emailServices.Email.SendEmailAsync(booking.Child.Parent.GetEmailAddresses().ToList(), subject, message, attachmentFilePath);
+            sentCount++;
         }
 
         _logger.LogInformation("Sent {SentCount} excursion emails for excursion {ExcursionId}", sentCount, model.ExcursionId);
@@ -788,209 +575,56 @@ public class ExcursionsController : Controller
         }
     }
 
-    [HttpGet]
-    public async Task<IActionResult> Expenses(int id)
+    /// <summary>
+    /// The children an excursion concerns: confirmed bookings of the targeted groups that have the
+    /// excursion's day reserved — being there that day is what takes part in the excursion. When the
+    /// excursion falls outside the activity's days, only the group filter applies.
+    /// </summary>
+    private async Task<List<Booking>> GetConcernedBookingsAsync(Excursion excursion, int? groupId, CancellationToken ct)
     {
-        var excursion = await _context.Excursions
-            .Include(e => e.Activity)
-            .Include(e => e.Expenses)
-            .Include(e => e.Registrations)
-            .FirstOrDefaultAsync(e => e.Id == id);
+        var targetGroupIds = excursion.ExcursionGroups.Select(eg => eg.ActivityGroupId).ToList();
 
-        if (excursion == null)
-            return NotFound();
+        var query = _context.Bookings
+            .Include(b => b.Child)
+                .ThenInclude(c => c.Parent)
+            .Include(b => b.Group)
+            .Where(b => b.ActivityId == excursion.ActivityId && b.IsConfirmed);
 
-        var viewModel = new ExcursionExpensesViewModel
+        if (targetGroupIds.Count > 0)
         {
-            Excursion = excursion,
-            Activity = excursion.Activity,
-            Expenses = excursion.Expenses.OrderByDescending(e => e.ExpenseDate).ToList(),
-            ExpenseDate = DateTime.Today
-        };
-
-        this.SetActivityViewData(excursion.ActivityId, excursion.Activity.Name);
-        ViewData[NavSectionKey] = NavSectionExcursions;
-        ViewData[NavActionKey] = "Expenses";
-
-        return View(viewModel);
-    }
-
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> AddExpense(ExcursionExpensesViewModel model)
-    {
-        // Validate only the form fields
-        ModelState.Remove(nameof(model.Excursion));
-        ModelState.Remove(nameof(model.Activity));
-        ModelState.Remove(nameof(model.Expenses));
-
-        if (!ModelState.IsValid)
-        {
-            var excursion = await _context.Excursions
-                .Include(e => e.Activity)
-                .Include(e => e.Expenses)
-                .Include(e => e.Registrations)
-                .FirstOrDefaultAsync(e => e.Id == model.Excursion.Id);
-
-            if (excursion != null)
-            {
-                model.Excursion = excursion;
-                model.Activity = excursion.Activity;
-                model.Expenses = excursion.Expenses.OrderByDescending(e => e.ExpenseDate).ToList();
-                this.SetActivityViewData(excursion.ActivityId, excursion.Activity.Name);
-            }
-
-            ViewData[NavSectionKey] = NavSectionExcursions;
-            ViewData[NavActionKey] = "Expenses";
-
-            return View("Expenses", model);
+            query = query.Where(b => b.GroupId != null && targetGroupIds.Contains(b.GroupId.Value));
         }
 
-        // Create the expense
-        var expense = new Expense
+        if (groupId.HasValue)
         {
-            Label = model.Label,
-            Description = model.Description,
-            Amount = model.Amount,
-            Category = model.Category,
-            ExpenseDate = model.ExpenseDate,
-            OrganizationPaymentSource = model.OrganizationPaymentSource,
-            ActivityId = model.Excursion.ActivityId,
-            ExcursionId = model.Excursion.Id,
-            TeamMemberId = null // Organization expense, not team member expense
-        };
-
-        _context.Expenses.Add(expense);
-        await _context.SaveChangesAsync();
-
-        TempData[ControllerExtensions.SuccessMessageKey] = _localizer["Message.ExpenseAdded"].ToString();
-        return RedirectToAction(nameof(Expenses), new { id = model.Excursion.Id });
-    }
-
-    [HttpGet]
-    public async Task<IActionResult> TeamManagement(int id)
-    {
-        var excursion = await _context.Excursions
-            .Include(e => e.Activity)
-                .ThenInclude(a => a.TeamMembers)
-            .Include(e => e.TeamMembers)
-                .ThenInclude(tm => tm.TeamMember)
-            .FirstOrDefaultAsync(e => e.Id == id);
-
-        if (excursion == null)
-            return NotFound();
-
-        // Build a lookup of assigned members
-        var assignedMap = excursion.TeamMembers.ToDictionary(
-            tm => tm.TeamMemberId,
-            tm => tm);
-
-        // All team members assigned to the parent activity
-        var teamMembers = excursion.Activity.TeamMembers
-            .OrderBy(tm => tm.LastName)
-            .ThenBy(tm => tm.FirstName)
-            .Select(tm =>
-            {
-                var assigned = assignedMap.TryGetValue(tm.TeamMemberId, out var etm);
-                return new ExcursionTeamMemberInfo
-                {
-                    TeamMemberId = tm.TeamMemberId,
-                    FirstName = tm.FirstName,
-                    LastName = tm.LastName,
-                    IsAssigned = assigned,
-                    IsPresent = assigned && etm!.IsPresent,
-                    ExcursionTeamMemberId = assigned ? etm!.Id : null
-                };
-            })
-            .ToList();
-
-        var viewModel = new ExcursionTeamManagementViewModel
-        {
-            Excursion = excursion,
-            Activity = excursion.Activity,
-            TeamMembers = teamMembers
-        };
-
-        this.SetActivityViewData(excursion.ActivityId, excursion.Activity.Name);
-        ViewData[NavSectionKey] = NavSectionExcursions;
-        ViewData[NavActionKey] = "TeamManagement";
-
-        return View(viewModel);
-    }
-
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> AssignTeamMember(int excursionId, int teamMemberId)
-    {
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
+            query = query.Where(b => b.GroupId == groupId.Value);
         }
 
-        var existing = await _context.ExcursionTeamMembers
-            .FirstOrDefaultAsync(tm => tm.ExcursionId == excursionId && tm.TeamMemberId == teamMemberId);
+        var excursionDayId = await _context.ActivityDays
+            .Where(d => d.ActivityId == excursion.ActivityId && d.DayDate.Date == excursion.ExcursionDate.Date)
+            .Select(d => (int?)d.DayId)
+            .FirstOrDefaultAsync(ct);
 
-        if (existing != null)
-            return Json(new { success = false, message = _localizer[ErrorGeneric].ToString() });
-
-        _context.ExcursionTeamMembers.Add(new ExcursionTeamMember
+        if (excursionDayId.HasValue)
         {
-            ExcursionId = excursionId,
-            TeamMemberId = teamMemberId,
-            IsAssigned = true,
-            IsPresent = false
-        });
-
-        await _context.SaveChangesAsync();
-        return Json(new { success = true, message = _localizer["Message.TeamMemberAssigned"].ToString() });
-    }
-
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> UnassignTeamMember(int excursionId, int teamMemberId)
-    {
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
+            query = query.Where(b => b.Days.Any(bd => bd.ActivityDayId == excursionDayId.Value && bd.IsReserved));
         }
 
-        var existing = await _context.ExcursionTeamMembers
-            .FirstOrDefaultAsync(tm => tm.ExcursionId == excursionId && tm.TeamMemberId == teamMemberId);
-
-        if (existing == null)
-            return Json(new { success = false, message = _localizer[ErrorGeneric].ToString() });
-
-        _context.ExcursionTeamMembers.Remove(existing);
-        await _context.SaveChangesAsync();
-        return Json(new { success = true, message = _localizer["Message.TeamMemberUnassigned"].ToString() });
+        return await query.ToListAsync(ct);
     }
 
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> UpdateTeamAttendance(int excursionTeamMemberId, bool isPresent)
-    {
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
-
-        var etm = await _context.ExcursionTeamMembers
-            .FirstOrDefaultAsync(tm => tm.Id == excursionTeamMemberId);
-
-        if (etm == null)
-            return Json(new { success = false, message = _localizer["Error.RegistrationNotFound"].ToString() });
-
-        etm.IsPresent = isPresent;
-        await _context.SaveChangesAsync();
-        return Json(new { success = true, message = _localizer["Message.AttendanceUpdated"].ToString() });
-    }
+    private string BuildPaymentBlock(string checkoutUrl) =>
+        "<hr>" +
+        $"<p style=\"text-align:center;\"><a href=\"{checkoutUrl}\" style=\"background:#007faf;color:#ffffff;" +
+        $"padding:12px 24px;border-radius:4px;text-decoration:none;display:inline-block;\">" +
+        $"{_localizer["Excursion.PayOnline"].Value}</a></p>" +
+        $"<p style=\"text-align:center;\">{_qrCodeService.GenerateImageTag(checkoutUrl)}</p>";
 
     private List<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem> GetExcursionRecipientOptions(List<ActivityGroup> groups)
     {
         var options = new List<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem>
         {
-            new() { Value = "all_registered", Text = _localizer["Excursion.AllRegistered"] },
-            new() { Value = RecipientNotYetRegistered, Text = _localizer["Excursion.NotYetRegistered"] }
+            new() { Value = "all", Text = _localizer["Excursion.AllConcernedChildren"] }
         };
 
         foreach (var group in groups.OrderBy(g => g.Label))
@@ -998,7 +632,7 @@ public class ExcursionsController : Controller
             options.Add(new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem
             {
                 Value = $"group_{group.Id}",
-                Text = $"{group.Label} - {_localizer["Excursion.RegisteredOnly"]}"
+                Text = group.Label
             });
         }
 

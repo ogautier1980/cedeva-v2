@@ -154,6 +154,26 @@ public class ExcursionServiceTests
     }
 
     [Fact]
+    public async Task EnsureRegistered_BillsEachChildOnce_EvenWhenCalledAgain()
+    {
+        // Announcing an excursion registers the children concerned; announcing it a second time
+        // must not bill them twice.
+        var s = Seed(cost: 10m, total: 100m, paid: 0m);
+        using var _ = s.Db;
+        var sut = new ExcursionService(s.Db.Context);
+
+        var firstCall = await sut.EnsureRegisteredAsync(s.ExcursionId, new[] { s.BookingId });
+        var secondCall = await sut.EnsureRegisteredAsync(s.ExcursionId, new[] { s.BookingId });
+
+        firstCall.Should().ContainSingle();
+        secondCall.Should().BeEmpty("the child was already registered");
+
+        await using var verify = s.Db.NewContext();
+        (await verify.ExcursionRegistrations.CountAsync(r => r.BookingId == s.BookingId)).Should().Be(1);
+        (await verify.Bookings.SingleAsync(b => b.Id == s.BookingId)).TotalAmount.Should().Be(110m);
+    }
+
+    [Fact]
     public async Task Unregister_NotRegistered_ReturnsFalse()
     {
         var s = Seed();

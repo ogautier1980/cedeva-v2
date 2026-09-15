@@ -29,8 +29,7 @@ public class PaymentLinkEmailService : IPaymentLinkEmailService
             if (string.IsNullOrWhiteSpace(parentEmail))
                 return false;
 
-            var qrDataUri = _qrCodeService.GenerateDataUri(checkoutUrl);
-            var qrImageTag = $"<img src=\"{qrDataUri}\" alt=\"QR paiement\" style=\"width:180px;height:180px;\">";
+            var qrImageTag = _qrCodeService.GenerateImageTag(checkoutUrl);
 
             var extraVariables = new Dictionary<string, string>
             {

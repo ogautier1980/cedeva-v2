@@ -66,22 +66,53 @@ public class ExcursionService : IExcursionService
         if (existing != null)
             throw new InvalidOperationException("Child already registered for this excursion");
 
-        // Create registration
+        var registration = AddRegistration(excursion, booking);
+
+        await _context.SaveChangesAsync();
+        return registration;
+    }
+
+    public async Task<List<ExcursionRegistration>> EnsureRegisteredAsync(int excursionId, IReadOnlyCollection<int> bookingIds)
+    {
+        var excursion = await _context.Excursions.FirstOrDefaultAsync(e => e.Id == excursionId);
+
+        if (excursion == null)
+            throw new InvalidOperationException("Excursion not found");
+
+        var alreadyRegistered = await _context.ExcursionRegistrations
+            .Where(er => er.ExcursionId == excursionId && bookingIds.Contains(er.BookingId))
+            .Select(er => er.BookingId)
+            .ToListAsync();
+
+        var bookingsToRegister = await _context.Bookings
+            .Include(b => b.Child)
+            .Where(b => bookingIds.Contains(b.Id) && !alreadyRegistered.Contains(b.Id))
+            .ToListAsync();
+
+        var created = bookingsToRegister.Select(booking => AddRegistration(excursion, booking)).ToList();
+
+        if (created.Count > 0)
+            await _context.SaveChangesAsync();
+
+        return created;
+    }
+
+    /// <summary>Registers the child and bills the excursion on their booking. Caller saves.</summary>
+    private ExcursionRegistration AddRegistration(Excursion excursion, Booking booking)
+    {
         var registration = new ExcursionRegistration
         {
-            ExcursionId = excursionId,
-            BookingId = bookingId,
+            ExcursionId = excursion.Id,
+            BookingId = booking.Id,
             RegistrationDate = DateTime.UtcNow,
             IsPresent = false
         };
         _context.ExcursionRegistrations.Add(registration);
 
-        // Update booking total
         booking.TotalAmount += excursion.Cost;
         booking.PaymentStatus = CalculatePaymentStatus(booking.PaidAmount, booking.TotalAmount);
 
-        // Log financial transaction
-        var transaction = new ActivityFinancialTransaction
+        _context.ActivityFinancialTransactions.Add(new ActivityFinancialTransaction
         {
             ActivityId = excursion.ActivityId,
             TransactionDate = DateTime.UtcNow,
@@ -89,10 +120,8 @@ public class ExcursionService : IExcursionService
             Category = TransactionCategory.ExcursionPayment,
             Amount = excursion.Cost,
             Description = $"Inscription excursion: {excursion.Name} - {booking.Child.FirstName} {booking.Child.LastName}"
-        };
-        _context.ActivityFinancialTransactions.Add(transaction);
+        });
 
-        await _context.SaveChangesAsync();
         return registration;
     }
 
@@ -142,19 +171,6 @@ public class ExcursionService : IExcursionService
                 .ThenInclude(b => b.Group)
             .Where(er => er.ExcursionId == excursionId)
             .ToListAsync();
-    }
-
-    public async Task<bool> UpdateAttendanceAsync(int registrationId, bool isPresent)
-    {
-        var registration = await _context.ExcursionRegistrations
-            .FirstOrDefaultAsync(er => er.Id == registrationId);
-
-        if (registration == null)
-            return false;
-
-        registration.IsPresent = isPresent;
-        await _context.SaveChangesAsync();
-        return true;
     }
 
     public async Task<ExcursionFinancialSummary> GetFinancialSummaryAsync(int excursionId)

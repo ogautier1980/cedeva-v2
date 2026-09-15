@@ -12,4 +12,10 @@ public interface IQrCodeService
     /// <c>&lt;img&gt;</c> — aucun fichier ni route publique nécessaire.
     /// </summary>
     string GenerateDataUri(string content);
+
+    /// <summary>
+    /// Même chose, mais renvoie directement la balise <c>&lt;img&gt;</c> à insérer dans un corps
+    /// d'e-mail, pour que le balisage reste identique d'un e-mail à l'autre.
+    /// </summary>
+    string GenerateImageTag(string content);
 }

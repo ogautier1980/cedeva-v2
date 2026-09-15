@@ -36,7 +36,7 @@
                     }
                 </p>
             }
-            <p class="mb-0"><strong>@Localizer["Excursion.TotalRegistrations"]:</strong> @Model.Excursion?.Registrations.Count</p>
+            <p class="mb-0"><strong>@Localizer["Excursion.AllConcernedChildren"]:</strong> @ViewBag.ConcernedChildrenCount</p>
         </div>
     </div>
 
@@ -95,13 +95,6 @@
                             </div>
                         </div>
 
-                        <!-- Send per child checkbox -->
-                        <div class="mb-3 form-check">
-                            <input asp-for="SendSeparateEmailPerChild" class="form-check-input" id="SendSeparateEmailPerChild" />
-                            <label for="SendSeparateEmailPerChild" class="form-check-label">@Localizer["Email.PerChild"]</label>
-                            <div class="form-text">@Localizer["Email.PerChildInfo"]</div>
-                        </div>
-
                         <!-- Attachment -->
                         <div class="mb-3">
                             <label for="AttachmentFile" class="form-label">@Localizer["Email.Attachment"]</label>
@@ -147,7 +140,9 @@
                 '%child_firstname%',
                 '%child_lastname%',
                 '%excursion_name%',
-                '%excursion_date%'
+                '%excursion_date%',
+                '%lien_paiement%',
+                '%qr_code_paiement%'
             ];
 
             // Custom button for inserting variables

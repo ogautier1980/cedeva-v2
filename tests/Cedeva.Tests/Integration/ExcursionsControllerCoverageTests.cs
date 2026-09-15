@@ -10,17 +10,14 @@ using Microsoft.EntityFrameworkCore;
 namespace Cedeva.Tests.Integration;
 
 /// <summary>
-/// Coverage tests for <c>ExcursionsController</c> that exercise actions and branches NOT
-/// already covered by <see cref="ExcursionsControllerIntegrationTests"/> (which only covers
-/// RegisterChild valid/unauth, UnregisterChild valid, and UpdateAttendance valid).
+/// Coverage tests for <c>ExcursionsController</c>, which is deliberately limited to viewing,
+/// editing and deleting an excursion plus announcing it to parents.
 ///
 /// Covers: Index (id, session fallback, NotFound, tenant isolation), Create GET + POST
 /// (valid / model-invalid / no-groups / inactive-day), Details, Edit GET + POST
-/// (valid / NotFound), Delete GET + POST (with / without registrations), Registrations GET,
-/// Attendance GET, SendEmail GET + POST (valid / no-recipients), Expenses GET + AddExpense
-/// POST (valid / invalid), TeamManagement GET, AssignTeamMember / UnassignTeamMember /
-/// UpdateTeamAttendance JSON endpoints (success + error branches), BeginExcursions, plus the
-/// UnregisterChild "not registered" branch.
+/// (valid / NotFound), Delete GET + POST (with / without registrations), SendEmail GET + POST
+/// (recipients, merge variables, payment link, billing idempotence, no-recipients) and
+/// BeginExcursions.
 /// </summary>
 [Collection("WebApp")]
 public class ExcursionsControllerCoverageTests
@@ -70,6 +67,9 @@ public class ExcursionsControllerCoverageTests
                 Activity = activity
             };
 
+            // The child attends the excursion's day — that is what makes them part of it.
+            booking.Days.Add(new BookingDay { ActivityDay = day, IsReserved = true });
+
             teamMember = new TeamMember
             {
                 FirstName = "Tim",
@@ -95,17 +95,20 @@ public class ExcursionsControllerCoverageTests
         return new Seeded(org.Id, activity.Id, group.Id, excursion.Id, booking.Id, teamMember.TeamMemberId, activeDay);
     }
 
-    private static int RegisterChild(CedevaWebApplicationFactory factory, HttpClient client, Seeded s)
+    /// <summary>Registrations are no longer managed through the UI (sending the excursion e-mail
+    /// creates them), so tests that need one seed it directly.</summary>
+    private static int RegisterChild(CedevaWebApplicationFactory factory, Seeded s)
     {
-        var resp = client.PostAsync("/Excursions/RegisterChild", Form(new()
-        {
-            ["excursionId"] = s.ExcursionId.ToString(),
-            ["bookingId"] = s.BookingId.ToString(),
-        })).GetAwaiter().GetResult();
-        resp.EnsureSuccessStatusCode();
-
         using var ctx = factory.NewDbContext();
-        return ctx.ExcursionRegistrations.Single(r => r.BookingId == s.BookingId).Id;
+        var registration = new ExcursionRegistration
+        {
+            ExcursionId = s.ExcursionId,
+            BookingId = s.BookingId,
+            RegistrationDate = DateTime.UtcNow,
+        };
+        ctx.ExcursionRegistrations.Add(registration);
+        ctx.SaveChanges();
+        return registration.Id;
     }
 
     private static FormUrlEncodedContent Form(Dictionary<string, string> values) => new(values);
@@ -534,7 +537,7 @@ public class ExcursionsControllerCoverageTests
         var s = SeedFull(factory);
         var client = factory.CreateClientFor("u1", s.OrgId, "Coordinator");
 
-        RegisterChild(factory, client, s); // create a registration that blocks delete
+        RegisterChild(factory, s); // create a registration that blocks delete
 
         var response = await client.PostAsync("/Excursions/Delete", Form(new()
         {
@@ -562,96 +565,6 @@ public class ExcursionsControllerCoverageTests
         }));
 
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
-    }
-
-    // ---------------------------------------------------------------------
-    // Registrations / Attendance (GET)
-    // ---------------------------------------------------------------------
-
-    [Fact]
-    public async Task Registrations_Get_ReturnsOk()
-    {
-        using var factory = new CedevaWebApplicationFactory();
-        var s = SeedFull(factory);
-        var client = factory.CreateClientFor("u1", s.OrgId, "Coordinator");
-
-        var response = await client.GetAsync($"/Excursions/Registrations/{s.ExcursionId}");
-
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
-    }
-
-    [Fact]
-    public async Task Registrations_Get_Unknown_ReturnsNotFound()
-    {
-        using var factory = new CedevaWebApplicationFactory();
-        var s = SeedFull(factory);
-        var client = factory.CreateClientFor("u1", s.OrgId, "Coordinator");
-
-        var response = await client.GetAsync("/Excursions/Registrations/999999");
-
-        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
-    }
-
-    [Fact]
-    public async Task Attendance_Get_ReturnsOk()
-    {
-        using var factory = new CedevaWebApplicationFactory();
-        var s = SeedFull(factory);
-        var client = factory.CreateClientFor("u1", s.OrgId, "Coordinator");
-
-        var response = await client.GetAsync($"/Excursions/Attendance/{s.ExcursionId}");
-
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
-    }
-
-    [Fact]
-    public async Task Attendance_Get_Unknown_ReturnsNotFound()
-    {
-        using var factory = new CedevaWebApplicationFactory();
-        var s = SeedFull(factory);
-        var client = factory.CreateClientFor("u1", s.OrgId, "Coordinator");
-
-        var response = await client.GetAsync("/Excursions/Attendance/999999");
-
-        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
-    }
-
-    // ---------------------------------------------------------------------
-    // UnregisterChild - "not registered" branch (success branch covered elsewhere)
-    // ---------------------------------------------------------------------
-
-    [Fact]
-    public async Task UnregisterChild_NotRegistered_ReturnsSuccessFalse()
-    {
-        using var factory = new CedevaWebApplicationFactory();
-        var s = SeedFull(factory);
-        var client = factory.CreateClientFor("u1", s.OrgId, "Coordinator");
-
-        var response = await client.PostAsync("/Excursions/UnregisterChild", Form(new()
-        {
-            ["excursionId"] = s.ExcursionId.ToString(),
-            ["bookingId"] = s.BookingId.ToString(),
-        }));
-
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
-        (await response.Content.ReadAsStringAsync()).Should().Contain("\"success\":false");
-    }
-
-    [Fact]
-    public async Task UpdateAttendance_UnknownRegistration_ReturnsSuccessFalse()
-    {
-        using var factory = new CedevaWebApplicationFactory();
-        var s = SeedFull(factory);
-        var client = factory.CreateClientFor("u1", s.OrgId, "Coordinator");
-
-        var response = await client.PostAsync("/Excursions/UpdateAttendance", Form(new()
-        {
-            ["registrationId"] = "999999",
-            ["isPresent"] = "true",
-        }));
-
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
-        (await response.Content.ReadAsStringAsync()).Should().Contain("\"success\":false");
     }
 
     // ---------------------------------------------------------------------
@@ -693,13 +606,10 @@ public class ExcursionsControllerCoverageTests
         var s = SeedFull(factory);
         var client = factory.CreateClientFor("u1", s.OrgId, "Coordinator");
 
-        // Register the child so there is a recipient for "all_registered".
-        RegisterChild(factory, client, s);
-
         var response = await client.PostAsync("/Excursions/SendEmail", Form(new()
         {
             ["ExcursionId"] = s.ExcursionId.ToString(),
-            ["SelectedRecipient"] = "all_registered",
+            ["SelectedRecipient"] = "all",
             ["Subject"] = "Info excursion",
             ["Message"] = "Bonjour, voici les details.",
         }));
@@ -707,6 +617,40 @@ public class ExcursionsControllerCoverageTests
         response.StatusCode.Should().Be(HttpStatusCode.Redirect);
         fake.Sent.Should().ContainSingle("the excursion email must actually be sent, not just counted");
         fake.Sent[0].To.Should().Contain("paul.parent@test.be");
+        fake.Sent[0].Html.Should().Contain("/OnlinePayment/Checkout", "the parent needs a way to pay the excursion");
+
+        // Announcing the excursion also bills it: the child is registered and their booking total
+        // grew by the excursion cost (100 seeded + 15 excursion).
+        await using var ctx = factory.NewDbContext();
+        ctx.ExcursionRegistrations.Count(r => r.ExcursionId == s.ExcursionId).Should().Be(1);
+        (await ctx.Bookings.IgnoreQueryFilters().SingleAsync(b => b.Id == s.BookingId)).TotalAmount.Should().Be(115m);
+    }
+
+    [Fact]
+    public async Task SendEmail_Post_Twice_DoesNotBillTheExcursionAgain()
+    {
+        var fake = new FakeEmailService();
+        using var factory = new CedevaWebApplicationFactory
+        {
+            ConfigureExtraTestContainer = b => b.RegisterInstance(fake).As<IEmailService>()
+        };
+        var s = SeedFull(factory);
+        var client = factory.CreateClientFor("u1", s.OrgId, "Coordinator");
+
+        HttpContent Payload() => Form(new()
+        {
+            ["ExcursionId"] = s.ExcursionId.ToString(),
+            ["SelectedRecipient"] = "all",
+            ["Subject"] = "Info excursion",
+            ["Message"] = "Bonjour.",
+        });
+
+        await client.PostAsync("/Excursions/SendEmail", Payload());
+        await client.PostAsync("/Excursions/SendEmail", Payload());
+
+        await using var ctx = factory.NewDbContext();
+        ctx.ExcursionRegistrations.Count(r => r.ExcursionId == s.ExcursionId).Should().Be(1);
+        (await ctx.Bookings.IgnoreQueryFilters().SingleAsync(b => b.Id == s.BookingId)).TotalAmount.Should().Be(115m);
     }
 
     [Fact]
@@ -723,15 +667,13 @@ public class ExcursionsControllerCoverageTests
         };
         var s = SeedFull(factory);
         var client = factory.CreateClientFor("u1", s.OrgId, "Coordinator");
-        RegisterChild(factory, client, s);
 
         var response = await client.PostAsync("/Excursions/SendEmail", Form(new()
         {
             ["ExcursionId"] = s.ExcursionId.ToString(),
-            ["SelectedRecipient"] = "all_registered",
+            ["SelectedRecipient"] = "all",
             ["Subject"] = "Excursion : %excursion_name% le %excursion_date%",
             ["Message"] = "Bonjour, %child_firstname% %child_lastname% est invité(e) à %excursion_name%.",
-            ["SendSeparateEmailPerChild"] = "true",
         }));
 
         response.StatusCode.Should().Be(HttpStatusCode.Redirect);
@@ -740,7 +682,7 @@ public class ExcursionsControllerCoverageTests
         // variables, e.g. %date_debut_activite%) — not necessarily "/".
         var expectedDate = new DateTime(2026, 7, 3).ToString("dd/MM/yyyy", new System.Globalization.CultureInfo("fr-BE"));
         fake.Sent[0].Subject.Should().Be($"Excursion : Excursion Test le {expectedDate}");
-        fake.Sent[0].Html.Should().Be("Bonjour, Chloé Enfant est invité(e) à Excursion Test.");
+        fake.Sent[0].Html.Should().StartWith("Bonjour, Chloé Enfant est invité(e) à Excursion Test.");
     }
 
     [Fact]
@@ -753,7 +695,7 @@ public class ExcursionsControllerCoverageTests
         var response = await client.PostAsync("/Excursions/SendEmail", Form(new()
         {
             ["ExcursionId"] = s.ExcursionId.ToString(),
-            ["SelectedRecipient"] = "all_registered",
+            ["SelectedRecipient"] = "all",
             // Subject + Message missing -> invalid
         }));
 
@@ -767,322 +709,16 @@ public class ExcursionsControllerCoverageTests
         var s = SeedFull(factory);
         var client = factory.CreateClientFor("u1", s.OrgId, "Coordinator");
 
-        // No registrations exist => no recipients => re-render with model error.
+        // Filtering on a group nobody belongs to => no recipients => re-render with model error.
         var response = await client.PostAsync("/Excursions/SendEmail", Form(new()
         {
             ["ExcursionId"] = s.ExcursionId.ToString(),
-            ["SelectedRecipient"] = "all_registered",
+            ["SelectedRecipient"] = "group_999999",
             ["Subject"] = "Info excursion",
             ["Message"] = "Bonjour.",
         }));
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
-    }
-
-    [Fact]
-    public async Task SendEmail_Post_NotYetRegistered_OnlyReachesBookingsWithoutAnExcursionRegistration()
-    {
-        var fake = new FakeEmailService();
-        using var factory = new CedevaWebApplicationFactory
-        {
-            ConfigureExtraTestContainer = b => b.RegisterInstance(fake).As<IEmailService>()
-        };
-        var s = SeedFull(factory);
-        var client = factory.CreateClientFor("u1", s.OrgId, "Coordinator");
-
-        // The seeded booking registers to the excursion -> excluded from "not yet registered".
-        RegisterChild(factory, client, s);
-
-        // A second confirmed booking on the SAME activity, never registered to this excursion.
-        factory.Seed(ctx =>
-        {
-            var org = ctx.Organisations.Single(o => o.Id == s.OrgId);
-            var activity = ctx.Activities.IgnoreQueryFilters().Single(a => a.Id == s.ActivityId);
-            var parent = new Parent
-            {
-                FirstName = "Nadia",
-                LastName = "Nouvelle",
-                Email = "nadia.parent@test.be",
-                MobilePhoneNumber = "0470999888",
-                NationalRegisterNumber = "88030112345",
-                Address = TestData.Address(),
-                Organisation = org
-            };
-            var child = new Child
-            {
-                FirstName = "Noa",
-                LastName = "Enfant2",
-                BirthDate = new DateTime(2017, 2, 10),
-                NationalRegisterNumber = "17021012345",
-                Parent = parent
-            };
-            var booking = TestData.Booking(child, activity, group: null, totalAmount: 100m, paidAmount: 0m);
-            booking.IsConfirmed = true;
-            ctx.AddRange(parent, child, booking);
-            return 0;
-        });
-
-        var response = await client.PostAsync("/Excursions/SendEmail", Form(new()
-        {
-            ["ExcursionId"] = s.ExcursionId.ToString(),
-            ["SelectedRecipient"] = "not_yet_registered",
-            ["Subject"] = "Places restantes",
-            ["Message"] = "Il reste des places pour cette excursion.",
-        }));
-
-        response.StatusCode.Should().Be(HttpStatusCode.Redirect);
-        fake.Sent.Should().ContainSingle("only the booking without an excursion registration is a recipient");
-        fake.Sent[0].To.Should().Contain("nadia.parent@test.be");
-        fake.Sent[0].To.Should().NotContain("paul.parent@test.be", "this child is already registered to the excursion");
-    }
-
-    // ---------------------------------------------------------------------
-    // Expenses (GET) + AddExpense (POST)
-    // ---------------------------------------------------------------------
-
-    [Fact]
-    public async Task Expenses_Get_ReturnsOk()
-    {
-        using var factory = new CedevaWebApplicationFactory();
-        var s = SeedFull(factory);
-        var client = factory.CreateClientFor("u1", s.OrgId, "Coordinator");
-
-        var response = await client.GetAsync($"/Excursions/Expenses/{s.ExcursionId}");
-
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
-    }
-
-    [Fact]
-    public async Task Expenses_Get_Unknown_ReturnsNotFound()
-    {
-        using var factory = new CedevaWebApplicationFactory();
-        var s = SeedFull(factory);
-        var client = factory.CreateClientFor("u1", s.OrgId, "Coordinator");
-
-        var response = await client.GetAsync("/Excursions/Expenses/999999");
-
-        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
-    }
-
-    // NOTE on AddExpense: ExcursionExpensesViewModel exposes the full Excursion entity as a bound
-    // property, whose non-nullable navigation chain (Excursion -> Activity -> Organisation) is
-    // implicitly [Required]. The controller only does ModelState.Remove("Excursion") (which does
-    // NOT cascade to "Excursion.Name"/"Excursion.Activity"/...), so over HTTP the real Expenses
-    // form (which posts only Excursion.Id + Excursion.ActivityId) always re-renders with 200 —
-    // a genuine 302 happy path is not reachable through form binding. These tests assert the
-    // behaviour the controller ACTUALLY produces over HTTP rather than a 302 it cannot reach.
-
-    [Fact]
-    public async Task AddExpense_Post_RealFormFields_ReRendersWith200_DueToNestedRequiredNavigations()
-    {
-        using var factory = new CedevaWebApplicationFactory();
-        var s = SeedFull(factory);
-        var client = factory.CreateClientFor("u1", s.OrgId, "Coordinator");
-
-        // Exactly what the real Expenses form posts: two hidden Excursion fields + flat fields.
-        var response = await client.PostAsync("/Excursions/AddExpense", Form(new()
-        {
-            ["Excursion.Id"] = s.ExcursionId.ToString(),
-            ["Excursion.ActivityId"] = s.ActivityId.ToString(),
-            ["Label"] = "Bus",
-            ["Amount"] = "75",
-            ["ExpenseDate"] = s.ActiveDay.ToString("yyyy-MM-dd"),
-            ["OrganizationPaymentSource"] = "OrganizationCard",
-        }));
-
-        // The bound Excursion.Name / Excursion.Activity required validations block the happy path.
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
-        await using var ctx = factory.NewDbContext();
-        (await ctx.Expenses.AnyAsync(e => e.ExcursionId == s.ExcursionId)).Should().BeFalse();
-    }
-
-    [Fact]
-    public async Task AddExpense_Post_InvalidFlatFields_ReRendersExpensesWith200()
-    {
-        using var factory = new CedevaWebApplicationFactory();
-        var s = SeedFull(factory);
-        var client = factory.CreateClientFor("u1", s.OrgId, "Coordinator");
-
-        var response = await client.PostAsync("/Excursions/AddExpense", Form(new()
-        {
-            ["Excursion.Id"] = s.ExcursionId.ToString(),
-            ["Excursion.ActivityId"] = s.ActivityId.ToString(),
-            // Label missing + Amount 0 (below Range min) -> invalid flat fields too.
-            ["Amount"] = "0",
-            ["ExpenseDate"] = s.ActiveDay.ToString("yyyy-MM-dd"),
-            ["OrganizationPaymentSource"] = "OrganizationCard",
-        }));
-
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
-        await using var ctx = factory.NewDbContext();
-        (await ctx.Expenses.AnyAsync(e => e.ExcursionId == s.ExcursionId)).Should().BeFalse();
-    }
-
-    // ---------------------------------------------------------------------
-    // TeamManagement (GET) + Assign/Unassign/UpdateTeamAttendance (JSON)
-    // ---------------------------------------------------------------------
-
-    [Fact]
-    public async Task TeamManagement_Get_ReturnsOk()
-    {
-        using var factory = new CedevaWebApplicationFactory();
-        var s = SeedFull(factory);
-        var client = factory.CreateClientFor("u1", s.OrgId, "Coordinator");
-
-        var response = await client.GetAsync($"/Excursions/TeamManagement/{s.ExcursionId}");
-
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
-    }
-
-    [Fact]
-    public async Task TeamManagement_Get_Unknown_ReturnsNotFound()
-    {
-        using var factory = new CedevaWebApplicationFactory();
-        var s = SeedFull(factory);
-        var client = factory.CreateClientFor("u1", s.OrgId, "Coordinator");
-
-        var response = await client.GetAsync("/Excursions/TeamManagement/999999");
-
-        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
-    }
-
-    [Fact]
-    public async Task AssignTeamMember_New_ReturnsSuccessAndPersists()
-    {
-        using var factory = new CedevaWebApplicationFactory();
-        var s = SeedFull(factory);
-        var client = factory.CreateClientFor("u1", s.OrgId, "Coordinator");
-
-        var response = await client.PostAsync("/Excursions/AssignTeamMember", Form(new()
-        {
-            ["excursionId"] = s.ExcursionId.ToString(),
-            ["teamMemberId"] = s.TeamMemberId.ToString(),
-        }));
-
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
-        (await response.Content.ReadAsStringAsync()).Should().Contain("\"success\":true");
-
-        await using var ctx = factory.NewDbContext();
-        (await ctx.ExcursionTeamMembers.AnyAsync(
-            t => t.ExcursionId == s.ExcursionId && t.TeamMemberId == s.TeamMemberId)).Should().BeTrue();
-    }
-
-    [Fact]
-    public async Task AssignTeamMember_Duplicate_ReturnsSuccessFalse()
-    {
-        using var factory = new CedevaWebApplicationFactory();
-        var s = SeedFull(factory);
-        var client = factory.CreateClientFor("u1", s.OrgId, "Coordinator");
-
-        var form = Form(new()
-        {
-            ["excursionId"] = s.ExcursionId.ToString(),
-            ["teamMemberId"] = s.TeamMemberId.ToString(),
-        });
-        (await client.PostAsync("/Excursions/AssignTeamMember", form)).EnsureSuccessStatusCode();
-
-        var response = await client.PostAsync("/Excursions/AssignTeamMember", Form(new()
-        {
-            ["excursionId"] = s.ExcursionId.ToString(),
-            ["teamMemberId"] = s.TeamMemberId.ToString(),
-        }));
-
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
-        (await response.Content.ReadAsStringAsync()).Should().Contain("\"success\":false");
-    }
-
-    [Fact]
-    public async Task UnassignTeamMember_Existing_ReturnsSuccessAndRemoves()
-    {
-        using var factory = new CedevaWebApplicationFactory();
-        var s = SeedFull(factory);
-        var client = factory.CreateClientFor("u1", s.OrgId, "Coordinator");
-
-        (await client.PostAsync("/Excursions/AssignTeamMember", Form(new()
-        {
-            ["excursionId"] = s.ExcursionId.ToString(),
-            ["teamMemberId"] = s.TeamMemberId.ToString(),
-        }))).EnsureSuccessStatusCode();
-
-        var response = await client.PostAsync("/Excursions/UnassignTeamMember", Form(new()
-        {
-            ["excursionId"] = s.ExcursionId.ToString(),
-            ["teamMemberId"] = s.TeamMemberId.ToString(),
-        }));
-
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
-        (await response.Content.ReadAsStringAsync()).Should().Contain("\"success\":true");
-
-        await using var ctx = factory.NewDbContext();
-        (await ctx.ExcursionTeamMembers.AnyAsync(
-            t => t.ExcursionId == s.ExcursionId && t.TeamMemberId == s.TeamMemberId)).Should().BeFalse();
-    }
-
-    [Fact]
-    public async Task UnassignTeamMember_NotAssigned_ReturnsSuccessFalse()
-    {
-        using var factory = new CedevaWebApplicationFactory();
-        var s = SeedFull(factory);
-        var client = factory.CreateClientFor("u1", s.OrgId, "Coordinator");
-
-        var response = await client.PostAsync("/Excursions/UnassignTeamMember", Form(new()
-        {
-            ["excursionId"] = s.ExcursionId.ToString(),
-            ["teamMemberId"] = s.TeamMemberId.ToString(),
-        }));
-
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
-        (await response.Content.ReadAsStringAsync()).Should().Contain("\"success\":false");
-    }
-
-    [Fact]
-    public async Task UpdateTeamAttendance_Existing_MarksPresent()
-    {
-        using var factory = new CedevaWebApplicationFactory();
-        var s = SeedFull(factory);
-        var client = factory.CreateClientFor("u1", s.OrgId, "Coordinator");
-
-        (await client.PostAsync("/Excursions/AssignTeamMember", Form(new()
-        {
-            ["excursionId"] = s.ExcursionId.ToString(),
-            ["teamMemberId"] = s.TeamMemberId.ToString(),
-        }))).EnsureSuccessStatusCode();
-
-        int etmId;
-        await using (var ctx = factory.NewDbContext())
-        {
-            etmId = (await ctx.ExcursionTeamMembers.SingleAsync(
-                t => t.ExcursionId == s.ExcursionId && t.TeamMemberId == s.TeamMemberId)).Id;
-        }
-
-        var response = await client.PostAsync("/Excursions/UpdateTeamAttendance", Form(new()
-        {
-            ["excursionTeamMemberId"] = etmId.ToString(),
-            ["isPresent"] = "true",
-        }));
-
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
-        (await response.Content.ReadAsStringAsync()).Should().Contain("\"success\":true");
-
-        await using var verify = factory.NewDbContext();
-        (await verify.ExcursionTeamMembers.SingleAsync(t => t.Id == etmId)).IsPresent.Should().BeTrue();
-    }
-
-    [Fact]
-    public async Task UpdateTeamAttendance_Unknown_ReturnsSuccessFalse()
-    {
-        using var factory = new CedevaWebApplicationFactory();
-        var s = SeedFull(factory);
-        var client = factory.CreateClientFor("u1", s.OrgId, "Coordinator");
-
-        var response = await client.PostAsync("/Excursions/UpdateTeamAttendance", Form(new()
-        {
-            ["excursionTeamMemberId"] = "999999",
-            ["isPresent"] = "true",
-        }));
-
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
-        (await response.Content.ReadAsStringAsync()).Should().Contain("\"success\":false");
     }
 
     // ---------------------------------------------------------------------

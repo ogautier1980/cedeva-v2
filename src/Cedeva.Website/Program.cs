@@ -212,7 +212,6 @@ try
         containerBuilder.RegisterType<ContactCsvImporter>().As<ICsvEntityImporter>().InstancePerLifetimeScope();
         containerBuilder.RegisterType<ActivityCsvImporter>().As<ICsvEntityImporter>().InstancePerLifetimeScope();
         containerBuilder.RegisterType<OrganisationCsvImporter>().As<ICsvEntityImporter>().InstancePerLifetimeScope();
-        containerBuilder.RegisterType<ExcursionViewModelBuilderService>().As<IExcursionViewModelBuilderService>().InstancePerLifetimeScope();
         containerBuilder.RegisterType<FinancialCalculationService>().As<IFinancialCalculationService>().InstancePerLifetimeScope();
         containerBuilder.RegisterType<SessionStateService>().As<ISessionStateService>().InstancePerLifetimeScope();
         containerBuilder.RegisterType<BookingQuestionService>().As<IBookingQuestionService>().InstancePerLifetimeScope();

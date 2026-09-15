@@ -3899,6 +3899,12 @@
   <data name="Excursion.AllRegistered" xml:space="preserve">
     <value>Alle ingeschrevenen</value>
   </data>
+  <data name="Excursion.AllConcernedChildren" xml:space="preserve">
+    <value>Alle betrokken kinderen</value>
+  </data>
+  <data name="Excursion.PayOnline" xml:space="preserve">
+    <value>De uitstap online betalen</value>
+  </data>
   <data name="Excursion.NotYetRegistered" xml:space="preserve">
     <value>Ingeschreven voor de activiteit, nog niet voor deze uitstap</value>
   </data>

@@ -24,6 +24,12 @@ public interface IExcursionService
     Task<ExcursionRegistration> RegisterChildAsync(int excursionId, int bookingId);
 
     /// <summary>
+    /// Registers every given booking that isn't registered yet (idempotent), billing the excursion
+    /// cost once per child. Returns only the registrations actually created.
+    /// </summary>
+    Task<List<ExcursionRegistration>> EnsureRegisteredAsync(int excursionId, IReadOnlyCollection<int> bookingIds);
+
+    /// <summary>
     /// Désinscrit un enfant d'une excursion
     /// Réduit Booking.TotalAmount et crée une transaction compensatoire
     /// </summary>
@@ -34,10 +40,6 @@ public interface IExcursionService
     /// </summary>
     Task<List<ExcursionRegistration>> GetRegistrationsAsync(int excursionId);
 
-    /// <summary>
-    /// Met à jour la présence d'un enfant à une excursion
-    /// </summary>
-    Task<bool> UpdateAttendanceAsync(int registrationId, bool isPresent);
 
     /// <summary>
     /// Récupère le résumé financier d'une excursion

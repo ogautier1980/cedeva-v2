@@ -22,18 +22,6 @@
             <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-outline-secondary">
                 <i class="fas fa-edit"></i> @Localizer["Edit"]
             </a>
-            <a asp-action="Registrations" asp-route-id="@Model.Id" class="btn btn-primary">
-                <i class="fas fa-user-check"></i> @Localizer["Excursion.Registrations"]
-            </a>
-            <a asp-action="Attendance" asp-route-id="@Model.Id" class="btn btn-success">
-                <i class="fas fa-clipboard-check"></i> @Localizer["Excursion.Attendance"]
-            </a>
-            <a asp-action="Expenses" asp-route-id="@Model.Id" class="btn btn-outline-warning">
-                <i class="fas fa-euro-sign"></i> @Localizer["Excursion.Expenses"]
-            </a>
-            <a asp-action="TeamManagement" asp-route-id="@Model.Id" class="btn btn-outline-info">
-                <i class="fas fa-users-cog"></i> @Localizer["Excursion.TeamMembers"]
-            </a>
             <a asp-action="SendEmail" asp-route-id="@Model.Id" class="btn btn-outline-info">
                 <i class="fas fa-envelope"></i> @Localizer["Excursion.SendEmailToParents"]
             </a>
@@ -110,7 +98,6 @@
                                     <tr>
                                         <th scope="col">@Localizer["Field.FirstName"]</th>
                                         <th scope="col">@Localizer["Field.LastName"]</th>
-                                        <th scope="col">@Localizer["Excursion.Presence"]</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -119,16 +106,6 @@
                                         <tr>
                                             <td>@reg.Booking.Child.FirstName</td>
                                             <td>@reg.Booking.Child.LastName</td>
-                                            <td>
-                                                @if (reg.IsPresent)
-                                                {
-                                                    <span class="badge bg-success">@Localizer["Present"]</span>
-                                                }
-                                                else
-                                                {
-                                                    <span class="badge bg-secondary">@Localizer["Absent"]</span>
-                                                }
-                                            </td>
                                         </tr>
                                     }
                                 </tbody>
@@ -153,17 +130,9 @@
                 </div>
                 <div class="card-body">
                     <div class="row text-center">
-                        <div class="col-4">
+                        <div class="col-12">
                             <div class="h4 mb-0 text-primary">@Model.Registrations.Count</div>
                             <small class="text-muted">@Localizer["Excursion.Registrations"]</small>
-                        </div>
-                        <div class="col-4">
-                            <div class="h4 mb-0 text-success">@Model.Registrations.Count(r => r.IsPresent)</div>
-                            <small class="text-muted">@Localizer["Excursion.PresentCount"]</small>
-                        </div>
-                        <div class="col-4">
-                            <div class="h4 mb-0 text-danger">@Model.Registrations.Count(r => !r.IsPresent)</div>
-                            <small class="text-muted">@Localizer["Excursion.AbsentCount"]</small>
                         </div>
                     </div>
                 </div>
@@ -175,48 +144,12 @@
                     <h6 class="mb-0"><i class="fas fa-chart-line"></i> @Localizer["Excursion.FinancialSummary"]</h6>
                 </div>
                 <div class="card-body">
-                    <div class="d-flex justify-content-between mb-2">
+                    <div class="d-flex justify-content-between">
                         <span class="text-muted">@Localizer["Excursion.TotalRevenue"]</span>
                         <strong class="text-success">@((Model.Registrations.Count * Model.Cost).ToString("C2"))</strong>
                     </div>
-                    <div class="d-flex justify-content-between mb-2">
-                        <span class="text-muted">@Localizer["Excursion.TotalExpenses"]</span>
-                        <strong class="text-danger">@(Model.Expenses.Sum(e => e.Amount).ToString("C2"))</strong>
-                    </div>
-                    <hr class="my-2" />
-                    <div class="d-flex justify-content-between">
-                        <span class="fw-bold">@Localizer["Excursion.NetBalance"]</span>
-                        @{ var netBalance = (Model.Registrations.Count * Model.Cost) - Model.Expenses.Sum(e => e.Amount); }
-                        <strong class="@(netBalance >= 0 ? "text-success" : "text-danger")">@netBalance.ToString("C2")</strong>
-                    </div>
                 </div>
             </div>
-
-            <!-- Team members -->
-            @if (Model.TeamMembers.Any())
-            {
-                <div class="card shadow">
-                    <div class="card-header">
-                        <h6 class="mb-0"><i class="fas fa-users-cog"></i> @Localizer["Excursion.TeamMembers"]</h6>
-                    </div>
-                    <div class="list-group list-group-flush">
-                        @foreach (var tm in Model.TeamMembers)
-                        {
-                            <div class="list-group-item d-flex justify-content-between align-items-center">
-                                <span>@tm.TeamMember.FirstName @tm.TeamMember.LastName</span>
-                                @if (tm.IsPresent)
-                                {
-                                    <span class="badge bg-success">@Localizer["Present"]</span>
-                                }
-                                else
-                                {
-                                    <span class="badge bg-secondary">@Localizer["Assigned"]</span>
-                                }
-                            </div>
-                        }
-                    </div>
-                </div>
-            }
         </div>
     </div>
 

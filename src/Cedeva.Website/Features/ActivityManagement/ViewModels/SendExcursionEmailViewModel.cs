@@ -24,9 +24,6 @@ public class SendExcursionEmailViewModel
     [Display(Name = "Field.Message")]
     public string Message { get; set; } = string.Empty;
 
-    [Display(Name = "Email.SendSeparateEmailPerChild")]
-    public bool SendSeparateEmailPerChild { get; set; } = true;
-
     [Display(Name = "Field.Attachment")]
     public IFormFile? AttachmentFile { get; set; }
 
