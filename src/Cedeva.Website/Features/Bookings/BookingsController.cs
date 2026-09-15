@@ -32,6 +32,7 @@ public class BookingsController : Controller
     private readonly IExportFacadeService _exportServices;
     private readonly IEmailService _emailService;
     private readonly IEmailFacadeService _emailServices;
+    private readonly IPaymentLinkEmailService _paymentLinkEmailService;
     private readonly IBookingQuestionService _bookingQuestionService;
     private readonly ICedevaControllerContext<BookingsController> _ctx;
 
@@ -42,6 +43,7 @@ public class BookingsController : Controller
         IExportFacadeService exportServices,
         IEmailService emailService,
         IEmailFacadeService emailServices,
+        IPaymentLinkEmailService paymentLinkEmailService,
         IBookingQuestionService bookingQuestionService,
         ICedevaControllerContext<BookingsController> ctx)
     {
@@ -51,6 +53,7 @@ public class BookingsController : Controller
         _exportServices = exportServices;
         _emailService = emailService;
         _emailServices = emailServices;
+        _paymentLinkEmailService = paymentLinkEmailService;
         _bookingQuestionService = bookingQuestionService;
         _ctx = ctx;
     }
@@ -786,23 +789,42 @@ public class BookingsController : Controller
         try
         {
             var organisation = await _context.Organisations.FindAsync(activity.OrganisationId);
+            var sent = false;
 
-            // Send via the activity/organisation BookingConfirmation template (every organisation has
-            // a default template library, so this resolves without a hard-coded fallback).
             if (organisation != null)
             {
-                await _emailServices.SendBookingTemplateAsync(
-                    EmailTemplateType.BookingConfirmation, activity.OrganisationId,
-                    parent.GetEmailAddresses().ToArray(), fullBooking, organisation);
+                var amountDue = fullBooking.TotalAmount - fullBooking.PaidAmount;
+                if (amountDue > 0)
+                {
+                    // Combined confirmation + Mollie/Stripe payment link (with QR code) for the
+                    // remaining balance, instead of the plain confirmation template.
+                    var checkoutUrl = Url.Action("Checkout", "OnlinePayment", new { bookingId = fullBooking.Id }, Request.Scheme)!;
+                    sent = await _paymentLinkEmailService.SendPaymentLinkEmailAsync(fullBooking, organisation, checkoutUrl);
+                }
+                else
+                {
+                    // Send via the activity/organisation BookingConfirmation template (every organisation
+                    // has a default template library, so this resolves without a hard-coded fallback).
+                    sent = await _emailServices.SendBookingTemplateAsync(
+                        EmailTemplateType.BookingConfirmation, activity.OrganisationId,
+                        parent.GetEmailAddresses().ToArray(), fullBooking, organisation);
+                }
             }
 
-            TempData[ControllerExtensions.SuccessMessageKey] = _ctx.Localizer["Message.BookingConfirmedEmailSent"].Value;
+            if (sent)
+            {
+                TempData[ControllerExtensions.SuccessMessageKey] = _ctx.Localizer["Message.BookingConfirmedEmailSent"].Value;
+            }
+            else
+            {
+                TempData[ControllerExtensions.ErrorMessageKey] = _ctx.Localizer["Message.BookingConfirmedEmailFailed"].Value;
+            }
         }
         catch (Exception ex)
         {
             _ctx.Logger.LogWarning(ex, "Failed to send booking confirmation email to {Email} for booking {BookingId}",
                 parent.Email, booking.Id);
-            TempData[ControllerExtensions.WarningMessageKey] = string.Format(_ctx.Localizer["Message.BookingConfirmedEmailFailed"].Value, ex.Message);
+            TempData[ControllerExtensions.ErrorMessageKey] = _ctx.Localizer["Message.BookingConfirmedEmailFailed"].Value;
         }
     }
 

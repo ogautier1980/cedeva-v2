@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using Autofac;
 using Cedeva.Core.Entities;
 using Cedeva.Core.Enums;
 using Cedeva.Tests.TestSupport;
@@ -589,6 +590,134 @@ public class BookingsControllerCoverageTests
         await using var db = factory.NewDbContext();
         var updated = await db.Bookings.IgnoreQueryFilters().FirstAsync(b => b.Id == g.Booking.Id);
         updated.IsConfirmed.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task EditPost_ConfirmingWithBalanceDue_SendsPaymentLinkEmailWithQrCode()
+    {
+        var fake = new FakeEmailService();
+        using var factory = new CedevaWebApplicationFactory
+        {
+            ConfigureExtraTestContainer = b => b.RegisterInstance(fake).As<Cedeva.Core.Interfaces.IEmailService>(),
+        };
+        // Seeded booking has TotalAmount 40 / PaidAmount 0, so a balance remains due at confirmation.
+        var g = SeedFullGraph(factory, bookingConfirmed: false);
+        var client = factory.CreateClientFor("u1", g.Org.Id, Coordinator);
+
+        var form = new FormUrlEncodedContent(new[]
+        {
+            new KeyValuePair<string, string>("Id", g.Booking.Id.ToString()),
+            new KeyValuePair<string, string>("BookingDate", "2026-06-12"),
+            new KeyValuePair<string, string>("ChildId", g.Child.Id.ToString()),
+            new KeyValuePair<string, string>("ActivityId", g.Activity.Id.ToString()),
+            new KeyValuePair<string, string>("IsConfirmed", "true"),
+            new KeyValuePair<string, string>("IsMedicalSheet", "false"),
+            new KeyValuePair<string, string>("TotalAmount", "40"), // matches seeded TotalAmount, keeping PaidAmount 0 < TotalAmount.
+        });
+
+        var response = await client.PostAsync($"/Bookings/Edit/{g.Booking.Id}", form);
+        response.StatusCode.Should().Be(HttpStatusCode.Redirect);
+
+        fake.Sent.Should().ContainSingle();
+        var message = fake.Sent.Single();
+        message.To.Should().ContainSingle(g.Parent.Email);
+        message.Html.Should().Contain("data:image/png;base64,", "a QR code for the Mollie/Stripe checkout link must be embedded");
+        message.Html.Should().Contain("/OnlinePayment/Checkout", "the email must link to the online payment checkout");
+
+        // The coordinator must see a green "email sent" alert on the page they land on.
+        var details = await client.GetStringAsync(response.Headers.Location!.ToString());
+        details.Should().Contain("alert-success");
+    }
+
+    [Fact]
+    public async Task EditPost_ConfirmingWhenEmailSendFails_ShowsErrorAlert()
+    {
+        using var factory = new CedevaWebApplicationFactory
+        {
+            ConfigureExtraTestContainer = b => b.RegisterInstance(new ThrowingEmailService()).As<Cedeva.Core.Interfaces.IEmailService>(),
+        };
+        var g = SeedFullGraph(factory, bookingConfirmed: false);
+        var client = factory.CreateClientFor("u1", g.Org.Id, Coordinator);
+
+        var form = new FormUrlEncodedContent(new[]
+        {
+            new KeyValuePair<string, string>("Id", g.Booking.Id.ToString()),
+            new KeyValuePair<string, string>("BookingDate", "2026-06-12"),
+            new KeyValuePair<string, string>("ChildId", g.Child.Id.ToString()),
+            new KeyValuePair<string, string>("ActivityId", g.Activity.Id.ToString()),
+            new KeyValuePair<string, string>("IsConfirmed", "true"),
+            new KeyValuePair<string, string>("IsMedicalSheet", "false"),
+            new KeyValuePair<string, string>("TotalAmount", "40"),
+        });
+
+        var response = await client.PostAsync($"/Bookings/Edit/{g.Booking.Id}", form);
+        response.StatusCode.Should().Be(HttpStatusCode.Redirect);
+
+        // The booking is still confirmed, but the failed send must surface as a red alert.
+        await using var db = factory.NewDbContext();
+        (await db.Bookings.IgnoreQueryFilters().FirstAsync(b => b.Id == g.Booking.Id)).IsConfirmed.Should().BeTrue();
+
+        var details = await client.GetStringAsync(response.Headers.Location!.ToString());
+        details.Should().Contain("alert-danger");
+    }
+
+    /// <summary>Stands in for a broken mail provider (e.g. Brevo returning 401) so the controller's
+    /// failure feedback can be exercised.</summary>
+    private sealed class ThrowingEmailService : Cedeva.Core.Interfaces.IEmailService
+    {
+        public Task SendEmailAsync(string to, string subject, string htmlContent, string? attachmentPath = null)
+            => throw new InvalidOperationException("mail provider unavailable");
+
+        public Task SendEmailAsync(IEnumerable<string> to, string subject, string htmlContent, string? attachmentPath = null)
+            => throw new InvalidOperationException("mail provider unavailable");
+
+        public Task SendWelcomeEmailAsync(string userEmail, string userName, string organisationName)
+            => throw new InvalidOperationException("mail provider unavailable");
+    }
+
+    [Fact]
+    public async Task EditPost_ConfirmingFullyPaidBooking_SendsPlainConfirmationEmail_NoQrCode()
+    {
+        var fake = new FakeEmailService();
+        using var factory = new CedevaWebApplicationFactory
+        {
+            ConfigureExtraTestContainer = b => b.RegisterInstance(fake).As<Cedeva.Core.Interfaces.IEmailService>(),
+        };
+        var g = SeedFullGraph(factory, bookingConfirmed: false);
+        await using (var seedCtx = factory.NewDbContext())
+        {
+            var booking = await seedCtx.Bookings.IgnoreQueryFilters().SingleAsync(b => b.Id == g.Booking.Id);
+            booking.PaidAmount = booking.TotalAmount; // fully paid already: nothing left to collect.
+            seedCtx.Add(new EmailTemplate
+            {
+                OrganisationId = g.Org.Id,
+                TemplateType = EmailTemplateType.BookingConfirmation,
+                Name = "Confirmation",
+                Subject = "Confirmation",
+                HtmlContent = "<p>Confirmé</p>",
+                IsDefault = true
+            });
+            await seedCtx.SaveChangesAsync();
+        }
+        var client = factory.CreateClientFor("u1", g.Org.Id, Coordinator);
+
+        var form = new FormUrlEncodedContent(new[]
+        {
+            new KeyValuePair<string, string>("Id", g.Booking.Id.ToString()),
+            new KeyValuePair<string, string>("BookingDate", "2026-06-12"),
+            new KeyValuePair<string, string>("ChildId", g.Child.Id.ToString()),
+            new KeyValuePair<string, string>("ActivityId", g.Activity.Id.ToString()),
+            new KeyValuePair<string, string>("IsConfirmed", "true"),
+            new KeyValuePair<string, string>("IsMedicalSheet", "false"),
+            new KeyValuePair<string, string>("TotalAmount", "40"), // matches seeded TotalAmount == PaidAmount (fully paid).
+        });
+
+        var response = await client.PostAsync($"/Bookings/Edit/{g.Booking.Id}", form);
+        response.StatusCode.Should().Be(HttpStatusCode.Redirect);
+
+        fake.Sent.Should().ContainSingle();
+        fake.Sent.Single().Html.Should().NotContain("data:image/png;base64,",
+            "a fully paid booking has nothing to collect, so no payment QR code should be sent");
     }
 
     [Fact]

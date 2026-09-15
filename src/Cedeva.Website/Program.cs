@@ -200,6 +200,7 @@ try
                 : ctx.Resolve<MolliePaymentGateway>();
         }).InstancePerLifetimeScope();
         containerBuilder.RegisterType<QrCodeService>().As<IQrCodeService>().InstancePerLifetimeScope();
+        containerBuilder.RegisterType<PaymentLinkEmailService>().As<IPaymentLinkEmailService>().InstancePerLifetimeScope();
         containerBuilder.RegisterType<BookingPaymentService>().As<IBookingPaymentService>().InstancePerLifetimeScope();
         containerBuilder.RegisterType<ExcursionService>().As<IExcursionService>().InstancePerLifetimeScope();
         containerBuilder.RegisterType<ContactDirectoryService>().As<IContactDirectoryService>().InstancePerLifetimeScope();

@@ -5,6 +5,7 @@
 }
 
 <div class="container-fluid">
+    @await Html.PartialAsync("_AlertMessages")
     <div class="row">
         <div class="col-lg-8">
             <div class="card shadow">
@@ -127,15 +128,10 @@
                                 </div>
                             </div>
 
-                            @{
-                                var confirmOnClick = Model.PaymentStatus != PaymentStatus.Paid
-                                    ? "return confirm(" + Json.Serialize(string.Format(
-                                        Localizer["ActivityManagement.ConfirmUnpaidBooking"].Value,
-                                        (Model.TotalAmount - Model.PaidAmount).ToString("C2", new System.Globalization.CultureInfo("fr-BE")))) + ");"
-                                    : null;
-                            }
+                            @* No "not fully paid" confirmation prompt: confirming is precisely what
+                               sends the parent the payment link, so an unpaid balance is expected. *@
                             <div class="d-flex gap-2 mb-2">
-                                <button type="submit" name="IsConfirmed" value="true" class="btn btn-success" onclick="@confirmOnClick">
+                                <button type="submit" name="IsConfirmed" value="true" class="btn btn-success">
                                     <i class="fas fa-check me-2"></i>@Localizer["Bookings.ConfirmBooking"]
                                 </button>
                                 <button type="submit" class="btn btn-outline-danger"

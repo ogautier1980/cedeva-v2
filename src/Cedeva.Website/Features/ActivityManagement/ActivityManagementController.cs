@@ -27,7 +27,7 @@ public class ActivityManagementController : Controller
     private readonly ISessionStateService _sessionState;
     private readonly IStringLocalizer<SharedResources> _localizer;
     private readonly IExportFacadeService _exportServices;
-    private readonly IQrCodeService _qrCodeService;
+    private readonly IPaymentLinkEmailService _paymentLinkEmailService;
 
     public ActivityManagementController(
         CedevaDbContext context,
@@ -37,7 +37,7 @@ public class ActivityManagementController : Controller
         ISessionStateService sessionState,
         IStringLocalizer<SharedResources> localizer,
         IExportFacadeService exportServices,
-        IQrCodeService qrCodeService)
+        IPaymentLinkEmailService paymentLinkEmailService)
     {
         _context = context;
         _logger = logger;
@@ -46,7 +46,7 @@ public class ActivityManagementController : Controller
         _sessionState = sessionState;
         _localizer = localizer;
         _exportServices = exportServices;
-        _qrCodeService = qrCodeService;
+        _paymentLinkEmailService = paymentLinkEmailService;
     }
 
     [HttpGet]
@@ -1645,54 +1645,19 @@ public class ActivityManagementController : Controller
     }
 
     /// <summary>
-    /// Sends the parent a Stripe payment link (card + Bancontact) with a QR code for the
-    /// remaining balance. Best-effort: never blocks the confirmation itself.
+    /// Sends the parent a Mollie/Stripe payment link (with QR code) for the remaining balance.
+    /// Best-effort: never blocks the confirmation itself (see IPaymentLinkEmailService).
     /// </summary>
     private async Task SendPaymentLinkEmailAsync(Booking booking)
     {
-        try
-        {
-            var organisation = await _context.Organisations
-                .FirstOrDefaultAsync(o => o.Id == booking.Activity.OrganisationId);
-            var parentEmail = booking.Child.Parent?.Email;
+        var organisation = await _context.Organisations
+            .FirstOrDefaultAsync(o => o.Id == booking.Activity.OrganisationId);
 
-            if (organisation == null || string.IsNullOrWhiteSpace(parentEmail))
-                return;
+        if (organisation == null)
+            return;
 
-            var checkoutUrl = Url.Action("Checkout", "OnlinePayment", new { bookingId = booking.Id }, Request.Scheme)!;
-            var qrDataUri = _qrCodeService.GenerateDataUri(checkoutUrl);
-            var qrImageTag = $"<img src=\"{qrDataUri}\" alt=\"QR paiement\" style=\"width:180px;height:180px;\">";
-
-            var extraVariables = new Dictionary<string, string>
-            {
-                ["lien_paiement"] = checkoutUrl,
-                ["qr_code_paiement"] = qrImageTag
-            };
-
-            var sent = await _emailServices.SendBookingTemplateAsync(
-                EmailTemplateType.PaymentLinkRequest, organisation.Id, [parentEmail], booking, organisation, extraVariables);
-
-            if (!sent)
-            {
-                var subject = $"Lien de paiement – {booking.Child.FirstName} {booking.Child.LastName} – {booking.Activity.Name}";
-                var body =
-                    $"<h2 style=\"color:#007faf;\">Confirmation et paiement de votre inscription</h2>" +
-                    $"<p>Chère famille,</p>" +
-                    $"<p>Nous vous confirmons que l'inscription de <strong>{booking.Child.FirstName} {booking.Child.LastName}</strong> " +
-                    $"à <strong>{booking.Activity.Name}</strong> est validée.</p>" +
-                    $"<p><strong>Montant restant à payer :</strong> {(booking.TotalAmount - booking.PaidAmount):F2} €</p>" +
-                    $"<p style=\"text-align:center;\"><a href=\"{checkoutUrl}\" style=\"background:#007faf;color:#ffffff;" +
-                    $"padding:12px 24px;border-radius:4px;text-decoration:none;display:inline-block;\">Payer en ligne</a></p>" +
-                    $"<p style=\"text-align:center;\">Ou scannez ce QR code pour payer par carte ou Bancontact :</p>" +
-                    $"<p style=\"text-align:center;\">{qrImageTag}</p>" +
-                    $"<p>Cordialement,<br><strong>{organisation.Name}</strong></p>";
-                await _emailServices.Email.SendEmailAsync(parentEmail, subject, body);
-            }
-        }
-        catch (Exception ex)
-        {
-            _logger.LogWarning(ex, "Failed to send payment link email for booking {BookingId}", booking.Id);
-        }
+        var checkoutUrl = Url.Action("Checkout", "OnlinePayment", new { bookingId = booking.Id }, Request.Scheme)!;
+        await _paymentLinkEmailService.SendPaymentLinkEmailAsync(booking, organisation, checkoutUrl);
     }
 
     // GET: ActivityManagement/GetManageBookingsStats
