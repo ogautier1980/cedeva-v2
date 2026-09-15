@@ -3,6 +3,8 @@
 
 @{
     ViewData["Title"] = Localizer["ActivityManagement.GroupAssignment"];
+    ViewData["ActivityId"] = Model.ActivityId;
+    ViewData["NavSection"] = "ManageBookings";
 }
 
 @await Html.PartialAsync("_AlertMessages")

@@ -1,6 +1,8 @@
 @model Cedeva.Website.Features.Activities.ViewModels.ActivityViewModel
 @{
     ViewData["Title"] = Model.Name;
+    ViewData["ActivityId"] = Model.Id;
+    ViewData["NavSection"] = "ActivitySettings";
 }
 
 <div class="container-fluid">

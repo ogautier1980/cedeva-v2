@@ -1,6 +1,8 @@
 @model Cedeva.Website.Features.Bookings.ViewModels.BookingViewModel
 @{
     ViewData["Title"] = Localizer["Bookings.DeleteBooking"];
+    ViewData["ActivityId"] = Model.ActivityId;
+    ViewData["NavSection"] = "Bookings";
 }
 
 <div class="container-fluid">

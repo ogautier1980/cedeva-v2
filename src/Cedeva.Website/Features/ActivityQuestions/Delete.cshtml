@@ -1,6 +1,8 @@
 @model Cedeva.Website.Features.ActivityQuestions.ViewModels.ActivityQuestionViewModel
 @{
     ViewData["Title"] = Localizer["ActivityQuestions.Delete"];
+    ViewData["ActivityId"] = Model.ActivityId;
+    ViewData["NavSection"] = "ActivityQuestions";
 }
 
 <div class="container-fluid">

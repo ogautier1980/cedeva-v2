@@ -1,6 +1,8 @@
 @model Cedeva.Website.Features.ActivityGroups.ViewModels.ActivityGroupViewModel
 @{
     ViewData["Title"] = Localizer["ActivityGroups.Edit"];
+    ViewData["ActivityId"] = Model.ActivityId;
+    ViewData["NavSection"] = "ActivityGroups";
 }
 
 <div class="container-fluid">
