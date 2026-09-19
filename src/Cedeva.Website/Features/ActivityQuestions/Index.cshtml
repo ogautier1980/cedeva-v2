@@ -4,6 +4,7 @@
     ViewData["Title"] = Localizer["ActivityQuestions.Title"];
     var activityName = ViewData["ActivityName"] as string;
     var activityId = ViewData["ActivityId"] as int?;
+    ViewData["NavSection"] = "ActivityQuestions";
     var isSingleActivity = activityId.HasValue;
 }
 

@@ -6,6 +6,19 @@
     // ActivityManagement navigation variables
     int activityId = ViewData.ContainsKey("ActivityId") ? Convert.ToInt32(ViewData["ActivityId"]) : 0;
     string navSection = ViewData.ContainsKey("NavSection") ? ViewData["NavSection"]?.ToString() ?? "" : "";
+    string navAction = ViewData.ContainsKey("NavAction") ? ViewData["NavAction"]?.ToString() ?? "" : "";
+
+    // The activity menu follows the section being worked in: the pages that help there, not every
+    // page of the activity. Booking and presence screens share the same (default) set.
+    string navFamily = navSection switch
+    {
+        "Financial" => "financial",
+        "Emails" => "emails",
+        "Team" or "TeamPresences" => "team",
+        "Excursions" => "excursions",
+        "ActivitySettings" or "ActivityGroups" or "ActivityQuestions" => "settings",
+        _ => "presences"
+    };
 
     List<Cedeva.Core.Entities.ActivityGroup> activityGroups = new();
     int? todayActivityDayId = null;
@@ -104,6 +117,110 @@
                                 </a>
                             </li>
 
+                            @if (navFamily == "financial")
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link @(navAction == "Transactions" ? "active" : "")"
+                                       asp-action="Transactions" asp-controller="Financial">
+                                        <i class="fas fa-exchange-alt"></i> @Localizer["Financial.Transactions"]
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link @(navAction == "TeamSalaries" ? "active" : "")"
+                                       asp-action="TeamSalaries" asp-controller="Financial">
+                                        <i class="fas fa-users"></i> @Localizer["Financial.TeamSalaries"]
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link @(navAction == "Payout" ? "active" : "")"
+                                       asp-action="Payout" asp-controller="Financial" asp-route-id="@activityId">
+                                        <i class="fas fa-money-check"></i> @Localizer["Financial.Payout"]
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link @(navAction == "Report" ? "active" : "")"
+                                       asp-action="Report" asp-controller="Financial">
+                                        <i class="fas fa-chart-line"></i> @Localizer["Financial.Report"]
+                                    </a>
+                                </li>
+                            }
+                            else if (navFamily == "emails")
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link @(navAction == "SendEmail" ? "active" : "")"
+                                       asp-action="SendEmail" asp-controller="ActivityManagement" asp-route-id="@activityId">
+                                        <i class="fas fa-paper-plane"></i> @Localizer["ActivityManagement.Emails"]
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-action="Index" asp-controller="EmailTemplates" asp-route-activityId="@activityId">
+                                        <i class="fas fa-file-alt"></i> @Localizer["ActivityManagement.EmailTemplates"]
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link @(navAction == "SentEmails" ? "active" : "")"
+                                       asp-action="SentEmails" asp-controller="ActivityManagement" asp-route-id="@activityId">
+                                        <i class="fas fa-inbox"></i> @Localizer["Email.History"]
+                                    </a>
+                                </li>
+                            }
+                            else if (navFamily == "team")
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link @(navSection == "Team" ? "active" : "")"
+                                       asp-action="TeamMembers" asp-controller="ActivityManagement" asp-route-id="@activityId">
+                                        <i class="fas fa-users"></i> @Localizer["ActivityManagement.Team"]
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link @(navSection == "TeamPresences" ? "active" : "")"
+                                       asp-action="TeamPresences" asp-controller="ActivityManagement" asp-route-id="@activityId">
+                                        <i class="fas fa-user-check"></i> @Localizer["ActivityManagement.TeamPresences"]
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-action="Payout" asp-controller="Financial" asp-route-id="@activityId">
+                                        <i class="fas fa-money-check"></i> @Localizer["Financial.Payout"]
+                                    </a>
+                                </li>
+                            }
+                            else if (navFamily == "excursions")
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link @(navAction == "Index" ? "active" : "")"
+                                       asp-action="Index" asp-controller="Excursions" asp-route-id="@activityId">
+                                        <i class="fas fa-bus"></i> @Localizer["ActivityManagement.Excursions"]
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-action="Create" asp-controller="Excursions" asp-route-id="@activityId">
+                                        <i class="fas fa-plus-circle"></i> @Localizer["Excursion.CreateNew"]
+                                    </a>
+                                </li>
+                            }
+                            else if (navFamily == "settings")
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link @(navSection == "ActivitySettings" ? "active" : "")"
+                                       asp-action="Edit" asp-controller="Activities" asp-route-id="@activityId">
+                                        <i class="fas fa-cog"></i> @Localizer["ActivityManagement.Settings"]
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link @(navSection == "ActivityGroups" ? "active" : "")"
+                                       asp-action="Index" asp-controller="ActivityGroups" asp-route-activityId="@activityId">
+                                        <i class="fas fa-layer-group"></i> @Localizer["ActivityGroups.Title"]
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link @(navSection == "ActivityQuestions" ? "active" : "")"
+                                       asp-action="Index" asp-controller="ActivityQuestions" asp-route-activityId="@activityId">
+                                        <i class="fas fa-question-circle"></i> @Localizer["ActivityQuestions.Title"]
+                                    </a>
+                                </li>
+                            }
+                            else
+                            {
                             <!-- Groupes (dropdown) -->
                             <li class="nav-item dropdown">
                                 <button class="nav-link dropdown-toggle @(navSection == "Groups" ? "active" : "") btn btn-link"
@@ -161,6 +278,7 @@
                                     <i class="fas fa-child"></i> @Localizer["ActivityManagement.Childcare"]
                                 </a>
                             </li>
+                            }
                         </ul>
                     }
 

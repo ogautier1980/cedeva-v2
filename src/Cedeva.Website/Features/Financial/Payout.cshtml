@@ -1,0 +1,80 @@
+@model Cedeva.Website.Features.Financial.ViewModels.TeamSalariesViewModel
+@inject IStringLocalizer<SharedResources> Localizer
+@using Cedeva.Website.Localization
+
+@{
+    ViewData["Title"] = Localizer["Financial.Payout"];
+    ViewData["ActivityId"] = Model.ActivityId;
+    ViewData["ActivityName"] = Model.ActivityName;
+    ViewData["NavSection"] = "Financial";
+    ViewData["NavAction"] = "Payout";
+    var culture = new System.Globalization.CultureInfo("fr-BE");
+}
+
+<div class="container-fluid py-4">
+    @await Html.PartialAsync("_AlertMessages")
+
+    <h2 class="text-primary fw-bold mb-4">@Localizer["Financial.Payout"]</h2>
+
+    @if (!Model.TeamSalaries.Any())
+    {
+        <div class="alert alert-info">
+            <i class="fas fa-info-circle me-2"></i>@Localizer["Financial.NoTeamMembers"]
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive payout-table">
+            <table class="table align-middle">
+                <thead>
+                    <tr>
+                        <th scope="col">@Localizer["Field.FullName"]</th>
+                        <th scope="col">@Localizer["Field.BankAccountNumber"]</th>
+                        <th scope="col" class="text-end">@Localizer["Financial.AmountToPay"]</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var payout in Model.TeamSalaries)
+                    {
+                        <tr>
+                            <td class="fw-bold">@payout.TeamMemberName</td>
+                            <td>
+                                @if (string.IsNullOrWhiteSpace(payout.BankAccountNumber))
+                                {
+                                    <span class="text-danger">@Localizer["Financial.MissingBankAccount"]</span>
+                                }
+                                else
+                                {
+                                    @payout.BankAccountNumber
+                                }
+                            </td>
+                            <td class="text-end">@payout.TotalToPay.ToString("C2", culture)</td>
+                        </tr>
+                    }
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <th scope="row" colspan="2">@Localizer["Total"]</th>
+                        <th class="text-end">@Model.GrandTotal.ToString("C2", culture)</th>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    }
+</div>
+
+<style>
+    .payout-table {
+        max-width: 60rem;
+    }
+
+    .payout-table thead th {
+        background: none;
+        text-transform: none;
+        border-bottom: 1px solid #ddd;
+    }
+
+    .payout-table tbody tr:nth-child(odd) {
+        background-color: #f8f9fa;
+    }
+</style>

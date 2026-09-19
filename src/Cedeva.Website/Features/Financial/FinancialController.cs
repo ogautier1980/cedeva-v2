@@ -164,6 +164,51 @@ public class FinancialController : Controller
         return View(viewModel);
     }
 
+    // GET: Financial/Payout — what the activity still has to pay each team member, ready to hand
+    // over to whoever makes the transfers.
+    public async Task<IActionResult> Payout(int? id = null)
+    {
+        if (id.HasValue)
+            HttpContext.Session.SetInt32(SessionKeyActivityId, id.Value);
+
+        var activityId = HttpContext.Session.GetInt32(SessionKeyActivityId);
+        if (!activityId.HasValue)
+        {
+            return RedirectToAction(ActionIndex, ControllerActivities);
+        }
+
+        var activity = await _context.Activities
+            .Include(a => a.Days)
+                .ThenInclude(d => d.TeamMemberDays)
+            .Include(a => a.TeamMembers)
+            .FirstOrDefaultAsync(a => a.Id == activityId.Value);
+
+        if (activity == null)
+        {
+            return NotFound();
+        }
+
+        var payouts = new List<TeamSalaryViewModel>();
+        foreach (var teamMember in activity.TeamMembers.OrderBy(tm => tm.LastName).ThenBy(tm => tm.FirstName))
+        {
+            var presentDaysCount = _financialCalculationService.CalculateTeamMemberPresentDaysCount(activity, teamMember.TeamMemberId);
+            payouts.Add(await BuildTeamSalaryViewModelAsync(teamMember, presentDaysCount, activityId.Value));
+        }
+
+        var viewModel = new TeamSalariesViewModel
+        {
+            ActivityId = activity.Id,
+            ActivityName = activity.Name,
+            StartDate = activity.StartDate,
+            EndDate = activity.EndDate,
+            TotalDays = activity.Days.Count,
+            TeamSalaries = payouts,
+            GrandTotal = payouts.Sum(s => s.TotalToPay)
+        };
+
+        return View(viewModel);
+    }
+
     private async Task<TeamSalaryViewModel> BuildTeamSalaryViewModelAsync(TeamMember teamMember, int presentDaysCount, int activityId)
     {
         var expenses = await _context.Expenses
@@ -179,6 +224,7 @@ public class FinancialController : Controller
             TeamMemberId = teamMember.TeamMemberId,
             TeamMemberName = teamMember.FullName,
             Email = teamMember.Email,
+            BankAccountNumber = teamMember.BankAccountNumber,
             TeamRole = teamMember.TeamRole.ToString(),
             DaysCount = presentDaysCount,
             DailyCompensation = teamMember.DailyCompensation ?? 0,

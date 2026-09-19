@@ -5,6 +5,9 @@ public class TeamSalaryViewModel
     public int TeamMemberId { get; set; }
     public string TeamMemberName { get; set; } = string.Empty;
     public string Email { get; set; } = string.Empty;
+
+    /// <summary>Compte sur lequel le décompte est versé.</summary>
+    public string? BankAccountNumber { get; set; }
     public string TeamRole { get; set; } = string.Empty;
 
     /// <summary>

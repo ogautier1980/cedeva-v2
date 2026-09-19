@@ -2332,6 +2332,15 @@
   <data name="Financial.Report" xml:space="preserve">
     <value>Report</value>
   </data>
+  <data name="Financial.Payout" xml:space="preserve">
+    <value>Payout</value>
+  </data>
+  <data name="Financial.AmountToPay" xml:space="preserve">
+    <value>Amount to pay</value>
+  </data>
+  <data name="Financial.MissingBankAccount" xml:space="preserve">
+    <value>Missing account number</value>
+  </data>
   <data name="Financial.RevenueDetails" xml:space="preserve">
     <value>Revenue details</value>
   </data>

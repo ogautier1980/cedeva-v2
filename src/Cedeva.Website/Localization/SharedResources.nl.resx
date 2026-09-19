@@ -2332,6 +2332,15 @@
   <data name="Financial.Report" xml:space="preserve">
     <value>Rapport</value>
   </data>
+  <data name="Financial.Payout" xml:space="preserve">
+    <value>Afrekening</value>
+  </data>
+  <data name="Financial.AmountToPay" xml:space="preserve">
+    <value>Te betalen bedrag</value>
+  </data>
+  <data name="Financial.MissingBankAccount" xml:space="preserve">
+    <value>Rekeningnummer ontbreekt</value>
+  </data>
   <data name="Financial.RevenueDetails" xml:space="preserve">
     <value>Inkomstendetails</value>
   </data>
