@@ -218,6 +218,16 @@
                                         <i class="fas fa-question-circle"></i> @Localizer["ActivityQuestions.Title"]
                                     </a>
                                 </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-action="Index" asp-controller="Bookings" asp-route-activityId="@activityId">
+                                        <i class="fas fa-clipboard-list"></i> @Localizer["Bookings"]
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-action="EmbedCode" asp-controller="PublicRegistration" asp-route-id="@activityId">
+                                        <i class="fas fa-code"></i> @Localizer["PublicRegistration.IntegrationCode"]
+                                    </a>
+                                </li>
                             }
                             else
                             {

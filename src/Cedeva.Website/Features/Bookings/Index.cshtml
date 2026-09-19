@@ -84,7 +84,7 @@
                                 <tr data-href="@Url.Action("Details", new { id = booking.Id })">
                                     <td>@booking.BookingDate.ToString("dd/MM/yyyy")</td>
                                     <td>
-                                        <a asp-controller="Children" asp-action="Details" asp-route-id="@booking.ChildId">
+                                        <a asp-controller="Children" asp-action="Details" asp-route-id="@booking.ChildId" class="text-decoration-none">
                                             @booking.ChildFullName
                                         </a>
                                     </td>
