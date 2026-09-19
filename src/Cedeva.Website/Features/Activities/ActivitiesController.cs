@@ -164,6 +164,27 @@ public class ActivitiesController : Controller
 
         var viewModel = MapToViewModel(activity);
 
+        // Les champs de signalétique laissés vides reprennent ceux de l'organisation : on charge
+        // ces valeurs pour les afficher telles qu'elles seront réellement utilisées.
+        viewModel.OrganisationDefaults = await _context.Organisations
+            .Where(o => o.Id == activity.OrganisationId)
+            .Select(o => new ActivitySignaletiqueDefaultsViewModel
+            {
+                DisplayTitle = o.Name,
+                LogoUrl = o.LogoUrl,
+                Email = o.Email,
+                Phone1 = o.Phone1,
+                Phone2 = o.Phone2,
+                Street = o.Address != null ? o.Address.Street : null,
+                PostalCode = o.Address != null ? o.Address.PostalCode : null,
+                City = o.Address != null ? o.Address.City : null,
+                BankAccountNumber = o.BankAccountNumber,
+                CompanyNumber = o.CompanyNumber,
+                ResponsibleName = o.ResponsibleName,
+                ResponsibleSignatureUrl = o.ResponsibleSignatureUrl
+            })
+            .FirstOrDefaultAsync();
+
         // Fetch user display names for audit fields
         await PopulateAuditDisplayNamesAsync(viewModel, activity.CreatedBy, activity.ModifiedBy);
 

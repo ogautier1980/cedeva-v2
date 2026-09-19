@@ -71,50 +71,67 @@
                 </div>
                 <div class="card-body">
                     <p class="text-muted small">@Localizer["Activities.SignaletiqueHelp"]</p>
+                    @{
+                        // Un champ laissé vide sur l'activité reprend celui de l'organisation : on affiche
+                        // la valeur réellement utilisée, pas la mention du repli.
+                        var defaults = Model.OrganisationDefaults;
+                        var notDefined = Localizer["Activities.NotDefined"].Value;
+                        string Effective(string? own, string? fallback)
+                            => !string.IsNullOrWhiteSpace(own) ? own
+                                : !string.IsNullOrWhiteSpace(fallback) ? fallback
+                                : notDefined;
+                        string EffectiveAddress()
+                        {
+                            if (!string.IsNullOrWhiteSpace(Model.Street))
+                            {
+                                return $"{Model.Street}, {Model.PostalCode} {Model.City}";
+                            }
+                            if (defaults != null && !string.IsNullOrWhiteSpace(defaults.Street))
+                            {
+                                return $"{defaults.Street}, {defaults.PostalCode} {defaults.City}";
+                            }
+                            return notDefined;
+                        }
+                        var logoUrl = !string.IsNullOrEmpty(Model.LogoUrl) ? Model.LogoUrl : defaults?.LogoUrl;
+                        var signatureUrl = !string.IsNullOrEmpty(Model.ResponsibleSignatureUrl)
+                            ? Model.ResponsibleSignatureUrl
+                            : defaults?.ResponsibleSignatureUrl;
+                    }
                     <dl class="row mb-0">
                         <dt class="col-sm-3">@Localizer["Field.DisplayTitle"]</dt>
-                        <dd class="col-sm-9">@(string.IsNullOrWhiteSpace(Model.DisplayTitle) ? Model.OrganisationName : Model.DisplayTitle)</dd>
+                        <dd class="col-sm-9">@Effective(Model.DisplayTitle, defaults?.DisplayTitle ?? Model.OrganisationName)</dd>
 
-                        @if (!string.IsNullOrEmpty(Model.LogoUrl))
+                        @if (!string.IsNullOrEmpty(logoUrl))
                         {
                             <dt class="col-sm-3">@Localizer["Field.Logo"]</dt>
-                            <dd class="col-sm-9"><img src="@Model.LogoUrl" alt="Logo" class="img-thumbnail" style="max-width: 120px;" /></dd>
+                            <dd class="col-sm-9"><img src="@logoUrl" alt="Logo" class="img-thumbnail" style="max-width: 120px;" /></dd>
                         }
 
                         <dt class="col-sm-3">@Localizer["Field.Email"]</dt>
-                        <dd class="col-sm-9">@(string.IsNullOrWhiteSpace(Model.Email) ? Localizer["Activities.UsesOrganisationDefault"].Value : Model.Email)</dd>
+                        <dd class="col-sm-9">@Effective(Model.Email, defaults?.Email)</dd>
 
                         <dt class="col-sm-3">@Localizer["Field.Phone1"]</dt>
-                        <dd class="col-sm-9">@(string.IsNullOrWhiteSpace(Model.Phone1) ? Localizer["Activities.UsesOrganisationDefault"].Value : Model.Phone1)</dd>
+                        <dd class="col-sm-9">@Effective(Model.Phone1, defaults?.Phone1)</dd>
 
                         <dt class="col-sm-3">@Localizer["Field.Phone2"]</dt>
-                        <dd class="col-sm-9">@(string.IsNullOrWhiteSpace(Model.Phone2) ? Localizer["Activities.UsesOrganisationDefault"].Value : Model.Phone2)</dd>
+                        <dd class="col-sm-9">@Effective(Model.Phone2, defaults?.Phone2)</dd>
 
                         <dt class="col-sm-3">@Localizer["Field.Street"]</dt>
-                        <dd class="col-sm-9">
-                            @if (!string.IsNullOrWhiteSpace(Model.Street))
-                            {
-                                @($"{Model.Street}, {Model.PostalCode} {Model.City}")
-                            }
-                            else
-                            {
-                                @Localizer["Activities.UsesOrganisationDefault"].Value
-                            }
-                        </dd>
+                        <dd class="col-sm-9">@EffectiveAddress()</dd>
 
                         <dt class="col-sm-3">@Localizer["Field.BankAccountNumber"]</dt>
-                        <dd class="col-sm-9">@(string.IsNullOrWhiteSpace(Model.BankAccountNumber) ? Localizer["Activities.UsesOrganisationDefault"].Value : Model.BankAccountNumber)</dd>
+                        <dd class="col-sm-9">@Effective(Model.BankAccountNumber, defaults?.BankAccountNumber)</dd>
 
                         <dt class="col-sm-3">@Localizer["Field.CompanyNumber"]</dt>
-                        <dd class="col-sm-9">@(string.IsNullOrWhiteSpace(Model.CompanyNumber) ? Localizer["Activities.UsesOrganisationDefault"].Value : Model.CompanyNumber)</dd>
+                        <dd class="col-sm-9">@Effective(Model.CompanyNumber, defaults?.CompanyNumber)</dd>
 
                         <dt class="col-sm-3">@Localizer["Field.ResponsibleName"]</dt>
-                        <dd class="col-sm-9">@(string.IsNullOrWhiteSpace(Model.ResponsibleName) ? Localizer["Activities.UsesOrganisationDefault"].Value : Model.ResponsibleName)</dd>
+                        <dd class="col-sm-9">@Effective(Model.ResponsibleName, defaults?.ResponsibleName)</dd>
 
-                        @if (!string.IsNullOrEmpty(Model.ResponsibleSignatureUrl))
+                        @if (!string.IsNullOrEmpty(signatureUrl))
                         {
                             <dt class="col-sm-3">@Localizer["Field.ResponsibleSignature"]</dt>
-                            <dd class="col-sm-9"><img src="@Model.ResponsibleSignatureUrl" alt="@Localizer["Field.ResponsibleSignature"]" class="img-thumbnail" style="max-width: 120px;" /></dd>
+                            <dd class="col-sm-9"><img src="@signatureUrl" alt="@Localizer["Field.ResponsibleSignature"]" class="img-thumbnail" style="max-width: 120px;" /></dd>
                         }
                     </dl>
                 </div>

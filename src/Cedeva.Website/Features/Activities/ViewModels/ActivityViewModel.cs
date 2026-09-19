@@ -147,6 +147,32 @@ public class ActivityViewModel : AuditableViewModel
 
     [Display(Name = "Field.ResponsibleSignatureUrl")]
     public string? ResponsibleSignatureUrl { get; set; }
+
+    /// <summary>
+    /// Valeurs de l'organisation reprises par les champs de signalétique laissés vides.
+    /// Renseignée uniquement en consultation (Details) : les écrans d'édition doivent garder
+    /// les champs vides pour ne pas recopier les valeurs de l'organisation dans l'activité.
+    /// </summary>
+    public ActivitySignaletiqueDefaultsViewModel? OrganisationDefaults { get; set; }
+}
+
+/// <summary>
+/// Signalétique de l'organisation, utilisée comme valeur de repli à l'affichage.
+/// </summary>
+public class ActivitySignaletiqueDefaultsViewModel
+{
+    public string? DisplayTitle { get; set; }
+    public string? LogoUrl { get; set; }
+    public string? Email { get; set; }
+    public string? Phone1 { get; set; }
+    public string? Phone2 { get; set; }
+    public string? Street { get; set; }
+    public string? PostalCode { get; set; }
+    public string? City { get; set; }
+    public string? BankAccountNumber { get; set; }
+    public string? CompanyNumber { get; set; }
+    public string? ResponsibleName { get; set; }
+    public string? ResponsibleSignatureUrl { get; set; }
 }
 
 public class NewActivityGroupViewModel
