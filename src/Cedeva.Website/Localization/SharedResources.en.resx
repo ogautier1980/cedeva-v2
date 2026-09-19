@@ -3604,6 +3604,9 @@
   <data name="TeamMembers.ExtrasAndExpenses" xml:space="preserve">
     <value>Extras / Expenses</value>
   </data>
+  <data name="TeamMembers.AddExtraOrExpense" xml:space="preserve">
+    <value>Add an extra / an expense</value>
+  </data>
   <data name="TeamMembers.DailyAllowances" xml:space="preserve">
     <value>Daily allowances</value>
   </data>

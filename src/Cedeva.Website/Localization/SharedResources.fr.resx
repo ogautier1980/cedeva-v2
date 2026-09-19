@@ -3553,6 +3553,9 @@
   <data name="TeamMembers.ExtrasAndExpenses" xml:space="preserve">
     <value>Compléments / Dépenses</value>
   </data>
+  <data name="TeamMembers.AddExtraOrExpense" xml:space="preserve">
+    <value>Ajouter un complément / une dépense</value>
+  </data>
   <data name="TeamMembers.DailyAllowances" xml:space="preserve">
     <value>Indemnités journalières</value>
   </data>

@@ -3604,6 +3604,9 @@
   <data name="TeamMembers.ExtrasAndExpenses" xml:space="preserve">
     <value>Aanvullingen / Uitgaven</value>
   </data>
+  <data name="TeamMembers.AddExtraOrExpense" xml:space="preserve">
+    <value>Een aanvulling / uitgave toevoegen</value>
+  </data>
   <data name="TeamMembers.DailyAllowances" xml:space="preserve">
     <value>Dagvergoedingen</value>
   </data>

@@ -329,8 +329,16 @@ public class FinancialController : Controller
 
     // GET: Financial/Expenses
     // GET: Financial/CreateExpense
-    public async Task<IActionResult> CreateExpense()
+    /// <param name="id">Activity to bill, when arriving from outside the activity context (e.g. a
+    /// team member's sheet); otherwise the activity currently being managed is used.</param>
+    /// <param name="teamMemberId">Pre-selects who the expense is for.</param>
+    public async Task<IActionResult> CreateExpense(int? id = null, int? teamMemberId = null)
     {
+        if (id.HasValue)
+        {
+            HttpContext.Session.SetInt32(SessionKeyActivityId, id.Value);
+        }
+
         var activityId = HttpContext.Session.GetInt32(SessionKeyActivityId);
         if (!activityId.HasValue)
         {
@@ -343,7 +351,8 @@ public class FinancialController : Controller
         return View(new ExpenseViewModel
         {
             ExpenseDate = DateTime.Today,
-            ActivityId = activityId.Value
+            ActivityId = activityId.Value,
+            AssignedTo = teamMemberId?.ToString() ?? string.Empty
         });
     }
 

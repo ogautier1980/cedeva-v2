@@ -10,7 +10,7 @@
     @await Html.PartialAsync("_AlertMessages")
 
     <div class="row">
-        <div class="col-lg-8">
+        <div class="col-12 member-sheet">
             <h2 class="text-primary fw-bold mb-4">@Localizer["Field.TeamMember"]</h2>
 
             <form asp-action="Details" asp-route-id="@Model.TeamMemberId" method="post" enctype="multipart/form-data">
@@ -186,9 +186,10 @@
                             }
                         </tbody>
                     </table>
-                    <a asp-controller="Financial" asp-action="TeamSalaries" asp-route-id="@compensation.ActivityId"
-                       class="btn btn-sm btn-outline-secondary">
-                        <i class="fas fa-euro-sign me-2"></i>@Localizer["Financial.TeamMemberSalaries"]
+                    <a asp-controller="Financial" asp-action="CreateExpense"
+                       asp-route-id="@compensation.ActivityId" asp-route-teamMemberId="@Model.TeamMemberId"
+                       class="btn btn-sm btn-secondary">
+                        <i class="fas fa-plus-circle me-2"></i>@Localizer["TeamMembers.AddExtraOrExpense"]
                     </a>
                 }
 
@@ -227,9 +228,14 @@
 </div>
 
 <style>
+    /* A member sheet is a column of short fields: full-width inputs would be unreadable. */
+    .member-sheet {
+        max-width: 46rem;
+    }
+
     /* The grey label cell of the identity rows, kept at a constant width. */
     .label-cell {
-        width: 15rem;
+        width: 13rem;
         white-space: normal;
         text-align: left;
     }
