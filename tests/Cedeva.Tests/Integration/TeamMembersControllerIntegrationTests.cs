@@ -319,7 +319,7 @@ public class TeamMembersControllerIntegrationTests
         });
 
         var client = factory.CreateClientFor("u1", org.Id, "Coordinator");
-        var response = await client.GetAsync($"/TeamMembers/Edit/{tm.TeamMemberId}");
+        var response = await client.GetAsync($"/TeamMembers/Details/{tm.TeamMemberId}");
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         var html = await response.Content.ReadAsStringAsync();
@@ -346,7 +346,7 @@ public class TeamMembersControllerIntegrationTests
         form["FirstName"] = "PrenomMisAJour";
         form["Email"] = "tom.animateur@test.be";
         // No new license file: the existing (seeded) LicenseUrl is preserved on update.
-        var response = await client.PostAsync($"/TeamMembers/Edit/{tm.TeamMemberId}",
+        var response = await client.PostAsync($"/TeamMembers/Details/{tm.TeamMemberId}",
             new FormUrlEncodedContent(form));
 
         response.StatusCode.Should().Be(HttpStatusCode.Found);
@@ -376,7 +376,7 @@ public class TeamMembersControllerIntegrationTests
         var form = ValidCreateForm(org.Id);
         form["TeamMemberId"] = tm.TeamMemberId.ToString(); // body id differs from route id
 
-        var response = await client.PostAsync($"/TeamMembers/Edit/{tm.TeamMemberId + 1}",
+        var response = await client.PostAsync($"/TeamMembers/Details/{tm.TeamMemberId + 1}",
             new FormUrlEncodedContent(form));
 
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
@@ -401,7 +401,7 @@ public class TeamMembersControllerIntegrationTests
         form["TeamMemberId"] = tm.TeamMemberId.ToString();
         form["FirstName"] = ""; // required -> invalid
 
-        var response = await client.PostAsync($"/TeamMembers/Edit/{tm.TeamMemberId}",
+        var response = await client.PostAsync($"/TeamMembers/Details/{tm.TeamMemberId}",
             new FormUrlEncodedContent(form));
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);

@@ -3595,6 +3595,21 @@
   <data name="TeamMembers.ProfessionalInformation" xml:space="preserve">
     <value>Professionele informatie</value>
   </data>
+  <data name="TeamMembers.Licenses" xml:space="preserve">
+    <value>Brevetten</value>
+  </data>
+  <data name="TeamMembers.Allowances" xml:space="preserve">
+    <value>Vergoedingen</value>
+  </data>
+  <data name="TeamMembers.ExtrasAndExpenses" xml:space="preserve">
+    <value>Aanvullingen / Uitgaven</value>
+  </data>
+  <data name="TeamMembers.DailyAllowances" xml:space="preserve">
+    <value>Dagvergoedingen</value>
+  </data>
+  <data name="TeamMembers.NoOngoingActivity" xml:space="preserve">
+    <value>Dit lid is aan geen enkele lopende activiteit toegewezen.</value>
+  </data>
   <data name="TeamMembers.RelatedItems" xml:space="preserve">
     <value>Gerelateerde items</value>
   </data>

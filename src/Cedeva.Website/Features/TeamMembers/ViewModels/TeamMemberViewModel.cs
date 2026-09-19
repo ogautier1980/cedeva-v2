@@ -79,6 +79,16 @@ public class TeamMemberViewModel : AuditableViewModel
     [DataType(DataType.Currency)]
     public decimal? DailyCompensation { get; set; }
 
+    [StringLength(34, ErrorMessage = "Validation.StringLength")]
+    [Display(Name = "Field.BankAccountNumber")]
+    public string? BankAccountNumber { get; set; }
+
+    /// <summary>
+    /// Compensation sheet per activity the member is still working on. Read-only here: an expense
+    /// belongs to one activity, so it is added and edited from that activity's accounts.
+    /// </summary>
+    public List<TeamMemberActivityCompensationViewModel> ActivityCompensations { get; set; } = new();
+
     [Display(Name = "Field.LicenseFile")]
     [AllowedExtensions(".jpg", ".jpeg", ".png", ".gif", ".pdf")]
     [MaxFileSize(10 * 1024 * 1024)]
@@ -115,4 +125,24 @@ public class TeamMemberViewModel : AuditableViewModel
 
     [Display(Name = "Field.ExpensesCount")]
     public int ExpensesCount { get; set; }
+}
+
+/// <summary>What one activity owes a team member: the daily allowances plus its own extras.</summary>
+public class TeamMemberActivityCompensationViewModel
+{
+    public int ActivityId { get; set; }
+    public string ActivityName { get; set; } = string.Empty;
+    public int DaysWorked { get; set; }
+    public decimal DailyAllowances { get; set; }
+
+    /// <summary>Extras and deductions, already signed (a personal consumption is negative).</summary>
+    public List<TeamMemberCompensationLineViewModel> Lines { get; set; } = new();
+
+    public decimal Total => DailyAllowances + Lines.Sum(l => l.Amount);
+}
+
+public class TeamMemberCompensationLineViewModel
+{
+    public string Label { get; set; } = string.Empty;
+    public decimal Amount { get; set; }
 }

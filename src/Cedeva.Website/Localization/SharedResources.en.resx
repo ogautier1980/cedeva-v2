@@ -3595,6 +3595,21 @@
   <data name="TeamMembers.ProfessionalInformation" xml:space="preserve">
     <value>Professional information</value>
   </data>
+  <data name="TeamMembers.Licenses" xml:space="preserve">
+    <value>Licences</value>
+  </data>
+  <data name="TeamMembers.Allowances" xml:space="preserve">
+    <value>Allowances</value>
+  </data>
+  <data name="TeamMembers.ExtrasAndExpenses" xml:space="preserve">
+    <value>Extras / Expenses</value>
+  </data>
+  <data name="TeamMembers.DailyAllowances" xml:space="preserve">
+    <value>Daily allowances</value>
+  </data>
+  <data name="TeamMembers.NoOngoingActivity" xml:space="preserve">
+    <value>This member is not on any ongoing activity.</value>
+  </data>
   <data name="TeamMembers.RelatedItems" xml:space="preserve">
     <value>Related items</value>
   </data>

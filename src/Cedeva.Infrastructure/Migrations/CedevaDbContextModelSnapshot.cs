@@ -1652,6 +1652,10 @@ namespace Cedeva.Infrastructure.Migrations
                     b.Property<int>("AddressId")
                         .HasColumnType("integer");
 
+                    b.Property<string>("BankAccountNumber")
+                        .HasMaxLength(34)
+                        .HasColumnType("character varying(34)");
+
                     b.Property<DateTime>("BirthDate")
                         .HasColumnType("timestamp without time zone");
 

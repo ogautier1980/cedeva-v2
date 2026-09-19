@@ -348,7 +348,7 @@ public class TeamMembersControllerCoverageTests
         factory.Seed(_ => 0);
         var client = factory.CreateClientFor("u1", 1, "Coordinator");
 
-        var response = await client.GetAsync("/TeamMembers/Edit/999999");
+        var response = await client.GetAsync("/TeamMembers/Details/999999");
 
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
@@ -367,7 +367,7 @@ public class TeamMembersControllerCoverageTests
         });
 
         var client = factory.CreateClientFor("u1", organisationId: 99999, "Coordinator");
-        var response = await client.GetAsync($"/TeamMembers/Edit/{tm.TeamMemberId}");
+        var response = await client.GetAsync($"/TeamMembers/Details/{tm.TeamMemberId}");
 
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
@@ -408,7 +408,7 @@ public class TeamMembersControllerCoverageTests
             ["OrganisationId"] = org.Id.ToString()
         };
 
-        var response = await client.PostAsync($"/TeamMembers/Edit/{missingId}",
+        var response = await client.PostAsync($"/TeamMembers/Details/{missingId}",
             new FormUrlEncodedContent(form));
 
         // Model is valid and id matches, but GetByIdAsync returns null -> NotFound.
@@ -450,7 +450,7 @@ public class TeamMembersControllerCoverageTests
         };
 
         var response = await client.PostAsync(
-            $"/TeamMembers/Edit/{tm.TeamMemberId}?returnUrl=%2FTeamMembers%3FsearchString%3DAvecRetour",
+            $"/TeamMembers/Details/{tm.TeamMemberId}?returnUrl=%2FTeamMembers%3FsearchString%3DAvecRetour",
             new FormUrlEncodedContent(form));
 
         response.StatusCode.Should().Be(HttpStatusCode.Found);

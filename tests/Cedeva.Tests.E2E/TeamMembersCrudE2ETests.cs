@@ -165,7 +165,7 @@ public class TeamMembersCrudE2ETests
 
         await using var ctx = await _fx.NewAuthedContextAsync("Coordinator", _fx.OrganisationId);
         var page = await ctx.NewPageAsync();
-        var response = await page.GotoAsync($"{_fx.BaseUrl}/TeamMembers/Edit/{seed}");
+        var response = await page.GotoAsync($"{_fx.BaseUrl}/TeamMembers/Details/{seed}");
         response!.Status.Should().Be(200);
 
         await page.FillAsync("#FirstName", newFirstName);

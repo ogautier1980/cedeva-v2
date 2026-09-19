@@ -25,6 +25,7 @@ public class TeamMembersController : Controller
     private readonly IUnitOfWork _unitOfWork;
     private readonly IExportFacadeService _exportServices;
     private readonly IStorageContext _storage;
+    private readonly IFinancialCalculationService _financialCalculationService;
     private readonly ICedevaControllerContext<TeamMembersController> _ctx;
 
     public TeamMembersController(
@@ -34,6 +35,7 @@ public class TeamMembersController : Controller
         IUnitOfWork unitOfWork,
         IExportFacadeService exportServices,
         IStorageContext storage,
+        IFinancialCalculationService financialCalculationService,
         ICedevaControllerContext<TeamMembersController> ctx)
     {
         _teamMemberRepository = teamMemberRepository;
@@ -42,6 +44,7 @@ public class TeamMembersController : Controller
         _unitOfWork = unitOfWork;
         _exportServices = exportServices;
         _storage = storage;
+        _financialCalculationService = financialCalculationService;
         _ctx = ctx;
     }
 
@@ -201,6 +204,51 @@ public class TeamMembersController : Controller
             return NotFound();
         }
 
+        await PopulateOrganisationsDropdown(viewModel.OrganisationId);
+
+        return View(viewModel);
+    }
+
+    // POST: TeamMembers/Details/5 — the member sheet is edited in place.
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Details(int id, TeamMemberViewModel viewModel, string? returnUrl = null)
+    {
+        ViewData["ReturnUrl"] = returnUrl;
+
+        if (id != viewModel.TeamMemberId)
+        {
+            return NotFound();
+        }
+
+        if (ModelState.IsValid)
+        {
+            var teamMember = await _teamMemberRepository.GetByIdAsync(id);
+
+            if (teamMember == null)
+            {
+                return NotFound();
+            }
+
+            await UpdateTeamMemberAddressAsync(teamMember.AddressId, viewModel);
+            UpdateTeamMemberProperties(teamMember, viewModel);
+            await HandleLicenseFileChangesAsync(teamMember, viewModel);
+            await HandleCriminalRecordFileChangesAsync(teamMember, viewModel);
+
+            await _teamMemberRepository.UpdateAsync(teamMember);
+            await _unitOfWork.SaveChangesAsync();
+
+            TempData[ControllerExtensions.SuccessMessageKey] = _ctx.Localizer["Message.TeamMemberUpdated"].Value;
+            return this.RedirectToReturnUrlOrAction(returnUrl, nameof(Details), new { id = teamMember.TeamMemberId });
+        }
+
+        // Re-render the sheet with the compensation panels the GET would have loaded.
+        var reloaded = await GetTeamMemberViewModelAsync(id);
+        viewModel.ActivityCompensations = reloaded?.ActivityCompensations ?? new();
+        viewModel.LicenseUrl = reloaded?.LicenseUrl;
+        viewModel.CriminalRecordUrl = reloaded?.CriminalRecordUrl;
+        await PopulateOrganisationsDropdown(viewModel.OrganisationId);
+
         return View(viewModel);
     }
 
@@ -323,85 +371,6 @@ public class TeamMembersController : Controller
                 .ToListAsync();
             ViewBag.Organisations = new SelectList(organisations, "Id", "Name", selectedOrganisationId);
         }
-    }
-
-    // GET: TeamMembers/Edit/5
-    public async Task<IActionResult> Edit(int id, string? returnUrl = null)
-    {
-        var teamMember = await _teamMemberRepository.GetByIdAsync(id);
-
-        if (teamMember == null)
-        {
-            return NotFound();
-        }
-
-        var address = await _context.Addresses.FindAsync(teamMember.AddressId);
-
-        var viewModel = new TeamMemberViewModel
-        {
-            TeamMemberId = teamMember.TeamMemberId,
-            FirstName = teamMember.FirstName,
-            LastName = teamMember.LastName,
-            Email = teamMember.Email,
-            MobilePhoneNumber = teamMember.MobilePhoneNumber,
-            NationalRegisterNumber = NationalRegisterNumberHelper.Format(teamMember.NationalRegisterNumber),
-            BirthDate = teamMember.BirthDate,
-            Street = address?.Street ?? "",
-            City = address?.City ?? "",
-            PostalCode = address?.PostalCode ?? "",
-            Country = address?.Country ?? Core.Enums.Country.Belgium,
-            TeamRole = teamMember.TeamRole,
-            License = teamMember.License,
-            Status = teamMember.Status,
-            DailyCompensation = teamMember.DailyCompensation,
-            LicenseUrl = teamMember.LicenseUrl,
-            CriminalRecordUrl = teamMember.CriminalRecordUrl,
-            AddressId = teamMember.AddressId,
-            OrganisationId = teamMember.OrganisationId
-        };
-
-        await PopulateOrganisationsDropdown(viewModel.OrganisationId);
-
-        ViewData["ReturnUrl"] = returnUrl;
-        return View(viewModel);
-    }
-
-    // POST: TeamMembers/Edit/5
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(int id, TeamMemberViewModel viewModel, string? returnUrl = null)
-    {
-        ViewData["ReturnUrl"] = returnUrl;
-
-        if (id != viewModel.TeamMemberId)
-        {
-            return NotFound();
-        }
-
-        if (ModelState.IsValid)
-        {
-            var teamMember = await _teamMemberRepository.GetByIdAsync(id);
-
-            if (teamMember == null)
-            {
-                return NotFound();
-            }
-
-            await UpdateTeamMemberAddressAsync(teamMember.AddressId, viewModel);
-            UpdateTeamMemberProperties(teamMember, viewModel);
-            await HandleLicenseFileChangesAsync(teamMember, viewModel);
-            await HandleCriminalRecordFileChangesAsync(teamMember, viewModel);
-
-            await _teamMemberRepository.UpdateAsync(teamMember);
-            await _unitOfWork.SaveChangesAsync();
-
-            TempData[ControllerExtensions.SuccessMessageKey] = _ctx.Localizer["Message.TeamMemberUpdated"].Value;
-            return this.RedirectToReturnUrlOrAction(returnUrl, nameof(Details), new { id = teamMember.TeamMemberId });
-        }
-
-        await PopulateOrganisationsDropdown(viewModel.OrganisationId);
-
-        return View(viewModel);
     }
 
     // GET: TeamMembers/ViewLicense/5
@@ -674,6 +643,56 @@ public class TeamMembersController : Controller
     }
 
     // Helper method to get team member view model with all related data
+    /// <summary>
+    /// What each of the member's ongoing activities owes them: daily allowances for the days worked,
+    /// plus that activity's own extras and deductions. Finished activities are left out — their
+    /// accounts are closed and belong to the activity's own financial pages.
+    /// </summary>
+    private async Task<List<TeamMemberActivityCompensationViewModel>> BuildActivityCompensationsAsync(TeamMember teamMember)
+    {
+        var today = DateTime.Today;
+
+        var activities = await _context.Activities
+            .Include(a => a.Days)
+                .ThenInclude(d => d.TeamMemberDays)
+            .Where(a => a.IsActive
+                        && a.EndDate >= today
+                        && a.TeamMembers.Any(tm => tm.TeamMemberId == teamMember.TeamMemberId))
+            .OrderBy(a => a.StartDate)
+            .ToListAsync();
+
+        if (activities.Count == 0)
+            return new List<TeamMemberActivityCompensationViewModel>();
+
+        var activityIds = activities.Select(a => a.Id).ToList();
+        var expenses = await _context.Expenses
+            .Where(e => e.TeamMemberId == teamMember.TeamMemberId && activityIds.Contains(e.ActivityId))
+            .ToListAsync();
+
+        return activities.Select(activity =>
+        {
+            var daysWorked = _financialCalculationService.CalculateTeamMemberPresentDaysCount(activity, teamMember.TeamMemberId);
+
+            return new TeamMemberActivityCompensationViewModel
+            {
+                ActivityId = activity.Id,
+                ActivityName = activity.Name,
+                DaysWorked = daysWorked,
+                DailyAllowances = daysWorked * (teamMember.DailyCompensation ?? 0),
+                Lines = expenses
+                    .Where(e => e.ActivityId == activity.Id)
+                    .OrderBy(e => e.ExpenseDate)
+                    .Select(e => new TeamMemberCompensationLineViewModel
+                    {
+                        Label = e.Label,
+                        // A personal consumption is deducted from what the member is owed.
+                        Amount = e.ExpenseType == Core.Enums.ExpenseType.PersonalConsumption ? -e.Amount : e.Amount
+                    })
+                    .ToList()
+            };
+        }).ToList();
+    }
+
     private async Task<TeamMemberViewModel?> GetTeamMemberViewModelAsync(int id)
     {
         var teamMember = await _teamMemberRepository.GetByIdAsync(id);
@@ -702,12 +721,14 @@ public class TeamMembersController : Controller
             License = teamMember.License,
             Status = teamMember.Status,
             DailyCompensation = teamMember.DailyCompensation,
+            BankAccountNumber = teamMember.BankAccountNumber,
             LicenseUrl = teamMember.LicenseUrl,
             CriminalRecordUrl = teamMember.CriminalRecordUrl,
             AddressId = teamMember.AddressId,
             OrganisationId = teamMember.OrganisationId,
             ActivitiesCount = teamMember.Activities.Count,
             ExpensesCount = teamMember.Expenses.Count,
+            ActivityCompensations = await BuildActivityCompensationsAsync(teamMember),
 
             // Audit fields
             CreatedAt = teamMember.CreatedAt,
@@ -758,6 +779,7 @@ public class TeamMembersController : Controller
         teamMember.License = viewModel.License;
         teamMember.Status = viewModel.Status;
         teamMember.DailyCompensation = viewModel.DailyCompensation;
+        teamMember.BankAccountNumber = viewModel.BankAccountNumber;
 
         if (_ctx.CurrentUser.IsAdmin)
         {

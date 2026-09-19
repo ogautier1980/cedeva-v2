@@ -3544,6 +3544,21 @@
   <data name="TeamMembers.ProfessionalInformation" xml:space="preserve">
     <value>Informations professionnelles</value>
   </data>
+  <data name="TeamMembers.Licenses" xml:space="preserve">
+    <value>Brevets</value>
+  </data>
+  <data name="TeamMembers.Allowances" xml:space="preserve">
+    <value>Indemnités</value>
+  </data>
+  <data name="TeamMembers.ExtrasAndExpenses" xml:space="preserve">
+    <value>Compléments / Dépenses</value>
+  </data>
+  <data name="TeamMembers.DailyAllowances" xml:space="preserve">
+    <value>Indemnités journalières</value>
+  </data>
+  <data name="TeamMembers.NoOngoingActivity" xml:space="preserve">
+    <value>Ce membre n'est inscrit à aucune activité en cours.</value>
+  </data>
   <data name="TeamMembers.RelatedItems" xml:space="preserve">
     <value>Éléments associés</value>
   </data>

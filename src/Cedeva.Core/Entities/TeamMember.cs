@@ -48,6 +48,10 @@ public class TeamMember : AuditableEntity, IOrganisationScoped
 
     public decimal? DailyCompensation { get; set; }
 
+    /// <summary>Compte sur lequel les indemnités sont versées (IBAN).</summary>
+    [StringLength(34, ErrorMessage = "Validation.StringLength")]
+    public string? BankAccountNumber { get; set; }
+
     // Required column (NOT NULL); defaults to empty so a member can be created without a license
     // file. Set to the uploaded file path on upload, reset to "" on removal.
     [StringLength(255)]
