@@ -430,60 +430,70 @@ public class ActivityManagementController : Controller
 
         _sessionState.Set<int>(SessionKeyActivityId, id.Value);
 
-        dayId = SelectDefaultActivityDay(activity, dayId);
-        var selectedDay = activity.Days.FirstOrDefault(d => d.DayId == dayId);
-        var dayOptions = BuildDayDropdownOptions(activity, dayId);
-        var teamMembers = await BuildTeamMemberPresenceListAsync(activity, dayId);
+        var days = activity.Days
+            .Where(d => d.IsActive)
+            .OrderBy(d => d.DayDate)
+            .ToList();
 
         var viewModel = new TeamPresencesViewModel
         {
             Activity = activity,
-            SelectedActivityDayId = dayId,
-            SelectedActivityDay = selectedDay,
-            ActivityDayOptions = dayOptions,
-            TeamMembers = teamMembers
+            Days = days,
+            TeamMembers = await BuildTeamMemberPresenceListAsync(activity, days)
         };
 
         return View(viewModel);
     }
 
-    private async Task<List<TeamMemberPresenceInfo>> BuildTeamMemberPresenceListAsync(Activity activity, int? dayId)
+    private async Task<List<TeamMemberPresenceInfo>> BuildTeamMemberPresenceListAsync(Activity activity, List<ActivityDay> days)
     {
-        var teamMemberDays = dayId.HasValue
-            ? await _context.TeamMemberDays.Where(d => d.ActivityDayId == dayId).ToListAsync()
-            : new List<TeamMemberDay>();
+        var dayIds = days.Select(d => d.DayId).ToList();
+        var teamMemberDays = await _context.TeamMemberDays
+            .Where(d => dayIds.Contains(d.ActivityDayId))
+            .ToListAsync();
 
         return activity.TeamMembers
             .OrderBy(tm => tm.LastName)
             .ThenBy(tm => tm.FirstName)
-            .Select(tm =>
+            .Select(tm => new TeamMemberPresenceInfo
             {
-                var teamMemberDay = teamMemberDays.FirstOrDefault(d => d.TeamMemberId == tm.TeamMemberId);
-                return new TeamMemberPresenceInfo
-                {
-                    TeamMemberId = tm.TeamMemberId,
-                    FirstName = tm.FirstName,
-                    LastName = tm.LastName,
-                    TeamRole = tm.TeamRole.ToString(),
-                    IsPresent = teamMemberDay?.IsPresent ?? false,
-                    TeamMemberDayId = teamMemberDay?.Id
-                };
+                TeamMemberId = tm.TeamMemberId,
+                FirstName = tm.FirstName,
+                LastName = tm.LastName,
+                TeamRole = tm.TeamRole,
+                License = tm.License,
+                Status = tm.Status,
+                PresenceByDayId = teamMemberDays
+                    .Where(d => d.TeamMemberId == tm.TeamMemberId)
+                    .ToDictionary(d => d.ActivityDayId, d => d.IsPresent)
             })
             .ToList();
     }
 
     [HttpPost]
-    public async Task<IActionResult> UpdateTeamMemberPresence(int teamMemberDayId, bool isPresent)
+    public async Task<IActionResult> UpdateTeamMemberPresence(int teamMemberId, int dayId, bool isPresent)
     {
         if (!ModelState.IsValid)
         {
             return BadRequest(ModelState);
         }
 
-        var teamMemberDay = await _context.TeamMemberDays.FindAsync(teamMemberDayId);
+        // The grid shows every team member on every day, so most cells have no row yet: ticking one
+        // creates it rather than requiring the presence to be pre-seeded.
+        var teamMemberDay = await _context.TeamMemberDays
+            .FirstOrDefaultAsync(d => d.TeamMemberId == teamMemberId && d.ActivityDayId == dayId);
 
         if (teamMemberDay == null)
-            return Json(new { success = false, message = _localizer["Message.TeamMemberDayNotFound"].Value });
+        {
+            var dayExists = await _context.ActivityDays.AnyAsync(d => d.DayId == dayId);
+            var memberExists = await _context.TeamMembers.AnyAsync(m => m.TeamMemberId == teamMemberId);
+
+            if (!dayExists || !memberExists)
+                return Json(new { success = false, message = _localizer["Message.TeamMemberDayNotFound"].Value });
+
+            teamMemberDay = new TeamMemberDay { TeamMemberId = teamMemberId, ActivityDayId = dayId };
+            _context.TeamMemberDays.Add(teamMemberDay);
+        }
 
         teamMemberDay.IsPresent = isPresent;
         await _context.SaveChangesAsync();

@@ -502,6 +502,30 @@
   <data name="ActivityManagement.TeamPresences" xml:space="preserve">
     <value>Présences équipe</value>
   </data>
+  <data name="TeamPresences.Coordinators" xml:space="preserve">
+    <value>Coordinateurs</value>
+  </data>
+  <data name="TeamPresences.Animators" xml:space="preserve">
+    <value>Animateurs</value>
+  </data>
+  <data name="TeamPresences.AddTeamMember" xml:space="preserve">
+    <value>Ajouter un membre de l'équipe</value>
+  </data>
+  <data name="TeamPresences.Legend" xml:space="preserve">
+    <value>Légende :</value>
+  </data>
+  <data name="TeamPresences.LegendLicensed" xml:space="preserve">
+    <value>breveté / assimilé</value>
+  </data>
+  <data name="TeamPresences.LegendSecondCycle" xml:space="preserve">
+    <value>2e cycle de formation</value>
+  </data>
+  <data name="TeamPresences.LegendNoLicense" xml:space="preserve">
+    <value>aucun brevet ou animateur en 1er cycle de formation</value>
+  </data>
+  <data name="TeamPresences.LegendCompensated" xml:space="preserve">
+    <value>indemnisé</value>
+  </data>
   <data name="ActivityManagement.TeamMembersCount" xml:space="preserve">
     <value>membre(s)</value>
   </data>

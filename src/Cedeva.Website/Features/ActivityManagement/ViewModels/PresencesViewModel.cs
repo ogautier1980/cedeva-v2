@@ -1,4 +1,5 @@
 using Cedeva.Core.Entities;
+using Cedeva.Core.Enums;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Cedeva.Website.Features.ActivityManagement.ViewModels;
@@ -69,12 +70,11 @@ public class PrintGroupsViewModel
     public bool ShowSignature { get; set; }
 }
 
+/// <summary>Whole-period presence grid: one row per team member, one checkbox per activity day.</summary>
 public class TeamPresencesViewModel
 {
     public Activity Activity { get; set; } = null!;
-    public int? SelectedActivityDayId { get; set; }
-    public ActivityDay? SelectedActivityDay { get; set; }
-    public List<SelectListItem> ActivityDayOptions { get; set; } = new();
+    public List<ActivityDay> Days { get; set; } = new();
     public List<TeamMemberPresenceInfo> TeamMembers { get; set; } = new();
 }
 
@@ -83,9 +83,14 @@ public class TeamMemberPresenceInfo
     public int TeamMemberId { get; set; }
     public string FirstName { get; set; } = string.Empty;
     public string LastName { get; set; } = string.Empty;
-    public string TeamRole { get; set; } = string.Empty;
-    public bool IsPresent { get; set; }
-    public int? TeamMemberDayId { get; set; }
+    public TeamRole TeamRole { get; set; }
+    public License License { get; set; }
+    public Status Status { get; set; }
+
+    /// <summary>Presence per ActivityDay.DayId. A missing day simply means "not present (yet)".</summary>
+    public Dictionary<int, bool> PresenceByDayId { get; set; } = new();
+
+    public bool IsPresentOn(int dayId) => PresenceByDayId.TryGetValue(dayId, out var present) && present;
 }
 
 public class ChildcareViewModel

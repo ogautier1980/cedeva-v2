@@ -502,6 +502,30 @@
   <data name="ActivityManagement.TeamPresences" xml:space="preserve">
     <value>Teamaanwezigheden</value>
   </data>
+  <data name="TeamPresences.Coordinators" xml:space="preserve">
+    <value>Coördinatoren</value>
+  </data>
+  <data name="TeamPresences.Animators" xml:space="preserve">
+    <value>Animatoren</value>
+  </data>
+  <data name="TeamPresences.AddTeamMember" xml:space="preserve">
+    <value>Een teamlid toevoegen</value>
+  </data>
+  <data name="TeamPresences.Legend" xml:space="preserve">
+    <value>Legende:</value>
+  </data>
+  <data name="TeamPresences.LegendLicensed" xml:space="preserve">
+    <value>gebrevetteerd / gelijkgesteld</value>
+  </data>
+  <data name="TeamPresences.LegendSecondCycle" xml:space="preserve">
+    <value>2e opleidingscyclus</value>
+  </data>
+  <data name="TeamPresences.LegendNoLicense" xml:space="preserve">
+    <value>geen brevet of animator in 1e opleidingscyclus</value>
+  </data>
+  <data name="TeamPresences.LegendCompensated" xml:space="preserve">
+    <value>vergoed</value>
+  </data>
   <data name="ActivityManagement.TeamMembersCount" xml:space="preserve">
     <value>lid(leden)</value>
   </data>

@@ -539,17 +539,19 @@ public class ActivityManagementControllerIntegrationTests
         });
 
         var client = factory.CreateClientFor("u1", org.Id, "Coordinator");
-        var response = await client.GetAsync($"/ActivityManagement/TeamPresences?id={activity.Id}&dayId={day.DayId}");
+        var response = await client.GetAsync($"/ActivityManagement/TeamPresences?id={activity.Id}");
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         (await response.Content.ReadAsStringAsync()).Should().Contain("Teamer");
     }
 
     [Fact]
-    public async Task UpdateTeamMemberPresence_WithValidTeamMemberDay_PersistsPresence()
+    public async Task UpdateTeamMemberPresence_WithExistingRow_PersistsPresence()
     {
         using var factory = new CedevaWebApplicationFactory();
         int teamMemberDayId = 0;
+        int teamMemberId = 0;
+        int dayId = 0;
         factory.Seed(ctx =>
         {
             var org = TestData.Organisation();
@@ -563,13 +565,16 @@ public class ActivityManagementControllerIntegrationTests
             ctx.TeamMemberDays.Add(tmDay);
             ctx.SaveChanges();
             teamMemberDayId = tmDay.Id;
+            teamMemberId = tm.TeamMemberId;
+            dayId = day.DayId;
             return 0;
         });
 
         var client = factory.CreateClientFor("u1", organisationId: 1, role: "Coordinator");
         var content = new FormUrlEncodedContent(new Dictionary<string, string>
         {
-            ["teamMemberDayId"] = teamMemberDayId.ToString(),
+            ["teamMemberId"] = teamMemberId.ToString(),
+            ["dayId"] = dayId.ToString(),
             ["isPresent"] = "false"
         });
 
@@ -584,7 +589,48 @@ public class ActivityManagementControllerIntegrationTests
     }
 
     [Fact]
-    public async Task UpdateTeamMemberPresence_WithUnknownId_ReturnsFailureJson()
+    public async Task UpdateTeamMemberPresence_WithoutExistingRow_CreatesIt()
+    {
+        // The grid offers a checkbox for every member on every day, so most cells have no row yet:
+        // ticking one must create the presence instead of failing.
+        using var factory = new CedevaWebApplicationFactory();
+        int teamMemberId = 0;
+        int dayId = 0;
+        factory.Seed(ctx =>
+        {
+            var org = TestData.Organisation();
+            var activity = TestData.Activity(org);
+            var day = new ActivityDay { Label = "Jour 1", DayDate = activity.StartDate, IsActive = true, Activity = activity };
+            var tm = TeamMember(org);
+            activity.TeamMembers.Add(tm);
+            ctx.AddRange(org, activity, day, tm);
+            ctx.SaveChanges();
+            teamMemberId = tm.TeamMemberId;
+            dayId = day.DayId;
+            return 0;
+        });
+
+        var client = factory.CreateClientFor("u1", organisationId: 1, role: "Coordinator");
+        var content = new FormUrlEncodedContent(new Dictionary<string, string>
+        {
+            ["teamMemberId"] = teamMemberId.ToString(),
+            ["dayId"] = dayId.ToString(),
+            ["isPresent"] = "true"
+        });
+
+        var response = await client.PostAsync("/ActivityManagement/UpdateTeamMemberPresence", content);
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        (await response.Content.ReadAsStringAsync()).Should().Contain("\"success\":true");
+
+        using var db = factory.NewDbContext();
+        var saved = await db.TeamMemberDays.IgnoreQueryFilters()
+            .SingleAsync(d => d.TeamMemberId == teamMemberId && d.ActivityDayId == dayId);
+        saved.IsPresent.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task UpdateTeamMemberPresence_WithUnknownMemberOrDay_ReturnsFailureJson()
     {
         using var factory = new CedevaWebApplicationFactory();
         factory.Seed(_ => 0);
@@ -592,7 +638,8 @@ public class ActivityManagementControllerIntegrationTests
         var client = factory.CreateClientFor("u1", organisationId: 1, role: "Coordinator");
         var content = new FormUrlEncodedContent(new Dictionary<string, string>
         {
-            ["teamMemberDayId"] = "999999",
+            ["teamMemberId"] = "999999",
+            ["dayId"] = "999999",
             ["isPresent"] = "true"
         });
 
