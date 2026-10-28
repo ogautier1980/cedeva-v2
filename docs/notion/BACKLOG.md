@@ -3,7 +3,7 @@
 Source : export Notion du client (captures d'écran annotées) + exemples fournis (`17.pdf` pour le
 rapport ONE, `GERARD_MULLER_-_S2.pdf` pour l'attestation mutuelle).
 
-**Statut : tous les lots (A à K) sont livrés et déployés en production.**
+**Statut : lots A à K livrés. Lot L (retour du 26 octobre 2026) en cours — voir ci-dessous.**
 
 ## Points d'attention restants
 
@@ -30,6 +30,57 @@ rapport ONE, `GERARD_MULLER_-_S2.pdf` pour l'attestation mutuelle).
 - **Lot J — signalétique de l'activité** : les champs (logo, adresse, téléphone, etc.) sont
   persistés et peuvent surcharger ceux de l'organisation, mais rien ne les consomme encore dans un
   document ou e-mail réel — le fallback reste à câbler au moment de l'utiliser.
+
+## Lot L — Retour du 26 octobre 2026
+
+Source : section « Améliorations 26 octobre 2026 » de la page Notion (9 sous-pages + « TODO Résumé »,
+captures dans les dossiers `* 4054-*`). ⚠️ Thomas a relu une version **antérieure** aux commits du
+15–19 septembre (non déployés à ce moment-là) : plusieurs remarques étaient déjà traitées dans le
+code (présences équipe jour par jour, fiche membre modifiable, Décompte, menus par section,
+signalétique affichant les valeurs de l'organisation, panneaux latéraux de la fiche enfant).
+
+Les captures précisent le texte sur plusieurs points (repris ci-dessous) : la page BILAN a **deux**
+sections (Entrées / Dépenses, avec colonnes Entrées / Sorties / Bilan / Budget en grisé) et une même
+catégorie peut avoir des entrées et des sorties — le sens est porté par la transaction, pas par la
+catégorie.
+
+**Retouches rapides (traitées dans la foulée)** — voir l'historique git du 2026-10-28.
+
+**Plus gros chantiers, à faire :**
+- **Comptes — sens Entrée/Sortie sur une dépense** (migration) et formulaire façon démo : cases verte
+  « Recette » / rouge « Dépense » / numéro de ticket, « Payé par » Caisse/Compte, catégorie fermée,
+  justificatif joint. Le champ « Attribué à » porte aujourd'hui aussi le lien au membre de l'équipe
+  (remboursements / consommations) : à déplacer vers la fiche membre avant de le retirer.
+- **Comptes — page BILAN** par catégorie avec budget estimé ; catégories en 3 colonnes
+  (Entrées / Sorties / Hors bilan). Les `Payment` enfants n'ont pas de catégorie aujourd'hui.
+- **Présences — ajout d'un enfant « en dépannage »** pour un jour non réservé.
+- **Présences — vue « Semaine »** pour consulter/imprimer toute la semaine en une fois.
+- **Inscription publique au jour le jour** : aujourd'hui le parent ne peut cocher que des semaines
+  entières (seul le coordinateur peut décocher des jours avant confirmation). Nécessite un réglage
+  par activité + un choix de jours sur le formulaire public.
+- **Emails — parcours d'inscription** : les 3 envois existent (accusé au parent à l'envoi du
+  formulaire, notification au coordinateur, montant à payer à la confirmation), mais le modèle
+  « Confirmation d'inscription » envoyé à la soumission parle de confirmation, pas d'accusé de
+  réception ; et une confirmation avec solde nul n'envoie rien depuis `ManageBookings`.
+- **Emails — retirer « Type de modèle »** : impacte l'import/copie de modèles (un modèle par type)
+  et le modèle par défaut des excursions — à repenser plutôt qu'à masquer.
+- **Équipe — salaires** : intégrer le détail des salaires dans la gestion de l'équipe.
+- **ONE — attestation fiscale** : attendre le modèle de PoM.
+
+**Questions ouvertes pour Thomas :**
+1. Moyens de paiement d'une transaction : « Caisse / Compte » (démo) ou « liquide / carte » (texte) ?
+   Garde-t-on le justificatif joint ?
+2. BILAN : paiements des enfants toujours dans P.A.F. ou catégorie au choix ? Budget par
+   organisation (actuel) ou par activité ? Les salaires de l'équipe y figurent-ils ?
+3. Si « Voir tout » disparaît de l'accueil, où placer Enfants, Parents, Modèles, Import ?
+4. Enfant en dépannage : seulement « présent », ou aussi réservé et facturé ?
+5. Excursion : un seul groupe ou plusieurs ? Montant facturé à la création de l'excursion ou à
+   l'envoi du mail (actuel) ? « Modifier » est barré sur la capture : on retire l'édition ?
+6. Inscription au jour le jour : la veut-il comme réglage de l'activité ?
+7. Un bénévole avec un tarif journalier renseigné doit-il être payé 0 ? (aujourd'hui le calcul
+   ignore le statut)
+8. Compléments équipe : garder 2 types (remboursement / consommation) ou des catégories
+   (Formation, Prime, Sandwich…) ?
 
 ## Lot A — Accueil & Navigation
 
