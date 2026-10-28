@@ -786,6 +786,15 @@ public class BookingsController : Controller
             return;
         }
 
+        // Registration emails: the parent got an acknowledgment (BookingConfirmation) when submitting
+        // the form; confirming only sends the amount to pay. Nothing left to pay → no email (same as
+        // ManageBookings).
+        if (fullBooking.TotalAmount - fullBooking.PaidAmount <= 0)
+        {
+            TempData[ControllerExtensions.SuccessMessageKey] = _ctx.Localizer["Message.BookingConfirmed"].Value;
+            return;
+        }
+
         try
         {
             var organisation = await _context.Organisations.FindAsync(activity.OrganisationId);
@@ -793,22 +802,9 @@ public class BookingsController : Controller
 
             if (organisation != null)
             {
-                var amountDue = fullBooking.TotalAmount - fullBooking.PaidAmount;
-                if (amountDue > 0)
-                {
-                    // Combined confirmation + Mollie/Stripe payment link (with QR code) for the
-                    // remaining balance, instead of the plain confirmation template.
-                    var checkoutUrl = Url.Action("Checkout", "OnlinePayment", new { bookingId = fullBooking.Id }, Request.Scheme)!;
-                    sent = await _paymentLinkEmailService.SendPaymentLinkEmailAsync(fullBooking, organisation, checkoutUrl);
-                }
-                else
-                {
-                    // Send via the activity/organisation BookingConfirmation template (every organisation
-                    // has a default template library, so this resolves without a hard-coded fallback).
-                    sent = await _emailServices.SendBookingTemplateAsync(
-                        EmailTemplateType.BookingConfirmation, activity.OrganisationId,
-                        parent.GetEmailAddresses().ToArray(), fullBooking, organisation);
-                }
+                // Payment link (Mollie/Stripe, with QR code) for the remaining balance.
+                var checkoutUrl = Url.Action("Checkout", "OnlinePayment", new { bookingId = fullBooking.Id }, Request.Scheme)!;
+                sent = await _paymentLinkEmailService.SendPaymentLinkEmailAsync(fullBooking, organisation, checkoutUrl);
             }
 
             if (sent)

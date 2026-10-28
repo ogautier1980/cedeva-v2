@@ -676,7 +676,7 @@ public class BookingsControllerCoverageTests
     }
 
     [Fact]
-    public async Task EditPost_ConfirmingFullyPaidBooking_SendsPlainConfirmationEmail_NoQrCode()
+    public async Task EditPost_ConfirmingFullyPaidBooking_SendsNoEmail()
     {
         var fake = new FakeEmailService();
         using var factory = new CedevaWebApplicationFactory
@@ -715,9 +715,9 @@ public class BookingsControllerCoverageTests
         var response = await client.PostAsync($"/Bookings/Edit/{g.Booking.Id}", form);
         response.StatusCode.Should().Be(HttpStatusCode.Redirect);
 
-        fake.Sent.Should().ContainSingle();
-        fake.Sent.Single().Html.Should().NotContain("data:image/png;base64,",
-            "a fully paid booking has nothing to collect, so no payment QR code should be sent");
+        // The parent already got the "request received" email at registration; confirming only
+        // sends the amount to pay, and a fully paid booking has nothing to collect.
+        fake.Sent.Should().BeEmpty();
     }
 
     [Fact]

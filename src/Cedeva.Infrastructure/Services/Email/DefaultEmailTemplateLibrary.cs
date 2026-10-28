@@ -20,17 +20,18 @@ public static class DefaultEmailTemplateLibrary
         new EmailTemplate
         {
             OrganisationId = organisationId,
-            Name = "Confirmation d'inscription",
+            // Sent when the parent submits the form: an acknowledgment, not a confirmation — the
+            // coordinator confirms later and that sends the amount to pay (payment link email).
+            Name = "Demande d'inscription reçue",
             TemplateType = EmailTemplateType.BookingConfirmation,
-            Subject = "Confirmation inscription – %nom_activite%",
+            Subject = "Demande d'inscription reçue – %nom_activite%",
             HtmlContent =
-                "<h2 style=\"color:#007faf;\">Confirmation de votre inscription</h2>" +
+                "<h2 style=\"color:#007faf;\">Demande d'inscription reçue</h2>" +
                 GreetingParent +
-                "<p>Nous vous confirmons l'inscription de <strong>%nom_complet_enfant%</strong> " +
+                "<p>Nous avons bien reçu votre demande d'inscription de <strong>%nom_complet_enfant%</strong> " +
                 "à l'activité <strong>%nom_activite%</strong> " +
                 "(du %date_debut_activite% au %date_fin_activite%).</p>" +
-                "<p><strong>Montant total :</strong> %montant_total%<br>" +
-                "<strong>Communication structurée :</strong> %communication_structuree%</p>" +
+                "<p>Notre équipe va la vérifier. Vous recevrez ensuite un e-mail avec le montant à payer.</p>" +
                 "<p>En cas de question, n'hésitez pas à nous contacter.</p>" +
                 "<p>Cordialement,<br><strong>%nom_organisation%</strong></p>",
             IsDefault = true

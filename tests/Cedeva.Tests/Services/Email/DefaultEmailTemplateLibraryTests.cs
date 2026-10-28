@@ -41,6 +41,19 @@ public class DefaultEmailTemplateLibraryTests
     }
 
     [Fact]
+    public void Build_BookingConfirmation_IsAnAcknowledgmentWithoutAmount()
+    {
+        // Sent when the parent submits the form: the amount is only known once the coordinator
+        // confirms (that sends the payment link email).
+        var template = DefaultEmailTemplateLibrary.Build(1)
+            .Single(t => t.TemplateType == EmailTemplateType.BookingConfirmation);
+
+        template.Name.Should().Be("Demande d'inscription reçue");
+        template.HtmlContent.Should().Contain("bien reçu votre demande");
+        template.HtmlContent.Should().NotContain("%montant_total%");
+    }
+
+    [Fact]
     public async Task EnsureAsync_IsIdempotent()
     {
         var (db, orgId) = NewDb();

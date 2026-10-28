@@ -3820,7 +3820,7 @@
   </data>
   <!-- EmailTemplateType Enum -->
   <data name="EmailTemplateType.BookingConfirmation" xml:space="preserve">
-    <value>Confirmation d'inscription</value>
+    <value>Demande d'inscription reçue</value>
   </data>
   <data name="EmailTemplateType.WelcomeEmail" xml:space="preserve">
     <value>Email de bienvenue</value>

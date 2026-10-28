@@ -4405,7 +4405,7 @@
     <value>Annulering dag/activiteit</value>
   </data>
   <data name="EmailTemplateType.BookingConfirmation" xml:space="preserve">
-    <value>Inschrijvingsbevestiging</value>
+    <value>Inschrijvingsaanvraag ontvangen</value>
   </data>
   <data name="EmailTemplateType.Custom" xml:space="preserve">
     <value>Aangepast</value>
