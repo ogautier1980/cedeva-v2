@@ -128,9 +128,14 @@
                                     </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link @(navAction == "Report" ? "active" : "")"
-                                       asp-action="Report" asp-controller="Financial">
-                                        <i class="fas fa-chart-line"></i> @Localizer["Financial.Report"]
+                                    <a class="nav-link @(navAction == "Balance" ? "active" : "")"
+                                       asp-action="Balance" asp-controller="Financial">
+                                        <i class="fas fa-scale-balanced"></i> @Localizer["Financial.Balance.Title"]
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-action="Index" asp-controller="ExpenseCategories">
+                                        <i class="fas fa-tags"></i> @Localizer["Financial.Categories"]
                                     </a>
                                 </li>
                             }

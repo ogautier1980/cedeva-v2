@@ -1,4 +1,5 @@
 using Cedeva.Core.Entities;
+using Cedeva.Core.Enums;
 using Cedeva.Core.Interfaces;
 using Cedeva.Infrastructure.Data;
 using Cedeva.Website.Features.ExpenseCategories.ViewModels;
@@ -42,7 +43,9 @@ public class ExpenseCategoriesController : Controller
     }
 
     [HttpGet]
-    public IActionResult Create() => View(new ExpenseCategoryViewModel());
+    public IActionResult Create(ExpenseCategoryType? type = null) =>
+        // "+" in a column of the index pre-selects that column's type.
+        View(new ExpenseCategoryViewModel { CategoryType = type ?? ExpenseCategoryType.Expense });
 
     [HttpPost]
     [ValidateAntiForgeryToken]

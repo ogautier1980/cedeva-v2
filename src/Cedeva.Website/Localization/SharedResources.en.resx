@@ -4893,4 +4893,31 @@
   <data name="Financial.ReceiptOrOutgoingRequired" xml:space="preserve">
     <value>Enter an amount as income or as expense.</value>
   </data>
+  <data name="Financial.Incomings" xml:space="preserve">
+    <value>Income</value>
+  </data>
+  <data name="Financial.Outgoings" xml:space="preserve">
+    <value>Expenses</value>
+  </data>
+  <data name="Financial.Balance.Title" xml:space="preserve">
+    <value>Balance</value>
+  </data>
+  <data name="Financial.Balance.ChildPayments" xml:space="preserve">
+    <value>Fees (registration payments)</value>
+  </data>
+  <data name="Financial.Balance.TeamCompensation" xml:space="preserve">
+    <value>Team compensation</value>
+  </data>
+  <data name="Financial.Balance.ExpenseSection" xml:space="preserve">
+    <value>Expenses</value>
+  </data>
+  <data name="Financial.Balance.Result" xml:space="preserve">
+    <value>Activity result</value>
+  </data>
+  <data name="Financial.Balance.EstimatedBudget" xml:space="preserve">
+    <value>Estimated budget</value>
+  </data>
+  <data name="Financial.Categories" xml:space="preserve">
+    <value>Categories</value>
+  </data>
 </root>

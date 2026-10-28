@@ -4915,4 +4915,31 @@
   <data name="Financial.ReceiptOrOutgoingRequired" xml:space="preserve">
     <value>Indiquez un montant en recette ou en dépense.</value>
   </data>
+  <data name="Financial.Incomings" xml:space="preserve">
+    <value>Entrées</value>
+  </data>
+  <data name="Financial.Outgoings" xml:space="preserve">
+    <value>Sorties</value>
+  </data>
+  <data name="Financial.Balance.Title" xml:space="preserve">
+    <value>Bilan</value>
+  </data>
+  <data name="Financial.Balance.ChildPayments" xml:space="preserve">
+    <value>P.A.F. (paiements des inscriptions)</value>
+  </data>
+  <data name="Financial.Balance.TeamCompensation" xml:space="preserve">
+    <value>Défraiements de l'équipe</value>
+  </data>
+  <data name="Financial.Balance.ExpenseSection" xml:space="preserve">
+    <value>Dépenses</value>
+  </data>
+  <data name="Financial.Balance.Result" xml:space="preserve">
+    <value>Résultat de l'activité</value>
+  </data>
+  <data name="Financial.Balance.EstimatedBudget" xml:space="preserve">
+    <value>Budget estimé</value>
+  </data>
+  <data name="Financial.Categories" xml:space="preserve">
+    <value>Catégories</value>
+  </data>
 </root>

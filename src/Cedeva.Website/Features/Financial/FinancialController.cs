@@ -693,8 +693,11 @@ public class FinancialController : Controller
         return View(viewModel);
     }
 
-    // GET: Financial/Report
-    public async Task<IActionResult> Report()
+    // GET: Financial/Report — replaced by the BILAN page; kept so existing links still land somewhere.
+    public IActionResult Report() => RedirectToAction(nameof(Balance));
+
+    // GET: Financial/Balance — BILAN: per category, Entrées / Sorties / Bilan next to the budget.
+    public async Task<IActionResult> Balance()
     {
         var activityId = HttpContext.Session.GetInt32(SessionKeyActivityId);
         if (!activityId.HasValue)
@@ -703,6 +706,8 @@ public class FinancialController : Controller
         }
 
         var activity = await _context.Activities
+            .Include(a => a.Organisation)
+                .ThenInclude(o => o.Address)
             .Include(a => a.Days)
                 .ThenInclude(d => d.TeamMemberDays)
             .Include(a => a.TeamMembers)
@@ -716,128 +721,90 @@ public class FinancialController : Controller
         }
 
         var expenses = await _context.Expenses
-            .Include(e => e.TeamMember)
             .Include(e => e.ExpenseCategory)
             .Where(e => e.ActivityId == activityId.Value)
-            .OrderByDescending(e => e.ExpenseDate)
+            .ToListAsync();
+        var categories = await _context.ExpenseCategories
+            .Where(c => c.OrganisationId == activity.OrganisationId && c.CategoryType != ExpenseCategoryType.OffBalance)
+            .OrderBy(c => c.Name)
             .ToListAsync();
 
-        // Hors bilan expenses (internal transfers) never enter the Entrées/Sorties totals.
+        // Hors bilan lines (internal transfers) never enter the BILAN.
         var regularExpenses = expenses.Where(e => e.ExpenseCategory?.CategoryType != ExpenseCategoryType.OffBalance).ToList();
-        var totalOffBalance = expenses.Where(e => e.ExpenseCategory?.CategoryType == ExpenseCategoryType.OffBalance).Sum(e => e.Amount);
+        // Team-member lines feed the team compensation line (days × rate + reimbursements − consumptions),
+        // so they are left out of the category rows to avoid counting them twice.
+        var organisationLines = regularExpenses.Where(e => !e.TeamMemberId.HasValue).ToList();
 
-        var totalRevenue = _financialCalculationService.CalculateTotalRevenue(activity);
-        var pendingAmount = _financialCalculationService.CalculatePendingPayments(activity);
-        var confirmedBookings = activity.Bookings.Count(b => b.IsConfirmed);
-        var pendingBookings = activity.Bookings.Count(b => !b.IsConfirmed);
-        var avgRevenue = activity.Bookings.Any() ? totalRevenue / activity.Bookings.Count : 0;
+        BalanceLineViewModel CategoryLine(ExpenseCategory category)
+        {
+            var lines = organisationLines.Where(e => e.ExpenseCategoryId == category.Id
+                || (e.ExpenseCategoryId == null && e.Category == category.Name)).ToList();
+            return new BalanceLineViewModel
+            {
+                Name = category.Name,
+                Incomings = lines.Where(e => e.IsIncome).Sum(e => e.Amount),
+                Outgoings = lines.Where(e => !e.IsIncome).Sum(e => e.Amount),
+                Budget = category.Budget
+            };
+        }
 
-        var (orgCardExpenses, orgCashExpenses, orgExpenseDetails) = BuildOrganizationExpenseBreakdown(regularExpenses);
-        // Scoped to organisation expenses only (matches OrganizationExpenseDetails/TotalOrganizationExpenses
-        // above): team-member expenses (reimbursements/personal consumptions) feed into the net salary
-        // formula below, not a raw sum, so including them here would make this total disagree with
-        // TotalExpenses in the final summary.
-        var expensesByCategory = BuildExpensesByCategory(regularExpenses.Where(e => !e.TeamMemberId.HasValue).ToList());
-        var teamSalaryDetails = BuildTeamMemberSalaryDetails(activity, regularExpenses);
-        var totalTeamSalaries = _financialCalculationService.CalculateTeamMemberSalaries(activity, regularExpenses);
-        var totalExpenses = _financialCalculationService.CalculateTotalExpenses(activity, regularExpenses);
-        var balance = _financialCalculationService.CalculateNetProfit(activity, regularExpenses);
-        var balancePercentage = totalRevenue > 0 ? (balance / totalRevenue) * 100 : 0;
+        var incomeSection = new List<BalanceLineViewModel>
+        {
+            // P.A.F.: every registration payment, whatever category the org uses.
+            new()
+            {
+                Name = _ctx.Localizer["Financial.Balance.ChildPayments"].Value,
+                Incomings = _financialCalculationService.CalculateTotalRevenue(activity),
+                IsFixed = true
+            }
+        };
+        incomeSection.AddRange(categories.Where(c => c.CategoryType == ExpenseCategoryType.Income).Select(CategoryLine));
 
-        var viewModel = new FinancialReportViewModel
+        var expenseSection = categories.Where(c => c.CategoryType == ExpenseCategoryType.Expense).Select(CategoryLine).ToList();
+        var teamCompensation = _financialCalculationService.CalculateTeamMemberSalaries(activity, regularExpenses);
+        if (teamCompensation != 0)
+        {
+            expenseSection.Add(new BalanceLineViewModel
+            {
+                Name = _ctx.Localizer["Financial.Balance.TeamCompensation"].Value,
+                Outgoings = teamCompensation,
+                IsFixed = true
+            });
+        }
+
+        var knownCategoryIds = categories.Select(c => c.Id).ToHashSet();
+        var knownCategoryNames = categories.Select(c => c.Name).ToHashSet();
+        var uncategorised = organisationLines.Where(e =>
+            !(e.ExpenseCategoryId.HasValue && knownCategoryIds.Contains(e.ExpenseCategoryId.Value))
+            && !(e.ExpenseCategoryId == null && e.Category != null && knownCategoryNames.Contains(e.Category))).ToList();
+        if (uncategorised.Any())
+        {
+            expenseSection.Add(new BalanceLineViewModel
+            {
+                Name = _ctx.Localizer["Financial.Uncategorized"].Value,
+                Incomings = uncategorised.Where(e => e.IsIncome).Sum(e => e.Amount),
+                Outgoings = uncategorised.Where(e => !e.IsIncome).Sum(e => e.Amount),
+                IsFixed = true
+            });
+        }
+
+        var organisation = activity.Organisation;
+        var viewModel = new BalanceViewModel
         {
             ActivityId = activity.Id,
             ActivityName = activity.Name,
-            StartDate = activity.StartDate,
-            EndDate = activity.EndDate,
-            TotalDays = activity.Days.Count,
-            TotalRevenue = totalRevenue,
-            TotalBookings = activity.Bookings.Count,
-            ConfirmedBookings = confirmedBookings,
-            PendingBookings = pendingBookings,
-            PendingAmount = pendingAmount,
-            AverageRevenuePerBooking = avgRevenue,
-            OrganizationCardExpenses = orgCardExpenses,
-            OrganizationCashExpenses = orgCashExpenses,
-            TotalOrganizationExpenses = orgCardExpenses + orgCashExpenses,
-            OrganizationExpenseDetails = orgExpenseDetails,
-            ExpensesByCategory = expensesByCategory,
-            TeamMembersCount = activity.TeamMembers.Count,
-            TotalTeamSalaries = totalTeamSalaries,
-            TeamMemberSalaryDetails = teamSalaryDetails,
-            TotalExpenses = totalExpenses,
-            Balance = balance,
-            BalancePercentage = balancePercentage,
-            TotalOffBalance = totalOffBalance
+            OrganisationName = organisation.Name,
+            OrganisationAddress = organisation.Address == null
+                ? null
+                : $"{organisation.Address.Street}, {organisation.Address.PostalCode} {organisation.Address.City}",
+            CompanyNumber = organisation.CompanyNumber,
+            IncomeLines = incomeSection,
+            ExpenseLines = expenseSection
         };
 
         return View(viewModel);
     }
 
-    private static (decimal cardExpenses, decimal cashExpenses, List<ExpenseDetailViewModel> details) BuildOrganizationExpenseBreakdown(List<Expense> expenses)
-    {
-        var orgExpenses = expenses.Where(e => !e.TeamMemberId.HasValue).ToList();
-        var cardExpenses = orgExpenses.Where(e => e.OrganizationPaymentSource == OrganizationCard).Sum(e => e.Amount);
-        var cashExpenses = orgExpenses.Where(e => e.OrganizationPaymentSource == OrganizationCash).Sum(e => e.Amount);
-
-        var details = orgExpenses.Select(e => new ExpenseDetailViewModel
-        {
-            Id = e.Id,
-            Date = e.ExpenseDate,
-            Label = e.Label,
-            Category = e.Category ?? "",
-            Amount = e.Amount
-        }).ToList();
-
-        return (cardExpenses, cashExpenses, details);
-    }
-
-    private List<CategoryExpenseSummaryViewModel> BuildExpensesByCategory(List<Expense> expenses)
-    {
-        return expenses
-            .GroupBy(e => e.ExpenseCategory?.Name ?? e.Category ?? _ctx.Localizer["Financial.Uncategorized"].Value)
-            .Select(g => new CategoryExpenseSummaryViewModel
-            {
-                CategoryName = g.Key,
-                Count = g.Count(),
-                Total = g.Sum(e => e.Amount)
-            })
-            .OrderByDescending(c => c.Total)
-            .ToList();
-    }
-
-    private List<TeamMemberSalaryDetailViewModel> BuildTeamMemberSalaryDetails(Activity activity, List<Expense> expenses)
-    {
-        var teamSalaryDetails = new List<TeamMemberSalaryDetailViewModel>();
-
-        foreach (var tm in activity.TeamMembers)
-        {
-            var tmExpenses = expenses.Where(e => e.TeamMemberId == tm.TeamMemberId);
-            var presentDaysCount = _financialCalculationService.CalculateTeamMemberPresentDaysCount(activity, tm.TeamMemberId);
-            var netSalary = _financialCalculationService.CalculateTeamMemberSalary(tm, presentDaysCount, tmExpenses);
-            var baseSalary = presentDaysCount * (tm.DailyCompensation ?? 0);
-            var reimbursements = tmExpenses.Where(e => e.ExpenseType == Core.Enums.ExpenseType.Reimbursement).Sum(e => e.Amount);
-            var consumptions = tmExpenses.Where(e => e.ExpenseType == Core.Enums.ExpenseType.PersonalConsumption).Sum(e => e.Amount);
-
-            teamSalaryDetails.Add(new TeamMemberSalaryDetailViewModel
-            {
-                Name = tm.FullName,
-                Role = _ctx.Localizer[$"Enum.TeamRole.{tm.TeamRole}"].Value,
-                DaysWorked = presentDaysCount,
-                DailyCompensation = tm.DailyCompensation ?? 0,
-                BaseSalary = baseSalary,
-                Reimbursements = reimbursements,
-                PersonalConsumptions = consumptions,
-                NetSalary = netSalary
-            });
-        }
-
-        return teamSalaryDetails;
-    }
-
-    /// <summary>
-    /// Next ticket number for the activity's shared Payment/Expense sequence (starts at 1, resets per activity).
-    /// </summary>
     /// <summary>
     /// A team member's line is a reimbursement or a consumption (an outgoing movement for the
     /// association); a Recette is always the organisation's.
@@ -850,6 +817,9 @@ public class FinancialController : Controller
         }
     }
 
+    /// <summary>
+    /// Next ticket number for the activity's shared Payment/Expense sequence (starts at 1, resets per activity).
+    /// </summary>
     private async Task<int> GetNextTicketNumberAsync(int activityId)
     {
         var maxPaymentTicket = await _context.Payments

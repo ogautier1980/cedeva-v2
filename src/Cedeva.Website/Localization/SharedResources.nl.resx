@@ -4893,4 +4893,31 @@
   <data name="Financial.ReceiptOrOutgoingRequired" xml:space="preserve">
     <value>Vul een bedrag in als ontvangst of als uitgave.</value>
   </data>
+  <data name="Financial.Incomings" xml:space="preserve">
+    <value>Inkomsten</value>
+  </data>
+  <data name="Financial.Outgoings" xml:space="preserve">
+    <value>Uitgaven</value>
+  </data>
+  <data name="Financial.Balance.Title" xml:space="preserve">
+    <value>Balans</value>
+  </data>
+  <data name="Financial.Balance.ChildPayments" xml:space="preserve">
+    <value>Deelnameprijs (betalingen van de inschrijvingen)</value>
+  </data>
+  <data name="Financial.Balance.TeamCompensation" xml:space="preserve">
+    <value>Vergoedingen van het team</value>
+  </data>
+  <data name="Financial.Balance.ExpenseSection" xml:space="preserve">
+    <value>Uitgaven</value>
+  </data>
+  <data name="Financial.Balance.Result" xml:space="preserve">
+    <value>Resultaat van de activiteit</value>
+  </data>
+  <data name="Financial.Balance.EstimatedBudget" xml:space="preserve">
+    <value>Geraamd budget</value>
+  </data>
+  <data name="Financial.Categories" xml:space="preserve">
+    <value>Categorieën</value>
+  </data>
 </root>

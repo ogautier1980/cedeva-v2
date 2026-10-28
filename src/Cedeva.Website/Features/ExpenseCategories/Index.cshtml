@@ -14,50 +14,54 @@
 
 @if (Model.Any())
 {
-    <div class="card">
-        <div class="card-body p-0">
-            <div class="table-responsive">
-                <table class="table table-hover mb-0">
-                    <thead class="table-light">
-                        <tr>
-                            <th scope="col">@Localizer["Field.Name"]</th>
-                            <th scope="col">@Localizer["Field.Type"]</th>
-                            <th scope="col" class="text-end">@Localizer["ExpenseCategory.Budget"]</th>
-                            <th scope="col" class="text-end">@Localizer["Actions"]</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var category in Model)
-                        {
-                            <tr data-href="@Url.Action("Edit", new { id = category.Id })">
-                                <td>@category.Name</td>
-                                <td>
-                                    @switch (category.CategoryType)
-                                    {
-                                        case ExpenseCategoryType.Income:
-                                            <span class="badge bg-success"><i class="fas fa-arrow-down me-1"></i>@Localizer["Financial.Income"]</span>
-                                            break;
-                                        case ExpenseCategoryType.OffBalance:
-                                            <span class="badge bg-secondary"><i class="fas fa-right-left me-1"></i>@Localizer["Financial.OffBalance"]</span>
-                                            break;
-                                        default:
-                                            <span class="badge bg-danger"><i class="fas fa-arrow-up me-1"></i>@Localizer["Financial.Expense"]</span>
-                                            break;
-                                    }
-                                </td>
-                                <td class="text-end">@(category.Budget.HasValue ? category.Budget.Value.ToString("N2") + " €" : "-")</td>
-                                <td class="text-end text-nowrap">
-                                    <a asp-action="Edit" asp-route-id="@category.Id" class="btn btn-sm btn-outline-secondary">
-                                        <i class="fas fa-edit"></i>
-                                    </a>
-                                    @await Html.PartialAsync("_DeleteButton", new DeleteButtonModel { Id = category.Id, ConfirmMessage = Localizer["ExpenseCategory.ConfirmDelete"].Value })
-                                </td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
+    @* Three columns like Thomas' demo: Entrées / Sorties / Hors bilan, each with its budget. *@
+    var columns = new[]
+    {
+        (Type: ExpenseCategoryType.Income, Title: Localizer["Financial.Incomings"].Value, Header: "bg-success text-white", Icon: "fa-arrow-down"),
+        (Type: ExpenseCategoryType.Expense, Title: Localizer["Financial.Outgoings"].Value, Header: "bg-danger text-white", Icon: "fa-arrow-up"),
+        (Type: ExpenseCategoryType.OffBalance, Title: Localizer["Financial.OffBalance"].Value, Header: "bg-dark text-white", Icon: "fa-right-left")
+    };
+    <div class="row g-4">
+        @foreach (var column in columns)
+        {
+            var items = Model.Where(c => c.CategoryType == column.Type).OrderBy(c => c.Name).ToList();
+            <div class="col-lg-4">
+                <div class="card h-100">
+                    <div class="card-header @column.Header d-flex justify-content-between align-items-center">
+                        <h6 class="mb-0"><i class="fas @column.Icon me-2"></i>@column.Title</h6>
+                        <a asp-action="Create" asp-route-type="@column.Type" class="btn btn-sm btn-light" title="@Localizer["ExpenseCategory.AddCategory"]">
+                            <i class="fas fa-plus"></i>
+                        </a>
+                    </div>
+                    <div class="card-body p-0">
+                        <table class="table table-hover table-sm mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th scope="col">@Localizer["Field.Name"]</th>
+                                    <th scope="col" class="text-end">@Localizer["ExpenseCategory.Budget"]</th>
+                                    <th scope="col" class="text-end"></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var category in items)
+                                {
+                                    <tr data-href="@Url.Action("Edit", new { id = category.Id })">
+                                        <td>@category.Name</td>
+                                        <td class="text-end">@(category.Budget.HasValue ? category.Budget.Value.ToString("N2") + " €" : "-")</td>
+                                        <td class="text-end text-nowrap">
+                                            <a asp-action="Edit" asp-route-id="@category.Id" class="btn btn-sm btn-outline-secondary">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            @await Html.PartialAsync("_DeleteButton", new DeleteButtonModel { Id = category.Id, ConfirmMessage = Localizer["ExpenseCategory.ConfirmDelete"].Value })
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
-        </div>
+        }
     </div>
 }
 else

@@ -336,24 +336,24 @@ public class FinancialControllerCoverageTests
     }
 
     // ---------------------------------------------------------------------
-    // Report (GET)
+    // Balance (GET) — BILAN; Report now redirects there
     // ---------------------------------------------------------------------
 
     [Fact]
-    public async Task Report_WithoutSelectedActivity_RedirectsToActivities()
+    public async Task Balance_WithoutSelectedActivity_RedirectsToActivities()
     {
         using var factory = new CedevaWebApplicationFactory();
         factory.Seed(_ => 0);
         var client = factory.CreateClientFor("u1", 1, "Coordinator");
 
-        var response = await client.GetAsync("/Financial/Report");
+        var response = await client.GetAsync("/Financial/Balance");
 
         response.StatusCode.Should().Be(HttpStatusCode.Found);
         response.Headers.Location!.ToString().Should().Contain("Activities");
     }
 
     [Fact]
-    public async Task Report_WithSelectedActivity_RendersReport()
+    public async Task Report_RedirectsToBalance()
     {
         using var factory = new CedevaWebApplicationFactory();
         var g = SeedFullGraph(factory);
@@ -361,8 +361,37 @@ public class FinancialControllerCoverageTests
 
         var response = await client.GetAsync("/Financial/Report");
 
+        response.StatusCode.Should().Be(HttpStatusCode.Found);
+        response.Headers.Location!.ToString().Should().Contain("Balance");
+    }
+
+    [Fact]
+    public async Task Balance_SplitsCategoryLinesIntoIncomingsAndOutgoings_WithBudget()
+    {
+        using var factory = new CedevaWebApplicationFactory();
+        var g = SeedFullGraph(factory);
+        factory.Seed(ctx =>
+        {
+            var bar = new ExpenseCategory
+            {
+                OrganisationId = g.OrgId, Name = "BarMarker", CategoryType = ExpenseCategoryType.Income, Budget = 500m
+            };
+            ctx.Add(bar);
+            ctx.SaveChanges();
+            // A category of Entrées can also have Sorties (e.g. buying drinks for the bar).
+            ctx.AddRange(
+                new Expense { ActivityId = g.ActivityId, Label = "Ventes bar", Amount = 300m, IsIncome = true, ExpenseCategoryId = bar.Id, Category = bar.Name, ExpenseDate = DateTime.Today, OrganizationPaymentSource = "OrganizationCash" },
+                new Expense { ActivityId = g.ActivityId, Label = "Achat boissons", Amount = 120m, ExpenseCategoryId = bar.Id, Category = bar.Name, ExpenseDate = DateTime.Today, OrganizationPaymentSource = "OrganizationCash" });
+            return 0;
+        });
+        var client = await ClientWithActivitySelected(factory, g.OrgId, g.ActivityId);
+
+        var response = await client.GetAsync("/Financial/Balance");
+
         response.StatusCode.Should().Be(HttpStatusCode.OK);
-        (await response.Content.ReadAsStringAsync()).Should().Contain("Stage Coverage");
+        var html = await response.Content.ReadAsStringAsync();
+        var row = html.Substring(html.IndexOf("BarMarker"), 600);
+        row.Should().Contain("300,00").And.Contain("120,00").And.Contain("180,00").And.Contain("500,00");
     }
 
     // ---------------------------------------------------------------------

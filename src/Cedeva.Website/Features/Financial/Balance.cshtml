@@ -1,0 +1,99 @@
+@model Cedeva.Website.Features.Financial.ViewModels.BalanceViewModel
+@using Cedeva.Website.Features.Financial.ViewModels
+@inject IStringLocalizer<SharedResources> Localizer
+@using Cedeva.Website.Localization
+
+@{
+    ViewData["Title"] = Localizer["Financial.Balance.Title"];
+    ViewData["ActivityId"] = Model.ActivityId;
+    ViewData["ActivityName"] = Model.ActivityName;
+    ViewData["NavSection"] = "Financial";
+    ViewData["NavAction"] = "Balance";
+}
+
+@functions {
+    static string Euro(decimal value) => value.ToString("N2") + " €";
+}
+
+@* One section of the BILAN. In the Dépenses section the budget is an expected outflow, shown negative
+   so it reads against the Bilan column next to it. *@
+@{
+    async Task Section(string title, string headerClass, List<BalanceLineViewModel> lines, bool budgetIsOutflow)
+    {
+        <div class="card mb-4">
+            <div class="card-header @headerClass">
+                <h6 class="mb-0">@title</h6>
+            </div>
+            <div class="card-body p-0">
+                <table class="table table-sm mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th scope="col">@Localizer["Field.Category"]</th>
+                            <th scope="col" class="text-end text-success">@Localizer["Financial.Incomings"]</th>
+                            <th scope="col" class="text-end text-danger">@Localizer["Financial.Outgoings"]</th>
+                            <th scope="col" class="text-end">@Localizer["Financial.Balance.Title"]</th>
+                            <th scope="col" class="text-end text-muted">@Localizer["Financial.Balance.EstimatedBudget"]</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var line in lines)
+                        {
+                            <tr>
+                                <td class="@(line.IsFixed ? "fst-italic" : "")">@line.Name</td>
+                                <td class="text-end text-success">@(line.Incomings != 0 ? Euro(line.Incomings) : "")</td>
+                                <td class="text-end text-danger">@(line.Outgoings != 0 ? Euro(line.Outgoings) : "")</td>
+                                <td class="text-end fw-bold @(line.Bilan < 0 ? "text-danger" : "text-success")">@Euro(line.Bilan)</td>
+                                <td class="text-end text-muted">@(line.Budget.HasValue ? Euro(budgetIsOutflow ? -line.Budget.Value : line.Budget.Value) : "")</td>
+                            </tr>
+                        }
+                    </tbody>
+                    <tfoot class="table-light">
+                        @{
+                            var incomings = lines.Sum(l => l.Incomings);
+                            var outgoings = lines.Sum(l => l.Outgoings);
+                            var budget = lines.Where(l => l.Budget.HasValue).Sum(l => l.Budget!.Value);
+                        }
+                        <tr>
+                            <th scope="row">@Localizer["Total"]</th>
+                            <th class="text-end text-success">@Euro(incomings)</th>
+                            <th class="text-end text-danger">@Euro(outgoings)</th>
+                            <th class="text-end @(incomings - outgoings < 0 ? "text-danger" : "text-success")">@Euro(incomings - outgoings)</th>
+                            <th class="text-end text-muted">@Euro(budgetIsOutflow ? -budget : budget)</th>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    }
+}
+
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-end mb-2 d-print-none">
+        <button type="button" onclick="window.print()" class="btn btn-outline-secondary">
+            <i class="fas fa-print me-2"></i>@Localizer["Button.Print"]
+        </button>
+    </div>
+
+    <div class="text-center mb-4">
+        <h1 class="h3 mb-1">@Localizer["Financial.Balance.Title"] — @Model.ActivityName</h1>
+        <div class="fw-bold">@Model.OrganisationName</div>
+        @if (!string.IsNullOrEmpty(Model.OrganisationAddress))
+        {
+            <div class="text-muted">@Model.OrganisationAddress</div>
+        }
+        @if (!string.IsNullOrEmpty(Model.CompanyNumber))
+        {
+            <div class="text-muted">@Localizer["Field.CompanyNumber"] : @Model.CompanyNumber</div>
+        }
+    </div>
+
+    @{ await Section(Localizer["Financial.Incomings"].Value, "bg-success text-white", Model.IncomeLines, budgetIsOutflow: false); }
+    @{ await Section(Localizer["Financial.Balance.ExpenseSection"].Value, "bg-danger text-white", Model.ExpenseLines, budgetIsOutflow: true); }
+
+    <div class="card">
+        <div class="card-body d-flex justify-content-between align-items-center">
+            <span class="fw-bold">@Localizer["Financial.Balance.Result"]</span>
+            <span class="fs-5 fw-bold @(Model.Result < 0 ? "text-danger" : "text-success")">@Euro(Model.Result)</span>
+        </div>
+    </div>
+</div>
