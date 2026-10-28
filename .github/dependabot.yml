@@ -5,7 +5,8 @@ updates:
     schedule:
       interval: "weekly"
       day: "monday"
-    open-pull-requests-limit: 5
+    # At 5, unmerged PRs blocked every new NuGet update for two months (Aug–Oct 2026).
+    open-pull-requests-limit: 10
     groups:
       microsoft:
         patterns:
