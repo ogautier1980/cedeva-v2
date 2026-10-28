@@ -8,6 +8,18 @@ updates:
     # At 5, unmerged PRs blocked every new NuGet update for two months (Aug–Oct 2026).
     open-pull-requests-limit: 10
     groups:
+      # Dependabot puts a package in the FIRST matching group: "testing" must stay before
+      # "microsoft", or Microsoft.Playwright / Microsoft.NET.Test.Sdk would land there.
+      # Microsoft.AspNetCore.Mvc.Testing stays with "microsoft" (it follows the ASP.NET version).
+      testing:
+        patterns:
+          - "xunit*"
+          - "FluentAssertions"
+          - "NSubstitute"
+          - "Microsoft.Playwright"
+          - "Microsoft.NET.Test.Sdk"
+          - "coverlet.*"
+          - "Testcontainers*"
       microsoft:
         patterns:
           - "Microsoft.*"
