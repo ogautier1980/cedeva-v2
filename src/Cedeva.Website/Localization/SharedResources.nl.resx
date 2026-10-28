@@ -4920,4 +4920,19 @@
   <data name="Financial.Categories" xml:space="preserve">
     <value>Categorieën</value>
   </data>
+  <data name="ActivityManagement.DropIn" xml:space="preserve">
+    <value>Kind toevoegen (eenmalige opvang)</value>
+  </data>
+  <data name="ActivityManagement.DropInHelp" xml:space="preserve">
+    <value>Ingeschreven voor de activiteit maar niet gepland die dag: de dag wordt aan de reservering toegevoegd, als aanwezig gemarkeerd en aangerekend.</value>
+  </data>
+  <data name="ActivityManagement.DropInAdded" xml:space="preserve">
+    <value>{0} is toegevoegd voor deze dag en als aanwezig gemarkeerd.</value>
+  </data>
+  <data name="ActivityManagement.SelectChild" xml:space="preserve">
+    <value>Kies een kind</value>
+  </data>
+  <data name="Button.Add" xml:space="preserve">
+    <value>Toevoegen</value>
+  </data>
 </root>

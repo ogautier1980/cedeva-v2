@@ -4942,4 +4942,19 @@
   <data name="Financial.Categories" xml:space="preserve">
     <value>Catégories</value>
   </data>
+  <data name="ActivityManagement.DropIn" xml:space="preserve">
+    <value>Ajouter un enfant en dépannage</value>
+  </data>
+  <data name="ActivityManagement.DropInHelp" xml:space="preserve">
+    <value>Inscrit à l'activité mais pas prévu ce jour-là : le jour est ajouté à sa réservation, marqué présent et facturé.</value>
+  </data>
+  <data name="ActivityManagement.DropInAdded" xml:space="preserve">
+    <value>{0} a été ajouté(e) pour ce jour et marqué(e) présent(e).</value>
+  </data>
+  <data name="ActivityManagement.SelectChild" xml:space="preserve">
+    <value>Choisir un enfant</value>
+  </data>
+  <data name="Button.Add" xml:space="preserve">
+    <value>Ajouter</value>
+  </data>
 </root>

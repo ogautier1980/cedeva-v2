@@ -200,7 +200,51 @@ public class ActivityManagementControllerMoreTests
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         var html = await response.Content.ReadAsStringAsync();
         html.Should().Contain("Reserve");
-        html.Should().NotContain("PasPrevu");
+        // Not in the presence table — only offered in the "dépannage" picker.
+        var table = html.Substring(html.IndexOf("<table"));
+        table.Should().NotContain("PasPrevu");
+        var picker = html.Substring(html.IndexOf("id=\"dropInBookingId\""));
+        picker.Substring(0, picker.IndexOf("</select>")).Should().Contain("PasPrevu");
+    }
+
+    [Fact]
+    public async Task AddDropIn_ReservesAndMarksPresent_AndChargesOneDay()
+    {
+        using var factory = new CedevaWebApplicationFactory();
+        Organisation org = null!;
+        Activity activity = null!;
+        int dayId = 0, bookingId = 0;
+        factory.Seed(ctx =>
+        {
+            org = TestData.Organisation();
+            activity = TestData.Activity(org, "Stage Depannage"); // PricePerDay = 20
+            var day = Day(activity, "Mardi", new DateTime(2026, 7, 7));
+            var parent = TestData.Parent(org);
+            var child = TestData.Child(parent);
+            var booking = TestData.Booking(child, activity, null, 100m, 100m); // paid in full
+            ctx.AddRange(org, activity, day, parent, child, booking);
+            ctx.SaveChanges();
+            dayId = day.DayId;
+            bookingId = booking.Id;
+            return 0;
+        });
+
+        var client = factory.CreateClientFor("u1", org.Id, "Coordinator");
+        var response = await client.PostAsync("/ActivityManagement/AddDropIn", new FormUrlEncodedContent(new Dictionary<string, string>
+        {
+            ["activityId"] = activity.Id.ToString(),
+            ["dayId"] = dayId.ToString(),
+            ["bookingId"] = bookingId.ToString()
+        }));
+
+        response.StatusCode.Should().Be(HttpStatusCode.Found);
+        using var db = factory.NewDbContext();
+        var booking = db.Bookings.IgnoreQueryFilters().Include(b => b.Days).Single(b => b.Id == bookingId);
+        var bookingDay = booking.Days.Single(bd => bd.ActivityDayId == dayId);
+        bookingDay.IsReserved.Should().BeTrue();
+        bookingDay.IsPresent.Should().BeTrue();
+        booking.TotalAmount.Should().Be(120m);
+        booking.PaymentStatus.Should().Be(PaymentStatus.PartiallyPaid);
     }
 
     [Fact]

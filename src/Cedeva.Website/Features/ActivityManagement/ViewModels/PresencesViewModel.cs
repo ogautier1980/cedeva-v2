@@ -11,6 +11,9 @@ public class PresencesViewModel
     public ActivityDay? SelectedActivityDay { get; set; }
     public List<SelectListItem> ActivityDayOptions { get; set; } = new();
     public List<PresenceChildInfo> Children { get; set; } = new();
+
+    /// <summary>Confirmed bookings of the activity not booked on the selected day (dépannage).</summary>
+    public List<SelectListItem> DropInCandidates { get; set; } = new();
 }
 
 public class PresenceChildInfo

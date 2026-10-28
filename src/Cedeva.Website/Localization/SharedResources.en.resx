@@ -4920,4 +4920,19 @@
   <data name="Financial.Categories" xml:space="preserve">
     <value>Categories</value>
   </data>
+  <data name="ActivityManagement.DropIn" xml:space="preserve">
+    <value>Add a drop-in child</value>
+  </data>
+  <data name="ActivityManagement.DropInHelp" xml:space="preserve">
+    <value>Registered for the activity but not booked that day: the day is added to the booking, marked present and charged.</value>
+  </data>
+  <data name="ActivityManagement.DropInAdded" xml:space="preserve">
+    <value>{0} was added for this day and marked present.</value>
+  </data>
+  <data name="ActivityManagement.SelectChild" xml:space="preserve">
+    <value>Choose a child</value>
+  </data>
+  <data name="Button.Add" xml:space="preserve">
+    <value>Add</value>
+  </data>
 </root>

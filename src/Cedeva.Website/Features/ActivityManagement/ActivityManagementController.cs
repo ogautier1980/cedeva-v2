@@ -142,10 +142,53 @@ public class ActivityManagementController : Controller
             SelectedActivityDayId = dayId,
             SelectedActivityDay = selectedDay,
             ActivityDayOptions = dayOptions,
-            Children = children
+            Children = children,
+            DropInCandidates = activity.Bookings
+                .Where(b => b.IsConfirmed && dayId.HasValue && !b.Days.Any(bd => bd.ActivityDayId == dayId.Value && bd.IsReserved))
+                .OrderBy(b => b.Child.LastName).ThenBy(b => b.Child.FirstName)
+                .Select(b => new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem($"{b.Child.LastName} {b.Child.FirstName}", b.Id.ToString()))
+                .ToList()
         };
 
         return View(viewModel);
+    }
+
+    // POST: ActivityManagement/AddDropIn — a child registered to the activity comes on a day they
+    // had not booked ("dépannage"): the day is added to their booking, marked present, and the
+    // activity's day price is added to what they owe.
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> AddDropIn(int activityId, int dayId, int bookingId)
+    {
+        var booking = await _context.Bookings
+            .Include(b => b.Child)
+            .Include(b => b.Days)
+            .Include(b => b.Activity)
+            .FirstOrDefaultAsync(b => b.Id == bookingId && b.ActivityId == activityId && b.IsConfirmed);
+        var dayExists = await _context.ActivityDays.AnyAsync(d => d.DayId == dayId && d.ActivityId == activityId && d.IsActive);
+        if (booking == null || !dayExists)
+            return NotFound();
+
+        var bookingDay = booking.Days.FirstOrDefault(bd => bd.ActivityDayId == dayId);
+        if (bookingDay == null)
+        {
+            bookingDay = new BookingDay { ActivityDayId = dayId, BookingId = booking.Id };
+            booking.Days.Add(bookingDay);
+        }
+
+        if (!bookingDay.IsReserved)
+        {
+            bookingDay.IsReserved = true;
+            booking.TotalAmount += booking.Activity.PricePerDay ?? 0;
+            RecalculateBookingPaymentStatus(booking);
+        }
+        bookingDay.IsPresent = true;
+
+        await _context.SaveChangesAsync();
+
+        TempData[ControllerExtensions.SuccessMessageKey] =
+            _localizer["ActivityManagement.DropInAdded", $"{booking.Child.FirstName} {booking.Child.LastName}"].Value;
+        return RedirectToAction(nameof(Presences), new { id = activityId, dayId });
     }
 
     // GET: ActivityManagement/Childcare — Lot K #5: day-by-day optional garderie service. Only
