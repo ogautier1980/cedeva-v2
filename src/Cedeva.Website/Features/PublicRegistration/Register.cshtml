@@ -13,6 +13,7 @@
 
     var questions = ViewBag.Questions as List<Cedeva.Core.Entities.ActivityQuestion> ?? new List<Cedeva.Core.Entities.ActivityQuestion>();
     var weeks = ViewBag.Weeks as List<Cedeva.Website.Features.PublicRegistration.ViewModels.ActivityWeekOption> ?? new();
+    var dayByDay = Model.AllowDayByDayRegistration && weeks.Sum(w => w.DayIds.Count) > 1;
 }
 
 <!DOCTYPE html>
@@ -111,7 +112,14 @@
                     <div asp-validation-summary="All" class="alert alert-danger" role="alert"></div>
                 }
 
-                @if (weeks.Count > 1)
+                @if (dayByDay)
+                {
+                    <div class="section-title">
+                        <i class="fas fa-calendar-day me-2"></i>@Localizer["PublicRegistration.SelectDays"]
+                    </div>
+                    <partial name="_DayPicker" model="(weeks, Model.SelectedDays)" />
+                }
+                else if (weeks.Count > 1)
                 {
                     <div class="section-title">
                         <i class="fas fa-calendar-week me-2"></i>@Localizer["PublicRegistration.SelectWeeks"]

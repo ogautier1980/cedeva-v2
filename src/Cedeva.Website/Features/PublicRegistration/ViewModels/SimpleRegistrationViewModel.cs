@@ -105,4 +105,9 @@ public class SimpleRegistrationViewModel
     /// to choose and reserves all of its active days regardless of this field.
     /// </summary>
     public List<int> SelectedWeeks { get; set; } = new();
+
+    /// <summary>Days ticked when the activity allows day-by-day registration (instead of weeks).</summary>
+    public List<int> SelectedDays { get; set; } = new();
+
+    public bool AllowDayByDayRegistration { get; set; }
 }

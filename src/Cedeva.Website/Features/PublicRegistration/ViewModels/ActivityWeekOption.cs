@@ -12,4 +12,7 @@ public class ActivityWeekOption
 
     /// <summary>Ids of the activity's active days that fall in this week.</summary>
     public List<int> DayIds { get; set; } = new();
+
+    /// <summary>The same days with their dates, for the day-by-day picker.</summary>
+    public List<(int DayId, DateTime Date)> Days { get; set; } = new();
 }

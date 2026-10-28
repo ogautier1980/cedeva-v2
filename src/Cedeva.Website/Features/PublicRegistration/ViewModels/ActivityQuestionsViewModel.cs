@@ -18,5 +18,10 @@ public class ActivityQuestionsViewModel
     /// <summary>Weeks selected by the parent (week numbers). See <see cref="ActivityWeekOption"/>.</summary>
     public List<int> SelectedWeeks { get; set; } = new();
 
+    /// <summary>Days ticked when the activity allows day-by-day registration (instead of weeks).</summary>
+    public List<int> SelectedDays { get; set; } = new();
+
+    public bool AllowDayByDayRegistration { get; set; }
+
     public decimal? PricePerDay { get; set; }
 }

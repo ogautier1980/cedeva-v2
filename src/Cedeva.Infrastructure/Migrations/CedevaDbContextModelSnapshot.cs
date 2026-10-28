@@ -63,6 +63,9 @@ namespace Cedeva.Infrastructure.Migrations
                     b.Property<int?>("AddressId")
                         .HasColumnType("integer");
 
+                    b.Property<bool>("AllowDayByDayRegistration")
+                        .HasColumnType("boolean");
+
                     b.Property<string>("BankAccountNumber")
                         .HasColumnType("text");
 

@@ -4941,4 +4941,16 @@
   <data name="ActivityManagement.WeekOf" xml:space="preserve">
     <value>Week van {0} tot {1}</value>
   </data>
+  <data name="Activity.AllowDayByDayRegistration" xml:space="preserve">
+    <value>Inschrijving per dag</value>
+  </data>
+  <data name="Activity.AllowDayByDayRegistrationHelp" xml:space="preserve">
+    <value>Ouders kiezen de dagen één voor één op het formulier, in plaats van volledige weken.</value>
+  </data>
+  <data name="PublicRegistration.SelectDays" xml:space="preserve">
+    <value>Selecteer de dag(en)</value>
+  </data>
+  <data name="PublicRegistration.SelectAtLeastOneDay" xml:space="preserve">
+    <value>Selecteer minstens één dag.</value>
+  </data>
 </root>

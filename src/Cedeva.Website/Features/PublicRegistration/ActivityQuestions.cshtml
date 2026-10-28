@@ -4,7 +4,8 @@
     ViewData["Title"] = Localizer["PublicRegistration.Questions"];
     Layout = "~/Features/Shared/Layouts/_PublicLayout.cshtml";
     var weeks = ViewBag.Weeks as List<Cedeva.Website.Features.PublicRegistration.ViewModels.ActivityWeekOption> ?? new();
-    var hasSubmittableContent = Model.Questions.Any() || !string.IsNullOrWhiteSpace(Model.RegulationLinkUrl) || weeks.Count > 1;
+    var dayByDay = Model.AllowDayByDayRegistration && weeks.Sum(w => w.DayIds.Count) > 1;
+    var hasSubmittableContent = Model.Questions.Any() || !string.IsNullOrWhiteSpace(Model.RegulationLinkUrl) || weeks.Count > 1 || dayByDay;
 }
 
 <div class="container py-5">
@@ -22,7 +23,12 @@
                         <input type="hidden" asp-for="ParentId" />
                         <input type="hidden" asp-for="ChildId" />
 
-                        @if (weeks.Count > 1)
+                        @if (dayByDay)
+                        {
+                            <strong class="d-block mb-2"><i class="fas fa-calendar-day me-2"></i>@Localizer["PublicRegistration.SelectDays"]</strong>
+                            <partial name="_DayPicker" model="(weeks, Model.SelectedDays)" />
+                        }
+                        else if (weeks.Count > 1)
                         {
                             <div class="mb-4">
                                 <strong class="d-block mb-2"><i class="fas fa-calendar-week me-2"></i>@Localizer["PublicRegistration.SelectWeeks"]</strong>
@@ -167,7 +173,7 @@
                                 </div>
                             </div>
                         }
-                        else if (weeks.Count <= 1)
+                        else if (weeks.Count <= 1 && !dayByDay)
                         {
                             <div class="alert alert-info">
                                 <i class="fas fa-info-circle me-2"></i>@Localizer["PublicRegistration.NoQuestionsRequired"]

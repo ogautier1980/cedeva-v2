@@ -24,6 +24,7 @@ public class PublicRegistrationController : Controller
     private const string TempDataChildId = "ChildId";
     private const string TempDataQuestionAnswers = "QuestionAnswers";
     private const string TempDataSelectedWeeks = "SelectedWeeks";
+    private const string TempDataSelectedDays = "SelectedDays";
 
     private readonly CedevaDbContext _context;
     private readonly IEmailService _emailService;
@@ -112,20 +113,45 @@ public class PublicRegistrationController : Controller
                 WeekNumber = g.Key,
                 StartDate = g.Min(d => d.DayDate),
                 EndDate = g.Max(d => d.DayDate),
-                DayIds = g.Select(d => d.DayId).ToList()
+                DayIds = g.OrderBy(d => d.DayDate).Select(d => d.DayId).ToList(),
+                Days = g.OrderBy(d => d.DayDate).Select(d => (d.DayId, d.DayDate)).ToList()
             })
             .ToList();
 
-    // Resolves which ActivityDay ids a booking should reserve: all of them if the activity has a
-    // single week (nothing to choose) or the parent picked none, otherwise just the selected weeks'.
-    private static List<int> ResolveSelectedDayIds(List<ActivityWeekOption> weekOptions, List<int>? selectedWeeks)
+    // Resolves which ActivityDay ids a booking should reserve. Day-by-day activities reserve the
+    // ticked days (only real active days are kept). Otherwise: all of them if the activity has a
+    // single week (nothing to choose) or the parent picked none, else just the selected weeks'.
+    private static List<int> ResolveSelectedDayIds(List<ActivityWeekOption> weekOptions, List<int>? selectedWeeks,
+        List<int>? selectedDays = null)
     {
+        if (selectedDays is { Count: > 0 })
+        {
+            var picked = selectedDays.ToHashSet();
+            return weekOptions.SelectMany(w => w.DayIds).Where(picked.Contains).ToList();
+        }
+
         if (weekOptions.Count <= 1 || selectedWeeks == null || selectedWeeks.Count == 0)
         {
             return weekOptions.SelectMany(w => w.DayIds).ToList();
         }
 
         return weekOptions.Where(w => selectedWeeks.Contains(w.WeekNumber)).SelectMany(w => w.DayIds).ToList();
+    }
+
+    /// <summary>A day-by-day activity needs at least one ticked day (when there is a choice);
+    /// a week-based one at least one ticked week.</summary>
+    private void ValidateDaySelection(bool dayByDay, List<ActivityWeekOption> weekOptions,
+        List<int> selectedWeeks, List<int> selectedDays, string weeksKey, string daysKey)
+    {
+        if (dayByDay)
+        {
+            if (weekOptions.Sum(w => w.DayIds.Count) > 1 && selectedDays.Count == 0)
+                ModelState.AddModelError(daysKey, _localizer["PublicRegistration.SelectAtLeastOneDay"].Value);
+        }
+        else if (weekOptions.Count > 1 && selectedWeeks.Count == 0)
+        {
+            ModelState.AddModelError(weeksKey, _localizer["PublicRegistration.SelectAtLeastOneWeek"].Value);
+        }
     }
 
     // GET: PublicRegistration/SelectActivity?orgId=1
@@ -337,7 +363,8 @@ public class PublicRegistrationController : Controller
             Questions = questions,
             RegulationLinkUrl = activity?.RegulationLinkUrl,
             RegulationAcceptanceText = activity?.RegulationAcceptanceText,
-            PricePerDay = activity?.PricePerDay
+            PricePerDay = activity?.PricePerDay,
+            AllowDayByDayRegistration = activity?.AllowDayByDayRegistration == true
         };
 
         ViewBag.Weeks = weekOptions;
@@ -347,8 +374,11 @@ public class PublicRegistrationController : Controller
         TempData.Keep(TempDataChildId);
         TempData.Keep(TempDataOrganisationId);
 
-        // If no questions, no règlement to accept, and no week to choose, skip straight to booking creation.
-        if (!questions.Any() && string.IsNullOrWhiteSpace(activity?.RegulationLinkUrl) && weekOptions.Count <= 1)
+        // If no questions, no règlement to accept, and no week (or day) to choose, skip straight to booking creation.
+        var hasChoice = activity?.AllowDayByDayRegistration == true
+            ? weekOptions.Sum(w => w.DayIds.Count) > 1
+            : weekOptions.Count > 1;
+        if (!questions.Any() && string.IsNullOrWhiteSpace(activity?.RegulationLinkUrl) && !hasChoice)
         {
             return RedirectToAction(nameof(CreateBooking));
         }
@@ -387,14 +417,14 @@ public class PublicRegistrationController : Controller
             .Where(d => d.ActivityId == model.ActivityId && d.IsActive)
             .ToListAsync();
         var weekOptions = BuildWeekOptions(activeDays);
+        var dayByDay = activity?.AllowDayByDayRegistration == true;
 
-        if (weekOptions.Count > 1 && model.SelectedWeeks.Count == 0)
-        {
-            ModelState.AddModelError(nameof(model.SelectedWeeks), _localizer["PublicRegistration.SelectAtLeastOneWeek"].Value);
-        }
+        ValidateDaySelection(dayByDay, weekOptions, model.SelectedWeeks, model.SelectedDays,
+            nameof(model.SelectedWeeks), nameof(model.SelectedDays));
 
         if (!ModelState.IsValid)
         {
+            model.AllowDayByDayRegistration = dayByDay;
             model.Questions = await _context.ActivityQuestions
                 .Where(q => q.ActivityId == model.ActivityId && q.IsActive)
                 .OrderBy(q => q.DisplayOrder)
@@ -409,6 +439,8 @@ public class PublicRegistrationController : Controller
         // Store answers and selected weeks in TempData
         TempData[TempDataQuestionAnswers] = JsonSerializer.Serialize(model.Answers);
         TempData[TempDataSelectedWeeks] = JsonSerializer.Serialize(model.SelectedWeeks);
+        // Day picks only count for a day-by-day activity (ignore anything else posted).
+        TempData[TempDataSelectedDays] = JsonSerializer.Serialize(dayByDay ? model.SelectedDays : new List<int>());
         TempData.Keep(TempDataActivityId);
         TempData.Keep(TempDataParentId);
         TempData.Keep(TempDataChildId);
@@ -446,12 +478,15 @@ public class PublicRegistrationController : Controller
         var selectedWeeks = TempData[TempDataSelectedWeeks] is string selectedWeeksJson
             ? JsonSerializer.Deserialize<List<int>>(selectedWeeksJson)
             : null;
+        var selectedDays = TempData[TempDataSelectedDays] is string selectedDaysJson
+            ? JsonSerializer.Deserialize<List<int>>(selectedDaysJson)
+            : null;
 
         var activeDaysForQuota = await _context.ActivityDays
             .Where(d => d.ActivityId == activityId && d.IsActive)
             .ToListAsync();
         var weekOptionsForQuota = BuildWeekOptions(activeDaysForQuota);
-        var selectedDayIdsForQuota = ResolveSelectedDayIds(weekOptionsForQuota, selectedWeeks);
+        var selectedDayIdsForQuota = ResolveSelectedDayIds(weekOptionsForQuota, selectedWeeks, selectedDays);
 
         var childForQuota = await _context.Children.IgnoreQueryFilters().FirstOrDefaultAsync(c => c.Id == childId);
         if (childForQuota != null)
@@ -466,7 +501,7 @@ public class PublicRegistrationController : Controller
             }
         }
 
-        var booking = await CreateBookingWithDaysAsync(activityId, childId, selectedWeeks);
+        var booking = await CreateBookingWithDaysAsync(activityId, childId, selectedWeeks, selectedDays);
         await SaveBookingAnswersFromTempDataAsync(booking.Id);
 
         // Anonymous flow: FindAsync honours the tenancy filter (returns null with no user), so
@@ -485,13 +520,14 @@ public class PublicRegistrationController : Controller
         return RedirectToAction(nameof(Confirmation), new { bookingId = booking.Id });
     }
 
-    private async Task<Booking> CreateBookingWithDaysAsync(int activityId, int childId, List<int>? selectedWeeks)
+    private async Task<Booking> CreateBookingWithDaysAsync(int activityId, int childId, List<int>? selectedWeeks,
+        List<int>? selectedDays)
     {
         var activeDays = await _context.ActivityDays
             .Where(d => d.ActivityId == activityId && d.IsActive)
             .ToListAsync();
         var weekOptions = BuildWeekOptions(activeDays);
-        var selectedDayIds = ResolveSelectedDayIds(weekOptions, selectedWeeks);
+        var selectedDayIds = ResolveSelectedDayIds(weekOptions, selectedWeeks, selectedDays);
 
         var activity = await _context.Activities
             .IgnoreQueryFilters()
@@ -699,7 +735,8 @@ public class PublicRegistrationController : Controller
             ActivityEndDate = activity.EndDate,
             PricePerDay = activity.PricePerDay,
             RegulationLinkUrl = activity.RegulationLinkUrl,
-            RegulationAcceptanceText = activity.RegulationAcceptanceText
+            RegulationAcceptanceText = activity.RegulationAcceptanceText,
+            AllowDayByDayRegistration = activity.AllowDayByDayRegistration
         };
 
         ViewBag.Questions = questions;
@@ -742,10 +779,10 @@ public class PublicRegistrationController : Controller
             ModelState.AddModelError(nameof(model.AcceptRegulation), _localizer["Validation.Required"].Value);
         }
 
-        if (weekOptions.Count > 1 && model.SelectedWeeks.Count == 0)
-        {
-            ModelState.AddModelError(nameof(model.SelectedWeeks), _localizer["PublicRegistration.SelectAtLeastOneWeek"].Value);
-        }
+        ValidateDaySelection(activityEntity.AllowDayByDayRegistration, weekOptions, model.SelectedWeeks, model.SelectedDays,
+            nameof(model.SelectedWeeks), nameof(model.SelectedDays));
+        // Day picks only count for a day-by-day activity (ignore anything else posted).
+        var selectedDaysPosted = activityEntity.AllowDayByDayRegistration ? model.SelectedDays : null;
 
         if (!ModelState.IsValid)
         {
@@ -766,7 +803,7 @@ public class PublicRegistrationController : Controller
             return View(model);
         }
 
-        var selectedDayIdsForQuota = ResolveSelectedDayIds(weekOptions, model.SelectedWeeks);
+        var selectedDayIdsForQuota = ResolveSelectedDayIds(weekOptions, model.SelectedWeeks, selectedDaysPosted);
         var birthYearQuotaMessage = await CheckBirthYearQuotaAsync(model.ActivityId, model.ChildBirthDate!.Value, weekOptions, selectedDayIdsForQuota);
         if (birthYearQuotaMessage != null)
         {
@@ -797,7 +834,7 @@ public class PublicRegistrationController : Controller
         }
 
         // Create booking with answers, reserving only the selected week(s)' days
-        var selectedDayIds = ResolveSelectedDayIds(weekOptions, model.SelectedWeeks);
+        var selectedDayIds = ResolveSelectedDayIds(weekOptions, model.SelectedWeeks, selectedDaysPosted);
         var bookingId = await CreateBookingWithAnswersAsync(model, childId, selectedDayIds);
 
         // Send confirmation email (anonymous flow: bypass tenancy filter to load parent/child)
@@ -844,6 +881,7 @@ public class PublicRegistrationController : Controller
             model.PricePerDay = activity.PricePerDay;
             model.RegulationLinkUrl = activity.RegulationLinkUrl;
             model.RegulationAcceptanceText = activity.RegulationAcceptanceText;
+            model.AllowDayByDayRegistration = activity.AllowDayByDayRegistration;
         }
     }
 

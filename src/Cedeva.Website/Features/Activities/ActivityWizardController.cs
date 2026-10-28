@@ -236,7 +236,7 @@ public class ActivityWizardController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Step2Next(int id, List<int>? ActiveDayIds)
+    public async Task<IActionResult> Step2Next(int id, List<int>? ActiveDayIds, bool AllowDayByDayRegistration = false)
     {
         var activity = await _context.Activities
             .Include(a => a.Days)
@@ -259,6 +259,7 @@ public class ActivityWizardController : Controller
             }
         }
 
+        activity.AllowDayByDayRegistration = AllowDayByDayRegistration;
         AdvanceWizardProgress(activity, 3);
         await _activityDayService.ReconcileTeamMemberDaysAsync(activity);
         await _context.SaveChangesAsync();
@@ -271,6 +272,7 @@ public class ActivityWizardController : Controller
         ActivityId = activity.Id,
         ActivityName = activity.Name,
         WizardMaxStepReached = activity.WizardMaxStepReached,
+        AllowDayByDayRegistration = activity.AllowDayByDayRegistration,
         Weeks = activity.Days
             .OrderBy(d => d.DayDate)
             .GroupBy(d => d.Week ?? 0)

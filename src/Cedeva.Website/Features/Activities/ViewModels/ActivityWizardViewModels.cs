@@ -39,6 +39,9 @@ public class WizardStep2ViewModel
     public string ActivityName { get; set; } = string.Empty;
     public List<WizardDayWeekViewModel> Weeks { get; set; } = new();
     public int WizardMaxStepReached { get; set; }
+
+    [Display(Name = "Activity.AllowDayByDayRegistration")]
+    public bool AllowDayByDayRegistration { get; set; }
 }
 
 public class WizardDayWeekViewModel

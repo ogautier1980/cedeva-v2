@@ -51,6 +51,12 @@ public class Activity : AuditableEntity, IOrganisationScoped
     [StringLength(300, ErrorMessage = "Validation.StringLength")]
     public string? PostalCodeErrorMessage { get; set; }
 
+    /// <summary>
+    /// Inscription publique au jour le jour : le parent coche des jours plutôt que des semaines
+    /// entières. Faux par défaut (inscription par semaine).
+    /// </summary>
+    public bool AllowDayByDayRegistration { get; set; }
+
     /// <summary>Nombre maximum d'enfants pouvant s'inscrire par jour (Lot I, étape 4). Null = pas de limite.</summary>
     public int? MaxChildrenPerDay { get; set; }
 

@@ -413,6 +413,24 @@ public class ActivityWizardControllerTests
     }
 
     [Fact]
+    public async Task Step2Next_SavesDayByDayRegistrationSetting()
+    {
+        using var factory = new CedevaWebApplicationFactory();
+        var (orgId, activityId) = SeedActivity(factory);
+        var client = factory.CreateClientFor("u1", orgId, "Coordinator");
+
+        var response = await client.PostAsync("/ActivityWizard/Step2Next", new FormUrlEncodedContent(new Dictionary<string, string>
+        {
+            ["id"] = activityId.ToString(),
+            ["AllowDayByDayRegistration"] = "true"
+        }));
+
+        response.StatusCode.Should().Be(HttpStatusCode.Found);
+        await using var ctx = factory.NewDbContext();
+        (await ctx.Activities.IgnoreQueryFilters().SingleAsync(a => a.Id == activityId)).AllowDayByDayRegistration.Should().BeTrue();
+    }
+
+    [Fact]
     public async Task Step2Next_AdvancesWizardMaxStepReachedTo3()
     {
         using var factory = new CedevaWebApplicationFactory();

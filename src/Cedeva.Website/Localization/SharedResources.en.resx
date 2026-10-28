@@ -4941,4 +4941,16 @@
   <data name="ActivityManagement.WeekOf" xml:space="preserve">
     <value>Week from {0} to {1}</value>
   </data>
+  <data name="Activity.AllowDayByDayRegistration" xml:space="preserve">
+    <value>Day-by-day registration</value>
+  </data>
+  <data name="Activity.AllowDayByDayRegistrationHelp" xml:space="preserve">
+    <value>Parents pick days one by one on the form instead of whole weeks.</value>
+  </data>
+  <data name="PublicRegistration.SelectDays" xml:space="preserve">
+    <value>Select the day(s)</value>
+  </data>
+  <data name="PublicRegistration.SelectAtLeastOneDay" xml:space="preserve">
+    <value>Select at least one day.</value>
+  </data>
 </root>
