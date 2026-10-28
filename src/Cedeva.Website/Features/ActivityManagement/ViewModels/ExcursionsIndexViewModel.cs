@@ -18,7 +18,4 @@ public class ExcursionListItem
     public bool IsActive { get; set; }
     public List<string> TargetGroupNames { get; set; } = new();
     public int RegistrationCount { get; set; }
-    public decimal TotalRevenue { get; set; }
-    public decimal TotalExpenses { get; set; }
-    public decimal NetBalance { get; set; }
 }

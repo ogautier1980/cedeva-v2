@@ -4,6 +4,9 @@ public class TeamSalaryViewModel
 {
     public int TeamMemberId { get; set; }
     public string TeamMemberName { get; set; } = string.Empty;
+
+    /// <summary>"DUPONT Pierre" — the payout sheet's format, as in Thomas' mockup.</summary>
+    public string PayoutName { get; set; } = string.Empty;
     public string Email { get; set; } = string.Empty;
 
     /// <summary>Compte sur lequel le décompte est versé.</summary>

@@ -45,7 +45,7 @@
                         <div class="mb-3" id="weekFilterBlock">
                             <label for="SelectedWeekNumber" class="form-label">@Localizer["Email.ScheduledForWeek"]</label>
                             <select asp-for="SelectedWeekNumber" asp-items="Model.WeekOptions" class="form-select" id="SelectedWeekNumber">
-                                <option value="">@Localizer["Email.AllDays"]</option>
+                                <option value="">@Localizer["Email.AllWeeks"]</option>
                             </select>
                             <div class="form-text">@Localizer["Email.WeekFilterHelp"]</div>
                         </div>

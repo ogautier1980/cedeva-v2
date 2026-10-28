@@ -73,7 +73,6 @@ public class ExcursionsController : Controller
             .Include(e => e.ExcursionGroups)
                 .ThenInclude(eg => eg.ActivityGroup)
             .Include(e => e.Registrations)
-            .Include(e => e.Expenses)
             .Where(e => e.ActivityId == activityId && e.IsActive)
             .OrderBy(e => e.ExcursionDate)
             .ToListAsync();
@@ -87,10 +86,7 @@ public class ExcursionsController : Controller
             Cost = e.Cost,
             IsActive = e.IsActive,
             TargetGroupNames = e.ExcursionGroups.Select(eg => eg.ActivityGroup.Label).ToList(),
-            RegistrationCount = e.Registrations.Count,
-            TotalRevenue = e.Registrations.Count * e.Cost,
-            TotalExpenses = e.Expenses.Sum(ex => ex.Amount),
-            NetBalance = (e.Registrations.Count * e.Cost) - e.Expenses.Sum(ex => ex.Amount)
+            RegistrationCount = e.Registrations.Count
         }).ToList();
 
         var viewModel = new ExcursionsIndexViewModel
@@ -251,9 +247,6 @@ public class ExcursionsController : Controller
             .Include(e => e.Registrations)
                 .ThenInclude(r => r.Booking)
                     .ThenInclude(b => b.Child)
-            .Include(e => e.Expenses)
-            .Include(e => e.TeamMembers)
-                .ThenInclude(tm => tm.TeamMember)
             .FirstOrDefaultAsync(e => e.Id == id);
 
         if (excursion == null)

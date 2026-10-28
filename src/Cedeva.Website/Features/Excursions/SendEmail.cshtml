@@ -22,20 +22,6 @@
         </div>
         <div class="card-body">
             <p class="mb-1"><strong>@Localizer["Field.ExcursionDate"]:</strong> @Model.Excursion?.ExcursionDate.ToString("dd/MM/yyyy")</p>
-            @if (Model.Excursion?.StartTime.HasValue == true || Model.Excursion?.EndTime.HasValue == true)
-            {
-                <p class="mb-1">
-                    <strong>@Localizer["Excursion.TimeSlot"]:</strong>
-                    @if (Model.Excursion.StartTime.HasValue)
-                    {
-                        @Model.Excursion.StartTime.Value.ToString(@"hh\:mm")
-                    }
-                    @if (Model.Excursion.EndTime.HasValue)
-                    {
-                        <text> - @Model.Excursion.EndTime.Value.ToString(@"hh\:mm")</text>
-                    }
-                </p>
-            }
             <p class="mb-0"><strong>@Localizer["Excursion.AllConcernedChildren"]:</strong> @ViewBag.ConcernedChildrenCount</p>
         </div>
     </div>

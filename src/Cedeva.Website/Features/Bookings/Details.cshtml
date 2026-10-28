@@ -17,9 +17,13 @@
                         <a asp-action="Edit" asp-route-id="@Model.Id" asp-route-returnUrl="@Url.Action("Details", new { id = Model.Id })" class="btn btn-sm btn-primary text-nowrap">
                             <i class="fas fa-edit me-1"></i>@Localizer["Edit"]
                         </a>
-                        <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-sm btn-danger text-nowrap">
-                            <i class="fas fa-trash me-1"></i>@Localizer["Delete"]
-                        </a>
+                        @* A pending booking already has "Supprimer l'inscription" next to "Confirmer". *@
+                        @if (Model.IsConfirmed)
+                        {
+                            <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-sm btn-outline-danger text-nowrap">
+                                <i class="fas fa-trash me-1"></i>@Localizer["Delete"]
+                            </a>
+                        }
                     </div>
                 </div>
                 <div class="card-body">

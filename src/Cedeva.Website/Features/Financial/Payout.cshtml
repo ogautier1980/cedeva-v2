@@ -37,7 +37,7 @@
                     @foreach (var payout in Model.TeamSalaries)
                     {
                         <tr>
-                            <td class="fw-bold">@payout.TeamMemberName</td>
+                            <td class="fw-bold">@payout.PayoutName</td>
                             <td>
                                 @if (string.IsNullOrWhiteSpace(payout.BankAccountNumber))
                                 {

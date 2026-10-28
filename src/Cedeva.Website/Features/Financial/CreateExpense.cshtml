@@ -22,6 +22,7 @@
                     <form asp-action="CreateExpense" method="post">
                         @Html.AntiForgeryToken()
                         <input type="hidden" asp-for="ActivityId" />
+                        <input type="hidden" name="returnUrl" value="@ViewData["ReturnUrl"]" />
 
                         <div class="mb-3">
                             <label for="Label" class="form-label">@Localizer["Expense.Label"]</label>
@@ -91,7 +92,13 @@
                         </div>
 
                         <div class="d-flex justify-content-between mt-4">
-                            <a asp-action="Transactions" class="btn btn-outline-secondary">
+                            @{
+                                var createReturnUrl = ViewData["ReturnUrl"]?.ToString();
+                                var createCancelUrl = !string.IsNullOrEmpty(createReturnUrl) && Url.IsLocalUrl(createReturnUrl)
+                                    ? createReturnUrl
+                                    : Url.Action("Transactions");
+                            }
+                            <a href="@createCancelUrl" class="btn btn-outline-secondary">
                                 <i class="fas fa-times me-1"></i>@Localizer["Button.Cancel"]
                             </a>
                             <button type="submit" class="btn btn-primary">

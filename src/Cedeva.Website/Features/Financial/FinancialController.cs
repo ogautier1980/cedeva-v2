@@ -172,6 +172,7 @@ public class FinancialController : Controller
         {
             TeamMemberId = teamMember.TeamMemberId,
             TeamMemberName = teamMember.FullName,
+            PayoutName = $"{teamMember.LastName.ToUpperInvariant()} {teamMember.FirstName}",
             Email = teamMember.Email,
             BankAccountNumber = teamMember.BankAccountNumber,
             TeamRole = teamMember.TeamRole.ToString(),
@@ -308,8 +309,10 @@ public class FinancialController : Controller
     /// <param name="id">Activity to bill, when arriving from outside the activity context (e.g. a
     /// team member's sheet); otherwise the activity currently being managed is used.</param>
     /// <param name="teamMemberId">Pre-selects who the expense is for.</param>
-    public async Task<IActionResult> CreateExpense(int? id = null, int? teamMemberId = null)
+    /// <param name="returnUrl">Where to go back after saving or cancelling (e.g. the member's sheet).</param>
+    public async Task<IActionResult> CreateExpense(int? id = null, int? teamMemberId = null, string? returnUrl = null)
     {
+        ViewData["ReturnUrl"] = returnUrl;
         if (id.HasValue)
         {
             HttpContext.Session.SetInt32(SessionKeyActivityId, id.Value);
@@ -369,8 +372,9 @@ public class FinancialController : Controller
     // POST: Financial/CreateExpense
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> CreateExpense(ExpenseViewModel viewModel)
+    public async Task<IActionResult> CreateExpense(ExpenseViewModel viewModel, string? returnUrl = null)
     {
+        ViewData["ReturnUrl"] = returnUrl;
         var activityId = HttpContext.Session.GetInt32(SessionKeyActivityId);
         if (!activityId.HasValue)
         {
@@ -418,6 +422,10 @@ public class FinancialController : Controller
         await _context.SaveChangesAsync();
 
         TempData[ControllerExtensions.SuccessMessageKey] = _ctx.Localizer["Message.ExpenseCreated"].Value;
+        if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+        {
+            return Redirect(returnUrl);
+        }
         return RedirectToAction(nameof(Transactions));
     }
 

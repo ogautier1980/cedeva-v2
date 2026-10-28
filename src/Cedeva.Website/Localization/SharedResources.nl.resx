@@ -4953,4 +4953,10 @@
   <data name="PublicRegistration.SelectAtLeastOneDay" xml:space="preserve">
     <value>Selecteer minstens één dag.</value>
   </data>
+  <data name="Activities.SignaletiqueDetailsHelp" xml:space="preserve">
+    <value>Gebruikt op de documenten en e-mails die voor deze activiteit worden gegenereerd.</value>
+  </data>
+  <data name="Email.AllWeeks" xml:space="preserve">
+    <value>Alle weken</value>
+  </data>
 </root>

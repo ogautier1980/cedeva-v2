@@ -188,7 +188,8 @@
                     </table>
                     <a asp-controller="Financial" asp-action="CreateExpense"
                        asp-route-id="@compensation.ActivityId" asp-route-teamMemberId="@Model.TeamMemberId"
-                       class="btn btn-sm btn-secondary">
+                       asp-route-returnUrl="@Url.Action("Details", "TeamMembers", new { id = Model.TeamMemberId })"
+                       class="btn btn-sm btn-outline-secondary">
                         <i class="fas fa-plus-circle me-2"></i>@Localizer["TeamMembers.AddExtraOrExpense"]
                     </a>
                 }

@@ -10,6 +10,11 @@
     ViewData["NavAction"] = "TeamSalaries";
 }
 
+@functions {
+    // No sign on a zero amount (avoids "-0,00 €").
+    static string Signed(decimal amount, string sign) => (amount == 0 ? "" : sign) + amount.ToString("N2") + " €";
+}
+
 
 <div class="container-fluid py-4">
     <!-- Header -->
@@ -74,7 +79,7 @@
                                     @Localizer["Financial.TotalReimbursements"]
                                 </div>
                                 <div class="h5 mb-0 font-weight-bold text-gray-800">
-                                    +@Model.TotalReimbursements.ToString("N2") €
+                                    @Signed(Model.TotalReimbursements, "+")
                                 </div>
                             </div>
                             <div class="col-auto">
@@ -94,7 +99,7 @@
                                     @Localizer["Financial.TotalConsumptions"]
                                 </div>
                                 <div class="h5 mb-0 font-weight-bold text-gray-800">
-                                    -@Model.TotalPersonalConsumptions.ToString("N2") €
+                                    @Signed(Model.TotalPersonalConsumptions, "-")
                                 </div>
                             </div>
                             <div class="col-auto">
@@ -169,7 +174,7 @@
                                         @if (salary.ReimbursementsCount > 0)
                                         {
                                             <span title="@salary.ReimbursementsCount @Localizer["Financial.Reimbursement(s)"]">
-                                                +@salary.Reimbursements.ToString("N2") € (@salary.ReimbursementsCount)
+                                                @Signed(salary.Reimbursements, "+") (@salary.ReimbursementsCount)
                                             </span>
                                         }
                                         else
@@ -181,7 +186,7 @@
                                         @if (salary.PersonalConsumptionsCount > 0)
                                         {
                                             <span title="@salary.PersonalConsumptionsCount @Localizer["Financial.Consumption(s)"]">
-                                                -@salary.PersonalConsumptions.ToString("N2") € (@salary.PersonalConsumptionsCount)
+                                                @Signed(salary.PersonalConsumptions, "-") (@salary.PersonalConsumptionsCount)
                                             </span>
                                         }
                                         else
@@ -209,8 +214,8 @@
                             <tr class="table-secondary">
                                 <th scope="col" colspan="5">@Localizer["Financial.Total"]</th>
                                 <th scope="col" class="text-end">@Model.TotalPrestations.ToString("N2") €</th>
-                                <th scope="col" class="text-end text-success">+@Model.TotalReimbursements.ToString("N2") €</th>
-                                <th scope="col" class="text-end text-danger">-@Model.TotalPersonalConsumptions.ToString("N2") €</th>
+                                <th scope="col" class="text-end text-success">@Signed(Model.TotalReimbursements, "+")</th>
+                                <th scope="col" class="text-end text-danger">@Signed(Model.TotalPersonalConsumptions, "-")</th>
                                 <th scope="col" class="text-end"><strong>@Model.GrandTotal.ToString("N2") €</strong></th>
                                 <th scope="col"></th>
                             </tr>

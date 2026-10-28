@@ -340,6 +340,25 @@ public class FinancialControllerCoverageTests
     // ---------------------------------------------------------------------
 
     [Fact]
+    public async Task Payout_ShowsNamesAsUppercaseLastNameThenFirstName()
+    {
+        using var factory = new CedevaWebApplicationFactory();
+        var g = SeedFullGraph(factory);
+        string lastName, firstName;
+        await using (var db = factory.NewDbContext())
+        {
+            var member = await db.TeamMembers.IgnoreQueryFilters().SingleAsync(t => t.TeamMemberId == g.TeamMemberId);
+            (lastName, firstName) = (member.LastName, member.FirstName);
+        }
+        var client = factory.CreateClientFor("u1", g.OrgId, "Coordinator");
+
+        var response = await client.GetAsync($"/Financial/Payout/{g.ActivityId}");
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        (await response.Content.ReadAsStringAsync()).Should().Contain($"{lastName.ToUpperInvariant()} {firstName}");
+    }
+
+    [Fact]
     public async Task Balance_WithoutSelectedActivity_RedirectsToActivities()
     {
         using var factory = new CedevaWebApplicationFactory();
