@@ -4974,4 +4974,13 @@
   <data name="Bookings.MutualityAttestationStickerHere" xml:space="preserve">
     <value>Stick a health insurance label here</value>
   </data>
+  <data name="ActivityManagement.AddTeamMemberButton" xml:space="preserve">
+    <value>Add a team member</value>
+  </data>
+  <data name="ActivityManagement.FormerMembersHelp" xml:space="preserve">
+    <value>Members who already came to the association: add them to this activity.</value>
+  </data>
+  <data name="ActivityManagement.NewTeamMember" xml:space="preserve">
+    <value>New member</value>
+  </data>
 </root>

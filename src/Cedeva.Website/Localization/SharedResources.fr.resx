@@ -4996,4 +4996,13 @@
   <data name="Bookings.MutualityAttestationStickerHere" xml:space="preserve">
     <value>Apposer une vignette de mutuelle ici</value>
   </data>
+  <data name="ActivityManagement.AddTeamMemberButton" xml:space="preserve">
+    <value>Ajouter un membre de l'équipe</value>
+  </data>
+  <data name="ActivityManagement.FormerMembersHelp" xml:space="preserve">
+    <value>Membres déjà venus dans l'association : ajoutez-les à cette activité.</value>
+  </data>
+  <data name="ActivityManagement.NewTeamMember" xml:space="preserve">
+    <value>Nouveau membre</value>
+  </data>
 </root>

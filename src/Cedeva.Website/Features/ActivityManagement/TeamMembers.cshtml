@@ -92,55 +92,87 @@
         </div>
     </div>
 
-    <!-- Available Team Members — de-emphasized below the main list, collapsed by default -->
-    <div class="card">
-        <div class="card-header bg-light">
-            <button class="btn btn-link text-decoration-none p-0 w-100 text-start d-flex justify-content-between align-items-center"
-                    type="button" data-bs-toggle="collapse" data-bs-target="#availableMembersPanel">
-                <span><i class="fas fa-user-plus me-1"></i> @Localizer["ActivityManagement.AvailableMembers"] (@Model.AvailableTeamMembers.Count())</span>
-                <i class="fas fa-chevron-down"></i>
-            </button>
-        </div>
-        <div class="collapse" id="availableMembersPanel">
-            <div class="card-body">
-                @if (!Model.AvailableTeamMembers.Any())
-                {
-                    <div class="alert alert-info mb-0">
-                        <i class="fas fa-info-circle"></i> @Localizer["ActivityManagement.AllMembersAssigned"]
-                    </div>
-                }
-                else
-                {
-                    <div class="list-group">
-                        @foreach (var member in Model.AvailableTeamMembers.OrderBy(m => m.LastName))
-                        {
-                            <div class="list-group-item d-flex justify-content-between align-items-center">
-                                <div>
-                                    <strong>@member.FirstName @member.LastName</strong>
-                                    <br />
-                                    <small class="text-muted">
-                                        <i class="fas fa-tag"></i> @Localizer.GetLocalizedEnum(member.TeamRole)
-                                        @if (member.License != License.NoLicense)
-                                        {
-                                            <span class="ms-2">
-                                                <i class="fas fa-certificate"></i> @Localizer.GetLocalizedEnum(member.License)
-                                            </span>
-                                        }
-                                    </small>
+    <!-- Former members: "Ajouter un membre de l'équipe" opens the association's history, as in Thomas' demo -->
+    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#availableMembersPanel">
+        <i class="fas fa-user-plus me-1"></i>@Localizer["ActivityManagement.AddTeamMemberButton"]
+    </button>
+
+    <div class="modal fade" id="availableMembersPanel" tabindex="-1" aria-labelledby="availableMembersTitle" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="availableMembersTitle">
+                        <i class="fas fa-user-plus me-2"></i>@Localizer["ActivityManagement.AvailableMembers"] (@Model.AvailableTeamMembers.Count())
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    @if (!Model.AvailableTeamMembers.Any())
+                    {
+                        <div class="text-center py-4">
+                            <i class="fas fa-users fa-3x text-muted mb-3"></i>
+                            <p class="text-muted mb-0">@Localizer["ActivityManagement.AllMembersAssigned"]</p>
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="text-muted small">@Localizer["ActivityManagement.FormerMembersHelp"]</p>
+                        <input type="search" id="availableMemberSearch" class="form-control mb-3" autocomplete="off"
+                               placeholder="@Localizer["TeamMembers.SearchPlaceholder"]" />
+                        <div class="list-group">
+                            @foreach (var member in Model.AvailableTeamMembers.OrderBy(m => m.LastName))
+                            {
+                                <div class="list-group-item d-flex justify-content-between align-items-center available-member"
+                                     data-search="@($"{member.LastName} {member.FirstName} {member.FirstName} {member.LastName} {member.Email}".ToLowerInvariant())">
+                                    <div>
+                                        <strong>@member.FirstName @member.LastName</strong>
+                                        <br />
+                                        <small class="text-muted">
+                                            <i class="fas fa-tag"></i> @Localizer.GetLocalizedEnum(member.TeamRole)
+                                            @if (member.License != License.NoLicense)
+                                            {
+                                                <span class="ms-2">
+                                                    <i class="fas fa-certificate"></i> @Localizer.GetLocalizedEnum(member.License)
+                                                </span>
+                                            }
+                                        </small>
+                                    </div>
+                                    <form asp-action="AddTeamMember" method="post">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="id" value="@Model.Activity.Id" />
+                                        <input type="hidden" name="teamMemberId" value="@member.TeamMemberId" />
+                                        <button type="submit" class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-user-plus"></i> @Localizer["Add"]
+                                        </button>
+                                    </form>
                                 </div>
-                                <form asp-action="AddTeamMember" method="post">
-                                    @Html.AntiForgeryToken()
-                                    <input type="hidden" name="id" value="@Model.Activity.Id" />
-                                    <input type="hidden" name="teamMemberId" value="@member.TeamMemberId" />
-                                    <button type="submit" class="btn btn-sm btn-outline-primary">
-                                        <i class="fas fa-user-plus"></i> @Localizer["Add"]
-                                    </button>
-                                </form>
-                            </div>
-                        }
-                    </div>
-                }
+                            }
+                        </div>
+                    }
+                </div>
+                <div class="modal-footer justify-content-between">
+                    <a asp-controller="TeamMembers" asp-action="Create" class="btn btn-outline-primary">
+                        <i class="fas fa-plus me-1"></i>@Localizer["ActivityManagement.NewTeamMember"]
+                    </a>
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">@Localizer["Cancel"]</button>
+                </div>
             </div>
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        // Narrow the former-members list while typing a name.
+        (function () {
+            const search = document.getElementById('availableMemberSearch');
+            if (!search) return;
+            search.addEventListener('input', function () {
+                const q = this.value.trim().toLowerCase();
+                document.querySelectorAll('.available-member').forEach(function (row) {
+                    row.classList.toggle('d-none', q !== '' && row.dataset.search.indexOf(q) === -1);
+                });
+            });
+        })();
+    </script>
+}
