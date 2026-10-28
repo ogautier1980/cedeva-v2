@@ -93,13 +93,15 @@ catégorie.
   la confirmation n'envoie que le lien de paiement (rien si rien à payer, y compris depuis
   `Bookings/Edit`).
 - **Correctif** : date de naissance du formulaire public vide au lieu de 01/01/0001.
+- **Justificatif joint** à une transaction (PDF/image), et rattachement des catégories saisies à
+  la main (migration de données ; nouvelles catégories créées si besoin).
+- **Finitions** : retour sur la fiche membre après ajout d'un complément, horaire/type d'excursion
+  masqués, Décompte au format « DUPONT Pierre », un seul bouton Supprimer sur une inscription en
+  attente, « -0,00 € » supprimés.
 
 **Reste à faire :**
 - **Emails — retirer « Type de modèle »** : impacte l'import/copie de modèles (un modèle par type)
   et le modèle par défaut des excursions — à repenser plutôt qu'à masquer.
-- **Comptes — justificatif joint** (fichier) sur une transaction, vu dans la démo.
-- **Comptes — catégories libres historiques** : des dépenses portent un texte de catégorie qui
-  n'existe pas dans les catégories de l'organisation ; elles tombent en « Sans catégorie » au BILAN.
 - **Comptes — « Attribué à »** encore présent sur `CreateExpense`/`EditExpense` (fiche membre).
 - **ONE — attestation fiscale** : attendre le modèle de PoM.
 
