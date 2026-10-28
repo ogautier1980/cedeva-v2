@@ -18,6 +18,12 @@ public class Expense : AuditableEntity
     public decimal Amount { get; set; }
 
     /// <summary>
+    /// Sens du mouvement : true = Recette (entrée d'argent hors paiements d'inscription, ex.
+    /// subside, bar, tombola), false = Dépense. Le montant reste toujours positif.
+    /// </summary>
+    public bool IsIncome { get; set; }
+
+    /// <summary>
     /// Numéro de ticket, unique par activité (remis à 1 à chaque nouvelle activité — partage la
     /// même séquence que <see cref="Payment.TicketNumber"/> pour cette activité).
     /// </summary>

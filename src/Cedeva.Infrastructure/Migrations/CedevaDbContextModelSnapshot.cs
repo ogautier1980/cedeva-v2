@@ -1320,6 +1320,9 @@ namespace Cedeva.Infrastructure.Migrations
                     b.Property<int?>("ExpenseType")
                         .HasColumnType("integer");
 
+                    b.Property<bool>("IsIncome")
+                        .HasColumnType("boolean");
+
                     b.Property<string>("Label")
                         .IsRequired()
                         .HasMaxLength(100)

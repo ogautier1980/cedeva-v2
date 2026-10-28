@@ -4866,4 +4866,31 @@
   <data name="Excursion.EmailSent" xml:space="preserve">
     <value>Invitation sent</value>
   </data>
+  <data name="Expense.IncomeNotForTeamMember" xml:space="preserve">
+    <value>An income cannot be assigned to a team member.</value>
+  </data>
+  <data name="Expense.Direction" xml:space="preserve">
+    <value>Direction</value>
+  </data>
+  <data name="Financial.Outgoing" xml:space="preserve">
+    <value>Expense</value>
+  </data>
+  <data name="Financial.PaidBy" xml:space="preserve">
+    <value>Paid by</value>
+  </data>
+  <data name="Financial.PaidByCash" xml:space="preserve">
+    <value>Cash box</value>
+  </data>
+  <data name="Financial.PaidByAccount" xml:space="preserve">
+    <value>Account</value>
+  </data>
+  <data name="Financial.Explanations" xml:space="preserve">
+    <value>Explanations</value>
+  </data>
+  <data name="Financial.Receipt" xml:space="preserve">
+    <value>Income</value>
+  </data>
+  <data name="Financial.ReceiptOrOutgoingRequired" xml:space="preserve">
+    <value>Enter an amount as income or as expense.</value>
+  </data>
 </root>

@@ -21,6 +21,10 @@ public class ExpenseViewModel
     [Range(0.01, 999999.99, ErrorMessage = "Validation.Range")]
     public decimal Amount { get; set; }
 
+    /// <summary>Recette (true) ou Dépense (false) — voir <see cref="Cedeva.Core.Entities.Expense.IsIncome"/>.</summary>
+    [Display(Name = "Expense.Direction")]
+    public bool IsIncome { get; set; }
+
     [Display(Name = "Expense.Category")]
     [StringLength(50, ErrorMessage = "Validation.StringLength")]
     public string? Category { get; set; }

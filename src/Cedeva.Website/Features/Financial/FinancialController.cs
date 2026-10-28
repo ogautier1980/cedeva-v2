@@ -285,8 +285,9 @@ public class FinancialController : Controller
             return NotFound();
         }
 
-        await PopulateAssignedToDropdown(activityId.Value);
         await PopulateExpenseCategoriesAsync(activityId.Value);
+        // Shown in the grey "N° de ticket" box; the number is actually assigned on save.
+        ViewBag.NextTicketNumber = await GetNextTicketNumberAsync(activityId.Value);
 
         var viewModel = new AddTransactionViewModel
         {
@@ -376,6 +377,7 @@ public class FinancialController : Controller
             return RedirectToAction(ActionIndex, ControllerActivities);
         }
 
+        RejectIncomeAssignedToTeamMember(viewModel);
         if (!ModelState.IsValid)
         {
             await PopulateAssignedToDropdown(activityId.Value);
@@ -390,6 +392,7 @@ public class FinancialController : Controller
             Label = viewModel.Label,
             Description = viewModel.Description,
             Amount = viewModel.Amount,
+            IsIncome = viewModel.IsIncome,
             Category = string.IsNullOrWhiteSpace(viewModel.Category) ? null : viewModel.Category.Trim(),
             ExpenseCategoryId = expenseCategoryId,
             TicketNumber = await GetNextTicketNumberAsync(activityId.Value),
@@ -444,6 +447,7 @@ public class FinancialController : Controller
             Label = expense.Label,
             Description = expense.Description,
             Amount = expense.Amount,
+            IsIncome = expense.IsIncome,
             Category = expense.Category,
             ExpenseDate = expense.ExpenseDate,
             ExpenseType = expense.ExpenseType,
@@ -481,6 +485,7 @@ public class FinancialController : Controller
             return Forbid();
         }
 
+        RejectIncomeAssignedToTeamMember(viewModel);
         if (!ModelState.IsValid)
         {
             await PopulateAssignedToDropdown(expense.ActivityId);
@@ -493,6 +498,7 @@ public class FinancialController : Controller
         expense.Label = viewModel.Label;
         expense.Description = viewModel.Description;
         expense.Amount = viewModel.Amount;
+        expense.IsIncome = viewModel.IsIncome;
         expense.Category = string.IsNullOrWhiteSpace(viewModel.Category) ? null : viewModel.Category.Trim();
         expense.ExpenseCategoryId = expenseCategoryId;
         expense.ExpenseDate = viewModel.ExpenseDate;
@@ -658,7 +664,7 @@ public class FinancialController : Controller
             Category = e.Category,
             AssignedTo = GetExpenseAssignedToLabel(e),
             Amount = e.Amount,
-            IsIncome = false,
+            IsIncome = e.IsIncome,
             IsOffBalance = e.ExpenseCategory?.CategoryType == ExpenseCategoryType.OffBalance,
             RelatedId = e.Id,
             ExcursionName = e.Excursion?.Name
@@ -832,6 +838,18 @@ public class FinancialController : Controller
     /// <summary>
     /// Next ticket number for the activity's shared Payment/Expense sequence (starts at 1, resets per activity).
     /// </summary>
+    /// <summary>
+    /// A team member's line is a reimbursement or a consumption (an outgoing movement for the
+    /// association); a Recette is always the organisation's.
+    /// </summary>
+    private void RejectIncomeAssignedToTeamMember(ExpenseViewModel viewModel)
+    {
+        if (viewModel.IsIncome && int.TryParse(viewModel.AssignedTo, out _))
+        {
+            ModelState.AddModelError(nameof(ExpenseViewModel.AssignedTo), _ctx.Localizer["Expense.IncomeNotForTeamMember"].Value);
+        }
+    }
+
     private async Task<int> GetNextTicketNumberAsync(int activityId)
     {
         var maxPaymentTicket = await _context.Payments

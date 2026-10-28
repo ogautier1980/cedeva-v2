@@ -37,6 +37,19 @@
                             <span asp-validation-for="Description" class="text-danger"></span>
                         </div>
 
+                        <div class="mb-3">
+                            <span class="form-label d-block">@Localizer["Expense.Direction"]</span>
+                            <div class="form-check form-check-inline">
+                                <input type="radio" asp-for="IsIncome" value="true" id="IsIncome_true" class="form-check-input" />
+                                <label for="IsIncome_true" class="form-check-label text-success">@Localizer["Financial.Receipt"]</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input type="radio" asp-for="IsIncome" value="false" id="IsIncome_false" class="form-check-input" />
+                                <label for="IsIncome_false" class="form-check-label text-danger">@Localizer["Financial.Outgoing"]</label>
+                            </div>
+                            <span asp-validation-for="AssignedTo" class="text-danger d-block"></span>
+                        </div>
+
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label for="Amount" class="form-label">@Localizer["Field.Amount"]</label>

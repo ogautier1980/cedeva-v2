@@ -56,6 +56,20 @@ public class FinancialCalculationServiceTests
     }
 
     [Fact]
+    public void CalculateOrganizationExpenses_And_Income_SplitOnIsIncome()
+    {
+        var expenses = new List<Expense>
+        {
+            new() { Amount = 40m },                        // org expense
+            new() { Amount = 150m, IsIncome = true },      // org income (e.g. subsidy)
+            new() { Amount = 999m, TeamMemberId = 5 }      // team member -> ignored by both
+        };
+
+        _sut.CalculateOrganizationExpenses(expenses).Should().Be(40m);
+        _sut.CalculateOrganizationIncome(expenses).Should().Be(150m);
+    }
+
+    [Fact]
     public void CalculateTeamMemberSalary_AppliesFormula()
     {
         // (days * dailyCompensation) + reimbursements - personalConsumptions

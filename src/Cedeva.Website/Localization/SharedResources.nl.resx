@@ -4866,4 +4866,31 @@
   <data name="Excursion.EmailSent" xml:space="preserve">
     <value>Uitnodiging verzonden</value>
   </data>
+  <data name="Expense.IncomeNotForTeamMember" xml:space="preserve">
+    <value>Een ontvangst kan niet aan een teamlid worden toegewezen.</value>
+  </data>
+  <data name="Expense.Direction" xml:space="preserve">
+    <value>Richting</value>
+  </data>
+  <data name="Financial.Outgoing" xml:space="preserve">
+    <value>Uitgave</value>
+  </data>
+  <data name="Financial.PaidBy" xml:space="preserve">
+    <value>Betaald via</value>
+  </data>
+  <data name="Financial.PaidByCash" xml:space="preserve">
+    <value>Kas</value>
+  </data>
+  <data name="Financial.PaidByAccount" xml:space="preserve">
+    <value>Rekening</value>
+  </data>
+  <data name="Financial.Explanations" xml:space="preserve">
+    <value>Toelichting</value>
+  </data>
+  <data name="Financial.Receipt" xml:space="preserve">
+    <value>Ontvangst</value>
+  </data>
+  <data name="Financial.ReceiptOrOutgoingRequired" xml:space="preserve">
+    <value>Vul een bedrag in als ontvangst of als uitgave.</value>
+  </data>
 </root>

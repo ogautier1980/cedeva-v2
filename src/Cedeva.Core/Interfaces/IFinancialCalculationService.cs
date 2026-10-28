@@ -13,9 +13,15 @@ public interface IFinancialCalculationService
     decimal CalculateTotalRevenue(Activity activity);
 
     /// <summary>
-    /// Calculates organization expenses (expenses not assigned to team members).
+    /// Calculates organization expenses (outgoing movements not assigned to team members).
     /// </summary>
     decimal CalculateOrganizationExpenses(IEnumerable<Expense> expenses);
+
+    /// <summary>
+    /// Calculates organization income recorded as transactions (<see cref="Expense.IsIncome"/>:
+    /// subsidies, bar, raffle…) — registration payments are counted separately.
+    /// </summary>
+    decimal CalculateOrganizationIncome(IEnumerable<Expense> expenses);
 
     /// <summary>
     /// Calculates estimated team member salaries for an activity.

@@ -25,7 +25,16 @@ public class FinancialCalculationService : IFinancialCalculationService
         ArgumentNullException.ThrowIfNull(expenses);
 
         return expenses
-            .Where(e => !e.TeamMemberId.HasValue)
+            .Where(e => !e.TeamMemberId.HasValue && !e.IsIncome)
+            .Sum(e => e.Amount);
+    }
+
+    public decimal CalculateOrganizationIncome(IEnumerable<Expense> expenses)
+    {
+        ArgumentNullException.ThrowIfNull(expenses);
+
+        return expenses
+            .Where(e => !e.TeamMemberId.HasValue && e.IsIncome)
             .Sum(e => e.Amount);
     }
 

@@ -464,6 +464,59 @@ public class FinancialControllerCoverageTests
     }
 
     [Fact]
+    public async Task CreateExpense_Post_Income_PersistsAndShowsAsIncomeInTransactions()
+    {
+        using var factory = new CedevaWebApplicationFactory();
+        var g = SeedFullGraph(factory);
+        var client = await ClientWithActivitySelected(factory, g.OrgId, g.ActivityId);
+
+        var response = await client.PostAsync("/Financial/CreateExpense",
+            new FormUrlEncodedContent(new Dictionary<string, string>
+            {
+                ["Label"] = "Subside commune",
+                ["Amount"] = "250,50",
+                ["IsIncome"] = "true",
+                ["AssignedTo"] = "OrganizationCash",
+                ["ExpenseDate"] = "2026-07-01",
+                ["ActivityId"] = g.ActivityId.ToString()
+            }));
+
+        response.StatusCode.Should().Be(HttpStatusCode.Found);
+        await using (var ctx = factory.NewDbContext())
+        {
+            var created = await ctx.Expenses.IgnoreQueryFilters().SingleAsync(e => e.Label == "Subside commune");
+            created.IsIncome.Should().BeTrue();
+            created.Amount.Should().Be(250.50m);
+        }
+
+        var html = await (await client.GetAsync("/Financial/Transactions")).Content.ReadAsStringAsync();
+        html.Should().Contain("+250,50");
+    }
+
+    [Fact]
+    public async Task CreateExpense_Post_IncomeAssignedToTeamMember_IsRejected()
+    {
+        using var factory = new CedevaWebApplicationFactory();
+        var g = SeedFullGraph(factory);
+        var client = await ClientWithActivitySelected(factory, g.OrgId, g.ActivityId);
+
+        var response = await client.PostAsync("/Financial/CreateExpense",
+            new FormUrlEncodedContent(new Dictionary<string, string>
+            {
+                ["Label"] = "Recette membre",
+                ["Amount"] = "10",
+                ["IsIncome"] = "true",
+                ["AssignedTo"] = g.TeamMemberId.ToString(),
+                ["ExpenseDate"] = "2026-07-01",
+                ["ActivityId"] = g.ActivityId.ToString()
+            }));
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK); // form re-rendered
+        await using var ctx = factory.NewDbContext();
+        (await ctx.Expenses.IgnoreQueryFilters().AnyAsync(e => e.Label == "Recette membre")).Should().BeFalse();
+    }
+
+    [Fact]
     public async Task CreateExpense_Post_TeamMember_SetsReimbursementByDefault()
     {
         using var factory = new CedevaWebApplicationFactory();

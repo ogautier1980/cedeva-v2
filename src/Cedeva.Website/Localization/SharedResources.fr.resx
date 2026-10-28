@@ -4888,4 +4888,31 @@
   <data name="Excursion.EmailSent" xml:space="preserve">
     <value>Invitation envoyée</value>
   </data>
+  <data name="Expense.IncomeNotForTeamMember" xml:space="preserve">
+    <value>Une recette ne peut pas être attribuée à un membre de l'équipe.</value>
+  </data>
+  <data name="Expense.Direction" xml:space="preserve">
+    <value>Sens</value>
+  </data>
+  <data name="Financial.Outgoing" xml:space="preserve">
+    <value>Dépense</value>
+  </data>
+  <data name="Financial.PaidBy" xml:space="preserve">
+    <value>Payé par</value>
+  </data>
+  <data name="Financial.PaidByCash" xml:space="preserve">
+    <value>Caisse</value>
+  </data>
+  <data name="Financial.PaidByAccount" xml:space="preserve">
+    <value>Compte</value>
+  </data>
+  <data name="Financial.Explanations" xml:space="preserve">
+    <value>Explications</value>
+  </data>
+  <data name="Financial.Receipt" xml:space="preserve">
+    <value>Recette</value>
+  </data>
+  <data name="Financial.ReceiptOrOutgoingRequired" xml:space="preserve">
+    <value>Indiquez un montant en recette ou en dépense.</value>
+  </data>
 </root>
