@@ -79,7 +79,7 @@ public class SimpleRegistrationViewModel
 
     [Required(ErrorMessage = "Validation.Required")]
     [Display(Name = "Field.BirthDate")]
-    public DateTime ChildBirthDate { get; set; }
+    public DateTime? ChildBirthDate { get; set; }
 
     [Required(ErrorMessage = "Validation.Required")]
     [Display(Name = "Field.NationalRegisterNumber")]

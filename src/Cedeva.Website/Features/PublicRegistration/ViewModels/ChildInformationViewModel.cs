@@ -15,10 +15,11 @@ public class ChildInformationViewModel
     [Display(Name = "Field.LastName")]
     public string LastName { get; set; } = string.Empty;
 
+    // Nullable so the empty form shows an empty date field (not 01/01/0001) and [Required] rejects a blank.
     [Required(ErrorMessage = "Validation.Required")]
     [DataType(DataType.Date)]
     [Display(Name = "Field.BirthDate")]
-    public DateTime BirthDate { get; set; }
+    public DateTime? BirthDate { get; set; }
 
     [Required(ErrorMessage = "Validation.Required")]
     [StringLength(15, ErrorMessage = "Validation.StringLength")]

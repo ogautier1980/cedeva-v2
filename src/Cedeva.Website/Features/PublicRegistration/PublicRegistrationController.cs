@@ -270,7 +270,7 @@ public class PublicRegistrationController : Controller
             // Update existing child
             existingChild.FirstName = model.FirstName;
             existingChild.LastName = model.LastName;
-            existingChild.BirthDate = model.BirthDate;
+            existingChild.BirthDate = model.BirthDate!.Value;
             existingChild.IsDisadvantagedEnvironment = model.IsDisadvantagedEnvironment;
             existingChild.IsMildDisability = model.IsMildDisability;
             existingChild.IsSevereDisability = model.IsSevereDisability;
@@ -285,7 +285,7 @@ public class PublicRegistrationController : Controller
             {
                 FirstName = model.FirstName,
                 LastName = model.LastName,
-                BirthDate = model.BirthDate,
+                BirthDate = model.BirthDate!.Value,
                 NationalRegisterNumber = NationalRegisterNumberHelper.StripFormatting(model.NationalRegisterNumber),
                 IsDisadvantagedEnvironment = model.IsDisadvantagedEnvironment,
                 IsMildDisability = model.IsMildDisability,
@@ -767,7 +767,7 @@ public class PublicRegistrationController : Controller
         }
 
         var selectedDayIdsForQuota = ResolveSelectedDayIds(weekOptions, model.SelectedWeeks);
-        var birthYearQuotaMessage = await CheckBirthYearQuotaAsync(model.ActivityId, model.ChildBirthDate, weekOptions, selectedDayIdsForQuota);
+        var birthYearQuotaMessage = await CheckBirthYearQuotaAsync(model.ActivityId, model.ChildBirthDate!.Value, weekOptions, selectedDayIdsForQuota);
         if (birthYearQuotaMessage != null)
         {
             ModelState.AddModelError("", birthYearQuotaMessage);
@@ -939,7 +939,7 @@ public class PublicRegistrationController : Controller
         {
             existingChild.FirstName = model.ChildFirstName;
             existingChild.LastName = model.ChildLastName;
-            existingChild.BirthDate = model.ChildBirthDate;
+            existingChild.BirthDate = model.ChildBirthDate!.Value;
             existingChild.IsDisadvantagedEnvironment = model.IsDisadvantagedEnvironment;
             existingChild.IsMildDisability = model.IsMildDisability;
             existingChild.IsSevereDisability = model.IsSevereDisability;
@@ -952,7 +952,7 @@ public class PublicRegistrationController : Controller
             {
                 FirstName = model.ChildFirstName,
                 LastName = model.ChildLastName,
-                BirthDate = model.ChildBirthDate,
+                BirthDate = model.ChildBirthDate!.Value,
                 NationalRegisterNumber = model.ChildNationalRegisterNumber,
                 IsDisadvantagedEnvironment = model.IsDisadvantagedEnvironment,
                 IsMildDisability = model.IsMildDisability,

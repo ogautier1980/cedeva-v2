@@ -156,6 +156,69 @@ public class PublicRegistrationControllerCoverageTests
     }
 
     // ---------------------------------------------------------------------
+    // Child birth date: the empty form must not pre-fill 01/01/0001, and a blank
+    // date must be rejected instead of being saved as year 1.
+    // ---------------------------------------------------------------------
+
+    [Fact]
+    public async Task Register_Get_ChildBirthDateIsEmpty()
+    {
+        using var factory = new CedevaWebApplicationFactory();
+        Activity activity = null!;
+        factory.Seed(ctx =>
+        {
+            var org = TestData.Organisation();
+            activity = TestData.Activity(org, "Stage Date Vide");
+            ctx.AddRange(org, activity);
+            return 0;
+        });
+
+        var response = await Anonymous(factory).GetAsync($"/PublicRegistration/Register?activityId={activity.Id}");
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var html = await response.Content.ReadAsStringAsync();
+        html.Should().Contain("id=\"ChildBirthDate\"");
+        html.Should().NotContain("0001-01-01");
+    }
+
+    [Fact]
+    public async Task Register_Post_WithoutChildBirthDate_ReturnsFormAndCreatesNoBooking()
+    {
+        using var factory = new CedevaWebApplicationFactory();
+        Activity activity = null!;
+        factory.Seed(ctx =>
+        {
+            var org = TestData.Organisation();
+            activity = TestData.Activity(org, "Stage Sans Date");
+            ctx.AddRange(org, activity);
+            return 0;
+        });
+
+        var form = new FormUrlEncodedContent(new Dictionary<string, string>
+        {
+            ["ActivityId"] = activity.Id.ToString(),
+            ["ParentFirstName"] = "Paul",
+            ["ParentLastName"] = "Parent",
+            ["ParentEmail"] = "sansdate.parent@test.be",
+            ["ParentPhoneNumber"] = "021234567",
+            ["ParentNationalRegisterNumber"] = "85.06.15-133.80",
+            ["ParentStreet"] = "Rue Sans Date 1",
+            ["ParentPostalCode"] = "1000",
+            ["ParentCity"] = "Bruxelles",
+            ["ChildFirstName"] = "Enzo",
+            ["ChildLastName"] = "Enfant",
+            ["ChildBirthDate"] = "",
+            ["ChildNationalRegisterNumber"] = "16.07.08-164.10",
+        });
+
+        var response = await Anonymous(factory).PostAsync("/PublicRegistration/Register", form);
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        using var db = factory.NewDbContext();
+        db.Bookings.IgnoreQueryFilters().Any(b => b.ActivityId == activity.Id).Should().BeFalse();
+    }
+
+    // ---------------------------------------------------------------------
     // POST Register: an unanswered REQUIRED custom question fails validation
     // and re-renders the form (200) without creating a booking.
     // ---------------------------------------------------------------------
