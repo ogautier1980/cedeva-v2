@@ -132,7 +132,7 @@ public class ExpenseCategoryTests
         });
         var client = factory.CreateClientFor("u1", org.Id, "Coordinator");
         // Select the activity (sets the session activity the expense form relies on).
-        (await client.GetAsync($"/Financial?id={activity.Id}")).StatusCode.Should().Be(HttpStatusCode.OK);
+        (await client.GetAsync($"/Financial?id={activity.Id}")).StatusCode.Should().Be(HttpStatusCode.Found);
 
         var response = await client.PostAsync("/Financial/CreateExpense",
             new FormUrlEncodedContent(new Dictionary<string, string>

@@ -58,7 +58,7 @@ public class FinancialHorsBilanAndTicketNumberTests
         });
 
         var client = factory.CreateClientFor("u1", org.Id, "Coordinator");
-        (await client.GetAsync($"/Financial?id={activity.Id}")).StatusCode.Should().Be(HttpStatusCode.OK);
+        (await client.GetAsync($"/Financial?id={activity.Id}")).StatusCode.Should().Be(HttpStatusCode.Found);
 
         var response = await client.GetAsync("/Financial/Transactions");
         response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -94,7 +94,7 @@ public class FinancialHorsBilanAndTicketNumberTests
         var client = factory.CreateClientFor("u1", org.Id, "Coordinator");
 
         // Activity 1: first expense -> ticket #1.
-        (await client.GetAsync($"/Financial?id={activityOne.Id}")).StatusCode.Should().Be(HttpStatusCode.OK);
+        (await client.GetAsync($"/Financial?id={activityOne.Id}")).StatusCode.Should().Be(HttpStatusCode.Found);
         (await client.PostAsync("/Financial/CreateExpense", new FormUrlEncodedContent(new Dictionary<string, string>
         {
             ["Label"] = "Fournitures",
@@ -114,7 +114,7 @@ public class FinancialHorsBilanAndTicketNumberTests
         }))).StatusCode.Should().Be(HttpStatusCode.Found);
 
         // Switch to activity 2: its own expense sequence starts fresh at #1.
-        (await client.GetAsync($"/Financial?id={activityTwo.Id}")).StatusCode.Should().Be(HttpStatusCode.OK);
+        (await client.GetAsync($"/Financial?id={activityTwo.Id}")).StatusCode.Should().Be(HttpStatusCode.Found);
         (await client.PostAsync("/Financial/CreateExpense", new FormUrlEncodedContent(new Dictionary<string, string>
         {
             ["Label"] = "Autre dépense",

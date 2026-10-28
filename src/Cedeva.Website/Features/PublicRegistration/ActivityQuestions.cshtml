@@ -39,10 +39,6 @@
                                     </div>
                                 }
                                 <span asp-validation-for="SelectedWeeks" class="text-danger d-block"></span>
-                                @if (Model.PricePerDay.HasValue)
-                                {
-                                    <div class="mt-2 fw-semibold" id="weeksTotalAmount" style="display:none;"></div>
-                                }
                             </div>
                         }
 
@@ -198,24 +194,6 @@
     <script>
         $(document).ready(function() {
             CedevaChoices.initAll('.form-select');
-
-            var pricePerDay = @Json.Serialize(Model.PricePerDay);
-            var estimatedTotalLabel = @Json.Serialize(Localizer["PublicRegistration.EstimatedTotal"].Value);
-            function updateWeeksTotal() {
-                if (!pricePerDay) return;
-                var totalDays = 0;
-                $('.week-checkbox:checked').each(function () {
-                    totalDays += parseInt($(this).data('days'), 10) || 0;
-                });
-                if (totalDays === 0) {
-                    $('#weeksTotalAmount').hide();
-                    return;
-                }
-                var total = (pricePerDay * totalDays).toFixed(2);
-                $('#weeksTotalAmount').text(estimatedTotalLabel + ': ' + total + ' €').show();
-            }
-            $('.week-checkbox').on('change', updateWeeksTotal);
-            updateWeeksTotal();
         });
     </script>
 }

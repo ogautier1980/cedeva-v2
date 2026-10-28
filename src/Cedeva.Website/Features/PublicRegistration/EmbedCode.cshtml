@@ -86,15 +86,6 @@
                         </button>
                     </div>
 
-                    <div class="mt-3">
-                        <label for="directLink" class="form-label">@Localizer["PublicRegistration.DirectLink"]</label>
-                        <div class="input-group">
-                            <input type="text" class="form-control" id="directLink" readonly />
-                            <button class="btn btn-outline-secondary" onclick="copyLink()">
-                                <i class="fas fa-copy"></i>
-                            </button>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>
@@ -131,7 +122,6 @@
             const embedCode = `<iframe src="${iframeUrl}" width="${width}%" height="${height}" frameborder="0" style="border: 1px solid #ddd; border-radius: 8px;"></iframe>`;
 
             document.getElementById('embedCode').textContent = embedCode;
-            document.getElementById('directLink').value = iframeUrl;
 
             // Update preview frame
             const previewFrame = document.getElementById('previewFrame');
@@ -143,15 +133,6 @@
         function copyToClipboard() {
             const code = document.getElementById('embedCode').textContent;
             navigator.clipboard.writeText(code).then(() => {
-                alert('@Localizer["PublicRegistration.CopySuccess"]');
-            }).catch(err => {
-                console.error('@Localizer["PublicRegistration.CopyError"]', err);
-            });
-        }
-
-        function copyLink() {
-            const link = document.getElementById('directLink').value;
-            navigator.clipboard.writeText(link).then(() => {
                 alert('@Localizer["PublicRegistration.CopySuccess"]');
             }).catch(err => {
                 console.error('@Localizer["PublicRegistration.CopyError"]', err);

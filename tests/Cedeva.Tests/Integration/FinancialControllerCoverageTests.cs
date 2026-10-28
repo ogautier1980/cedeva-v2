@@ -13,7 +13,7 @@ namespace Cedeva.Tests.Integration;
 ///
 /// Most actions read the "current activity" from the session
 /// (key <c>Financial_ActivityId</c>). The controller seeds that key when Index is hit with
-/// <c>?id=</c>. We therefore "select" the activity by GETting <c>/Financial?id={id}</c> on a
+/// <c>?id=</c> (then redirects to Transactions). We therefore "select" the activity by GETting <c>/Financial?id={id}</c> on a
 /// client first; the session cookie is retained by the HttpClient and reused on later requests.
 /// </summary>
 [Collection("WebApp")]
@@ -118,7 +118,7 @@ public class FinancialControllerCoverageTests
     {
         var client = factory.CreateClientFor("u1", orgId, role);
         var select = await client.GetAsync($"/Financial?id={activityId}");
-        select.StatusCode.Should().Be(HttpStatusCode.OK); // confirms session seeded
+        select.StatusCode.Should().Be(HttpStatusCode.Found); // session seeded, redirected to Transactions
         return client;
     }
 
@@ -174,7 +174,8 @@ public class FinancialControllerCoverageTests
         // Coordinator of a different org. Session gets the id set, but the tenancy filter
         // hides the activity, so the controller returns NotFound.
         var client = factory.CreateClientFor("u1", organisationId: 99999, role: "Coordinator");
-        var response = await client.GetAsync($"/Financial?id={g.ActivityId}");
+        await client.GetAsync($"/Financial?id={g.ActivityId}");
+        var response = await client.GetAsync("/Financial/Transactions");
 
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
@@ -382,7 +383,7 @@ public class FinancialControllerCoverageTests
     }
 
     [Fact]
-    public async Task AddTransaction_WithSelectedActivity_RendersBothTabs()
+    public async Task AddTransaction_WithSelectedActivity_RendersExpenseFormOnly()
     {
         using var factory = new CedevaWebApplicationFactory();
         var g = SeedFullGraph(factory);
@@ -392,36 +393,9 @@ public class FinancialControllerCoverageTests
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         var html = await response.Content.ReadAsStringAsync();
-        // Paiement tab: booking already fully paid in SeedFullGraph, so the empty state shows.
-        html.Should().Contain("payment-pane");
-        html.Should().Contain("expense-pane");
-    }
-
-    [Fact]
-    public async Task AddTransaction_ListsOutstandingBookingForSelectedActivityOnly()
-    {
-        using var factory = new CedevaWebApplicationFactory();
-        var g = SeedFullGraph(factory);
-
-        // Add a second activity in the same org with an outstanding booking.
-        int otherActivityId = factory.Seed(ctx =>
-        {
-            var org = ctx.Organisations.IgnoreQueryFilters().Single(o => o.Id == g.OrgId);
-            var otherActivity = TestData.Activity(org, "Autre Stage");
-            var parent = TestData.Parent(org);
-            var child = TestData.Child(parent);
-            child.LastName = "OutstandingMarker";
-            var booking = TestData.Booking(child, otherActivity, group: null, totalAmount: 80m, paidAmount: 0m);
-            ctx.Add(booking);
-            return otherActivity;
-        }).Id;
-
-        var client = await ClientWithActivitySelected(factory, g.OrgId, otherActivityId);
-
-        var response = await client.GetAsync("/Financial/AddTransaction");
-
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
-        (await response.Content.ReadAsStringAsync()).Should().Contain("OutstandingMarker");
+        // Child payments are entered from the child's booking, not from this screen.
+        html.Should().Contain("CreateExpense");
+        html.Should().NotContain("payment-pane");
     }
 
     // ---------------------------------------------------------------------

@@ -54,70 +54,19 @@ public class FinancialController : Controller
     }
 
     // GET: Financial/Index
-    public async Task<IActionResult> Index(int? id = null)
+    // The former financial dashboard is gone: "Comptes" is the transaction list. Kept as a route so
+    // existing links (?id=) still select the activity.
+    public IActionResult Index(int? id = null)
     {
         if (id.HasValue)
             HttpContext.Session.SetInt32(SessionKeyActivityId, id.Value);
 
-        var activityId = HttpContext.Session.GetInt32(SessionKeyActivityId);
-        if (!activityId.HasValue)
+        if (!HttpContext.Session.GetInt32(SessionKeyActivityId).HasValue)
         {
             return RedirectToAction(ActionIndex, ControllerActivities);
         }
 
-        var activity = await _context.Activities
-            .Include(a => a.Days)
-                .ThenInclude(d => d.TeamMemberDays)
-            .Include(a => a.TeamMembers)
-            .Include(a => a.Bookings)
-                .ThenInclude(b => b.Payments)
-            .FirstOrDefaultAsync(a => a.Id == activityId.Value);
-
-        if (activity == null)
-        {
-            return NotFound();
-        }
-
-        // Load expenses for calculations
-        var expenses = await _context.Expenses
-            .Include(e => e.ExpenseCategory)
-            .Where(e => e.ActivityId == activityId.Value)
-            .ToListAsync();
-
-        // Hors bilan expenses (internal transfers) never enter the Entrées/Sorties totals.
-        var regularExpenses = expenses.Where(e => e.ExpenseCategory?.CategoryType != ExpenseCategoryType.OffBalance).ToList();
-
-        // Calculate financial metrics using service
-        var totalRevenue = _financialCalculationService.CalculateTotalRevenue(activity);
-        var organizationExpenses = _financialCalculationService.CalculateOrganizationExpenses(regularExpenses);
-        var teamMemberExpenses = _financialCalculationService.CalculateTeamMemberSalaries(activity, regularExpenses);
-        var totalExpenses = _financialCalculationService.CalculateTotalExpenses(activity, regularExpenses);
-        var pendingAmount = _financialCalculationService.CalculatePendingPayments(activity);
-
-        // Count pending bookings for display
-        var pendingBookings = activity.Bookings
-            .Where(b => !b.IsConfirmed)
-            .ToList();
-
-        var viewModel = new ActivityFinancialDashboardViewModel
-        {
-            ActivityId = activity.Id,
-            ActivityName = activity.Name,
-            StartDate = activity.StartDate,
-            EndDate = activity.EndDate,
-            TotalRevenue = totalRevenue,
-            TotalExpenses = totalExpenses,
-            Balance = totalRevenue - totalExpenses,
-            PendingPaymentsCount = pendingBookings.Count,
-            PendingPaymentsAmount = pendingAmount,
-            BookingsCount = activity.Bookings.Count,
-            ConfirmedBookingsCount = activity.Bookings.Count(b => b.IsConfirmed),
-            TeamMembersCount = activity.TeamMembers.Count,
-            TeamMemberExpenses = teamMemberExpenses,
-            OrganizationExpenses = organizationExpenses
-        };
-
-        return View(viewModel);
+        return RedirectToAction(nameof(Transactions));
     }
 
     // GET: Financial/TeamSalaries
@@ -339,30 +288,10 @@ public class FinancialController : Controller
         await PopulateAssignedToDropdown(activityId.Value);
         await PopulateExpenseCategoriesAsync(activityId.Value);
 
-        var outstandingBookings = await _context.Bookings
-            .Include(b => b.Child)
-                .ThenInclude(c => c.Parent)
-            .Where(b => b.ActivityId == activityId.Value &&
-                        (b.PaymentStatus == Core.Enums.PaymentStatus.NotPaid || b.PaymentStatus == Core.Enums.PaymentStatus.PartiallyPaid))
-            .OrderBy(b => b.Child.LastName)
-            .ThenBy(b => b.Child.FirstName)
-            .Select(b => new OutstandingBookingViewModel
-            {
-                Id = b.Id,
-                ChildName = b.Child.FirstName + " " + b.Child.LastName,
-                ParentName = b.Child.Parent.FirstName + " " + b.Child.Parent.LastName,
-                TotalAmount = b.TotalAmount,
-                PaidAmount = b.PaidAmount,
-                RemainingAmount = b.TotalAmount - b.PaidAmount,
-                PaymentStatus = b.PaymentStatus
-            })
-            .ToListAsync();
-
         var viewModel = new AddTransactionViewModel
         {
             ActivityId = activity.Id,
             ActivityName = activity.Name,
-            OutstandingBookings = outstandingBookings,
             Expense = new ExpenseViewModel
             {
                 ExpenseDate = DateTime.Today,

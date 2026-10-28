@@ -142,7 +142,7 @@ public class EmailTemplatesController : Controller
             HtmlContent = template.HtmlContent,
             IsDefault = template.IsDefault,
             ActivityId = template.ActivityId,
-            TemplateTypeOptions = GetTemplateTypeOptions()
+            TemplateTypeOptions = GetEditTemplateTypeOptions(template.TemplateType)
         };
 
         return View(viewModel);
@@ -152,12 +152,6 @@ public class EmailTemplatesController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(EmailTemplateViewModel viewModel)
     {
-        if (!ModelState.IsValid)
-        {
-            viewModel.TemplateTypeOptions = GetTemplateTypeOptions();
-            return View(viewModel);
-        }
-
         var template = await _templateService.GetTemplateByIdAsync(viewModel.Id);
         if (template == null)
         {
@@ -165,8 +159,19 @@ public class EmailTemplatesController : Controller
             return RedirectToAction(nameof(Index));
         }
 
+        if (!ModelState.IsValid)
+        {
+            viewModel.TemplateTypeOptions = GetEditTemplateTypeOptions(template.TemplateType);
+            return View(viewModel);
+        }
+
         template.Name = viewModel.Name;
-        template.TemplateType = viewModel.TemplateType;
+        // A locked type is unique per organisation: a template can neither leave nor join one by
+        // editing (the same rule Create and Duplicate enforce).
+        if (!template.TemplateType.IsLocked() && !viewModel.TemplateType.IsLocked())
+        {
+            template.TemplateType = viewModel.TemplateType;
+        }
         template.Subject = viewModel.Subject;
         template.HtmlContent = viewModel.HtmlContent;
         template.IsDefault = viewModel.IsDefault;
@@ -338,6 +343,13 @@ public class EmailTemplatesController : Controller
             subject = template.Subject,
             htmlContent = template.HtmlContent
         });
+    }
+
+    private List<SelectListItem> GetEditTemplateTypeOptions(EmailTemplateType current)
+    {
+        return current.IsLocked()
+            ? GetTemplateTypeOptions().Where(o => o.Value == ((int)current).ToString()).ToList()
+            : GetTemplateTypeOptions(excludeLocked: true);
     }
 
     private List<SelectListItem> GetTemplateTypeOptions(bool excludeLocked = false)

@@ -3,8 +3,6 @@
 
 @{
     ViewData["Title"] = Localizer["EmailTemplate.Title"];
-    var selectedType = ViewBag.SelectedType as EmailTemplateType?;
-    var typeOptions = ViewBag.TypeOptions as List<SelectListItem>;
     var activityId = ViewBag.ActivityId as int?;
     var activityName = ViewBag.ActivityName as string;
 }
@@ -37,29 +35,6 @@
         <a asp-action="Create" asp-route-activityId="@activityId" class="btn btn-primary">
             <i class="fas fa-plus me-1"></i>@Localizer["EmailTemplate.CreateNew"]
         </a>
-    </div>
-</div>
-
-<!-- Filter by Type -->
-<div class="row mb-3">
-    <div class="col-md-4">
-        <form asp-action="Index" method="get">
-            <input type="hidden" name="activityId" value="@activityId" />
-            <div class="input-group">
-                <select name="type" class="form-select" onchange="this.form.submit()">
-                    <option value="">@Localizer["EmailTemplate.AllTypes"]</option>
-                    @foreach (var option in typeOptions ?? new List<SelectListItem>())
-                    {
-                        <option value="@option.Value" selected="@(selectedType.HasValue && (int)selectedType.Value == int.Parse(option.Value))">
-                            @option.Text
-                        </option>
-                    }
-                </select>
-                <span class="input-group-text">
-                    <i class="fas fa-filter"></i>
-                </span>
-            </div>
-        </form>
     </div>
 </div>
 

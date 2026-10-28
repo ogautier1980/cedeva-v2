@@ -99,17 +99,6 @@
             {
                 <div class="text-muted mb-2">@Model.ActivityDescription</div>
             }
-            <div class="activity-dates">
-                <i class="fas fa-calendar-alt me-1"></i>
-                @if (Model.ActivityStartDate.HasValue && Model.ActivityEndDate.HasValue)
-                {
-                    <span>@Model.ActivityStartDate.Value.ToString("dd/MM/yyyy") - @Model.ActivityEndDate.Value.ToString("dd/MM/yyyy")</span>
-                }
-                @if (Model.PricePerDay.HasValue)
-                {
-                    <span class="ms-3"><i class="fas fa-euro-sign me-1"></i>@Model.PricePerDay.Value.ToString("F2") / @Localizer["Field.Day"]</span>
-                }
-            </div>
         </div>
 
         <div class="registration-form">
@@ -142,10 +131,6 @@
                             </div>
                         }
                         <span asp-validation-for="SelectedWeeks" class="text-danger d-block"></span>
-                        @if (Model.PricePerDay.HasValue)
-                        {
-                            <div class="mt-2 fw-semibold" id="weeksTotalAmount" style="display:none;"></div>
-                        }
                     </div>
                 }
 
@@ -333,24 +318,6 @@
     <script>
         $(function () {
             initializeUnifiedAddressAutocomplete("#ParentCombinedAddress", "#ParentPostalCode", "#ParentCity");
-
-            var pricePerDay = @Json.Serialize(Model.PricePerDay);
-            var estimatedTotalLabel = @Json.Serialize(Localizer["PublicRegistration.EstimatedTotal"].Value);
-            function updateWeeksTotal() {
-                if (!pricePerDay) return;
-                var totalDays = 0;
-                $('.week-checkbox:checked').each(function () {
-                    totalDays += parseInt($(this).data('days'), 10) || 0;
-                });
-                if (totalDays === 0) {
-                    $('#weeksTotalAmount').hide();
-                    return;
-                }
-                var total = (pricePerDay * totalDays).toFixed(2);
-                $('#weeksTotalAmount').text(estimatedTotalLabel + ': ' + total + ' €').show();
-            }
-            $('.week-checkbox').on('change', updateWeeksTotal);
-            updateWeeksTotal();
         });
     </script>
 </body>

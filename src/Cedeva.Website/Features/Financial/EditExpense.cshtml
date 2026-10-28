@@ -56,14 +56,21 @@
 
                         <div class="mb-3">
                             <label for="Category" class="form-label">@Localizer["Field.Category"]</label>
-                            <input asp-for="Category" class="form-control" id="Category" list="expenseCategoriesList" autocomplete="off" />
-                            <datalist id="expenseCategoriesList">
-                                @foreach (var cat in (ViewBag.ExpenseCategories as List<string>) ?? new List<string>())
+                            @{
+                                var categoryOptions = (ViewBag.ExpenseCategories as List<string>) ?? new List<string>();
+                                // A legacy free-text category stays selectable on edit even if it is not in the list.
+                                if (!string.IsNullOrEmpty(Model?.Category) && !categoryOptions.Contains(Model.Category))
                                 {
-                                    <option value="@cat"></option>
+                                    categoryOptions = categoryOptions.Append(Model.Category).ToList();
                                 }
-                            </datalist>
-                            <small class="form-text text-muted">@Localizer["Expense.CategoryHelp"]</small>
+                            }
+                            <select asp-for="Category" class="form-select" id="Category">
+                                <option value="">@Localizer["Expense.SelectCategory"]</option>
+                                @foreach (var cat in categoryOptions)
+                                {
+                                    <option value="@cat">@cat</option>
+                                }
+                            </select>
                             <span asp-validation-for="Category" class="text-danger"></span>
                         </div>
 

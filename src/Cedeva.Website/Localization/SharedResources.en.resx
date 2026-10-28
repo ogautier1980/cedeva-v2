@@ -1753,6 +1753,9 @@
   <data name="Expense.SelectAssignedTo" xml:space="preserve">
     <value>Select team member</value>
   </data>
+  <data name="Expense.SelectCategory" xml:space="preserve">
+    <value>Select a category</value>
+  </data>
   <data name="Expense.SelectType" xml:space="preserve">
     <value>Select type</value>
   </data>
@@ -3332,7 +3335,7 @@
     <value>Direct link</value>
   </data>
   <data name="PublicRegistration.EmbedCode" xml:space="preserve">
-    <value>Iframe embed code</value>
+    <value>Form HTML code</value>
   </data>
   <data name="PublicRegistration.EmbedInstructions" xml:space="preserve">
     <value>Copy and paste this HTML code on your website to embed the registration form:</value>
@@ -3371,7 +3374,7 @@
     <value>Instructions</value>
   </data>
   <data name="PublicRegistration.IntegrationCode" xml:space="preserve">
-    <value>Integration code</value>
+    <value>Form HTML code</value>
   </data>
   <data name="PublicRegistration.KeepNumber" xml:space="preserve">
     <value>Keep this number for any correspondence</value>

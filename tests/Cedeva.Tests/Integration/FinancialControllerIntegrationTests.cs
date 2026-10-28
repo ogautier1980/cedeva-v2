@@ -21,7 +21,7 @@ public class FinancialControllerIntegrationTests
     }
 
     [Fact]
-    public async Task Index_WithActivityInOwnOrganisation_RendersDashboard()
+    public async Task Index_WithActivityInOwnOrganisation_RedirectsToTransactions()
     {
         using var factory = new CedevaWebApplicationFactory();
         Organisation org = null!;
@@ -35,8 +35,12 @@ public class FinancialControllerIntegrationTests
         });
 
         var client = factory.CreateClientFor("u1", org.Id, "Coordinator");
-        var response = await client.GetAsync($"/Financial?id={activity.Id}");
+        var redirect = await client.GetAsync($"/Financial?id={activity.Id}");
 
+        redirect.StatusCode.Should().Be(HttpStatusCode.Found);
+        redirect.Headers.Location!.ToString().Should().Contain("Transactions");
+
+        var response = await client.GetAsync("/Financial/Transactions");
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         var html = await response.Content.ReadAsStringAsync();
         html.Should().Contain("Stage Financier");
@@ -57,7 +61,8 @@ public class FinancialControllerIntegrationTests
 
         // Coordinator of a different organisation must not see another org's activity.
         var client = factory.CreateClientFor("u1", organisationId: 99999, "Coordinator");
-        var response = await client.GetAsync($"/Financial?id={activity.Id}");
+        await client.GetAsync($"/Financial?id={activity.Id}");
+        var response = await client.GetAsync("/Financial/Transactions");
 
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }

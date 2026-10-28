@@ -304,7 +304,7 @@ public class EmailTemplatesControllerIntegrationTests
         {
             ["Id"] = templateId.ToString(),
             ["Name"] = "Nouveau Nom",
-            ["TemplateType"] = ((int)EmailTemplateType.PaymentReminder).ToString(),
+            ["TemplateType"] = ((int)EmailTemplateType.ActivityCancellation).ToString(),
             ["Subject"] = "Sujet modifié",
             ["HtmlContent"] = "<p>Modifié</p>"
         });
@@ -317,8 +317,48 @@ public class EmailTemplatesControllerIntegrationTests
         var updated = await db.EmailTemplates.IgnoreQueryFilters()
             .FirstAsync(t => t.Id == templateId);
         updated.Name.Should().Be("Nouveau Nom");
-        updated.TemplateType.Should().Be(EmailTemplateType.PaymentReminder);
+        updated.TemplateType.Should().Be(EmailTemplateType.ActivityCancellation);
         updated.Subject.Should().Be("Sujet modifié");
+    }
+
+    [Theory]
+    [InlineData(EmailTemplateType.Custom, EmailTemplateType.PaymentReminder)]
+    [InlineData(EmailTemplateType.PaymentReminder, EmailTemplateType.Custom)]
+    public async Task Edit_Post_TypeChangeIntoOrOutOfLockedType_IsIgnored(EmailTemplateType from, EmailTemplateType to)
+    {
+        using var factory = new CedevaWebApplicationFactory();
+        int templateId = 0;
+        int orgId = 0;
+        factory.Seed(ctx =>
+        {
+            var org = TestData.Organisation();
+            ctx.Add(org);
+            ctx.SaveChanges();
+            orgId = org.Id;
+            var t = Template(org, "Modele", type: from);
+            ctx.Add(t);
+            ctx.SaveChanges();
+            templateId = t.Id;
+            return 0;
+        });
+
+        var client = factory.CreateClientFor("u1", organisationId: orgId, role: "Coordinator");
+        var form = new FormUrlEncodedContent(new Dictionary<string, string>
+        {
+            ["Id"] = templateId.ToString(),
+            ["Name"] = "Modele renomme",
+            ["TemplateType"] = ((int)to).ToString(),
+            ["Subject"] = "Sujet",
+            ["HtmlContent"] = "<p>Contenu</p>"
+        });
+
+        var response = await client.PostAsync("/EmailTemplates/Edit", form);
+
+        response.StatusCode.Should().Be(HttpStatusCode.Found);
+        using var db = factory.NewDbContext();
+        var updated = await db.EmailTemplates.IgnoreQueryFilters().FirstAsync(t => t.Id == templateId);
+        updated.Name.Should().Be("Modele renomme");
+        updated.TemplateType.Should().Be(from);
     }
 
     [Fact]

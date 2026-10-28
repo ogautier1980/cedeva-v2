@@ -9,9 +9,11 @@
     string navAction = ViewData.ContainsKey("NavAction") ? ViewData["NavAction"]?.ToString() ?? "" : "";
 
     // The activity menu follows the section being worked in: the pages that help there, not every
-    // page of the activity. Booking and presence screens share the same (default) set.
+    // page of the activity. Booking management only deals with registrations, so it gets no extra
+    // entry; presence screens use the default set.
     string navFamily = navSection switch
     {
+        "ManageBookings" => "bookings",
         "Financial" => "financial",
         "Emails" => "emails",
         "Team" or "TeamPresences" => "team",
@@ -126,18 +128,6 @@
                                     </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link @(navAction == "TeamSalaries" ? "active" : "")"
-                                       asp-action="TeamSalaries" asp-controller="Financial">
-                                        <i class="fas fa-users"></i> @Localizer["Financial.TeamSalaries"]
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link @(navAction == "Payout" ? "active" : "")"
-                                       asp-action="Payout" asp-controller="Financial" asp-route-id="@activityId">
-                                        <i class="fas fa-money-check"></i> @Localizer["Financial.Payout"]
-                                    </a>
-                                </li>
-                                <li class="nav-item">
                                     <a class="nav-link @(navAction == "Report" ? "active" : "")"
                                        asp-action="Report" asp-controller="Financial">
                                         <i class="fas fa-chart-line"></i> @Localizer["Financial.Report"]
@@ -167,7 +157,7 @@
                             else if (navFamily == "team")
                             {
                                 <li class="nav-item">
-                                    <a class="nav-link @(navSection == "Team" ? "active" : "")"
+                                    <a class="nav-link @(navSection == "Team" && navAction != "Payout" && navAction != "TeamSalaries" ? "active" : "")"
                                        asp-action="TeamMembers" asp-controller="ActivityManagement" asp-route-id="@activityId">
                                         <i class="fas fa-users"></i> @Localizer["ActivityManagement.Team"]
                                     </a>
@@ -179,10 +169,21 @@
                                     </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link" asp-action="Payout" asp-controller="Financial" asp-route-id="@activityId">
+                                    <a class="nav-link @(navAction == "TeamSalaries" ? "active" : "")"
+                                       asp-action="TeamSalaries" asp-controller="Financial">
+                                        <i class="fas fa-euro-sign"></i> @Localizer["Financial.TeamSalaries"]
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link @(navAction == "Payout" ? "active" : "")"
+                                       asp-action="Payout" asp-controller="Financial" asp-route-id="@activityId">
                                         <i class="fas fa-money-check"></i> @Localizer["Financial.Payout"]
                                     </a>
                                 </li>
+                            }
+                            else if (navFamily == "bookings")
+                            {
+                                // Registrations only: the dashboard link above is enough.
                             }
                             else if (navFamily == "excursions")
                             {
@@ -216,11 +217,6 @@
                                     <a class="nav-link @(navSection == "ActivityQuestions" ? "active" : "")"
                                        asp-action="Index" asp-controller="ActivityQuestions" asp-route-activityId="@activityId">
                                         <i class="fas fa-question-circle"></i> @Localizer["ActivityQuestions.Title"]
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" asp-action="Index" asp-controller="Bookings" asp-route-activityId="@activityId">
-                                        <i class="fas fa-clipboard-list"></i> @Localizer["Bookings"]
                                     </a>
                                 </li>
                                 <li class="nav-item">
@@ -270,14 +266,6 @@
                                 <a class="nav-link @(navSection == "PresenceSummary" ? "active" : "")"
                                    asp-action="PresenceSummary" asp-controller="ActivityManagement" asp-route-id="@activityId">
                                     <i class="fas fa-chart-bar"></i> @Localizer["ActivityManagement.PresenceSummary"]
-                                </a>
-                            </li>
-
-                            <!-- Présences équipe -->
-                            <li class="nav-item">
-                                <a class="nav-link @(navSection == "TeamPresences" ? "active" : "")"
-                                   asp-action="TeamPresences" asp-controller="ActivityManagement" asp-route-id="@activityId">
-                                    <i class="fas fa-user-check"></i> @Localizer["ActivityManagement.TeamPresences"]
                                 </a>
                             </li>
 

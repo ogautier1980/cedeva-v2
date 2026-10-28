@@ -32,77 +32,8 @@
 
     @await Html.PartialAsync("_AlertMessages")
 
-    <ul class="nav nav-tabs" id="transactionTypeTabs" role="tablist">
-        <li class="nav-item" role="presentation">
-            <button class="nav-link active" id="payment-tab" data-bs-toggle="tab" data-bs-target="#payment-pane" type="button" role="tab" aria-controls="payment-pane" aria-selected="true">
-                <i class="fas fa-hand-holding-usd me-1 text-success"></i>@Localizer["Payments.AddPayment"]
-            </button>
-        </li>
-        <li class="nav-item" role="presentation">
-            <button class="nav-link" id="expense-tab" data-bs-toggle="tab" data-bs-target="#expense-pane" type="button" role="tab" aria-controls="expense-pane" aria-selected="false">
-                <i class="fas fa-receipt me-1 text-danger"></i>@Localizer["Expense.AddExpense"]
-            </button>
-        </li>
-    </ul>
-
-    <div class="tab-content border border-top-0 rounded-bottom p-3 mb-4" id="transactionTypeTabsContent">
-        <div class="tab-pane fade show active" id="payment-pane" role="tabpanel" aria-labelledby="payment-tab" tabindex="0">
-            @if (!Model.OutstandingBookings.Any())
-            {
-                <div class="alert alert-info mb-0">
-                    <i class="fas fa-info-circle me-2"></i>@Localizer["Payments.AllBookingsPaid"]
-                </div>
-            }
-            else
-            {
-                <div class="table-responsive">
-                    <table class="table table-hover">
-                        <thead class="table-light">
-                            <tr>
-                                <th scope="col">@Localizer["Field.Child"]</th>
-                                <th scope="col">@Localizer["Field.Parent"]</th>
-                                <th scope="col" class="text-end">@Localizer["Field.TotalAmount"]</th>
-                                <th scope="col" class="text-end">@Localizer["Payments.PaidAmount"]</th>
-                                <th scope="col" class="text-end">@Localizer["Payments.RemainingAmount"]</th>
-                                <th scope="col">@Localizer["Field.Status"]</th>
-                                <th scope="col" class="text-center">@Localizer["Field.Actions"]</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var booking in Model.OutstandingBookings)
-                            {
-                                <tr>
-                                    <td>@booking.ChildName</td>
-                                    <td>@booking.ParentName</td>
-                                    <td class="text-end">@booking.TotalAmount.ToString("N2") €</td>
-                                    <td class="text-end text-success">@booking.PaidAmount.ToString("N2") €</td>
-                                    <td class="text-end">
-                                        <strong class="text-danger">@booking.RemainingAmount.ToString("N2") €</strong>
-                                    </td>
-                                    <td>
-                                        @if (booking.PaymentStatus == PaymentStatus.NotPaid)
-                                        {
-                                            <span class="badge bg-danger">@Localizer["PaymentStatus.NotPaid"]</span>
-                                        }
-                                        else if (booking.PaymentStatus == PaymentStatus.PartiallyPaid)
-                                        {
-                                            <span class="badge bg-warning">@Localizer["PaymentStatus.PartiallyPaid"]</span>
-                                        }
-                                    </td>
-                                    <td class="text-center">
-                                        <a asp-controller="Payments" asp-action="Create" asp-route-bookingId="@booking.Id" class="btn btn-sm btn-primary">
-                                            <i class="fas fa-plus me-1"></i>@Localizer["Payments.CreatePayment"]
-                                        </a>
-                                    </td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
-                </div>
-            }
-        </div>
-
-        <div class="tab-pane fade" id="expense-pane" role="tabpanel" aria-labelledby="expense-tab" tabindex="0">
+    <div class="card mb-4">
+        <div class="card-body">
             <form asp-controller="Financial" asp-action="CreateExpense" method="post">
                 @Html.AntiForgeryToken()
                 <input type="hidden" asp-for="Expense.ActivityId" />
@@ -138,14 +69,13 @@
 
                 <div class="mb-3">
                     <label for="Category" class="form-label">@Localizer["Expense.Category"]</label>
-                    <input asp-for="Expense.Category" class="form-control" id="Category" list="expenseCategoriesList" autocomplete="off" />
-                    <datalist id="expenseCategoriesList">
+                    <select asp-for="Expense.Category" class="form-select" id="Category">
+                        <option value="">@Localizer["Expense.SelectCategory"]</option>
                         @foreach (var cat in (ViewBag.ExpenseCategories as List<string>) ?? new List<string>())
                         {
-                            <option value="@cat"></option>
+                            <option value="@cat">@cat</option>
                         }
-                    </datalist>
-                    <small class="form-text text-muted">@Localizer["Expense.CategoryHelp"]</small>
+                    </select>
                     <span asp-validation-for="Expense.Category" class="text-danger"></span>
                 </div>
 
