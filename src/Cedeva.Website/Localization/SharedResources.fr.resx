@@ -4876,4 +4876,16 @@
   <data name="Payments.AddPaymentTo" xml:space="preserve">
     <value>Ajouter un paiement à {0}</value>
   </data>
+  <data name="Bookings.Documents" xml:space="preserve">
+    <value>Documents</value>
+  </data>
+  <data name="Excursion.PlannedChildren" xml:space="preserve">
+    <value>Enfants prévus ce jour-là</value>
+  </data>
+  <data name="Excursion.NoPlannedChildren" xml:space="preserve">
+    <value>Aucun enfant prévu ce jour-là</value>
+  </data>
+  <data name="Excursion.EmailSent" xml:space="preserve">
+    <value>Invitation envoyée</value>
+  </data>
 </root>

@@ -44,7 +44,36 @@ sections (Entrées / Dépenses, avec colonnes Entrées / Sorties / Bilan / Budge
 catégorie peut avoir des entrées et des sorties — le sens est porté par la transaction, pas par la
 catégorie.
 
-**Retouches rapides (traitées dans la foulée)** — voir l'historique git du 2026-10-28.
+**Retouches rapides faites le 2026-10-28** (détail dans les messages de commit) :
+- Accueil en grille de blocs, sans titre ni date ; page d'un stage sans compteurs (seul le badge
+  « en attente » reste).
+- Menus : gestion des inscriptions sans menu secondaire ; « Présences équipe » retiré du menu
+  enfants ; « Voir les inscriptions » retiré des Paramètres ; Salaires et Décompte dans Équipe.
+- Comptes : tableau de bord financier et boutons « Retour » supprimés ; plus d'onglet paiement dans
+  « Ajouter une transaction » ; catégorie choisie dans une liste fermée.
+- Emails : barre de boutons et « Un email par enfant » retirés de la rédaction ; filtre « Tous les
+  types » retiré ; l'édition d'un modèle ne peut plus changer un type verrouillé (correctif).
+- Paramètres : « Code HTML du formulaire » ; lien direct retiré ; dates, prix/jour et montant estimé
+  retirés du formulaire public.
+- Présences : bouton Imprimer retiré ; recherche dynamique.
+- Fiche d'inscription : en attente → seulement jours, montant, gros bouton Confirmer, parent,
+  questions ; confirmée → jours réservés en haut (sans dates de semaine), fiche médicale dans
+  Informations, section Documents (attestation mutuelle + attestation fiscale du parent), bloc
+  Statut et date d'inscription retirés.
+- Paiement : « Ajouter un paiement à {enfant} », boutons radio Compte bancaire / Liquide (libellés
+  renommés partout), panneau de droite retiré.
+- Groupes : impression réduite au nom du groupe et à la date, sans Parent/Téléphone ; lignes plus
+  hautes avec signature (HTML et PDF) ; date ajoutée au PDF et à l'Excel.
+- Excursion : la page liste les enfants prévus ce jour-là dès la création (plus seulement après
+  l'envoi du mail).
+
+**Laissé de côté volontairement (à confirmer avec Thomas) :**
+- « Voir tout » sur l'accueil : c'est le seul accès à Enfants, Parents, Modèles, Import (question 3).
+- Sélecteur de langue et e-mail dans la barre du haut (barrés sur la capture) : barre commune à
+  toute l'application.
+- « Rapport » (Comptes) gardé tant que la page BILAN n'existe pas.
+- « Attribué à » gardé tant que le lien au membre de l'équipe n'est pas déplacé (voir ci-dessous).
+- « Modifier » sur une excursion (question 5).
 
 **Plus gros chantiers, à faire :**
 - **Comptes — sens Entrée/Sortie sur une dépense** (migration) et formulaire façon démo : cases verte

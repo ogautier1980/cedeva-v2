@@ -79,7 +79,8 @@ public class TeamMembersCrudE2ETests
         await page.WaitForURLAsync("**/TeamMembers/Details/**");
 
         page.Url.Should().Contain("/TeamMembers/Details/");
-        (await page.InnerTextAsync("body")).Should().Contain(lastName);
+        // Details is the editable member sheet: the name sits in an input, not in the page text.
+        (await page.InputValueAsync("#LastName")).Should().Be(lastName);
 
         await using var db = _fx.Factory.NewDbContext();
         var created = await db.TeamMembers
@@ -169,7 +170,8 @@ public class TeamMembersCrudE2ETests
         response!.Status.Should().Be(200);
 
         await page.FillAsync("#FirstName", newFirstName);
-        await SetSelectAsync(page, "Status", ((int)Status.Compensated).ToString());
+        // The member sheet uses radio buttons for the status.
+        await page.CheckAsync($"#status_{Status.Compensated}");
         await page.ClickAsync("button[type=submit]:not(.btn-link):not(.dropdown-item)");
         await page.WaitForURLAsync("**/TeamMembers/Details/**");
 

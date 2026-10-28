@@ -339,6 +339,26 @@ public class ExcursionsControllerCoverageTests
     }
 
     [Fact]
+    public async Task Details_BeforeAnyInvitation_ListsChildrenPlannedThatDay()
+    {
+        using var factory = new CedevaWebApplicationFactory();
+        var s = SeedFull(factory);
+        string childLastName;
+        using (var db = factory.NewDbContext())
+        {
+            childLastName = db.Bookings.IgnoreQueryFilters().Include(b => b.Child)
+                .Single(b => b.Id == s.BookingId).Child.LastName;
+        }
+        var client = factory.CreateClientFor("u1", s.OrgId, "Coordinator");
+
+        // No registration yet: the planned child must still be listed.
+        var response = await client.GetAsync($"/Excursions/Details/{s.ExcursionId}");
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        (await response.Content.ReadAsStringAsync()).Should().Contain(childLastName);
+    }
+
+    [Fact]
     public async Task Details_Unknown_ReturnsNotFound()
     {
         using var factory = new CedevaWebApplicationFactory();

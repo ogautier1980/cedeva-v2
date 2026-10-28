@@ -261,6 +261,16 @@ public class ExcursionsController : Controller
 
         this.SetActivityViewData(excursion.ActivityId, excursion.Activity.Name);
 
+        // The children planned in the excursion's group(s) that day — known before any invitation
+        // is sent — plus anyone already registered (e.g. booked differently since).
+        var plannedBookings = await GetConcernedBookingsAsync(excursion, null, HttpContext.RequestAborted);
+        var plannedIds = plannedBookings.Select(b => b.Id).ToHashSet();
+        plannedBookings.AddRange(excursion.Registrations.Select(r => r.Booking).Where(b => !plannedIds.Contains(b.Id)));
+        ViewBag.PlannedBookings = plannedBookings
+            .OrderBy(b => b.Child.LastName).ThenBy(b => b.Child.FirstName)
+            .ToList();
+        ViewBag.RegisteredBookingIds = excursion.Registrations.Select(r => r.BookingId).ToHashSet();
+
         // Fetch user display names for audit fields
         ViewBag.CreatedByDisplayName = await _userDisplayService.GetUserDisplayNameAsync(excursion.CreatedBy);
         if (!string.IsNullOrEmpty(excursion.ModifiedBy))
