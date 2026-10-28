@@ -106,6 +106,14 @@ src/
 - Payments, expenses tracking, team salary calculations
 - Excel export, color-coded transactions
 - `FinancialCalculationService` for reusable business logic
+- A transaction line (`Expense`) is a **Recette or a Dépense** (`Expense.IsIncome`); amount always
+  positive. "Ajouter une transaction" = green Recette / red Dépense boxes, "Payé par" Caisse/Compte
+  (`OrganizationCash`/`OrganizationCard`), closed category list, optional receipt (`Expense.ReceiptUrl`,
+  served by `Financial/ViewReceipt`). Team reimbursements/consumptions are entered from the member sheet
+- Categories (`ExpenseCategoryType` Expense / Income / OffBalance + budget) shown in 3 columns
+- **BILAN** (`Financial/Balance`, replaced the old Report — `Financial/Report` redirects): Entrées /
+  Dépenses sections per category; fixed lines P.A.F. (all registration payments), team compensation,
+  uncategorised; Hors bilan excluded
 - ⚠️ CODA import & bank reconciliation were **removed** (replaced by online payments — see below)
 
 ### Online Payments (Stripe / Mollie)
@@ -124,7 +132,9 @@ src/
 - See [docs/adr/0010](docs/adr/0010-online-payments-provider-agnostic-stripe.md)
 
 ### Activity Management
-- Dashboard, unconfirmed bookings, presences
+- Dashboard, unconfirmed bookings, presences (live search, "dépannage": add a registered child on a
+  day they did not book → reserved + present + one day charged)
+- Groups: printable lists, PDF/Excel exports, one-sheet week print (`PrintGroupsWeek`)
 - Email system with templates and merge variables
 - Team assignment, postal code filtering
 - `ActivitySelectionService` for session/cookie management
@@ -133,11 +143,16 @@ src/
 - Embeddable iframe with customization (colors via query params)
 - Duplicate detection, Brevo email confirmation
 - Custom questions per activity
+- Parents pick **weeks**, or **days** when `Activity.AllowDayByDayRegistration` is on (wizard step 2)
+- Email flow: on submit the parent gets the locked `BookingConfirmation` template, which is an
+  **acknowledgment** ("Demande d'inscription reçue", no amount); the coordinator is notified; on
+  confirmation the parent gets the payment link email (nothing if nothing is due)
 
 ### Excursions
-- CRUD with soft-delete, registration management
-- Attendance tracking, per-excursion expenses
-- Financial integration (updates `Booking.TotalAmount`)
+- CRUD with soft-delete; linked to an activity, a date and target groups (time slot and type are no
+  longer entered — hidden fields only)
+- The page lists the children planned that day; sending the invitation registers them and adds the
+  cost to `Booking.TotalAmount` (payment link in the email). Excursion expenses live in the accounts
 - `ExcursionService` for business logic
 
 ---
@@ -162,8 +177,11 @@ src/
 - Color pickers for iframe customization
 - Clean URLs (route parameters vs query strings)
 
-## Testing (July 2026)
-- **~1254 unit/integration tests** (+ 65 E2E browser, 0 skipped; + 3 PostgreSQL), **≈92% line coverage** (branch ≈77%, method ≈95%); CI coverage gate at 85%.
+## Testing (October 2026)
+- **~1384 unit/integration tests** (+ 64 E2E browser, 0 skipped; + 3 PostgreSQL); CI coverage gate at 85%.
+- `CedevaWebApplicationFactory` disables config-file watching: on the Linux CI runner each watched
+  test host costs an inotify instance (limit 128) and the suite starts hundreds of hosts — without it,
+  startup fails with "entry point exited without ever building an IHost".
 - 5 levels across 3 projects: `Cedeva.Tests` (unit + service-integration SQLite + controller
   WebApplicationFactory), `Cedeva.Tests.Sql` (real PostgreSQL via Testcontainers), `Cedeva.Tests.E2E`
   (Playwright + Chromium). E2E and SQL run in dedicated CI workflows that do **not** gate deploy.
