@@ -49,6 +49,26 @@ public class BookingPaymentServiceTests
     }
 
     [Fact]
+    public async Task ApplySuccessfulPayment_TakesTheNextTicketNumberOfTheActivity()
+    {
+        // Online payments used to be saved with ticket 0 ("#0" in the accounts).
+        var (db, bookingId) = Seed(total: 100m);
+        using var _ = db;
+        var activityId = db.Context.Bookings.Single(b => b.Id == bookingId).ActivityId;
+        db.Context.Expenses.Add(new Expense
+        {
+            ActivityId = activityId, Label = "Achat", Amount = 5m, TicketNumber = 7, ExpenseDate = DateTime.Today
+        });
+        db.Context.SaveChanges();
+
+        await Sut(db).ApplySuccessfulPaymentAsync(
+            new PaymentWebhookResult(true, bookingId, "evt_ticket", 100m, "eur"));
+
+        await using var verify = db.NewContext();
+        (await verify.Payments.SingleAsync(p => p.Reference == "evt_ticket")).TicketNumber.Should().Be(8);
+    }
+
+    [Fact]
     public async Task ApplySuccessfulPayment_PartialAmount_MarksPartiallyPaid()
     {
         var (db, bookingId) = Seed(total: 100m);

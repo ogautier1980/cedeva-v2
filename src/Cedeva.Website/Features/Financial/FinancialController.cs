@@ -2,6 +2,7 @@ using Cedeva.Core.Entities;
 using Cedeva.Core.Enums;
 using Cedeva.Core.Interfaces;
 using Cedeva.Infrastructure.Data;
+using Cedeva.Infrastructure.Services.Financial;
 using Cedeva.Website.Features.Financial.ViewModels;
 using Cedeva.Website.Infrastructure;
 using Cedeva.Website.Localization;
@@ -914,20 +915,8 @@ public class FinancialController : Controller
     /// <summary>
     /// Next ticket number for the activity's shared Payment/Expense sequence (starts at 1, resets per activity).
     /// </summary>
-    private async Task<int> GetNextTicketNumberAsync(int activityId)
-    {
-        var maxPaymentTicket = await _context.Payments
-            .Where(p => p.Booking.ActivityId == activityId)
-            .Select(p => (int?)p.TicketNumber)
-            .MaxAsync() ?? 0;
-
-        var maxExpenseTicket = await _context.Expenses
-            .Where(e => e.ActivityId == activityId)
-            .Select(e => (int?)e.TicketNumber)
-            .MaxAsync() ?? 0;
-
-        return Math.Max(maxPaymentTicket, maxExpenseTicket) + 1;
-    }
+    private Task<int> GetNextTicketNumberAsync(int activityId) =>
+        TicketNumberSequence.NextAsync(_context, activityId);
 
     private async Task PopulateAssignedToDropdown(int activityId)
     {

@@ -3,6 +3,7 @@ using Cedeva.Core.Entities;
 using Cedeva.Core.Enums;
 using Cedeva.Core.Interfaces;
 using Cedeva.Infrastructure.Data;
+using Cedeva.Infrastructure.Services.Financial;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
@@ -55,6 +56,7 @@ public class BookingPaymentService : IBookingPaymentService
             PaymentMethod = PaymentMethod.Online,
             Status = PaymentStatus.Paid,
             Reference = payment.ProviderReference,
+            TicketNumber = await TicketNumberSequence.NextAsync(_context, booking.ActivityId, cancellationToken),
         });
 
         booking.PaidAmount += payment.AmountPaid;
