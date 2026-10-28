@@ -3002,7 +3002,7 @@
     <value>Wachtwoord</value>
   </data>
   <data name="PaymentMethod.BankTransfer" xml:space="preserve">
-    <value>Bankoverschrijving</value>
+    <value>Bankrekening</value>
   </data>
   <data name="PaymentMethod.Cash" xml:space="preserve">
     <value>Contant</value>
@@ -4847,5 +4847,11 @@
   </data>
   <data name="Help.PricePerDay" xml:space="preserve">
     <value>Tarief per gereserveerde dag. Totaal van een reservatie = prijs/dag × gereserveerde dagen (+ uitstappen).</value>
+  </data>
+  <data name="ActivityManagement.SearchChild" xml:space="preserve">
+    <value>Kind zoeken…</value>
+  </data>
+  <data name="Payments.AddPaymentTo" xml:space="preserve">
+    <value>Betaling toevoegen voor {0}</value>
   </data>
 </root>

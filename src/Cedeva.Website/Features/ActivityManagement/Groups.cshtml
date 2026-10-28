@@ -100,8 +100,6 @@
                             <tr>
                                 <th scope="col">@Localizer["LastName"]</th>
                                 <th scope="col">@Localizer["FirstName"]</th>
-                                <th scope="col">@Localizer["Parent"]</th>
-                                <th scope="col">@Localizer["Phone"]</th>
                                 <th scope="col" class="text-center">@Localizer["ActivityManagement.Expected"]</th>
                                 @if (Model.SelectedActivityDayId.HasValue)
                                 {
@@ -113,7 +111,7 @@
                             @foreach (var group in Model.Children.GroupBy(c => c.ActivityGroupName))
                             {
                                 <tr class="table-secondary">
-                                    <th colspan="@(Model.SelectedActivityDayId.HasValue ? 6 : 5)">
+                                    <th colspan="@(Model.SelectedActivityDayId.HasValue ? 4 : 3)">
                                         @(group.Key ?? Localizer["Presence.None"])
                                     </th>
                                 </tr>
@@ -126,10 +124,6 @@
                                         <td>
                                             <a asp-controller="Children" asp-action="Details" asp-route-id="@child.ChildId" class="text-decoration-none">@child.ChildFirstName</a>
                                         </td>
-                                        <td>
-                                            <a asp-controller="Parents" asp-action="Details" asp-route-id="@child.ParentId" class="text-decoration-none">@child.ParentName</a>
-                                        </td>
-                                        <td>@child.ParentPhone</td>
                                         <td class="text-center">
                                             @if (child.IsReserved)
                                             {

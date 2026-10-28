@@ -2951,10 +2951,10 @@
     <value>Mot de passe</value>
   </data>
   <data name="PaymentMethod.BankTransfer" xml:space="preserve">
-    <value>Virement bancaire</value>
+    <value>Compte bancaire</value>
   </data>
   <data name="PaymentMethod.Cash" xml:space="preserve">
-    <value>Espèces</value>
+    <value>Liquide</value>
   </data>
   <data name="PaymentMethod.Online" xml:space="preserve">
     <value>En ligne</value>
@@ -4869,5 +4869,11 @@
   </data>
   <data name="Help.PricePerDay" xml:space="preserve">
     <value>Tarif facturé par jour réservé. Le total d'une réservation = prix/jour × jours réservés (+ excursions).</value>
+  </data>
+  <data name="ActivityManagement.SearchChild" xml:space="preserve">
+    <value>Rechercher un enfant…</value>
+  </data>
+  <data name="Payments.AddPaymentTo" xml:space="preserve">
+    <value>Ajouter un paiement à {0}</value>
   </data>
 </root>

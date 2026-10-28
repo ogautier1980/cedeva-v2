@@ -37,16 +37,6 @@
             font-size: 12pt;
         }
 
-        .info-box {
-            background-color: #f5f5f5;
-            padding: 10px;
-            margin-bottom: 20px;
-            border-radius: 5px;
-        }
-
-        .info-box p {
-            margin: 5px 0;
-        }
 
         table {
             width: 100%;
@@ -70,6 +60,11 @@
 
         table tr:nth-child(even) {
             background-color: #f9f9f9;
+        }
+
+        /* Leave room to sign by hand. */
+        table tr.signature-row td {
+            height: 40px;
         }
 
         .group-row {
@@ -136,22 +131,16 @@
         🖨️ @Localizer["Print"]
     </button>
 
+    @* Only the group name(s) and the day: the sheet is handed to the animators as is. *@
     <div class="header">
-        <h1>@Localizer["ActivityManagement.GroupsList"]</h1>
-        <p><strong>@Model.Activity.Name</strong></p>
         @if (Model.Groups.Any())
         {
-            <p>@Localizer["Activities.Group"]: <strong>@string.Join(", ", Model.Groups.Select(g => g.Label))</strong></p>
+            <h1>@string.Join(", ", Model.Groups.Select(g => g.Label))</h1>
         }
         @if (Model.ActivityDay != null)
         {
             <p>@Model.ActivityDay.DayDate.ToString("dddd dd MMMM yyyy", new System.Globalization.CultureInfo("fr-FR"))</p>
         }
-    </div>
-
-    <div class="info-box">
-        <p><strong>@Localizer["Presence.TotalChildren"]</strong> @Model.Children.Count</p>
-        <p><strong>@Localizer["Presence.PrintDate"]</strong> @DateTime.Now.ToString("dd/MM/yyyy HH:mm")</p>
     </div>
 
     @if (!Model.Children.Any())
@@ -162,7 +151,7 @@
     }
     else
     {
-        var columnCount = 3
+        var columnCount = 1
             + (Model.ActivityDay != null && Model.ShowReserved ? 1 : 0)
             + (Model.ActivityDay != null && Model.ShowPresent ? 1 : 0)
             + (Model.ShowSignature ? 1 : 0);
@@ -170,8 +159,6 @@
             <thead class="table-light">
                 <tr>
                     <th scope="col">@Localizer["FullName"]</th>
-                    <th scope="col">@Localizer["Parent"]</th>
-                    <th scope="col" style="width: 110px">@Localizer["Phone"]</th>
                     @if (Model.ActivityDay != null && Model.ShowReserved)
                     {
                         <th scope="col" style="width: 70px" class="text-center">@Localizer["ActivityManagement.Expected"]</th>
@@ -194,12 +181,10 @@
                     </tr>
                     @foreach (var item in group)
                     {
-                        <tr>
+                        <tr class="@(Model.ShowSignature ? "signature-row" : "")">
                             <td>
                                 <strong>@item.ChildFirstName @item.ChildLastName</strong>
                             </td>
-                            <td>@item.ParentName</td>
-                            <td>@item.ParentPhone</td>
                             @if (Model.ActivityDay != null && Model.ShowReserved)
                             {
                                 <td class="text-center">@(item.IsReserved ? "X" : "")</td>

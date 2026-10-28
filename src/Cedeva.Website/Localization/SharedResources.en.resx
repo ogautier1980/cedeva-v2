@@ -3002,7 +3002,7 @@
     <value>Password</value>
   </data>
   <data name="PaymentMethod.BankTransfer" xml:space="preserve">
-    <value>Bank Transfer</value>
+    <value>Bank account</value>
   </data>
   <data name="PaymentMethod.Cash" xml:space="preserve">
     <value>Cash</value>
@@ -4847,5 +4847,11 @@
   </data>
   <data name="Help.PricePerDay" xml:space="preserve">
     <value>Price charged per reserved day. A booking total = price/day × reserved days (+ excursions).</value>
+  </data>
+  <data name="ActivityManagement.SearchChild" xml:space="preserve">
+    <value>Search for a child…</value>
+  </data>
+  <data name="Payments.AddPaymentTo" xml:space="preserve">
+    <value>Add a payment for {0}</value>
   </data>
 </root>

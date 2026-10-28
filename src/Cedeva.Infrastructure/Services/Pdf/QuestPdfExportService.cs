@@ -14,7 +14,7 @@ public class QuestPdfExportService : IPdfExportService
     }
 
     public byte[] ExportToPdf<T>(IEnumerable<T> data, string title, Dictionary<string, Func<T, object>> columns,
-        Func<T, string>? groupSelector = null)
+        Func<T, string>? groupSelector = null, float? minRowHeight = null)
     {
         var dataList = data.ToList();
 
@@ -26,7 +26,7 @@ public class QuestPdfExportService : IPdfExportService
                 page.Margin(30);
 
                 page.Header().Row(row => BuildHeader(row, title, dataList.Count));
-                page.Content().PaddingVertical(10).Table(table => BuildTable(table, dataList, columns, groupSelector));
+                page.Content().PaddingVertical(10).Table(table => BuildTable(table, dataList, columns, groupSelector, minRowHeight));
                 page.Footer().AlignCenter().Text(text => BuildFooter(text));
             });
         });
@@ -54,7 +54,7 @@ public class QuestPdfExportService : IPdfExportService
     }
 
     private static void BuildTable<T>(TableDescriptor table, List<T> dataList, Dictionary<string, Func<T, object>> columns,
-        Func<T, string>? groupSelector)
+        Func<T, string>? groupSelector, float? minRowHeight)
     {
         // Define columns
         var columnCount = columns.Count;
@@ -100,8 +100,13 @@ public class QuestPdfExportService : IPdfExportService
                 var value = column(item);
                 var displayValue = FormatValue(value);
 
-                table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5)
-                    .Text(displayValue)
+                var cell = table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5);
+                if (minRowHeight.HasValue)
+                {
+                    cell = cell.MinHeight(minRowHeight.Value);
+                }
+
+                cell.Text(displayValue)
                     .FontSize(9);
             }
         }

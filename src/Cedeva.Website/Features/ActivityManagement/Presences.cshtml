@@ -31,13 +31,12 @@
                         }
                     </select>
                 </div>
-                @if (Model.SelectedActivityDayId.HasValue)
+                @if (Model.Children.Any())
                 {
-                    <div class="col-md-6 text-end">
-                        <a asp-action="Print" asp-route-activityId="@Model.Activity.Id" asp-route-dayId="@Model.SelectedActivityDayId"
-                           class="btn btn-outline-secondary" target="_blank">
-                            <i class="fas fa-print me-2"></i>@Localizer["Button.Print"]
-                        </a>
+                    <div class="col-md-6">
+                        <label for="childSearch" class="form-label fw-bold">@Localizer["Search"]</label>
+                        <input type="search" id="childSearch" class="form-control" autocomplete="off"
+                               placeholder="@Localizer["ActivityManagement.SearchChild"]" />
                     </div>
                 }
             </form>
@@ -77,12 +76,13 @@
                             <tbody>
                                 @foreach (var group in Model.Children.GroupBy(c => c.ActivityGroupName))
                                 {
-                                    <tr class="table-secondary">
+                                    <tr class="table-secondary presence-group-row">
                                         <th colspan="5">@(group.Key ?? Localizer["Presence.None"])</th>
                                     </tr>
                                     @foreach (var child in group)
                                     {
-                                        <tr class="@(child.IsPresent ? "table-success" : "")">
+                                        <tr class="presence-child-row @(child.IsPresent ? "table-success" : "")"
+                                            data-search="@($"{child.ChildLastName} {child.ChildFirstName} {child.ChildFirstName} {child.ChildLastName}".ToLowerInvariant())">
                                             <td>
                                                 <a asp-controller="Bookings" asp-action="Details" asp-route-id="@child.BookingId" class="text-decoration-none">@child.ChildLastName</a>
                                             </td>
@@ -148,6 +148,31 @@
     @Html.AntiForgeryToken()
     <script>
         $(document).ready(function () {
+            // Live search: narrows the list while typing, hiding group headers left without children.
+            const childSearch = document.getElementById('childSearch');
+            if (childSearch) {
+                childSearch.addEventListener('keydown', function (e) {
+                    if (e.key === 'Enter') e.preventDefault();
+                });
+                childSearch.addEventListener('input', function () {
+                    const q = this.value.trim().toLowerCase();
+                    let groupHeader = null, groupHasMatch = false;
+                    const closeGroup = () => { if (groupHeader) groupHeader.classList.toggle('d-none', !groupHasMatch); };
+                    document.querySelectorAll('.presence-group-row, .presence-child-row').forEach(function (row) {
+                        if (row.classList.contains('presence-group-row')) {
+                            closeGroup();
+                            groupHeader = row;
+                            groupHasMatch = false;
+                            return;
+                        }
+                        const match = !q || row.dataset.search.indexOf(q) !== -1;
+                        row.classList.toggle('d-none', !match);
+                        if (match) groupHasMatch = true;
+                    });
+                    closeGroup();
+                });
+            }
+
             // Initialize Choices.js on the day selector
             const daySelector = document.getElementById('dayId');
             if (daySelector) {

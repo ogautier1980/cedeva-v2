@@ -1142,12 +1142,15 @@ public class ActivityManagementController : Controller
             return NotFound();
 
         var roster = BuildGroupsRoster(activityWithBookings, groupIds ?? new List<int>(), dayId);
-        var columns = BuildGroupsExportColumns(dayId, showReserved, showPresent, showSignature);
+        var dayDate = await GetActivityDayDateAsync(activityId, dayId);
+        var columns = BuildGroupsExportColumns(dayId, showReserved, showPresent, showSignature, dayDate);
 
         var sheetName = _localizer["ActivityManagement.GroupsList"].Value;
         var excelData = _exportServices.Excel.ExportToExcel(roster, sheetName, columns,
             c => c.ActivityGroupName ?? _localizer["Presence.None"].Value);
-        var fileName = $"{sheetName}_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx";
+        var fileName = dayDate.HasValue
+            ? $"{sheetName}_{dayDate.Value:yyyyMMdd}.xlsx"
+            : $"{sheetName}_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx";
 
         return File(excelData, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
     }
@@ -1171,25 +1174,44 @@ public class ActivityManagementController : Controller
 
         var roster = BuildGroupsRoster(activityWithBookings, groupIds ?? new List<int>(), dayId);
         var columns = BuildGroupsExportColumns(dayId, showReserved, showPresent, showSignature);
+        var dayDate = await GetActivityDayDateAsync(activityId, dayId);
 
-        var title = _localizer["ActivityManagement.GroupsList"].Value;
+        var listTitle = _localizer["ActivityManagement.GroupsList"].Value;
+        var title = dayDate.HasValue ? $"{listTitle} — {dayDate.Value:dd/MM/yyyy}" : listTitle;
+        // A signature cell needs room to sign by hand.
         var pdfData = _exportServices.Pdf.ExportToPdf(roster, title, columns,
-            c => c.ActivityGroupName ?? _localizer["Presence.None"].Value);
-        var fileName = $"{title}_{DateTime.Now:yyyyMMdd_HHmmss}.pdf";
+            c => c.ActivityGroupName ?? _localizer["Presence.None"].Value,
+            minRowHeight: showSignature ? 30f : null);
+        var fileName = dayDate.HasValue
+            ? $"{listTitle}_{dayDate.Value:yyyyMMdd}.pdf"
+            : $"{listTitle}_{DateTime.Now:yyyyMMdd_HHmmss}.pdf";
 
         return File(pdfData, "application/pdf", fileName);
     }
 
-    private Dictionary<string, Func<PresenceChildInfo, object>> BuildGroupsExportColumns(
-        int? dayId, bool showReserved, bool showPresent, bool showSignature)
+    private async Task<DateTime?> GetActivityDayDateAsync(int activityId, int? dayId)
     {
-        var columns = new Dictionary<string, Func<PresenceChildInfo, object>>
-        {
-            { _localizer["LastName"].Value, c => c.ChildLastName },
-            { _localizer["FirstName"].Value, c => c.ChildFirstName },
-            { _localizer["Parent"].Value, c => c.ParentName },
-            { _localizer["Phone"].Value, c => c.ParentPhone }
-        };
+        if (!dayId.HasValue)
+            return null;
+
+        return await _context.ActivityDays
+            .Where(d => d.DayId == dayId.Value && d.ActivityId == activityId)
+            .Select(d => (DateTime?)d.DayDate)
+            .FirstOrDefaultAsync();
+    }
+
+    private Dictionary<string, Func<PresenceChildInfo, object>> BuildGroupsExportColumns(
+        int? dayId, bool showReserved, bool showPresent, bool showSignature, DateTime? dayDate = null)
+    {
+        var columns = new Dictionary<string, Func<PresenceChildInfo, object>>();
+        // The spreadsheet has no title row: the day goes in a column so a printed sheet stays dated.
+        if (dayDate.HasValue)
+            columns[_localizer["Field.Date"].Value] = c => dayDate.Value;
+
+        columns[_localizer["LastName"].Value] = c => c.ChildLastName;
+        columns[_localizer["FirstName"].Value] = c => c.ChildFirstName;
+        columns[_localizer["Parent"].Value] = c => c.ParentName;
+        columns[_localizer["Phone"].Value] = c => c.ParentPhone;
 
         if (dayId.HasValue && showReserved)
             columns[_localizer["ActivityManagement.Expected"].Value] = c => c.IsReserved;

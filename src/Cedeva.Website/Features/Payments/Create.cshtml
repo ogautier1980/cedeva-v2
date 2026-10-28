@@ -3,19 +3,19 @@
 @inject IStringLocalizer<SharedResources> Localizer
 
 @{
-    ViewData["Title"] = Localizer["Payments.Create"];
+    ViewData["Title"] = Localizer["Payments.AddPaymentTo", Model.ChildName ?? string.Empty];
 }
 
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2>@Localizer["Payments.Create"]</h2>
+        <h2>@Localizer["Payments.AddPaymentTo", Model.ChildName ?? string.Empty]</h2>
         <a asp-controller="Bookings" asp-action="Details" asp-route-id="@Model.BookingId" class="btn btn-outline-secondary">
             <i class="fas fa-arrow-left"></i> @Localizer["Common.Back"]
         </a>
     </div>
 
     <div class="row">
-        <div class="col-md-8">
+        <div class="col-12">
             <div class="card">
                 <div class="card-header">
                     <h5><i class="fas fa-money-bill"></i> @Localizer["Payments.PaymentInformation"]</h5>
@@ -49,11 +49,14 @@
 
                         <div class="row mb-3">
                             <div class="col-md-6">
-                                <label for="PaymentMethod" class="form-label">@Localizer["Field.PaymentMethod"]</label>
-                                <select asp-for="PaymentMethod" class="form-select" id="PaymentMethod">
-                                    <option value="@PaymentMethod.Cash">@Localizer["PaymentMethod.Cash"]</option>
-                                    <option value="@PaymentMethod.Other">@Localizer["PaymentMethod.Other"]</option>
-                                </select>
+                                <span class="form-label d-block">@Localizer["Field.PaymentMethod"]</span>
+                                @foreach (var method in new[] { PaymentMethod.BankTransfer, PaymentMethod.Cash })
+                                {
+                                    <div class="form-check form-check-inline">
+                                        <input type="radio" asp-for="PaymentMethod" value="@method" class="form-check-input" id="PaymentMethod_@method" />
+                                        <label class="form-check-label" for="PaymentMethod_@method">@Localizer[$"PaymentMethod.{method}"]</label>
+                                    </div>
+                                }
                                 <span asp-validation-for="PaymentMethod" class="text-danger"></span>
                             </div>
 
@@ -74,40 +77,6 @@
                         </div>
                     </form>
                 </div>
-            </div>
-        </div>
-
-        <div class="col-md-4">
-            <div class="card border-info">
-                <div class="card-header bg-info text-white">
-                    <h5><i class="fas fa-info-circle"></i> @Localizer["Payments.BookingInformation"]</h5>
-                </div>
-                <div class="card-body">
-                    <dl class="row mb-0">
-                        <dt class="col-sm-5">@Localizer["Field.Child"]:</dt>
-                        <dd class="col-sm-7">@Model.ChildName</dd>
-
-                        <dt class="col-sm-5">@Localizer["Field.Parent"]:</dt>
-                        <dd class="col-sm-7">@Model.ParentName</dd>
-
-                        <dt class="col-sm-5">@Localizer["Field.Activity"]:</dt>
-                        <dd class="col-sm-7">@Model.ActivityName</dd>
-
-                        <dt class="col-sm-5">@Localizer["Payments.TotalAmount"]:</dt>
-                        <dd class="col-sm-7"><strong>@Model.BookingTotalAmount.ToString("C")</strong></dd>
-
-                        <dt class="col-sm-5">@Localizer["Payments.AlreadyPaid"]:</dt>
-                        <dd class="col-sm-7 text-success"><strong>@Model.BookingPaidAmount.ToString("C")</strong></dd>
-
-                        <dt class="col-sm-5">@Localizer["Payments.RemainingAmount"]:</dt>
-                        <dd class="col-sm-7 text-danger"><strong id="sidebarRemainingAmount">@Model.BookingRemainingAmount.ToString("C")</strong></dd>
-                    </dl>
-                </div>
-            </div>
-
-            <div class="alert alert-warning mt-3">
-                <i class="fas fa-exclamation-triangle"></i>
-                @Localizer["Payments.ManualPaymentWarning"]
             </div>
         </div>
     </div>
