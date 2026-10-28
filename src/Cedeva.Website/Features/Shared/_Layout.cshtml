@@ -18,7 +18,7 @@
         "Emails" => "emails",
         "Team" or "TeamPresences" => "team",
         "Excursions" => "excursions",
-        "ActivitySettings" or "ActivityGroups" or "ActivityQuestions" => "settings",
+        "ActivitySettings" or "ActivityGroups" or "ActivityQuestions" or "EmbedCode" => "settings",
         _ => "presences"
     };
 
@@ -220,7 +220,8 @@
                                     </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link" asp-action="EmbedCode" asp-controller="PublicRegistration" asp-route-id="@activityId">
+                                    <a class="nav-link @(navSection == "EmbedCode" ? "active" : "")"
+                                       asp-action="EmbedCode" asp-controller="PublicRegistration" asp-route-id="@activityId">
                                         <i class="fas fa-code"></i> @Localizer["PublicRegistration.IntegrationCode"]
                                     </a>
                                 </li>

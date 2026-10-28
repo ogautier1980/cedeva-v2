@@ -136,7 +136,7 @@ else
                                                         @Localizer["EmailTemplate.DeleteConfirmMessage", template.Name]
                                                     </div>
                                                     <div class="modal-footer">
-                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">@Localizer["Button.Cancel"]</button>
+                                                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">@Localizer["Button.Cancel"]</button>
                                                         <form asp-action="Delete" method="post" style="display:inline;">
                                                             <input type="hidden" name="id" value="@template.Id" />
                                                             <button type="submit" class="btn btn-danger">@Localizer["Button.Delete"]</button>
@@ -157,7 +157,7 @@ else
 }
 
 <div class="mt-3">
-    <a asp-action="Index" asp-controller="ActivityManagement" class="btn btn-secondary">
+    <a asp-action="Index" asp-controller="ActivityManagement" class="btn btn-outline-secondary">
         <i class="fas fa-arrow-left me-1"></i>@Localizer["Button.Back"]
     </a>
 </div>
