@@ -21,6 +21,15 @@ public class CedevaWebApplicationFactory : WebApplicationFactory<Program>
 {
     private readonly SqliteConnection _connection;
 
+    static CedevaWebApplicationFactory()
+    {
+        // Each test host would otherwise watch appsettings*.json for changes. On the Linux CI runner
+        // every watcher is an inotify instance (limit 128), and the suite starts hundreds of hosts:
+        // past the limit, startup fails with "entry point exited without ever building an IHost".
+        Environment.SetEnvironmentVariable("DOTNET_hostBuilder__reloadConfigOnChange", "false");
+        Environment.SetEnvironmentVariable("DOTNET_USE_POLLING_FILE_WATCHER", "true");
+    }
+
     public CedevaWebApplicationFactory()
     {
         _connection = new SqliteConnection("DataSource=:memory:");
