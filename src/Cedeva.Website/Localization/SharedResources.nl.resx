@@ -4971,4 +4971,7 @@
   <data name="Financial.AttachmentRemove" xml:space="preserve">
     <value>Bewijsstuk verwijderen</value>
   </data>
+  <data name="Bookings.MutualityAttestationStickerHere" xml:space="preserve">
+    <value>Kleef hier een kleefbriefje van het ziekenfonds</value>
+  </data>
 </root>

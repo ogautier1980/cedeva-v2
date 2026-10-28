@@ -4971,4 +4971,7 @@
   <data name="Financial.AttachmentRemove" xml:space="preserve">
     <value>Remove receipt</value>
   </data>
+  <data name="Bookings.MutualityAttestationStickerHere" xml:space="preserve">
+    <value>Stick a health insurance label here</value>
+  </data>
 </root>

@@ -239,7 +239,12 @@ public class BookingsController : Controller
             .Include(b => b.Activity)
                 .ThenInclude(a => a.Organisation)
                     .ThenInclude(o => o.Address)
+            .Include(b => b.Activity)
+                .ThenInclude(a => a.Address)
+            .Include(b => b.Activity)
+                .ThenInclude(a => a.Days)
             .Include(b => b.Days)
+                .ThenInclude(bd => bd.ActivityDay)
             .FirstOrDefaultAsync(b => b.Id == id);
 
         if (booking == null)
@@ -247,21 +252,35 @@ public class BookingsController : Controller
             return NotFound();
         }
 
-        var organisation = booking.Activity.Organisation;
-        var address = organisation.Address;
+        var activity = booking.Activity;
+        var organisation = activity.Organisation;
+        // The activity's own signalétique wins; each field left empty falls back to the organisation's.
+        var address = activity.Address ?? organisation.Address;
+
+        // The period actually booked (e.g. one week of a three-week activity), as on Thomas' example.
+        var reservedDays = booking.Days.Where(bd => bd.IsReserved).Select(bd => bd.ActivityDay).ToList();
+        var activityWeeks = activity.Days.Where(d => d.IsActive && d.Week.HasValue).Select(d => d.Week!.Value).Distinct().Count();
+        var bookedWeeks = reservedDays.Where(d => d.Week.HasValue).Select(d => d.Week!.Value).Distinct().OrderBy(w => w).ToList();
+        string? weeksLabel = activityWeeks > 1 && bookedWeeks.Count > 0
+            ? string.Join(", ", bookedWeeks.Select(w => _ctx.Localizer["PublicRegistration.WeekLabel", w].Value))
+            : null;
 
         var viewModel = new MutualityAttestationViewModel
         {
             OrganisationName = organisation.Name,
-            OrganisationLogoUrl = organisation.LogoUrl,
-            ResponsibleName = organisation.ResponsibleName,
+            OrganisationLogoUrl = string.IsNullOrEmpty(activity.LogoUrl) ? organisation.LogoUrl : activity.LogoUrl,
+            ResponsibleName = string.IsNullOrEmpty(activity.ResponsibleName) ? organisation.ResponsibleName : activity.ResponsibleName,
+            ResponsibleSignatureUrl = string.IsNullOrEmpty(activity.ResponsibleSignatureUrl)
+                ? organisation.ResponsibleSignatureUrl
+                : activity.ResponsibleSignatureUrl,
             OrganisationAddress = address != null ? $"{address.Street}, {address.PostalCode} {address.City}" : string.Empty,
             ChildFirstName = booking.Child.FirstName,
             ChildLastName = booking.Child.LastName,
             ChildBirthDate = booking.Child.BirthDate,
-            ActivityName = booking.Activity.Name,
-            ActivityStartDate = booking.Activity.StartDate,
-            ActivityEndDate = booking.Activity.EndDate,
+            ActivityName = activity.Name,
+            WeeksLabel = weeksLabel,
+            ActivityStartDate = reservedDays.Count > 0 ? reservedDays.Min(d => d.DayDate) : activity.StartDate,
+            ActivityEndDate = reservedDays.Count > 0 ? reservedDays.Max(d => d.DayDate) : activity.EndDate,
             DaysAttended = booking.Days.Count(d => d.IsPresent),
             AmountPaid = booking.PaidAmount
         };

@@ -18,6 +18,11 @@
         .section-box { border: 1px solid #333; padding: 1rem 1.25rem; margin-bottom: 1.25rem; }
         .section-title { font-weight: bold; margin-bottom: 0.75rem; }
         .signature-zone { margin-top: 3rem; }
+        .signature-image { max-height: 90px; max-width: 260px; }
+        /* Where the parent sticks the mutuality's label, as on the paper model. */
+        .sticker-box { border-left: 1px solid #333; background: #fbd3b8; min-height: 140px;
+                       display: flex; align-items: center; justify-content: center; text-align: center;
+                       print-color-adjust: exact; -webkit-print-color-adjust: exact; }
         @@media print {
             .no-print { display: none !important; }
             body { padding: 0; }
@@ -55,16 +60,19 @@
             }
         </div>
 
-        <div class="section-box">
-            <div class="section-title">2. @Localizer["Bookings.MutualityAttestationChild"]</div>
-            <p class="mb-1">@Localizer["Field.LastName"]: @Model.ChildLastName</p>
-            <p class="mb-1">@Localizer["Field.FirstName"]: @Model.ChildFirstName</p>
-            <p class="mb-0">@Localizer["Field.BirthDate"]: @Model.ChildBirthDate.ToString("dd-MM-yyyy")</p>
+        <div class="section-box p-0 d-flex">
+            <div class="flex-fill" style="padding: 1rem 1.25rem;">
+                <div class="section-title">2. @Localizer["Bookings.MutualityAttestationChild"]</div>
+                <p class="mb-1">@Localizer["Field.LastName"]: @Model.ChildLastName</p>
+                <p class="mb-1">@Localizer["Field.FirstName"]: @Model.ChildFirstName</p>
+                <p class="mb-0">@Localizer["Field.BirthDate"]: @Model.ChildBirthDate.ToString("dd-MM-yyyy")</p>
+            </div>
+            <div class="sticker-box w-50">@Localizer["Bookings.MutualityAttestationStickerHere"]</div>
         </div>
 
         <div class="section-box">
             <div class="section-title">3. @Localizer["Bookings.MutualityAttestationActivityInfo"]</div>
-            <p class="mb-1">@Localizer["Bookings.MutualityAttestationActivityName"]: @Model.ActivityName</p>
+            <p class="mb-1">@Localizer["Bookings.MutualityAttestationActivityName"]: @Model.ActivityName@(Model.WeeksLabel != null ? " – " + Model.WeeksLabel : "")</p>
             <p class="mb-1">@Localizer["Bookings.MutualityAttestationPeriod"]: @Model.ActivityStartDate.ToString("dd-MM-yyyy") - @Model.ActivityEndDate.ToString("dd-MM-yyyy")</p>
             <p class="mb-1">@Localizer["Bookings.MutualityAttestationDaysAttended"]: @Model.DaysAttended</p>
             <p class="mb-0">@Localizer["Bookings.MutualityAttestationAmountReceived"]: @Model.AmountPaid.ToString("C", new System.Globalization.CultureInfo("fr-BE"))</p>
@@ -73,7 +81,12 @@
         <div class="section-box">
             <div class="section-title">4. @Localizer["Bookings.MutualityAttestationStampAndSignature"]</div>
             <p class="mb-0">@Localizer["Bookings.MutualityAttestationIssuedOn"]: @Model.IssuedDate.ToString("dd-MM-yyyy")</p>
-            <div class="signature-zone"></div>
+            <div class="signature-zone">
+                @if (!string.IsNullOrEmpty(Model.ResponsibleSignatureUrl))
+                {
+                    <img src="@Model.ResponsibleSignatureUrl" alt="@Localizer["Field.ResponsibleSignature"]" class="signature-image" />
+                }
+            </div>
         </div>
     </div>
 </body>

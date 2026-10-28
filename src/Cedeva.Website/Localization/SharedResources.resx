@@ -4993,4 +4993,7 @@
   <data name="Financial.AttachmentRemove" xml:space="preserve">
     <value>Supprimer le justificatif</value>
   </data>
+  <data name="Bookings.MutualityAttestationStickerHere" xml:space="preserve">
+    <value>Apposer une vignette de mutuelle ici</value>
+  </data>
 </root>
