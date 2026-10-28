@@ -777,12 +777,21 @@ public class FinancialController : Controller
         var uncategorised = organisationLines.Where(e =>
             !(e.ExpenseCategoryId.HasValue && knownCategoryIds.Contains(e.ExpenseCategoryId.Value))
             && !(e.ExpenseCategoryId == null && e.Category != null && knownCategoryNames.Contains(e.Category))).ToList();
-        if (uncategorised.Any())
+        // Uncategorised lines land in the section matching their direction.
+        if (uncategorised.Any(e => e.IsIncome))
+        {
+            incomeSection.Add(new BalanceLineViewModel
+            {
+                Name = _ctx.Localizer["Financial.Uncategorized"].Value,
+                Incomings = uncategorised.Where(e => e.IsIncome).Sum(e => e.Amount),
+                IsFixed = true
+            });
+        }
+        if (uncategorised.Any(e => !e.IsIncome))
         {
             expenseSection.Add(new BalanceLineViewModel
             {
                 Name = _ctx.Localizer["Financial.Uncategorized"].Value,
-                Incomings = uncategorised.Where(e => e.IsIncome).Sum(e => e.Amount),
                 Outgoings = uncategorised.Where(e => !e.IsIncome).Sum(e => e.Amount),
                 IsFixed = true
             });

@@ -51,6 +51,7 @@
                         @{
                             var incomings = lines.Sum(l => l.Incomings);
                             var outgoings = lines.Sum(l => l.Outgoings);
+                            var hasBudget = lines.Any(l => l.Budget.HasValue);
                             var budget = lines.Where(l => l.Budget.HasValue).Sum(l => l.Budget!.Value);
                         }
                         <tr>
@@ -58,7 +59,7 @@
                             <th class="text-end text-success">@Euro(incomings)</th>
                             <th class="text-end text-danger">@Euro(outgoings)</th>
                             <th class="text-end @(incomings - outgoings < 0 ? "text-danger" : "text-success")">@Euro(incomings - outgoings)</th>
-                            <th class="text-end text-muted">@Euro(budgetIsOutflow ? -budget : budget)</th>
+                            <th class="text-end text-muted">@(hasBudget ? Euro(budgetIsOutflow ? -budget : budget) : "")</th>
                         </tr>
                     </tfoot>
                 </table>
