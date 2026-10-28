@@ -73,6 +73,24 @@ public class PrintGroupsViewModel
     public bool ShowSignature { get; set; }
 }
 
+/// <summary>One printable sheet per week: a row per child, a column per day of that week.</summary>
+public class PrintGroupsWeekViewModel
+{
+    public Activity Activity { get; set; } = null!;
+    public List<ActivityGroup> Groups { get; set; } = new();
+    public List<ActivityDay> Days { get; set; } = new();
+    public List<WeekRosterRow> Rows { get; set; } = new();
+    public bool ShowSignature { get; set; }
+}
+
+public class WeekRosterRow
+{
+    public string? ActivityGroupName { get; set; }
+    public string ChildFirstName { get; set; } = string.Empty;
+    public string ChildLastName { get; set; } = string.Empty;
+    public HashSet<int> ReservedDayIds { get; set; } = new();
+}
+
 /// <summary>Whole-period presence grid: one row per team member, one checkbox per activity day.</summary>
 public class TeamPresencesViewModel
 {

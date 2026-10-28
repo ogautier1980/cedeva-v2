@@ -1,0 +1,189 @@
+@model Cedeva.Website.Features.ActivityManagement.ViewModels.PrintGroupsWeekViewModel
+@{
+    Layout = null;
+    var culture = new System.Globalization.CultureInfo("fr-FR");
+    var columnCount = 1 + Model.Days.Count + (Model.ShowSignature ? 1 : 0);
+}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@Localizer["ActivityManagement.GroupsList"] - @Model.Activity.Name</title>
+    <style>
+        @@page {
+            size: A4 landscape;
+            margin: 1.5cm;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 11pt;
+            line-height: 1.4;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #333;
+            padding-bottom: 15px;
+        }
+
+        .header h1 {
+            margin: 0 0 10px 0;
+            font-size: 20pt;
+        }
+
+        .header p {
+            margin: 5px 0;
+            font-size: 12pt;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        table th {
+            background-color: #333;
+            color: white;
+            padding: 10px 5px;
+            text-align: center;
+            font-weight: bold;
+            border: 1px solid #333;
+        }
+
+        table th.name-col {
+            text-align: left;
+        }
+
+        table td {
+            padding: 8px 5px;
+            border: 1px solid #ddd;
+            text-align: center;
+        }
+
+        table td.name-col {
+            text-align: left;
+        }
+
+        /* Leave room to sign by hand. */
+        table tr.signature-row td {
+            height: 40px;
+        }
+
+        .group-row {
+            background-color: #eee;
+            font-weight: bold;
+            text-align: left !important;
+        }
+
+        /* A box only on the days the child is expected; the animator ticks it on paper. */
+        .checkbox-box {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            border: 1.5px solid #333;
+        }
+
+        .not-expected {
+            background-color: #f3f3f3;
+        }
+
+        @@media print {
+            .no-print {
+                display: none;
+            }
+
+            body {
+                print-color-adjust: exact;
+                -webkit-print-color-adjust: exact;
+            }
+        }
+
+        .print-button {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14pt;
+        }
+    </style>
+</head>
+<body>
+    <button onclick="window.print()" class="print-button no-print">
+        🖨️ @Localizer["Print"]
+    </button>
+
+    <div class="header">
+        @if (Model.Groups.Any())
+        {
+            <h1>@string.Join(", ", Model.Groups.Select(g => g.Label))</h1>
+        }
+        @if (Model.Days.Any())
+        {
+            <p>@Localizer["ActivityManagement.WeekOf", Model.Days.First().DayDate.ToString("dd/MM/yyyy"), Model.Days.Last().DayDate.ToString("dd/MM/yyyy")]</p>
+        }
+    </div>
+
+    @if (!Model.Rows.Any())
+    {
+        <p style="text-align: center; font-style: italic; color: #666;">
+            @Localizer["Presence.NoBookings"]
+        </p>
+    }
+    else
+    {
+        <table>
+            <thead>
+                <tr>
+                    <th scope="col" class="name-col">@Localizer["FullName"]</th>
+                    @foreach (var day in Model.Days)
+                    {
+                        <th scope="col">@day.DayDate.ToString("ddd dd/MM", culture)</th>
+                    }
+                    @if (Model.ShowSignature)
+                    {
+                        <th scope="col" style="width: 140px">@Localizer["ActivityManagement.Signature"]</th>
+                    }
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var group in Model.Rows.GroupBy(r => r.ActivityGroupName))
+                {
+                    <tr>
+                        <td colspan="@columnCount" class="group-row">@(group.Key ?? Localizer["Presence.None"].Value)</td>
+                    </tr>
+                    @foreach (var row in group)
+                    {
+                        <tr class="@(Model.ShowSignature ? "signature-row" : "")">
+                            <td class="name-col"><strong>@row.ChildFirstName @row.ChildLastName</strong></td>
+                            @foreach (var day in Model.Days)
+                            {
+                                if (row.ReservedDayIds.Contains(day.DayId))
+                                {
+                                    <td><span class="checkbox-box"></span></td>
+                                }
+                                else
+                                {
+                                    <td class="not-expected"></td>
+                                }
+                            }
+                            @if (Model.ShowSignature)
+                            {
+                                <td>&nbsp;</td>
+                            }
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    }
+</body>
+</html>

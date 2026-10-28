@@ -4935,4 +4935,10 @@
   <data name="Button.Add" xml:space="preserve">
     <value>Add</value>
   </data>
+  <data name="ActivityManagement.PrintWeek" xml:space="preserve">
+    <value>Print the week</value>
+  </data>
+  <data name="ActivityManagement.WeekOf" xml:space="preserve">
+    <value>Week from {0} to {1}</value>
+  </data>
 </root>

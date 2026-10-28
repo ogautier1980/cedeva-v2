@@ -1167,6 +1167,76 @@ public class ActivityManagementController : Controller
         return View(viewModel);
     }
 
+    // GET: ActivityManagement/PrintGroupsWeek — the whole week of the selected day on one sheet, so
+    // the groups are not re-printed every morning.
+    public async Task<IActionResult> PrintGroupsWeek(int activityId, List<int>? groupIds, int? dayId, bool showSignature = false)
+    {
+        var activity = await _context.Activities
+            .Include(a => a.Groups)
+            .Include(a => a.Days)
+            .Include(a => a.Bookings)
+                .ThenInclude(b => b.Child)
+            .Include(a => a.Bookings)
+                .ThenInclude(b => b.Group)
+            .Include(a => a.Bookings)
+                .ThenInclude(b => b.Days)
+            .FirstOrDefaultAsync(a => a.Id == activityId);
+
+        if (activity == null)
+            return NotFound();
+
+        var selectedDayId = SelectDefaultActivityDay(activity, dayId);
+        var selectedDay = activity.Days.FirstOrDefault(d => d.DayId == selectedDayId);
+        if (selectedDay == null)
+            return NotFound();
+
+        var weekDays = activity.Days
+            .Where(d => d.IsActive && IsSameWeek(d, selectedDay))
+            .OrderBy(d => d.DayDate)
+            .ToList();
+        var weekDayIds = weekDays.Select(d => d.DayId).ToHashSet();
+        groupIds ??= new List<int>();
+
+        var rows = activity.Bookings
+            .Where(b => b.IsConfirmed)
+            .Where(b => groupIds.Count == 0 || (b.GroupId.HasValue && groupIds.Contains(b.GroupId.Value)))
+            .Select(b => new WeekRosterRow
+            {
+                ActivityGroupName = b.Group?.Label,
+                ChildFirstName = b.Child.FirstName,
+                ChildLastName = b.Child.LastName,
+                ReservedDayIds = b.Days.Where(bd => bd.IsReserved && weekDayIds.Contains(bd.ActivityDayId))
+                    .Select(bd => bd.ActivityDayId).ToHashSet()
+            })
+            .Where(r => r.ReservedDayIds.Count > 0)
+            .OrderBy(r => r.ActivityGroupName)
+            .ThenBy(r => r.ChildLastName)
+            .ThenBy(r => r.ChildFirstName)
+            .ToList();
+
+        var viewModel = new PrintGroupsWeekViewModel
+        {
+            Activity = activity,
+            Groups = groupIds.Count > 0 ? activity.Groups.Where(g => groupIds.Contains(g.Id)).ToList() : new List<ActivityGroup>(),
+            Days = weekDays,
+            Rows = rows,
+            ShowSignature = showSignature
+        };
+
+        return View(viewModel);
+    }
+
+    /// <summary>Days share a week when they carry the same <see cref="ActivityDay.Week"/>, or — for
+    /// days without one — fall in the same Monday-to-Sunday calendar week.</summary>
+    private static bool IsSameWeek(ActivityDay day, ActivityDay reference)
+    {
+        if (reference.Week.HasValue)
+            return day.Week == reference.Week;
+
+        static DateTime Monday(DateTime d) => d.Date.AddDays(-(((int)d.DayOfWeek + 6) % 7));
+        return Monday(day.DayDate) == Monday(reference.DayDate);
+    }
+
     // GET: ActivityManagement/ExportGroupsExcel
     public async Task<IActionResult> ExportGroupsExcel(int activityId, List<int>? groupIds, int? dayId,
         bool showReserved = true, bool showPresent = true, bool showSignature = false)

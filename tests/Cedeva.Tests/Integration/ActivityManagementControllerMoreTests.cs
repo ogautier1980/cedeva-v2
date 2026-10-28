@@ -208,6 +208,46 @@ public class ActivityManagementControllerMoreTests
     }
 
     [Fact]
+    public async Task PrintGroupsWeek_ListsChildrenBookedThatWeekOnly_WithOneColumnPerDay()
+    {
+        using var factory = new CedevaWebApplicationFactory();
+        Organisation org = null!;
+        Activity activity = null!;
+        int tuesdayId = 0;
+        factory.Seed(ctx =>
+        {
+            org = TestData.Organisation();
+            activity = TestData.Activity(org, "Stage Semaine");
+            var tuesday = Day(activity, "Mardi", new DateTime(2026, 7, 7));
+            var wednesday = Day(activity, "Mercredi", new DateTime(2026, 7, 8));
+            var nextTuesday = Day(activity, "Mardi suivant", new DateTime(2026, 7, 14));
+            var parent = TestData.Parent(org);
+            var thisWeek = TestData.Child(parent);
+            thisWeek.LastName = "CetteSemaine";
+            var nextWeek = TestData.Child(parent);
+            nextWeek.LastName = "SemaineSuivante";
+            var b1 = TestData.Booking(thisWeek, activity, null, 40m, 0m);
+            var b2 = TestData.Booking(nextWeek, activity, null, 20m, 0m);
+            ctx.AddRange(org, activity, tuesday, wednesday, nextTuesday, parent, thisWeek, nextWeek, b1, b2,
+                new BookingDay { ActivityDay = wednesday, Booking = b1, IsReserved = true },
+                new BookingDay { ActivityDay = nextTuesday, Booking = b2, IsReserved = true });
+            ctx.SaveChanges();
+            tuesdayId = tuesday.DayId;
+            return 0;
+        });
+
+        var client = factory.CreateClientFor("u1", org.Id, "Coordinator");
+        var response = await client.GetAsync($"/ActivityManagement/PrintGroupsWeek?activityId={activity.Id}&dayId={tuesdayId}");
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var html = await response.Content.ReadAsStringAsync();
+        html.Should().Contain("CetteSemaine");
+        html.Should().NotContain("SemaineSuivante");
+        html.Should().Contain("07/07").And.Contain("08/07");
+        html.Should().NotContain("14/07");
+    }
+
+    [Fact]
     public async Task AddDropIn_ReservesAndMarksPresent_AndChargesOneDay()
     {
         using var factory = new CedevaWebApplicationFactory();
