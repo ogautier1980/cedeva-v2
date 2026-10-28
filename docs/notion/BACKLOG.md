@@ -75,41 +75,45 @@ catégorie.
 - « Attribué à » gardé tant que le lien au membre de l'équipe n'est pas déplacé (voir ci-dessous).
 - « Modifier » sur une excursion (question 5).
 
-**Plus gros chantiers, à faire :**
-- **Comptes — sens Entrée/Sortie sur une dépense** (migration) et formulaire façon démo : cases verte
-  « Recette » / rouge « Dépense » / numéro de ticket, « Payé par » Caisse/Compte, catégorie fermée,
-  justificatif joint. Le champ « Attribué à » porte aujourd'hui aussi le lien au membre de l'équipe
-  (remboursements / consommations) : à déplacer vers la fiche membre avant de le retirer.
-- **Comptes — page BILAN** par catégorie avec budget estimé ; catégories en 3 colonnes
-  (Entrées / Sorties / Hors bilan). Les `Payment` enfants n'ont pas de catégorie aujourd'hui.
-- **Présences — ajout d'un enfant « en dépannage »** pour un jour non réservé.
-- **Présences — vue « Semaine »** pour consulter/imprimer toute la semaine en une fois.
-- **Inscription publique au jour le jour** : aujourd'hui le parent ne peut cocher que des semaines
-  entières (seul le coordinateur peut décocher des jours avant confirmation). Nécessite un réglage
-  par activité + un choix de jours sur le formulaire public.
-- **Emails — parcours d'inscription** : les 3 envois existent (accusé au parent à l'envoi du
-  formulaire, notification au coordinateur, montant à payer à la confirmation), mais le modèle
-  « Confirmation d'inscription » envoyé à la soumission parle de confirmation, pas d'accusé de
-  réception ; et une confirmation avec solde nul n'envoie rien depuis `ManageBookings`.
+**Gros chantiers faits le 2026-10-28** (choix validés par le user, à faire confirmer par Thomas) :
+- **Comptes** : `Expense.IsIncome` (une ligne peut être une Recette) ; « Ajouter une transaction »
+  façon démo (case verte Recette / rouge Dépense, n° de ticket, « Payé par » Caisse / Compte,
+  catégorie fermée, explications). Remboursements/consommations de l'équipe : depuis la fiche membre.
+- **Catégories** en 3 colonnes Entrées / Sorties / Hors bilan avec budget.
+- **BILAN** (`Financial/Balance`, remplace le Rapport) : sections Entrées / Dépenses, colonnes
+  Entrées / Sorties / Bilan / Budget ; P.A.F. = tous les paiements d'inscription (catégorie fixe) ;
+  ligne « Défraiements de l'équipe » ; lignes Hors bilan exclues.
+- **Dépannage** : un enfant inscrit mais pas prévu ce jour-là est ajouté réservé + présent, et le
+  prix d'un jour est ajouté à son total.
+- **Imprimer la semaine** des groupes : une feuille, une colonne par jour, une case les jours réservés.
+- **Inscription au jour le jour** : réglage `Activity.AllowDayByDayRegistration` (étape Dates de
+  l'assistant) ; le formulaire public propose alors des jours au lieu de semaines.
+- **Emails d'inscription** : le modèle verrouillé envoyé à la soumission devient « Demande
+  d'inscription reçue » (sans montant) — migration qui ne réécrit que les modèles non personnalisés ;
+  la confirmation n'envoie que le lien de paiement (rien si rien à payer, y compris depuis
+  `Bookings/Edit`).
+- **Correctif** : date de naissance du formulaire public vide au lieu de 01/01/0001.
+
+**Reste à faire :**
 - **Emails — retirer « Type de modèle »** : impacte l'import/copie de modèles (un modèle par type)
   et le modèle par défaut des excursions — à repenser plutôt qu'à masquer.
-- **Équipe — salaires** : intégrer le détail des salaires dans la gestion de l'équipe.
+- **Comptes — justificatif joint** (fichier) sur une transaction, vu dans la démo.
+- **Comptes — catégories libres historiques** : des dépenses portent un texte de catégorie qui
+  n'existe pas dans les catégories de l'organisation ; elles tombent en « Sans catégorie » au BILAN.
+- **Comptes — « Attribué à »** encore présent sur `CreateExpense`/`EditExpense` (fiche membre).
 - **ONE — attestation fiscale** : attendre le modèle de PoM.
 
 **Questions ouvertes pour Thomas :**
-1. Moyens de paiement d'une transaction : « Caisse / Compte » (démo) ou « liquide / carte » (texte) ?
-   Garde-t-on le justificatif joint ?
-2. BILAN : paiements des enfants toujours dans P.A.F. ou catégorie au choix ? Budget par
-   organisation (actuel) ou par activité ? Les salaires de l'équipe y figurent-ils ?
-3. Si « Voir tout » disparaît de l'accueil, où placer Enfants, Parents, Modèles, Import ?
-4. Enfant en dépannage : seulement « présent », ou aussi réservé et facturé ?
-5. Excursion : un seul groupe ou plusieurs ? Montant facturé à la création de l'excursion ou à
+1. Budget des catégories par organisation (actuel) ou par activité ?
+2. Si « Voir tout » disparaît de l'accueil, où placer Enfants, Parents, Modèles, Import ?
+3. Excursion : un seul groupe ou plusieurs ? Montant facturé à la création de l'excursion ou à
    l'envoi du mail (actuel) ? « Modifier » est barré sur la capture : on retire l'édition ?
-6. Inscription au jour le jour : la veut-il comme réglage de l'activité ?
-7. Un bénévole avec un tarif journalier renseigné doit-il être payé 0 ? (aujourd'hui le calcul
+4. Un bénévole avec un tarif journalier renseigné doit-il être payé 0 ? (aujourd'hui le calcul
    ignore le statut)
-8. Compléments équipe : garder 2 types (remboursement / consommation) ou des catégories
+5. Compléments équipe : garder 2 types (remboursement / consommation) ou des catégories
    (Formation, Prime, Sandwich…) ?
+6. À confirmer : Caisse / Compte, P.A.F. fixe, dépannage facturé, inscription par jour en réglage
+   d'activité (choix faits sans lui).
 
 ## Lot A — Accueil & Navigation
 
