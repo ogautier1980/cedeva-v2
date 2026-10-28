@@ -19,6 +19,7 @@ public class FinancialController : Controller
     private readonly IExcelExportService _excelExportService;
     private readonly IFinancialCalculationService _financialCalculationService;
     private readonly ICedevaControllerContext<FinancialController> _ctx;
+    private readonly IStorageContext _storage;
 
     private const string SessionKeyActivityId = "Financial_ActivityId";
     private const string ActionIndex = "Index";
@@ -30,12 +31,14 @@ public class FinancialController : Controller
         CedevaDbContext context,
         IExcelExportService excelExportService,
         IFinancialCalculationService financialCalculationService,
-        ICedevaControllerContext<FinancialController> ctx)
+        ICedevaControllerContext<FinancialController> ctx,
+        IStorageContext storage)
     {
         _context = context;
         _excelExportService = excelExportService;
         _financialCalculationService = financialCalculationService;
         _ctx = ctx;
+        _storage = storage;
     }
 
     // POST: Financial/BeginFinancial
@@ -420,6 +423,7 @@ public class FinancialController : Controller
 
         _context.Expenses.Add(expense);
         await _context.SaveChangesAsync();
+        await SaveReceiptAsync(expense, viewModel.ReceiptFile);
 
         TempData[ControllerExtensions.SuccessMessageKey] = _ctx.Localizer["Message.ExpenseCreated"].Value;
         if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
@@ -456,6 +460,7 @@ public class FinancialController : Controller
             Description = expense.Description,
             Amount = expense.Amount,
             IsIncome = expense.IsIncome,
+            ReceiptUrl = expense.ReceiptUrl,
             Category = expense.Category,
             ExpenseDate = expense.ExpenseDate,
             ExpenseType = expense.ExpenseType,
@@ -525,7 +530,12 @@ public class FinancialController : Controller
             expense.ExpenseType = viewModel.ExpenseType ?? Core.Enums.ExpenseType.Reimbursement;
         }
 
+        if (viewModel.RemoveReceipt || viewModel.ReceiptFile != null)
+        {
+            await DeleteReceiptFileAsync(expense);
+        }
         await _context.SaveChangesAsync();
+        await SaveReceiptAsync(expense, viewModel.ReceiptFile);
 
         TempData[ControllerExtensions.SuccessMessageKey] = _ctx.Localizer["Message.ExpenseUpdated"].Value;
 
@@ -554,11 +564,77 @@ public class FinancialController : Controller
             return Forbid();
         }
 
+        await DeleteReceiptFileAsync(expense);
         _context.Expenses.Remove(expense);
         await _context.SaveChangesAsync();
 
         TempData[ControllerExtensions.SuccessMessageKey] = _ctx.Localizer["Message.ExpenseDeleted"].Value;
         return RedirectToAction(nameof(Transactions));
+    }
+
+    // GET: Financial/ViewReceipt/5 — the transaction's receipt, for a coordinator of its organisation.
+    public async Task<IActionResult> ViewReceipt(int id)
+    {
+        // Expenses have no tenancy filter of their own: the (filtered) Activities set scopes them.
+        var expense = await _context.Expenses
+            .FirstOrDefaultAsync(e => e.Id == id && _context.Activities.Any(a => a.Id == e.ActivityId));
+
+        if (expense == null || string.IsNullOrEmpty(expense.ReceiptUrl))
+        {
+            return NotFound();
+        }
+
+        if (!expense.ReceiptUrl.StartsWith("/uploads/"))
+        {
+            return NotFound();
+        }
+
+        var uploadsRoot = Path.GetFullPath(Path.Combine(_storage.WebHost.WebRootPath, "uploads"));
+        var filePath = Path.GetFullPath(Path.Combine(_storage.WebHost.WebRootPath, expense.ReceiptUrl.TrimStart('/')));
+        if (!filePath.StartsWith(uploadsRoot, StringComparison.OrdinalIgnoreCase) || !System.IO.File.Exists(filePath))
+        {
+            return NotFound();
+        }
+
+        var contentType = Path.GetExtension(filePath).ToLowerInvariant() switch
+        {
+            ".pdf" => "application/pdf",
+            ".jpg" or ".jpeg" => "image/jpeg",
+            ".png" => "image/png",
+            ".gif" => "image/gif",
+            _ => "application/octet-stream"
+        };
+        return PhysicalFile(filePath, contentType);
+    }
+
+    private async Task SaveReceiptAsync(Expense expense, IFormFile? file)
+    {
+        if (file == null)
+            return;
+
+        var organisationId = await _context.Activities.Where(a => a.Id == expense.ActivityId)
+            .Select(a => a.OrganisationId).FirstAsync();
+        var fileName = $"{Guid.NewGuid()}_{Path.GetFileName(file.FileName)}";
+        expense.ReceiptUrl = await _storage.Storage.UploadFileAsync(
+            file.OpenReadStream(), fileName, file.ContentType, $"{organisationId}/expense-receipts");
+        await _context.SaveChangesAsync();
+    }
+
+    private async Task DeleteReceiptFileAsync(Expense expense)
+    {
+        if (string.IsNullOrEmpty(expense.ReceiptUrl))
+            return;
+
+        try
+        {
+            await _storage.Storage.DeleteFileAsync(expense.ReceiptUrl);
+        }
+        catch (Exception ex)
+        {
+            // A missing file must not block removing the line itself.
+            _ctx.Logger.LogWarning(ex, "Could not delete receipt {ReceiptUrl} of expense {ExpenseId}", expense.ReceiptUrl, expense.Id);
+        }
+        expense.ReceiptUrl = null;
     }
 
     // GET: Financial/ExportExpenses
@@ -673,6 +749,7 @@ public class FinancialController : Controller
             AssignedTo = GetExpenseAssignedToLabel(e),
             Amount = e.Amount,
             IsIncome = e.IsIncome,
+            HasReceipt = !string.IsNullOrEmpty(e.ReceiptUrl),
             IsOffBalance = e.ExpenseCategory?.CategoryType == ExpenseCategoryType.OffBalance,
             RelatedId = e.Id,
             ExcursionName = e.Excursion?.Name

@@ -71,4 +71,8 @@ public class Expense : AuditableEntity
     public Excursion? Excursion { get; set; }
 
     public DateTime ExpenseDate { get; set; }
+
+    /// <summary>Justificatif (ticket de caisse, facture) — chemin du fichier stocké, null si aucun.</summary>
+    [StringLength(500, ErrorMessage = "Validation.StringLength")]
+    public string? ReceiptUrl { get; set; }
 }

@@ -23,6 +23,9 @@ public class TransactionViewModel
     public bool IsIncome { get; set; }
     /// <summary>Internal transfer (e.g. cash-to-bank) — excluded from the Entrées/Sorties totals.</summary>
     public bool IsOffBalance { get; set; }
+
+    /// <summary>A receipt file is attached (Financial/ViewReceipt).</summary>
+    public bool HasReceipt { get; set; }
     public string? PaymentMethod { get; set; } // Pour les paiements
     public string? ChildName { get; set; } // Pour les paiements
     public int? RelatedId { get; set; } // PaymentId ou ExpenseId

@@ -117,7 +117,16 @@
                                             </span>
                                         }
                                     </td>
-                                    <td>@transaction.Label</td>
+                                    <td>
+                                        @transaction.Label
+                                        @if (transaction.HasReceipt)
+                                        {
+                                            <a asp-action="ViewReceipt" asp-route-id="@transaction.RelatedId" target="_blank"
+                                               class="ms-1 text-decoration-none" title="@Localizer["Financial.AttachmentView"]">
+                                                <i class="fas fa-paperclip"></i>
+                                            </a>
+                                        }
+                                    </td>
                                     <td>
                                         @* A Recette entered as a transaction shows its category like any other line. *@
                                         @if (transaction.Type == "Payment")

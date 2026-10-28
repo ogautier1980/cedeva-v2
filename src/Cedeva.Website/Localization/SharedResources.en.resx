@@ -4959,4 +4959,16 @@
   <data name="Email.AllWeeks" xml:space="preserve">
     <value>All weeks</value>
   </data>
+  <data name="Financial.Attachment" xml:space="preserve">
+    <value>Receipt</value>
+  </data>
+  <data name="Financial.AttachmentHelp" xml:space="preserve">
+    <value>Till receipt or invoice (PDF or image, 10 MB max).</value>
+  </data>
+  <data name="Financial.AttachmentView" xml:space="preserve">
+    <value>View receipt</value>
+  </data>
+  <data name="Financial.AttachmentRemove" xml:space="preserve">
+    <value>Remove receipt</value>
+  </data>
 </root>

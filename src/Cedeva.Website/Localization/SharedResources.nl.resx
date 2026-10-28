@@ -4959,4 +4959,16 @@
   <data name="Email.AllWeeks" xml:space="preserve">
     <value>Alle weken</value>
   </data>
+  <data name="Financial.Attachment" xml:space="preserve">
+    <value>Bewijsstuk</value>
+  </data>
+  <data name="Financial.AttachmentHelp" xml:space="preserve">
+    <value>Kasticket of factuur (PDF of afbeelding, max. 10 MB).</value>
+  </data>
+  <data name="Financial.AttachmentView" xml:space="preserve">
+    <value>Bewijsstuk bekijken</value>
+  </data>
+  <data name="Financial.AttachmentRemove" xml:space="preserve">
+    <value>Bewijsstuk verwijderen</value>
+  </data>
 </root>

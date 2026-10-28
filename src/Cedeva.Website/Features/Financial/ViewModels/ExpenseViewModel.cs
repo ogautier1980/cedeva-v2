@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using Cedeva.Core.Enums;
+using Cedeva.Website.Validation;
 
 namespace Cedeva.Website.Features.Financial.ViewModels;
 
@@ -46,4 +47,14 @@ public class ExpenseViewModel
     public DateTime ExpenseDate { get; set; }
 
     public int ActivityId { get; set; }
+
+    [Display(Name = "Financial.Attachment")]
+    [AllowedExtensions(".jpg", ".jpeg", ".png", ".gif", ".pdf")]
+    [MaxFileSize(10 * 1024 * 1024)]
+    public IFormFile? ReceiptFile { get; set; }
+
+    /// <summary>Existing receipt, shown on the edit form.</summary>
+    public string? ReceiptUrl { get; set; }
+
+    public bool RemoveReceipt { get; set; }
 }

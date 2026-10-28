@@ -4,6 +4,7 @@ using Cedeva.Core.Enums;
 using Cedeva.Tests.TestSupport;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Cedeva.Tests.Integration;
 
@@ -539,6 +540,114 @@ public class FinancialControllerCoverageTests
 
         var html = await (await client.GetAsync("/Financial/Transactions")).Content.ReadAsStringAsync();
         html.Should().Contain("+250,50");
+    }
+
+    /// <summary>Records uploads/deletes instead of writing under wwwroot/uploads.</summary>
+    private sealed class FakeStorageService : Cedeva.Core.Interfaces.IStorageService
+    {
+        public List<string> Uploaded { get; } = new();
+        public List<string> Deleted { get; } = new();
+
+        public Task<string> UploadFileAsync(Stream fileStream, string fileName, string contentType, string containerPath)
+        {
+            var path = $"/uploads/{containerPath}/{fileName}";
+            Uploaded.Add(path);
+            return Task.FromResult(path);
+        }
+
+        public Task<Stream?> DownloadFileAsync(string filePath) => Task.FromResult<Stream?>(null);
+
+        public Task DeleteFileAsync(string filePath)
+        {
+            Deleted.Add(filePath);
+            return Task.CompletedTask;
+        }
+
+        public string GetFileUrl(string filePath) => filePath;
+    }
+
+    private static CedevaWebApplicationFactory FactoryWithFakeStorage(FakeStorageService storage) => new()
+    {
+        ConfigureExtraTestServices = services =>
+            services.AddScoped<Cedeva.Core.Interfaces.IStorageService>(_ => storage)
+    };
+
+    [Fact]
+    public async Task CreateExpense_Post_WithReceipt_StoresItUnderTheOrganisation()
+    {
+        var storage = new FakeStorageService();
+        using var factory = FactoryWithFakeStorage(storage);
+        var g = SeedFullGraph(factory);
+        var client = await ClientWithActivitySelected(factory, g.OrgId, g.ActivityId);
+
+        var form = new MultipartFormDataContent
+        {
+            { new StringContent("Achat avec ticket"), "Label" },
+            { new StringContent("12"), "Amount" },
+            { new StringContent("OrganizationCash"), "AssignedTo" },
+            { new StringContent("2026-07-01"), "ExpenseDate" },
+            { new StringContent(g.ActivityId.ToString()), "ActivityId" }
+        };
+        var file = new ByteArrayContent(new byte[] { 0x25, 0x50, 0x44, 0x46 }); // "%PDF"
+        file.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/pdf");
+        form.Add(file, "ReceiptFile", "ticket.pdf");
+
+        var response = await client.PostAsync("/Financial/CreateExpense", form);
+
+        response.StatusCode.Should().Be(HttpStatusCode.Found);
+        storage.Uploaded.Should().ContainSingle().Which.Should().StartWith($"/uploads/{g.OrgId}/expense-receipts/");
+        await using var ctx = factory.NewDbContext();
+        var created = await ctx.Expenses.IgnoreQueryFilters().SingleAsync(e => e.Label == "Achat avec ticket");
+        created.ReceiptUrl.Should().Be(storage.Uploaded.Single());
+    }
+
+    [Fact]
+    public async Task EditExpense_Post_RemoveReceipt_DeletesTheFile()
+    {
+        var storage = new FakeStorageService();
+        using var factory = FactoryWithFakeStorage(storage);
+        var g = SeedFullGraph(factory);
+        await using (var seedCtx = factory.NewDbContext())
+        {
+            var expense = await seedCtx.Expenses.IgnoreQueryFilters().SingleAsync(e => e.Id == g.ExpenseId);
+            expense.ReceiptUrl = "/uploads/1/expense-receipts/old.pdf";
+            await seedCtx.SaveChangesAsync();
+        }
+        var client = await ClientWithActivitySelected(factory, g.OrgId, g.ActivityId);
+
+        var response = await client.PostAsync($"/Financial/EditExpense/{g.ExpenseId}", new FormUrlEncodedContent(new Dictionary<string, string>
+        {
+            ["Id"] = g.ExpenseId.ToString(),
+            ["Label"] = "Materiel",
+            ["Amount"] = "10",
+            ["AssignedTo"] = "OrganizationCard",
+            ["ExpenseDate"] = "2026-07-01",
+            ["ActivityId"] = g.ActivityId.ToString(),
+            ["RemoveReceipt"] = "true"
+        }));
+
+        response.StatusCode.Should().Be(HttpStatusCode.Found);
+        storage.Deleted.Should().ContainSingle("/uploads/1/expense-receipts/old.pdf");
+        await using var ctx = factory.NewDbContext();
+        (await ctx.Expenses.IgnoreQueryFilters().SingleAsync(e => e.Id == g.ExpenseId)).ReceiptUrl.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task ViewReceipt_OfAnotherOrganisation_ReturnsNotFound()
+    {
+        using var factory = new CedevaWebApplicationFactory();
+        var g = SeedFullGraph(factory);
+        await using (var seedCtx = factory.NewDbContext())
+        {
+            var expense = await seedCtx.Expenses.IgnoreQueryFilters().SingleAsync(e => e.Id == g.ExpenseId);
+            expense.ReceiptUrl = "/uploads/1/expense-receipts/secret.pdf";
+            await seedCtx.SaveChangesAsync();
+        }
+        var client = factory.CreateClientFor("intruder", g.OrgId + 999, "Coordinator");
+
+        var response = await client.GetAsync($"/Financial/ViewReceipt/{g.ExpenseId}");
+
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 
     [Fact]

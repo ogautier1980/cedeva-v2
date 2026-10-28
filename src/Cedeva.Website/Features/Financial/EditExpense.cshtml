@@ -19,7 +19,7 @@
                     </h5>
                 </div>
                 <div class="card-body">
-                    <form asp-action="EditExpense" asp-route-id="@Model.Id" method="post">
+                    <form asp-action="EditExpense" asp-route-id="@Model.Id" method="post" enctype="multipart/form-data">
                         @Html.AntiForgeryToken()
                         <input type="hidden" asp-for="Id" />
                         <input type="hidden" asp-for="ActivityId" />
@@ -105,6 +105,25 @@
                             <small class="form-text text-muted">@Localizer["Expense.ExpenseTypeHelp"]</small>
                         </div>
 
+                        <div class="mb-3">
+                            <label for="ReceiptFile" class="form-label">@Localizer["Financial.Attachment"]</label>
+                            @if (!string.IsNullOrEmpty(Model.ReceiptUrl))
+                            {
+                                <div class="d-flex align-items-center gap-3 mb-2">
+                                    <a asp-action="ViewReceipt" asp-route-id="@Model.Id" target="_blank" class="btn btn-sm btn-outline-primary">
+                                        <i class="fas fa-paperclip me-1"></i>@Localizer["Financial.AttachmentView"]
+                                    </a>
+                                    <div class="form-check">
+                                        <input type="checkbox" asp-for="RemoveReceipt" class="form-check-input" />
+                                        <label asp-for="RemoveReceipt" class="form-check-label">@Localizer["Financial.AttachmentRemove"]</label>
+                                    </div>
+                                </div>
+                            }
+                            <input asp-for="ReceiptFile" type="file" class="form-control" accept="image/*,.pdf" />
+                            <div class="form-text">@Localizer["Financial.AttachmentHelp"]</div>
+                            <span asp-validation-for="ReceiptFile" class="text-danger"></span>
+                        </div>
+
                         <div class="d-flex justify-content-between mt-4">
                             @{
                                 var returnUrl = ViewData["ReturnUrl"]?.ToString();
@@ -132,7 +151,7 @@
         });
 
         function updateExpenseTypeVisibility() {
-            const value = document.getElementById('assignedToSelect').value;
+            const value = document.getElementById('AssignedTo').value;
             const expenseTypeDiv = document.getElementById('expenseTypeDiv');
 
             // Show ExpenseType only if a team member is selected (numeric value)
@@ -143,7 +162,7 @@
             }
         }
 
-        document.getElementById('assignedToSelect').addEventListener('change', updateExpenseTypeVisibility);
+        document.getElementById('AssignedTo').addEventListener('change', updateExpenseTypeVisibility);
 
         // Run on page load
         updateExpenseTypeVisibility();

@@ -4981,4 +4981,16 @@
   <data name="Email.AllWeeks" xml:space="preserve">
     <value>Toutes les semaines</value>
   </data>
+  <data name="Financial.Attachment" xml:space="preserve">
+    <value>Justificatif</value>
+  </data>
+  <data name="Financial.AttachmentHelp" xml:space="preserve">
+    <value>Ticket de caisse ou facture (PDF ou image, 10 Mo max).</value>
+  </data>
+  <data name="Financial.AttachmentView" xml:space="preserve">
+    <value>Voir le justificatif</value>
+  </data>
+  <data name="Financial.AttachmentRemove" xml:space="preserve">
+    <value>Supprimer le justificatif</value>
+  </data>
 </root>
