@@ -70,6 +70,29 @@ public class StripePaymentGatewayTests
     }
 
     [Fact]
+    public async Task ParseWebhookAsync_EventFromAnOlderApiVersion_IsAccepted()
+    {
+        // Stripe.net pins an API version and, by default, rejects events of any other version.
+        // A webhook endpoint still on an older version must keep recording payments.
+        const string secret = "whsec_test_version";
+        var payload = """
+            {"id":"evt_old","object":"event","api_version":"2024-06-20","type":"checkout.session.completed",
+             "data":{"object":{"id":"cs_test_1","object":"checkout.session","payment_status":"paid",
+             "amount_total":2550,"currency":"eur","client_reference_id":"42","metadata":{"bookingId":"42"}}}}
+            """;
+        var timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+        using var hmac = new System.Security.Cryptography.HMACSHA256(System.Text.Encoding.UTF8.GetBytes(secret));
+        var signature = Convert.ToHexString(hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes($"{timestamp}.{payload}"))).ToLowerInvariant();
+
+        var result = await BuildGateway(webhookSecret: secret).ParseWebhookAsync(payload, $"t={timestamp},v1={signature}");
+
+        result.Should().NotBeNull();
+        result!.IsPaid.Should().BeTrue();
+        result.BookingId.Should().Be(42);
+        result.AmountPaid.Should().Be(25.50m);
+    }
+
+    [Fact]
     public async Task CreateCheckoutAsync_EmptySecretKey_ThrowsInvalidOperationException()
     {
         var sut = BuildGateway(secretKey: string.Empty);

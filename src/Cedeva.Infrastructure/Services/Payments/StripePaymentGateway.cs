@@ -39,7 +39,8 @@ public class StripePaymentGateway : IPaymentGateway
         var sessionOptions = new SessionCreateOptions
         {
             Mode = "payment",
-            PaymentMethodTypes = ["card", "bancontact"],
+            // Stripe.net 53 replaced PaymentMethodTypes with AllowedPaymentMethodTypes.
+            AllowedPaymentMethodTypes = ["card", "bancontact"],
             SuccessUrl = request.SuccessUrl,
             CancelUrl = request.CancelUrl,
             CustomerEmail = string.IsNullOrWhiteSpace(request.CustomerEmail) ? null : request.CustomerEmail,
@@ -73,7 +74,11 @@ public class StripePaymentGateway : IPaymentGateway
         Event stripeEvent;
         try
         {
-            stripeEvent = EventUtility.ConstructEvent(requestBody, signatureHeader, _options.WebhookSecret);
+            // The signature is still verified. The API-version check is off: the webhook endpoint may
+            // be on an older version than the one this SDK pins, and every field read below
+            // (type, payment status, amount, currency, metadata, client reference) is stable.
+            stripeEvent = EventUtility.ConstructEvent(requestBody, signatureHeader, _options.WebhookSecret,
+                throwOnApiVersionMismatch: false);
         }
         catch (StripeException ex)
         {
