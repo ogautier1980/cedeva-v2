@@ -244,7 +244,7 @@ public class ActivitiesController : Controller
         }
 
         var targetOrganisationId = _currentUserService.IsAdmin ? viewModel.OrganisationId : organisationId!.Value;
-        if (await ActivityNameExistsAsync(targetOrganisationId, viewModel.Name))
+        if (await _context.Activities.NameExistsInOrganisationAsync(targetOrganisationId, viewModel.Name))
         {
             ModelState.AddModelError(nameof(viewModel.Name), _localizer["Validation.ActivityNameAlreadyExists"]);
             await ReloadOrganisationsForAdmin();
@@ -281,22 +281,6 @@ public class ActivitiesController : Controller
             activity.Name, _currentUserService.UserId, viewModel.NewGroups?.Count ?? 0, viewModel.NewQuestions?.Count ?? 0);
 
         return this.RedirectToIndexWithSuccess(_localizer["Message.ActivityCreated"].Value);
-    }
-
-    // Case-insensitive, trimmed uniqueness check scoped to one organisation (a name can be reused
-    // across different organisations without issue), excluding the activity being edited if any.
-    private async Task<bool> ActivityNameExistsAsync(int organisationId, string name, int excludeActivityId = 0)
-    {
-        var trimmedLower = name.Trim().ToLowerInvariant();
-        return await _context.Activities
-            .IgnoreQueryFilters()
-            // CA1862's string.Equals(..., OrdinalIgnoreCase) has no SQL translation in EF Core;
-            // ToLower() becomes lower() on both PostgreSQL and SQLite.
-#pragma warning disable CA1862
-            .AnyAsync(a => a.OrganisationId == organisationId
-                && a.Id != excludeActivityId
-                && a.Name.ToLower() == trimmedLower);
-#pragma warning restore CA1862
     }
 
     private async Task ReloadOrganisationsForAdmin()
@@ -551,7 +535,7 @@ public class ActivitiesController : Controller
             return NotFound();
         }
 
-        if (await ActivityNameExistsAsync(activity.OrganisationId, viewModel.Name, activity.Id))
+        if (await _context.Activities.NameExistsInOrganisationAsync(activity.OrganisationId, viewModel.Name, activity.Id))
         {
             ModelState.AddModelError(nameof(viewModel.Name), _localizer["Validation.ActivityNameAlreadyExists"]);
             return View(viewModel);
