@@ -29,6 +29,14 @@ updates:
       # open-source. Cedeva is commercial, so block the jump past the last free major.
       - dependency-name: "FluentAssertions"
         versions: [">=8"]
+      # Majors of these follow the .NET release (11.0.0 needs net11.0): moving to a new .NET is a
+      # deliberate migration (TFM, SDK, Docker images, CI), not a Dependabot bump. .NET 10 is LTS.
+      - dependency-name: "Microsoft.AspNetCore.*"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "Microsoft.EntityFrameworkCore.*"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "Microsoft.Extensions.*"
+        update-types: ["version-update:semver-major"]
 
   - package-ecosystem: "github-actions"
     directory: "/"
