@@ -108,8 +108,10 @@ catégorie.
 **Questions ouvertes pour Thomas :**
 1. Budget des catégories par organisation (actuel) ou par activité ?
 2. Si « Voir tout » disparaît de l'accueil, où placer Enfants, Parents, Modèles, Import ?
-3. Excursion : un seul groupe ou plusieurs ? Montant facturé à la création de l'excursion ou à
-   l'envoi du mail (actuel) ? « Modifier » est barré sur la capture : on retire l'édition ?
+3. Excursion : montant facturé à la création de l'excursion ou à l'envoi du mail (actuel) ?
+   « Modifier » est barré sur la capture : on retire l'édition ? (Plusieurs groupes ciblés restent
+   possibles : « un groupe précis » dans le texte n'est pas une restriction, la ligne « Groupes
+   ciblés » n'est pas barrée sur la capture 14.)
 4. Un bénévole avec un tarif journalier renseigné doit-il être payé 0 ? (aujourd'hui le calcul
    ignore le statut)
 5. Compléments équipe : garder 2 types (remboursement / consommation) ou des catégories
