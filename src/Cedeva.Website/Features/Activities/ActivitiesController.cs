@@ -290,9 +290,13 @@ public class ActivitiesController : Controller
         var trimmedLower = name.Trim().ToLowerInvariant();
         return await _context.Activities
             .IgnoreQueryFilters()
+            // CA1862's string.Equals(..., OrdinalIgnoreCase) has no SQL translation in EF Core;
+            // ToLower() becomes lower() on both PostgreSQL and SQLite.
+#pragma warning disable CA1862
             .AnyAsync(a => a.OrganisationId == organisationId
                 && a.Id != excludeActivityId
                 && a.Name.ToLower() == trimmedLower);
+#pragma warning restore CA1862
     }
 
     private async Task ReloadOrganisationsForAdmin()

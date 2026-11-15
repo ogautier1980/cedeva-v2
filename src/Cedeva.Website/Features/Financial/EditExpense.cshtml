@@ -72,7 +72,7 @@
                             @{
                                 var categoryOptions = (ViewBag.ExpenseCategories as List<string>) ?? new List<string>();
                                 // A legacy free-text category stays selectable on edit even if it is not in the list.
-                                if (!string.IsNullOrEmpty(Model?.Category) && !categoryOptions.Contains(Model.Category))
+                                if (!string.IsNullOrEmpty(Model.Category) && !categoryOptions.Contains(Model.Category))
                                 {
                                     categoryOptions = categoryOptions.Append(Model.Category).ToList();
                                 }

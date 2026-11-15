@@ -43,7 +43,6 @@ public class RegistrationIframeScenariosE2ETests
                     new ActivityDay { Label = "J2", DayDate = start.AddDays(1), Week = 1, IsActive = true },
                 }
             };
-            int questionId = 0;
             if (withQuestion)
             {
                 var q = new ActivityQuestion
