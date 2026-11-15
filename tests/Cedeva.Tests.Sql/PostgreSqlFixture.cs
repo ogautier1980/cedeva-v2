@@ -30,7 +30,7 @@ public sealed class PostgreSqlFixture : IAsyncLifetime
                 .Options,
             new StubCurrentUser());
 
-    public async Task InitializeAsync()
+    public async ValueTask InitializeAsync()
     {
         await _container.StartAsync();
         await using var ctx = NewContext();
@@ -38,7 +38,7 @@ public sealed class PostgreSqlFixture : IAsyncLifetime
         await ctx.Database.MigrateAsync();
     }
 
-    public async Task DisposeAsync() => await _container.DisposeAsync();
+    public async ValueTask DisposeAsync() => await _container.DisposeAsync();
 
     private sealed class StubCurrentUser : ICurrentUserService
     {

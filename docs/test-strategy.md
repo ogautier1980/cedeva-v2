@@ -40,7 +40,9 @@ dédiés qui **ne bloquent pas** le déploiement.
   `ValidNationalRegisterNumberAttribute`, validations DataAnnotations des ViewModels,
   `BookingPaymentService`, `StripePaymentGateway` (parsing webhook), `CurrentUserService`,
   `SessionStateService`/`SessionExtensions`, `ControllerExtensions`, services d'export Excel/PDF.
-- **Outils :** xUnit + FluentAssertions (6.12.2) + NSubstitute. Culture figée en Invariant là où le
+- **Outils :** xUnit v3 (`xunit.v3.mtp-off` : reste sur le runner VSTest, dont dépend le seuil de
+  couverture coverlet.msbuild ; l'analyseur xUnit1051 est désactivé) + FluentAssertions 7 (la v8 est
+  payante) + NSubstitute. Culture figée en Invariant là où le
   formatage en dépend.
 
 ### 2. Tests d'intégration services (EF Core SQLite in-memory)

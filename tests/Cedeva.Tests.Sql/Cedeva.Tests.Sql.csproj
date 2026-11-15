@@ -2,6 +2,13 @@
 
   <PropertyGroup>
     <IsPackable>false</IsPackable>
+    <!-- xunit.v3 test projects are executables. The "mtp-off" flavour keeps the VSTest runner
+         (xunit.runner.visualstudio): the .NET 10 SDK refuses Microsoft.Testing.Platform under
+         VSTest-mode dotnet test, and the CI coverage gate relies on coverlet.msbuild. -->
+    <OutputType>Exe</OutputType>
+    <!-- xUnit1051 asks for TestContext.Current.CancellationToken on every async call (3000+
+         sites); these tests are short-lived and never cancelled, so it is noise here. -->
+    <NoWarn>$(NoWarn);xUnit1051</NoWarn>
     <!-- Integration tests against a real PostgreSQL (Testcontainers + Docker). Slower than the
          SQLite suite and Docker-dependent, so they run in a dedicated CI job, not the deploy gate.
          They catch behaviour SQLite masks (ILIKE case-insensitivity, LINQ translation). -->
@@ -12,7 +19,7 @@
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.3" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.12.0" />
     <PackageReference Include="Testcontainers.PostgreSql" Version="4.16.0" />
-    <PackageReference Include="xunit" Version="2.9.3" />
+    <PackageReference Include="xunit.v3.mtp-off" Version="4.0.3" />
     <PackageReference Include="xunit.runner.visualstudio" Version="4.0.1" />
   </ItemGroup>
 

@@ -17,7 +17,7 @@ public sealed class PlaywrightFixture : IAsyncLifetime
     public int OrganisationId => Factory.OrganisationId;
     public string BaseUrl => Factory.ServerAddress.TrimEnd('/');
 
-    public async Task InitializeAsync()
+    public async ValueTask InitializeAsync()
     {
         Factory = new PlaywrightAppFactory();
         Factory.SeedData();
@@ -37,7 +37,7 @@ public sealed class PlaywrightFixture : IAsyncLifetime
             }
         });
 
-    public async Task DisposeAsync()
+    public async ValueTask DisposeAsync()
     {
         if (Browser is not null) await Browser.DisposeAsync();
         Playwright?.Dispose();
