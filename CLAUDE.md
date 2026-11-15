@@ -72,6 +72,8 @@ src/
 - **Repository + UoW:** `IRepository<T>` with `IUnitOfWork`
 - **Localisation:** `@Localizer["Key"]` everywhere. Cookie-based FR/NL/EN. **Do NOT set ResourcesPath** (ASP.NET bug).
   - **Validation messages:** DataAnnotations `ErrorMessage` must be a **resx key** (`Validation.*`, e.g. `Validation.Required`, `Validation.InvalidEmail`), never a literal — `AddDataAnnotationsLocalization` resolves it via SharedResources. Never leave a validation attribute without `ErrorMessage` (it falls back to the English framework default).
+  - **Cross-field rules** (e.g. end date ≥ start date) are checked in the controller with
+    `ModelState.AddModelError(field, _localizer[...])` — there is no FluentValidation (removed).
   - **Identity errors** (password policy, duplicate email…) are localized by `LocalizedIdentityErrorDescriber` (keys `Identity.*`). Controller error strings go through `_localizer`, never hardcoded.
 - **TempData alerts:** Standardized keys: `SuccessMessage` / `ErrorMessage` / `WarningMessage`. Use `@await Html.PartialAsync("Shared/_AlertMessages")`.
 - **DI:** Autofac. Services registered in `Program.cs`.
@@ -129,6 +131,10 @@ src/
 - "Pay online" button on the public confirmation page (amount = remaining due)
 - Secrets via config `Stripe:SecretKey` / `Stripe:WebhookSecret` / `Mollie:ApiKey` (VPS `.env` as
   `Stripe__*` / `Mollie__*`) — never committed
+- Stripe webhook: `EventUtility.ConstructEvent(..., throwOnApiVersionMismatch: false)`. Each Stripe.net
+  major pins one API version and by default rejects events of any other version — after a bump, an
+  endpoint left on an older version would silently stop recording payments. Keep the flag (the
+  signature is still verified; only version-stable fields are read)
 - See [docs/adr/0010](docs/adr/0010-online-payments-provider-agnostic-stripe.md)
 
 ### Activity Management
@@ -177,8 +183,13 @@ src/
 - Color pickers for iframe customization
 - Clean URLs (route parameters vs query strings)
 
-## Testing (October 2026)
-- **~1384 unit/integration tests** (+ 64 E2E browser, 0 skipped; + 3 PostgreSQL); CI coverage gate at 85%.
+## Testing (November 2026)
+- **~1387 unit/integration tests** (+ 64 E2E browser, 0 skipped; + 3 PostgreSQL); line coverage ≈91%,
+  CI coverage gate at 85%.
+- **xUnit v3 via `xunit.v3.mtp-off`** (not plain `xunit.v3`): plain v3 turns on Microsoft.Testing.Platform,
+  which the .NET 10 SDK refuses under VSTest-mode `dotnet test`, and the CI gate relies on
+  `coverlet.msbuild` (VSTest). Fixtures implement `IAsyncLifetime` with `ValueTask`. xUnit1051
+  (CancellationToken on every async call) is disabled in the 3 test csproj.
 - `CedevaWebApplicationFactory` disables config-file watching: on the Linux CI runner each watched
   test host costs an inotify instance (limit 128) and the suite starts hundreds of hosts — without it,
   startup fails with "entry point exited without ever building an IHost".
@@ -187,6 +198,16 @@ src/
   (Playwright + Chromium). E2E and SQL run in dedicated CI workflows that do **not** gate deploy.
 - Full guide + test-authoring gotchas: [docs/test-strategy.md](docs/test-strategy.md) and
   [docs/adr/0011](docs/adr/0011-test-layers-e2e-and-db-fidelity.md).
+
+## Dependencies (Dependabot)
+- Weekly NuGet + GitHub Actions; up to 10 open NuGet PRs (at 5, unmerged PRs blocked every new update
+  for two months). Groups: `testing` (xunit*, FluentAssertions, NSubstitute, Playwright, Test.Sdk,
+  coverlet, Testcontainers) and `microsoft` (Microsoft.* / System.*, test packages excluded via
+  `exclude-patterns` — group order alone does not decide where a package lands).
+- Blocked on purpose: FluentAssertions ≥ 8 (paid licence), and **major** versions of
+  `Microsoft.AspNetCore.*` / `EntityFrameworkCore.*` / `Extensions.*` (11.0.0 requires net11.0 — moving
+  off .NET 10 LTS is a deliberate migration: TFM, SDK, Docker images, CI).
+- PR checks only run E2E + SQL: run `dotnet test tests/Cedeva.Tests` on the PR branch before merging.
 
 ---
 
