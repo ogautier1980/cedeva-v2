@@ -93,6 +93,8 @@ src/
 | ResourcesPath in Program.cs | Do NOT set it. Bug: https://github.com/aspnet/Localization/issues/268 |
 | LINQ with local lists | Extract IDs first: `var ids = list.Select(x => x.Id).ToList()` then use `ids.Contains(...)` |
 | National Register Number | Format: YY.MM.DD-XXX.XX (11 digits with formatting). Use `NationalRegisterNumberHelper.Format()` for display. |
+| Case-insensitive name match in EF | `a.Name.ToLower() == x.ToLowerInvariant()` (`string.Equals(..., OrdinalIgnoreCase)` has no SQL translation — CA1862 is suppressed locally with that reason). Activity names: `_context.Activities.NameExistsInOrganisationAsync(...)` (`ActivityQueryExtensions`) |
+| SQLite `lower()` in tests | Folds ASCII only ("É" stays "É"); PostgreSQL folds accents too. Use ASCII names in SQLite tests of case-insensitive queries |
 
 ---
 
@@ -184,7 +186,7 @@ src/
 - Clean URLs (route parameters vs query strings)
 
 ## Testing (November 2026)
-- **~1387 unit/integration tests** (+ 64 E2E browser, 0 skipped; + 3 PostgreSQL); line coverage ≈91%,
+- **~1393 unit/integration tests** (+ 64 E2E browser, 0 skipped; + 3 PostgreSQL); line coverage ≈91%,
   CI coverage gate at 85%.
 - **xUnit v3 via `xunit.v3.mtp-off`** (not plain `xunit.v3`): plain v3 turns on Microsoft.Testing.Platform,
   which the .NET 10 SDK refuses under VSTest-mode `dotnet test`, and the CI gate relies on
@@ -307,6 +309,9 @@ src/
 ## Troubleshooting
 
 ### Build warnings CS8604/CS8602 (null reference)
+- The build is at **0 warnings** (Nov 2026) — keep it there; check with `dotnet build --no-incremental`
+- In Razor, `Model?.X` makes the compiler treat `Model` as maybe-null for the rest of the view: write
+  `Model.X` (Model is never null in these views) rather than adding `!` further down
 - Check for nullable reference types (`string?`)
 - Add null checks before calling methods: `!string.IsNullOrEmpty(variable) && variable.StartsWith(...)`
 - Use null-forgiving operator `!` only when certain value is not null: `model.Property!`
