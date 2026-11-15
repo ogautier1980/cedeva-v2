@@ -234,7 +234,9 @@ public class ActivitiesControllerIntegrationTests
         var response = await client.PostAsync("/Activities/Create",
             ValidActivityForm(name: "StageDatesKO", startDate: "2026-07-10", endDate: "2026-07-01"));
 
-        response.StatusCode.Should().Be(HttpStatusCode.OK, "the FluentValidation cross-field rule rejects the dates");
+        response.StatusCode.Should().Be(HttpStatusCode.OK, "the controller rejects an end date before the start date");
+        System.Net.WebUtility.HtmlDecode(await response.Content.ReadAsStringAsync())
+            .Should().Contain("La date de fin doit être après la date de début");
         using var db = factory.NewDbContext();
         (await db.Activities.IgnoreQueryFilters().AnyAsync(a => a.Name == "StageDatesKO")).Should().BeFalse();
     }

@@ -4836,9 +4836,6 @@
   <data name="Import.Type.Organisations" xml:space="preserve">
     <value>Organisaties</value>
   </data>
-  <data name="Validation.EndDateBeforeStart" xml:space="preserve">
-    <value>De einddatum mag niet vóór de begindatum liggen.</value>
-  </data>
   <data name="Help.NationalRegisterNumber" xml:space="preserve">
     <value>Formaat: JJ.MM.DD-XXX.CC (11 cijfers). Het controlegetal wordt automatisch gecontroleerd.</value>
   </data>

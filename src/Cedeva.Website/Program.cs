@@ -17,8 +17,6 @@ using Cedeva.Infrastructure.Services.Storage;
 using Cedeva.Website.Infrastructure;
 using Cedeva.Website.Localization;
 using Cedeva.Website.Validation;
-using FluentValidation;
-using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
@@ -266,11 +264,6 @@ try
             : CookieSecurePolicy.Always;
         options.Cookie.SameSite = SameSiteMode.Lax;
     });
-
-    // Add FluentValidation
-    builder.Services.AddValidatorsFromAssemblyContaining<Program>();
-    builder.Services.AddFluentValidationAutoValidation();
-    builder.Services.AddFluentValidationClientsideAdapters();
 
     // Add MVC with feature folders
     builder.Services.AddControllersWithViews()
