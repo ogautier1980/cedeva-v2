@@ -103,6 +103,28 @@ public class OrganisationsControllerIntegrationTests
     }
 
     [Fact]
+    public async Task Details_ModifiedLine_KeepsTheSpacesAroundDateAndTime()
+    {
+        // The "Modifié par … le <date> à <heure>" line sits in an @if block, where Razor used to
+        // drop the space between two @expressions ("le31-07-2026 à13:47").
+        using var factory = new CedevaWebApplicationFactory();
+        var org = factory.Seed(ctx =>
+        {
+            var o = TestData.Organisation("Org Audit");
+            o.ModifiedAt = new DateTime(2026, 7, 31, 13, 47, 0);
+            ctx.Add(o);
+            return o;
+        });
+
+        var html = System.Net.WebUtility.HtmlDecode(
+            await AdminClient(factory).GetStringAsync($"/Organisations/Details/{org.Id}"));
+        var text = System.Text.RegularExpressions.Regex.Replace(
+            System.Text.RegularExpressions.Regex.Replace(html, "<[^>]+>", ""), @"\s+", " ");
+
+        text.Should().MatchRegex(@"Modifié par \S.* le \d{2}[/-]\d{2}[/-]\d{4} à \d{2}:\d{2}");
+    }
+
+    [Fact]
     public async Task Details_AsCoordinator_OtherOrganisation_ReturnsNotFound()
     {
         using var factory = new CedevaWebApplicationFactory();

@@ -102,9 +102,9 @@
             @if (Model.ModifiedAt.HasValue)
             {
                 <br />
-                @Localizer["Audit.ModifiedBy"] <strong>@(Model.ModifiedByDisplayName ?? "System")</strong>
+                <text>@Localizer["Audit.ModifiedBy"] <strong>@(Model.ModifiedByDisplayName ?? "System")</strong>
                 @Localizer["Audit.On"] @Model.ModifiedAt.Value.ToString("dd/MM/yyyy")
-                @Localizer["Audit.At"] @Model.ModifiedAt.Value.ToString("HH:mm")
+                @Localizer["Audit.At"] @Model.ModifiedAt.Value.ToString("HH:mm")</text>
             }
         </small>
     </div>
