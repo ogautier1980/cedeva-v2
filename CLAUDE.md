@@ -117,10 +117,15 @@ src/
 - A transaction line (`Expense`) is a **Recette or a Dépense** (`Expense.IsIncome`); amount always
   positive. "Ajouter une transaction" = green Recette / red Dépense boxes, "Payé par" Caisse/Compte
   (`OrganizationCash`/`OrganizationCard`), closed category list, optional receipt (`Expense.ReceiptUrl`,
-  served by `Financial/ViewReceipt`). Team reimbursements/consumptions are entered from the member sheet
-- Categories (`ExpenseCategoryType` Expense / Income / OffBalance + budget) shown in 3 columns
+  served by `Financial/ViewReceipt`). Team pay supplements are entered from the member sheet: free label
+  (training, bonus, sandwich…) + effect on the pay (`ExpenseType` Reimbursement = added,
+  PersonalConsumption = deducted), no organisation category
+- Categories (`ExpenseCategoryType` Expense / Income / OffBalance + budget) shown in 3 columns. One per
+  organisation is the P.A.F. category (`IsRegistrationFees`, always an Income, not deletable), ensured by
+  `RegistrationFeesCategory.EnsureAsync` wherever categories are read; registration payments show in it
 - **BILAN** (`Financial/Balance`, replaced the old Report — `Financial/Report` redirects): Entrées /
-  Dépenses sections per category; fixed lines P.A.F. (all registration payments), team compensation,
+  Dépenses sections per category; P.A.F. line = the P.A.F. category's hand-encoded lines + all
+  registration payments; fixed lines team compensation,
   uncategorised; Hors bilan excluded
 - ⚠️ CODA import & bank reconciliation were **removed** (replaced by online payments — see below)
 
@@ -156,6 +161,9 @@ src/
 - Duplicate detection, Brevo email confirmation
 - Custom questions per activity
 - Parents pick **weeks**, or **days** when `Activity.AllowDayByDayRegistration` is on (wizard step 2)
+- `Activity.MaxChildrenPerDay` is a **per-day** limit: a day is full once that many bookings reserve it
+  (pending ones included); full days (or weeks holding one) are greyed out, a registration reserving one
+  is refused with the dates, the "full" page only shows when nothing is left to pick
 - Email flow: on submit the parent gets the locked `BookingConfirmation` template, which is an
   **acknowledgment** ("Demande d'inscription reçue", no amount); the coordinator is notified; on
   confirmation the parent gets the payment link email (nothing if nothing is due)
@@ -190,7 +198,7 @@ src/
 - Clean URLs (route parameters vs query strings)
 
 ## Testing (November 2026)
-- **~1393 unit/integration tests** (+ 64 E2E browser, 0 skipped; + 3 PostgreSQL); line coverage ≈91%,
+- **~1422 unit/integration tests** (+ 64 E2E browser, 0 skipped; + 3 PostgreSQL); line coverage ≈91%,
   CI coverage gate at 85%.
 - **xUnit v3 via `xunit.v3.mtp-off`** (not plain `xunit.v3`): plain v3 turns on Microsoft.Testing.Platform,
   which the .NET 10 SDK refuses under VSTest-mode `dotnet test`, and the CI gate relies on

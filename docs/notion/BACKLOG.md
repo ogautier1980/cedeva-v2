@@ -121,11 +121,16 @@ Fait le 19/11/2026 (étape 1) :
 - **Paramètres de l'ASBL** introuvables : un coordinateur voit et modifie sa propre organisation
   (lien sur l'accueil) ; liste, création, suppression et exports restent admin.
 
+Fait le 19/11/2026 (étape 2) :
+- **P.A.F.** : catégorie des comptes (une par organisation, toujours une Entrée, non supprimable) ; la
+  ligne P.A.F. du BILAN = encodages à la main de la catégorie + tous les paiements d'inscription ;
+  les paiements apparaissent dans la catégorie P.A.F. de la liste des transactions.
+- **Compléments équipe** : libellé libre (formation, prime, sandwich…, suggestions) et effet sur la
+  rémunération « à ajouter » / « à retenir » ; plus de catégorie des comptes pour ces lignes.
+- **Max d'enfants par jour** : vrai comptage par jour ; jours (ou semaines) complets grisés dans le
+  formulaire, inscription refusée avec les dates si un jour choisi est complet.
+
 À faire :
-- **P.A.F.** : garder la ligne fixe du BILAN, mais P.A.F. doit aussi exister comme catégorie des
-  comptes pour les encodages à la main, avec une ligne automatique « Paiements en ligne ».
-- **Compléments équipe** : libellé libre au lieu des 2 types fixes.
-- **Max d'enfants par jour** : vrai comptage par jour (complet le lundi ≠ bloqué le mardi).
 - **Attestation fiscale** selon le modèle : p.1 lettre (année, plafond/jour — 16,90 € pour 2025 —,
   code 1384), p.2 explications fixes, p.3 cadre I (organisme + stages, ONE certificateur, période),
   p.4 cadre II (n° d'ordre, parent, enfant, une ligne par période : dates, jours de présence,
