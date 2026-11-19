@@ -5023,4 +5023,13 @@
   <data name="Home.OrganisationSettings" xml:space="preserve">
     <value>Paramètres de l'ASBL</value>
   </data>
+  <data name="Account.InterfaceLanguage" xml:space="preserve">
+    <value>Langue de l'interface</value>
+  </data>
+  <data name="Account.InterfaceLanguageHelp" xml:space="preserve">
+    <value>Tous les textes du site s'affichent dans cette langue, sur chaque appareil où vous vous connectez.</value>
+  </data>
+  <data name="Validation.InvalidValue" xml:space="preserve">
+    <value>Valeur non valide.</value>
+  </data>
 </root>

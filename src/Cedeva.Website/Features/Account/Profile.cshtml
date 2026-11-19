@@ -43,6 +43,18 @@
                             <div class="form-text">@Localizer["Account.EmailCannotBeModified"]</div>
                         </div>
 
+                        <div class="mb-3">
+                            <label for="PreferredLanguage" class="form-label">@Localizer["Account.InterfaceLanguage"]</label>
+                            @* Each language is named in itself, so it can be found whatever the current one. *@
+                            <select asp-for="PreferredLanguage" class="form-select" id="PreferredLanguage">
+                                <option value="fr">Français</option>
+                                <option value="nl">Nederlands</option>
+                                <option value="en">English</option>
+                            </select>
+                            <span asp-validation-for="PreferredLanguage" class="text-danger"></span>
+                            <div class="form-text">@Localizer["Account.InterfaceLanguageHelp"]</div>
+                        </div>
+
                         <hr />
 
                         <div class="d-flex justify-content-between">

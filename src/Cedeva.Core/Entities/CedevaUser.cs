@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using Cedeva.Core.Enums;
 using Microsoft.AspNetCore.Identity;
 
@@ -12,6 +13,10 @@ public class CedevaUser : IdentityUser
     public Organisation? Organisation { get; set; }
 
     public Role Role { get; set; } = Role.Coordinator;
+
+    /// <summary>Interface language chosen on the profile ("fr", "nl", "en"); null = default (fr).</summary>
+    [MaxLength(5)]
+    public string? PreferredLanguage { get; set; }
 
     // Audit fields (cannot inherit from AuditableEntity - already inherits from IdentityUser)
     public DateTime CreatedAt { get; set; }

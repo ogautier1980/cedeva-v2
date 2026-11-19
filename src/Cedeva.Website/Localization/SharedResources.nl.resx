@@ -5001,4 +5001,13 @@
   <data name="Home.OrganisationSettings" xml:space="preserve">
     <value>Instellingen van de vzw</value>
   </data>
+  <data name="Account.InterfaceLanguage" xml:space="preserve">
+    <value>Taal van de interface</value>
+  </data>
+  <data name="Account.InterfaceLanguageHelp" xml:space="preserve">
+    <value>Alle teksten van de site worden in deze taal weergegeven, op elk toestel waarop u zich aanmeldt.</value>
+  </data>
+  <data name="Validation.InvalidValue" xml:space="preserve">
+    <value>Ongeldige waarde.</value>
+  </data>
 </root>

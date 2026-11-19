@@ -5001,4 +5001,13 @@
   <data name="Home.OrganisationSettings" xml:space="preserve">
     <value>Organisation settings</value>
   </data>
+  <data name="Account.InterfaceLanguage" xml:space="preserve">
+    <value>Interface language</value>
+  </data>
+  <data name="Account.InterfaceLanguageHelp" xml:space="preserve">
+    <value>All texts of the site are shown in this language, on every device you sign in on.</value>
+  </data>
+  <data name="Validation.InvalidValue" xml:space="preserve">
+    <value>Invalid value.</value>
+  </data>
 </root>

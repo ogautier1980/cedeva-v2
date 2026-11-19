@@ -1,3 +1,4 @@
+using System.Globalization;
 using Cedeva.Core.Entities;
 using Cedeva.Core.Interfaces;
 using Cedeva.Website.Features.Account.ViewModels;
@@ -69,6 +70,12 @@ public class AccountController : Controller
         if (result.Succeeded)
         {
             _logger.LogInformation("Login succeeded for {Email} from {RemoteIp}", model.Email, remoteIp);
+            // Re-apply the language saved on the profile, on whatever device the user signs in.
+            var user = await _userManager.FindByNameAsync(model.Email) ?? await _userManager.FindByEmailAsync(model.Email);
+            if (UiLanguage.IsSupported(user?.PreferredLanguage))
+            {
+                UiLanguage.WriteCookie(Response, user!.PreferredLanguage!);
+            }
             return await RedirectToLocal(returnUrl);
         }
 
@@ -176,7 +183,13 @@ public class AccountController : Controller
             Email = user.Email ?? string.Empty,
             FirstName = user.FirstName,
             LastName = user.LastName,
-            OrganisationId = user.OrganisationId
+            OrganisationId = user.OrganisationId,
+            // No saved preference yet: show the language the site is currently displayed in.
+            PreferredLanguage = UiLanguage.IsSupported(user.PreferredLanguage)
+                ? user.PreferredLanguage!
+                : UiLanguage.IsSupported(CultureInfo.CurrentUICulture.TwoLetterISOLanguageName)
+                    ? CultureInfo.CurrentUICulture.TwoLetterISOLanguageName
+                    : UiLanguage.Default
         };
 
         return View(model);
@@ -198,11 +211,16 @@ public class AccountController : Controller
 
         user.FirstName = model.FirstName;
         user.LastName = model.LastName;
+        user.PreferredLanguage = model.PreferredLanguage;
 
         var result = await _userManager.UpdateAsync(user);
 
         if (result.Succeeded)
         {
+            // Switch the whole site to the chosen language right away; the confirmation is
+            // already worded in it.
+            UiLanguage.WriteCookie(Response, model.PreferredLanguage);
+            CultureInfo.CurrentUICulture = new CultureInfo(model.PreferredLanguage);
             TempData[ControllerExtensions.SuccessMessageKey] = _localizer["Message.ProfileUpdated"].Value;
             return RedirectToAction(nameof(Profile));
         }

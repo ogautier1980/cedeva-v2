@@ -71,6 +71,10 @@ src/
 - **Feature folders:** `/Features/{Feature}/{View}.cshtml`
 - **Repository + UoW:** `IRepository<T>` with `IUnitOfWork`
 - **Localisation:** `@Localizer["Key"]` everywhere. Cookie-based FR/NL/EN. **Do NOT set ResourcesPath** (ASP.NET bug).
+  - The language is chosen on the user's profile (`CedevaUser.PreferredLanguage`), written to the culture
+    cookie on save and re-applied at login. Always write that cookie through `UiLanguage.WriteCookie`
+    (culture `xx-BE` for formatting + UI culture `xx`). The top-bar selector is hidden
+    (`Features:ShowLanguageSelector`).
   - **Validation messages:** DataAnnotations `ErrorMessage` must be a **resx key** (`Validation.*`, e.g. `Validation.Required`, `Validation.InvalidEmail`), never a literal — `AddDataAnnotationsLocalization` resolves it via SharedResources. Never leave a validation attribute without `ErrorMessage` (it falls back to the English framework default).
   - **Cross-field rules** (e.g. end date ≥ start date) are checked in the controller with
     `ModelState.AddModelError(field, _localizer[...])` — there is no FluentValidation (removed).

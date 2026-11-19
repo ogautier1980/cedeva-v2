@@ -19,4 +19,9 @@ public class ProfileViewModel
 
     [Display(Name = "Field.Organisation")]
     public int? OrganisationId { get; set; }
+
+    [Required(ErrorMessage = "Validation.Required")]
+    [RegularExpression("^(fr|nl|en)$", ErrorMessage = "Validation.InvalidValue")]
+    [Display(Name = "Account.InterfaceLanguage")]
+    public string PreferredLanguage { get; set; } = "fr";
 }

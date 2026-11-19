@@ -327,4 +327,121 @@ public class AccountControllerIntegrationTests
 
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
+
+    // ---------------------------------------------------------------- Interface language
+
+    private const string LangPassword = "Langue@123456";
+
+    /// <summary>Seeds a real Identity user (Id "lang-user") able to sign in with <see cref="LangPassword"/>.</summary>
+    private static int SeedLanguageUser(CedevaWebApplicationFactory factory, string? preferredLanguage)
+    {
+        return factory.Seed(ctx =>
+        {
+            var org = TestData.Organisation();
+            ctx.Add(org);
+            ctx.SaveChanges();
+            var user = new CedevaUser
+            {
+                Id = "lang-user",
+                UserName = "lang@cedeva.be",
+                NormalizedUserName = "LANG@CEDEVA.BE",
+                Email = "lang@cedeva.be",
+                NormalizedEmail = "LANG@CEDEVA.BE",
+                EmailConfirmed = true,
+                FirstName = "Lena",
+                LastName = "Taal",
+                OrganisationId = org.Id,
+                SecurityStamp = Guid.NewGuid().ToString(),
+                CreatedBy = "seed",
+                PreferredLanguage = preferredLanguage
+            };
+            user.PasswordHash = new PasswordHasher<CedevaUser>().HashPassword(user, LangPassword);
+            ctx.Add(user);
+            return org.Id;
+        });
+    }
+
+    [Fact]
+    public async Task Profile_Post_SavesLanguageAndSwitchesTheCultureCookie()
+    {
+        using var factory = new CedevaWebApplicationFactory();
+        var orgId = SeedLanguageUser(factory, preferredLanguage: null);
+        var client = factory.CreateClientFor("lang-user", orgId, "Coordinator");
+
+        var response = await client.PostAsync("/Account/Profile", new FormUrlEncodedContent(new Dictionary<string, string>
+        {
+            ["FirstName"] = "Lena",
+            ["LastName"] = "Taal",
+            ["PreferredLanguage"] = "nl"
+        }));
+
+        response.StatusCode.Should().Be(HttpStatusCode.Found);
+        var setCookie = Uri.UnescapeDataString(string.Join(";", response.Headers.GetValues("Set-Cookie")));
+        setCookie.Should().Contain(".AspNetCore.Culture=c=nl-BE|uic=nl");
+        using var db = factory.NewDbContext();
+        db.Users.Single(u => u.Id == "lang-user").PreferredLanguage.Should().Be("nl");
+    }
+
+    [Fact]
+    public async Task Profile_Post_UnsupportedLanguage_IsRejected()
+    {
+        using var factory = new CedevaWebApplicationFactory();
+        var orgId = SeedLanguageUser(factory, preferredLanguage: "fr");
+        var client = factory.CreateClientFor("lang-user", orgId, "Coordinator");
+
+        var response = await client.PostAsync("/Account/Profile", new FormUrlEncodedContent(new Dictionary<string, string>
+        {
+            ["FirstName"] = "Lena",
+            ["LastName"] = "Taal",
+            ["PreferredLanguage"] = "de"
+        }));
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        using var db = factory.NewDbContext();
+        db.Users.Single(u => u.Id == "lang-user").PreferredLanguage.Should().Be("fr");
+    }
+
+    [Fact]
+    public async Task Profile_Get_PreselectsTheSavedLanguage()
+    {
+        using var factory = new CedevaWebApplicationFactory();
+        var orgId = SeedLanguageUser(factory, preferredLanguage: "en");
+        var client = factory.CreateClientFor("lang-user", orgId, "Coordinator");
+
+        var html = await client.GetStringAsync("/Account/Profile");
+
+        html.Should().Contain("<option value=\"en\" selected=\"selected\">English</option>");
+    }
+
+    [Fact]
+    public async Task Pages_WithTheCultureCookie_AreDisplayedInThatLanguage()
+    {
+        using var factory = new CedevaWebApplicationFactory();
+        var orgId = SeedLanguageUser(factory, preferredLanguage: "nl");
+        var client = factory.CreateClientFor("lang-user", orgId, "Coordinator");
+        client.DefaultRequestHeaders.Add("Cookie", ".AspNetCore.Culture=" + Uri.EscapeDataString("c=nl-BE|uic=nl"));
+
+        var html = System.Net.WebUtility.HtmlDecode(await client.GetStringAsync("/Account/Profile"));
+
+        html.Should().Contain("Taal van de interface").And.NotContain("Langue de l'interface");
+    }
+
+    [Fact]
+    public async Task Login_Post_ReappliesTheSavedLanguage()
+    {
+        using var factory = new CedevaWebApplicationFactory();
+        SeedLanguageUser(factory, preferredLanguage: "nl");
+        var client = AnonymousClient(factory);
+
+        var response = await client.PostAsync("/Account/Login", new FormUrlEncodedContent(new Dictionary<string, string>
+        {
+            ["Email"] = "lang@cedeva.be",
+            ["Password"] = LangPassword,
+            ["RememberMe"] = "false"
+        }));
+
+        response.StatusCode.Should().Be(HttpStatusCode.Redirect);
+        var setCookie = Uri.UnescapeDataString(string.Join(";", response.Headers.GetValues("Set-Cookie")));
+        setCookie.Should().Contain(".AspNetCore.Culture=c=nl-BE|uic=nl");
+    }
 }
