@@ -117,6 +117,31 @@ public class ExpenseCategoryTests
         (await db.ExpenseCategories.IgnoreQueryFilters().AnyAsync(c => c.Id == categoryId)).Should().BeFalse();
     }
 
+    [Fact]
+    public async Task Index_DeleteButton_PostsToThisController()
+    {
+        // The shared _DeleteButton partial used to render action="/Home/Delete/{id}" (404) when no
+        // controller was given — on this page and on every other page using it.
+        using var factory = new CedevaWebApplicationFactory();
+        Organisation org = null!;
+        int categoryId = 0;
+        factory.Seed(ctx =>
+        {
+            org = TestData.Organisation();
+            ctx.Add(org);
+            ctx.SaveChanges();
+            var cat = new ExpenseCategory { OrganisationId = org.Id, Name = "Divers" };
+            ctx.ExpenseCategories.Add(cat);
+            ctx.SaveChanges();
+            categoryId = cat.Id;
+            return 0;
+        });
+
+        var html = await factory.CreateClientFor("u1", org.Id, "Coordinator").GetStringAsync("/ExpenseCategories");
+
+        html.Should().Contain($"action=\"/ExpenseCategories/Delete/{categoryId}\"").And.NotContain("/Home/Delete/");
+    }
+
     // ---- P.A.F. (Thomas, 19/11/2026): a category of its own that also takes registration payments
 
     private static (int OrgId, int PafId) SeedPafCategory(CedevaWebApplicationFactory factory)
