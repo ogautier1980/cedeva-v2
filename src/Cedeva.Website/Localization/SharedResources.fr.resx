@@ -910,36 +910,6 @@
   <data name="Parents.FiscalYear" xml:space="preserve">
     <value>Année fiscale</value>
   </data>
-  <data name="Parents.FiscalAttestationDraftWarning" xml:space="preserve">
-    <value>⚠️ Document généré automatiquement à partir des paiements enregistrés dans Cedeva, sur base des mentions légales génériques belges (frais de garde d'enfants, art. 113 CIR92). Aucun modèle officiel n'a été fourni pour cette organisation — faites relire ce document par un comptable avant de le remettre à un parent.</value>
-  </data>
-  <data name="Parents.FiscalAttestationTitle" xml:space="preserve">
-    <value>Attestation fiscale — Frais de garde d'enfants</value>
-  </data>
-  <data name="Parents.FiscalAttestationSubtitle" xml:space="preserve">
-    <value>Année {0} — Article 113 du Code des impôts sur les revenus 1992</value>
-  </data>
-  <data name="Parents.FiscalAttestationLegalIntro" xml:space="preserve">
-    <value>Nous soussignés attestons que les montants repris ci-dessous ont été effectivement payés par le bénéficiaire pour la garde d'enfants de moins de 12 ans (ou de moins de 18 ans en cas de handicap lourd), en dehors des heures normales de classe, dans le cadre des activités reprises ci-dessous.</value>
-  </data>
-  <data name="Parents.FiscalAttestationBeneficiary" xml:space="preserve">
-    <value>Bénéficiaire (parent)</value>
-  </data>
-  <data name="Parents.FiscalAttestationDetail" xml:space="preserve">
-    <value>Détail par enfant et par activité</value>
-  </data>
-  <data name="Parents.FiscalAttestationAmountPaid" xml:space="preserve">
-    <value>Montant payé</value>
-  </data>
-  <data name="Parents.FiscalAttestationTotal" xml:space="preserve">
-    <value>Total</value>
-  </data>
-  <data name="Parents.FiscalAttestationNoLines" xml:space="preserve">
-    <value>Aucun paiement enregistré pour cette année.</value>
-  </data>
-  <data name="Parents.FiscalAttestationLegalFooter" xml:space="preserve">
-    <value>Cette attestation est délivrée pour servir et valoir ce que de droit dans le cadre de la déclaration fiscale du bénéficiaire.</value>
-  </data>
   <data name="Bookings.MutualityAttestationOrganiser" xml:space="preserve">
     <value>Coordonnées de l'organisme organisateur</value>
   </data>
@@ -5040,5 +5010,113 @@
   </data>
   <data name="PublicRegistration.FullDays" xml:space="preserve">
     <value>Plus de place pour : {0}.</value>
+  </data>
+  <data name="FiscalAttestation.Title" xml:space="preserve">
+    <value>Attestations fiscales</value>
+  </data>
+  <data name="FiscalAttestation.IndexHelp" xml:space="preserve">
+    <value>Parents ayant payé des frais de garde en {0} : chacun reçoit une attestation (formulaire 281.86) qui reprend tous ses enfants et tous les stages de l'année.</value>
+  </data>
+  <data name="FiscalAttestation.CoordinatorOnly" xml:space="preserve">
+    <value>Cette page présente les attestations de l'association du coordinateur connecté. Un administrateur les consulte depuis la fiche d'un parent.</value>
+  </data>
+  <data name="FiscalAttestation.NoneForYear" xml:space="preserve">
+    <value>Aucun paiement de frais de garde en {0}.</value>
+  </data>
+  <data name="FiscalAttestation.NothingForYear" xml:space="preserve">
+    <value>Rien à attester pour {0} : aucun paiement cette année-là pour un jour de présence avant les 14 ans de l'enfant.</value>
+  </data>
+  <data name="FiscalAttestation.YearNotConfigured" xml:space="preserve">
+    <value>Le plafond par jour de {0} n'est pas encore renseigné : un administrateur doit l'ajouter dans « Plafonds fiscaux » avant d'éditer les attestations.</value>
+  </data>
+  <data name="FiscalAttestation.ParentsCount" xml:space="preserve">
+    <value>{0} parent(s)</value>
+  </data>
+  <data name="FiscalAttestation.NoEmailBadge" xml:space="preserve">
+    <value>Pas d'adresse e-mail</value>
+  </data>
+  <data name="FiscalAttestation.Amount" xml:space="preserve">
+    <value>Montant</value>
+  </data>
+  <data name="FiscalAttestation.Activity" xml:space="preserve">
+    <value>Stage</value>
+  </data>
+  <data name="FiscalAttestation.Period" xml:space="preserve">
+    <value>Période</value>
+  </data>
+  <data name="FiscalAttestation.Days" xml:space="preserve">
+    <value>Jours de présence</value>
+  </data>
+  <data name="FiscalAttestation.Total" xml:space="preserve">
+    <value>Total :</value>
+  </data>
+  <data name="FiscalAttestation.Content" xml:space="preserve">
+    <value>Contenu de l'attestation</value>
+  </data>
+  <data name="FiscalAttestation.ContentHelp" xml:space="preserve">
+    <value>Montants payés pendant l'année civile ; jours de présence avant les 14 ans de l'enfant. Le PDF reprend la lettre aux parents, les explications officielles, le cadre I et un cadre II par enfant.</value>
+  </data>
+  <data name="FiscalAttestation.DownloadPdf" xml:space="preserve">
+    <value>Télécharger le PDF</value>
+  </data>
+  <data name="FiscalAttestation.SendToParent" xml:space="preserve">
+    <value>Envoyer au parent par e-mail</value>
+  </data>
+  <data name="FiscalAttestation.Sent" xml:space="preserve">
+    <value>Attestation envoyée à {0}.</value>
+  </data>
+  <data name="FiscalAttestation.NoEmail" xml:space="preserve">
+    <value>Ce parent n'a pas d'adresse e-mail : téléchargez le PDF pour le lui remettre.</value>
+  </data>
+  <data name="FiscalAttestation.SendAll" xml:space="preserve">
+    <value>Envoyer les attestations ({0})</value>
+  </data>
+  <data name="FiscalAttestation.ConfirmSendAll" xml:space="preserve">
+    <value>Envoyer par e-mail {0} attestation(s) fiscale(s) {1} ?</value>
+  </data>
+  <data name="FiscalAttestation.SentAll" xml:space="preserve">
+    <value>{0} attestation(s) {1} envoyée(s).</value>
+  </data>
+  <data name="FiscalAttestation.NotSent" xml:space="preserve">
+    <value>{0} attestation(s) non envoyée(s) (pas d'adresse e-mail ou erreur d'envoi) : téléchargez-les depuis la fiche du parent.</value>
+  </data>
+  <data name="FiscalAttestation.EmailSubject" xml:space="preserve">
+    <value>Attestation fiscale {0} – {1}</value>
+  </data>
+  <data name="FiscalAttestation.EmailBody" xml:space="preserve">
+    <value>&lt;p&gt;Bonjour,&lt;/p&gt;&lt;p&gt;Vous trouverez en pièce jointe l'attestation fiscale {0} des frais de garde de votre ou vos enfant(s), à conserver pour votre déclaration d'impôt.&lt;/p&gt;&lt;p&gt;Bien à vous,&lt;br /&gt;{1}&lt;/p&gt;</value>
+  </data>
+  <data name="FiscalYear.Title" xml:space="preserve">
+    <value>Plafonds fiscaux</value>
+  </data>
+  <data name="FiscalYear.Help" xml:space="preserve">
+    <value>Plafond par jour de garde et code de la déclaration, imprimés sur les attestations fiscales de toutes les associations. Ils changent chaque année (indexation) : voir finances.belgium.be.</value>
+  </data>
+  <data name="FiscalYear.Year" xml:space="preserve">
+    <value>Année des dépenses</value>
+  </data>
+  <data name="FiscalYear.MaxDailyAmount" xml:space="preserve">
+    <value>Plafond par jour</value>
+  </data>
+  <data name="FiscalYear.TaxCode" xml:space="preserve">
+    <value>Code de la déclaration</value>
+  </data>
+  <data name="FiscalYear.Add" xml:space="preserve">
+    <value>Ajouter une année</value>
+  </data>
+  <data name="FiscalYear.Duplicate" xml:space="preserve">
+    <value>Cette année existe déjà.</value>
+  </data>
+  <data name="FiscalYear.Saved" xml:space="preserve">
+    <value>Plafond {0} enregistré.</value>
+  </data>
+  <data name="FiscalYear.Deleted" xml:space="preserve">
+    <value>Plafond {0} supprimé.</value>
+  </data>
+  <data name="FiscalYear.ConfirmDelete" xml:space="preserve">
+    <value>Supprimer le plafond {0} ?</value>
+  </data>
+  <data name="FiscalAttestation.MissingResponsible" xml:space="preserve">
+    <value>Le nom du responsable ou sa signature manque dans les paramètres de l'ASBL : ils resteront vides en bas de chaque cadre II.</value>
   </data>
 </root>

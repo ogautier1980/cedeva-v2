@@ -192,6 +192,11 @@
                         <i class="fas fa-file-import me-2"></i>@Localizer["Import.Title"]
                     </a>
                 </div>
+                <div class="col">
+                    <a href="/FiscalAttestations" class="btn btn-outline-primary text-start w-100">
+                        <i class="fas fa-file-invoice me-2"></i>@Localizer["FiscalAttestation.Title"]
+                    </a>
+                </div>
             </div>
             @if (User.IsInRole("Admin"))
             {
@@ -206,6 +211,11 @@
                     <div class="col">
                         <a href="/Users" class="btn btn-outline-secondary text-start w-100">
                             <i class="fas fa-users-cog me-2"></i>@Localizer["Users"]
+                        </a>
+                    </div>
+                    <div class="col">
+                        <a href="/FiscalYears" class="btn btn-outline-secondary text-start w-100">
+                            <i class="fas fa-scale-balanced me-2"></i>@Localizer["FiscalYear.Title"]
                         </a>
                     </div>
                 </div>

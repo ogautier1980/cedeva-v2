@@ -3,6 +3,7 @@ using Cedeva.Core.Enums;
 using Cedeva.Core.Helpers;
 using Cedeva.Core.Interfaces;
 using Cedeva.Infrastructure.Data;
+using Cedeva.Website.Features.FiscalAttestations;
 using Cedeva.Website.Features.Parents.ViewModels;
 using Cedeva.Website.Localization;
 using Microsoft.AspNetCore.Authorization;
@@ -27,6 +28,8 @@ public class ParentsController : Controller
     private readonly IStringLocalizer<SharedResources> _localizer;
     private readonly IUserDisplayService _userDisplayService;
     private readonly ISessionStateService _sessionState;
+    private readonly IFiscalAttestationService _fiscalAttestationService;
+    private readonly FiscalAttestationSender _fiscalAttestationSender;
 
     public ParentsController(
         CedevaDbContext context,
@@ -35,7 +38,9 @@ public class ParentsController : Controller
         IExportFacadeService exportServices,
         IStringLocalizer<SharedResources> localizer,
         IUserDisplayService userDisplayService,
-        ISessionStateService sessionState)
+        ISessionStateService sessionState,
+        IFiscalAttestationService fiscalAttestationService,
+        FiscalAttestationSender fiscalAttestationSender)
     {
         _context = context;
         _currentUserService = currentUserService;
@@ -44,6 +49,8 @@ public class ParentsController : Controller
         _localizer = localizer;
         _userDisplayService = userDisplayService;
         _sessionState = sessionState;
+        _fiscalAttestationService = fiscalAttestationService;
+        _fiscalAttestationSender = fiscalAttestationSender;
     }
 
     public async Task<IActionResult> Index([FromQuery] ParentQueryParameters queryParams)
@@ -212,85 +219,83 @@ public class ParentsController : Controller
         return View(viewModel);
     }
 
-    // GET: Parents/FiscalAttestation/5 — Lot H, attestation fiscale (frais de garde d'enfants) pour
-    // une année donnée, groupée par association : tous les enfants du parent, toutes les activités
-    // de l'organisation confondues. Distinct de Bookings/MutualityAttestation (Lot K #3), qui est
-    // par enfant/activité et destinée aux mutuelles, pas au fisc.
+    // GET: Parents/FiscalAttestation/5 — attestation fiscale (frais de garde, formulaire 281.86) du
+    // parent pour une année : un document par parent, un cadre II par enfant, toutes les activités
+    // de l'organisation confondues (modèle du client, 19/11/2026). Distinct de
+    // Bookings/MutualityAttestation, par enfant/activité et destinée aux mutuelles.
     public async Task<IActionResult> FiscalAttestation(int id, int? year)
     {
-        var parent = await _context.Parents
-            .Include(p => p.Address)
-            .Include(p => p.Children)
-                .ThenInclude(c => c.Bookings)
-                    .ThenInclude(b => b.Activity)
-            .FirstOrDefaultAsync(p => p.Id == id);
+        var availableYears = await _fiscalAttestationService.GetYearsAsync(id);
+        // Default: the most recent year with payments (attestations are sent the following year).
+        var fiscalYear = year ?? (availableYears.Count > 0 ? availableYears[0] : DateTime.Today.Year - 1);
 
-        if (parent == null)
+        var data = await _fiscalAttestationService.BuildAsync(id, fiscalYear);
+        if (data == null)
         {
             return NotFound();
         }
 
-        var organisation = await _context.Organisations
-            .Include(o => o.Address)
-            .FirstOrDefaultAsync(o => o.Id == parent.OrganisationId);
-        if (organisation == null)
+        return View(new FiscalAttestationViewModel
         {
-            return NotFound();
-        }
-
-        var allBookings = parent.Children
-            .SelectMany(c => c.Bookings.Select(b => (Child: c, Booking: b)))
-            .Where(x => x.Booking.IsConfirmed && x.Booking.PaidAmount > 0)
-            .ToList();
-
-        var availableYears = allBookings
-            .Select(x => x.Booking.Activity.StartDate.Year)
-            .Distinct()
-            .OrderByDescending(y => y)
-            .ToList();
-
-        var fiscalYear = year ?? availableYears.FirstOrDefault(DateTime.Today.Year);
-
-        var lines = allBookings
-            .Where(x => x.Booking.Activity.StartDate.Year == fiscalYear)
-            .OrderBy(x => x.Booking.Activity.StartDate)
-            .ThenBy(x => x.Child.LastName)
-            .Select(x => new FiscalAttestationLine
-            {
-                ChildFirstName = x.Child.FirstName,
-                ChildLastName = x.Child.LastName,
-                ChildBirthDate = x.Child.BirthDate,
-                ChildNationalRegisterNumber = x.Child.NationalRegisterNumber,
-                ActivityName = x.Booking.Activity.Name,
-                ActivityStartDate = x.Booking.Activity.StartDate,
-                ActivityEndDate = x.Booking.Activity.EndDate,
-                AmountPaid = x.Booking.PaidAmount
-            })
-            .ToList();
-
-        var viewModel = new FiscalAttestationViewModel
-        {
-            ParentId = parent.Id,
+            ParentId = id,
             FiscalYear = fiscalYear,
             AvailableYears = availableYears,
-            OrganisationName = organisation.Name,
-            OrganisationLogoUrl = organisation.LogoUrl,
-            OrganisationAddress = organisation.Address != null
-                ? $"{organisation.Address.Street}, {organisation.Address.PostalCode} {organisation.Address.City}"
-                : string.Empty,
-            ResponsibleName = organisation.ResponsibleName,
-            CompanyNumber = organisation.CompanyNumber,
-            ParentFirstName = parent.FirstName,
-            ParentLastName = parent.LastName,
-            ParentNationalRegisterNumber = parent.NationalRegisterNumber,
-            ParentAddress = parent.Address != null
-                ? $"{parent.Address.Street}, {parent.Address.PostalCode} {parent.Address.City}"
-                : string.Empty,
-            Lines = lines
-        };
-
-        return View(viewModel);
+            Data = data
+        });
     }
+
+    // GET: Parents/FiscalAttestationPdf/5?year=2025 — the 4-page PDF of the attestation.
+    public async Task<IActionResult> FiscalAttestationPdf(int id, int year)
+    {
+        var data = await _fiscalAttestationService.BuildAsync(id, year);
+        if (data == null)
+        {
+            return NotFound();
+        }
+
+        var problem = FiscalAttestationProblem(data);
+        if (problem != null)
+        {
+            this.SetErrorMessage(problem);
+            return RedirectToAction(nameof(FiscalAttestation), new { id, year });
+        }
+
+        return File(_fiscalAttestationService.RenderPdf(data), "application/pdf", FiscalAttestationSender.FileName(data));
+    }
+
+    // POST: Parents/SendFiscalAttestation/5 — e-mails the PDF to the parent.
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> SendFiscalAttestation(int id, int year)
+    {
+        var data = await _fiscalAttestationService.BuildAsync(id, year);
+        if (data == null)
+        {
+            return NotFound();
+        }
+
+        var problem = FiscalAttestationProblem(data);
+        if (problem != null)
+        {
+            this.SetErrorMessage(problem);
+        }
+        else if (await _fiscalAttestationSender.SendAsync(data))
+        {
+            this.SetSuccessMessage(_localizer["FiscalAttestation.Sent", data.ParentEmail!].Value);
+        }
+        else
+        {
+            this.SetErrorMessage(_localizer["FiscalAttestation.NoEmail"].Value);
+        }
+
+        return RedirectToAction(nameof(FiscalAttestation), new { id, year });
+    }
+
+    // Nothing to certify, or the year's ceiling has not been set by the admin yet.
+    private string? FiscalAttestationProblem(Core.DTOs.FiscalAttestationData data) =>
+        data.Children.Count == 0 ? _localizer["FiscalAttestation.NothingForYear", data.Year].Value
+        : data.MaxDailyAmount == null ? _localizer["FiscalAttestation.YearNotConfigured", data.Year].Value
+        : null;
 
     public async Task<IActionResult> Create()
     {

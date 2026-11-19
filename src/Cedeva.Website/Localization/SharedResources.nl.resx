@@ -907,36 +907,6 @@
   <data name="Parents.FiscalYear" xml:space="preserve">
     <value>Fiscaal jaar</value>
   </data>
-  <data name="Parents.FiscalAttestationDraftWarning" xml:space="preserve">
-    <value>⚠️ Document automatisch gegenereerd op basis van de betalingen geregistreerd in Cedeva, volgens de algemene Belgische wettelijke vermeldingen (kosten voor kinderopvang, art. 113 WIB92). Er werd geen officieel model aangeleverd voor deze organisatie — laat dit document nalezen door een boekhouder voordat u het aan een ouder overhandigt.</value>
-  </data>
-  <data name="Parents.FiscalAttestationTitle" xml:space="preserve">
-    <value>Fiscaal attest — Kosten voor kinderopvang</value>
-  </data>
-  <data name="Parents.FiscalAttestationSubtitle" xml:space="preserve">
-    <value>Jaar {0} — Artikel 113 van het Wetboek van de inkomstenbelastingen 1992</value>
-  </data>
-  <data name="Parents.FiscalAttestationLegalIntro" xml:space="preserve">
-    <value>Ondergetekenden bevestigen dat de hieronder vermelde bedragen daadwerkelijk werden betaald door de begunstigde voor de opvang van kinderen jonger dan 12 jaar (of jonger dan 18 jaar bij zware handicap), buiten de normale schooluren, in het kader van de hieronder vermelde activiteiten.</value>
-  </data>
-  <data name="Parents.FiscalAttestationBeneficiary" xml:space="preserve">
-    <value>Begunstigde (ouder)</value>
-  </data>
-  <data name="Parents.FiscalAttestationDetail" xml:space="preserve">
-    <value>Detail per kind en per activiteit</value>
-  </data>
-  <data name="Parents.FiscalAttestationAmountPaid" xml:space="preserve">
-    <value>Betaald bedrag</value>
-  </data>
-  <data name="Parents.FiscalAttestationTotal" xml:space="preserve">
-    <value>Totaal</value>
-  </data>
-  <data name="Parents.FiscalAttestationNoLines" xml:space="preserve">
-    <value>Geen betalingen geregistreerd voor dit jaar.</value>
-  </data>
-  <data name="Parents.FiscalAttestationLegalFooter" xml:space="preserve">
-    <value>Dit attest wordt afgeleverd om te dienen waar nodig in het kader van de belastingaangifte van de begunstigde.</value>
-  </data>
   <data name="Bookings.MutualityAttestationOrganiser" xml:space="preserve">
     <value>Gegevens van de organiserende instantie</value>
   </data>
@@ -5018,5 +4988,113 @@
   </data>
   <data name="PublicRegistration.FullDays" xml:space="preserve">
     <value>Geen plaats meer op: {0}.</value>
+  </data>
+  <data name="FiscalAttestation.Title" xml:space="preserve">
+    <value>Fiscale attesten</value>
+  </data>
+  <data name="FiscalAttestation.IndexHelp" xml:space="preserve">
+    <value>Ouders die in {0} opvangkosten betaalden: elk krijgt één attest (formulier 281.86) met al zijn kinderen en alle activiteiten van het jaar.</value>
+  </data>
+  <data name="FiscalAttestation.CoordinatorOnly" xml:space="preserve">
+    <value>Deze pagina toont de attesten van de vereniging van de aangemelde coördinator. Een beheerder bekijkt ze via de fiche van een ouder.</value>
+  </data>
+  <data name="FiscalAttestation.NoneForYear" xml:space="preserve">
+    <value>Geen betaling van opvangkosten in {0}.</value>
+  </data>
+  <data name="FiscalAttestation.NothingForYear" xml:space="preserve">
+    <value>Niets te attesteren voor {0}: geen betaling in dat jaar voor een aanwezigheidsdag vóór de 14 jaar van het kind.</value>
+  </data>
+  <data name="FiscalAttestation.YearNotConfigured" xml:space="preserve">
+    <value>Het dagplafond voor {0} is nog niet ingevuld: een beheerder moet het toevoegen in „Fiscale plafonds” voordat de attesten worden opgemaakt.</value>
+  </data>
+  <data name="FiscalAttestation.ParentsCount" xml:space="preserve">
+    <value>{0} ouder(s)</value>
+  </data>
+  <data name="FiscalAttestation.NoEmailBadge" xml:space="preserve">
+    <value>Geen e-mailadres</value>
+  </data>
+  <data name="FiscalAttestation.Amount" xml:space="preserve">
+    <value>Bedrag</value>
+  </data>
+  <data name="FiscalAttestation.Activity" xml:space="preserve">
+    <value>Activiteit</value>
+  </data>
+  <data name="FiscalAttestation.Period" xml:space="preserve">
+    <value>Periode</value>
+  </data>
+  <data name="FiscalAttestation.Days" xml:space="preserve">
+    <value>Aanwezigheidsdagen</value>
+  </data>
+  <data name="FiscalAttestation.Total" xml:space="preserve">
+    <value>Totaal:</value>
+  </data>
+  <data name="FiscalAttestation.Content" xml:space="preserve">
+    <value>Inhoud van het attest</value>
+  </data>
+  <data name="FiscalAttestation.ContentHelp" xml:space="preserve">
+    <value>Bedragen betaald tijdens het kalenderjaar; aanwezigheidsdagen vóór de 14 jaar van het kind. De pdf bevat de brief aan de ouders, de officiële toelichting, kader I en een kader II per kind.</value>
+  </data>
+  <data name="FiscalAttestation.DownloadPdf" xml:space="preserve">
+    <value>Pdf downloaden</value>
+  </data>
+  <data name="FiscalAttestation.SendToParent" xml:space="preserve">
+    <value>Per e-mail naar de ouder sturen</value>
+  </data>
+  <data name="FiscalAttestation.Sent" xml:space="preserve">
+    <value>Attest verzonden naar {0}.</value>
+  </data>
+  <data name="FiscalAttestation.NoEmail" xml:space="preserve">
+    <value>Deze ouder heeft geen e-mailadres: download de pdf om hem te bezorgen.</value>
+  </data>
+  <data name="FiscalAttestation.SendAll" xml:space="preserve">
+    <value>Attesten verzenden ({0})</value>
+  </data>
+  <data name="FiscalAttestation.ConfirmSendAll" xml:space="preserve">
+    <value>{0} fiscaal attest(en) {1} per e-mail verzenden?</value>
+  </data>
+  <data name="FiscalAttestation.SentAll" xml:space="preserve">
+    <value>{0} attest(en) {1} verzonden.</value>
+  </data>
+  <data name="FiscalAttestation.NotSent" xml:space="preserve">
+    <value>{0} attest(en) niet verzonden (geen e-mailadres of verzendfout): download ze via de fiche van de ouder.</value>
+  </data>
+  <data name="FiscalAttestation.EmailSubject" xml:space="preserve">
+    <value>Fiscaal attest {0} – {1}</value>
+  </data>
+  <data name="FiscalAttestation.EmailBody" xml:space="preserve">
+    <value>&lt;p&gt;Goeiedag,&lt;/p&gt;&lt;p&gt;In bijlage vindt u het fiscaal attest {0} voor de opvangkosten van uw kind(eren), te bewaren voor uw belastingaangifte.&lt;/p&gt;&lt;p&gt;Met vriendelijke groeten,&lt;br /&gt;{1}&lt;/p&gt;</value>
+  </data>
+  <data name="FiscalYear.Title" xml:space="preserve">
+    <value>Fiscale plafonds</value>
+  </data>
+  <data name="FiscalYear.Help" xml:space="preserve">
+    <value>Plafond per opvangdag en code van de aangifte, gedrukt op de fiscale attesten van alle verenigingen. Ze veranderen elk jaar (indexering): zie financien.belgium.be.</value>
+  </data>
+  <data name="FiscalYear.Year" xml:space="preserve">
+    <value>Jaar van de uitgaven</value>
+  </data>
+  <data name="FiscalYear.MaxDailyAmount" xml:space="preserve">
+    <value>Plafond per dag</value>
+  </data>
+  <data name="FiscalYear.TaxCode" xml:space="preserve">
+    <value>Code van de aangifte</value>
+  </data>
+  <data name="FiscalYear.Add" xml:space="preserve">
+    <value>Een jaar toevoegen</value>
+  </data>
+  <data name="FiscalYear.Duplicate" xml:space="preserve">
+    <value>Dit jaar bestaat al.</value>
+  </data>
+  <data name="FiscalYear.Saved" xml:space="preserve">
+    <value>Plafond {0} opgeslagen.</value>
+  </data>
+  <data name="FiscalYear.Deleted" xml:space="preserve">
+    <value>Plafond {0} verwijderd.</value>
+  </data>
+  <data name="FiscalYear.ConfirmDelete" xml:space="preserve">
+    <value>Plafond {0} verwijderen?</value>
+  </data>
+  <data name="FiscalAttestation.MissingResponsible" xml:space="preserve">
+    <value>De naam of de handtekening van de verantwoordelijke ontbreekt in de instellingen van de vzw: ze blijven leeg onderaan elk kader II.</value>
   </data>
 </root>

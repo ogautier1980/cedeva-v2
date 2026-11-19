@@ -1,0 +1,28 @@
+@model Cedeva.Website.Features.FiscalYears.FiscalYearSettingViewModel
+@* Shared by the add form (Index) and Edit; on Edit the year is shown but not editable. *@
+<div class="mb-3">
+    <label for="Year" class="form-label">@Localizer["FiscalYear.Year"]</label>
+    @if (Model.Id == 0)
+    {
+        <input asp-for="Year" class="form-control" id="Year" />
+        <span asp-validation-for="Year" class="text-danger"></span>
+    }
+    else
+    {
+        <input type="hidden" asp-for="Id" />
+        <input class="form-control" value="@Model.Year" disabled />
+    }
+</div>
+<div class="mb-3">
+    <label for="MaxDailyAmount" class="form-label">@Localizer["FiscalYear.MaxDailyAmount"]</label>
+    <div class="input-group">
+        <input asp-for="MaxDailyAmount" type="text" class="form-control" id="MaxDailyAmount" />
+        <span class="input-group-text">€</span>
+    </div>
+    <span asp-validation-for="MaxDailyAmount" class="text-danger"></span>
+</div>
+<div class="mb-3">
+    <label for="TaxCode" class="form-label">@Localizer["FiscalYear.TaxCode"]</label>
+    <input asp-for="TaxCode" class="form-control" id="TaxCode" />
+    <span asp-validation-for="TaxCode" class="text-danger"></span>
+</div>

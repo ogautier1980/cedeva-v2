@@ -40,6 +40,7 @@ public class CedevaDbContext : IdentityDbContext<CedevaUser>, IUnitOfWork
     public DbSet<ContactGroupMember> ContactGroupMembers => Set<ContactGroupMember>();
     public DbSet<Expense> Expenses => Set<Expense>();
     public DbSet<ExpenseCategory> ExpenseCategories => Set<ExpenseCategory>();
+    public DbSet<FiscalYearSetting> FiscalYearSettings => Set<FiscalYearSetting>();
     public DbSet<EmailSent> EmailsSent => Set<EmailSent>();
     public DbSet<EmailTemplate> EmailTemplates => Set<EmailTemplate>();
     public DbSet<Payment> Payments => Set<Payment>();

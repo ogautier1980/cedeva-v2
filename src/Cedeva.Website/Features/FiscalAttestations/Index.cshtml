@@ -1,0 +1,109 @@
+@model Cedeva.Website.Features.FiscalAttestations.FiscalAttestationsIndexViewModel
+@{
+    ViewData["Title"] = Localizer["FiscalAttestation.Title"];
+    var culture = new System.Globalization.CultureInfo("fr-BE");
+    var withEmail = Model.Attestations.Count(a => !string.IsNullOrWhiteSpace(a.ParentEmail));
+}
+
+@await Html.PartialAsync("_AlertMessages")
+
+<div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
+    <h2><i class="fas fa-file-invoice me-2"></i>@Localizer["FiscalAttestation.Title"]</h2>
+    <form method="get" class="d-flex align-items-center gap-2">
+        <label for="year" class="form-label mb-0">@Localizer["Parents.FiscalYear"]</label>
+        <select name="year" id="year" class="form-select form-select-sm" style="width: auto;" onchange="this.form.submit()">
+            @foreach (var y in Model.Years)
+            {
+                <option value="@y" selected="@(y == Model.Year)">@y</option>
+            }
+        </select>
+    </form>
+</div>
+
+<p class="text-muted">@Localizer["FiscalAttestation.IndexHelp", Model.Year]</p>
+
+@if (!Model.HasOrganisation)
+{
+    <div class="text-center py-5">
+        <i class="fas fa-building fa-3x text-muted mb-3"></i>
+        <p class="text-muted">@Localizer["FiscalAttestation.CoordinatorOnly"]</p>
+    </div>
+}
+else if (Model.Attestations.Count == 0)
+{
+    <div class="text-center py-5">
+        <i class="fas fa-file-invoice fa-3x text-muted mb-3"></i>
+        <p class="text-muted">@Localizer["FiscalAttestation.NoneForYear", Model.Year]</p>
+    </div>
+}
+else
+{
+    @if (!Model.YearConfigured)
+    {
+        <div class="alert alert-warning">
+            <i class="fas fa-triangle-exclamation me-2"></i>@Localizer["FiscalAttestation.YearNotConfigured", Model.Year]
+        </div>
+    }
+
+    @if (string.IsNullOrWhiteSpace(Model.Attestations[0].Organisation.ResponsibleName) || Model.Attestations[0].Organisation.Signature == null)
+    {
+        <div class="alert alert-warning">
+            <i class="fas fa-signature me-2"></i>@Localizer["FiscalAttestation.MissingResponsible"]
+        </div>
+    }
+
+    <div class="card shadow mb-4">
+        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+            <h6 class="mb-0"><i class="fas fa-users me-2"></i>@Localizer["FiscalAttestation.ParentsCount", Model.Attestations.Count]</h6>
+        </div>
+        <div class="card-body p-0">
+            <table class="table table-hover table-sm mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th scope="col">@Localizer["Parent"]</th>
+                        <th scope="col">@Localizer["Field.Email"]</th>
+                        <th scope="col">@Localizer["Children"]</th>
+                        <th scope="col" class="text-end">@Localizer["FiscalAttestation.Amount"]</th>
+                        <th scope="col"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var attestation in Model.Attestations)
+                    {
+                        <tr>
+                            <td>@attestation.ParentFullName</td>
+                            <td>
+                                @if (string.IsNullOrWhiteSpace(attestation.ParentEmail))
+                                {
+                                    <span class="badge bg-danger">@Localizer["FiscalAttestation.NoEmailBadge"]</span>
+                                }
+                                else
+                                {
+                                    @attestation.ParentEmail
+                                }
+                            </td>
+                            <td>@string.Join(", ", attestation.Children.Select(c => c.FirstName))</td>
+                            <td class="text-end">@attestation.Total.ToString("C", culture)</td>
+                            <td class="text-end">
+                                <a asp-controller="Parents" asp-action="FiscalAttestation" asp-route-id="@attestation.ParentId" asp-route-year="@Model.Year"
+                                   class="btn btn-sm btn-outline-secondary" title="@Localizer["Parents.FiscalAttestation"]">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    @if (Model.YearConfigured)
+    {
+        <form asp-action="SendAll" asp-route-year="@Model.Year" method="post"
+              onsubmit="return confirm(@Json.Serialize(Localizer["FiscalAttestation.ConfirmSendAll", withEmail, Model.Year].Value));">
+            <button type="submit" class="btn btn-primary" disabled="@(withEmail == 0)">
+                <i class="fas fa-paper-plane me-2"></i>@Localizer["FiscalAttestation.SendAll", withEmail]
+            </button>
+        </form>
+    }
+}

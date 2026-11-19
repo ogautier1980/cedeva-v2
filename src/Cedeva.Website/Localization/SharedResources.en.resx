@@ -907,36 +907,6 @@
   <data name="Parents.FiscalYear" xml:space="preserve">
     <value>Tax year</value>
   </data>
-  <data name="Parents.FiscalAttestationDraftWarning" xml:space="preserve">
-    <value>⚠️ Document automatically generated from the payments recorded in Cedeva, using generic Belgian legal wording (childcare expenses, art. 113 CIR92). No official template was supplied for this organisation — have this document reviewed by an accountant before handing it to a parent.</value>
-  </data>
-  <data name="Parents.FiscalAttestationTitle" xml:space="preserve">
-    <value>Tax certificate — Childcare expenses</value>
-  </data>
-  <data name="Parents.FiscalAttestationSubtitle" xml:space="preserve">
-    <value>Year {0} — Article 113 of the 1992 Income Tax Code</value>
-  </data>
-  <data name="Parents.FiscalAttestationLegalIntro" xml:space="preserve">
-    <value>We hereby certify that the amounts listed below were actually paid by the beneficiary for the care of children under 12 (or under 18 in case of severe disability), outside normal school hours, as part of the activities listed below.</value>
-  </data>
-  <data name="Parents.FiscalAttestationBeneficiary" xml:space="preserve">
-    <value>Beneficiary (parent)</value>
-  </data>
-  <data name="Parents.FiscalAttestationDetail" xml:space="preserve">
-    <value>Detail by child and activity</value>
-  </data>
-  <data name="Parents.FiscalAttestationAmountPaid" xml:space="preserve">
-    <value>Amount paid</value>
-  </data>
-  <data name="Parents.FiscalAttestationTotal" xml:space="preserve">
-    <value>Total</value>
-  </data>
-  <data name="Parents.FiscalAttestationNoLines" xml:space="preserve">
-    <value>No payments recorded for this year.</value>
-  </data>
-  <data name="Parents.FiscalAttestationLegalFooter" xml:space="preserve">
-    <value>This certificate is issued to serve as proof where required for the beneficiary's tax return.</value>
-  </data>
   <data name="Bookings.MutualityAttestationOrganiser" xml:space="preserve">
     <value>Organiser's details</value>
   </data>
@@ -5018,5 +4988,113 @@
   </data>
   <data name="PublicRegistration.FullDays" xml:space="preserve">
     <value>No places left on: {0}.</value>
+  </data>
+  <data name="FiscalAttestation.Title" xml:space="preserve">
+    <value>Tax certificates</value>
+  </data>
+  <data name="FiscalAttestation.IndexHelp" xml:space="preserve">
+    <value>Parents who paid childcare fees in {0}: each receives one certificate (form 281.86) covering all their children and all activities of the year.</value>
+  </data>
+  <data name="FiscalAttestation.CoordinatorOnly" xml:space="preserve">
+    <value>This page shows the certificates of the signed-in coordinator's organisation. An administrator views them from a parent's record.</value>
+  </data>
+  <data name="FiscalAttestation.NoneForYear" xml:space="preserve">
+    <value>No childcare payment in {0}.</value>
+  </data>
+  <data name="FiscalAttestation.NothingForYear" xml:space="preserve">
+    <value>Nothing to certify for {0}: no payment that year for a day of attendance before the child turned 14.</value>
+  </data>
+  <data name="FiscalAttestation.YearNotConfigured" xml:space="preserve">
+    <value>The daily ceiling for {0} has not been set yet: an administrator must add it in "Tax ceilings" before the certificates are issued.</value>
+  </data>
+  <data name="FiscalAttestation.ParentsCount" xml:space="preserve">
+    <value>{0} parent(s)</value>
+  </data>
+  <data name="FiscalAttestation.NoEmailBadge" xml:space="preserve">
+    <value>No e-mail address</value>
+  </data>
+  <data name="FiscalAttestation.Amount" xml:space="preserve">
+    <value>Amount</value>
+  </data>
+  <data name="FiscalAttestation.Activity" xml:space="preserve">
+    <value>Activity</value>
+  </data>
+  <data name="FiscalAttestation.Period" xml:space="preserve">
+    <value>Period</value>
+  </data>
+  <data name="FiscalAttestation.Days" xml:space="preserve">
+    <value>Days attended</value>
+  </data>
+  <data name="FiscalAttestation.Total" xml:space="preserve">
+    <value>Total:</value>
+  </data>
+  <data name="FiscalAttestation.Content" xml:space="preserve">
+    <value>Content of the certificate</value>
+  </data>
+  <data name="FiscalAttestation.ContentHelp" xml:space="preserve">
+    <value>Amounts paid during the calendar year; days attended before the child turned 14. The PDF holds the letter to the parents, the official explanations, box I and one box II per child.</value>
+  </data>
+  <data name="FiscalAttestation.DownloadPdf" xml:space="preserve">
+    <value>Download the PDF</value>
+  </data>
+  <data name="FiscalAttestation.SendToParent" xml:space="preserve">
+    <value>E-mail it to the parent</value>
+  </data>
+  <data name="FiscalAttestation.Sent" xml:space="preserve">
+    <value>Certificate sent to {0}.</value>
+  </data>
+  <data name="FiscalAttestation.NoEmail" xml:space="preserve">
+    <value>This parent has no e-mail address: download the PDF to hand it over.</value>
+  </data>
+  <data name="FiscalAttestation.SendAll" xml:space="preserve">
+    <value>Send the certificates ({0})</value>
+  </data>
+  <data name="FiscalAttestation.ConfirmSendAll" xml:space="preserve">
+    <value>E-mail {0} tax certificate(s) for {1}?</value>
+  </data>
+  <data name="FiscalAttestation.SentAll" xml:space="preserve">
+    <value>{0} certificate(s) for {1} sent.</value>
+  </data>
+  <data name="FiscalAttestation.NotSent" xml:space="preserve">
+    <value>{0} certificate(s) not sent (no e-mail address or sending error): download them from the parent's record.</value>
+  </data>
+  <data name="FiscalAttestation.EmailSubject" xml:space="preserve">
+    <value>Tax certificate {0} – {1}</value>
+  </data>
+  <data name="FiscalAttestation.EmailBody" xml:space="preserve">
+    <value>&lt;p&gt;Hello,&lt;/p&gt;&lt;p&gt;Please find attached the {0} tax certificate for your child(ren)'s childcare fees, to keep for your tax return.&lt;/p&gt;&lt;p&gt;Kind regards,&lt;br /&gt;{1}&lt;/p&gt;</value>
+  </data>
+  <data name="FiscalYear.Title" xml:space="preserve">
+    <value>Tax ceilings</value>
+  </data>
+  <data name="FiscalYear.Help" xml:space="preserve">
+    <value>Ceiling per day of care and tax-return code, printed on the tax certificates of every organisation. They change every year (indexation): see finances.belgium.be.</value>
+  </data>
+  <data name="FiscalYear.Year" xml:space="preserve">
+    <value>Year of the expenses</value>
+  </data>
+  <data name="FiscalYear.MaxDailyAmount" xml:space="preserve">
+    <value>Ceiling per day</value>
+  </data>
+  <data name="FiscalYear.TaxCode" xml:space="preserve">
+    <value>Tax-return code</value>
+  </data>
+  <data name="FiscalYear.Add" xml:space="preserve">
+    <value>Add a year</value>
+  </data>
+  <data name="FiscalYear.Duplicate" xml:space="preserve">
+    <value>This year already exists.</value>
+  </data>
+  <data name="FiscalYear.Saved" xml:space="preserve">
+    <value>Ceiling {0} saved.</value>
+  </data>
+  <data name="FiscalYear.Deleted" xml:space="preserve">
+    <value>Ceiling {0} deleted.</value>
+  </data>
+  <data name="FiscalYear.ConfirmDelete" xml:space="preserve">
+    <value>Delete the {0} ceiling?</value>
+  </data>
+  <data name="FiscalAttestation.MissingResponsible" xml:space="preserve">
+    <value>The responsible person's name or signature is missing from the organisation settings: they will stay blank at the bottom of each box II.</value>
   </data>
 </root>

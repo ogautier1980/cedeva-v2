@@ -10,19 +10,22 @@ namespace Cedeva.Tests.TestSupport;
 /// </summary>
 public sealed class FakeEmailService : IEmailService
 {
-    public sealed record Message(IReadOnlyList<string> To, string Subject, string Html, string? AttachmentPath);
+    /// <param name="AttachmentBytes">The attachment's content, read at send time (callers may delete
+    /// a temporary attachment file right after sending).</param>
+    public sealed record Message(IReadOnlyList<string> To, string Subject, string Html, string? AttachmentPath,
+        byte[]? AttachmentBytes = null);
 
     public List<Message> Sent { get; } = new();
 
     public Task SendEmailAsync(string to, string subject, string htmlContent, string? attachmentPath = null)
     {
-        Sent.Add(new Message(new[] { to }, subject, htmlContent, attachmentPath));
+        Sent.Add(new Message(new[] { to }, subject, htmlContent, attachmentPath, ReadAttachment(attachmentPath)));
         return Task.CompletedTask;
     }
 
     public Task SendEmailAsync(IEnumerable<string> to, string subject, string htmlContent, string? attachmentPath = null)
     {
-        Sent.Add(new Message(to.ToList(), subject, htmlContent, attachmentPath));
+        Sent.Add(new Message(to.ToList(), subject, htmlContent, attachmentPath, ReadAttachment(attachmentPath)));
         return Task.CompletedTask;
     }
 
@@ -31,4 +34,7 @@ public sealed class FakeEmailService : IEmailService
         Sent.Add(new Message(new[] { userEmail }, $"Welcome: {organisationName}", userName, null));
         return Task.CompletedTask;
     }
+
+    private static byte[]? ReadAttachment(string? path) =>
+        !string.IsNullOrEmpty(path) && File.Exists(path) ? File.ReadAllBytes(path) : null;
 }
