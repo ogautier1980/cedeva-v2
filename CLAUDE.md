@@ -184,6 +184,11 @@ src/
   sending for a year without it. Sent by e-mail one at a time (parent page) or all at once
   (`FiscalAttestations`), PDF attached through a temporary file (`FiscalAttestationSender`)
 - The PDF texts are the official French ones of the client's model (not localized)
+- SPF Finances guide rules (brochure 145): parent + child national register numbers printed; order
+  number `year-parentId-childId` (`FiscalAttestationPdf.OrderNumber`); org N°BCE in Cadre I; signatory
+  name + « qualité » (`Organisation.ResponsibleName` / `ResponsibleTitle`); max 4 periods per Cadre II,
+  beyond that extra attestations suffixed `-1`, `-2` (`SplitAttestations`); daily rates shown — all of
+  them — only when one exceeds the ceiling (`ShowDailyRates`)
 
 ### Excursions
 - CRUD with soft-delete; linked to an activity, a date and target groups (time slot and type are no

@@ -147,6 +147,20 @@ Fait le 19/11/2026 (étape 4) :
   d'un stage à l'autre). À l'ajout d'un membre, repris de son stage le plus récent. Données
   existantes copiées dans les affectations.
 
+Fait le 19/11/2026 — **attestation fiscale conforme au guide du SPF Finances** (brochure 145) :
+numéros de registre national du parent et de l'enfant, numéro d'ordre (année-parent-enfant),
+N°BCE de l'organisation, « qualité » du signataire (nouveau champ de l'organisation), 4 périodes
+maximum par attestation (au-delà : attestations -1, -2…), tous les tarifs journaliers dès qu'un
+seul dépasse le plafond.
+
+**Questions ouvertes pour Thomas (guide SPF)** :
+1. Frais d'excursion et de repas : le guide les exclut du montant attesté s'ils sont facturés à
+   part. Aujourd'hui, l'attestation reprend tous les paiements du parent.
+2. Organisme certificateur : toujours l'ONE aujourd'hui. Faut-il le rendre configurable par
+   organisation (Kind & Gezin, commune…) ?
+3. Envoi Belcotax-on-web : faut-il un export XML pour le dépôt électronique ?
+4. Coparentalité fiscale : faut-il pouvoir établir deux attestations (une par parent) ?
+
 
 Rien à changer : **facturation des excursions** — le lien de paiement du mail demande déjà le solde
 complet de l'enfant (stage + excursion si le stage n'est pas payé, sinon l'excursion seule).
