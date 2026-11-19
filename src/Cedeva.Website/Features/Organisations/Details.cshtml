@@ -13,9 +13,12 @@
                         <a asp-action="Edit" asp-route-id="@Model.Id" asp-route-returnUrl="@Url.Action("Details", new { id = Model.Id })" class="btn btn-sm btn-primary text-nowrap">
                             <i class="fas fa-edit me-1"></i>@Localizer["Edit"]
                         </a>
-                        <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-sm btn-danger text-nowrap">
-                            <i class="fas fa-trash me-1"></i>@Localizer["Delete"]
-                        </a>
+                        @if (User.IsInRole("Admin"))
+                        {
+                            <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-sm btn-danger text-nowrap">
+                                <i class="fas fa-trash me-1"></i>@Localizer["Delete"]
+                            </a>
+                        }
                     </div>
                 </div>
                 <div class="card-body">
@@ -123,9 +126,18 @@
                     <hr />
 
                     <div class="mt-4">
-                        <a asp-action="Index" class="btn btn-outline-secondary">
-                            <i class="fas fa-arrow-left me-2"></i>@Localizer["BackToList"]
-                        </a>
+                        @if (User.IsInRole("Admin"))
+                        {
+                            <a asp-action="Index" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>@Localizer["BackToList"]
+                            </a>
+                        }
+                        else
+                        {
+                            <a href="/" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>@Localizer["Back"]
+                            </a>
+                        }
                     </div>
                 </div>
             </div>

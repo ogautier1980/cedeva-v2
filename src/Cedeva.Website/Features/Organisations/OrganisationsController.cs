@@ -12,7 +12,9 @@ using Cedeva.Website.Infrastructure;
 
 namespace Cedeva.Website.Features.Organisations;
 
-[Authorize(Roles = "Admin")]
+// Coordinators may view and edit their own organisation (its "Paramètres de l'ASBL"); listing,
+// creating, deleting and exporting organisations stay admin-only.
+[Authorize(Roles = "Admin,Coordinator")]
 public class OrganisationsController : Controller
 {
     private const string SortOrderDescending = "desc";
@@ -44,6 +46,7 @@ public class OrganisationsController : Controller
     }
 
     // GET: Organisations
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Index([FromQuery] OrganisationQueryParameters queryParams)
     {
         // Persist filters to session + redirect to a clean URL, then reload them.
@@ -107,9 +110,15 @@ public class OrganisationsController : Controller
         return View(pagedResult.Items);
     }
 
+    // An admin manages every organisation; a coordinator only their own.
+    private bool CanManage(int organisationId) =>
+        _ctx.CurrentUser.IsAdmin || _ctx.CurrentUser.OrganisationId == organisationId;
+
     // GET: Organisations/Details/5
     public async Task<IActionResult> Details(int id)
     {
+        if (!CanManage(id)) return NotFound();
+
         var organisation = await _organisationRepository.GetByIdAsync(id);
 
         if (organisation == null)
@@ -169,6 +178,7 @@ public class OrganisationsController : Controller
     }
 
     // GET: Organisations/Create
+    [Authorize(Roles = "Admin")]
     public IActionResult Create()
     {
         var viewModel = new OrganisationViewModel
@@ -182,6 +192,7 @@ public class OrganisationsController : Controller
     // POST: Organisations/Create
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Create(OrganisationViewModel viewModel)
     {
         if (ModelState.IsValid)
@@ -221,6 +232,8 @@ public class OrganisationsController : Controller
     // GET: Organisations/Edit/5
     public async Task<IActionResult> Edit(int id, string? returnUrl = null)
     {
+        if (!CanManage(id)) return NotFound();
+
         var organisation = await _organisationRepository.GetByIdAsync(id);
 
         if (organisation == null)
@@ -262,7 +275,7 @@ public class OrganisationsController : Controller
     {
         ViewData["ReturnUrl"] = returnUrl;
 
-        if (id != viewModel.Id)
+        if (id != viewModel.Id || !CanManage(id))
         {
             return NotFound();
         }
@@ -308,7 +321,8 @@ public class OrganisationsController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteLogo(int id)
     {
-        // Admin-only controller, no need for multi-tenancy check
+        if (!CanManage(id)) return NotFound();
+
         var organisation = await _organisationRepository.GetByIdAsync(id);
 
         if (organisation == null)
@@ -336,6 +350,7 @@ public class OrganisationsController : Controller
     }
 
     // GET: Organisations/Delete/5
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Delete(int id)
     {
         var viewModel = await GetOrganisationViewModelWithStatsAsync(id);
@@ -350,6 +365,7 @@ public class OrganisationsController : Controller
 
     // POST: Organisations/Delete/5
     [HttpPost, ActionName("Delete")]
+    [Authorize(Roles = "Admin")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteConfirmed(int id)
     {
@@ -594,6 +610,7 @@ public class OrganisationsController : Controller
 
 
     // GET: Organisations/Export
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Export(string? searchString)
     {
         var query = _context.Organisations
@@ -632,6 +649,7 @@ public class OrganisationsController : Controller
     }
 
     // GET: Organisations/ExportPdf
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> ExportPdf(string? searchString)
     {
         var query = _context.Organisations

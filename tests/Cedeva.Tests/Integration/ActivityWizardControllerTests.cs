@@ -447,6 +447,49 @@ public class ActivityWizardControllerTests
         activity.WizardMaxStepReached.Should().Be(3);
     }
 
+    [Fact]
+    public async Task Step2Next_ReopenedOnActivityWithBookings_DoesNotRemoveABookedDay_ButSavesDayByDay()
+    {
+        using var factory = new CedevaWebApplicationFactory();
+        var (orgId, activityId) = SeedActivity(factory);
+        int bookedDayId;
+        List<int> dayIds;
+        await using (var seedCtx = factory.NewDbContext())
+        {
+            // Active days only: the generated weekend days are inactive, and unticking one is a no-op.
+            dayIds = await seedCtx.ActivityDays.Where(d => d.ActivityId == activityId && d.IsActive)
+                .OrderBy(d => d.DayDate).Select(d => d.DayId).ToListAsync();
+            bookedDayId = dayIds.Last();
+            var activity = await seedCtx.Activities.IgnoreQueryFilters().SingleAsync(a => a.Id == activityId);
+            var org = await seedCtx.Organisations.SingleAsync(o => o.Id == orgId);
+            var parent = TestData.Parent(org);
+            var child = TestData.Child(parent);
+            var booking = TestData.Booking(child, activity, group: null, totalAmount: 20m, paidAmount: 0m);
+            booking.Days.Add(new BookingDay { ActivityDayId = bookedDayId, IsReserved = true });
+            seedCtx.AddRange(parent, child, booking);
+            await seedCtx.SaveChangesAsync();
+        }
+
+        // Untick the booked day, as if the coordinator reopened step 2 from the activity's page.
+        var form = new List<KeyValuePair<string, string>>
+        {
+            new("id", activityId.ToString()),
+            new("AllowDayByDayRegistration", "true")
+        };
+        form.AddRange(dayIds.Where(id => id != bookedDayId).Select(id => new KeyValuePair<string, string>("ActiveDayIds", id.ToString())));
+        var client = factory.CreateClientFor("u1", orgId, "Coordinator");
+
+        var response = await client.PostAsync("/ActivityWizard/Step2Next", new FormUrlEncodedContent(form));
+
+        response.StatusCode.Should().Be(HttpStatusCode.Found);
+        response.Headers.Location!.ToString().Should().Contain("/ActivityWizard/Step2");
+        await using var ctx = factory.NewDbContext();
+        (await ctx.ActivityDays.SingleAsync(d => d.DayId == bookedDayId)).IsActive.Should().BeTrue();
+        (await ctx.BookingDays.AnyAsync(bd => bd.ActivityDayId == bookedDayId)).Should().BeTrue();
+        (await ctx.Activities.IgnoreQueryFilters().SingleAsync(a => a.Id == activityId))
+            .AllowDayByDayRegistration.Should().BeTrue();
+    }
+
     // ------------------------------------------------------------------
     // Step 3 — Règlement
     // ------------------------------------------------------------------
@@ -533,6 +576,59 @@ public class ActivityWizardControllerTests
         await using var ctx = factory.NewDbContext();
         (await ctx.Activities.IgnoreQueryFilters().SingleAsync(a => a.Id == activityId)).RegulationLinkUrl
             .Should().Be("https://example.be/roi.pdf");
+    }
+
+    [Theory]
+    [InlineData("javascript:alert(1)")]
+    [InlineData("data:text/html,x")]
+    [InlineData("www.example.be/roi.pdf")]
+    public async Task Step3_Post_LinkThatIsNotHttp_IsRejected(string link)
+    {
+        // The link becomes an href on the parents' public form.
+        using var factory = new CedevaWebApplicationFactory();
+        var (orgId, activityId) = SeedActivity(factory);
+        var client = factory.CreateClientFor("u1", orgId, "Coordinator");
+
+        var response = await client.PostAsync("/ActivityWizard/Step3", new FormUrlEncodedContent(
+            new Dictionary<string, string>
+            {
+                ["ActivityId"] = activityId.ToString(),
+                ["RegulationLinkUrl"] = link,
+                ["RegulationAcceptanceText"] = "J'accepte",
+            }));
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        System.Net.WebUtility.HtmlDecode(await response.Content.ReadAsStringAsync())
+            .Should().Contain("L'adresse doit commencer par http:// ou https://.");
+        await using var ctx = factory.NewDbContext();
+        (await ctx.Activities.IgnoreQueryFilters().SingleAsync(a => a.Id == activityId)).RegulationLinkUrl
+            .Should().BeNull();
+    }
+
+    [Fact]
+    public async Task Step3_Post_ReopenedWithTheUploadedPdfPath_IsAccepted()
+    {
+        // Step 3 pre-fills the field with the stored value, which is a local path after a PDF upload.
+        using var factory = new CedevaWebApplicationFactory();
+        var (orgId, activityId) = SeedActivity(factory);
+        await using (var seedCtx = factory.NewDbContext())
+        {
+            var activity = await seedCtx.Activities.IgnoreQueryFilters().SingleAsync(a => a.Id == activityId);
+            activity.RegulationLinkUrl = "/uploads/1/roi.pdf";
+            await seedCtx.SaveChangesAsync();
+        }
+        var client = factory.CreateClientFor("u1", orgId, "Coordinator");
+
+        var response = await client.PostAsync("/ActivityWizard/Step3", new FormUrlEncodedContent(
+            new Dictionary<string, string>
+            {
+                ["ActivityId"] = activityId.ToString(),
+                ["RegulationLinkUrl"] = "/uploads/1/roi.pdf",
+                ["RegulationAcceptanceText"] = "J'accepte",
+            }));
+
+        response.StatusCode.Should().Be(HttpStatusCode.Found);
+        response.Headers.Location!.ToString().Should().Contain("/ActivityWizard/Step4");
     }
 
     [Fact]

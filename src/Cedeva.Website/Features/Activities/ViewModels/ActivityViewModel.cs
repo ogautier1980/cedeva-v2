@@ -154,6 +154,23 @@ public class ActivityViewModel : AuditableViewModel
     /// les champs vides pour ne pas recopier les valeurs de l'organisation dans l'activité.
     /// </summary>
     public ActivitySignaletiqueDefaultsViewModel? OrganisationDefaults { get; set; }
+
+    /// <summary>
+    /// Résumé des réglages du formulaire d'inscription, saisis dans l'assistant de création.
+    /// Renseigné uniquement en consultation (Details).
+    /// </summary>
+    public ActivityRegistrationSettingsViewModel? RegistrationSettings { get; set; }
+}
+
+/// <summary>Réglages du formulaire d'inscription en ligne, affichés sur la page du stage.</summary>
+public class ActivityRegistrationSettingsViewModel
+{
+    public bool AllowDayByDayRegistration { get; set; }
+    public int? MaxChildrenPerDay { get; set; }
+    public int BirthYearQuotaCount { get; set; }
+    public string? RegulationLinkUrl { get; set; }
+    public DateTime? PublicationStartDate { get; set; }
+    public DateTime? PublicationEndDate { get; set; }
 }
 
 /// <summary>

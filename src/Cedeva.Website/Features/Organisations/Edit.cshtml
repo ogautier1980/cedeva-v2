@@ -147,7 +147,8 @@
                         <div class="d-flex justify-content-between">
                             @{
                                 var returnUrl = ViewData["ReturnUrl"]?.ToString();
-                                var cancelUrl = !string.IsNullOrEmpty(returnUrl) ? returnUrl : Url.Action("Index");
+                                var cancelUrl = !string.IsNullOrEmpty(returnUrl) ? returnUrl
+                                    : User.IsInRole("Admin") ? Url.Action("Index") : Url.Action("Details", new { id = Model.Id });
                             }
                             <a href="@cancelUrl" class="btn btn-outline-secondary text-nowrap">
                                 <i class="fas fa-arrow-left me-2"></i>@Localizer["Cancel"]

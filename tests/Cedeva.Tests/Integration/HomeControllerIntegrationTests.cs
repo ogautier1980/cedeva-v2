@@ -68,6 +68,19 @@ public class HomeControllerIntegrationTests
     }
 
     [Fact]
+    public async Task Index_AsCoordinator_LinksToTheirOrganisationSettings()
+    {
+        using var factory = new CedevaWebApplicationFactory();
+        var orgId = factory.Seed(ctx => { var org = TestData.Organisation(); ctx.Add(org); return org; }).Id;
+
+        var html = System.Net.WebUtility.HtmlDecode(
+            await factory.CreateClientFor("u1", orgId, "Coordinator").GetStringAsync("/"));
+
+        html.Should().Contain($"/Organisations/Details/{orgId}");
+        html.Should().Contain("Paramètres de l'ASBL");
+    }
+
+    [Fact]
     public async Task Layout_LanguageSelector_ShowsWhenEnabledInConfig()
     {
         using var baseFactory = new CedevaWebApplicationFactory();

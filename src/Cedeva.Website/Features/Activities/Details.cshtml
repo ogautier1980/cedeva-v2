@@ -136,6 +136,73 @@
                     </dl>
                 </div>
             </div>
+
+            @if (Model.RegistrationSettings is { } settings)
+            {
+                var frBe = new System.Globalization.CultureInfo("fr-BE");
+                <div class="card shadow mb-4" id="registration-settings">
+                    <div class="card-header">
+                        <h6 class="mb-0"><i class="fas fa-file-signature me-2"></i>@Localizer["Activities.RegistrationSettings"]</h6>
+                    </div>
+                    <div class="card-body">
+                        <p class="text-muted small">@Localizer["Activities.RegistrationSettingsHelp"]</p>
+                        <dl class="row mb-0 align-items-center">
+                            <dt class="col-sm-3">@Localizer["Activity.AllowDayByDayRegistration"]</dt>
+                            <dd class="col-sm-7">@(settings.AllowDayByDayRegistration ? Localizer["Yes"] : Localizer["No"])</dd>
+                            <dd class="col-sm-2 text-sm-end">
+                                <a asp-controller="ActivityWizard" asp-action="Step2" asp-route-id="@Model.Id" class="btn btn-sm btn-outline-secondary"><i class="fas fa-edit me-1"></i>@Localizer["Edit"]</a>
+                            </dd>
+
+                            <dt class="col-sm-3">@Localizer["Activity.MaxChildrenPerDay"]</dt>
+                            <dd class="col-sm-7">@(settings.MaxChildrenPerDay?.ToString() ?? Localizer["Activities.NoLimit"].Value)</dd>
+                            <dd class="col-sm-2 text-sm-end">
+                                <a asp-controller="ActivityWizard" asp-action="Step4" asp-route-id="@Model.Id" class="btn btn-sm btn-outline-secondary"><i class="fas fa-edit me-1"></i>@Localizer["Edit"]</a>
+                            </dd>
+
+                            <dt class="col-sm-3">@Localizer["Activity.BirthYearQuotas"]</dt>
+                            <dd class="col-sm-7">@(settings.BirthYearQuotaCount > 0 ? Localizer["Activities.BirthYearQuotaCount", settings.BirthYearQuotaCount].Value : Localizer["Activities.NoLimit"].Value)</dd>
+                            <dd class="col-sm-2 text-sm-end">
+                                <a asp-controller="ActivityWizard" asp-action="Step4" asp-route-id="@Model.Id" class="btn btn-sm btn-outline-secondary"><i class="fas fa-edit me-1"></i>@Localizer["Edit"]</a>
+                            </dd>
+
+                            <dt class="col-sm-3">@Localizer["ActivityWizard.Step3Title"]</dt>
+                            <dd class="col-sm-7 text-break">
+                                @if (!string.IsNullOrEmpty(settings.RegulationLinkUrl))
+                                {
+                                    <a href="@settings.RegulationLinkUrl" target="_blank" rel="noopener">@settings.RegulationLinkUrl</a>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">@Localizer["Activities.NotDefined"]</span>
+                                }
+                            </dd>
+                            <dd class="col-sm-2 text-sm-end">
+                                <a asp-controller="ActivityWizard" asp-action="Step3" asp-route-id="@Model.Id" class="btn btn-sm btn-outline-secondary"><i class="fas fa-edit me-1"></i>@Localizer["Edit"]</a>
+                            </dd>
+
+                            <dt class="col-sm-3">@Localizer["ActivityWizard.Step6Title"]</dt>
+                            <dd class="col-sm-7">
+                                @if (settings.PublicationStartDate.HasValue || settings.PublicationEndDate.HasValue)
+                                {
+                                    var window = string.Join(" ", new[]
+                                    {
+                                        settings.PublicationStartDate is { } from ? $"{Localizer["Activities.From"].Value} {from.ToString("dd MMMM yyyy", frBe)}" : null,
+                                        settings.PublicationEndDate is { } to ? $"{Localizer["Activities.ToDate"].Value} {to.ToString("dd MMMM yyyy", frBe)}" : null
+                                    }.Where(part => part != null));
+                                    @window
+                                }
+                                else
+                                {
+                                    <span class="text-muted">@Localizer["Activities.NoLimit"]</span>
+                                }
+                            </dd>
+                            <dd class="col-sm-2 text-sm-end">
+                                <a asp-controller="ActivityWizard" asp-action="Step6" asp-route-id="@Model.Id" class="btn btn-sm btn-outline-secondary"><i class="fas fa-edit me-1"></i>@Localizer["Edit"]</a>
+                            </dd>
+                        </dl>
+                    </div>
+                </div>
+            }
         </div>
 
     </div>

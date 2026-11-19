@@ -185,6 +185,16 @@ public class ActivitiesController : Controller
             })
             .FirstOrDefaultAsync();
 
+        viewModel.RegistrationSettings = new ActivityRegistrationSettingsViewModel
+        {
+            AllowDayByDayRegistration = activity.AllowDayByDayRegistration,
+            MaxChildrenPerDay = activity.MaxChildrenPerDay,
+            BirthYearQuotaCount = await _context.ActivityBirthYearQuotas.CountAsync(q => q.ActivityId == activity.Id),
+            RegulationLinkUrl = activity.RegulationLinkUrl,
+            PublicationStartDate = activity.PublicationStartDate,
+            PublicationEndDate = activity.PublicationEndDate
+        };
+
         // Fetch user display names for audit fields
         await PopulateAuditDisplayNamesAsync(viewModel, activity.CreatedBy, activity.ModifiedBy);
 

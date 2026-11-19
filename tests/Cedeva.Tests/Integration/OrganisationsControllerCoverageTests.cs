@@ -348,22 +348,27 @@ public class OrganisationsControllerCoverageTests
     }
 
     [Fact]
-    public async Task DeleteLogo_AsCoordinator_IsForbidden()
+    public async Task DeleteLogo_AsCoordinator_OtherOrganisation_ReturnsNotFoundAndKeepsLogo()
     {
+        // Coordinators manage their own organisation only (Paramètres de l'ASBL).
         using var factory = new CedevaWebApplicationFactory();
-        var org = factory.Seed(ctx =>
+        var (own, other) = factory.Seed(ctx =>
         {
-            var o = TestData.Organisation();
-            ctx.Add(o);
-            return o;
+            var a = TestData.Organisation("Org A");
+            var b = TestData.Organisation("Org B");
+            b.LogoUrl = "/uploads/2/logo.png";
+            ctx.AddRange(a, b);
+            return (a, b);
         });
 
-        var client = factory.CreateClientFor("coord", organisationId: org.Id, role: "Coordinator");
+        var client = factory.CreateClientFor("coord", organisationId: own.Id, role: "Coordinator");
         var response = await client.PostAsync(
-            $"/Organisations/DeleteLogo/{org.Id}",
+            $"/Organisations/DeleteLogo/{other.Id}",
             new FormUrlEncodedContent(new Dictionary<string, string>()));
 
-        response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+        using var db = factory.NewDbContext();
+        db.Organisations.Single(o => o.Id == other.Id).LogoUrl.Should().Be("/uploads/2/logo.png");
     }
 
     // ---------------------------------------------------------------------

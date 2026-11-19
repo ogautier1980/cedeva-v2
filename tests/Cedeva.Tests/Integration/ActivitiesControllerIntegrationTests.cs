@@ -149,6 +149,38 @@ public class ActivitiesControllerIntegrationTests
     }
 
     [Fact]
+    public async Task Details_ShowsRegistrationSettingsWithLinksToTheWizardSteps()
+    {
+        using var factory = new CedevaWebApplicationFactory();
+        Organisation org = null!;
+        Activity activity = null!;
+        factory.Seed(ctx =>
+        {
+            org = TestData.Organisation();
+            activity = TestData.Activity(org, "StageReglages");
+            activity.AllowDayByDayRegistration = true;
+            activity.MaxChildrenPerDay = 100;
+            activity.RegulationLinkUrl = "https://example.be/roi.pdf";
+            activity.BirthYearQuotas.Add(new ActivityBirthYearQuota { BirthYear = 2018, MaxChildren = 10 });
+            activity.BirthYearQuotas.Add(new ActivityBirthYearQuota { BirthYear = 2019, MaxChildren = 12 });
+            ctx.AddRange(org, activity);
+            return 0;
+        });
+
+        var client = factory.CreateClientFor("u1", org.Id, "Coordinator");
+        var html = System.Net.WebUtility.HtmlDecode(await client.GetStringAsync($"/Activities/Details/{activity.Id}"));
+
+        html.Should().Contain("Formulaire d'inscription en ligne");
+        html.Should().Contain("100");
+        html.Should().Contain("2 année(s) de naissance");
+        html.Should().Contain("https://example.be/roi.pdf");
+        foreach (var step in new[] { 2, 3, 4, 6 })
+        {
+            html.Should().Contain($"/ActivityWizard/Step{step}/{activity.Id}");
+        }
+    }
+
+    [Fact]
     public async Task Details_UnknownId_ReturnsNotFound()
     {
         using var factory = new CedevaWebApplicationFactory();

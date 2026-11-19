@@ -5,6 +5,7 @@
 
 <div class="container-fluid">
     @await Html.PartialAsync("_WizardProgress", (2, Model.ActivityId, Model.WizardMaxStepReached))
+    @await Html.PartialAsync("_AlertMessages")
     <div class="row">
         <div class="col-lg-10">
             <div class="card shadow">

@@ -81,12 +81,13 @@ public class OrganisationsControllerIntegrationTests
     }
 
     [Fact]
-    public async Task Details_AsCoordinator_IsForbidden()
+    public async Task Details_AsCoordinator_OwnOrganisation_ReturnsOkWithoutAdminButtons()
     {
+        // "Paramètres de l'ASBL": a coordinator sees and edits their own organisation.
         using var factory = new CedevaWebApplicationFactory();
         var org = factory.Seed(ctx =>
         {
-            var o = TestData.Organisation();
+            var o = TestData.Organisation("Mon ASBL");
             ctx.Add(o);
             return o;
         });
@@ -94,7 +95,73 @@ public class OrganisationsControllerIntegrationTests
         var client = factory.CreateClientFor("coord", organisationId: org.Id, role: "Coordinator");
         var response = await client.GetAsync($"/Organisations/Details/{org.Id}");
 
-        response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var html = await response.Content.ReadAsStringAsync();
+        html.Should().Contain("Mon ASBL");
+        html.Should().Contain($"/Organisations/Edit/{org.Id}");
+        html.Should().NotContain($"/Organisations/Delete/{org.Id}");
+    }
+
+    [Fact]
+    public async Task Details_AsCoordinator_OtherOrganisation_ReturnsNotFound()
+    {
+        using var factory = new CedevaWebApplicationFactory();
+        var (own, other) = factory.Seed(ctx =>
+        {
+            var a = TestData.Organisation("Org A");
+            var b = TestData.Organisation("Org B");
+            ctx.AddRange(a, b);
+            return (a, b);
+        });
+
+        var client = factory.CreateClientFor("coord", organisationId: own.Id, role: "Coordinator");
+        var response = await client.GetAsync($"/Organisations/Details/{other.Id}");
+
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
+
+    [Fact]
+    public async Task Edit_Post_AsCoordinator_OwnOrganisation_PersistsChanges()
+    {
+        using var factory = new CedevaWebApplicationFactory();
+        var org = factory.Seed(ctx =>
+        {
+            var o = TestData.Organisation("Ancien Nom");
+            ctx.Add(o);
+            return o;
+        });
+
+        var client = factory.CreateClientFor("coord", organisationId: org.Id, role: "Coordinator");
+        var response = await client.PostAsync($"/Organisations/Edit/{org.Id}",
+            ValidForm(id: org.Id.ToString(), name: "Nouveau Nom",
+                description: "Une description mise à jour et longue", city: "Liège"));
+
+        response.StatusCode.Should().Be(HttpStatusCode.Found);
+        using var db = factory.NewDbContext();
+        db.Organisations.Single(o => o.Id == org.Id).Name.Should().Be("Nouveau Nom");
+    }
+
+    [Fact]
+    public async Task Edit_AsCoordinator_OtherOrganisation_ReturnsNotFoundAndDoesNotPersist()
+    {
+        using var factory = new CedevaWebApplicationFactory();
+        var (own, other) = factory.Seed(ctx =>
+        {
+            var a = TestData.Organisation("Org A");
+            var b = TestData.Organisation("Org B");
+            ctx.AddRange(a, b);
+            return (a, b);
+        });
+        var client = factory.CreateClientFor("coord", organisationId: own.Id, role: "Coordinator");
+
+        (await client.GetAsync($"/Organisations/Edit/{other.Id}")).StatusCode.Should().Be(HttpStatusCode.NotFound);
+        var post = await client.PostAsync($"/Organisations/Edit/{other.Id}",
+            ValidForm(id: other.Id.ToString(), name: "Piratée",
+                description: "Une description mise à jour et longue", city: "Liège"));
+
+        post.StatusCode.Should().Be(HttpStatusCode.NotFound);
+        using var db = factory.NewDbContext();
+        db.Organisations.Single(o => o.Id == other.Id).Name.Should().Be("Org B");
     }
 
     // ---------------------------------------------------------------------

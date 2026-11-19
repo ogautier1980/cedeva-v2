@@ -5002,4 +5002,25 @@
   <data name="ActivityManagement.NewTeamMember" xml:space="preserve">
     <value>Nouveau membre</value>
   </data>
+  <data name="Activities.RegistrationSettings" xml:space="preserve">
+    <value>Formulaire d'inscription en ligne</value>
+  </data>
+  <data name="Activities.RegistrationSettingsHelp" xml:space="preserve">
+    <value>Réglages du formulaire d'inscription des parents. « Modifier » ouvre l'étape correspondante de l'assistant de création.</value>
+  </data>
+  <data name="Activities.NoLimit" xml:space="preserve">
+    <value>Pas de limite</value>
+  </data>
+  <data name="Activities.BirthYearQuotaCount" xml:space="preserve">
+    <value>{0} année(s) de naissance</value>
+  </data>
+  <data name="ActivityWizard.DaysLockedByBookings" xml:space="preserve">
+    <value>Ce stage a déjà des inscriptions : les jours se modifient depuis la page « Modifier » du stage, qui demande confirmation avant de retirer un jour réservé. Le réglage « Inscription au jour le jour » a bien été enregistré.</value>
+  </data>
+  <data name="Validation.HttpUrlRequired" xml:space="preserve">
+    <value>L'adresse doit commencer par http:// ou https://.</value>
+  </data>
+  <data name="Home.OrganisationSettings" xml:space="preserve">
+    <value>Paramètres de l'ASBL</value>
+  </data>
 </root>

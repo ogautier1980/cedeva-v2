@@ -247,14 +247,18 @@ public class ActivityWizardController : Controller
 
         if (ActiveDayIds != null)
         {
+            // The wizard is also reopened on existing activities (from the activity's page): it never
+            // removes a booked day without the confirmation that the Edit page asks for.
             var dayResult = await _activityDayService.ApplyDayActivationChangesAsync(
-                activity, ActiveDayIds, addDaysToBookings: false, removeDaysConfirmed: true);
+                activity, ActiveDayIds, addDaysToBookings: false, removeDaysConfirmed: false);
 
             if (dayResult.Outcome != DayActivationOutcome.Applied)
             {
-                // No bookings can exist yet at this point in the wizard (the activity was just
-                // created), so the confirmation/info branches of Edit's day editor are unreachable
-                // here — but guard anyway rather than silently drop the change.
+                // Keep the day changes unsaved (they need Edit's confirmation) but still store the
+                // day-by-day setting, with a targeted update that ignores the tracked day changes.
+                await _context.Activities.Where(a => a.Id == id)
+                    .ExecuteUpdateAsync(s => s.SetProperty(a => a.AllowDayByDayRegistration, AllowDayByDayRegistration));
+                TempData[ControllerExtensions.WarningMessageKey] = _localizer["ActivityWizard.DaysLockedByBookings"].Value;
                 return RedirectToAction(nameof(Step2), new { id });
             }
         }
@@ -323,6 +327,11 @@ public class ActivityWizardController : Controller
         {
             ModelState.AddModelError(nameof(viewModel.RegulationLinkUrl), _localizer["Validation.RegulationDocumentRequired"]);
         }
+        else if (hasTypedUrl && !hasUpload && !IsAllowedRegulationLink(viewModel.RegulationLinkUrl!.Trim()))
+        {
+            // The link is rendered as an href on the parents' public form: refuse javascript: & co.
+            ModelState.AddModelError(nameof(viewModel.RegulationLinkUrl), _localizer["Validation.HttpUrlRequired"]);
+        }
 
         if (!ModelState.IsValid)
         {
@@ -376,6 +385,12 @@ public class ActivityWizardController : Controller
 
     private static bool IsOwnUploadedFile(string? url) =>
         !string.IsNullOrEmpty(url) && url.StartsWith("/uploads/", StringComparison.Ordinal);
+
+    // An http(s) address, or the path of a PDF uploaded here (the field is pre-filled with it).
+    private static bool IsAllowedRegulationLink(string url) =>
+        IsOwnUploadedFile(url)
+        || (Uri.TryCreate(url, UriKind.Absolute, out var uri)
+            && (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps));
 
     // ------------------------------------------------------------------
     // Step 4 — Limitations
@@ -652,10 +667,12 @@ public class ActivityWizardController : Controller
         activity.PublicationEndDate = viewModel.PublicationEndDate;
         activity.NoActiveFormMessage = string.IsNullOrWhiteSpace(viewModel.NoActiveFormMessage) ? null : viewModel.NoActiveFormMessage.Trim();
         activity.RedirectUrlAfterSubmit = string.IsNullOrWhiteSpace(viewModel.RedirectUrlAfterSubmit) ? null : viewModel.RedirectUrlAfterSubmit.Trim();
+        var wasAlreadyCompleted = activity.WizardMaxStepReached >= 7;
         AdvanceWizardProgress(activity, 7);
         await _context.SaveChangesAsync();
 
-        TempData[ControllerExtensions.SuccessMessageKey] = _localizer["Message.ActivityCreated"].Value;
+        TempData[ControllerExtensions.SuccessMessageKey] = _localizer[
+            wasAlreadyCompleted ? "Message.ActivityUpdated" : "Message.ActivityCreated"].Value;
 
         // Step 7 = the existing iframe personalization screen, unchanged.
         return RedirectToAction("EmbedCode", "PublicRegistration", new { id = activity.Id, fromWizard = true });
