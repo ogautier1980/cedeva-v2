@@ -1,7 +1,8 @@
 using Cedeva.Core.Entities;
 using Cedeva.Core.Helpers;
 using Cedeva.Core.Interfaces;
-using Cedeva.Infrastructure.Data;
+using Cedeva.Infrastructure.Data;
+using Cedeva.Infrastructure.Services.Financial;
 using Cedeva.Website.Features.Activities.ViewModels;
 using Cedeva.Website.Infrastructure;
 using Cedeva.Website.Localization;
@@ -283,6 +284,7 @@ public class ActivitiesController : Controller
         // Seed the new activity with a copy of the organisation's template library.
         await _templateService.CopyOrganisationTemplatesToActivityAsync(activity.OrganisationId, activity.Id);
         await _questionTemplateService.CopyOrganisationTemplatesToActivityAsync(activity.OrganisationId, activity.Id);
+        await ActivityBudgetTemplate.ApplyAsync(_context, activity.Id);
 
         await CreateActivityGroupsAsync(activity.Id, viewModel.NewGroups);
         await CreateActivityQuestionsAsync(activity.Id, viewModel.NewQuestions);

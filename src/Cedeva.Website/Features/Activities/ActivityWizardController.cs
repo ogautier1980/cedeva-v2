@@ -1,7 +1,8 @@
 using Cedeva.Core.Entities;
 using Cedeva.Core.Helpers;
 using Cedeva.Core.Interfaces;
-using Cedeva.Infrastructure.Data;
+using Cedeva.Infrastructure.Data;
+using Cedeva.Infrastructure.Services.Financial;
 using Cedeva.Website.Features.Activities.ViewModels;
 using Cedeva.Website.Infrastructure;
 using Cedeva.Website.Localization;
@@ -154,6 +155,7 @@ public class ActivityWizardController : Controller
 
         await _templateService.CopyOrganisationTemplatesToActivityAsync(activity.OrganisationId, activity.Id);
         await _questionTemplateService.CopyOrganisationTemplatesToActivityAsync(activity.OrganisationId, activity.Id);
+        await ActivityBudgetTemplate.ApplyAsync(_context, activity.Id);
 
         _logger.LogInformation("Activity {Name} created via wizard by user {UserId}", activity.Name, _currentUserService.UserId);
 

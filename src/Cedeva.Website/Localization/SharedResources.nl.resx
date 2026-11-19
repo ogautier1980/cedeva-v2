@@ -4681,10 +4681,10 @@
     <value>Type</value>
   </data>
   <data name="ExpenseCategory.Budget" xml:space="preserve">
-    <value>Budget</value>
+    <value>Modelbudget</value>
   </data>
   <data name="ExpenseCategory.BudgetHelp" xml:space="preserve">
-    <value>Optioneel — gepland bedrag voor deze categorie.</value>
+    <value>Optioneel — modelbudget van de categorie, gekopieerd naar elke nieuwe activiteit en daarna per activiteit aanpasbaar (Rekeningen &gt; Budget).</value>
   </data>
   <data name="Expense.CategoryHelp" xml:space="preserve">
     <value>Kies een categorie of typ een nieuwe.</value>
@@ -5087,5 +5087,29 @@
   </data>
   <data name="ActivityManagement.TeamAssignmentSaved" xml:space="preserve">
     <value>Statuut en tarief van {0} opgeslagen voor deze activiteit.</value>
+  </data>
+  <data name="Financial.Budget.Title" xml:space="preserve">
+    <value>Budget</value>
+  </data>
+  <data name="Financial.Budget.Help" xml:space="preserve">
+    <value>Budget van deze activiteit, per categorie. Bij het aanmaken van de activiteit wordt het gekopieerd uit het modelbudget (scherm Categorieën); wijzig het hier zonder het model aan te passen. De BALANS vergelijkt het met de werkelijke bedragen. Leeg laten = geen budget.</value>
+  </data>
+  <data name="Financial.Budget.ImportTemplate" xml:space="preserve">
+    <value>Modelbudget importeren</value>
+  </data>
+  <data name="Financial.Budget.ConfirmImport" xml:space="preserve">
+    <value>Het budget van deze activiteit vervangen door het modelbudget?</value>
+  </data>
+  <data name="Financial.Budget.Template" xml:space="preserve">
+    <value>Model</value>
+  </data>
+  <data name="Financial.Budget.ForThisActivity" xml:space="preserve">
+    <value>Deze activiteit</value>
+  </data>
+  <data name="Financial.Budget.Saved" xml:space="preserve">
+    <value>Budget van de activiteit opgeslagen.</value>
+  </data>
+  <data name="Financial.Budget.TemplateImported" xml:space="preserve">
+    <value>Modelbudget geïmporteerd ({0} categorie(ën)).</value>
   </data>
 </root>

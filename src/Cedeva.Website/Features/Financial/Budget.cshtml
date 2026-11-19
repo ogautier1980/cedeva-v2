@@ -1,0 +1,73 @@
+@model Cedeva.Website.Features.Financial.ViewModels.ActivityBudgetViewModel
+@{
+    ViewData["Title"] = Localizer["Financial.Budget.Title"];
+    ViewData["ActivityId"] = Model.ActivityId;
+    ViewData["ActivityName"] = Model.ActivityName;
+    ViewData["NavSection"] = "Financial";
+    ViewData["NavAction"] = "Budget";
+    var culture = System.Globalization.CultureInfo.CurrentCulture;
+    var budgetSections = new[]
+    {
+        (Title: Localizer["Financial.Incomings"].Value, Header: "bg-success text-white", Icon: "fa-arrow-down", Lines: Model.Lines.Where(l => l.IsIncome).ToList()),
+        (Title: Localizer["Financial.Outgoings"].Value, Header: "bg-danger text-white", Icon: "fa-arrow-up", Lines: Model.Lines.Where(l => !l.IsIncome).ToList())
+    };
+}
+
+@await Html.PartialAsync("_AlertMessages")
+
+<div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+    <h2><i class="fas fa-calculator me-2"></i>@Localizer["Financial.Budget.Title"]</h2>
+    <form asp-action="ImportBudgetTemplate" method="post"
+          onsubmit="return confirm(@Json.Serialize(Localizer["Financial.Budget.ConfirmImport"].Value));">
+        <button type="submit" class="btn btn-outline-secondary text-nowrap">
+            <i class="fas fa-file-import me-2"></i>@Localizer["Financial.Budget.ImportTemplate"]
+        </button>
+    </form>
+</div>
+<p class="text-muted">@Localizer["Financial.Budget.Help"]</p>
+
+<form asp-action="Budget" method="post">
+    <div class="row g-4">
+        @foreach (var budgetSection in budgetSections)
+        {
+            <div class="col-lg-6">
+                <div class="card h-100">
+                    <div class="card-header @budgetSection.Header">
+                        <h6 class="mb-0"><i class="fas @budgetSection.Icon me-2"></i>@budgetSection.Title</h6>
+                    </div>
+                    <div class="card-body p-0">
+                        <table class="table table-sm mb-0 align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th scope="col">@Localizer["Field.Name"]</th>
+                                    <th scope="col" class="text-end text-muted">@Localizer["Financial.Budget.Template"]</th>
+                                    <th scope="col" class="text-end" style="width: 11rem;">@Localizer["Financial.Budget.ForThisActivity"]</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var line in budgetSection.Lines)
+                                {
+                                    <tr>
+                                        <td>@line.Name</td>
+                                        <td class="text-end text-muted">@(line.TemplateAmount.HasValue ? line.TemplateAmount.Value.ToString("N2", culture) + " €" : "-")</td>
+                                        <td>
+                                            <div class="input-group input-group-sm">
+                                                <input type="text" inputmode="decimal" class="form-control text-end"
+                                                       name="amounts[@line.ExpenseCategoryId]" id="amount_@line.ExpenseCategoryId"
+                                                       value="@line.Amount?.ToString("0.##", culture)" aria-label="@line.Name" />
+                                                <span class="input-group-text">€</span>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+    <div class="mt-3">
+        <button type="submit" class="btn btn-primary"><i class="fas fa-save me-2"></i>@Localizer["Save"]</button>
+    </div>
+</form>

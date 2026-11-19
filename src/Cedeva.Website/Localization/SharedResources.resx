@@ -4703,10 +4703,10 @@
     <value>Type</value>
   </data>
   <data name="ExpenseCategory.Budget" xml:space="preserve">
-    <value>Budget</value>
+    <value>Budget modèle</value>
   </data>
   <data name="ExpenseCategory.BudgetHelp" xml:space="preserve">
-    <value>Optionnel — montant prévisionnel pour cette catégorie.</value>
+    <value>Optionnel — budget modèle de la catégorie, copié dans chaque nouveau stage puis modifiable stage par stage (Comptes &gt; Budget).</value>
   </data>
   <data name="Expense.CategoryHelp" xml:space="preserve">
     <value>Choisissez une catégorie ou saisissez-en une nouvelle.</value>
@@ -5109,5 +5109,29 @@
   </data>
   <data name="ActivityManagement.TeamAssignmentSaved" xml:space="preserve">
     <value>Statut et tarif de {0} enregistrés pour ce stage.</value>
+  </data>
+  <data name="Financial.Budget.Title" xml:space="preserve">
+    <value>Budget</value>
+  </data>
+  <data name="Financial.Budget.Help" xml:space="preserve">
+    <value>Budget de ce stage, catégorie par catégorie. À la création du stage, il est copié du budget modèle (écran Catégories) ; modifiez-le ici sans toucher au modèle. Le BILAN le compare aux montants réels. Laisser vide = pas de budget.</value>
+  </data>
+  <data name="Financial.Budget.ImportTemplate" xml:space="preserve">
+    <value>Importer le budget modèle</value>
+  </data>
+  <data name="Financial.Budget.ConfirmImport" xml:space="preserve">
+    <value>Remplacer le budget de ce stage par le budget modèle ?</value>
+  </data>
+  <data name="Financial.Budget.Template" xml:space="preserve">
+    <value>Modèle</value>
+  </data>
+  <data name="Financial.Budget.ForThisActivity" xml:space="preserve">
+    <value>Ce stage</value>
+  </data>
+  <data name="Financial.Budget.Saved" xml:space="preserve">
+    <value>Budget du stage enregistré.</value>
+  </data>
+  <data name="Financial.Budget.TemplateImported" xml:space="preserve">
+    <value>Budget modèle importé ({0} catégorie(s)).</value>
   </data>
 </root>

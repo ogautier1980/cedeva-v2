@@ -135,6 +135,12 @@
                                     </a>
                                 </li>
                                 <li class="nav-item">
+                                    <a class="nav-link @(navAction == "Budget" ? "active" : "")"
+                                       asp-action="Budget" asp-controller="Financial">
+                                        <i class="fas fa-calculator"></i> @Localizer["Financial.Budget.Title"]
+                                    </a>
+                                </li>
+                                <li class="nav-item">
                                     <a class="nav-link" asp-action="Index" asp-controller="ExpenseCategories">
                                         <i class="fas fa-tags"></i> @Localizer["Financial.Categories"]
                                     </a>

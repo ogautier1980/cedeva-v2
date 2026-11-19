@@ -4681,10 +4681,10 @@
     <value>Type</value>
   </data>
   <data name="ExpenseCategory.Budget" xml:space="preserve">
-    <value>Budget</value>
+    <value>Template budget</value>
   </data>
   <data name="ExpenseCategory.BudgetHelp" xml:space="preserve">
-    <value>Optional — planned amount for this category.</value>
+    <value>Optional — the category's template budget, copied into every new activity and then editable per activity (Accounts &gt; Budget).</value>
   </data>
   <data name="Expense.CategoryHelp" xml:space="preserve">
     <value>Pick a category or type a new one.</value>
@@ -5087,5 +5087,29 @@
   </data>
   <data name="ActivityManagement.TeamAssignmentSaved" xml:space="preserve">
     <value>Status and rate of {0} saved for this activity.</value>
+  </data>
+  <data name="Financial.Budget.Title" xml:space="preserve">
+    <value>Budget</value>
+  </data>
+  <data name="Financial.Budget.Help" xml:space="preserve">
+    <value>This activity's budget, category by category. When the activity is created it is copied from the template budget (Categories page); change it here without touching the template. The BALANCE compares it with the actual amounts. Leave empty = no budget.</value>
+  </data>
+  <data name="Financial.Budget.ImportTemplate" xml:space="preserve">
+    <value>Import the template budget</value>
+  </data>
+  <data name="Financial.Budget.ConfirmImport" xml:space="preserve">
+    <value>Replace this activity's budget with the template budget?</value>
+  </data>
+  <data name="Financial.Budget.Template" xml:space="preserve">
+    <value>Template</value>
+  </data>
+  <data name="Financial.Budget.ForThisActivity" xml:space="preserve">
+    <value>This activity</value>
+  </data>
+  <data name="Financial.Budget.Saved" xml:space="preserve">
+    <value>Activity budget saved.</value>
+  </data>
+  <data name="Financial.Budget.TemplateImported" xml:space="preserve">
+    <value>Template budget imported ({0} category(ies)).</value>
   </data>
 </root>

@@ -3,6 +3,7 @@ using Cedeva.Core.Entities;
 using Cedeva.Core.Helpers;
 using Cedeva.Core.Interfaces;
 using Cedeva.Infrastructure.Data;
+using Cedeva.Infrastructure.Services.Financial;
 using Microsoft.EntityFrameworkCore;
 
 namespace Cedeva.Infrastructure.Services.Import;
@@ -114,11 +115,12 @@ public class ActivityCsvImporter : ICsvEntityImporter
             result.Created++;
         }
 
-        // Seed each new activity with the organisation's template libraries (e-mail + questions).
+        // Seed each new activity with the organisation's template libraries (e-mail, questions, budget).
         foreach (var id in createdActivityIds)
         {
             await _templateService.CopyOrganisationTemplatesToActivityAsync(organisationId, id);
             await _questionTemplateService.CopyOrganisationTemplatesToActivityAsync(organisationId, id);
+            await ActivityBudgetTemplate.ApplyAsync(_context, id, ct);
         }
 
         return result;

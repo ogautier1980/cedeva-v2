@@ -393,10 +393,12 @@ public class FinancialControllerCoverageTests
         {
             var bar = new ExpenseCategory
             {
-                OrganisationId = g.OrgId, Name = "BarMarker", CategoryType = ExpenseCategoryType.Income, Budget = 500m
+                OrganisationId = g.OrgId, Name = "BarMarker", CategoryType = ExpenseCategoryType.Income, Budget = 777m
             };
             ctx.Add(bar);
             ctx.SaveChanges();
+            // The BILAN shows the activity's own budget (777 € is only the organisation's template).
+            ctx.Add(new ActivityCategoryBudget { ActivityId = g.ActivityId, ExpenseCategoryId = bar.Id, Amount = 500m });
             // A category of Entrées can also have Sorties (e.g. buying drinks for the bar).
             ctx.AddRange(
                 new Expense { ActivityId = g.ActivityId, Label = "Ventes bar", Amount = 300m, IsIncome = true, ExpenseCategoryId = bar.Id, Category = bar.Name, ExpenseDate = DateTime.Today, OrganizationPaymentSource = "OrganizationCash" },
@@ -411,6 +413,7 @@ public class FinancialControllerCoverageTests
         var html = await response.Content.ReadAsStringAsync();
         var row = html.Substring(html.IndexOf("BarMarker"), 600);
         row.Should().Contain("300,00").And.Contain("120,00").And.Contain("180,00").And.Contain("500,00");
+        row.Should().NotContain("777,00", "the template budget is not the activity's budget");
     }
 
     [Fact]
@@ -424,10 +427,11 @@ public class FinancialControllerCoverageTests
         {
             var paf = new ExpenseCategory
             {
-                OrganisationId = g.OrgId, Name = "PAF", CategoryType = ExpenseCategoryType.Income, Budget = 900m
+                OrganisationId = g.OrgId, Name = "PAF", CategoryType = ExpenseCategoryType.Income
             };
             ctx.Add(paf);
             ctx.SaveChanges();
+            ctx.Add(new ActivityCategoryBudget { ActivityId = g.ActivityId, ExpenseCategoryId = paf.Id, Amount = 900m });
             ctx.Add(new Expense { ActivityId = g.ActivityId, Label = "P.A.F. en liquide", Amount = 40m, IsIncome = true, ExpenseCategoryId = paf.Id, Category = paf.Name, ExpenseDate = DateTime.Today, OrganizationPaymentSource = "OrganizationCash" });
             return 0;
         });
@@ -1073,5 +1077,93 @@ public class FinancialControllerCoverageTests
         var response = await client.GetAsync("/Financial/ExportTeamSalaries");
 
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+    }
+
+    // ---------------------------------------------------------------------
+    // Budget per activity (Thomas, 19/11/2026), copied from the categories' template budget
+    // ---------------------------------------------------------------------
+
+    private static int SeedTemplateCategories(CedevaWebApplicationFactory factory, int orgId) => factory.Seed(ctx =>
+    {
+        var food = new ExpenseCategory { OrganisationId = orgId, Name = "Alimentation", CategoryType = ExpenseCategoryType.Expense, Budget = 400m };
+        ctx.AddRange(food,
+            new ExpenseCategory { OrganisationId = orgId, Name = "Transfert", CategoryType = ExpenseCategoryType.OffBalance, Budget = 50m },
+            new ExpenseCategory { OrganisationId = orgId, Name = "Divers", CategoryType = ExpenseCategoryType.Expense });
+        ctx.SaveChanges();
+        return food.Id;
+    });
+
+    [Fact]
+    public async Task Budget_Post_SavesTheActivityBudget_AndAnEmptyFieldRemovesIt()
+    {
+        using var factory = new CedevaWebApplicationFactory();
+        var g = SeedFullGraph(factory);
+        var foodId = SeedTemplateCategories(factory, g.OrgId);
+        var client = await ClientWithActivitySelected(factory, g.OrgId, g.ActivityId);
+
+        var html = await client.GetStringAsync("/Financial/Budget");
+        html.Should().Contain("Alimentation").And.Contain($"name=\"amounts[{foodId}]\"").And.NotContain("Transfert");
+
+        var response = await client.PostAsync("/Financial/Budget", new FormUrlEncodedContent(new Dictionary<string, string>
+        {
+            [$"amounts[{foodId}]"] = "350,50"
+        }));
+        response.StatusCode.Should().Be(HttpStatusCode.Found);
+        await using (var db = factory.NewDbContext())
+        {
+            (await db.ActivityCategoryBudgets.SingleAsync(b => b.ActivityId == g.ActivityId)).Amount.Should().Be(350.50m);
+            (await db.ExpenseCategories.IgnoreQueryFilters().SingleAsync(c => c.Id == foodId)).Budget.Should().Be(400m, "the template is untouched");
+        }
+
+        await client.PostAsync("/Financial/Budget", new FormUrlEncodedContent(new Dictionary<string, string> { [$"amounts[{foodId}]"] = "" }));
+        await using (var db = factory.NewDbContext())
+        {
+            (await db.ActivityCategoryBudgets.AnyAsync(b => b.ActivityId == g.ActivityId)).Should().BeFalse();
+        }
+    }
+
+    [Fact]
+    public async Task Budget_ImportTemplate_ReplacesTheActivityBudget_WithoutHorsBilan()
+    {
+        using var factory = new CedevaWebApplicationFactory();
+        var g = SeedFullGraph(factory);
+        var foodId = SeedTemplateCategories(factory, g.OrgId);
+        factory.Seed(ctx =>
+        {
+            ctx.Add(new ActivityCategoryBudget { ActivityId = g.ActivityId, ExpenseCategoryId = foodId, Amount = 1m });
+            return 0;
+        });
+        var client = await ClientWithActivitySelected(factory, g.OrgId, g.ActivityId);
+
+        var response = await client.PostAsync("/Financial/ImportBudgetTemplate",
+            new FormUrlEncodedContent(Array.Empty<KeyValuePair<string, string>>()));
+
+        response.StatusCode.Should().Be(HttpStatusCode.Found);
+        await using var db = factory.NewDbContext();
+        var budgets = await db.ActivityCategoryBudgets.Where(b => b.ActivityId == g.ActivityId).ToListAsync();
+        budgets.Should().ContainSingle().Which.Amount.Should().Be(400m);
+    }
+
+    [Fact]
+    public async Task CreatingAnActivity_CopiesTheTemplateBudget()
+    {
+        using var factory = new CedevaWebApplicationFactory();
+        Organisation org = null!;
+        factory.Seed(ctx => { org = TestData.Organisation(); ctx.Add(org); return 0; });
+        SeedTemplateCategories(factory, org.Id);
+        var client = factory.CreateClientFor("u1", org.Id, "Coordinator");
+
+        var response = await client.PostAsync("/ActivityWizard/Step1", new FormUrlEncodedContent(new Dictionary<string, string>
+        {
+            ["Name"] = "Stage Budget Modèle",
+            ["StartDate"] = DateTime.Today.AddMonths(2).ToString("yyyy-MM-dd"),
+            ["EndDate"] = DateTime.Today.AddMonths(2).AddDays(4).ToString("yyyy-MM-dd")
+        }));
+
+        response.StatusCode.Should().Be(HttpStatusCode.Found);
+        await using var db = factory.NewDbContext();
+        var activityId = (await db.Activities.IgnoreQueryFilters().SingleAsync(a => a.Name == "Stage Budget Modèle")).Id;
+        (await db.ActivityCategoryBudgets.Where(b => b.ActivityId == activityId).Select(b => b.Amount).ToListAsync())
+            .Should().Equal(400m);
     }
 }

@@ -809,6 +809,121 @@ public class FinancialController : Controller
     // GET: Financial/Report — replaced by the BILAN page; kept so existing links still land somewhere.
     public IActionResult Report() => RedirectToAction(nameof(Balance));
 
+    // GET: Financial/Budget — this activity's budget per category (Thomas, 19/11/2026: « chaque stage
+    // peut avoir son budget »), copied from the organisation's template and edited here.
+    public async Task<IActionResult> Budget()
+    {
+        var activityId = HttpContext.Session.GetInt32(SessionKeyActivityId);
+        if (!activityId.HasValue)
+        {
+            return RedirectToAction(ActionIndex, ControllerActivities);
+        }
+
+        var activity = await _context.Activities.FirstOrDefaultAsync(a => a.Id == activityId.Value);
+        if (activity == null)
+        {
+            return NotFound();
+        }
+
+        await RegistrationFeesCategory.EnsureAsync(_context, activity.OrganisationId);
+        var budgets = await _context.ActivityCategoryBudgets
+            .Where(b => b.ActivityId == activity.Id)
+            .ToDictionaryAsync(b => b.ExpenseCategoryId, b => b.Amount);
+        var lines = await _context.ExpenseCategories
+            .Where(c => c.OrganisationId == activity.OrganisationId && c.CategoryType != ExpenseCategoryType.OffBalance)
+            .OrderByDescending(c => c.IsRegistrationFees).ThenBy(c => c.Name)
+            .Select(c => new ActivityBudgetLineViewModel
+            {
+                ExpenseCategoryId = c.Id,
+                Name = c.Name,
+                IsIncome = c.CategoryType == ExpenseCategoryType.Income,
+                TemplateAmount = c.Budget
+            })
+            .ToListAsync();
+        foreach (var line in lines)
+        {
+            line.Amount = budgets.TryGetValue(line.ExpenseCategoryId, out var amount) ? amount : null;
+        }
+
+        return View(new ActivityBudgetViewModel { ActivityId = activity.Id, ActivityName = activity.Name, Lines = lines });
+    }
+
+    // POST: Financial/Budget — saves the budget typed per category (empty = no budget).
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Budget(Dictionary<int, decimal?> amounts)
+    {
+        var activityId = HttpContext.Session.GetInt32(SessionKeyActivityId);
+        if (!activityId.HasValue)
+        {
+            return RedirectToAction(ActionIndex, ControllerActivities);
+        }
+
+        var activity = await _context.Activities.FirstOrDefaultAsync(a => a.Id == activityId.Value);
+        if (activity == null)
+        {
+            return NotFound();
+        }
+
+        if (!ModelState.IsValid || amounts.Values.Any(a => a < 0))
+        {
+            this.SetErrorMessage(_ctx.Localizer["Validation.InvalidValue"].Value);
+            return RedirectToAction(nameof(Budget));
+        }
+
+        // Only this organisation's categories can carry a budget line.
+        var categoryIds = await _context.ExpenseCategories
+            .Where(c => c.OrganisationId == activity.OrganisationId && c.CategoryType != ExpenseCategoryType.OffBalance)
+            .Select(c => c.Id)
+            .ToListAsync();
+        var existing = await _context.ActivityCategoryBudgets
+            .Where(b => b.ActivityId == activity.Id)
+            .ToListAsync();
+
+        foreach (var categoryId in categoryIds)
+        {
+            var line = existing.FirstOrDefault(b => b.ExpenseCategoryId == categoryId);
+            var amount = amounts.TryGetValue(categoryId, out var typed) ? typed : null;
+            if (amount == null)
+            {
+                if (line != null) _context.ActivityCategoryBudgets.Remove(line);
+            }
+            else if (line == null)
+            {
+                _context.ActivityCategoryBudgets.Add(new ActivityCategoryBudget { ActivityId = activity.Id, ExpenseCategoryId = categoryId, Amount = amount.Value });
+            }
+            else
+            {
+                line.Amount = amount.Value;
+            }
+        }
+
+        await _context.SaveChangesAsync();
+        this.SetSuccessMessage(_ctx.Localizer["Financial.Budget.Saved"].Value);
+        return RedirectToAction(nameof(Budget));
+    }
+
+    // POST: Financial/ImportBudgetTemplate — replaces this activity's budget with the template.
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> ImportBudgetTemplate()
+    {
+        var activityId = HttpContext.Session.GetInt32(SessionKeyActivityId);
+        if (!activityId.HasValue)
+        {
+            return RedirectToAction(ActionIndex, ControllerActivities);
+        }
+
+        if (!await _context.Activities.AnyAsync(a => a.Id == activityId.Value))
+        {
+            return NotFound();
+        }
+
+        var copied = await ActivityBudgetTemplate.ApplyAsync(_context, activityId.Value);
+        this.SetSuccessMessage(_ctx.Localizer["Financial.Budget.TemplateImported", copied].Value);
+        return RedirectToAction(nameof(Budget));
+    }
+
     // GET: Financial/Balance — BILAN: per category, Entrées / Sorties / Bilan next to the budget.
     public async Task<IActionResult> Balance()
     {
@@ -839,6 +954,10 @@ public class FinancialController : Controller
             .Where(e => e.ActivityId == activityId.Value)
             .ToListAsync();
         var registrationFees = await RegistrationFeesCategory.EnsureAsync(_context, activity.OrganisationId);
+        // The BILAN compares with this activity's own budget (copied from the template, then edited).
+        var budgets = await _context.ActivityCategoryBudgets
+            .Where(b => b.ActivityId == activity.Id)
+            .ToDictionaryAsync(b => b.ExpenseCategoryId, b => b.Amount);
         var categories = await _context.ExpenseCategories
             .Where(c => c.OrganisationId == activity.OrganisationId && c.CategoryType != ExpenseCategoryType.OffBalance)
             .OrderBy(c => c.Name)
@@ -859,7 +978,7 @@ public class FinancialController : Controller
                 Name = category.Name,
                 Incomings = lines.Where(e => e.IsIncome).Sum(e => e.Amount),
                 Outgoings = lines.Where(e => !e.IsIncome).Sum(e => e.Amount),
-                Budget = category.Budget
+                Budget = budgets.TryGetValue(category.Id, out var budget) ? budget : null
             };
         }
 

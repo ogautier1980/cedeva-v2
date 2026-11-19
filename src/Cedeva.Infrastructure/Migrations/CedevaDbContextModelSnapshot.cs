@@ -221,6 +221,47 @@ namespace Cedeva.Infrastructure.Migrations
                     b.ToTable("ActivityBirthYearQuotas");
                 });
 
+            modelBuilder.Entity("Cedeva.Core.Entities.ActivityCategoryBudget", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("ActivityId")
+                        .HasColumnType("integer");
+
+                    b.Property<decimal>("Amount")
+                        .HasPrecision(10, 2)
+                        .HasColumnType("numeric(10,2)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("ExpenseCategoryId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("ModifiedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ExpenseCategoryId");
+
+                    b.HasIndex("ActivityId", "ExpenseCategoryId")
+                        .IsUnique();
+
+                    b.ToTable("ActivityCategoryBudgets");
+                });
+
             modelBuilder.Entity("Cedeva.Core.Entities.ActivityDay", b =>
                 {
                     b.Property<int>("DayId")
@@ -2019,6 +2060,25 @@ namespace Cedeva.Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("Activity");
+                });
+
+            modelBuilder.Entity("Cedeva.Core.Entities.ActivityCategoryBudget", b =>
+                {
+                    b.HasOne("Cedeva.Core.Entities.Activity", "Activity")
+                        .WithMany()
+                        .HasForeignKey("ActivityId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Cedeva.Core.Entities.ExpenseCategory", "ExpenseCategory")
+                        .WithMany()
+                        .HasForeignKey("ExpenseCategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Activity");
+
+                    b.Navigation("ExpenseCategory");
                 });
 
             modelBuilder.Entity("Cedeva.Core.Entities.ActivityDay", b =>
