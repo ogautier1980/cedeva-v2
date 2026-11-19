@@ -1724,10 +1724,10 @@
     <value>Uitgave bewerken</value>
   </data>
   <data name="Expense.ExpenseType" xml:space="preserve">
-    <value>Type uitgave</value>
+    <value>Effect op de vergoeding</value>
   </data>
   <data name="Expense.ExpenseTypeHelp" xml:space="preserve">
-    <value>Type uitgave (terugbetaling of persoonlijke consumptie)</value>
+    <value>De omschrijving is vrij (opleiding, premie, broodje…): kies enkel of het bij de vergoeding van het lid wordt opgeteld of ervan wordt ingehouden.</value>
   </data>
   <data name="Expense.List" xml:space="preserve">
     <value>Lijst van uitgaven</value>
@@ -1756,9 +1756,6 @@
   <data name="Expense.SelectCategory" xml:space="preserve">
     <value>Categorie selecteren</value>
   </data>
-  <data name="Expense.SelectType" xml:space="preserve">
-    <value>Type selecteren</value>
-  </data>
   <data name="Expense.TeamMemberExpenses" xml:space="preserve">
     <value>Uitgaven teamleden</value>
   </data>
@@ -1769,10 +1766,10 @@
     <value>Type</value>
   </data>
   <data name="ExpenseType.PersonalConsumption" xml:space="preserve">
-    <value>Persoonlijk Verbruik</value>
+    <value>In te houden op de vergoeding</value>
   </data>
   <data name="ExpenseType.Reimbursement" xml:space="preserve">
-    <value>Terugbetaling</value>
+    <value>Toe te voegen aan de vergoeding</value>
   </data>
   <data name="Expenses" xml:space="preserve">
     <value>Kosten</value>
@@ -2174,10 +2171,10 @@
     <value>Verbruik(en)</value>
   </data>
   <data name="Financial.Consumptions" xml:space="preserve">
-    <value>Verbruiken</value>
+    <value>Inhoudingen</value>
   </data>
   <data name="Financial.ConsumptionsCount" xml:space="preserve">
-    <value>Aantal verbruiken</value>
+    <value>Aantal inhoudingen</value>
   </data>
   <data name="Financial.DailyCompensation" xml:space="preserve">
     <value>Dagelijkse onkostenvergoeding</value>
@@ -2312,7 +2309,7 @@
     <value>Betalingen in afwachting</value>
   </data>
   <data name="Financial.PersonalConsumptions" xml:space="preserve">
-    <value>Persoonlijke verbruiken</value>
+    <value>Inhoudingen</value>
   </data>
   <data name="Financial.PleaseSelectTransaction" xml:space="preserve">
     <value>Selecteer een transactie</value>
@@ -2324,10 +2321,10 @@
     <value>Terugbetaling(en)</value>
   </data>
   <data name="Financial.Reimbursements" xml:space="preserve">
-    <value>Terugbetalingen</value>
+    <value>Toevoegingen</value>
   </data>
   <data name="Financial.ReimbursementsCount" xml:space="preserve">
-    <value>Aantal terugbetalingen</value>
+    <value>Aantal toevoegingen</value>
   </data>
   <data name="Financial.RemainingAmount" xml:space="preserve">
     <value>Resterend bedrag</value>
@@ -2396,7 +2393,7 @@
     <value>Totaal boekingen</value>
   </data>
   <data name="Financial.TotalConsumptions" xml:space="preserve">
-    <value>Totaal verbruik</value>
+    <value>Totaal inhoudingen</value>
   </data>
   <data name="Financial.TotalExpenses" xml:space="preserve">
     <value>Totaal uitgaven</value>
@@ -2408,7 +2405,7 @@
     <value>Totaal prestaties</value>
   </data>
   <data name="Financial.TotalReimbursements" xml:space="preserve">
-    <value>Totaal terugbetalingen</value>
+    <value>Totaal toevoegingen</value>
   </data>
   <data name="Financial.TotalRevenue" xml:space="preserve">
     <value>Totale opbrengst</value>
@@ -4456,7 +4453,7 @@
     <value>Datum van de uitgave</value>
   </data>
   <data name="Field.ExpenseType" xml:space="preserve">
-    <value>Type uitgave</value>
+    <value>Effect op de vergoeding</value>
   </data>
   <data name="Field.Filter" xml:space="preserve">
     <value>Filteren</value>

@@ -27,6 +27,12 @@
                         <div class="mb-3">
                             <label for="Label" class="form-label">@Localizer["Expense.Label"]</label>
                             <input asp-for="Label" class="form-control" id="Label" />
+                            <datalist id="teamLineLabels">
+                                @foreach (var teamLineLabel in (ViewBag.TeamLineLabels as List<string>) ?? new List<string>())
+                                {
+                                    <option value="@teamLineLabel"></option>
+                                }
+                            </datalist>
                             <span asp-validation-for="Label" class="text-danger"></span>
                         </div>
 
@@ -53,7 +59,7 @@
                             </div>
                         </div>
 
-                        <div class="mb-3">
+                        <div class="mb-3" id="categoryDiv">
                             <label for="Category" class="form-label">@Localizer["Expense.Category"]</label>
                             @{
                                 var categoryOptions = (ViewBag.ExpenseCategories as List<string>) ?? new List<string>();
@@ -84,7 +90,6 @@
                         <div class="mb-3" id="expenseTypeDiv" style="display: none;">
                             <label for="ExpenseType" class="form-label">@Localizer["Expense.ExpenseType"]</label>
                             <select asp-for="ExpenseType" class="form-select" id="ExpenseType">
-                                <option value="">@Localizer["Expense.SelectType"]</option>
                                 <option value="@Cedeva.Core.Enums.ExpenseType.Reimbursement">@Localizer["ExpenseType.Reimbursement"]</option>
                                 <option value="@Cedeva.Core.Enums.ExpenseType.PersonalConsumption">@Localizer["ExpenseType.PersonalConsumption"]</option>
                             </select>
@@ -119,16 +124,23 @@
             CedevaChoices.initAll('.form-select');
         });
 
-        document.getElementById('AssignedTo').addEventListener('change', function() {
-            const value = this.value;
-            const expenseTypeDiv = document.getElementById('expenseTypeDiv');
-
-            // Show ExpenseType only if a team member is selected (numeric value)
-            if (value && !isNaN(value)) {
-                expenseTypeDiv.style.display = 'block';
+        // A team-member line (numeric AssignedTo) is a pay supplement: its label is free (with the
+        // labels already used as suggestions) and it is added to or deducted from the pay; the
+        // organisation's category does not apply to it.
+        function updateTeamMemberFields() {
+            const value = document.getElementById('AssignedTo').value;
+            const isTeamMember = value && !isNaN(value);
+            document.getElementById('expenseTypeDiv').style.display = isTeamMember ? 'block' : 'none';
+            document.getElementById('categoryDiv').style.display = isTeamMember ? 'none' : 'block';
+            const label = document.getElementById('Label');
+            if (isTeamMember) {
+                label.setAttribute('list', 'teamLineLabels');
             } else {
-                expenseTypeDiv.style.display = 'none';
+                label.removeAttribute('list');
             }
-        });
+        }
+
+        document.getElementById('AssignedTo').addEventListener('change', updateTeamMemberFields);
+        updateTeamMemberFields();
     </script>
 }

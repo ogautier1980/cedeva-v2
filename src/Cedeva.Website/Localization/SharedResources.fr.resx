@@ -1673,10 +1673,10 @@
     <value>Modifier la dépense</value>
   </data>
   <data name="Expense.ExpenseType" xml:space="preserve">
-    <value>Type de dépense</value>
+    <value>Effet sur la rémunération</value>
   </data>
   <data name="Expense.ExpenseTypeHelp" xml:space="preserve">
-    <value>Type de dépense (remboursement ou consommation personnelle)</value>
+    <value>Le libellé est libre (formation, prime, sandwich…) : choisissez seulement s'il s'ajoute à la rémunération du membre ou s'il en est retenu.</value>
   </data>
   <data name="Expense.List" xml:space="preserve">
     <value>Liste des dépenses</value>
@@ -1705,9 +1705,6 @@
   <data name="Expense.SelectCategory" xml:space="preserve">
     <value>Sélectionner une catégorie</value>
   </data>
-  <data name="Expense.SelectType" xml:space="preserve">
-    <value>Sélectionner le type</value>
-  </data>
   <data name="Expense.TeamMemberExpenses" xml:space="preserve">
     <value>Dépenses animateurs</value>
   </data>
@@ -1718,10 +1715,10 @@
     <value>Type</value>
   </data>
   <data name="ExpenseType.PersonalConsumption" xml:space="preserve">
-    <value>Consommation personnelle</value>
+    <value>À retenir sur sa rémunération</value>
   </data>
   <data name="ExpenseType.Reimbursement" xml:space="preserve">
-    <value>Remboursement</value>
+    <value>À ajouter à sa rémunération</value>
   </data>
   <data name="Expenses" xml:space="preserve">
     <value>Frais</value>
@@ -2123,10 +2120,10 @@
     <value>Consommation(s)</value>
   </data>
   <data name="Financial.Consumptions" xml:space="preserve">
-    <value>Consommations</value>
+    <value>Retenues</value>
   </data>
   <data name="Financial.ConsumptionsCount" xml:space="preserve">
-    <value>Nombre de consommations</value>
+    <value>Nombre de retenues</value>
   </data>
   <data name="Financial.DailyCompensation" xml:space="preserve">
     <value>Défraiement journalier</value>
@@ -2261,7 +2258,7 @@
     <value>Paiements en attente</value>
   </data>
   <data name="Financial.PersonalConsumptions" xml:space="preserve">
-    <value>Consommations personnelles</value>
+    <value>Retenues</value>
   </data>
   <data name="Financial.PleaseSelectTransaction" xml:space="preserve">
     <value>Veuillez sélectionner une transaction</value>
@@ -2273,10 +2270,10 @@
     <value>Remboursement(s)</value>
   </data>
   <data name="Financial.Reimbursements" xml:space="preserve">
-    <value>Remboursements</value>
+    <value>Ajouts</value>
   </data>
   <data name="Financial.ReimbursementsCount" xml:space="preserve">
-    <value>Nombre de remboursements</value>
+    <value>Nombre d'ajouts</value>
   </data>
   <data name="Financial.RemainingAmount" xml:space="preserve">
     <value>Montant restant</value>
@@ -2345,7 +2342,7 @@
     <value>Total des réservations</value>
   </data>
   <data name="Financial.TotalConsumptions" xml:space="preserve">
-    <value>Total des consommations</value>
+    <value>Total des retenues</value>
   </data>
   <data name="Financial.TotalExpenses" xml:space="preserve">
     <value>Total des dépenses</value>
@@ -2357,7 +2354,7 @@
     <value>Total des prestations</value>
   </data>
   <data name="Financial.TotalReimbursements" xml:space="preserve">
-    <value>Total des remboursements</value>
+    <value>Total des ajouts</value>
   </data>
   <data name="Financial.TotalRevenue" xml:space="preserve">
     <value>Revenus totaux</value>
@@ -4478,7 +4475,7 @@
     <value>Date de la dépense</value>
   </data>
   <data name="Field.ExpenseType" xml:space="preserve">
-    <value>Type de dépense</value>
+    <value>Effet sur la rémunération</value>
   </data>
   <data name="Field.Filter" xml:space="preserve">
     <value>Filtrer</value>

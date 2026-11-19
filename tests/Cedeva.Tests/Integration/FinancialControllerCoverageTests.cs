@@ -749,6 +749,51 @@ public class FinancialControllerCoverageTests
     }
 
     [Fact]
+    public async Task CreateExpense_Post_TeamMemberSupplement_FreeLabelDeducted_WithoutOrganisationCategory()
+    {
+        // Thomas (19/11/2026): pay supplements get free labels (formation, prime, sandwich…); only
+        // their effect on the pay (added / deducted) is chosen. No organisation category applies.
+        using var factory = new CedevaWebApplicationFactory();
+        var g = SeedFullGraph(factory);
+        var client = await ClientWithActivitySelected(factory, g.OrgId, g.ActivityId);
+
+        var response = await client.PostAsync("/Financial/CreateExpense",
+            new FormUrlEncodedContent(new Dictionary<string, string>
+            {
+                ["Label"] = "Sandwich",
+                ["Amount"] = "3",
+                ["AssignedTo"] = g.TeamMemberId.ToString(),
+                ["ExpenseType"] = nameof(ExpenseType.PersonalConsumption),
+                ["Category"] = "CategorieInterditeMembre",
+                ["ExpenseDate"] = "2026-07-02",
+                ["ActivityId"] = g.ActivityId.ToString()
+            }));
+
+        response.StatusCode.Should().Be(HttpStatusCode.Found);
+        await using var ctx = factory.NewDbContext();
+        var created = await ctx.Expenses.IgnoreQueryFilters().SingleAsync(e => e.Label == "Sandwich");
+        created.ExpenseType.Should().Be(ExpenseType.PersonalConsumption);
+        created.Category.Should().BeNull();
+        created.ExpenseCategoryId.Should().BeNull();
+        (await ctx.ExpenseCategories.IgnoreQueryFilters().AnyAsync(c => c.Name == "CategorieInterditeMembre")).Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task CreateExpense_Get_FromTheMemberSheet_SuggestsTheSupplementLabelsAlreadyUsed()
+    {
+        using var factory = new CedevaWebApplicationFactory();
+        var g = SeedFullGraph(factory); // has a team-member line labelled "Transport"
+        var client = factory.CreateClientFor("u1", g.OrgId, "Coordinator");
+
+        var html = System.Net.WebUtility.HtmlDecode(await client.GetStringAsync(
+            $"/Financial/CreateExpense/{g.ActivityId}?teamMemberId={g.TeamMemberId}"));
+
+        html.Should().Contain("<datalist id=\"teamLineLabels\">");
+        html.Should().Contain("<option value=\"Transport\"></option>");
+        html.Should().Contain("À retenir sur sa rémunération");
+    }
+
+    [Fact]
     public async Task CreateExpense_Post_Invalid_ReRendersWithoutPersisting()
     {
         using var factory = new CedevaWebApplicationFactory();

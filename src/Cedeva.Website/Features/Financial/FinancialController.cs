@@ -351,6 +351,14 @@ public class FinancialController : Controller
             .OrderBy(c => c.Name)
             .Select(c => c.Name)
             .ToListAsync();
+        // Pay supplements have free labels (training, bonus, sandwich…): suggest the ones already used.
+        ViewBag.TeamLineLabels = await _context.Expenses
+            .Where(e => e.TeamMemberId != null && e.Activity.OrganisationId == orgId)
+            .Select(e => e.Label)
+            .Distinct()
+            .OrderBy(label => label)
+            .Take(50)
+            .ToListAsync();
     }
 
     /// <summary>
@@ -395,6 +403,9 @@ public class FinancialController : Controller
             return View(viewModel);
         }
 
+        // A team member's pay supplement has a free label but no organisation category.
+        if (int.TryParse(viewModel.AssignedTo, out _))
+            viewModel.Category = null;
         var expenseCategoryId = await EnsureExpenseCategoryAsync(activityId.Value, viewModel.Category);
 
         var expense = new Expense
@@ -509,6 +520,9 @@ public class FinancialController : Controller
             return View(viewModel);
         }
 
+        // A team member's pay supplement has a free label but no organisation category.
+        if (int.TryParse(viewModel.AssignedTo, out _))
+            viewModel.Category = null;
         var expenseCategoryId = await EnsureExpenseCategoryAsync(expense.ActivityId, viewModel.Category);
 
         expense.Label = viewModel.Label;

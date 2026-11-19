@@ -1724,10 +1724,10 @@
     <value>Edit expense</value>
   </data>
   <data name="Expense.ExpenseType" xml:space="preserve">
-    <value>Expense type</value>
+    <value>Effect on the pay</value>
   </data>
   <data name="Expense.ExpenseTypeHelp" xml:space="preserve">
-    <value>Expense type (reimbursement or personal consumption)</value>
+    <value>The label is free (training, bonus, sandwich…): just choose whether it is added to the member's pay or deducted from it.</value>
   </data>
   <data name="Expense.List" xml:space="preserve">
     <value>Expenses list</value>
@@ -1756,9 +1756,6 @@
   <data name="Expense.SelectCategory" xml:space="preserve">
     <value>Select a category</value>
   </data>
-  <data name="Expense.SelectType" xml:space="preserve">
-    <value>Select type</value>
-  </data>
   <data name="Expense.TeamMemberExpenses" xml:space="preserve">
     <value>Team member expenses</value>
   </data>
@@ -1769,10 +1766,10 @@
     <value>Type</value>
   </data>
   <data name="ExpenseType.PersonalConsumption" xml:space="preserve">
-    <value>Personal Consumption</value>
+    <value>Deducted from the pay</value>
   </data>
   <data name="ExpenseType.Reimbursement" xml:space="preserve">
-    <value>Reimbursement</value>
+    <value>Added to the pay</value>
   </data>
   <data name="Expenses" xml:space="preserve">
     <value>Expenses</value>
@@ -2174,10 +2171,10 @@
     <value>Consumption(s)</value>
   </data>
   <data name="Financial.Consumptions" xml:space="preserve">
-    <value>Consumptions</value>
+    <value>Deductions</value>
   </data>
   <data name="Financial.ConsumptionsCount" xml:space="preserve">
-    <value>Number of consumptions</value>
+    <value>Number of deductions</value>
   </data>
   <data name="Financial.DailyCompensation" xml:space="preserve">
     <value>Daily compensation</value>
@@ -2312,7 +2309,7 @@
     <value>Pending payments</value>
   </data>
   <data name="Financial.PersonalConsumptions" xml:space="preserve">
-    <value>Personal consumptions</value>
+    <value>Deductions</value>
   </data>
   <data name="Financial.PleaseSelectTransaction" xml:space="preserve">
     <value>Please select a transaction</value>
@@ -2324,10 +2321,10 @@
     <value>Reimbursement(s)</value>
   </data>
   <data name="Financial.Reimbursements" xml:space="preserve">
-    <value>Reimbursements</value>
+    <value>Additions</value>
   </data>
   <data name="Financial.ReimbursementsCount" xml:space="preserve">
-    <value>Number of reimbursements</value>
+    <value>Number of additions</value>
   </data>
   <data name="Financial.RemainingAmount" xml:space="preserve">
     <value>Remaining amount</value>
@@ -2396,7 +2393,7 @@
     <value>Total bookings</value>
   </data>
   <data name="Financial.TotalConsumptions" xml:space="preserve">
-    <value>Total consumptions</value>
+    <value>Total deductions</value>
   </data>
   <data name="Financial.TotalExpenses" xml:space="preserve">
     <value>Total expenses</value>
@@ -2408,7 +2405,7 @@
     <value>Total prestations</value>
   </data>
   <data name="Financial.TotalReimbursements" xml:space="preserve">
-    <value>Total reimbursements</value>
+    <value>Total additions</value>
   </data>
   <data name="Financial.TotalRevenue" xml:space="preserve">
     <value>Total revenue</value>
@@ -4456,7 +4453,7 @@
     <value>Expense date</value>
   </data>
   <data name="Field.ExpenseType" xml:space="preserve">
-    <value>Expense type</value>
+    <value>Effect on the pay</value>
   </data>
   <data name="Field.Filter" xml:space="preserve">
     <value>Filter</value>
