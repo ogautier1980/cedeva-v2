@@ -284,12 +284,14 @@ public class BookingsPresencesE2ETests
         var presenceCheckbox = page.Locator($".presence-checkbox[data-bookingday-id='{bookingDayId}']");
         (await presenceCheckbox.CountAsync()).Should().Be(1, "the confirmed child should be listed for the selected day");
 
-        // Ticking the checkbox fires the AJAX POST to UpdatePresence. Wait for that request to finish.
-        await presenceCheckbox.CheckAsync();
-        await page.WaitForResponseAsync(r =>
+        // Ticking the checkbox fires the AJAX POST to UpdatePresence. Start waiting BEFORE ticking:
+        // waiting afterwards missed a fast response and timed out (flaky on the CI runner).
+        var responseTask = page.WaitForResponseAsync(r =>
             r.Url.Contains("/ActivityManagement/UpdatePresence", StringComparison.OrdinalIgnoreCase)
             && r.Status == 200,
             new() { Timeout = 15000 });
+        await presenceCheckbox.CheckAsync();
+        await responseTask;
 
         await using var db = _fx.Factory.NewDbContext();
         var bookingDay = await db.BookingDays
