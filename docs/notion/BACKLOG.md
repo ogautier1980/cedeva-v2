@@ -103,21 +103,45 @@ catégorie.
 - **Emails — retirer « Type de modèle »** : impacte l'import/copie de modèles (un modèle par type)
   et le modèle par défaut des excursions — à repenser plutôt qu'à masquer.
 - **Comptes — « Attribué à »** encore présent sur `CreateExpense`/`EditExpense` (fiche membre).
-- **ONE — attestation fiscale** : attendre le modèle de PoM.
+- **ONE — attestation fiscale** : modèle reçu le 19/11/2026, voir les réponses ci-dessous.
 
-**Questions ouvertes pour Thomas :**
-1. Budget des catégories par organisation (actuel) ou par activité ?
-2. Si « Voir tout » disparaît de l'accueil, où placer Enfants, Parents, Modèles, Import ?
-3. Excursion : montant facturé à la création de l'excursion ou à l'envoi du mail (actuel) ?
-   « Modifier » est barré sur la capture : on retire l'édition ? (Plusieurs groupes ciblés restent
-   possibles : « un groupe précis » dans le texte n'est pas une restriction, la ligne « Groupes
-   ciblés » n'est pas barrée sur la capture 14.)
-4. Un bénévole avec un tarif journalier renseigné doit-il être payé 0 ? (aujourd'hui le calcul
-   ignore le statut)
-5. Compléments équipe : garder 2 types (remboursement / consommation) ou des catégories
-   (Formation, Prime, Sandwich…) ?
-6. À confirmer : Caisse / Compte, P.A.F. fixe, dépannage facturé, inscription par jour en réglage
-   d'activité (choix faits sans lui).
+**Réponses de Thomas (mail du 19/11/2026, 14 questions)** — modèle d'attestation fiscale reçu
+(`Attestation fiscale.pdf`, formulaire 281.86, 4 pages).
+
+Confirmé tel quel : « Payé par » Caisse / Compte ; inscription au jour le jour en réglage de stage ;
+« Modifier » une excursion reste possible ; plusieurs groupes par excursion.
+
+Fait le 19/11/2026 (étape 1) :
+- **Langue** masquée « pour le moment » : réglage `Features:ShowLanguageSelector` (faux par défaut).
+- **Réglages du stage** introuvables : carte « Formulaire d'inscription en ligne » sur la page du stage
+  (jour le jour, max/jour, quotas, règlement, affichage) avec « Modifier » vers l'étape de
+  l'assistant. L'étape 2 rouverte sur un stage avec inscriptions ne retire plus un jour réservé sans
+  la confirmation de « Modifier ». Le lien du règlement n'accepte plus que http(s) (il devient un
+  href sur le formulaire public).
+- **Paramètres de l'ASBL** introuvables : un coordinateur voit et modifie sa propre organisation
+  (lien sur l'accueil) ; liste, création, suppression et exports restent admin.
+
+À faire :
+- **P.A.F.** : garder la ligne fixe du BILAN, mais P.A.F. doit aussi exister comme catégorie des
+  comptes pour les encodages à la main, avec une ligne automatique « Paiements en ligne ».
+- **Compléments équipe** : libellé libre au lieu des 2 types fixes.
+- **Max d'enfants par jour** : vrai comptage par jour (complet le lundi ≠ bloqué le mardi).
+- **Attestation fiscale** selon le modèle : p.1 lettre (année, plafond/jour — 16,90 € pour 2025 —,
+  code 1384), p.2 explications fixes, p.3 cadre I (organisme + stages, ONE certificateur, période),
+  p.4 cadre II (n° d'ordre, parent, enfant, une ligne par période : dates, jours de présence,
+  montant ; « Fait à », responsable, signature). Une attestation par association et par an, tous
+  les stages regroupés. Décisions à prendre : une par enfant (le 281.86 est par enfant) ; montants
+  payés dans l'année civile ou stages de l'année ; génération/envoi en masse ; exclusion après le
+  14e anniversaire ; plafond par an en réglage. Infos : https://finances.belgium.be/fr/asbl/attestation-garde-enfant
+- **Budget par stage**, à partir d'un modèle de budget importable dans un stage (comme les mails).
+- **Tarif de l'équipe par stage** : la « réserve » ne garde que l'identité (nom, RN, formé…) ; le
+  tarif (bénévole ou non) s'encode dans le stage — lien stage/membre avec données propres.
+
+Rien à changer : **facturation des excursions** — le lien de paiement du mail demande déjà le solde
+complet de l'enfant (stage + excursion si le stage n'est pas payé, sinon l'excursion seule).
+
+En attente de Thomas : **dépannage** (pas à cet endroit — captures promises), **« Voir tout »**,
+**« Type de modèle »**.
 
 ## Lot A — Accueil & Navigation
 
