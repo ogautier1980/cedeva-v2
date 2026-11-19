@@ -15,4 +15,10 @@ public class ActivityWeekOption
 
     /// <summary>The same days with their dates, for the day-by-day picker.</summary>
     public List<(int DayId, DateTime Date)> Days { get; set; } = new();
+
+    /// <summary>Days of this week that reached the activity's MaxChildrenPerDay (greyed out in the forms).</summary>
+    public HashSet<int> FullDayIds { get; set; } = new();
+
+    /// <summary>A week is booked as a whole: one full day makes it unavailable.</summary>
+    public bool HasFullDay => FullDayIds.Count > 0;
 }

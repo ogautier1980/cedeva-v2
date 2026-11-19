@@ -508,7 +508,8 @@ public class PublicRegistrationControllerCoverageTests
     }
 
     // ---------------------------------------------------------------------
-    // Register GET/POST: MaxChildrenPerDay capacity cap.
+    // Register GET/POST: MaxChildrenPerDay — a per-day limit; here every day is already taken, so
+    // nothing is left to book (the per-day cases are in PublicRegistrationDayByDayTests).
     // ---------------------------------------------------------------------
 
     [Fact]
@@ -521,9 +522,13 @@ public class PublicRegistrationControllerCoverageTests
             var a = TestData.Activity(org, "Stage Complet");
             a.MaxChildrenPerDay = 1;
             a.FullMessage = "COMPLET, plus de places disponibles.";
+            a.StartDate = NextMonday();
+            a.EndDate = a.StartDate.AddDays(4);
+            ActivityDayGenerator.GenerateDays(a);
             var parent = TestData.Parent(org);
             var c = TestData.Child(parent);
             var existing = TestData.Booking(c, a, group: null, totalAmount: 0m, paidAmount: 0m);
+            existing.Days = a.Days.Select(d => new BookingDay { ActivityDay = d, IsReserved = true }).ToList();
             ctx.AddRange(org, a, parent, c, existing);
             return a;
         });
@@ -546,9 +551,13 @@ public class PublicRegistrationControllerCoverageTests
             var org = TestData.Organisation();
             activity = TestData.Activity(org, "Stage Complet Post");
             activity.MaxChildrenPerDay = 1;
+            activity.StartDate = NextMonday();
+            activity.EndDate = activity.StartDate.AddDays(4);
+            ActivityDayGenerator.GenerateDays(activity);
             var parent = TestData.Parent(org);
             var c = TestData.Child(parent);
             var existing = TestData.Booking(c, activity, group: null, totalAmount: 0m, paidAmount: 0m);
+            existing.Days = activity.Days.Select(d => new BookingDay { ActivityDay = d, IsReserved = true }).ToList();
             ctx.AddRange(org, activity, parent, c, existing);
             return 0;
         });

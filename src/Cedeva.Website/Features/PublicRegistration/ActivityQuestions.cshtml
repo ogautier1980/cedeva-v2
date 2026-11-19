@@ -37,10 +37,11 @@
                                     <div class="form-check">
                                         <input type="checkbox" name="SelectedWeeks" value="@week.WeekNumber" class="form-check-input week-checkbox"
                                                id="week_@week.WeekNumber" data-days="@week.DayIds.Count"
-                                               checked="@(Model.SelectedWeeks.Contains(week.WeekNumber))" />
+                                               checked="@(Model.SelectedWeeks.Contains(week.WeekNumber) && !week.HasFullDay)" disabled="@week.HasFullDay" />
                                         <label class="form-check-label" for="week_@week.WeekNumber">
                                             @Localizer["PublicRegistration.WeekLabel", week.WeekNumber]
                                             (@week.StartDate.ToString("dd/MM") - @week.EndDate.ToString("dd/MM"))
+@if (week.HasFullDay) { <span class="badge bg-secondary ms-1">@Localizer["PublicRegistration.Full"]</span> }
                                         </label>
                                     </div>
                                 }

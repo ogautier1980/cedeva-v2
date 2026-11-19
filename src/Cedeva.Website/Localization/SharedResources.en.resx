@@ -5013,4 +5013,10 @@
   <data name="ExpenseCategory.RegistrationFeesCannotBeDeleted" xml:space="preserve">
     <value>The P.A.F. category cannot be deleted: it includes the registration payments.</value>
   </data>
+  <data name="PublicRegistration.Full" xml:space="preserve">
+    <value>full</value>
+  </data>
+  <data name="PublicRegistration.FullDays" xml:space="preserve">
+    <value>No places left on: {0}.</value>
+  </data>
 </root>

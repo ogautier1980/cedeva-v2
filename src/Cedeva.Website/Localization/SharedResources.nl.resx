@@ -5013,4 +5013,10 @@
   <data name="ExpenseCategory.RegistrationFeesCannotBeDeleted" xml:space="preserve">
     <value>De categorie P.A.F. kan niet worden verwijderd: ze omvat de betalingen van de inschrijvingen.</value>
   </data>
+  <data name="PublicRegistration.Full" xml:space="preserve">
+    <value>volzet</value>
+  </data>
+  <data name="PublicRegistration.FullDays" xml:space="preserve">
+    <value>Geen plaats meer op: {0}.</value>
+  </data>
 </root>

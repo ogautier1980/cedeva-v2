@@ -125,4 +125,95 @@ public class PublicRegistrationDayByDayTests
         var booking = db.Bookings.IgnoreQueryFilters().Include(b => b.Days).Single(b => b.ActivityId == activityId);
         booking.Days.Should().HaveCount(5, "week 1 only — posted days are ignored for a week-based activity");
     }
+
+    // ---- MaxChildrenPerDay is a per-day limit (Thomas, 19/11/2026): full on Monday must not
+    // block Tuesday.
+
+    /// <summary>Caps the activity at one child per day and fills its first Monday with another child.</summary>
+    private static void FillFirstMonday(CedevaWebApplicationFactory factory, int activityId, int mondayId)
+    {
+        factory.Seed(ctx =>
+        {
+            var activity = ctx.Activities.IgnoreQueryFilters().Single(a => a.Id == activityId);
+            activity.MaxChildrenPerDay = 1;
+            var org = ctx.Organisations.Single(o => o.Id == activity.OrganisationId);
+            var parent = TestData.Parent(org);
+            var child = TestData.Child(parent);
+            var booking = TestData.Booking(child, activity, group: null, totalAmount: 20m, paidAmount: 0m);
+            booking.Days.Add(new BookingDay { ActivityDayId = mondayId, IsReserved = true });
+            ctx.AddRange(parent, child, booking);
+            return 0;
+        });
+    }
+
+    [Fact]
+    public async Task Register_Get_MondayFull_GreysOutMondayOnly()
+    {
+        using var factory = new CedevaWebApplicationFactory();
+        var (activityId, dayIds) = SeedTwoWeekActivity(factory, dayByDay: true);
+        FillFirstMonday(factory, activityId, dayIds[0]);
+
+        var html = await (await Anonymous(factory).GetAsync($"/PublicRegistration/Register?activityId={activityId}"))
+            .Content.ReadAsStringAsync();
+
+        html.Should().MatchRegex($@"id=""day_{dayIds[0]}""[^>]*disabled=""disabled""");
+        html.Should().NotMatchRegex($@"id=""day_{dayIds[1]}""[^>]*disabled");
+        html.Should().Contain("complet");
+    }
+
+    [Fact]
+    public async Task Register_Post_MondayFull_TuesdayCanStillBeBooked()
+    {
+        using var factory = new CedevaWebApplicationFactory();
+        var (activityId, dayIds) = SeedTwoWeekActivity(factory, dayByDay: true);
+        FillFirstMonday(factory, activityId, dayIds[0]);
+        var fields = ValidFields(activityId);
+        fields["SelectedDays[0]"] = dayIds[1].ToString(); // Tuesday
+
+        var response = await Anonymous(factory).PostAsync("/PublicRegistration/Register", new FormUrlEncodedContent(fields));
+
+        response.StatusCode.Should().Be(HttpStatusCode.Found);
+        using var db = factory.NewDbContext();
+        db.Bookings.IgnoreQueryFilters().Count(b => b.ActivityId == activityId).Should().Be(2);
+    }
+
+    [Fact]
+    public async Task Register_Post_MondayFull_BookingMondayIsRefusedWithTheDate()
+    {
+        using var factory = new CedevaWebApplicationFactory();
+        var (activityId, dayIds) = SeedTwoWeekActivity(factory, dayByDay: true);
+        FillFirstMonday(factory, activityId, dayIds[0]);
+        var fields = ValidFields(activityId);
+        fields["SelectedDays[0]"] = dayIds[0].ToString(); // the full Monday (form tampered / filled meanwhile)
+        fields["SelectedDays[1]"] = dayIds[1].ToString();
+
+        var response = await Anonymous(factory).PostAsync("/PublicRegistration/Register", new FormUrlEncodedContent(fields));
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var html = System.Net.WebUtility.HtmlDecode(await response.Content.ReadAsStringAsync());
+        html.Should().Contain("Plus de place pour :");
+        using var db = factory.NewDbContext();
+        db.Bookings.IgnoreQueryFilters().Count(b => b.ActivityId == activityId).Should().Be(1);
+    }
+
+    [Fact]
+    public async Task Register_WeekMode_MondayFull_GreysOutThatWeek_ButTheOtherWeekCanBeBooked()
+    {
+        using var factory = new CedevaWebApplicationFactory();
+        var (activityId, dayIds) = SeedTwoWeekActivity(factory, dayByDay: false);
+        FillFirstMonday(factory, activityId, dayIds[0]);
+        var client = Anonymous(factory);
+
+        var html = await (await client.GetAsync($"/PublicRegistration/Register?activityId={activityId}")).Content.ReadAsStringAsync();
+        html.Should().MatchRegex(@"id=""week_1""[^>]*disabled=""disabled""");
+        html.Should().NotMatchRegex(@"id=""week_2""[^>]*disabled");
+
+        var fields = ValidFields(activityId);
+        fields["SelectedWeeks[0]"] = "2";
+        var response = await client.PostAsync("/PublicRegistration/Register", new FormUrlEncodedContent(fields));
+
+        response.StatusCode.Should().Be(HttpStatusCode.Found);
+        using var db = factory.NewDbContext();
+        db.Bookings.IgnoreQueryFilters().Count(b => b.ActivityId == activityId).Should().Be(2);
+    }
 }

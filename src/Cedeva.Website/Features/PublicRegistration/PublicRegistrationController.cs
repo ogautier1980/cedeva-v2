@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
+using System.Globalization;
 using System.Text.Json;
 
 namespace Cedeva.Website.Features.PublicRegistration;
@@ -55,13 +56,47 @@ public class PublicRegistrationController : Controller
         return true;
     }
 
-    // MaxChildrenPerDay is enforced here as a cap on the activity's total active bookings, not a
-    // true per-calendar-day count — the practical reading for a single registration window.
-    private async Task<bool> IsActivityFullAsync(Activity activity)
+    // MaxChildrenPerDay is a true per-day limit (Thomas, 19/11/2026: full on Monday must not block
+    // Tuesday): a day is full once that many bookings reserve it (pending ones included). Fills each
+    // week's FullDayIds so the forms grey those days — or, booked as a whole, those weeks — out.
+    private async Task<List<ActivityWeekOption>> MarkFullDaysAsync(Activity? activity, List<ActivityWeekOption> weeks)
     {
-        if (!activity.MaxChildrenPerDay.HasValue) return false;
-        var count = await _context.Bookings.IgnoreQueryFilters().CountAsync(b => b.ActivityId == activity.Id);
-        return count >= activity.MaxChildrenPerDay.Value;
+        if (activity?.MaxChildrenPerDay is not int max) return weeks;
+
+        var dayIds = weeks.SelectMany(w => w.DayIds).ToList();
+        var reservedCounts = await _context.BookingDays.IgnoreQueryFilters()
+            .Where(bd => bd.IsReserved && dayIds.Contains(bd.ActivityDayId))
+            .GroupBy(bd => bd.ActivityDayId)
+            .Select(g => new { DayId = g.Key, Count = g.Count() })
+            .ToListAsync();
+        var fullDayIds = reservedCounts.Where(c => c.Count >= max).Select(c => c.DayId).ToHashSet();
+
+        foreach (var week in weeks)
+        {
+            week.FullDayIds = week.DayIds.Where(fullDayIds.Contains).ToHashSet();
+        }
+        return weeks;
+    }
+
+    // Nothing left to pick: every day is full (day-by-day) or every week holds a full day.
+    private static bool IsActivityFull(Activity activity, List<ActivityWeekOption> weeks) =>
+        activity.MaxChildrenPerDay.HasValue && weeks.Count > 0 && (activity.AllowDayByDayRegistration
+            ? weeks.All(w => w.DayIds.All(w.FullDayIds.Contains))
+            : weeks.All(w => w.HasFullDay));
+
+    // Refusal message when a registration would reserve a full day: the activity's "full" message
+    // followed by the dates concerned. Null when every selected day still has room.
+    private string? GetFullDaysMessage(Activity activity, List<ActivityWeekOption> weeks, List<int> selectedDayIds)
+    {
+        var fullDates = weeks
+            .SelectMany(w => w.Days.Where(d => w.FullDayIds.Contains(d.DayId)))
+            .Where(d => selectedDayIds.Contains(d.DayId))
+            .Select(d => d.Date.ToString("ddd dd/MM", CultureInfo.CurrentUICulture))
+            .ToList();
+        if (fullDates.Count == 0) return null;
+
+        var fullMessage = activity.FullMessage ?? _localizer["PublicRegistration.ActivityFull"].Value;
+        return $"{fullMessage} {_localizer["PublicRegistration.FullDays", string.Join(", ", fullDates)].Value}";
     }
 
     // Lot K #4: caps registrations by the child's birth year, enforced PER WEEK — a child
@@ -353,7 +388,7 @@ public class PublicRegistrationController : Controller
         var activeDays = await _context.ActivityDays
             .Where(d => d.ActivityId == activityId && d.IsActive)
             .ToListAsync();
-        var weekOptions = BuildWeekOptions(activeDays);
+        var weekOptions = await MarkFullDaysAsync(activity, BuildWeekOptions(activeDays));
 
         var viewModel = new ActivityQuestionsViewModel
         {
@@ -416,11 +451,17 @@ public class PublicRegistrationController : Controller
         var activeDays = await _context.ActivityDays
             .Where(d => d.ActivityId == model.ActivityId && d.IsActive)
             .ToListAsync();
-        var weekOptions = BuildWeekOptions(activeDays);
+        var weekOptions = await MarkFullDaysAsync(activity, BuildWeekOptions(activeDays));
         var dayByDay = activity?.AllowDayByDayRegistration == true;
 
         ValidateDaySelection(dayByDay, weekOptions, model.SelectedWeeks, model.SelectedDays,
             nameof(model.SelectedWeeks), nameof(model.SelectedDays));
+        if (activity != null && ModelState.IsValid)
+        {
+            var fullDaysMessage = GetFullDaysMessage(activity, weekOptions,
+                ResolveSelectedDayIds(weekOptions, model.SelectedWeeks, dayByDay ? model.SelectedDays : null));
+            if (fullDaysMessage != null) ModelState.AddModelError("", fullDaysMessage);
+        }
 
         if (!ModelState.IsValid)
         {
@@ -468,12 +509,6 @@ public class PublicRegistrationController : Controller
         }
 
         var activity = await _context.Activities.IgnoreQueryFilters().FirstOrDefaultAsync(a => a.Id == activityId);
-        if (activity != null && await IsActivityFullAsync(activity))
-        {
-            TempData["ErrorMessage"] = activity.FullMessage ?? _localizer["PublicRegistration.ActivityFull"].Value;
-            TempData[TempDataOrganisationId] = organisationId;
-            return RedirectToAction(nameof(SelectActivity), new { orgId = organisationId });
-        }
 
         var selectedWeeks = TempData[TempDataSelectedWeeks] is string selectedWeeksJson
             ? JsonSerializer.Deserialize<List<int>>(selectedWeeksJson)
@@ -485,8 +520,17 @@ public class PublicRegistrationController : Controller
         var activeDaysForQuota = await _context.ActivityDays
             .Where(d => d.ActivityId == activityId && d.IsActive)
             .ToListAsync();
-        var weekOptionsForQuota = BuildWeekOptions(activeDaysForQuota);
+        var weekOptionsForQuota = await MarkFullDaysAsync(activity, BuildWeekOptions(activeDaysForQuota));
         var selectedDayIdsForQuota = ResolveSelectedDayIds(weekOptionsForQuota, selectedWeeks, selectedDays);
+
+        // Re-checked here: a day may have filled up while the parent was answering the questions.
+        var fullDaysMessage = activity == null ? null : GetFullDaysMessage(activity, weekOptionsForQuota, selectedDayIdsForQuota);
+        if (fullDaysMessage != null)
+        {
+            TempData["ErrorMessage"] = fullDaysMessage;
+            TempData[TempDataOrganisationId] = organisationId;
+            return RedirectToAction(nameof(SelectActivity), new { orgId = organisationId });
+        }
 
         var childForQuota = await _context.Children.IgnoreQueryFilters().FirstOrDefaultAsync(c => c.Id == childId);
         if (childForQuota != null)
@@ -711,7 +755,12 @@ public class PublicRegistrationController : Controller
             return View("Unavailable", activity.NoActiveFormMessage ?? _localizer["PublicRegistration.FormNotActive"].Value);
         }
 
-        if (await IsActivityFullAsync(activity))
+        var activeDays = await _context.ActivityDays
+            .Where(d => d.ActivityId == activityId && d.IsActive)
+            .ToListAsync();
+        var weeks = await MarkFullDaysAsync(activity, BuildWeekOptions(activeDays));
+
+        if (IsActivityFull(activity, weeks))
         {
             ViewBag.BackgroundColor = bg ?? "ffffff";
             return View("Unavailable", activity.FullMessage ?? _localizer["PublicRegistration.ActivityFull"].Value);
@@ -720,10 +769,6 @@ public class PublicRegistrationController : Controller
         var questions = await _context.ActivityQuestions
             .Where(q => q.ActivityId == activityId && q.IsActive)
             .OrderBy(q => q.DisplayOrder)
-            .ToListAsync();
-
-        var activeDays = await _context.ActivityDays
-            .Where(d => d.ActivityId == activityId && d.IsActive)
             .ToListAsync();
 
         var viewModel = new SimpleRegistrationViewModel
@@ -740,7 +785,7 @@ public class PublicRegistrationController : Controller
         };
 
         ViewBag.Questions = questions;
-        ViewBag.Weeks = BuildWeekOptions(activeDays);
+        ViewBag.Weeks = weeks;
         ViewBag.BackgroundColor = bg ?? "ffffff";
 
         return View(viewModel);
@@ -770,7 +815,7 @@ public class PublicRegistrationController : Controller
         var activeDays = await _context.ActivityDays
             .Where(d => d.ActivityId == model.ActivityId && d.IsActive)
             .ToListAsync();
-        var weekOptions = BuildWeekOptions(activeDays);
+        var weekOptions = await MarkFullDaysAsync(activityEntity, BuildWeekOptions(activeDays));
 
         ValidateRequiredQuestions(questions, model);
 
@@ -788,29 +833,29 @@ public class PublicRegistrationController : Controller
         {
             await ReloadModelWithActivityInfoAsync(model);
             ViewBag.Questions = questions;
-            ViewBag.Weeks = BuildWeekOptions(activeDays);
-            ViewBag.BackgroundColor = bg ?? "ffffff";
-            return View(model);
-        }
-
-        if (await IsActivityFullAsync(activityEntity))
-        {
-            ModelState.AddModelError("", activityEntity.FullMessage ?? _localizer["PublicRegistration.ActivityFull"].Value);
-            await ReloadModelWithActivityInfoAsync(model);
-            ViewBag.Questions = questions;
-            ViewBag.Weeks = BuildWeekOptions(activeDays);
+            ViewBag.Weeks = weekOptions;
             ViewBag.BackgroundColor = bg ?? "ffffff";
             return View(model);
         }
 
         var selectedDayIdsForQuota = ResolveSelectedDayIds(weekOptions, model.SelectedWeeks, selectedDaysPosted);
+        var fullDaysMessage = GetFullDaysMessage(activityEntity, weekOptions, selectedDayIdsForQuota);
+        if (fullDaysMessage != null)
+        {
+            ModelState.AddModelError("", fullDaysMessage);
+            await ReloadModelWithActivityInfoAsync(model);
+            ViewBag.Questions = questions;
+            ViewBag.Weeks = weekOptions;
+            ViewBag.BackgroundColor = bg ?? "ffffff";
+            return View(model);
+        }
         var birthYearQuotaMessage = await CheckBirthYearQuotaAsync(model.ActivityId, model.ChildBirthDate!.Value, weekOptions, selectedDayIdsForQuota);
         if (birthYearQuotaMessage != null)
         {
             ModelState.AddModelError("", birthYearQuotaMessage);
             await ReloadModelWithActivityInfoAsync(model);
             ViewBag.Questions = questions;
-            ViewBag.Weeks = BuildWeekOptions(activeDays);
+            ViewBag.Weeks = weekOptions;
             ViewBag.BackgroundColor = bg ?? "ffffff";
             return View(model);
         }
@@ -828,7 +873,7 @@ public class PublicRegistrationController : Controller
             ModelState.AddModelError("", _localizer["Message.BookingAlreadyExists"]);
             await ReloadModelWithActivityInfoAsync(model);
             ViewBag.Questions = questions;
-            ViewBag.Weeks = BuildWeekOptions(activeDays);
+            ViewBag.Weeks = weekOptions;
             ViewBag.BackgroundColor = bg ?? "ffffff";
             return View(model);
         }

@@ -1,5 +1,6 @@
 @model (List<Cedeva.Website.Features.PublicRegistration.ViewModels.ActivityWeekOption> Weeks, List<int> Selected)
-@* Day-by-day registration: one checkbox per active day, grouped by week. Posts SelectedDays. *@
+@* Day-by-day registration: one checkbox per active day, grouped by week. Posts SelectedDays.
+   Days that reached the activity's daily maximum are shown but cannot be ticked. *@
 @{
     var culture = System.Globalization.CultureInfo.CurrentUICulture;
 }
@@ -13,10 +14,17 @@
         <div class="d-flex flex-wrap gap-3">
             @foreach (var day in week.Days)
             {
+                var isFull = week.FullDayIds.Contains(day.DayId);
                 <div class="form-check">
                     <input type="checkbox" name="SelectedDays" value="@day.DayId" class="form-check-input"
-                           id="day_@day.DayId" checked="@(Model.Selected.Contains(day.DayId))" />
-                    <label class="form-check-label" for="day_@day.DayId">@day.Date.ToString("ddd dd/MM", culture)</label>
+                           id="day_@day.DayId" checked="@(Model.Selected.Contains(day.DayId) && !isFull)" disabled="@isFull" />
+                    <label class="form-check-label @(isFull ? "text-muted" : "")" for="day_@day.DayId">
+                        @day.Date.ToString("ddd dd/MM", culture)
+                        @if (isFull)
+                        {
+                            <span class="badge bg-secondary ms-1">@Localizer["PublicRegistration.Full"]</span>
+                        }
+                    </label>
                 </div>
             }
         </div>
