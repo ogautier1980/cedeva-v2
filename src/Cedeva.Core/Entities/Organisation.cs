@@ -44,6 +44,11 @@ public class Organisation : AuditableEntity
     [StringLength(200, ErrorMessage = "Validation.StringLength")]
     public string? ResponsibleName { get; set; }
 
+    /// <summary>Qualité du responsable (président, coordinateur…), demandée à côté de son nom pour signer
+    /// l'attestation fiscale 281.86 (guide du SPF Finances, § 4).</summary>
+    [StringLength(100, ErrorMessage = "Validation.StringLength")]
+    public string? ResponsibleTitle { get; set; }
+
     /// <summary>Image de signature du responsable (upload), utilisée sur les documents officiels générés.</summary>
     public string? ResponsibleSignatureUrl { get; set; }
 

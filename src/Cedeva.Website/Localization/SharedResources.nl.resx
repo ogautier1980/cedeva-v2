@@ -5077,7 +5077,7 @@
     <value>Plafond {0} verwijderen?</value>
   </data>
   <data name="FiscalAttestation.MissingResponsible" xml:space="preserve">
-    <value>De naam of de handtekening van de verantwoordelijke ontbreekt in de instellingen van de vzw: ze blijven leeg onderaan elk kader II.</value>
+    <value>De naam, de hoedanigheid of de handtekening van de verantwoordelijke ontbreekt in de instellingen van de vzw: ze blijven leeg onderaan elk kader II.</value>
   </data>
   <data name="ActivityManagement.StatusAndRate" xml:space="preserve">
     <value>Statuut en tarief voor deze activiteit</value>
@@ -5111,5 +5111,17 @@
   </data>
   <data name="Financial.Budget.TemplateImported" xml:space="preserve">
     <value>Modelbudget geïmporteerd ({0} categorie(ën)).</value>
+  </data>
+  <data name="Field.ResponsibleTitle" xml:space="preserve">
+    <value>Hoedanigheid van de verantwoordelijke</value>
+  </data>
+  <data name="Field.ResponsibleTitleHelp" xml:space="preserve">
+    <value>Bv. voorzitter, coördinator — afgedrukt onder de naam van de ondertekenaar van het fiscaal attest.</value>
+  </data>
+  <data name="FiscalAttestation.MissingNationalRegisterNumber" xml:space="preserve">
+    <value>Het rijksregisternummer van de ouder of van een kind ontbreekt: de FOD Financiën vereist het op het attest. Vul de fiche van de ouder of het kind aan.</value>
+  </data>
+  <data name="FiscalAttestation.OrderNumber" xml:space="preserve">
+    <value>Volgnummer</value>
   </data>
 </root>

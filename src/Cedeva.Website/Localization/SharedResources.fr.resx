@@ -5099,7 +5099,7 @@
     <value>Supprimer le plafond {0} ?</value>
   </data>
   <data name="FiscalAttestation.MissingResponsible" xml:space="preserve">
-    <value>Le nom du responsable ou sa signature manque dans les paramètres de l'ASBL : ils resteront vides en bas de chaque cadre II.</value>
+    <value>Le nom, la qualité ou la signature du responsable manque dans les paramètres de l'ASBL : ils resteront vides en bas de chaque cadre II.</value>
   </data>
   <data name="ActivityManagement.StatusAndRate" xml:space="preserve">
     <value>Statut et tarif pour ce stage</value>
@@ -5133,5 +5133,17 @@
   </data>
   <data name="Financial.Budget.TemplateImported" xml:space="preserve">
     <value>Budget modèle importé ({0} catégorie(s)).</value>
+  </data>
+  <data name="Field.ResponsibleTitle" xml:space="preserve">
+    <value>Qualité du responsable</value>
+  </data>
+  <data name="Field.ResponsibleTitleHelp" xml:space="preserve">
+    <value>Ex. président, coordinateur — imprimée sous le nom du signataire de l'attestation fiscale.</value>
+  </data>
+  <data name="FiscalAttestation.MissingNationalRegisterNumber" xml:space="preserve">
+    <value>Le numéro de registre national du parent ou d'un enfant manque : le SPF Finances l'exige sur l'attestation. Complétez la fiche du parent ou de l'enfant.</value>
+  </data>
+  <data name="FiscalAttestation.OrderNumber" xml:space="preserve">
+    <value>N° d'ordre</value>
   </data>
 </root>

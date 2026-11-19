@@ -1585,6 +1585,10 @@ namespace Cedeva.Infrastructure.Migrations
                     b.Property<string>("ResponsibleSignatureUrl")
                         .HasColumnType("text");
 
+                    b.Property<string>("ResponsibleTitle")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
                     b.HasKey("Id");
 
                     b.HasIndex("AddressId");

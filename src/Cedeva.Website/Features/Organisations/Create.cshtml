@@ -88,6 +88,13 @@
                         </div>
 
                         <div class="mb-3">
+                            <label for="ResponsibleTitle" class="form-label">@Localizer["Field.ResponsibleTitle"]</label>
+                            <input asp-for="ResponsibleTitle" class="form-control" id="ResponsibleTitle" />
+                            <span asp-validation-for="ResponsibleTitle" class="text-danger"></span>
+                            <small class="form-text text-muted">@Localizer["Field.ResponsibleTitleHelp"]</small>
+                        </div>
+
+                        <div class="mb-3">
                             <label for="ResponsibleSignatureFile" class="form-label">@Localizer["Field.ResponsibleSignature"]</label>
                             <input asp-for="ResponsibleSignatureFile" type="file" class="form-control" id="ResponsibleSignatureFile" accept="image/*" />
                             <span asp-validation-for="ResponsibleSignatureFile" class="text-danger"></span>

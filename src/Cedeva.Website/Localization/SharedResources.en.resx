@@ -5077,7 +5077,7 @@
     <value>Delete the {0} ceiling?</value>
   </data>
   <data name="FiscalAttestation.MissingResponsible" xml:space="preserve">
-    <value>The responsible person's name or signature is missing from the organisation settings: they will stay blank at the bottom of each box II.</value>
+    <value>The responsible person's name, title or signature is missing from the organisation settings: they will stay blank at the bottom of each box II.</value>
   </data>
   <data name="ActivityManagement.StatusAndRate" xml:space="preserve">
     <value>Status and rate for this activity</value>
@@ -5111,5 +5111,17 @@
   </data>
   <data name="Financial.Budget.TemplateImported" xml:space="preserve">
     <value>Template budget imported ({0} category(ies)).</value>
+  </data>
+  <data name="Field.ResponsibleTitle" xml:space="preserve">
+    <value>Responsible person's title</value>
+  </data>
+  <data name="Field.ResponsibleTitleHelp" xml:space="preserve">
+    <value>E.g. chair, coordinator — printed under the signatory's name on the tax certificate.</value>
+  </data>
+  <data name="FiscalAttestation.MissingNationalRegisterNumber" xml:space="preserve">
+    <value>The national register number of the parent or of a child is missing: the FPS Finance requires it on the certificate. Complete the parent's or child's record.</value>
+  </data>
+  <data name="FiscalAttestation.OrderNumber" xml:space="preserve">
+    <value>Order no.</value>
   </data>
 </root>

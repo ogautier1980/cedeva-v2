@@ -1,5 +1,6 @@
 using System.Globalization;
 using Cedeva.Core.DTOs;
+using Cedeva.Core.Helpers;
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
@@ -28,9 +29,14 @@ public static class FiscalAttestationPdf
             Page(document, page => Letter(page, data));
             Page(document, Explanations);
             Page(document, page => CadreOne(page, data));
+            // The form has room for 4 periods: beyond that, further attestations for the same child
+            // (SPF guide § 3.4), each with its own order number.
             foreach (var child in data.Children)
             {
-                Page(document, page => CadreTwo(page, data, child));
+                foreach (var (orderNumber, periods) in SplitAttestations(data, child))
+                {
+                    Page(document, page => CadreTwo(page, data, child, orderNumber, periods));
+                }
             }
         }).GeneratePdf();
     }
@@ -47,6 +53,37 @@ public static class FiscalAttestationPdf
     }
 
     // Slashes as on the official form ("28/07/2025"): fr-BE would turn "/" into its own "-".
+    private const int MaxPeriodsPerAttestation = 4;
+
+    /// <summary>
+    /// Order number, mandatory on every attestation (SPF guide § 3.1): year-parent-child, plus a
+    /// suffix when a child needs several attestations. Stable, so a reprint carries the same number.
+    /// </summary>
+    public static string OrderNumber(FiscalAttestationData data, FiscalAttestationChild child, int? part = null) =>
+        $"{data.Year}-{data.ParentId}-{child.ChildId}" + (part.HasValue ? $"-{part}" : string.Empty);
+
+    /// <summary>A child's attestations: 4 periods each at most, numbered "-1", "-2"… when there are several.</summary>
+    public static IReadOnlyList<(string OrderNumber, IReadOnlyList<FiscalAttestationPeriod> Periods)> SplitAttestations(
+        FiscalAttestationData data, FiscalAttestationChild child)
+    {
+        var chunks = child.Periods.Chunk(MaxPeriodsPerAttestation).ToList();
+        return chunks
+            .Select((periods, i) => (OrderNumber(data, child, chunks.Count > 1 ? i + 1 : null), (IReadOnlyList<FiscalAttestationPeriod>)periods))
+            .ToList();
+    }
+
+    /// <summary>
+    /// Note (6) and SPF guide « Tarif journalier »: the daily rate (price / days) is only stated when it
+    /// exceeds the daily ceiling — but as soon as one rate of the attestation does, all are stated.
+    /// </summary>
+    public static bool ShowDailyRates(decimal? maxDailyAmount, IEnumerable<FiscalAttestationPeriod> periods) =>
+        maxDailyAmount.HasValue && periods.Any(p => DailyRate(p) > maxDailyAmount.Value);
+
+    private static decimal DailyRate(FiscalAttestationPeriod period) => period.Days > 0 ? period.Amount / period.Days : 0;
+
+    private static string Nrn(string nationalRegisterNumber) =>
+        string.IsNullOrWhiteSpace(nationalRegisterNumber) ? string.Empty : NationalRegisterNumberHelper.Format(nationalRegisterNumber);
+
     private static string Date(DateTime date) => date.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture);
 
     private static string Euro(decimal amount) => amount.ToString("N2", FrBe) + " €";
@@ -151,6 +188,10 @@ public static class FiscalAttestationPdf
                 body.Item().PaddingLeft(15).Column(organisationLines =>
                 {
                     organisationLines.Item().Text(organisation.Name);
+                    if (!string.IsNullOrWhiteSpace(organisation.CompanyNumber))
+                    {
+                        organisationLines.Item().Text($"N°BCE : {organisation.CompanyNumber}");
+                    }
                     foreach (var activityName in organisation.ActivityNames)
                     {
                         organisationLines.Item().Text(activityName);
@@ -201,13 +242,18 @@ public static class FiscalAttestationPdf
 
     // ---- Cadre II: one page per child -------------------------------------------------------
 
-    private static void CadreTwo(IContainer container, FiscalAttestationData data, FiscalAttestationChild child)
+    private static void CadreTwo(IContainer container, FiscalAttestationData data, FiscalAttestationChild child,
+        string orderNumber, IReadOnlyList<FiscalAttestationPeriod> periods)
     {
         container.Border(1).Padding(14).Column(column =>
         {
             column.Spacing(8);
             column.Item().Text("Cadre II").Bold().Underline();
-            column.Item().Text("1. Numéro d'ordre de l'attestation :");
+            column.Item().Text(text =>
+            {
+                text.Span("1. Numéro d'ordre de l'attestation : ");
+                text.Span(orderNumber).Bold();
+            });
             column.Item().Text("2. Coordonnées du débiteur des frais de garde d'enfant :");
             column.Item().PaddingLeft(220).Column(parent =>
             {
@@ -215,7 +261,12 @@ public static class FiscalAttestationPdf
                 parent.Item().Text(data.ParentStreet);
                 parent.Item().Text(data.ParentPostalCodeCity);
             });
-            column.Item().PaddingLeft(15).Text("Numéro d'identification du Registre national ou, le cas échéant, le numéro d'identification de la BCSS :");
+            // The label is long: the number goes on its own line rather than wrapping after a lone colon.
+            column.Item().PaddingLeft(15).Column(nrn =>
+            {
+                nrn.Item().Text("Numéro d'identification du Registre national ou, le cas échéant, le numéro d'identification de la BCSS :");
+                nrn.Item().Text(Nrn(data.ParentNationalRegisterNumber)).Bold();
+            });
 
             column.Item().PaddingTop(6).Text("3. Coordonnées de l'enfant :");
             column.Item().PaddingLeft(15).Column(childLines =>
@@ -223,12 +274,13 @@ public static class FiscalAttestationPdf
                 childLines.Spacing(3);
                 childLines.Item().Text($"{child.LastName} {child.FirstName}").Bold();
                 childLines.Item().Text("Numéro d'identification du Registre national ou, le cas échéant, le numéro d'identification de la BCSS :");
+                childLines.Item().Text(Nrn(child.NationalRegisterNumber)).Bold();
                 childLines.Item().Text($"Date de naissance : {Date(child.BirthDate)}");
                 childLines.Item().Text($"Adresse : {child.Address}");
             });
 
             column.Item().PaddingTop(6).Text("4. Période pendant laquelle l'enfant a été gardé (5) :");
-            column.Item().Table(table => PeriodsTable(table, data, child));
+            column.Item().Table(table => PeriodsTable(table, data, periods));
 
             column.Item().PaddingTop(8).Text("Le soussigné certifie exacts les renseignements mentionnés ci-avant.");
             column.Item().PaddingLeft(260).Column(signature =>
@@ -244,6 +296,7 @@ public static class FiscalAttestationPdf
                     text.Span(" (2) (7).");
                 });
                 signature.Item().Text($"Nom : {data.Organisation.ResponsibleName}");
+                signature.Item().Text($"Qualité : {data.Organisation.ResponsibleTitle}");
                 signature.Item().Text("Signature :");
                 if (data.Organisation.Signature != null)
                 {
@@ -253,7 +306,7 @@ public static class FiscalAttestationPdf
         });
     }
 
-    private static void PeriodsTable(TableDescriptor table, FiscalAttestationData data, FiscalAttestationChild child)
+    private static void PeriodsTable(TableDescriptor table, FiscalAttestationData data, IReadOnlyList<FiscalAttestationPeriod> periods)
     {
         table.ColumnsDefinition(columns =>
         {
@@ -279,21 +332,19 @@ public static class FiscalAttestationPdf
             header.Cell().Element(Cell).Text("Montant perçu").Bold();
         });
 
-        var number = 1;
-        foreach (var period in child.Periods)
-        {
-            // Note (6): the daily rate is only stated when it exceeds the daily ceiling.
-            var dailyRate = period.Days > 0 ? period.Amount / period.Days : 0;
-            var showRate = data.MaxDailyAmount.HasValue && dailyRate > data.MaxDailyAmount.Value;
+        var showRates = ShowDailyRates(data.MaxDailyAmount, periods);
 
+        var number = 1;
+        foreach (var period in periods)
+        {
             table.Cell().Element(Cell).Text($"Période {number++}").Bold();
             table.Cell().Element(Cell).Text($"Du {Date(period.From)} au {Date(period.To)}");
             table.Cell().Element(Cell).Text(period.Days.ToString(FrBe));
-            table.Cell().Element(Cell).Text(showRate ? Euro(Math.Round(dailyRate, 2)) : string.Empty);
+            table.Cell().Element(Cell).Text(showRates ? Euro(Math.Round(DailyRate(period), 2)) : string.Empty);
             table.Cell().Element(Cell).Text(Euro(period.Amount));
         }
 
         table.Cell().ColumnSpan(4).Element(Cell).Text("Total").Bold();
-        table.Cell().Element(Cell).Text(Euro(child.Total));
+        table.Cell().Element(Cell).Text(Euro(periods.Sum(p => p.Amount)));
     }
 }

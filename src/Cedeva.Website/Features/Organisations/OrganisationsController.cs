@@ -145,6 +145,7 @@ public class OrganisationsController : Controller
             BankAccountNumber = organisation.BankAccountNumber,
             BankAccountName = organisation.BankAccountName,
             ResponsibleName = organisation.ResponsibleName,
+            ResponsibleTitle = organisation.ResponsibleTitle,
             ResponsibleSignatureUrl = organisation.ResponsibleSignatureUrl,
             Phone1 = organisation.Phone1,
             Phone2 = organisation.Phone2,
@@ -207,6 +208,7 @@ public class OrganisationsController : Controller
                 BankAccountNumber = viewModel.BankAccountNumber,
                 BankAccountName = viewModel.BankAccountName,
                 ResponsibleName = viewModel.ResponsibleName,
+                ResponsibleTitle = viewModel.ResponsibleTitle,
                 Phone1 = viewModel.Phone1,
                 Phone2 = viewModel.Phone2,
                 CompanyNumber = viewModel.CompanyNumber,
@@ -253,6 +255,7 @@ public class OrganisationsController : Controller
             BankAccountNumber = organisation.BankAccountNumber,
             BankAccountName = organisation.BankAccountName,
             ResponsibleName = organisation.ResponsibleName,
+            ResponsibleTitle = organisation.ResponsibleTitle,
             ResponsibleSignatureUrl = organisation.ResponsibleSignatureUrl,
             Phone1 = organisation.Phone1,
             Phone2 = organisation.Phone2,
@@ -297,6 +300,7 @@ public class OrganisationsController : Controller
             organisation.BankAccountNumber = viewModel.BankAccountNumber;
             organisation.BankAccountName = viewModel.BankAccountName;
             organisation.ResponsibleName = viewModel.ResponsibleName;
+            organisation.ResponsibleTitle = viewModel.ResponsibleTitle;
             organisation.Phone1 = viewModel.Phone1;
             organisation.Phone2 = viewModel.Phone2;
             organisation.CompanyNumber = viewModel.CompanyNumber;
@@ -596,6 +600,7 @@ public class OrganisationsController : Controller
             BankAccountNumber = organisation.BankAccountNumber,
             BankAccountName = organisation.BankAccountName,
             ResponsibleName = organisation.ResponsibleName,
+            ResponsibleTitle = organisation.ResponsibleTitle,
             Street = address?.Street ?? "",
             City = address?.City ?? "",
             PostalCode = address?.PostalCode ?? "",

@@ -49,6 +49,10 @@ public class OrganisationViewModel : AuditableViewModel
     [Display(Name = "Field.ResponsibleName")]
     public string? ResponsibleName { get; set; }
 
+    [StringLength(100, ErrorMessage = "Validation.StringLength")]
+    [Display(Name = "Field.ResponsibleTitle")]
+    public string? ResponsibleTitle { get; set; }
+
     [Display(Name = "Field.ResponsibleSignature")]
     [AllowedExtensions(".jpg", ".jpeg", ".png", ".gif", ".svg")]
     [MaxFileSize(5 * 1024 * 1024)]

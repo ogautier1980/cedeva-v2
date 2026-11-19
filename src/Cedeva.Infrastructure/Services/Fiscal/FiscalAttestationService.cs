@@ -124,12 +124,15 @@ public class FiscalAttestationService : IFiscalAttestationService
                 City = address?.City ?? string.Empty,
                 Phone = organisation.Phone1,
                 ResponsibleName = organisation.ResponsibleName,
+                ResponsibleTitle = organisation.ResponsibleTitle,
+                CompanyNumber = organisation.CompanyNumber,
                 ActivityNames = children.SelectMany(c => c.Periods).Select(p => p.ActivityName).Distinct().ToList(),
                 Logo = context.Logo,
                 Signature = context.Signature
             },
             ParentId = parent.Id,
             ParentFullName = $"{parent.FirstName} {parent.LastName}",
+            ParentNationalRegisterNumber = parent.NationalRegisterNumber,
             ParentStreet = parent.Address?.Street ?? string.Empty,
             ParentPostalCodeCity = parent.Address == null ? string.Empty : $"{parent.Address.PostalCode} {parent.Address.City}",
             ParentEmail = parent.Email,
@@ -174,9 +177,11 @@ public class FiscalAttestationService : IFiscalAttestationService
 
         return new FiscalAttestationChild
         {
+            ChildId = child.Id,
             FirstName = child.FirstName,
             LastName = child.LastName,
             BirthDate = child.BirthDate,
+            NationalRegisterNumber = child.NationalRegisterNumber,
             Address = parent.Address == null ? string.Empty : $"{parent.Address.Street} - {parent.Address.PostalCode} {parent.Address.City}",
             Periods = periods
         };

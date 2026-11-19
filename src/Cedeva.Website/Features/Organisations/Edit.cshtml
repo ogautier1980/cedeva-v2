@@ -105,6 +105,13 @@
                         </div>
 
                         <div class="mb-3">
+                            <label for="ResponsibleTitle" class="form-label">@Localizer["Field.ResponsibleTitle"]</label>
+                            <input asp-for="ResponsibleTitle" class="form-control" id="ResponsibleTitle" />
+                            <span asp-validation-for="ResponsibleTitle" class="text-danger"></span>
+                            <small class="form-text text-muted">@Localizer["Field.ResponsibleTitleHelp"]</small>
+                        </div>
+
+                        <div class="mb-3">
                             <label for="ResponsibleSignatureFile" class="form-label">@Localizer["Field.ResponsibleSignature"]</label>
 
                             @if (!string.IsNullOrEmpty(Model.ResponsibleSignatureUrl))

@@ -13,6 +13,7 @@ public class FiscalAttestationData
 
     public int ParentId { get; init; }
     public string ParentFullName { get; init; } = string.Empty;
+    public string ParentNationalRegisterNumber { get; init; } = string.Empty;
     public string ParentStreet { get; init; } = string.Empty;
     public string ParentPostalCodeCity { get; init; } = string.Empty;
     public string? ParentEmail { get; init; }
@@ -35,6 +36,12 @@ public class FiscalAttestationOrganisation
     public string? Phone { get; init; }
     public string? ResponsibleName { get; init; }
 
+    /// <summary>Qualité of the signatory (président, coordinateur…), next to the name (SPF guide § 4).</summary>
+    public string? ResponsibleTitle { get; init; }
+
+    /// <summary>N° BCE (company number): to be stated when the organisation has one (SPF guide § 2.2).</summary>
+    public string? CompanyNumber { get; init; }
+
     /// <summary>Names of the activities covered by the attestation (Cadre I).</summary>
     public IReadOnlyList<string> ActivityNames { get; init; } = [];
 
@@ -44,9 +51,11 @@ public class FiscalAttestationOrganisation
 
 public class FiscalAttestationChild
 {
+    public int ChildId { get; init; }
     public string FirstName { get; init; } = string.Empty;
     public string LastName { get; init; } = string.Empty;
     public DateTime BirthDate { get; init; }
+    public string NationalRegisterNumber { get; init; } = string.Empty;
     public string Address { get; init; } = string.Empty;
 
     /// <summary>One line per activity attended (form point 4: "Période 1", "Période 2"…).</summary>

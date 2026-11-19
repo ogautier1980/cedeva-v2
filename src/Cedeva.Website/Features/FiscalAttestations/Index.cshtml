@@ -45,7 +45,9 @@ else
         </div>
     }
 
-    @if (string.IsNullOrWhiteSpace(Model.Attestations[0].Organisation.ResponsibleName) || Model.Attestations[0].Organisation.Signature == null)
+    @if (string.IsNullOrWhiteSpace(Model.Attestations[0].Organisation.ResponsibleName)
+         || string.IsNullOrWhiteSpace(Model.Attestations[0].Organisation.ResponsibleTitle)
+         || Model.Attestations[0].Organisation.Signature == null)
     {
         <div class="alert alert-warning">
             <i class="fas fa-signature me-2"></i>@Localizer["FiscalAttestation.MissingResponsible"]

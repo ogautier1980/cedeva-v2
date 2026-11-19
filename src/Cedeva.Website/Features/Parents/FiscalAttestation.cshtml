@@ -42,10 +42,21 @@
         </div>
     }
 
-    @if (data.Children.Count > 0 && (string.IsNullOrWhiteSpace(data.Organisation.ResponsibleName) || data.Organisation.Signature == null))
+    @if (data.Children.Count > 0 && (string.IsNullOrWhiteSpace(data.Organisation.ResponsibleName)
+                                     || string.IsNullOrWhiteSpace(data.Organisation.ResponsibleTitle)
+                                     || data.Organisation.Signature == null))
     {
         <div class="alert alert-warning">
             <i class="fas fa-signature me-2"></i>@Localizer["FiscalAttestation.MissingResponsible"]
+        </div>
+    }
+
+    @* The SPF guide (§ 3.2, 3.3) requires the national register number of the debtor and of each child. *@
+    @if (data.Children.Count > 0 && (string.IsNullOrWhiteSpace(data.ParentNationalRegisterNumber)
+                                     || data.Children.Any(c => string.IsNullOrWhiteSpace(c.NationalRegisterNumber))))
+    {
+        <div class="alert alert-warning">
+            <i class="fas fa-id-card me-2"></i>@Localizer["FiscalAttestation.MissingNationalRegisterNumber"]
         </div>
     }
 
@@ -66,7 +77,10 @@
                 <p class="text-muted small">@Localizer["FiscalAttestation.ContentHelp"]</p>
                 @foreach (var child in data.Children)
                 {
-                    <h6 class="mt-3">@child.LastName @child.FirstName <small class="text-muted">(@child.BirthDate.ToString("dd/MM/yyyy", dates))</small></h6>
+                    <h6 class="mt-3">
+                        @child.LastName @child.FirstName <small class="text-muted">(@child.BirthDate.ToString("dd/MM/yyyy", dates))</small>
+                        <small class="text-muted fw-normal ms-2">@Localizer["FiscalAttestation.OrderNumber"] @string.Join(", ", Cedeva.Infrastructure.Services.Pdf.FiscalAttestationPdf.SplitAttestations(data, child).Select(a => a.OrderNumber))</small>
+                    </h6>
                     <table class="table table-sm table-hover mb-2">
                         <thead class="table-light">
                             <tr>

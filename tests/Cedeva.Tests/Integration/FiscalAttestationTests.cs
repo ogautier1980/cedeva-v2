@@ -126,6 +126,63 @@ public class FiscalAttestationTests
             .StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 
+    [Fact]
+    public async Task Page_ShowsTheOrderNumberOfEachChildsAttestation()
+    {
+        // SPF guide § 3.1: every attestation carries an order number (year-parent-child).
+        using var factory = new CedevaWebApplicationFactory();
+        var s = SeedFamily(factory);
+        var client = factory.CreateClientFor("u1", s.OrgId, "Coordinator");
+
+        var html = await GetText(client, $"/Parents/FiscalAttestation/{s.ParentId}?year=2025");
+
+        html.Should().MatchRegex($@"N° d'ordre 2025-{s.ParentId}-\d+");
+    }
+
+    [Fact]
+    public async Task Page_WarnsWhenAChildHasNoNationalRegisterNumber()
+    {
+        // SPF guide § 3.2-3.3: the national register numbers of the debtor and of the child are required.
+        using var factory = new CedevaWebApplicationFactory();
+        var s = SeedFamily(factory);
+        using (var db = factory.NewDbContext())
+        {
+            db.Children.IgnoreQueryFilters().First(c => c.FirstName == "Léo").NationalRegisterNumber = "";
+            db.SaveChanges();
+        }
+        var client = factory.CreateClientFor("u1", s.OrgId, "Coordinator");
+
+        var html = await GetText(client, $"/Parents/FiscalAttestation/{s.ParentId}?year=2025");
+
+        html.Should().Contain("Le numéro de registre national du parent ou d'un enfant manque");
+    }
+
+    [Fact]
+    public async Task OrganisationSettings_SaveTheResponsiblesTitle()
+    {
+        // SPF guide § 4: the signatory's name and « qualité ».
+        using var factory = new CedevaWebApplicationFactory();
+        var s = SeedFamily(factory);
+        var client = factory.CreateClientFor("u1", s.OrgId, "Coordinator");
+
+        var response = await client.PostAsync($"/Organisations/Edit/{s.OrgId}", new FormUrlEncodedContent(new Dictionary<string, string>
+        {
+            ["Id"] = s.OrgId.ToString(),
+            ["Name"] = "Plaine de Bossière",
+            ["Description"] = "Organisation de stages pour enfants",
+            ["Street"] = "Rue de Test",
+            ["City"] = "Bruxelles",
+            ["PostalCode"] = "1000",
+            ["Country"] = "Belgium",
+            ["ResponsibleName"] = "Jean Dupont",
+            ["ResponsibleTitle"] = "Président"
+        }));
+
+        response.StatusCode.Should().Be(HttpStatusCode.Found);
+        using var db = factory.NewDbContext();
+        db.Organisations.Single(o => o.Id == s.OrgId).ResponsibleTitle.Should().Be("Président");
+    }
+
     // ---- PDF and e-mail -----------------------------------------------------------------
 
     [Fact]
