@@ -163,7 +163,6 @@ public class ActivitiesDayEditTests
         NationalRegisterNumber = "91020212345",
         TeamRole = TeamRole.Animator,
         License = License.License,
-        Status = Status.Volunteer,
         LicenseUrl = "https://example.test/license.pdf",
         Organisation = org
     };

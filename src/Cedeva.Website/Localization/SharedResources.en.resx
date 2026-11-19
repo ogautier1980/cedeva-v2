@@ -1165,9 +1165,6 @@
   <data name="Common.Cancel" xml:space="preserve">
     <value>Cancel</value>
   </data>
-  <data name="Compensated" xml:space="preserve">
-    <value>Compensated</value>
-  </data>
   <data name="Completed" xml:space="preserve">
     <value>Completed</value>
   </data>
@@ -1572,9 +1569,6 @@
   </data>
   <data name="Excel.Country" xml:space="preserve">
     <value>Country</value>
-  </data>
-  <data name="Excel.DailyCompensation" xml:space="preserve">
-    <value>Daily compensation</value>
   </data>
   <data name="Excel.Description" xml:space="preserve">
     <value>Description</value>
@@ -2315,7 +2309,7 @@
     <value>Revenue details</value>
   </data>
   <data name="Financial.SalaryCalculationInfo" xml:space="preserve">
-    <value>The amount to pay is calculated as follows: Prestations (Days × Daily compensation) + Reimbursements − Personal consumptions.</value>
+    <value>The amount to pay is computed as: Services (days attended × daily rate set for this activity) + Additions − Deductions.</value>
   </data>
   <data name="Financial.ShowAmounts" xml:space="preserve">
     <value>Show amounts</value>
@@ -3532,9 +3526,6 @@
   <data name="TeamMembers.DailyCompensation" xml:space="preserve">
     <value>Compensation/day</value>
   </data>
-  <data name="TeamMembers.DailyCompensationHelp" xml:space="preserve">
-    <value>Daily compensation (optional)</value>
-  </data>
   <data name="TeamMembers.DeleteConfirmation" xml:space="preserve">
     <value>Are you sure you want to delete this team member?</value>
   </data>
@@ -3577,9 +3568,6 @@
   <data name="TeamMembers.Licenses" xml:space="preserve">
     <value>Licences</value>
   </data>
-  <data name="TeamMembers.Allowances" xml:space="preserve">
-    <value>Allowances</value>
-  </data>
   <data name="TeamMembers.ExtrasAndExpenses" xml:space="preserve">
     <value>Extras / Expenses</value>
   </data>
@@ -3603,9 +3591,6 @@
   </data>
   <data name="TeamMembers.SelectRole" xml:space="preserve">
     <value>-- Select a role --</value>
-  </data>
-  <data name="TeamMembers.SelectStatus" xml:space="preserve">
-    <value>-- Select a status --</value>
   </data>
   <data name="To" xml:space="preserve">
     <value>to</value>
@@ -3747,9 +3732,6 @@
   </data>
   <data name="ViewDocument" xml:space="preserve">
     <value>View document</value>
-  </data>
-  <data name="Volunteer" xml:space="preserve">
-    <value>Volunteer</value>
   </data>
   <data name="Warning" xml:space="preserve">
     <value>Warning</value>
@@ -5096,5 +5078,14 @@
   </data>
   <data name="FiscalAttestation.MissingResponsible" xml:space="preserve">
     <value>The responsible person's name or signature is missing from the organisation settings: they will stay blank at the bottom of each box II.</value>
+  </data>
+  <data name="ActivityManagement.StatusAndRate" xml:space="preserve">
+    <value>Status and rate for this activity</value>
+  </data>
+  <data name="ActivityManagement.DailyRatePlaceholder" xml:space="preserve">
+    <value>Rate</value>
+  </data>
+  <data name="ActivityManagement.TeamAssignmentSaved" xml:space="preserve">
+    <value>Status and rate of {0} saved for this activity.</value>
   </data>
 </root>

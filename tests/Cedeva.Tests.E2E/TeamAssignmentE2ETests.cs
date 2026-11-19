@@ -39,7 +39,6 @@ public class TeamAssignmentE2ETests
                 NationalRegisterNumber = "90.01.01-001.01",
                 TeamRole = TeamRole.Animator,
                 License = License.License,
-                Status = Status.Volunteer,
                 OrganisationId = _fx.OrganisationId,
                 Address = new Address
                 {
@@ -144,7 +143,8 @@ public class TeamAssignmentE2ETests
         // confirm() dialog must be accepted for the form to submit.
         page.Dialog += async (_, dialog) => await dialog.AcceptAsync();
 
-        var removeButton = page.Locator($"tr:has-text(\"{seeded.MarkerLastName}\") button[type=submit]:not(.btn-link):not(.dropdown-item)");
+        // The row also holds the status/rate form (its own save button): target the remove form.
+        var removeButton = page.Locator($"tr:has-text(\"{seeded.MarkerLastName}\") form[action*='RemoveTeamMember'] button[type=submit]");
         await removeButton.WaitForAsync(new LocatorWaitForOptions { State = WaitForSelectorState.Visible, Timeout = 7000 });
         await removeButton.ClickAsync();
 

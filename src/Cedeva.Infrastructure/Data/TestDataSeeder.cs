@@ -329,10 +329,8 @@ public class TestDataSeeder
                 BirthDate = birthDate,
                 NationalRegisterNumber = nationalRegisterNumber,
                 TeamRole = (TeamRole)_random.Next(0, 2),
-                Status = (Status)_random.Next(0, 2),
                 License = (License)_random.Next(0, 5),
                 LicenseUrl = ExampleLicenseUrl,
-                DailyCompensation = _random.Next(3) > 0 ? (decimal)_random.Next(30, 100) : null, // ~67% have compensation
                 Address = new Address
                 {
                     Street = $"{BelgianStreets[_random.Next(BelgianStreets.Length)]} {_random.Next(1, 200)}",
@@ -457,6 +455,7 @@ public class TestDataSeeder
     {
         var activities = await _context.Activities.IgnoreQueryFilters()
             .Include(a => a.TeamMembers)
+            .Include(a => a.TeamAssignments)
             .Where(a => a.OrganisationId == organisationId)
             .ToListAsync();
 
@@ -470,8 +469,14 @@ public class TestDataSeeder
         foreach (var activity in activitiesWithoutTeam)
         {
             var count = _random.Next(3, Math.Min(6, teamMembers.Count + 1));
+            // Status and daily rate belong to the assignment (they change from one activity to the next).
             foreach (var tm in teamMembers.OrderBy(_ => _random.Next()).Take(count))
-                activity.TeamMembers.Add(tm);
+                activity.TeamAssignments.Add(new ActivityTeamMember
+                {
+                    TeamMember = tm,
+                    Status = (Status)_random.Next(0, 2),
+                    DailyCompensation = _random.Next(3) > 0 ? _random.Next(30, 100) : null // ~67% have a rate
+                });
         }
 
         await _context.SaveChangesAsync();
@@ -678,7 +683,7 @@ public class TestDataSeeder
             .ToListAsync();
 
         var teamMembers = await _context.TeamMembers.IgnoreQueryFilters()
-            .Where(t => t.OrganisationId == organisationId && t.DailyCompensation.HasValue)
+            .Where(t => t.OrganisationId == organisationId && t.ActivityAssignments.Any(a => a.DailyCompensation.HasValue))
             .ToListAsync();
 
         foreach (var activity in activities)

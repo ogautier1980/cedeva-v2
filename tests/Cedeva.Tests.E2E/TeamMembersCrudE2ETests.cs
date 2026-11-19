@@ -73,7 +73,6 @@ public class TeamMembersCrudE2ETests
         await SetAddressAsync(page, "1000", "Bruxelles");
         await SetSelectAsync(page, "TeamRole", ((int)TeamRole.Animator).ToString());
         await SetSelectAsync(page, "License", ((int)License.License).ToString());
-        await SetSelectAsync(page, "Status", ((int)Status.Volunteer).ToString());
 
         await page.ClickAsync("button[type=submit]:not(.btn-link):not(.dropdown-item)");
         await page.WaitForURLAsync("**/TeamMembers/Details/**");
@@ -94,7 +93,6 @@ public class TeamMembersCrudE2ETests
         created.OrganisationId.Should().Be(_fx.OrganisationId);
         created.TeamRole.Should().Be(TeamRole.Animator);
         created.License.Should().Be(License.License);
-        created.Status.Should().Be(Status.Volunteer);
         created.NationalRegisterNumber.Should().Be("85061513380"); // stored without formatting
         created.Address.PostalCode.Should().Be("1000");
         created.Address.City.Should().Be("Bruxelles");
@@ -119,7 +117,6 @@ public class TeamMembersCrudE2ETests
         await SetAddressAsync(page, "1000", "Bruxelles");
         await SetSelectAsync(page, "TeamRole", ((int)TeamRole.Animator).ToString());
         await SetSelectAsync(page, "License", ((int)License.License).ToString());
-        await SetSelectAsync(page, "Status", ((int)Status.Volunteer).ToString());
 
         await page.ClickAsync("button[type=submit]:not(.btn-link):not(.dropdown-item)");
         await page.WaitForLoadStateAsync(LoadState.NetworkIdle);
@@ -154,7 +151,6 @@ public class TeamMembersCrudE2ETests
                 Address = address,
                 TeamRole = TeamRole.Animator,
                 License = License.License,
-                Status = Status.Volunteer,
                 OrganisationId = _fx.OrganisationId
             };
             db.TeamMembers.Add(member);
@@ -170,8 +166,6 @@ public class TeamMembersCrudE2ETests
         response!.Status.Should().Be(200);
 
         await page.FillAsync("#FirstName", newFirstName);
-        // The member sheet uses radio buttons for the status.
-        await page.CheckAsync($"#status_{Status.Compensated}");
         await page.ClickAsync("button[type=submit]:not(.btn-link):not(.dropdown-item)");
         await page.WaitForURLAsync("**/TeamMembers/Details/**");
 
@@ -182,7 +176,6 @@ public class TeamMembersCrudE2ETests
 
         updated.Should().NotBeNull();
         updated!.FirstName.Should().Be(newFirstName);
-        updated.Status.Should().Be(Status.Compensated);
     }
 
     [Fact]
@@ -208,7 +201,6 @@ public class TeamMembersCrudE2ETests
                 Address = address,
                 TeamRole = TeamRole.Animator,
                 License = License.License,
-                Status = Status.Volunteer,
                 OrganisationId = _fx.OrganisationId
             };
             db.TeamMembers.Add(member);

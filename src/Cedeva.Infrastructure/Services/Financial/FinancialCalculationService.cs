@@ -45,11 +45,11 @@ public class FinancialCalculationService : IFinancialCalculationService
 
         var expensesList = expenses.ToList();
 
-        return activity.TeamMembers.Sum(tm =>
+        return activity.TeamAssignments.Sum(assignment =>
             CalculateTeamMemberSalary(
-                tm,
-                CalculateTeamMemberPresentDaysCount(activity, tm.TeamMemberId),
-                expensesList.Where(e => e.TeamMemberId == tm.TeamMemberId))
+                assignment.DailyCompensation ?? 0,
+                CalculateTeamMemberPresentDaysCount(activity, assignment.TeamMemberId),
+                expensesList.Where(e => e.TeamMemberId == assignment.TeamMemberId))
         );
     }
 
@@ -62,12 +62,11 @@ public class FinancialCalculationService : IFinancialCalculationService
             .Count(tmd => tmd.TeamMemberId == teamMemberId && tmd.IsPresent);
     }
 
-    public decimal CalculateTeamMemberSalary(TeamMember teamMember, int daysCount, IEnumerable<Expense> memberExpenses)
+    public decimal CalculateTeamMemberSalary(decimal dailyRate, int daysCount, IEnumerable<Expense> memberExpenses)
     {
-        ArgumentNullException.ThrowIfNull(teamMember);
         ArgumentNullException.ThrowIfNull(memberExpenses);
 
-        var baseSalary = daysCount * (teamMember.DailyCompensation ?? 0);
+        var baseSalary = daysCount * dailyRate;
         var expensesList = memberExpenses.ToList();
 
         var reimbursements = expensesList

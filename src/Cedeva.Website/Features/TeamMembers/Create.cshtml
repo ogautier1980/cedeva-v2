@@ -94,13 +94,6 @@
                                 </select>
                                 <span asp-validation-for="License" class="text-danger"></span>
                             </div>
-                            <div class="col-md-4 mb-3">
-                                <label for="Status" class="form-label">@Localizer["Field.Status"]</label>
-                                <select asp-for="Status" class="form-select" asp-items="Html.GetEnumSelectList<Cedeva.Core.Enums.Status>()" id="Status">
-                                    <option value="">@Localizer["TeamMembers.SelectStatus"]</option>
-                                </select>
-                                <span asp-validation-for="Status" class="text-danger"></span>
-                            </div>
                         </div>
 
                         <div class="row">
@@ -109,16 +102,6 @@
                                 <input asp-for="LicenseFile" type="file" class="form-control" id="LicenseFile" accept="image/*,.pdf" />
                                 <span asp-validation-for="LicenseFile" class="text-danger"></span>
                                 <small class="form-text text-muted">@Localizer["Validation.LicenseFileHelp"]</small>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="DailyCompensation" class="form-label">@Localizer["Field.DailyCompensation"]</label>
-                                <div class="input-group">
-                                    <input asp-for="DailyCompensation" type="text" class="form-control" id="DailyCompensation"
-                                           data-val-number="@Localizer["Validation.Number"]" />
-                                    <span class="input-group-text">€</span>
-                                </div>
-                                <span asp-validation-for="DailyCompensation" class="text-danger"></span>
-                                <div class="form-text">@Localizer["TeamMembers.DailyCompensationHelp"]</div>
                             </div>
                         </div>
 
@@ -166,7 +149,6 @@
             // Initialize Choices.js on all selects
             CedevaChoices.init('#TeamRole');
             CedevaChoices.init('#License');
-            CedevaChoices.init('#Status');
             CedevaChoices.init('#OrganisationId');
 
             initializeUnifiedAddressAutocomplete("#CombinedAddress", "#PostalCode", "#City");

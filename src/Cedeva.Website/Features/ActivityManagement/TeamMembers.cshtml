@@ -32,7 +32,7 @@
                                 <th scope="col">@Localizer["Name"]</th>
                                 <th scope="col">@Localizer["Role"]</th>
                                 <th scope="col">@Localizer["License"]</th>
-                                <th scope="col">@Localizer["Status"]</th>
+                                <th scope="col">@Localizer["ActivityManagement.StatusAndRate"]</th>
                                 <th scope="col" class="text-end">@Localizer["Actions"]</th>
                             </tr>
                         </thead>
@@ -68,9 +68,29 @@
                                         }
                                     </td>
                                     <td>
-                                        <span class="badge @(member.Status == Status.Compensated ? "bg-success" : "bg-primary")">
-                                            @Localizer.GetLocalizedEnum(member.Status)
-                                        </span>
+                                        @* Status and daily rate belong to this activity (Thomas: the member sheet keeps no pay data). *@
+                                        @{
+                                            var assignment = Model.Assignments.GetValueOrDefault(member.TeamMemberId);
+                                        }
+                                        <form asp-action="UpdateTeamAssignment" method="post" class="d-flex flex-wrap align-items-center gap-2">
+                                            <input type="hidden" name="id" value="@Model.Activity.Id" />
+                                            <input type="hidden" name="teamMemberId" value="@member.TeamMemberId" />
+                                            <select name="status" class="form-select form-select-sm w-auto" aria-label="@Localizer["Status"]">
+                                                @foreach (var status in Enum.GetValues<Status>())
+                                                {
+                                                    <option value="@status" selected="@(assignment?.Status == status)">@Localizer.GetLocalizedEnum(status)</option>
+                                                }
+                                            </select>
+                                            <div class="input-group input-group-sm" style="width: 9rem;">
+                                                <input type="text" name="dailyCompensation" class="form-control" inputmode="decimal"
+                                                       value="@assignment?.DailyCompensation?.ToString("0.##", System.Globalization.CultureInfo.CurrentCulture)"
+                                                       placeholder="@Localizer["ActivityManagement.DailyRatePlaceholder"]" aria-label="@Localizer["Field.DailyCompensation"]" />
+                                                <span class="input-group-text">€/j</span>
+                                            </div>
+                                            <button type="submit" class="btn btn-sm btn-outline-secondary" title="@Localizer["Save"]">
+                                                <i class="fas fa-save"></i>
+                                            </button>
+                                        </form>
                                     </td>
                                     <td class="text-end">
                                         <form asp-action="RemoveTeamMember" method="post" style="display: inline;">

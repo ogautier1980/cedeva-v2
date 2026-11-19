@@ -57,8 +57,7 @@ public class ViewModelValidationTests
         PostalCode = "1000",
         Country = Country.Belgium,
         TeamRole = TeamRole.Animator,
-        License = License.License,
-        Status = Status.Volunteer
+        License = License.License
     };
 
     private static ChildViewModel ValidChild() => new()
@@ -297,36 +296,6 @@ public class ViewModelValidationTests
         var model = ValidParent();
         model.Email = email;
         HasErrorFor(Validate(model), nameof(ParentViewModel.Email)).Should().BeTrue();
-    }
-
-    // --- TeamMember-specific: DailyCompensation range ----------------------
-
-    [Fact]
-    public void TeamMember_DailyCompensation_Null_Passes()
-    {
-        var model = ValidTeamMember();
-        model.DailyCompensation = null;
-        IsValid(model).Should().BeTrue();
-    }
-
-    [Theory]
-    [InlineData(0)]
-    [InlineData(10000)]
-    public void TeamMember_DailyCompensation_WithinRange_Passes(int amount)
-    {
-        var model = ValidTeamMember();
-        model.DailyCompensation = amount;
-        IsValid(model).Should().BeTrue();
-    }
-
-    [Theory]
-    [InlineData(-1)]
-    [InlineData(10001)]
-    public void TeamMember_DailyCompensation_OutOfRange_Fails(int amount)
-    {
-        var model = ValidTeamMember();
-        model.DailyCompensation = amount;
-        HasErrorFor(Validate(model), nameof(TeamMemberViewModel.DailyCompensation)).Should().BeTrue();
     }
 
     [Fact]

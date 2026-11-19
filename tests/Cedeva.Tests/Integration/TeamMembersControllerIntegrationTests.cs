@@ -40,7 +40,6 @@ public class TeamMembersControllerIntegrationTests
             Address = address,
             TeamRole = TeamRole.Animator,
             License = License.License,
-            Status = Status.Volunteer,
             // LicenseUrl is configured IsRequired() (NOT NULL) in TeamMemberConfiguration.
             LicenseUrl = "/uploads/seed/license.pdf",
             Organisation = org

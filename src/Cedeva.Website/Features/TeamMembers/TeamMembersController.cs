@@ -76,8 +76,6 @@ public class TeamMembersController : Controller
             ("email", SortOrderDescending) => query.OrderByDescending(t => t.Email),
             ("teamrole", SortOrderAscending) => query.OrderBy(t => t.TeamRole),
             ("teamrole", SortOrderDescending) => query.OrderByDescending(t => t.TeamRole),
-            ("status", SortOrderAscending) => query.OrderBy(t => t.Status),
-            ("status", SortOrderDescending) => query.OrderByDescending(t => t.Status),
             _ => query.OrderBy(t => t.LastName).ThenBy(t => t.FirstName) // default
         };
 
@@ -91,7 +89,6 @@ public class TeamMembersController : Controller
                 MobilePhoneNumber = t.MobilePhoneNumber,
                 TeamRole = t.TeamRole,
                 License = t.License,
-                Status = t.Status,
                 OrganisationId = t.OrganisationId
             })
             .ToPaginatedListAsync(queryParams.PageNumber, queryParams.PageSize);
@@ -139,8 +136,6 @@ public class TeamMembersController : Controller
             { _ctx.Localizer["Excel.Age"], t => DateTime.Today.Year - t.BirthDate.Year - (DateTime.Today.DayOfYear < t.BirthDate.DayOfYear ? 1 : 0) },
             { _ctx.Localizer["Excel.Role"], t => t.TeamRole.ToString() },
             { _ctx.Localizer["Excel.License"], t => t.License.ToString() },
-            { _ctx.Localizer["Excel.Status"], t => t.Status.ToString() },
-            { _ctx.Localizer["Excel.DailyCompensation"], t => t.DailyCompensation ?? 0m },
             { _ctx.Localizer["Excel.Organisation"], t => t.Organisation?.Name ?? "" },
             { _ctx.Localizer["Excel.Street"], t => t.Address?.Street ?? "" },
             { _ctx.Localizer["Excel.PostalCode"], t => t.Address?.PostalCode ?? "" },
@@ -183,7 +178,6 @@ public class TeamMembersController : Controller
             { _ctx.Localizer["Excel.MobilePhone"], t => t.MobilePhoneNumber },
             { _ctx.Localizer["Excel.Role"], t => t.TeamRole.ToString() },
             { _ctx.Localizer["Excel.License"], t => t.License.ToString() },
-            { _ctx.Localizer["Excel.Status"], t => t.Status.ToString() },
             { _ctx.Localizer["Excel.City"], t => t.Address?.City ?? "" }
         };
 
@@ -319,8 +313,6 @@ public class TeamMembersController : Controller
             AddressId = addressId,
             TeamRole = viewModel.TeamRole,
             License = viewModel.License,
-            Status = viewModel.Status,
-            DailyCompensation = viewModel.DailyCompensation,
             OrganisationId = organisationId
         };
 
@@ -655,6 +647,7 @@ public class TeamMembersController : Controller
         var activities = await _context.Activities
             .Include(a => a.Days)
                 .ThenInclude(d => d.TeamMemberDays)
+            .Include(a => a.TeamAssignments)
             .Where(a => a.IsActive
                         && a.EndDate >= today
                         && a.TeamMembers.Any(tm => tm.TeamMemberId == teamMember.TeamMemberId))
@@ -672,13 +665,16 @@ public class TeamMembersController : Controller
         return activities.Select(activity =>
         {
             var daysWorked = _financialCalculationService.CalculateTeamMemberPresentDaysCount(activity, teamMember.TeamMemberId);
+            // The daily rate is set per activity, on the member's assignment.
+            var dailyRate = activity.TeamAssignments
+                .FirstOrDefault(a => a.TeamMemberId == teamMember.TeamMemberId)?.DailyCompensation ?? 0;
 
             return new TeamMemberActivityCompensationViewModel
             {
                 ActivityId = activity.Id,
                 ActivityName = activity.Name,
                 DaysWorked = daysWorked,
-                DailyAllowances = daysWorked * (teamMember.DailyCompensation ?? 0),
+                DailyAllowances = daysWorked * dailyRate,
                 Lines = expenses
                     .Where(e => e.ActivityId == activity.Id)
                     .OrderBy(e => e.ExpenseDate)
@@ -719,8 +715,6 @@ public class TeamMembersController : Controller
             Country = address?.Country ?? Core.Enums.Country.Belgium,
             TeamRole = teamMember.TeamRole,
             License = teamMember.License,
-            Status = teamMember.Status,
-            DailyCompensation = teamMember.DailyCompensation,
             BankAccountNumber = teamMember.BankAccountNumber,
             LicenseUrl = teamMember.LicenseUrl,
             CriminalRecordUrl = teamMember.CriminalRecordUrl,
@@ -777,8 +771,6 @@ public class TeamMembersController : Controller
         teamMember.BirthDate = viewModel.BirthDate;
         teamMember.TeamRole = viewModel.TeamRole;
         teamMember.License = viewModel.License;
-        teamMember.Status = viewModel.Status;
-        teamMember.DailyCompensation = viewModel.DailyCompensation;
         teamMember.BankAccountNumber = viewModel.BankAccountNumber;
 
         if (_ctx.CurrentUser.IsAdmin)

@@ -72,8 +72,7 @@ public class FinancialCalculationServiceTests
     [Fact]
     public void CalculateTeamMemberSalary_AppliesFormula()
     {
-        // (days * dailyCompensation) + reimbursements - personalConsumptions
-        var tm = new TeamMember { TeamMemberId = 1, DailyCompensation = 30m };
+        // (days * daily rate for the activity) + reimbursements - personalConsumptions
         var expenses = new List<Expense>
         {
             new() { Amount = 15m, ExpenseType = ExpenseType.Reimbursement },
@@ -81,16 +80,40 @@ public class FinancialCalculationServiceTests
         };
 
         // (4 * 30) + 15 - 5 = 130
-        _sut.CalculateTeamMemberSalary(tm, daysCount: 4, expenses).Should().Be(130m);
+        _sut.CalculateTeamMemberSalary(30m, daysCount: 4, expenses).Should().Be(130m);
     }
 
     [Fact]
-    public void CalculateTeamMemberSalary_WithNullDailyCompensation_TreatsAsZero()
+    public void CalculateTeamMemberSalaries_AssignmentWithoutRate_CountsAsZero()
     {
-        var tm = new TeamMember { TeamMemberId = 1, DailyCompensation = null };
+        // The rate is set per activity on the assignment; not set yet = 0.
+        var activity = new Activity();
+        var day = new ActivityDay();
+        activity.Days.Add(day);
+        activity.TeamAssignments.Add(new ActivityTeamMember { TeamMemberId = 1, DailyCompensation = null });
+        day.TeamMemberDays.Add(new TeamMemberDay { TeamMemberId = 1, IsPresent = true });
 
-        _sut.CalculateTeamMemberSalary(tm, daysCount: 10, Enumerable.Empty<Expense>())
-            .Should().Be(0m);
+        _sut.CalculateTeamMemberSalaries(activity, Enumerable.Empty<Expense>()).Should().Be(0m);
+    }
+
+    [Fact]
+    public void CalculateTeamMemberSalaries_UsesEachActivitysOwnRate_WhateverTheStatus()
+    {
+        // Thomas: a volunteer's allowance changes from one activity to the next — the activity's
+        // rate applies, volunteer or not.
+        var summer = new Activity();
+        var winter = new Activity();
+        foreach (var activity in new[] { summer, winter })
+        {
+            var day = new ActivityDay();
+            activity.Days.Add(day);
+            day.TeamMemberDays.Add(new TeamMemberDay { TeamMemberId = 1, IsPresent = true });
+        }
+        summer.TeamAssignments.Add(new ActivityTeamMember { TeamMemberId = 1, Status = Status.Volunteer, DailyCompensation = 15m });
+        winter.TeamAssignments.Add(new ActivityTeamMember { TeamMemberId = 1, Status = Status.Compensated, DailyCompensation = 40m });
+
+        _sut.CalculateTeamMemberSalaries(summer, Enumerable.Empty<Expense>()).Should().Be(15m);
+        _sut.CalculateTeamMemberSalaries(winter, Enumerable.Empty<Expense>()).Should().Be(40m);
     }
 
     [Fact]
@@ -101,8 +124,8 @@ public class FinancialCalculationServiceTests
         var day2 = new ActivityDay();
         activity.Days.Add(day1);
         activity.Days.Add(day2); // 2 days
-        activity.TeamMembers.Add(new TeamMember { TeamMemberId = 1, DailyCompensation = 10m });
-        activity.TeamMembers.Add(new TeamMember { TeamMemberId = 2, DailyCompensation = 20m });
+        activity.TeamAssignments.Add(new ActivityTeamMember { TeamMemberId = 1, DailyCompensation = 10m });
+        activity.TeamAssignments.Add(new ActivityTeamMember { TeamMemberId = 2, DailyCompensation = 20m });
 
         // Both members present both days.
         day1.TeamMemberDays.Add(new TeamMemberDay { TeamMemberId = 1, IsPresent = true });
@@ -129,7 +152,7 @@ public class FinancialCalculationServiceTests
         var day2 = new ActivityDay();
         activity.Days.Add(day1);
         activity.Days.Add(day2);
-        activity.TeamMembers.Add(new TeamMember { TeamMemberId = 1, DailyCompensation = 10m });
+        activity.TeamAssignments.Add(new ActivityTeamMember { TeamMemberId = 1, DailyCompensation = 10m });
 
         // Present day1, absent day2 -> only 1 day counts, not activity.Days.Count (2).
         day1.TeamMemberDays.Add(new TeamMemberDay { TeamMemberId = 1, IsPresent = true });
@@ -163,7 +186,7 @@ public class FinancialCalculationServiceTests
         var activity = new Activity();
         var day = new ActivityDay();
         activity.Days.Add(day);
-        activity.TeamMembers.Add(new TeamMember { TeamMemberId = 1, DailyCompensation = 10m });
+        activity.TeamAssignments.Add(new ActivityTeamMember { TeamMemberId = 1, DailyCompensation = 10m });
         day.TeamMemberDays.Add(new TeamMemberDay { TeamMemberId = 1, IsPresent = true });
 
         var expenses = new List<Expense>
@@ -194,7 +217,7 @@ public class FinancialCalculationServiceTests
         var activity = new Activity();
         var day = new ActivityDay();
         activity.Days.Add(day);
-        activity.TeamMembers.Add(new TeamMember { TeamMemberId = 1, DailyCompensation = 10m });
+        activity.TeamAssignments.Add(new ActivityTeamMember { TeamMemberId = 1, DailyCompensation = 10m });
         day.TeamMemberDays.Add(new TeamMemberDay { TeamMemberId = 1, IsPresent = true });
         activity.Bookings.Add(BookingWithPayments((200m, PaymentStatus.Paid)));
 

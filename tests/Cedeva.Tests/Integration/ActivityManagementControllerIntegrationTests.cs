@@ -34,7 +34,6 @@ public class ActivityManagementControllerIntegrationTests
         NationalRegisterNumber = "90010112345",
         TeamRole = TeamRole.Animator,
         License = License.License,
-        Status = Status.Volunteer,
         LicenseUrl = "https://example.test/license.pdf",
         Organisation = org
     };
@@ -833,5 +832,109 @@ public class ActivityManagementControllerIntegrationTests
         var response = await client.GetAsync($"/ActivityManagement/Print?activityId={activityId}&dayId={dayId}");
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
+    }
+
+    // ---------------------------------------------------------------------
+    // Team: status and daily rate per activity (Thomas, 19/11/2026)
+    // ---------------------------------------------------------------------
+
+    private static (int OrgId, int SummerId, int WinterId, int MemberId) SeedMemberOnTwoActivities(CedevaWebApplicationFactory factory)
+    {
+        Organisation org = null!;
+        Activity summer = null!, winter = null!;
+        TeamMember member = null!;
+        factory.Seed(ctx =>
+        {
+            org = TestData.Organisation();
+            summer = TestData.Activity(org, "Stage Été");
+            summer.StartDate = DateTime.Today.AddMonths(1);
+            winter = TestData.Activity(org, "Stage Hiver");
+            winter.StartDate = DateTime.Today.AddMonths(4);
+            member = TeamMember(org);
+            summer.TeamAssignments.Add(new ActivityTeamMember { TeamMember = member, Status = Status.Volunteer, DailyCompensation = 15m });
+            ctx.AddRange(org, summer, winter, member);
+            return 0;
+        });
+        return (org.Id, summer.Id, winter.Id, member.TeamMemberId);
+    }
+
+    [Fact]
+    public async Task UpdateTeamAssignment_SavesStatusAndRateForThisActivityOnly()
+    {
+        using var factory = new CedevaWebApplicationFactory();
+        var (orgId, summerId, _, memberId) = SeedMemberOnTwoActivities(factory);
+        var client = factory.CreateClientFor("u1", orgId, "Coordinator");
+
+        var response = await client.PostAsync("/ActivityManagement/UpdateTeamAssignment", new FormUrlEncodedContent(new Dictionary<string, string>
+        {
+            ["id"] = summerId.ToString(),
+            ["teamMemberId"] = memberId.ToString(),
+            ["status"] = nameof(Status.Compensated),
+            ["dailyCompensation"] = "42,50"
+        }));
+
+        response.StatusCode.Should().Be(HttpStatusCode.Found);
+        await using var db = factory.NewDbContext();
+        var assignment = await db.ActivityTeamMembers.SingleAsync(a => a.ActivityId == summerId && a.TeamMemberId == memberId);
+        assignment.Status.Should().Be(Status.Compensated);
+        assignment.DailyCompensation.Should().Be(42.50m);
+    }
+
+    [Fact]
+    public async Task UpdateTeamAssignment_NegativeRate_IsRefused()
+    {
+        using var factory = new CedevaWebApplicationFactory();
+        var (orgId, summerId, _, memberId) = SeedMemberOnTwoActivities(factory);
+        var client = factory.CreateClientFor("u1", orgId, "Coordinator");
+
+        await client.PostAsync("/ActivityManagement/UpdateTeamAssignment", new FormUrlEncodedContent(new Dictionary<string, string>
+        {
+            ["id"] = summerId.ToString(), ["teamMemberId"] = memberId.ToString(),
+            ["status"] = nameof(Status.Volunteer), ["dailyCompensation"] = "-5"
+        }));
+
+        await using var db = factory.NewDbContext();
+        (await db.ActivityTeamMembers.SingleAsync(a => a.ActivityId == summerId)).DailyCompensation.Should().Be(15m);
+    }
+
+    [Fact]
+    public async Task UpdateTeamAssignment_OtherOrganisation_ReturnsNotFound()
+    {
+        using var factory = new CedevaWebApplicationFactory();
+        var (_, summerId, _, memberId) = SeedMemberOnTwoActivities(factory);
+        var client = factory.CreateClientFor("u2", ForeignOrgId, "Coordinator");
+
+        var response = await client.PostAsync("/ActivityManagement/UpdateTeamAssignment", new FormUrlEncodedContent(new Dictionary<string, string>
+        {
+            ["id"] = summerId.ToString(), ["teamMemberId"] = memberId.ToString(),
+            ["status"] = nameof(Status.Compensated), ["dailyCompensation"] = "99"
+        }));
+
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+        await using var db = factory.NewDbContext();
+        (await db.ActivityTeamMembers.SingleAsync(a => a.ActivityId == summerId)).DailyCompensation.Should().Be(15m);
+    }
+
+    [Fact]
+    public async Task AddTeamMember_StartsFromTheMembersLatestStatusAndRate_AndTheTeamPageShowsThem()
+    {
+        using var factory = new CedevaWebApplicationFactory();
+        var (orgId, _, winterId, memberId) = SeedMemberOnTwoActivities(factory);
+        var client = factory.CreateClientFor("u1", orgId, "Coordinator");
+
+        var response = await client.PostAsync("/ActivityManagement/AddTeamMember", new FormUrlEncodedContent(new Dictionary<string, string>
+        {
+            ["id"] = winterId.ToString(), ["teamMemberId"] = memberId.ToString()
+        }));
+
+        response.StatusCode.Should().Be(HttpStatusCode.Found);
+        await using (var db = factory.NewDbContext())
+        {
+            var assignment = await db.ActivityTeamMembers.SingleAsync(a => a.ActivityId == winterId);
+            assignment.Status.Should().Be(Status.Volunteer);
+            assignment.DailyCompensation.Should().Be(15m);
+        }
+        var html = await client.GetStringAsync($"/ActivityManagement/TeamMembers?id={winterId}");
+        html.Should().Contain("UpdateTeamAssignment").And.Contain("value=\"15\"");
     }
 }

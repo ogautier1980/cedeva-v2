@@ -149,5 +149,8 @@ public class Activity : AuditableEntity, IOrganisationScoped
     public ICollection<Booking> Bookings { get; set; } = new List<Booking>();
     public ICollection<Child> Children { get; set; } = new List<Child>();
     public ICollection<TeamMember> TeamMembers { get; set; } = new List<TeamMember>();
+
+    /// <summary>The assignments behind <see cref="TeamMembers"/>: status and daily rate per member for this activity.</summary>
+    public ICollection<ActivityTeamMember> TeamAssignments { get; set; } = new List<ActivityTeamMember>();
     public ICollection<ActivityBirthYearQuota> BirthYearQuotas { get; set; } = new List<ActivityBirthYearQuota>();
 }

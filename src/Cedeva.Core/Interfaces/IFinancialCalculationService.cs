@@ -25,7 +25,8 @@ public interface IFinancialCalculationService
 
     /// <summary>
     /// Calculates estimated team member salaries for an activity.
-    /// Formula: (days × daily compensation) + reimbursements - personal consumptions
+    /// Formula: (days × the member's daily rate for this activity) + reimbursements - personal consumptions.
+    /// Reads <see cref="Activity.TeamAssignments"/> (to be loaded).
     /// </summary>
     decimal CalculateTeamMemberSalaries(Activity activity, IEnumerable<Expense> expenses);
 
@@ -47,9 +48,10 @@ public interface IFinancialCalculationService
 
     /// <summary>
     /// Calculates salary for a specific team member.
-    /// Formula: (days × daily compensation) + reimbursements - personal consumptions
+    /// Formula: (days × daily rate) + reimbursements - personal consumptions. The rate is the
+    /// member's rate for the activity (<see cref="ActivityTeamMember.DailyCompensation"/>).
     /// </summary>
-    decimal CalculateTeamMemberSalary(TeamMember teamMember, int daysCount, IEnumerable<Expense> memberExpenses);
+    decimal CalculateTeamMemberSalary(decimal dailyRate, int daysCount, IEnumerable<Expense> memberExpenses);
 
     /// <summary>
     /// Counts the days this team member was actually marked present for the activity

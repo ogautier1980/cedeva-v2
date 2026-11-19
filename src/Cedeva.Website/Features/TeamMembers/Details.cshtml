@@ -103,15 +103,6 @@
                     </div>
                 }
 
-                <h5 class="mt-4">@Localizer["Status"]</h5>
-                @foreach (var status in Enum.GetValues<Status>())
-                {
-                    <div class="form-check">
-                        <input class="form-check-input" type="radio" asp-for="Status" value="@status" id="status_@status" />
-                        <label class="form-check-label" for="status_@status">@Localizer[$"Enum.Status.{status}"]</label>
-                    </div>
-                }
-
                 <h5 class="mt-4">@Localizer["Field.LicenseFile"]</h5>
                 @if (!string.IsNullOrEmpty(Model.LicenseUrl))
                 {
@@ -140,15 +131,6 @@
                 <input asp-for="RemoveCriminalRecord" type="hidden" id="RemoveCriminalRecord" />
                 <input asp-for="CriminalRecordFile" type="file" class="form-control" accept="image/*,.pdf" />
                 <span asp-validation-for="CriminalRecordFile" class="text-danger"></span>
-
-                <h5 class="mt-4">@Localizer["TeamMembers.Allowances"]</h5>
-                <div class="input-group mb-2">
-                    <span class="input-group-text fw-bold label-cell">@Localizer["Field.DailyCompensation"]</span>
-                    <input asp-for="DailyCompensation" type="text" class="form-control"
-                           data-val-number="@Localizer["Validation.Number"]" />
-                    <span class="input-group-text">€</span>
-                </div>
-                <span asp-validation-for="DailyCompensation" class="text-danger"></span>
 
                 @if (User.IsInRole("Admin") && ViewBag.Organisations != null)
                 {

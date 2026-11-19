@@ -43,11 +43,6 @@ public class TeamMember : AuditableEntity, IOrganisationScoped
     [Required(ErrorMessage = "Validation.Required")]
     public License License { get; set; }
 
-    [Required(ErrorMessage = "Validation.Required")]
-    public Status Status { get; set; }
-
-    public decimal? DailyCompensation { get; set; }
-
     /// <summary>Compte sur lequel les indemnités sont versées (IBAN).</summary>
     [StringLength(34, ErrorMessage = "Validation.StringLength")]
     public string? BankAccountNumber { get; set; }
@@ -65,6 +60,9 @@ public class TeamMember : AuditableEntity, IOrganisationScoped
     public Organisation Organisation { get; set; } = null!;
 
     public ICollection<Activity> Activities { get; set; } = new List<Activity>();
+
+    /// <summary>The assignments behind <see cref="Activities"/>, with the status and rate of each activity.</summary>
+    public ICollection<ActivityTeamMember> ActivityAssignments { get; set; } = new List<ActivityTeamMember>();
     public ICollection<Expense> Expenses { get; set; } = new List<Expense>();
     public ICollection<TeamMemberDay> Days { get; set; } = new List<TeamMemberDay>();
 

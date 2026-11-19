@@ -46,18 +46,26 @@ public class ActivityConfiguration : IEntityTypeConfiguration<Activity>
             .WithMany(c => c.Activities)
             .UsingEntity(j => j.ToTable("ActivityChildren"));
 
-        // Many-to-Many with TeamMembers
+        // Many-to-Many with TeamMembers, through ActivityTeamMember (status and daily rate per
+        // activity). Same table and key columns as the former anonymous join table.
         builder.HasMany(a => a.TeamMembers)
             .WithMany(t => t.Activities)
-            .UsingEntity<Dictionary<string, object>>(
-                "ActivityTeamMembers",
-                j => j.HasOne<TeamMember>()
-                      .WithMany()
-                      .HasForeignKey("TeamMembersTeamMemberId")
+            .UsingEntity<ActivityTeamMember>(
+                j => j.HasOne(x => x.TeamMember)
+                      .WithMany(t => t.ActivityAssignments)
+                      .HasForeignKey(x => x.TeamMemberId)
                       .OnDelete(DeleteBehavior.Restrict),
-                j => j.HasOne<Activity>()
-                      .WithMany()
-                      .HasForeignKey("ActivitiesId")
-                      .OnDelete(DeleteBehavior.Cascade));
+                j => j.HasOne(x => x.Activity)
+                      .WithMany(a => a.TeamAssignments)
+                      .HasForeignKey(x => x.ActivityId)
+                      .OnDelete(DeleteBehavior.Cascade),
+                j =>
+                {
+                    j.ToTable("ActivityTeamMembers");
+                    j.HasKey(x => new { x.ActivityId, x.TeamMemberId });
+                    j.Property(x => x.ActivityId).HasColumnName("ActivitiesId");
+                    j.Property(x => x.TeamMemberId).HasColumnName("TeamMembersTeamMemberId");
+                    j.Property(x => x.DailyCompensation).HasPrecision(10, 2);
+                });
     }
 }

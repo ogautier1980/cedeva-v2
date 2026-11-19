@@ -37,21 +37,6 @@ namespace Cedeva.Infrastructure.Migrations
                     b.ToTable("ActivityChildren", (string)null);
                 });
 
-            modelBuilder.Entity("ActivityTeamMembers", b =>
-                {
-                    b.Property<int>("ActivitiesId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("TeamMembersTeamMemberId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("ActivitiesId", "TeamMembersTeamMemberId");
-
-                    b.HasIndex("TeamMembersTeamMemberId");
-
-                    b.ToTable("ActivityTeamMembers");
-                });
-
             modelBuilder.Entity("Cedeva.Core.Entities.Activity", b =>
                 {
                     b.Property<int>("Id")
@@ -474,6 +459,30 @@ namespace Cedeva.Infrastructure.Migrations
                     b.HasIndex("BookingId");
 
                     b.ToTable("ActivityQuestionAnswers");
+                });
+
+            modelBuilder.Entity("Cedeva.Core.Entities.ActivityTeamMember", b =>
+                {
+                    b.Property<int>("ActivityId")
+                        .HasColumnType("integer")
+                        .HasColumnName("ActivitiesId");
+
+                    b.Property<int>("TeamMemberId")
+                        .HasColumnType("integer")
+                        .HasColumnName("TeamMembersTeamMemberId");
+
+                    b.Property<decimal?>("DailyCompensation")
+                        .HasPrecision(10, 2)
+                        .HasColumnType("numeric(10,2)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
+                    b.HasKey("ActivityId", "TeamMemberId");
+
+                    b.HasIndex("TeamMemberId");
+
+                    b.ToTable("ActivityTeamMembers", (string)null);
                 });
 
             modelBuilder.Entity("Cedeva.Core.Entities.Address", b =>
@@ -1744,10 +1753,6 @@ namespace Cedeva.Infrastructure.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)");
 
-                    b.Property<decimal?>("DailyCompensation")
-                        .HasPrecision(10, 2)
-                        .HasColumnType("numeric(10,2)");
-
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -1788,9 +1793,6 @@ namespace Cedeva.Infrastructure.Migrations
                         .HasColumnType("character varying(15)");
 
                     b.Property<int>("OrganisationId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("Status")
                         .HasColumnType("integer");
 
                     b.Property<int>("TeamRole")
@@ -1991,21 +1993,6 @@ namespace Cedeva.Infrastructure.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("ActivityTeamMembers", b =>
-                {
-                    b.HasOne("Cedeva.Core.Entities.Activity", null)
-                        .WithMany()
-                        .HasForeignKey("ActivitiesId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Cedeva.Core.Entities.TeamMember", null)
-                        .WithMany()
-                        .HasForeignKey("TeamMembersTeamMemberId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("Cedeva.Core.Entities.Activity", b =>
                 {
                     b.HasOne("Cedeva.Core.Entities.Address", "Address")
@@ -2108,6 +2095,25 @@ namespace Cedeva.Infrastructure.Migrations
                     b.Navigation("ActivityQuestion");
 
                     b.Navigation("Booking");
+                });
+
+            modelBuilder.Entity("Cedeva.Core.Entities.ActivityTeamMember", b =>
+                {
+                    b.HasOne("Cedeva.Core.Entities.Activity", "Activity")
+                        .WithMany("TeamAssignments")
+                        .HasForeignKey("ActivityId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Cedeva.Core.Entities.TeamMember", "TeamMember")
+                        .WithMany("ActivityAssignments")
+                        .HasForeignKey("TeamMemberId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Activity");
+
+                    b.Navigation("TeamMember");
                 });
 
             modelBuilder.Entity("Cedeva.Core.Entities.Booking", b =>
@@ -2537,6 +2543,8 @@ namespace Cedeva.Infrastructure.Migrations
                     b.Navigation("Days");
 
                     b.Navigation("Groups");
+
+                    b.Navigation("TeamAssignments");
                 });
 
             modelBuilder.Entity("Cedeva.Core.Entities.ActivityDay", b =>
@@ -2606,6 +2614,8 @@ namespace Cedeva.Infrastructure.Migrations
 
             modelBuilder.Entity("Cedeva.Core.Entities.TeamMember", b =>
                 {
+                    b.Navigation("ActivityAssignments");
+
                     b.Navigation("Days");
 
                     b.Navigation("Expenses");

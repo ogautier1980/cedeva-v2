@@ -1165,9 +1165,6 @@
   <data name="Common.Cancel" xml:space="preserve">
     <value>Annuleren</value>
   </data>
-  <data name="Compensated" xml:space="preserve">
-    <value>Vergoed</value>
-  </data>
   <data name="Completed" xml:space="preserve">
     <value>Voltooid</value>
   </data>
@@ -1572,9 +1569,6 @@
   </data>
   <data name="Excel.Country" xml:space="preserve">
     <value>Land</value>
-  </data>
-  <data name="Excel.DailyCompensation" xml:space="preserve">
-    <value>Dagelijkse vergoeding</value>
   </data>
   <data name="Excel.Description" xml:space="preserve">
     <value>Beschrijving</value>
@@ -2315,7 +2309,7 @@
     <value>Inkomstendetails</value>
   </data>
   <data name="Financial.SalaryCalculationInfo" xml:space="preserve">
-    <value>Het te betalen bedrag wordt als volgt berekend: Prestaties (Dagen × Dagvergoeding) + Terugbeteningen − Persoonlijke consumaties.</value>
+    <value>Het te betalen bedrag wordt als volgt berekend: Prestaties (aanwezigheidsdagen × dagtarief voor deze activiteit) + Toevoegingen − Inhoudingen.</value>
   </data>
   <data name="Financial.ShowAmounts" xml:space="preserve">
     <value>Bedragen tonen</value>
@@ -3532,9 +3526,6 @@
   <data name="TeamMembers.DailyCompensation" xml:space="preserve">
     <value>Vergoeding/dag</value>
   </data>
-  <data name="TeamMembers.DailyCompensationHelp" xml:space="preserve">
-    <value>Dagvergoeding (optioneel)</value>
-  </data>
   <data name="TeamMembers.DeleteConfirmation" xml:space="preserve">
     <value>Weet u zeker dat u dit teamlid wilt verwijderen?</value>
   </data>
@@ -3577,9 +3568,6 @@
   <data name="TeamMembers.Licenses" xml:space="preserve">
     <value>Brevetten</value>
   </data>
-  <data name="TeamMembers.Allowances" xml:space="preserve">
-    <value>Vergoedingen</value>
-  </data>
   <data name="TeamMembers.ExtrasAndExpenses" xml:space="preserve">
     <value>Aanvullingen / Uitgaven</value>
   </data>
@@ -3603,9 +3591,6 @@
   </data>
   <data name="TeamMembers.SelectRole" xml:space="preserve">
     <value>-- Selecteer een rol --</value>
-  </data>
-  <data name="TeamMembers.SelectStatus" xml:space="preserve">
-    <value>-- Selecteer een status --</value>
   </data>
   <data name="To" xml:space="preserve">
     <value>tot</value>
@@ -3747,9 +3732,6 @@
   </data>
   <data name="ViewDocument" xml:space="preserve">
     <value>Document bekijken</value>
-  </data>
-  <data name="Volunteer" xml:space="preserve">
-    <value>Vrijwilliger</value>
   </data>
   <data name="Warning" xml:space="preserve">
     <value>Waarschuwing</value>
@@ -5096,5 +5078,14 @@
   </data>
   <data name="FiscalAttestation.MissingResponsible" xml:space="preserve">
     <value>De naam of de handtekening van de verantwoordelijke ontbreekt in de instellingen van de vzw: ze blijven leeg onderaan elk kader II.</value>
+  </data>
+  <data name="ActivityManagement.StatusAndRate" xml:space="preserve">
+    <value>Statuut en tarief voor deze activiteit</value>
+  </data>
+  <data name="ActivityManagement.DailyRatePlaceholder" xml:space="preserve">
+    <value>Tarief</value>
+  </data>
+  <data name="ActivityManagement.TeamAssignmentSaved" xml:space="preserve">
+    <value>Statuut en tarief van {0} opgeslagen voor deze activiteit.</value>
   </data>
 </root>

@@ -34,9 +34,6 @@ public class TeamMemberConfiguration : IEntityTypeConfiguration<TeamMember>
             .IsRequired()
             .HasMaxLength(100);
 
-        builder.Property(t => t.DailyCompensation)
-            .HasPrecision(10, 2);
-
         builder.HasOne(t => t.Address)
             .WithMany()
             .HasForeignKey(t => t.AddressId)

@@ -1168,9 +1168,6 @@
   <data name="Common.Cancel" xml:space="preserve">
     <value>Annuler</value>
   </data>
-  <data name="Compensated" xml:space="preserve">
-    <value>Rémunéré</value>
-  </data>
   <data name="Completed" xml:space="preserve">
     <value>Terminé</value>
   </data>
@@ -1521,9 +1518,6 @@
   </data>
   <data name="Excel.Country" xml:space="preserve">
     <value>Pays</value>
-  </data>
-  <data name="Excel.DailyCompensation" xml:space="preserve">
-    <value>Défraiement journalier</value>
   </data>
   <data name="Excel.Description" xml:space="preserve">
     <value>Description</value>
@@ -2264,7 +2258,7 @@
     <value>Détails des revenus</value>
   </data>
   <data name="Financial.SalaryCalculationInfo" xml:space="preserve">
-    <value>Le montant à verser est calculé comme suit : Prestations (Jours × Indemnité journalière) + Remboursements − Consommations personnelles.</value>
+    <value>Le montant à verser est calculé comme suit : Prestations (jours de présence × tarif journalier fixé pour ce stage) + Ajouts − Retenues.</value>
   </data>
   <data name="Financial.ShowAmounts" xml:space="preserve">
     <value>Afficher les montants</value>
@@ -3481,9 +3475,6 @@
   <data name="TeamMembers.DailyCompensation" xml:space="preserve">
     <value>Indemnité/jour</value>
   </data>
-  <data name="TeamMembers.DailyCompensationHelp" xml:space="preserve">
-    <value>Indemnité journalière (optionnel)</value>
-  </data>
   <data name="TeamMembers.DeleteConfirmation" xml:space="preserve">
     <value>Êtes-vous sûr de vouloir supprimer ce membre d'équipe ?</value>
   </data>
@@ -3526,9 +3517,6 @@
   <data name="TeamMembers.Licenses" xml:space="preserve">
     <value>Brevets</value>
   </data>
-  <data name="TeamMembers.Allowances" xml:space="preserve">
-    <value>Indemnités</value>
-  </data>
   <data name="TeamMembers.ExtrasAndExpenses" xml:space="preserve">
     <value>Compléments / Dépenses</value>
   </data>
@@ -3552,9 +3540,6 @@
   </data>
   <data name="TeamMembers.SelectRole" xml:space="preserve">
     <value>-- Sélectionnez un rôle --</value>
-  </data>
-  <data name="TeamMembers.SelectStatus" xml:space="preserve">
-    <value>-- Sélectionnez un statut --</value>
   </data>
   <data name="To" xml:space="preserve">
     <value>à</value>
@@ -3696,9 +3681,6 @@
   </data>
   <data name="ViewDocument" xml:space="preserve">
     <value>Voir le document</value>
-  </data>
-  <data name="Volunteer" xml:space="preserve">
-    <value>Bénévole</value>
   </data>
   <data name="Warning" xml:space="preserve">
     <value>Avertissement</value>
@@ -5118,5 +5100,14 @@
   </data>
   <data name="FiscalAttestation.MissingResponsible" xml:space="preserve">
     <value>Le nom du responsable ou sa signature manque dans les paramètres de l'ASBL : ils resteront vides en bas de chaque cadre II.</value>
+  </data>
+  <data name="ActivityManagement.StatusAndRate" xml:space="preserve">
+    <value>Statut et tarif pour ce stage</value>
+  </data>
+  <data name="ActivityManagement.DailyRatePlaceholder" xml:space="preserve">
+    <value>Tarif</value>
+  </data>
+  <data name="ActivityManagement.TeamAssignmentSaved" xml:space="preserve">
+    <value>Statut et tarif de {0} enregistrés pour ce stage.</value>
   </data>
 </root>

@@ -466,6 +466,7 @@ public class ActivityManagementController : Controller
         var activity = await _context.Activities
             .Include(a => a.Days)
             .Include(a => a.TeamMembers)
+            .Include(a => a.TeamAssignments)
             .FirstOrDefaultAsync(a => a.Id == id);
 
         if (activity == null)
@@ -505,7 +506,8 @@ public class ActivityManagementController : Controller
                 LastName = tm.LastName,
                 TeamRole = tm.TeamRole,
                 License = tm.License,
-                Status = tm.Status,
+                // The status is set per activity, on the member's assignment.
+                Status = activity.TeamAssignments.FirstOrDefault(a => a.TeamMemberId == tm.TeamMemberId)?.Status ?? Status.Compensated,
                 PresenceByDayId = teamMemberDays
                     .Where(d => d.TeamMemberId == tm.TeamMemberId)
                     .ToDictionary(d => d.ActivityDayId, d => d.IsPresent)
@@ -706,6 +708,7 @@ public class ActivityManagementController : Controller
 
         var activity = await _context.Activities
             .Include(a => a.TeamMembers)
+            .Include(a => a.TeamAssignments)
             .FirstOrDefaultAsync(a => a.Id == id);
 
         if (activity == null)
@@ -729,7 +732,8 @@ public class ActivityManagementController : Controller
         {
             Activity = activity,
             AssignedTeamMembers = activity.TeamMembers,
-            AvailableTeamMembers = availableTeamMembers
+            AvailableTeamMembers = availableTeamMembers,
+            Assignments = activity.TeamAssignments.ToDictionary(a => a.TeamMemberId)
         };
 
         return View(viewModel);
@@ -778,7 +782,19 @@ public class ActivityManagementController : Controller
 
         if (!activity.TeamMembers.Any(tm => tm.TeamMemberId == teamMemberId))
         {
-            activity.TeamMembers.Add(teamMember);
+            // Status and rate are set per activity; start from the member's latest assignment (they
+            // often keep the same), to be adjusted on the team page.
+            var previous = await _context.ActivityTeamMembers
+                .Where(a => a.TeamMemberId == teamMemberId)
+                .OrderByDescending(a => a.Activity.StartDate)
+                .FirstOrDefaultAsync();
+            _context.ActivityTeamMembers.Add(new ActivityTeamMember
+            {
+                ActivityId = activity.Id,
+                TeamMemberId = teamMember.TeamMemberId,
+                Status = previous?.Status ?? Status.Compensated,
+                DailyCompensation = previous?.DailyCompensation
+            });
 
             // A newly assigned member starts expected-present on every existing day; the
             // coordinator unchecks a specific day only once that member is actually absent.
@@ -797,6 +813,33 @@ public class ActivityManagementController : Controller
         }
 
         return RedirectToAction(nameof(TeamMembers));
+    }
+
+    // POST: status (volunteer / compensated) and daily rate of a member for this activity.
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> UpdateTeamAssignment(int id, int teamMemberId, Status status, decimal? dailyCompensation)
+    {
+        var assignment = await _context.ActivityTeamMembers
+            .Include(a => a.Activity)
+            .Include(a => a.TeamMember)
+            .FirstOrDefaultAsync(a => a.ActivityId == id && a.TeamMemberId == teamMemberId);
+        // The activity's tenancy filter is not applied through the join: check it explicitly.
+        if (assignment == null || !await _context.Activities.AnyAsync(a => a.Id == id))
+            return NotFound();
+
+        if (!ModelState.IsValid || dailyCompensation < 0 || !Enum.IsDefined(status))
+        {
+            TempData[ControllerExtensions.ErrorMessageKey] = _localizer["Validation.InvalidValue"].Value;
+            return RedirectToAction(nameof(TeamMembers), new { id });
+        }
+
+        assignment.Status = status;
+        assignment.DailyCompensation = dailyCompensation;
+        await _context.SaveChangesAsync();
+        TempData[ControllerExtensions.SuccessMessageKey] = _localizer["ActivityManagement.TeamAssignmentSaved",
+            $"{assignment.TeamMember.FirstName} {assignment.TeamMember.LastName}"].Value;
+        return RedirectToAction(nameof(TeamMembers), new { id });
     }
 
     [HttpPost]

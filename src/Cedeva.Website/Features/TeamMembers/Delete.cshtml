@@ -50,13 +50,6 @@
                             </span>
                         </dd>
 
-                        <dt class="col-sm-4">@Localizer["Status"]</dt>
-                        <dd class="col-sm-8">
-                            <span class="badge @(Model.Status == Cedeva.Core.Enums.Status.Compensated ? "bg-primary" : "bg-secondary")">
-                                @(Model.Status == Cedeva.Core.Enums.Status.Compensated ? Localizer["Enum.Status.Compensated"] : Localizer["Enum.Status.Volunteer"])
-                            </span>
-                        </dd>
-
                         <dt class="col-sm-4">@Localizer["Address"]</dt>
                         <dd class="col-sm-8">
                             @Model.Street<br />

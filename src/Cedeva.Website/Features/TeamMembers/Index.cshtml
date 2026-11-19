@@ -58,7 +58,6 @@
                                 <th scope="col">@Localizer["Phone"]</th>
                                 <th scope="col">@await Html.PartialAsync("_SortableColumnHeader", ("TeamRole", Localizer["Role"].Value, ViewData["SortBy"] as string, ViewData["SortOrder"] as string))</th>
                                 <th scope="col">@Localizer["License"]</th>
-                                <th scope="col">@await Html.PartialAsync("_SortableColumnHeader", ("Status", Localizer["Status"].Value, ViewData["SortBy"] as string, ViewData["SortOrder"] as string))</th>
                                 <th scope="col" class="text-end">@Localizer["Actions"]</th>
                             </tr>
                         </thead>
@@ -87,11 +86,6 @@
                                     <td>
                                         <span class="badge @(member.License == Cedeva.Core.Enums.License.License ? "bg-success" : "bg-warning")">
                                             @member.License
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <span class="badge @(member.Status == Cedeva.Core.Enums.Status.Compensated ? "bg-primary" : "bg-secondary")">
-                                            @(member.Status == Cedeva.Core.Enums.Status.Compensated ? Localizer["Compensated"] : Localizer["Volunteer"])
                                         </span>
                                     </td>
                                     <td class="text-end">

@@ -65,12 +65,11 @@ public class FinancialControllerCoverageTests
                 NationalRegisterNumber = "90010112345",
                 TeamRole = TeamRole.Animator,
                 License = License.License,
-                Status = Status.Compensated,
-                DailyCompensation = 50m,
                 LicenseUrl = "license.pdf",
                 Organisation = org
             };
-            activity.TeamMembers.Add(teamMember);
+            // Status and daily rate are set per activity, on the assignment.
+            activity.TeamAssignments.Add(new ActivityTeamMember { TeamMember = teamMember, Status = Status.Compensated, DailyCompensation = 50m });
 
             var parent = TestData.Parent(org);
             var child = TestData.Child(parent);

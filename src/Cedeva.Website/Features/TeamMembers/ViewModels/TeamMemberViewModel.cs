@@ -70,15 +70,6 @@ public class TeamMemberViewModel : AuditableViewModel
     [Display(Name = "Field.License")]
     public License License { get; set; }
 
-    [Required(ErrorMessage = "Validation.Required")]
-    [Display(Name = "Field.Status")]
-    public Status Status { get; set; }
-
-    [Display(Name = "Field.DailyCompensation")]
-    [Range(0, 10000, ErrorMessage = "Validation.Range")]
-    [DataType(DataType.Currency)]
-    public decimal? DailyCompensation { get; set; }
-
     [StringLength(34, ErrorMessage = "Validation.StringLength")]
     [Display(Name = "Field.BankAccountNumber")]
     public string? BankAccountNumber { get; set; }

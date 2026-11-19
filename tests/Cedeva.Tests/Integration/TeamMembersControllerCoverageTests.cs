@@ -25,7 +25,7 @@ public class TeamMembersControllerCoverageTests
     private static TeamMember SeedTeamMember(CedevaDbContext ctx, Organisation org,
         string firstName = "Tom", string lastName = "Animateur",
         string email = "tom.animateur@test.be",
-        TeamRole role = TeamRole.Animator, Status status = Status.Volunteer,
+        TeamRole role = TeamRole.Animator,
         string? licenseUrl = "/uploads/seed/license.pdf")
     {
         var address = new Address
@@ -47,7 +47,6 @@ public class TeamMembersControllerCoverageTests
             Address = address,
             TeamRole = role,
             License = License.License,
-            Status = status,
             LicenseUrl = licenseUrl!,
             Organisation = org
         };

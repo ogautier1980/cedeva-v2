@@ -81,7 +81,6 @@ public class ExcursionsControllerCoverageTests
                 Address = TestData.Address(),
                 TeamRole = TeamRole.Animator,
                 License = License.License,
-                Status = Status.Volunteer,
                 LicenseUrl = "/uploads/seed/license.pdf",
                 Organisation = org
             };
