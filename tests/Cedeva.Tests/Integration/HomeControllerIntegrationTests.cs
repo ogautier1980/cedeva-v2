@@ -57,6 +57,32 @@ public class HomeControllerIntegrationTests
     }
 
     [Fact]
+    public async Task Layout_LanguageSelector_IsHiddenByDefault()
+    {
+        using var factory = new CedevaWebApplicationFactory();
+        var orgId = factory.Seed(ctx => { var org = TestData.Organisation(); ctx.Add(org); return org; }).Id;
+
+        var html = await factory.CreateClientFor("u1", orgId, "Coordinator").GetStringAsync("/");
+
+        html.Should().NotContain("languageDropdown");
+    }
+
+    [Fact]
+    public async Task Layout_LanguageSelector_ShowsWhenEnabledInConfig()
+    {
+        using var baseFactory = new CedevaWebApplicationFactory();
+        var orgId = baseFactory.Seed(ctx => { var org = TestData.Organisation(); ctx.Add(org); return org; }).Id;
+        using var factory = baseFactory.WithWebHostBuilder(builder =>
+            builder.UseSetting("Features:ShowLanguageSelector", "true"));
+        var client = factory.CreateClient();
+        client.DefaultRequestHeaders.Add(TestAuthHandler.UserHeader, $"u1|{orgId}|Coordinator");
+
+        var html = await client.GetStringAsync("/");
+
+        html.Should().Contain("languageDropdown");
+    }
+
+    [Fact]
     public async Task Index_RendersStatsForOwnOrganisationData()
     {
         using var factory = new CedevaWebApplicationFactory();

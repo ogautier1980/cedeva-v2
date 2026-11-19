@@ -1,5 +1,6 @@
 @inject Cedeva.Core.Interfaces.ICurrentUserService CurrentUserService
 @inject Cedeva.Infrastructure.Data.CedevaDbContext DbContext
+@inject Microsoft.Extensions.Configuration.IConfiguration Configuration
 @using Microsoft.EntityFrameworkCore
 
 @{
@@ -288,7 +289,9 @@
 
                     <div class="collapse navbar-collapse">
                         <ul class="navbar-nav ms-auto">
-                            @{
+                            @* Hidden for now at the client's request (Nov 2026); set Features:ShowLanguageSelector=true to bring it back. *@
+                            @if (Configuration.GetValue<bool>("Features:ShowLanguageSelector"))
+                            {
                                 var currentCulture = System.Globalization.CultureInfo.CurrentUICulture.Name;
                                 var languageCode = currentCulture.StartsWith("fr") ? "fr" :
                                                    currentCulture.StartsWith("nl") ? "nl" :
@@ -307,7 +310,6 @@
                                     "en" => "English",
                                     _ => "Language"
                                 };
-                            }
                             <li class="nav-item dropdown">
                                 <button class="nav-link dropdown-toggle btn btn-link text-white text-decoration-none" id="languageDropdown" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                                     <span class="me-1">@languageIcon</span>@languageName
@@ -342,6 +344,7 @@
                                     </li>
                                 </ul>
                             </li>
+                            }
                             @if (User.Identity?.IsAuthenticated == true)
                             {
                                 <li class="nav-item dropdown">
