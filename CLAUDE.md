@@ -124,10 +124,17 @@ src/
 - Categories (`ExpenseCategoryType` Expense / Income / OffBalance + budget) shown in 3 columns. One per
   organisation is the P.A.F. category (`IsRegistrationFees`, always an Income, not deletable), ensured by
   `RegistrationFeesCategory.EnsureAsync` wherever categories are read; registration payments show in it
+- **Budget per activity** (`ActivityCategoryBudget`, page `Financial/Budget`): the budget on a category is
+  the organisation's *template*; `ActivityBudgetTemplate.ApplyAsync` copies it into an activity when the
+  activity is created (simple create, wizard, CSV import) and on demand ("Importer le budget modèle")
+- **Team pay per activity**: status (volunteer / compensated) and daily rate live on the assignment
+  `ActivityTeamMember` (table `ActivityTeamMembers`, `Activity.TeamAssignments`), not on `TeamMember`
+  (the member sheet keeps identity only). Set on the activity's Team page; the rate applies whatever the
+  status; `CalculateTeamMemberSalary(dailyRate, …)`. Load `TeamAssignments` before computing salaries
 - **BILAN** (`Financial/Balance`, replaced the old Report — `Financial/Report` redirects): Entrées /
   Dépenses sections per category; P.A.F. line = the P.A.F. category's hand-encoded lines + all
   registration payments; fixed lines team compensation,
-  uncategorised; Hors bilan excluded
+  uncategorised; Hors bilan excluded; Budget column = the activity's budget
 - ⚠️ CODA import & bank reconciliation were **removed** (replaced by online payments — see below)
 
 ### Online Payments (Stripe / Mollie)
@@ -208,7 +215,7 @@ src/
 - Clean URLs (route parameters vs query strings)
 
 ## Testing (November 2026)
-- **~1429 unit/integration tests** (+ 64 E2E browser, 0 skipped; + 3 PostgreSQL); line coverage ≈91%,
+- **~1432 unit/integration tests** (+ 64 E2E browser, 0 skipped; + 3 PostgreSQL); line coverage ≈91%,
   CI coverage gate at 85%.
 - **xUnit v3 via `xunit.v3.mtp-off`** (not plain `xunit.v3`): plain v3 turns on Microsoft.Testing.Platform,
   which the .NET 10 SDK refuses under VSTest-mode `dotnet test`, and the CI gate relies on

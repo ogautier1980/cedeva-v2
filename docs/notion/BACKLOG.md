@@ -137,10 +137,16 @@ de l'année suivante figure sur l'attestation de l'année du paiement, avec les 
 Au passage : le bouton « Supprimer » partagé menait à une 404 (catégories, contacts, groupes,
 modèles de questions) — corrigé.
 
-À faire :
-- **Budget par stage**, à partir d'un modèle de budget importable dans un stage (comme les mails).
-- **Tarif de l'équipe par stage** : la « réserve » ne garde que l'identité (nom, RN, formé…) ; le
-  tarif (bénévole ou non) s'encode dans le stage — lien stage/membre avec données propres.
+Fait le 19/11/2026 (étape 4) :
+- **Budget par stage** : le budget des catégories devient le budget modèle, copié automatiquement
+  dans chaque nouveau stage et réimportable (« Importer le budget modèle ») ; page Comptes > Budget
+  pour l'ajuster par stage ; le BILAN compare au budget du stage. Les stages existants ont reçu une
+  copie du budget de leur organisation.
+- **Statut et tarif de l'équipe par stage** : réglés sur l'écran Équipe du stage ; la fiche membre
+  (« réserve ») ne garde que l'identité. Le tarif s'applique bénévole ou non (défraiement variable
+  d'un stage à l'autre). À l'ajout d'un membre, repris de son stage le plus récent. Données
+  existantes copiées dans les affectations.
+
 
 Rien à changer : **facturation des excursions** — le lien de paiement du mail demande déjà le solde
 complet de l'enfant (stage + excursion si le stage n'est pas payé, sinon l'excursion seule).
