@@ -4921,9 +4921,6 @@
   <data name="Financial.Balance.Title" xml:space="preserve">
     <value>Bilan</value>
   </data>
-  <data name="Financial.Balance.ChildPayments" xml:space="preserve">
-    <value>P.A.F. (paiements des inscriptions)</value>
-  </data>
   <data name="Financial.Balance.TeamCompensation" xml:space="preserve">
     <value>Défraiements de l'équipe</value>
   </data>
@@ -5031,5 +5028,14 @@
   </data>
   <data name="Validation.InvalidValue" xml:space="preserve">
     <value>Valeur non valide.</value>
+  </data>
+  <data name="ExpenseCategory.Automatic" xml:space="preserve">
+    <value>Automatique</value>
+  </data>
+  <data name="ExpenseCategory.RegistrationFeesHelp" xml:space="preserve">
+    <value>Catégorie P.A.F. : en plus des recettes encodées à la main, elle reprend automatiquement tous les paiements des inscriptions. Elle reste une entrée et ne peut pas être supprimée.</value>
+  </data>
+  <data name="ExpenseCategory.RegistrationFeesCannotBeDeleted" xml:space="preserve">
+    <value>La catégorie P.A.F. ne peut pas être supprimée : elle reprend les paiements des inscriptions.</value>
   </data>
 </root>

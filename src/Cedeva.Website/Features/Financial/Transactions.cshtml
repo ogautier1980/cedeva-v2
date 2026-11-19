@@ -131,7 +131,14 @@
                                         @* A Recette entered as a transaction shows its category like any other line. *@
                                         @if (transaction.Type == "Payment")
                                         {
+                                            @* Registration payments belong to the P.A.F. category (its automatic part). *@
                                             <span class="text-muted small">
+                                                @if (!string.IsNullOrEmpty(transaction.Category))
+                                                {
+                                                    <span class="me-2">
+                                                        <i class="fas fa-tag me-1"></i>@transaction.Category
+                                                    </span>
+                                                }
                                                 <i class="fas fa-credit-card me-1"></i>@transaction.PaymentMethod
                                             </span>
                                         }

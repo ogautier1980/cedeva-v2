@@ -2,6 +2,7 @@ using Cedeva.Core.Entities;
 using Cedeva.Core.Enums;
 using Cedeva.Core.Interfaces;
 using Cedeva.Infrastructure.Data;
+using Cedeva.Infrastructure.Services.Financial;
 using Cedeva.Website.Features.ExpenseCategories.ViewModels;
 using Cedeva.Website.Infrastructure;
 using Cedeva.Website.Localization;
@@ -35,6 +36,11 @@ public class ExpenseCategoriesController : Controller
 
     public async Task<IActionResult> Index()
     {
+        if (_currentUserService.OrganisationId is int organisationId)
+        {
+            await RegistrationFeesCategory.EnsureAsync(_context, organisationId);
+        }
+
         var categories = await _context.ExpenseCategories
             .OrderByDescending(c => c.CategoryType)
             .ThenBy(c => c.Name)
@@ -84,7 +90,8 @@ public class ExpenseCategoriesController : Controller
             Id = category.Id,
             Name = category.Name,
             CategoryType = category.CategoryType,
-            Budget = category.Budget
+            Budget = category.Budget,
+            IsRegistrationFees = category.IsRegistrationFees
         });
     }
 
@@ -104,11 +111,16 @@ public class ExpenseCategoriesController : Controller
             ModelState.AddModelError(nameof(viewModel.Name), _localizer["ExpenseCategory.Duplicate"].Value);
 
         if (!ModelState.IsValid)
+        {
+            viewModel.IsRegistrationFees = category.IsRegistrationFees;
             return View(viewModel);
+        }
 
         var oldName = category.Name;
         category.Name = newName;
-        category.CategoryType = viewModel.CategoryType;
+        // P.A.F. stays an Entrée: registration payments are added to it.
+        if (!category.IsRegistrationFees)
+            category.CategoryType = viewModel.CategoryType;
         category.Budget = viewModel.Budget;
 
         // Keep existing expenses consistent with the renamed category.
@@ -131,7 +143,11 @@ public class ExpenseCategoriesController : Controller
     public async Task<IActionResult> Delete(int id)
     {
         var category = await _context.ExpenseCategories.FirstOrDefaultAsync(c => c.Id == id);
-        if (category != null)
+        if (category is { IsRegistrationFees: true })
+        {
+            TempData[ControllerExtensions.ErrorMessageKey] = _localizer["ExpenseCategory.RegistrationFeesCannotBeDeleted"].Value;
+        }
+        else if (category != null)
         {
             _context.ExpenseCategories.Remove(category);
             await _context.SaveChangesAsync();

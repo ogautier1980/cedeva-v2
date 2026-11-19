@@ -19,4 +19,8 @@ public class ExpenseCategoryViewModel
     [Display(Name = "ExpenseCategory.Budget")]
     [Range(0, 1000000, ErrorMessage = "Validation.Range")]
     public decimal? Budget { get; set; }
+
+    /// <summary>The organisation's P.A.F. category: its type is fixed. Display only — the controller
+    /// reads the stored flag, never a posted one.</summary>
+    public bool IsRegistrationFees { get; set; }
 }

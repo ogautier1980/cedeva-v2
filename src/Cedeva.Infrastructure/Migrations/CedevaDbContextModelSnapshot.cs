@@ -1389,6 +1389,9 @@ namespace Cedeva.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<bool>("IsRegistrationFees")
+                        .HasColumnType("boolean");
+
                     b.Property<DateTime?>("ModifiedAt")
                         .HasColumnType("timestamp without time zone");
 
@@ -1406,6 +1409,10 @@ namespace Cedeva.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("OrganisationId");
+
+                    b.HasIndex(new[] { "OrganisationId" }, "IX_ExpenseCategories_OrganisationId_RegistrationFees")
+                        .IsUnique()
+                        .HasFilter("\"IsRegistrationFees\"");
 
                     b.ToTable("ExpenseCategories");
                 });

@@ -117,6 +117,80 @@ public class ExpenseCategoryTests
         (await db.ExpenseCategories.IgnoreQueryFilters().AnyAsync(c => c.Id == categoryId)).Should().BeFalse();
     }
 
+    // ---- P.A.F. (Thomas, 19/11/2026): a category of its own that also takes registration payments
+
+    private static (int OrgId, int PafId) SeedPafCategory(CedevaWebApplicationFactory factory)
+    {
+        Organisation org = null!;
+        ExpenseCategory paf = null!;
+        factory.Seed(ctx =>
+        {
+            org = TestData.Organisation();
+            ctx.Add(org);
+            ctx.SaveChanges();
+            paf = new ExpenseCategory { OrganisationId = org.Id, Name = "P.A.F.", CategoryType = ExpenseCategoryType.Income, IsRegistrationFees = true };
+            ctx.ExpenseCategories.Add(paf);
+            return 0;
+        });
+        return (org.Id, paf.Id);
+    }
+
+    [Fact]
+    public async Task Index_CreatesThePafCategory_AndShowsItAsAutomaticWithoutDeleteButton()
+    {
+        using var factory = new CedevaWebApplicationFactory();
+        Organisation org = null!;
+        factory.Seed(ctx => { org = TestData.Organisation(); ctx.Add(org); return 0; });
+        var client = factory.CreateClientFor("u1", org.Id, "Coordinator");
+
+        var html = await client.GetStringAsync("/ExpenseCategories");
+
+        using var db = factory.NewDbContext();
+        var paf = await db.ExpenseCategories.IgnoreQueryFilters().SingleAsync(c => c.OrganisationId == org.Id && c.IsRegistrationFees);
+        paf.Name.Should().Be("P.A.F.");
+        paf.CategoryType.Should().Be(ExpenseCategoryType.Income);
+        html.Should().Contain("Automatique");
+        html.Should().NotContain($"/ExpenseCategories/Delete/{paf.Id}");
+    }
+
+    [Fact]
+    public async Task Delete_PafCategory_IsRefused()
+    {
+        using var factory = new CedevaWebApplicationFactory();
+        var (orgId, pafId) = SeedPafCategory(factory);
+        var client = factory.CreateClientFor("u1", orgId, "Coordinator");
+
+        var response = await client.PostAsync($"/ExpenseCategories/Delete/{pafId}",
+            new FormUrlEncodedContent(Array.Empty<KeyValuePair<string, string>>()));
+
+        response.StatusCode.Should().Be(HttpStatusCode.Found);
+        using var db = factory.NewDbContext();
+        (await db.ExpenseCategories.IgnoreQueryFilters().AnyAsync(c => c.Id == pafId)).Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task Edit_PafCategory_KeepsItAnIncome_ButSavesNameAndBudget()
+    {
+        using var factory = new CedevaWebApplicationFactory();
+        var (orgId, pafId) = SeedPafCategory(factory);
+        var client = factory.CreateClientFor("u1", orgId, "Coordinator");
+
+        var response = await client.PostAsync("/ExpenseCategories/Edit", new FormUrlEncodedContent(new Dictionary<string, string>
+        {
+            ["Id"] = pafId.ToString(),
+            ["Name"] = "Participation aux frais",
+            ["CategoryType"] = nameof(ExpenseCategoryType.Expense),
+            ["Budget"] = "1500"
+        }));
+
+        response.StatusCode.Should().Be(HttpStatusCode.Found);
+        using var db = factory.NewDbContext();
+        var paf = await db.ExpenseCategories.IgnoreQueryFilters().SingleAsync(c => c.Id == pafId);
+        paf.Name.Should().Be("Participation aux frais");
+        paf.Budget.Should().Be(1500m);
+        paf.CategoryType.Should().Be(ExpenseCategoryType.Income);
+    }
+
     [Fact]
     public async Task CreateExpense_WithNewCategory_CreatesTheCategoryOnTheFly()
     {

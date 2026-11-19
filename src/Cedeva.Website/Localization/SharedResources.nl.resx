@@ -4899,9 +4899,6 @@
   <data name="Financial.Balance.Title" xml:space="preserve">
     <value>Balans</value>
   </data>
-  <data name="Financial.Balance.ChildPayments" xml:space="preserve">
-    <value>Deelnameprijs (betalingen van de inschrijvingen)</value>
-  </data>
   <data name="Financial.Balance.TeamCompensation" xml:space="preserve">
     <value>Vergoedingen van het team</value>
   </data>
@@ -5009,5 +5006,14 @@
   </data>
   <data name="Validation.InvalidValue" xml:space="preserve">
     <value>Ongeldige waarde.</value>
+  </data>
+  <data name="ExpenseCategory.Automatic" xml:space="preserve">
+    <value>Automatisch</value>
+  </data>
+  <data name="ExpenseCategory.RegistrationFeesHelp" xml:space="preserve">
+    <value>Categorie P.A.F.: naast de handmatig ingevoerde ontvangsten omvat ze automatisch alle betalingen van de inschrijvingen. Ze blijft een ontvangst en kan niet worden verwijderd.</value>
+  </data>
+  <data name="ExpenseCategory.RegistrationFeesCannotBeDeleted" xml:space="preserve">
+    <value>De categorie P.A.F. kan niet worden verwijderd: ze omvat de betalingen van de inschrijvingen.</value>
   </data>
 </root>

@@ -414,6 +414,52 @@ public class FinancialControllerCoverageTests
         row.Should().Contain("300,00").And.Contain("120,00").And.Contain("180,00").And.Contain("500,00");
     }
 
+    [Fact]
+    public async Task Balance_PafLine_AddsHandEncodedLinesToTheRegistrationPayments_WithItsBudget()
+    {
+        // Thomas (19/11/2026): P.A.F. is a category too, for lines encoded by hand, with the
+        // registration payments counted in automatically.
+        using var factory = new CedevaWebApplicationFactory();
+        var g = SeedFullGraph(factory); // one registration payment of 100 €
+        factory.Seed(ctx =>
+        {
+            var paf = new ExpenseCategory
+            {
+                OrganisationId = g.OrgId, Name = "PAF", CategoryType = ExpenseCategoryType.Income, Budget = 900m
+            };
+            ctx.Add(paf);
+            ctx.SaveChanges();
+            ctx.Add(new Expense { ActivityId = g.ActivityId, Label = "P.A.F. en liquide", Amount = 40m, IsIncome = true, ExpenseCategoryId = paf.Id, Category = paf.Name, ExpenseDate = DateTime.Today, OrganizationPaymentSource = "OrganizationCash" });
+            return 0;
+        });
+        var client = await ClientWithActivitySelected(factory, g.OrgId, g.ActivityId);
+
+        var html = await client.GetStringAsync("/Financial/Balance");
+
+        // The existing "PAF" category is adopted (not duplicated): one line, 100 + 40 = 140 €.
+        var cells = System.Text.RegularExpressions.Regex.Matches(html, @"<td[^>]*>\s*PAF\s*</td>");
+        cells.Should().HaveCount(1);
+        var row = html.Substring(cells[0].Index, 600);
+        row.Should().Contain("140,00").And.Contain("900,00");
+        await using var db = factory.NewDbContext();
+        (await db.ExpenseCategories.IgnoreQueryFilters().CountAsync(c => c.OrganisationId == g.OrgId && c.IsRegistrationFees))
+            .Should().Be(1);
+    }
+
+    [Fact]
+    public async Task Transactions_ShowsRegistrationPaymentsInThePafCategory()
+    {
+        using var factory = new CedevaWebApplicationFactory();
+        var g = SeedFullGraph(factory);
+        var client = await ClientWithActivitySelected(factory, g.OrgId, g.ActivityId);
+
+        var html = await client.GetStringAsync("/Financial/Transactions");
+
+        // No P.A.F. category yet: it is created with the default name, and the payment row shows it.
+        var paymentRow = html.Substring(html.IndexOf("Paiement de"), 800);
+        paymentRow.Should().Contain("P.A.F.");
+    }
+
     // ---------------------------------------------------------------------
     // AddTransaction (GET) – merged Paiement/Dépense screen
     // ---------------------------------------------------------------------

@@ -4899,9 +4899,6 @@
   <data name="Financial.Balance.Title" xml:space="preserve">
     <value>Balance</value>
   </data>
-  <data name="Financial.Balance.ChildPayments" xml:space="preserve">
-    <value>Fees (registration payments)</value>
-  </data>
   <data name="Financial.Balance.TeamCompensation" xml:space="preserve">
     <value>Team compensation</value>
   </data>
@@ -5009,5 +5006,14 @@
   </data>
   <data name="Validation.InvalidValue" xml:space="preserve">
     <value>Invalid value.</value>
+  </data>
+  <data name="ExpenseCategory.Automatic" xml:space="preserve">
+    <value>Automatic</value>
+  </data>
+  <data name="ExpenseCategory.RegistrationFeesHelp" xml:space="preserve">
+    <value>P.A.F. category: besides the receipts entered by hand, it automatically includes every registration payment. It stays an income and cannot be deleted.</value>
+  </data>
+  <data name="ExpenseCategory.RegistrationFeesCannotBeDeleted" xml:space="preserve">
+    <value>The P.A.F. category cannot be deleted: it includes the registration payments.</value>
   </data>
 </root>

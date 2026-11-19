@@ -344,6 +344,8 @@ public class FinancialController : Controller
     {
         var orgId = await _context.Activities.Where(a => a.Id == activityId)
             .Select(a => a.OrganisationId).FirstOrDefaultAsync();
+        // P.A.F. is always offered: hand-encoded registration fees go there.
+        await RegistrationFeesCategory.EnsureAsync(_context, orgId);
         ViewBag.ExpenseCategories = await _context.ExpenseCategories
             .Where(c => c.OrganisationId == orgId)
             .OrderBy(c => c.Name)
@@ -713,6 +715,8 @@ public class FinancialController : Controller
         }
 
         var transactions = new List<ViewModels.TransactionViewModel>();
+        // Registration payments are shown in the P.A.F. category (the automatic part of it).
+        var registrationFees = await RegistrationFeesCategory.EnsureAsync(_context, activity.OrganisationId);
 
         var payments = await _context.Payments
             .Include(p => p.Booking)
@@ -728,6 +732,7 @@ public class FinancialController : Controller
             Label = $"{_ctx.Localizer["Payments.PaymentFrom"]} {p.Booking.Child.FirstName} {p.Booking.Child.LastName}",
             Amount = p.Amount,
             IsIncome = true,
+            Category = registrationFees.Name,
             PaymentMethod = _ctx.Localizer[$"PaymentMethod.{p.PaymentMethod}"].Value,
             ChildName = $"{p.Booking.Child.FirstName} {p.Booking.Child.LastName}",
             RelatedId = p.Id
@@ -810,6 +815,7 @@ public class FinancialController : Controller
             .Include(e => e.ExpenseCategory)
             .Where(e => e.ActivityId == activityId.Value)
             .ToListAsync();
+        var registrationFees = await RegistrationFeesCategory.EnsureAsync(_context, activity.OrganisationId);
         var categories = await _context.ExpenseCategories
             .Where(c => c.OrganisationId == activity.OrganisationId && c.CategoryType != ExpenseCategoryType.OffBalance)
             .OrderBy(c => c.Name)
@@ -834,17 +840,14 @@ public class FinancialController : Controller
             };
         }
 
-        var incomeSection = new List<BalanceLineViewModel>
-        {
-            // P.A.F.: every registration payment, whatever category the org uses.
-            new()
-            {
-                Name = _ctx.Localizer["Financial.Balance.ChildPayments"].Value,
-                Incomings = _financialCalculationService.CalculateTotalRevenue(activity),
-                IsFixed = true
-            }
-        };
-        incomeSection.AddRange(categories.Where(c => c.CategoryType == ExpenseCategoryType.Income).Select(CategoryLine));
+        // P.A.F. first: the lines encoded by hand in that category plus, automatically, every
+        // registration payment.
+        var registrationFeesLine = CategoryLine(registrationFees);
+        registrationFeesLine.Incomings += _financialCalculationService.CalculateTotalRevenue(activity);
+        var incomeSection = new List<BalanceLineViewModel> { registrationFeesLine };
+        incomeSection.AddRange(categories
+            .Where(c => c.CategoryType == ExpenseCategoryType.Income && !c.IsRegistrationFees)
+            .Select(CategoryLine));
 
         var expenseSection = categories.Where(c => c.CategoryType == ExpenseCategoryType.Expense).Select(CategoryLine).ToList();
         var teamCompensation = _financialCalculationService.CalculateTeamMemberSalaries(activity, regularExpenses);

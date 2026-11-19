@@ -46,13 +46,22 @@
                                 @foreach (var category in items)
                                 {
                                     <tr data-href="@Url.Action("Edit", new { id = category.Id })">
-                                        <td>@category.Name</td>
+                                        <td>
+                                            @category.Name
+                                            @if (category.IsRegistrationFees)
+                                            {
+                                                <span class="badge bg-secondary ms-1" title="@Localizer["ExpenseCategory.RegistrationFeesHelp"]">@Localizer["ExpenseCategory.Automatic"]</span>
+                                            }
+                                        </td>
                                         <td class="text-end">@(category.Budget.HasValue ? category.Budget.Value.ToString("N2") + " €" : "-")</td>
                                         <td class="text-end text-nowrap">
                                             <a asp-action="Edit" asp-route-id="@category.Id" class="btn btn-sm btn-outline-secondary">
                                                 <i class="fas fa-edit"></i>
                                             </a>
-                                            @await Html.PartialAsync("_DeleteButton", new DeleteButtonModel { Id = category.Id, ConfirmMessage = Localizer["ExpenseCategory.ConfirmDelete"].Value })
+                                            @if (!category.IsRegistrationFees)
+                                            {
+                                                @await Html.PartialAsync("_DeleteButton", new DeleteButtonModel { Id = category.Id, ConfirmMessage = Localizer["ExpenseCategory.ConfirmDelete"].Value })
+                                            }
                                         </td>
                                     </tr>
                                 }

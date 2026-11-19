@@ -26,4 +26,10 @@ public class ExpenseCategory : AuditableEntity, IOrganisationScoped
 
     /// <summary>Optional planning budget for this category; null means no budget has been set.</summary>
     public decimal? Budget { get; set; }
+
+    /// <summary>
+    /// The organisation's P.A.F. category (one per organisation, an Entrée): besides lines encoded by
+    /// hand, it automatically includes every registration payment. Cannot be deleted nor change type.
+    /// </summary>
+    public bool IsRegistrationFees { get; set; }
 }
