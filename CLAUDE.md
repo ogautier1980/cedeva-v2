@@ -168,6 +168,15 @@ src/
   **acknowledgment** ("Demande d'inscription reçue", no amount); the coordinator is notified; on
   confirmation the parent gets the payment link email (nothing if nothing is due)
 
+### Fiscal attestation (form 281.86)
+- `IFiscalAttestationService` (`FiscalAttestationService` + `FiscalAttestationPdf`, QuestPDF): one PDF per
+  parent and year — letter, official explanations, Cadre I, one Cadre II per child. Amounts = payments
+  `Paid` dated in the calendar year; days = days present before the 14th birthday (amount prorated)
+- Daily ceiling + tax code per year in `FiscalYearSetting` (admin page `FiscalYears`, global); no PDF or
+  sending for a year without it. Sent by e-mail one at a time (parent page) or all at once
+  (`FiscalAttestations`), PDF attached through a temporary file (`FiscalAttestationSender`)
+- The PDF texts are the official French ones of the client's model (not localized)
+
 ### Excursions
 - CRUD with soft-delete; linked to an activity, a date and target groups (time slot and type are no
   longer entered — hidden fields only)
@@ -198,7 +207,7 @@ src/
 - Clean URLs (route parameters vs query strings)
 
 ## Testing (November 2026)
-- **~1422 unit/integration tests** (+ 64 E2E browser, 0 skipped; + 3 PostgreSQL); line coverage ≈91%,
+- **~1429 unit/integration tests** (+ 64 E2E browser, 0 skipped; + 3 PostgreSQL); line coverage ≈91%,
   CI coverage gate at 85%.
 - **xUnit v3 via `xunit.v3.mtp-off`** (not plain `xunit.v3`): plain v3 turns on Microsoft.Testing.Platform,
   which the .NET 10 SDK refuses under VSTest-mode `dotnet test`, and the CI gate relies on

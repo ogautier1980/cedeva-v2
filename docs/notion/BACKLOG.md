@@ -7,10 +7,8 @@ rapport ONE, `GERARD_MULLER_-_S2.pdf` pour l'attestation mutuelle).
 
 ## Points d'attention restants
 
-- **Lot H — Attestation fiscale** : aucun exemple réel n'a jamais été fourni. Le document généré
-  (`ParentsController.FiscalAttestation`) utilise des mentions légales génériques belges (frais de
-  garde d'enfants, art. 113 CIR92) — **à faire relire par Thomas ou un comptable avant tout usage
-  réel**. Un avertissement visible (non imprimé) le rappelle sur l'écran.
+- ✅ **Lot H — Attestation fiscale** : refaite le 19/11/2026 sur le modèle fourni par Thomas
+  (formulaire 281.86) — voir le lot L.
 - **Lot I, étape 4 — `MaxChildrenPerDay`** : appliqué comme un plafond sur le nombre total
   d'inscriptions actives de l'activité, pas un vrai comptage par jour calendaire. Approximation
   pragmatique, à affiner si Thomas la juge insuffisante.
@@ -130,14 +128,16 @@ Fait le 19/11/2026 (étape 2) :
 - **Max d'enfants par jour** : vrai comptage par jour ; jours (ou semaines) complets grisés dans le
   formulaire, inscription refusée avec les dates si un jour choisi est complet.
 
+Fait le 19/11/2026 (étape 3) — **attestation fiscale** selon le modèle (formulaire 281.86) :
+un PDF par parent (lettre, explications, cadre I, un cadre II par enfant), montants payés dans
+l'année civile, jours de présence avant les 14 ans (montant proratisé au-delà), envoi par parent ou
+en masse par e-mail (« Attestations fiscales »), plafond et code par année gérés par l'admin
+(« Plafonds fiscaux », 2025 = 16,90 € / 1384). À noter : un paiement fait en décembre pour un stage
+de l'année suivante figure sur l'attestation de l'année du paiement, avec les dates du stage.
+Au passage : le bouton « Supprimer » partagé menait à une 404 (catégories, contacts, groupes,
+modèles de questions) — corrigé.
+
 À faire :
-- **Attestation fiscale** selon le modèle : p.1 lettre (année, plafond/jour — 16,90 € pour 2025 —,
-  code 1384), p.2 explications fixes, p.3 cadre I (organisme + stages, ONE certificateur, période),
-  p.4 cadre II (n° d'ordre, parent, enfant, une ligne par période : dates, jours de présence,
-  montant ; « Fait à », responsable, signature). Une attestation par association et par an, tous
-  les stages regroupés. Décisions à prendre : une par enfant (le 281.86 est par enfant) ; montants
-  payés dans l'année civile ou stages de l'année ; génération/envoi en masse ; exclusion après le
-  14e anniversaire ; plafond par an en réglage. Infos : https://finances.belgium.be/fr/asbl/attestation-garde-enfant
 - **Budget par stage**, à partir d'un modèle de budget importable dans un stage (comme les mails).
 - **Tarif de l'équipe par stage** : la « réserve » ne garde que l'identité (nom, RN, formé…) ; le
   tarif (bénévole ou non) s'encode dans le stage — lien stage/membre avec données propres.
