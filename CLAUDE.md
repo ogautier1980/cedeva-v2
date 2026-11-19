@@ -98,6 +98,7 @@ src/
 | LINQ with local lists | Extract IDs first: `var ids = list.Select(x => x.Id).ToList()` then use `ids.Contains(...)` |
 | National Register Number | Format: YY.MM.DD-XXX.XX (11 digits with formatting). Use `NationalRegisterNumberHelper.Format()` for display. |
 | Case-insensitive name match in EF | `a.Name.ToLower() == x.ToLowerInvariant()` (`string.Equals(..., OrdinalIgnoreCase)` has no SQL translation — CA1862 is suppressed locally with that reason). Activity names: `_context.Activities.NameExistsInOrganisationAsync(...)` (`ActivityQueryExtensions`) |
+| `fr-BE` date separator | Differs by OS: `ToString("dd/MM/yyyy")` with fr-BE gives `07-07-2025` on Windows (NLS) but `07/07/2025` on Linux/ICU (prod, CI). Pass `CultureInfo.InvariantCulture` when the exact text matters (documents, tests) |
 | SQLite `lower()` in tests | Folds ASCII only ("É" stays "É"); PostgreSQL folds accents too. Use ASCII names in SQLite tests of case-insensitive queries |
 
 ---

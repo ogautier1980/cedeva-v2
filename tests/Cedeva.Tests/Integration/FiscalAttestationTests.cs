@@ -79,7 +79,7 @@ public class FiscalAttestationTests
         var html = await GetText(client, $"/Parents/FiscalAttestation/{s.ParentId}?year=2025");
 
         html.Should().Contain("Chloé").And.Contain("Léo").And.Contain("Plaine Été 2025");
-        html.Should().Contain("07-07-2025 – 11-07-2025");
+        html.Should().Contain("07/07/2025 – 11/07/2025");
         html.Should().Contain("100,00").And.Contain("60,00").And.Contain("160,00");
         html.Should().NotContain("80,00", "January 2026 payments belong to the 2026 attestation");
         html.Should().NotContain("999", "only paid payments count");
@@ -110,7 +110,7 @@ public class FiscalAttestationTests
 
         var html = await GetText(client, $"/Parents/FiscalAttestation/{s.ParentId}?year=2025");
 
-        html.Should().Contain("07-07-2025 – 08-07-2025");
+        html.Should().Contain("07/07/2025 – 08/07/2025");
         html.Should().Contain("24,00");
     }
 

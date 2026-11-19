@@ -3,6 +3,8 @@
     ViewData["Title"] = Localizer["Parents.FiscalAttestation"];
     var data = Model.Data;
     var culture = new System.Globalization.CultureInfo("fr-BE");
+    // "07/07/2025" on every OS, as on the form (fr-BE gives "07-07-2025" on Windows, "07/07/2025" with Linux ICU).
+    var dates = System.Globalization.CultureInfo.InvariantCulture;
     var canProduce = data.Children.Count > 0 && data.MaxDailyAmount.HasValue;
 }
 
@@ -64,7 +66,7 @@
                 <p class="text-muted small">@Localizer["FiscalAttestation.ContentHelp"]</p>
                 @foreach (var child in data.Children)
                 {
-                    <h6 class="mt-3">@child.LastName @child.FirstName <small class="text-muted">(@child.BirthDate.ToString("dd/MM/yyyy"))</small></h6>
+                    <h6 class="mt-3">@child.LastName @child.FirstName <small class="text-muted">(@child.BirthDate.ToString("dd/MM/yyyy", dates))</small></h6>
                     <table class="table table-sm table-hover mb-2">
                         <thead class="table-light">
                             <tr>
@@ -79,7 +81,7 @@
                             {
                                 <tr>
                                     <td>@period.ActivityName</td>
-                                    <td>@period.From.ToString("dd/MM/yyyy") – @period.To.ToString("dd/MM/yyyy")</td>
+                                    <td>@period.From.ToString("dd/MM/yyyy", dates) – @period.To.ToString("dd/MM/yyyy", dates)</td>
                                     <td class="text-end">@period.Days</td>
                                     <td class="text-end">@period.Amount.ToString("C", culture)</td>
                                 </tr>
